@@ -28,6 +28,8 @@
   --color-surface-5: var(--ds-surface-5);
   --color-surface-6: var(--ds-surface-6);
   --color-surface-7: var(--ds-surface-7);
+  --color-surface-8: var(--ds-surface-8);
+  --color-surface-9: var(--ds-surface-9);
   --color-border: var(--ds-border);
   --color-border-hair: var(--ds-border-hairline);
   --color-border-strong: var(--ds-border-strong);
@@ -38,6 +40,9 @@
   --color-fg-muted: var(--ds-text-muted);
   --color-fg-dim: var(--ds-text-dim);
   --color-fg-faint: var(--ds-text-faint);
+  --color-fg-faint-lo: var(--ds-text-faint-lo);
+  --color-fg-muted-lo: var(--ds-text-muted-lo);
+  --color-fg-selected: var(--ds-selected-fg);
   --color-on-brand: var(--ds-text-on-brand);
   --color-on-state: var(--ds-on-state);
 
@@ -49,6 +54,10 @@
   --color-brand-accent: var(--ds-brand-accent);
   --color-brand-label: var(--ds-brand-label);
   --color-brand-tint: var(--ds-brand-tint-strong);
+  --color-brand-tint-soft: var(--ds-brand-tint);
+  --color-brand-banner: var(--ds-brand-banner);
+  --color-brand-banner-border: var(--ds-brand-banner-border);
+  --color-brand-banner-fg: var(--ds-brand-banner-fg);
 
   /* state — never the brand hue */
   --color-success: var(--ds-success);

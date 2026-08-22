@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { Fragment, type ReactNode } from 'react'
 
 import { HomeIcon, ProfileIcon, ProposalsIcon, QrIcon, RankingIcon } from './icons'
 
@@ -17,11 +17,20 @@ import { HomeIcon, ProfileIcon, ProposalsIcon, QrIcon, RankingIcon } from './ico
  * the bottom.
  *
  * It is a `<nav>` of links, not `role="tablist"`: ARIA tabs imply same-page
- * panels and hijack the arrow keys. Routing is not wired yet — screens come in
- * the next batch — so callers pass `href` and `current` themselves.
+ * panels and hijack the arrow keys. Callers pass `href` and `current`
+ * themselves, and `renderLink` if those hrefs should be handled by a router
+ * rather than by the browser — the bar itself knows nothing about routing, so
+ * it can be rendered in a test or a gallery without one.
  */
 
 export type TabId = 'home' | 'ranking' | 'qr' | 'proposals' | 'profile'
+
+export interface TabLinkProps {
+  readonly href: string
+  readonly className: string
+  readonly 'aria-current': 'page' | undefined
+  readonly children: ReactNode
+}
 
 export interface TabBarProps {
   /** Which tab is the current page. */
@@ -34,7 +43,19 @@ export interface TabBarProps {
   readonly navLabel: string
   /** Localised suffix announced on a tab that has not shipped yet. */
   readonly comingSoonLabel: string
+  /**
+   * How to render a link. Defaults to a plain `<a>`, which reloads the page —
+   * fine in isolation, wrong inside the app, where the shell passes a router
+   * link instead.
+   */
+  readonly renderLink?: (props: TabLinkProps) => ReactNode
 }
+
+const defaultLink = ({ href, className, children, ...rest }: TabLinkProps): ReactNode => (
+  <a href={href} className={className} aria-current={rest['aria-current']}>
+    {children}
+  </a>
+)
 
 const ICONS: Record<TabId, (p: { className?: string }) => ReactNode> = {
   home: HomeIcon,
@@ -50,7 +71,14 @@ const ITEM =
   'flex min-h-[var(--ds-tabbar-item-h)] flex-col items-center justify-end gap-[var(--ds-gap-xs)] ' +
   'bg-transparent p-0 [touch-action:manipulation] [-webkit-tap-highlight-color:transparent]'
 
-export function TabBar({ current, hrefs, labels, navLabel, comingSoonLabel }: TabBarProps) {
+export function TabBar({
+  current,
+  hrefs,
+  labels,
+  navLabel,
+  comingSoonLabel,
+  renderLink = defaultLink,
+}: TabBarProps) {
   return (
     <nav
       aria-label={navLabel}
@@ -115,15 +143,19 @@ export function TabBar({ current, hrefs, labels, navLabel, comingSoonLabel }: Ta
         }
 
         return (
-          <a
-            key={id}
-            href={href}
-            aria-current={isCurrent ? 'page' : undefined}
-            className={`${ITEM} no-underline`}
-          >
-            {glyph}
-            {label}
-          </a>
+          <Fragment key={id}>
+            {renderLink({
+              href,
+              className: `${ITEM} no-underline`,
+              'aria-current': isCurrent ? 'page' : undefined,
+              children: (
+                <>
+                  {glyph}
+                  {label}
+                </>
+              ),
+            })}
+          </Fragment>
         )
       })}
     </nav>

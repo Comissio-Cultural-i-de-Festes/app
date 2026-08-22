@@ -65,6 +65,10 @@
   --ds-text-dim: oklch(0.62 0.012 45);
   /* 4.0:1 — BELOW AA for body text. Decorative and disabled states only. */
   --ds-text-faint: oklch(0.55 0.012 45);
+  /* 3.4:1 — quieter than faint on purpose: the "=" in the ranking's
+   * movement column, which has to be visibly less loud than the arrows
+   * on either side of it. Never text. */
+  --ds-text-faint-lo: oklch(0.5 0.012 45);
   --ds-text-inverse: oklch(0.16 0.012 25); /* on a light or filled chip */
 
   /* ─── BRAND ─── the only block a fork needs to touch ───────────────────
@@ -91,9 +95,18 @@
   --ds-brand-label-hi: oklch(0.86 0.18 25);
   --ds-brand-tint: oklch(0.19 0.03 25); /* selected row, soft */
   --ds-brand-tint-strong: oklch(0.21 0.05 25); /* selected row */
+
+  /* The strip pinned under the ranking header that tells you where you are.
+   * A brand-tinted band rather than a card: it belongs to the header, and at
+   * the same lightness as a surface it would read as the first row of the
+   * table. */
+  --ds-brand-banner: oklch(0.24 0.06 25);
+  --ds-brand-banner-border: oklch(0.35 0.1 25);
+  --ds-brand-banner-fg: oklch(0.8 0.03 40);
   --ds-link: oklch(0.72 0.14 25);
   --ds-link-hover: oklch(0.82 0.14 25);
   --ds-shadow-brand: 0 10px 34px oklch(0.62 0.22 25 / 0.4);
+  --ds-selected-fg: oklch(0.86 0.06 30); /* the position number on your own row */
   --ds-selected-marker: 3px; /* width of the inset rail on a selected row */
   /* ─── end brand block ────────────────────────────────────────────────── */
 

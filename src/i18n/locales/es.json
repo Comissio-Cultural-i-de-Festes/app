@@ -19,7 +19,6 @@
     "signOut": "Cierra la sesión"
   },
   "entry": {
-    "signedIn": "Ya estás dentro. Las pantallas llegan en la siguiente tanda.",
     "sending": "Un segundo…",
     "invited": {
       "title": "Te han invitado",
@@ -79,6 +78,87 @@
     "rateLimited": "Demasiados intentos. Espera unos minutos.",
     "expired": "Ha caducado."
   },
+  "escola": {
+    "politecnica": "Politécnica",
+    "empresa": "Empresa y Ciencias Sociales",
+    "salut": "Ciencias de la Salud"
+  },
+  "escolaOf": {
+    "politecnica": "de la Politécnica",
+    "empresa": "de Empresa",
+    "salut": "de la Salud"
+  },
+  "escolaShort": {
+    "politecnica": "Politécnica",
+    "empresa": "Empresa y C. Sociales",
+    "salut": "Ciencias de la Salud"
+  },
+  "escolaSubject": {
+    "politecnica": "La Politécnica",
+    "empresa": "Empresa",
+    "salut": "La Salud"
+  },
+  "home": {
+    "greeting": {
+      "morning": "Buenos días, {{name}}",
+      "afternoon": "Buenas tardes, {{name}}",
+      "evening": "Buenas noches, {{name}}"
+    },
+    "when": {
+      "now": "Ahora mismo",
+      "thisWeekday": "Este {{weekday}}",
+      "withTime": "{{when}} · {{time}}"
+    },
+    "places": {
+      "left_one": "Queda {{count}}",
+      "left_other": "Quedan {{count}}",
+      "full": "Lleno",
+      "of": "plazas de {{total}}"
+    },
+    "going_one": "va {{count}}",
+    "going_other": "van {{count}}",
+    "cta": {
+      "join": "Apúntate",
+      "confirm": "Dijiste quizá · confirma",
+      "going": "Ya vas · cámbialo"
+    },
+    "movement": {
+      "and": " y ",
+      "only_one": "{{people}} se ha apuntado hoy",
+      "only_other": "{{people}} se han apuntado hoy",
+      "more_one": "{{people}} y {{count}} más se ha apuntado hoy",
+      "more_other": "{{people}} y {{count}} más se han apuntado hoy",
+      "comma": ", "
+    },
+    "rank": {
+      "you": "Vas {{position}} de {{total}}",
+      "pointsWord": "puntos",
+      "school": "{{school}} va {{position}}",
+      "behind_one": "a {{count}} punto {{school}}",
+      "behind_other": "a {{count}} puntos {{school}}",
+      "nudge": "Los de arriba no duermen.",
+      "link": "Mira el ranking"
+    },
+    "recap": {
+      "title": "La última vez",
+      "were_one": "{{count}} estuvo y todavía nos reímos",
+      "were_other": "{{count}} estuvimos y todavía nos reímos",
+      "points": "puntos, si estuviste"
+    },
+    "upcoming": {
+      "title": "Qué más viene",
+      "thatIsAll": "Y después, ahora mismo nada. Tranquilo, ya caerá algo.",
+      "none": "Ahora mismo no hay nada más apuntado. Tranquilo, ya caerá algo."
+    },
+    "empty": {
+      "title": "Ahora mismo, nada",
+      "body": "No hay nada en el calendario. Tranquilo, ya caerá algo."
+    },
+    "waiting": {
+      "title": "Estás en la lista",
+      "body": "Alguien de la junta tiene que darte el alta. Hasta entonces no verás nada: no es que no pase nada, es que aún no estás del todo dentro."
+    }
+  },
   "install": {
     "title": "Ponla en la pantalla",
     "lede": "Dos toques y la tienes como una app de verdad. Sin esto no hay avisos cuando abrimos plazas, y te las van a quitar.",
@@ -117,6 +197,35 @@
     "qr": "Mi QR",
     "proposals": "Propuestas",
     "profile": "Perfil"
+  },
+  "ranking": {
+    "periodLabel": "Periodo",
+    "period": {
+      "curs": "Todo el curso",
+      "t1": "1r trim.",
+      "t2": "2º trim.",
+      "t3": "3r trim."
+    },
+    "you": "Vas {{position}} de {{total}}",
+    "youSub": "Aún estás a tiempo, eh",
+    "schools": "Escuelas",
+    "schoolsLede": "Todo lo que haces suma para tu escuela, tanto si vas 3º como 60º.",
+    "schoolFoot_one": "{{members}} miembros · {{count}} evento",
+    "schoolFoot_other": "{{members}} miembros · {{count}} eventos",
+    "yours": "la tuya",
+    "thisWeek_one": "+{{count}} esta semana",
+    "thisWeek_other": "+{{count}} esta semana",
+    "individual": "Individual",
+    "listed": "{{count}} en la lista",
+    "mine": "Tú · {{name}}",
+    "movement": {
+      "up_one": "{{count}} puesto arriba esta semana",
+      "up_other": "{{count}} puestos arriba esta semana",
+      "down_one": "{{count}} puesto abajo esta semana",
+      "down_other": "{{count}} puestos abajo esta semana",
+      "same": "Igual que la semana pasada"
+    },
+    "cutOff": "Hasta aquí llega la lista. Si no te ves, es que tienes que salir más."
   },
   "scanner": {
     "ok": "Fichado. Ya estás dentro",

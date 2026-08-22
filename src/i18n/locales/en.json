@@ -19,7 +19,6 @@
     "signOut": "Sign out"
   },
   "entry": {
-    "signedIn": "You're in. The screens land in the next batch.",
     "sending": "One sec…",
     "invited": {
       "title": "You're invited",
@@ -79,6 +78,87 @@
     "rateLimited": "Too many attempts. Please wait a few minutes.",
     "expired": "This has expired."
   },
+  "escola": {
+    "politecnica": "Polytechnic",
+    "empresa": "Business and Social Sciences",
+    "salut": "Health Sciences"
+  },
+  "escolaOf": {
+    "politecnica": "the Polytechnic",
+    "empresa": "Business",
+    "salut": "Health Sciences"
+  },
+  "escolaShort": {
+    "politecnica": "Polytechnic",
+    "empresa": "Business & Social Sci.",
+    "salut": "Health Sciences"
+  },
+  "escolaSubject": {
+    "politecnica": "The Polytechnic",
+    "empresa": "Business",
+    "salut": "Health Sciences"
+  },
+  "home": {
+    "greeting": {
+      "morning": "Morning, {{name}}",
+      "afternoon": "Afternoon, {{name}}",
+      "evening": "Evening, {{name}}"
+    },
+    "when": {
+      "now": "Right now",
+      "thisWeekday": "This {{weekday}}",
+      "withTime": "{{when}} · {{time}}"
+    },
+    "places": {
+      "left_one": "{{count}} left",
+      "left_other": "{{count}} left",
+      "full": "Full",
+      "of": "places of {{total}}"
+    },
+    "going_one": "{{count}} going",
+    "going_other": "{{count}} going",
+    "cta": {
+      "join": "Count me in",
+      "confirm": "You said maybe · confirm",
+      "going": "You're going · change it"
+    },
+    "movement": {
+      "and": " and ",
+      "only_one": "{{people}} signed up today",
+      "only_other": "{{people}} signed up today",
+      "more_one": "{{people}} and {{count}} more signed up today",
+      "more_other": "{{people}} and {{count}} more signed up today",
+      "comma": ", "
+    },
+    "rank": {
+      "you": "You're {{position}} of {{total}}",
+      "pointsWord": "points",
+      "school": "{{school}} is {{position}}",
+      "behind_one": "{{count}} point behind {{school}}",
+      "behind_other": "{{count}} points behind {{school}}",
+      "nudge": "The ones above you are not resting.",
+      "link": "See the ranking"
+    },
+    "recap": {
+      "title": "Last time",
+      "were_one": "{{count}} was there and we still laugh about it",
+      "were_other": "{{count}} of us were there and we still laugh about it",
+      "points": "points, if you were there"
+    },
+    "upcoming": {
+      "title": "What else is coming",
+      "thatIsAll": "And after that, nothing yet. Relax, something will turn up.",
+      "none": "Nothing else on the calendar yet. Relax, something will turn up."
+    },
+    "empty": {
+      "title": "Nothing right now",
+      "body": "There is nothing on the calendar. Relax, something will turn up."
+    },
+    "waiting": {
+      "title": "You're on the list",
+      "body": "Someone on the committee has to let you in. Until then you will not see anything: it is not that nothing is happening, it is that you are not quite in yet."
+    }
+  },
   "install": {
     "title": "Put it on your screen",
     "lede": "Two taps and it behaves like a real app. Without it there are no alerts when places open, and they will go to someone else.",
@@ -117,6 +197,35 @@
     "qr": "My QR",
     "proposals": "Ideas",
     "profile": "Profile"
+  },
+  "ranking": {
+    "periodLabel": "Period",
+    "period": {
+      "curs": "Whole year",
+      "t1": "1st term",
+      "t2": "2nd term",
+      "t3": "3rd term"
+    },
+    "you": "You're {{position}} of {{total}}",
+    "youSub": "There's still time, you know",
+    "schools": "Schools",
+    "schoolsLede": "Everything you do counts for your school, whether you are 3rd or 60th.",
+    "schoolFoot_one": "{{members}} members · {{count}} event",
+    "schoolFoot_other": "{{members}} members · {{count}} events",
+    "yours": "yours",
+    "thisWeek_one": "+{{count}} this week",
+    "thisWeek_other": "+{{count}} this week",
+    "individual": "Individual",
+    "listed": "{{count}} on the list",
+    "mine": "You · {{name}}",
+    "movement": {
+      "up_one": "{{count}} place up this week",
+      "up_other": "{{count}} places up this week",
+      "down_one": "{{count}} place down this week",
+      "down_other": "{{count}} places down this week",
+      "same": "Same as last week"
+    },
+    "cutOff": "That is as far as the list goes. If you cannot see yourself, you need to get out more."
   },
   "scanner": {
     "ok": "You're in",

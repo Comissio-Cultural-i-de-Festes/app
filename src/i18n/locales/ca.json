@@ -19,7 +19,6 @@
     "signOut": "Tanca la sessió"
   },
   "entry": {
-    "signedIn": "Ja ets dins. Les pantalles arriben a la propera tanda.",
     "sending": "Un segon…",
     "invited": {
       "title": "T'han convidat",
@@ -79,6 +78,87 @@
     "rateLimited": "Massa intents. Espera uns minuts.",
     "expired": "Ha caducat."
   },
+  "escola": {
+    "politecnica": "Politècnica",
+    "empresa": "Empresa i Ciències Socials",
+    "salut": "Ciències de la Salut"
+  },
+  "escolaOf": {
+    "politecnica": "de la Politècnica",
+    "empresa": "d'Empresa",
+    "salut": "de la Salut"
+  },
+  "escolaShort": {
+    "politecnica": "Politècnica",
+    "empresa": "Empresa i C. Socials",
+    "salut": "Ciències de la Salut"
+  },
+  "escolaSubject": {
+    "politecnica": "La Politècnica",
+    "empresa": "L'Empresa",
+    "salut": "La Salut"
+  },
+  "home": {
+    "greeting": {
+      "morning": "Bon dia, {{name}}",
+      "afternoon": "Bona tarda, {{name}}",
+      "evening": "Bona nit, {{name}}"
+    },
+    "when": {
+      "now": "Ara mateix",
+      "thisWeekday": "Aquest {{weekday}}",
+      "withTime": "{{when}} · {{time}}"
+    },
+    "places": {
+      "left_one": "Queda {{count}}",
+      "left_other": "Queden {{count}}",
+      "full": "Ple",
+      "of": "places de {{total}}"
+    },
+    "going_one": "hi va {{count}}",
+    "going_other": "hi van {{count}}",
+    "cta": {
+      "join": "Apunta-t'hi",
+      "confirm": "Has dit potser · confirma",
+      "going": "Ja hi vas · canvia-ho"
+    },
+    "movement": {
+      "and": " i ",
+      "only_one": "{{people}} s'ha apuntat avui",
+      "only_other": "{{people}} s'han apuntat avui",
+      "more_one": "{{people}} i {{count}} més s'ha apuntat avui",
+      "more_other": "{{people}} i {{count}} més s'han apuntat avui",
+      "comma": ", "
+    },
+    "rank": {
+      "you": "Vas {{position}} de {{total}}",
+      "pointsWord": "punts",
+      "school": "{{school}} va {{position}}",
+      "behind_one": "a {{count}} punt {{school}}",
+      "behind_other": "a {{count}} punts {{school}}",
+      "nudge": "Els de dalt no dormen.",
+      "link": "Mira el rànquing"
+    },
+    "recap": {
+      "title": "L'última vegada",
+      "were_one": "{{count}} hi va ser i encara ens en riem",
+      "were_other": "{{count}} hi vam ser i encara ens en riem",
+      "points": "punts, si hi vas ser"
+    },
+    "upcoming": {
+      "title": "Què més ve",
+      "thatIsAll": "I després, ara mateix res. Tranquil, ja caurà alguna cosa.",
+      "none": "Ara mateix no hi ha res més apuntat. Tranquil, ja caurà alguna cosa."
+    },
+    "empty": {
+      "title": "Ara mateix, res",
+      "body": "No hi ha res al calendari. Tranquil, ja caurà alguna cosa."
+    },
+    "waiting": {
+      "title": "Estàs a la llista",
+      "body": "Algú de la junta t'ha de donar l'alta. Fins llavors no veuràs res: no és que no passi res, és que encara no hi ets del tot."
+    }
+  },
   "install": {
     "title": "Posa-la a la pantalla",
     "lede": "Dos tocs i la tens com una app de veritat. Sense això no hi ha avisos quan obrim places, i te les prendran.",
@@ -117,6 +197,35 @@
     "qr": "El meu QR",
     "proposals": "Propostes",
     "profile": "Perfil"
+  },
+  "ranking": {
+    "periodLabel": "Període",
+    "period": {
+      "curs": "Tot el curs",
+      "t1": "1r trim.",
+      "t2": "2n trim.",
+      "t3": "3r trim."
+    },
+    "you": "Tu vas {{position}} de {{total}}",
+    "youSub": "Encara hi ets a temps, eh",
+    "schools": "Escoles",
+    "schoolsLede": "Tot el que fas suma per la teva escola, tant si vas 3r com 60è.",
+    "schoolFoot_one": "{{members}} membres · {{count}} esdeveniment",
+    "schoolFoot_other": "{{members}} membres · {{count}} esdeveniments",
+    "yours": "la teva",
+    "thisWeek_one": "+{{count}} aquesta setmana",
+    "thisWeek_other": "+{{count}} aquesta setmana",
+    "individual": "Individual",
+    "listed": "{{count}} a la llista",
+    "mine": "Tu · {{name}}",
+    "movement": {
+      "up_one": "{{count}} lloc amunt aquesta setmana",
+      "up_other": "{{count}} llocs amunt aquesta setmana",
+      "down_one": "{{count}} lloc avall aquesta setmana",
+      "down_other": "{{count}} llocs avall aquesta setmana",
+      "same": "Igual que la setmana passada"
+    },
+    "cutOff": "Fins aquí arriba la llista. Si no et veus, és que has de sortir més."
   },
   "scanner": {
     "ok": "Fitxat. Ja ets dins",

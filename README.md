@@ -159,6 +159,75 @@ Two things worth knowing before writing a query:
 - Scheduled content is filtered with Postgres `now()`. An `if` in React is not
   hiding anything — the response is in the network tab either way.
 
+### The audit trail, and answering a subject access request
+
+`audit_log` records role changes, membership approvals and payment marks — who
+did what to whom. It exists because the committee turns over every year and
+"who made them an admin?" is otherwise unanswerable six months later.
+
+**Kept for 24 months, then deleted.** Two academic years: long enough for the
+outgoing committee and the next one to be asked about a decision, short enough
+that it is not a permanent record. A `pg_cron` job runs
+`private.purge_audit_log()` nightly at 04:30. Nobody can run it by hand — not
+even an admin — because a trail the people in it can clear is not a trail.
+
+**A member does not see their own rows in the app.** That is deliberate: the
+trail records what the committee did, and showing somebody a partial view of
+it would mislead more than showing none.
+
+**That is a product decision, not a legal one.** If someone exercises their
+right of access under GDPR, the association has to hand over what it holds
+about them, whether or not the interface shows it. Nobody can do that from the
+app, so here is how.
+
+An owner runs this in the Supabase SQL editor. Replace the uuid on the first
+line with the person's profile id — plain SQL, no psql meta-commands, because
+the SQL editor does not support them.
+
+```sql
+-- Everything the association holds about one person.
+-- Run as the project owner. Give them the output, not the query.
+with subject as (select '00000000-0000-0000-0000-000000000000'::uuid as id)
+select 'perfil' as font, to_jsonb(p) as dades
+  from public.profiles p, subject s where p.id = s.id
+union all
+select 'contacte', to_jsonb(c)
+  from public.profile_contact c, subject s where c.id = s.id
+union all
+select 'inscripcions', to_jsonb(a)
+  from public.attendances a, subject s where a.user_id = s.id
+union all
+select 'punts', to_jsonb(l)
+  from public.points_log l, subject s where l.user_id = s.id
+union all
+select 'propostes', to_jsonb(pr)
+  from public.proposals pr, subject s where pr.user_id = s.id
+union all
+select 'vots', to_jsonb(v)
+  from public.proposal_votes v, subject s where v.user_id = s.id
+union all
+select 'invitacio_usada', to_jsonb(iu)
+  from public.invite_uses iu, subject s where iu.user_id = s.id
+union all
+-- Both directions: rows about them, and rows recording what they did while on
+-- the committee. Somebody asking what is held about them is owed both.
+select 'registre_sobre_ell', to_jsonb(al)
+  from public.audit_log al, subject s where al.target_id = s.id
+union all
+select 'registre_fet_per_ell', to_jsonb(al)
+  from public.audit_log al, subject s where al.actor_id = s.id;
+```
+
+`profile_secret` is deliberately absent. It holds one QR token, which is a
+credential rather than information about the person; hand it over and anybody
+holding the export can be checked in as them. If they ask specifically, rotate
+it first.
+
+**Still to do before launch:** the GDPR notice has to name traceability as a
+purpose for processing, alongside the obvious ones. It is a legitimate purpose
+and a short paragraph, but it has to be written down before the first sign-up,
+not after.
+
 ## Brand colours
 
 There are two reds and they are not interchangeable.

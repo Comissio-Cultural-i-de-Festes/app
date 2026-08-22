@@ -55,6 +55,78 @@ npm run db:push
 `supabase/seed/` is applied by `db:start` and `db:reset` and never by
 `db:push`, which is why the test helpers live there rather than in a migration.
 
+## Signing in
+
+Sign in with Google. There is no association domain, so there is no verified
+sender and no real email can be sent — Supabase's built-in SMTP allows two
+messages an hour, and the first event of the year is about a hundred sign-ups
+in one evening.
+
+**Google identifies people; it does not admit them.** Anyone with a Google
+account can get as far as a profile, and that profile arrives as `pendent`.
+The gate is still the invitation code, redeemed by `redeem_invite()` once
+there is a session, exactly as before.
+
+Signing in by email is still in the codebase behind `VITE_AUTH_EMAIL_FALLBACK`,
+along with its templates. Set it to `true` and the email field, the magic link
+and the six-digit code all come back alongside the Google button. It is off
+because it cannot deliver, not because it was removed.
+
+### Checking the iPhone round trip
+
+**Do this on a real iPhone before the first event.** Ten minutes, and anyone on
+the committee can do it. It is the one thing about this app that cannot be
+verified from a laptop, and if it fails the consequence is not a small one.
+
+Why it matters: a web app added to the iPhone home screen gets its own storage,
+separate from Safari. A session created on one side does not exist on the
+other. The old magic link fell into exactly that hole — the link was tapped in
+Mail, which has no way to hand back to a home-screen icon, so it opened Safari
+and the installed app stayed signed out. That is why the email carried a
+six-digit code.
+
+Google should not have the same problem, for a structural reason: the app
+itself navigates away, and Google redirects back to our own origin, which is
+inside the app's manifest scope. Since iOS 12.2 an out-of-scope navigation from
+an installed app opens in an in-app browser, and a redirect back _into_ scope
+returns control to the app. The PKCE verifier stays in the context that started
+the trip, which is the same one that receives the code.
+
+That is the theory. It has not been proved on a handset.
+
+**The test**
+
+1. On an iPhone, in Safari, open the app and add it to the home screen.
+2. Close Safari completely. Open the app **from the icon**.
+3. Tap _Entra amb Google_ and complete the Google sign-in.
+4. Watch where you end up.
+
+**Pass:** you land back inside the app, full screen, with no Safari address bar,
+and you are signed in.
+
+**Fail, and what each looks like:**
+
+| What you see                                                                                   | What it means                                                                                     |
+| ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| You end up in Safari with an address bar, signed in there, and the icon is still signed out    | iOS sent the round trip to Safari instead of the in-app browser. This is the one that matters.    |
+| The app reopens showing _"Sembla que has entrat però la sessió s'ha quedat al navegador"_      | The same thing, caught by the app. That message only ever appears in this case.                   |
+| Google shows an error about a disallowed browser or user agent                                 | Google is refusing the in-app browser as an embedded webview.                                     |
+| Everything works, but it asks for your Google password even though you are signed in elsewhere | Not a failure. The in-app browser does not share Safari's cookies. Mildly annoying, nothing more. |
+
+**If it fails.** The installed app cannot sign anybody in, which makes promoting
+installation on iOS actively harmful. Two things to do, in this order:
+
+1. Set `VITE_AUTH_EMAIL_FALLBACK=true` and redeploy. The email path with the
+   six-digit code comes back and works from the icon, because a typed code does
+   not care which storage jar it is typed into. It will hit the SMTP rate limit
+   at scale, so pair it with a real SMTP provider or a bought domain.
+2. Until that is sorted, stop showing the install screen on iOS — a signed-out
+   icon is worse than a browser tab.
+
+Report the result either way: an issue on the repo, or a note wherever the
+committee keeps decisions. The next person to wonder should not have to test it
+again.
+
 ## Security
 
 **The anon key is public by design.** It ships in the JavaScript bundle and is

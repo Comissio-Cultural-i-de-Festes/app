@@ -1,0 +1,137 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--ds-bg-canvas);
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--ds-bg-canvas);
+  color: var(--ds-text-primary);
+  font-family: var(--ds-font-body);
+  font-size: var(--ds-fs-base);
+  font-weight: var(--ds-fw-medium);
+  line-height: var(--ds-leading-base);
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none; /* kills the iOS rubber-band under a fixed bar */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Mobile-only shell. The brief says design at 390px and only for phones, so on
+ * a laptop this centres a phone-width column instead of stretching a mobile
+ * layout across 1440px. */
+#root {
+  position: relative;
+  isolation: isolate;
+  max-width: var(--ds-shell-max-w);
+  min-height: 100dvh;
+  margin-inline: auto;
+  background: var(--ds-bg-app);
+  padding-top: var(--ds-safe-top);
+  padding-left: var(--ds-safe-left);
+  padding-right: var(--ds-safe-right);
+  padding-bottom: var(--ds-tabbar-offset);
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: var(--ds-link);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--ds-link-hover);
+}
+
+:focus-visible {
+  outline: 2px solid var(--ds-brand-label);
+  outline-offset: 2px;
+}
+
+/* Every point total and every ranking position. Without this the digits jitter
+ * as the numbers change and a leaderboard looks broken. */
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+.eyebrow {
+  font-size: var(--ds-eyebrow-size);
+  font-weight: var(--ds-eyebrow-weight);
+  letter-spacing: var(--ds-eyebrow-tracking);
+  text-transform: uppercase;
+  color: var(--ds-text-dim);
+}
+
+.display {
+  font-family: var(--ds-font-display);
+  font-weight: var(--ds-fw-regular); /* Archivo Black is a single weight */
+  text-transform: uppercase;
+  letter-spacing: var(--ds-display-tracking);
+  line-height: var(--ds-display-leading);
+}
+
+/* A selected row is a tint plus an inset rail, always together. */
+.selected {
+  background: var(--ds-brand-tint-strong);
+  box-shadow: inset var(--ds-selected-marker) 0 0 var(--ds-brand);
+}
+
+.selected--soft {
+  background: var(--ds-brand-tint);
+  box-shadow: inset var(--ds-selected-marker) 0 0 var(--ds-brand);
+}
+
+.avatar-placeholder {
+  background-color: var(--ds-bg-avatar);
+  background-image: var(--ds-pattern-avatar);
+  border-radius: var(--ds-radius-circle);
+  box-shadow: inset 0 0 0 1px oklch(0.42 0.02 30 / 0.6);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

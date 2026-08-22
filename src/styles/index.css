@@ -1,0 +1,17 @@
+@import 'tailwindcss';
+
+/* Self-hosted, not Google Fonts. A third-party origin cannot be precached
+ * without opaque responses, adds a DNS and TLS round trip on the critical
+ * path, and breaks with no connection — which is exactly the situation the
+ * QR screen exists for. The brief also warns that a Stories card drawn to
+ * canvas before the font loads comes out in the fallback face.
+ *
+ * `standard` is the weight-only axis (no width axis): one variable file per
+ * subset covering 100–900, which is every weight the prototype uses.
+ * Archivo Black is a separate family and a single weight. */
+@import '@fontsource-variable/archivo/standard.css';
+@import '@fontsource/archivo-black/latin-400.css';
+
+@import './tokens.css';
+@import './base.css';
+@import './theme.css';

@@ -1,0 +1,227 @@
+/*  app-comi design tokens — DARK ONLY. There is no light theme, by design:
+ *  almost all use is at night, and the brand red breathes better on black.
+ *
+ *  Harvested from the original clickable prototype, which used raw inline
+ *  oklch() with no variables. The values below are the ones the prototype
+ *  actually used; deliberate departures are marked.
+ *
+ *  FORKING THIS APP: everything association-specific lives in the BRAND block
+ *  below — seven colours and a shadow. If your colour is not red, also swap
+ *  hue 25 for yours in the SURFACES block (the neutrals are tinted with the
+ *  brand hue). Then replace the icons in public/ and fill in .env.
+ *
+ *  Colours are oklch(). Every browser this app targets supports it
+ *  (iOS Safari 16.4+, Chrome 111+). Some brand values sit outside sRGB on
+ *  purpose: on a P3 phone they render vividly, elsewhere the browser gamut-maps
+ *  them keeping lightness and hue. Do not "fix" them with hex fallbacks.
+ */
+
+:root {
+  color-scheme: dark;
+
+  /* ─── SURFACES ─── warm neutrals tinted toward the brand hue ─────────── */
+  --ds-bg-canvas: oklch(0.1 0.008 25); /* behind the phone-width shell */
+  --ds-bg-root: oklch(0.11 0.008 25); /* immersive screens (scanner) */
+  --ds-bg-app: oklch(0.15 0.012 25); /* the app background — 21 uses */
+  --ds-bg-bar: oklch(0.13 0.012 25 / 0.96); /* tab bar, sheets, overlays */
+  --ds-bg-bar-solid: oklch(0.13 0.012 25); /* @supports fallback */
+  --ds-blur-bar: 14px;
+
+  --ds-surface-raised: oklch(0.17 0.014 25); /* scanner feedback card */
+  --ds-surface-1: oklch(0.19 0.014 25);
+  --ds-surface-2: oklch(0.2 0.015 25);
+  --ds-surface-3: oklch(0.22 0.014 25);
+  --ds-surface-4: oklch(0.24 0.016 25);
+  --ds-surface-5: oklch(0.26 0.016 25);
+  --ds-surface-6: oklch(0.28 0.016 25);
+  --ds-surface-7: oklch(0.3 0.016 25);
+  --ds-surface-8: oklch(0.34 0.016 25);
+  --ds-surface-9: oklch(0.36 0.016 25);
+
+  --ds-border-hairline: var(--ds-surface-3);
+  --ds-border: var(--ds-surface-5); /* tab bar border-top */
+  --ds-border-strong: var(--ds-surface-8);
+  --ds-border-input: oklch(0.42 0.016 25);
+
+  --ds-bg-avatar: oklch(0.24 0.02 25);
+  --ds-bg-avatar-stripe: oklch(0.35 0.03 28);
+  --ds-pattern-avatar: repeating-linear-gradient(
+    122deg,
+    var(--ds-bg-avatar-stripe) 0 7px,
+    oklch(0.25 0.022 25) 7px 14px
+  );
+
+  /* ─── TEXT ─── warm off-whites. Never pure white on this background. ───
+   * The prototype's 0.90/0.88/0.86/0.84 and 0.72/0.70/0.68/0.66 ramps are
+   * drift, not intent: the steps sit below the just-noticeable difference.
+   * Collapsed to one value each. Measured contrast on --ds-bg-app in comments. */
+  --ds-text-primary: oklch(0.97 0.008 60); /* 18.0:1 */
+  --ds-text-on-brand: oklch(0.99 0.01 60);
+  --ds-text-secondary: oklch(0.88 0.01 55); /* 13.7:1 */
+  --ds-text-muted: oklch(0.7 0.012 50); /* 7.4:1 */
+  --ds-text-muted-lo: oklch(0.66 0.012 45); /* inactive tab label, 6.5:1 on bar */
+  /* 5.4:1 — eyebrows and labels. The most-used colour in the whole
+   * prototype (54 times). Keep it exact. */
+  --ds-text-dim: oklch(0.62 0.012 45);
+  /* 4.0:1 — BELOW AA for body text. Decorative and disabled states only. */
+  --ds-text-faint: oklch(0.55 0.012 45);
+  --ds-text-inverse: oklch(0.16 0.012 25); /* on a light or filled chip */
+
+  /* ─── BRAND ─── the only block a fork needs to touch ───────────────────
+   * There are two reds and they are not interchangeable. The official logo
+   * red is #991B16 = oklch(0.443 0.162 28.4). At that lightness over a 0.15
+   * background there is not enough contrast for text or a button, so the
+   * on-screen identity colour is lighter. The logo red belongs to the logo,
+   * the favicon and print. It is never a UI colour. */
+  --ds-brand: oklch(0.62 0.22 25); /* identity: fills, pills, rails — 29 uses */
+  /* FILLED BUTTONS ONLY. --ds-text-on-brand over --ds-brand measures 3.92:1,
+   * which fails WCAG AA (4.5:1) for a button label. At 0.58 it is 4.63:1, and
+   * still 4.1:1 against the app background. The 0.04 shift is invisible beside
+   * the identity red. Revert with `--ds-brand-cta: var(--ds-brand)` if the
+   * association would rather keep the exact red and accept the failure. */
+  --ds-brand-cta: oklch(0.58 0.22 25);
+  --ds-brand-hover: oklch(0.68 0.22 25);
+  --ds-brand-icon: oklch(0.7 0.2 25); /* active tab icon */
+  --ds-brand-accent: oklch(0.72 0.2 25); /* top-3 rank numbers, eyebrows */
+  --ds-brand-accent-hi: oklch(0.74 0.2 25);
+  --ds-brand-label: oklch(0.78 0.16 25); /* active tab label */
+  --ds-brand-label-hi: oklch(0.86 0.18 25);
+  --ds-brand-tint: oklch(0.19 0.03 25); /* selected row, soft */
+  --ds-brand-tint-strong: oklch(0.21 0.05 25); /* selected row */
+  --ds-link: oklch(0.72 0.14 25);
+  --ds-link-hover: oklch(0.82 0.14 25);
+  --ds-shadow-brand: 0 10px 34px oklch(0.62 0.22 25 / 0.4);
+  --ds-selected-marker: 3px; /* width of the inset rail on a selected row */
+  /* ─── end brand block ────────────────────────────────────────────────── */
+
+  /* ─── STATE ─── deliberately outside the brand hue ─────────────────────
+   * HARD RULE: no state colour may use the brand hue. Red belongs to the
+   * association, not to failure. The scanner especially must never show brand
+   * red for a rejected QR — you get half a second to read it, at night, with a
+   * queue behind you. Enforced by tests/design-tokens.test.ts. */
+  --ds-success: oklch(0.78 0.17 145); /* scanner tick, positive deltas, points */
+  --ds-success-hi: oklch(0.8 0.17 145);
+  /* Bright orange. Separated from the brand in BOTH lightness (0.62 to 0.74)
+   * and hue (25 to 48), which is what lets them be told apart at low
+   * brightness. */
+  --ds-error: oklch(0.74 0.19 48);
+  /* "QR already used", expiries. Moved from the prototype's hue 78 to 90. At
+   * 78 it sat only 30 degrees from --ds-error, and in the scanner those two
+   * ARE the two failure states. At 90 the gap is 42 degrees. A deliberate
+   * departure from the prototype. */
+  --ds-warning: oklch(0.84 0.15 90);
+  --ds-warning-deep: oklch(0.8 0.15 86); /* last places, "full up" */
+  --ds-badge-past-bg: oklch(0.78 0.15 86); /* the "already happened" chip */
+  --ds-badge-past-fg: oklch(0.17 0.03 60);
+  --ds-unknown: oklch(0.72 0.13 300); /* violet: QR not from this association */
+  --ds-on-state: oklch(0.16 0.012 25); /* dark text on a filled state chip */
+
+  /* ─── TYPOGRAPHY ─────────────────────────────────────────────────────── */
+  --ds-font-display: 'Archivo Black', 'Archivo Variable', Archivo, sans-serif;
+  --ds-font-body: 'Archivo Variable', Archivo, system-ui, -apple-system, sans-serif;
+
+  --ds-fw-regular: 400;
+  --ds-fw-medium: 500;
+  --ds-fw-semibold: 600;
+  --ds-fw-bold: 700;
+  --ds-fw-extrabold: 800;
+
+  /* Display — uppercase, negative tracking, sub-1 leading. Archivo Black. */
+  --ds-display-xs: 19px;
+  --ds-display-sm: 26px;
+  --ds-display-md: 38px;
+  --ds-display-lg: 44px;
+  --ds-display-xl: 51px;
+  --ds-display-tracking: -0.045em;
+  --ds-display-tracking-tight: -0.055em;
+  --ds-display-tracking-loose: -0.035em;
+  --ds-display-leading: 0.88;
+  --ds-display-leading-tight: 0.84;
+  --ds-display-leading-loose: 0.95;
+
+  /* Body. The prototype's 18 distinct sizes (9.5 to 22, with half steps) are
+   * drift; ten steps here, half sizes dropped except the 9.5px tab label. */
+  --ds-fs-3xs: 9.5px; /* tab label — the only size below 11px allowed */
+  --ds-fs-2xs: 11px;
+  --ds-fs-xs: 12px;
+  --ds-fs-sm: 13px;
+  --ds-fs-md: 14px;
+  --ds-fs-base: 15px;
+  --ds-fs-lg: 16px;
+  --ds-fs-xl: 17px;
+  --ds-fs-2xl: 19px;
+  --ds-fs-3xl: 22px;
+  --ds-leading-base: 1.3;
+
+  --ds-eyebrow-size: 12px;
+  --ds-eyebrow-weight: 800;
+  --ds-eyebrow-tracking: 0.18em;
+
+  /* ─── RADII ──────────────────────────────────────────────────────────── */
+  /* DELIBERATE. The si/potser/no buttons and the point-reason buttons are
+   * square in the prototype. Do not round them. */
+  --ds-radius-cta: 0;
+  --ds-radius-hairline: 2px;
+  --ds-radius-xs: 3px;
+  --ds-radius-sm: 6px;
+  --ds-radius-md: 8px;
+  --ds-radius-lg: 10px;
+  --ds-radius-card: 14px; /* cards, pills, the centre tab square */
+  --ds-radius-chip: 17px;
+  --ds-radius-round: 21px;
+  --ds-radius-circle: 50%;
+
+  /* ─── SPACING — 2px grid ─────────────────────────────────────────────── */
+  --ds-gutter: 20px; /* screen gutter */
+  --ds-card-padding: 18px;
+  --ds-row-pad-y: 12px;
+  --ds-row-pad-x: 20px;
+  --ds-gap-xs: 5px;
+  --ds-gap-sm: 12px;
+  --ds-gap-md: 14px;
+
+  /* ─── LAYOUT AND SAFE AREAS ──────────────────────────────────────────── */
+  --ds-shell-max-w: 480px;
+  --ds-safe-top: env(safe-area-inset-top, 0px);
+  --ds-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --ds-safe-left: env(safe-area-inset-left, 0px);
+  --ds-safe-right: env(safe-area-inset-right, 0px);
+
+  --ds-tabbar-item-h: 46px;
+  --ds-tabbar-pad-t: 9px;
+  --ds-tabbar-pad-b: 6px;
+  --ds-tabbar-pad-x: 4px;
+  --ds-tabbar-h: calc(var(--ds-tabbar-pad-t) + var(--ds-tabbar-item-h) + var(--ds-tabbar-pad-b));
+  --ds-tabbar-offset: calc(var(--ds-tabbar-h) + var(--ds-safe-bottom));
+
+  /* ─── BUTTONS ────────────────────────────────────────────────────────── */
+  /* Catalan runs 15-20% longer than English. Buttons GROW, never clip.
+   * There is deliberately no --ds-btn-height. */
+  --ds-btn-min-h: 56px; /* the small CTA in the prototype */
+  --ds-btn-min-h-lg: 62px; /* the big one */
+  --ds-btn-pad-y: 14px;
+  --ds-btn-pad-x: 18px;
+  --ds-btn-fs: var(--ds-fs-xl);
+  --ds-btn-fw: var(--ds-fw-bold);
+  --ds-btn-leading: 1.15;
+
+  /* ─── MOTION ─────────────────────────────────────────────────────────── */
+  --ds-dur-fast: 80ms;
+  --ds-dur-base: 120ms;
+  --ds-ease: cubic-bezier(0.2, 0, 0.2, 1);
+  --ds-pulse-dur: 1.4s;
+}
+
+/* The only animation in the prototype: the dot that breathes while the
+ * scanner is looking for a QR. */
+@keyframes comi-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.25;
+    transform: scale(0.82);
+  }
+}

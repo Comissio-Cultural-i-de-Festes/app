@@ -1,0 +1,99 @@
+/*  Tailwind v4 mapping. This file contains no values — every entry points at a
+ *  --ds-* token in tokens.css, which stays the single source of truth.
+ *
+ *  `@theme inline` is what makes that work: the generated utilities emit
+ *  `var(--ds-…)` instead of baking the value in, so overriding one token in a
+ *  fork instantly changes every utility that uses it.
+ *
+ *  Tokens are prefixed --ds-* rather than living directly in @theme because
+ *  Tailwind owns the bare namespaces: --text-* is its font-size namespace, so
+ *  an unprefixed --text-primary colour would generate a font-size utility and
+ *  collide.
+ *
+ *  DARK ONLY: never write a `dark:` variant. `color-scheme: dark` on :root
+ *  handles native controls and scrollbars.
+ */
+
+@theme inline {
+  /* surfaces */
+  --color-canvas: var(--ds-bg-canvas);
+  --color-root: var(--ds-bg-root);
+  --color-app: var(--ds-bg-app);
+  --color-bar: var(--ds-bg-bar);
+  --color-card: var(--ds-surface-raised);
+  --color-surface-1: var(--ds-surface-1);
+  --color-surface-2: var(--ds-surface-2);
+  --color-surface-3: var(--ds-surface-3);
+  --color-surface-4: var(--ds-surface-4);
+  --color-surface-5: var(--ds-surface-5);
+  --color-surface-6: var(--ds-surface-6);
+  --color-surface-7: var(--ds-surface-7);
+  --color-border: var(--ds-border);
+  --color-border-hair: var(--ds-border-hairline);
+  --color-border-strong: var(--ds-border-strong);
+
+  /* text */
+  --color-fg: var(--ds-text-primary);
+  --color-fg-secondary: var(--ds-text-secondary);
+  --color-fg-muted: var(--ds-text-muted);
+  --color-fg-dim: var(--ds-text-dim);
+  --color-fg-faint: var(--ds-text-faint);
+  --color-on-brand: var(--ds-text-on-brand);
+  --color-on-state: var(--ds-on-state);
+
+  /* brand */
+  --color-brand: var(--ds-brand);
+  --color-brand-cta: var(--ds-brand-cta);
+  --color-brand-icon: var(--ds-brand-icon);
+  --color-brand-accent: var(--ds-brand-accent);
+  --color-brand-label: var(--ds-brand-label);
+  --color-brand-tint: var(--ds-brand-tint-strong);
+
+  /* state — never the brand hue */
+  --color-success: var(--ds-success);
+  --color-error: var(--ds-error);
+  --color-warning: var(--ds-warning);
+  --color-warning-deep: var(--ds-warning-deep);
+  --color-unknown: var(--ds-unknown);
+
+  /* families */
+  --font-display: var(--ds-font-display);
+  --font-body: var(--ds-font-body);
+
+  /* font sizes */
+  --text-3xs: var(--ds-fs-3xs);
+  --text-2xs: var(--ds-fs-2xs);
+  --text-xs: var(--ds-fs-xs);
+  --text-sm: var(--ds-fs-sm);
+  --text-md: var(--ds-fs-md);
+  --text-base: var(--ds-fs-base);
+  --text-lg: var(--ds-fs-lg);
+  --text-xl: var(--ds-fs-xl);
+  --text-2xl: var(--ds-fs-2xl);
+  --text-3xl: var(--ds-fs-3xl);
+  --text-d-xs: var(--ds-display-xs);
+  --text-d-sm: var(--ds-display-sm);
+  --text-d-md: var(--ds-display-md);
+  --text-d-lg: var(--ds-display-lg);
+  --text-d-xl: var(--ds-display-xl);
+
+  /* radii */
+  --radius-hairline: var(--ds-radius-hairline);
+  --radius-xs: var(--ds-radius-xs);
+  --radius-sm: var(--ds-radius-sm);
+  --radius-md: var(--ds-radius-md);
+  --radius-lg: var(--ds-radius-lg);
+  --radius-card: var(--ds-radius-card);
+  --radius-chip: var(--ds-radius-chip);
+  --radius-round: var(--ds-radius-round);
+  --radius-cta: var(--ds-radius-cta);
+
+  --shadow-brand: var(--ds-shadow-brand);
+}
+
+/* Literal, so it needs its own block. The prototype is on a 2px grid, which
+ * maps onto Tailwind's numeric scale exactly: gap-5 = 10px, p-9 = 18px (the
+ * card padding), px-10 = 20px (the screen gutter). */
+@theme {
+  --spacing: 2px;
+}

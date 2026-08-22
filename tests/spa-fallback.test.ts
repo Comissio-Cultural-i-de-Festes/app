@@ -29,7 +29,7 @@ describe('the Pages SPA fallback', () => {
 
     expect(
       offenders,
-      'A top-level 404.html turns off Cloudflare Pages\' SPA fallback. Deep ' +
+      "A top-level 404.html turns off Cloudflare Pages' SPA fallback. Deep " +
         'links and refreshes will 404 while clicking around still works, so ' +
         'it will be reported as "the router is broken" weeks later.\n  ' +
         offenders.join('\n  '),

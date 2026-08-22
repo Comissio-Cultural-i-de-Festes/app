@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { EntryScreen } from '@/features/entry/EntryScreen'
+import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
 import { INVITE_PARAM, readInviteCode } from '@/features/entry/useInvite'
 import { InstallScreen } from '@/features/install/InstallScreen'
 import {
@@ -48,6 +49,9 @@ export default function App() {
   // the link is opened on a different device from the one that asked for it.
   useEffect(() => {
     if (!session) return
+    // The round trip came back here, so the stranded marker has done its job.
+    clearOAuthMark()
+
     const code = readInviteCode()
     if (code === null) return
 

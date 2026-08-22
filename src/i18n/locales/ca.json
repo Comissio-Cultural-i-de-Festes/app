@@ -20,18 +20,18 @@
   },
   "entry": {
     "signedIn": "Ja ets dins. Les pantalles arriben a la propera tanda.",
-    "sending": "Enviant…",
+    "sending": "Un segon…",
     "invited": {
       "title": "T'han convidat",
-      "lede": "Algú del grup t'ha passat l'enllaç. Posa el correu que facis servir, el del campus o el de sempre, i ja ets dels nostres.",
-      "cta": "Entra",
-      "reassurance": "T'enviem un enllaç al correu, sense contrasenyes. Si l'enllaç s'ha filtrat, la junta el pot tallar."
+      "lede": "Algú del grup t'ha passat l'enllaç. Entra amb el teu Google, que no has de recordar cap contrasenya nova, i ja ets dels nostres.",
+      "cta": "Entra amb Google",
+      "reassurance": "Entres amb el compte de Google, sense contrasenyes noves. Google només ens diu qui ets; a la comi hi entres per la invitació."
     },
     "open": {
       "title": "Encara no hi ets",
-      "lede": "No tens invitació, però tampoc passa res. Deixa el nom i el correu i algú de la junta t'obre la porta.",
-      "cta": "Demana l'accés",
-      "reassurance": "T'enviem un enllaç al correu, sense contrasenyes. Fins que algú de la junta ho aprovi, veuràs l'app en mode espera."
+      "lede": "No tens invitació, però tampoc passa res. Entra amb Google i algú de la junta t'obre la porta.",
+      "cta": "Demana l'accés amb Google",
+      "reassurance": "Entres amb el compte de Google. Fins que algú de la junta ho aprovi, veuràs l'app en mode espera."
     },
     "invite": {
       "label": "Invitació",
@@ -40,10 +40,6 @@
       "expiresHours_other": "Caduca en {{count}} h",
       "expiresDays_one": "Caduca en {{count}} dia",
       "expiresDays_other": "Caduca en {{count}} dies"
-    },
-    "name": {
-      "label": "El teu nom",
-      "placeholder": "Com et diuen"
     },
     "email": {
       "label": "El teu correu",
@@ -66,8 +62,12 @@
     },
     "errors": {
       "sendFailed": "No hem pogut enviar el correu. Torna-ho a provar d'aquí un moment.",
-      "badCode": "Aquest codi no és bo, o ja ha caducat. Demana-ne un altre."
-    }
+      "badCode": "Aquest codi no és bo, o ja ha caducat. Demana-ne un altre.",
+      "googleFailed": "No hem pogut connectar amb Google. Torna-ho a provar d'aquí un moment."
+    },
+    "stranded": "Sembla que has entrat però la sessió s'ha quedat al navegador, no aquí. Obre l'app des del Safari, o avisa la junta i t'ho arreglem.",
+    "emailFallback": "O, si el Google et falla, entra amb el correu de sempre.",
+    "emailCta": "Envia un enllaç al correu"
   },
   "errors": {
     "generic": "Hi ha hagut un error. Torna-ho a provar.",

@@ -22,6 +22,10 @@ function optional(key: keyof ImportMetaEnv, fallback: string): string {
   return read(key) ?? fallback
 }
 
+function flag(key: keyof ImportMetaEnv): boolean {
+  return read(key) === 'true'
+}
+
 export const env = {
   appName: required('VITE_APP_NAME'),
   appShortName: required('VITE_APP_SHORT_NAME'),
@@ -35,6 +39,20 @@ export const env = {
   whatsappUrl: optional('VITE_WHATSAPP_URL', ''),
   defaultLocale: optional('VITE_DEFAULT_LOCALE', 'ca'),
   timeZone: optional('VITE_TIME_ZONE', 'Europe/Madrid'),
+  /**
+   * Bring back signing in by email, with the six-digit code.
+   *
+   * Off, because without an association domain there is no verified sender and
+   * the built-in SMTP allows two messages an hour — a hundred sign-ups in one
+   * evening is not going to happen through it.
+   *
+   * It stays switchable rather than deleted for two reasons. If a domain ever
+   * gets bought this is how it comes back, and more urgently: if the OAuth
+   * round trip turns out not to return to an installed app on iOS, this is the
+   * only way anybody signs in from the home-screen icon. See the iPhone check
+   * in the README.
+   */
+  authEmailFallback: flag('VITE_AUTH_EMAIL_FALLBACK'),
   supabaseUrl: required('VITE_SUPABASE_URL'),
   supabaseAnonKey: required('VITE_SUPABASE_ANON_KEY'),
 } as const

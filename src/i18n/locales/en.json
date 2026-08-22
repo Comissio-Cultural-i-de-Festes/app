@@ -20,18 +20,18 @@
   },
   "entry": {
     "signedIn": "You're in. The screens land in the next batch.",
-    "sending": "Sending…",
+    "sending": "One sec…",
     "invited": {
       "title": "You're invited",
-      "lede": "Someone from the group sent you the link. Put in whichever email you actually use, campus or otherwise, and you're one of us.",
-      "cta": "Come in",
-      "reassurance": "We email you a link, no passwords. If a link leaks, the committee can cut it off."
+      "lede": "Someone from the group sent you the link. Sign in with your Google account — no new password to remember — and you are one of us.",
+      "cta": "Sign in with Google",
+      "reassurance": "You sign in with your Google account, no new passwords. Google only tells us who you are; the invitation is what gets you in."
     },
     "open": {
       "title": "You're not in yet",
-      "lede": "No invitation, no problem. Leave your name and email and someone on the committee will let you in.",
-      "cta": "Ask to join",
-      "reassurance": "We email you a link, no passwords. Until someone on the committee approves you, the app stays in waiting mode."
+      "lede": "No invitation, no problem. Sign in with Google and someone on the committee will let you in.",
+      "cta": "Ask to join with Google",
+      "reassurance": "You sign in with your Google account. Until someone on the committee approves you, the app stays in waiting mode."
     },
     "invite": {
       "label": "Invitation",
@@ -40,10 +40,6 @@
       "expiresHours_other": "Expires in {{count}} h",
       "expiresDays_one": "Expires in {{count}} day",
       "expiresDays_other": "Expires in {{count}} days"
-    },
-    "name": {
-      "label": "Your name",
-      "placeholder": "What people call you"
     },
     "email": {
       "label": "Your email",
@@ -66,8 +62,12 @@
     },
     "errors": {
       "sendFailed": "We could not send the email. Please try again in a moment.",
-      "badCode": "That code is not right, or it has expired. Ask for another."
-    }
+      "badCode": "That code is not right, or it has expired. Ask for another.",
+      "googleFailed": "We could not reach Google. Please try again in a moment."
+    },
+    "stranded": "It looks like you signed in but the session stayed in the browser rather than here. Open the app from Safari, or tell the committee and we will sort it out.",
+    "emailFallback": "Or, if Google is not working for you, sign in with your email.",
+    "emailCta": "Email me a link"
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",

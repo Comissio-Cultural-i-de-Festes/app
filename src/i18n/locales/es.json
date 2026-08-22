@@ -20,18 +20,18 @@
   },
   "entry": {
     "signedIn": "Ya estás dentro. Las pantallas llegan en la siguiente tanda.",
-    "sending": "Enviando…",
+    "sending": "Un segundo…",
     "invited": {
       "title": "Te han invitado",
-      "lede": "Alguien del grupo te ha pasado el enlace. Pon el correo que uses, el del campus o el de siempre, y ya eres de los nuestros.",
-      "cta": "Entra",
-      "reassurance": "Te enviamos un enlace al correo, sin contraseñas. Si el enlace se filtra, la junta puede cortarlo."
+      "lede": "Alguien del grupo te ha pasado el enlace. Entra con tu Google, así no tienes que recordar ninguna contraseña nueva, y ya eres de los nuestros.",
+      "cta": "Entra con Google",
+      "reassurance": "Entras con la cuenta de Google, sin contraseñas nuevas. Google solo nos dice quién eres; en la comi entras por la invitación."
     },
     "open": {
       "title": "Todavía no estás",
-      "lede": "No tienes invitación, pero tampoco pasa nada. Deja el nombre y el correo y alguien de la junta te abre la puerta.",
-      "cta": "Pide el acceso",
-      "reassurance": "Te enviamos un enlace al correo, sin contraseñas. Hasta que alguien de la junta lo apruebe, verás la app en modo espera."
+      "lede": "No tienes invitación, pero tampoco pasa nada. Entra con Google y alguien de la junta te abre la puerta.",
+      "cta": "Pide el acceso con Google",
+      "reassurance": "Entras con la cuenta de Google. Hasta que alguien de la junta lo apruebe, verás la app en modo espera."
     },
     "invite": {
       "label": "Invitación",
@@ -40,10 +40,6 @@
       "expiresHours_other": "Caduca en {{count}} h",
       "expiresDays_one": "Caduca en {{count}} día",
       "expiresDays_other": "Caduca en {{count}} días"
-    },
-    "name": {
-      "label": "Tu nombre",
-      "placeholder": "Cómo te llaman"
     },
     "email": {
       "label": "Tu correo",
@@ -66,8 +62,12 @@
     },
     "errors": {
       "sendFailed": "No hemos podido enviar el correo. Vuelve a probar en un momento.",
-      "badCode": "Este código no vale, o ya ha caducado. Pide otro."
-    }
+      "badCode": "Este código no vale, o ya ha caducado. Pide otro.",
+      "googleFailed": "No hemos podido conectar con Google. Vuelve a probar en un momento."
+    },
+    "stranded": "Parece que has entrado pero la sesión se ha quedado en el navegador, no aquí. Abre la app desde Safari, o avisa a la junta y te lo arreglamos.",
+    "emailFallback": "O, si Google te falla, entra con el correo de siempre.",
+    "emailCta": "Envía un enlace al correo"
   },
   "errors": {
     "generic": "Ha habido un error. Vuelve a intentarlo.",

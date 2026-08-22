@@ -44,6 +44,7 @@
   /* brand */
   --color-brand: var(--ds-brand);
   --color-brand-cta: var(--ds-brand-cta);
+  --color-brand-strong: var(--ds-brand-strong);
   --color-brand-icon: var(--ds-brand-icon);
   --color-brand-accent: var(--ds-brand-accent);
   --color-brand-label: var(--ds-brand-label);

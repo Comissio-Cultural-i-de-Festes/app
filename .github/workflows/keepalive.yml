@@ -23,7 +23,7 @@ jobs:
     # CONFIRM BOTH HALVES when the repository is created. A wrong value makes
     # this job a silent no-op that looks exactly like a working one, and the
     # first sign is Supabase pausing the project in August.
-    if: github.repository == 'Comissio-Cultural-i-de-Festes/app-comi'
+    if: github.repository == 'Comissio-Cultural-i-de-Festes/app'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

@@ -28,11 +28,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
@@ -78,30 +78,38 @@ jobs:
     env:
       TZ: UTC
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: npm
 
       - run: npm ci
 
-      # Reads the CLI version out of package-lock.json, so CI and a laptop
-      # cannot drift. That matters here: supabase/seed/00_test_helpers.sql
-      # writes auth.users by hand and is coupled to GoTrue's internal schema.
-      - uses: supabase/setup-cli@v1
+      # No setup-cli action: the CLI is a devDependency, so `npm ci` above has
+      # already installed the exact version in package-lock.json and `npx`
+      # finds it. There is no second version to keep in step with the first.
+      #
+      # It used to be `supabase/setup-cli@v1` under a comment claiming the
+      # version came from package-lock. It did not — the action installed its
+      # own default, a 1.x CLI that rejects half of supabase/config.toml as
+      # unknown keys, and the job died before Postgres ever started.
+      #
+      # The coupling is tighter than config parsing: supabase/seed/
+      # 00_test_helpers.sql writes auth.users by hand and depends on GoTrue's
+      # internal schema, so CI has to run the CLI a laptop runs.
 
       # Do not add `auth` to the exclusions. GoTrue is what creates the auth
       # schema, auth.users and auth.uid() when it starts; without it every test
       # fails with `schema "auth" does not exist`.
       - name: start the local stack
-        run: supabase start -x studio,imgproxy,logflare,vector,supavisor,realtime
+        run: npx supabase start -x studio,imgproxy,logflare,vector,supavisor,realtime
 
       - name: lint the schema
-        run: supabase db lint --level warning
+        run: npx supabase db lint --level warning
 
       # The two layers. pgTAP asserts what has no HTTP signature — RLS actually
       # enabled, views that are security_invoker, definer functions with a
@@ -109,7 +117,7 @@ jobs:
       # no SQL signature — PostgREST embedding, the filtered count, the status
       # codes the UI branches on.
       - name: policy tests (pgTAP)
-        run: supabase test db
+        run: npx supabase test db
 
       - name: policy tests (through PostgREST)
         run: npm run test:rls
@@ -122,14 +130,14 @@ jobs:
 
       - name: stop the stack
         if: always()
-        run: supabase stop --no-backup
+        run: npx supabase stop --no-backup
 
   fixtures:
     name: no real-world identifiers in fixtures
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           persist-credentials: false
 

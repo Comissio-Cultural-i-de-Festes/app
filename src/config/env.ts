@@ -26,6 +26,13 @@ export const env = {
   appName: required('VITE_APP_NAME'),
   appShortName: required('VITE_APP_SHORT_NAME'),
   appDescription: optional('VITE_APP_DESCRIPTION', ''),
+  // Shown under the wordmark on the entry screen. Association-specific, so it
+  // is configuration, not a translated string.
+  appTagline: optional('VITE_APP_TAGLINE', ''),
+  // Where "ask for one in the WhatsApp group" points. A group invite link, so
+  // it changes without a deploy and does not belong in the bundle as a
+  // literal.
+  whatsappUrl: optional('VITE_WHATSAPP_URL', ''),
   defaultLocale: optional('VITE_DEFAULT_LOCALE', 'ca'),
   timeZone: optional('VITE_TIME_ZONE', 'Europe/Madrid'),
   supabaseUrl: required('VITE_SUPABASE_URL'),

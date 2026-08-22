@@ -1,10 +1,8 @@
 {
-  "nav": {
-    "home": "Inicio",
-    "ranking": "Ranking",
-    "qr": "Mi QR",
-    "proposals": "Propuestas",
-    "profile": "Perfil"
+  "a11y": {
+    "tabBar": "Navegación principal",
+    "comingSoon": "próximamente",
+    "loading": "Cargando contenido"
   },
   "actions": {
     "yes": "Voy",
@@ -20,11 +18,105 @@
     "signIn": "Entra",
     "signOut": "Cierra la sesión"
   },
-  "state": {
-    "loading": "Un segundo…",
-    "empty": "Ahora mismo nada. Tranqui, ya caerá algo",
-    "offline": "Sin conexión",
-    "updating": "Actualizando…"
+  "entry": {
+    "signedIn": "Ya estás dentro. Las pantallas llegan en la siguiente tanda.",
+    "sending": "Enviando…",
+    "invited": {
+      "title": "Te han invitado",
+      "lede": "Alguien del grupo te ha pasado el enlace. Pon el correo que uses, el del campus o el de siempre, y ya eres de los nuestros.",
+      "cta": "Entra",
+      "reassurance": "Te enviamos un enlace al correo, sin contraseñas. Si el enlace se filtra, la junta puede cortarlo."
+    },
+    "open": {
+      "title": "Todavía no estás",
+      "lede": "No tienes invitación, pero tampoco pasa nada. Deja el nombre y el correo y alguien de la junta te abre la puerta.",
+      "cta": "Pide el acceso",
+      "reassurance": "Te enviamos un enlace al correo, sin contraseñas. Hasta que alguien de la junta lo apruebe, verás la app en modo espera."
+    },
+    "invite": {
+      "label": "Invitación",
+      "expiresSoon": "Caduca enseguida",
+      "expiresHours_one": "Caduca en {{count}} h",
+      "expiresHours_other": "Caduca en {{count}} h",
+      "expiresDays_one": "Caduca en {{count}} día",
+      "expiresDays_other": "Caduca en {{count}} días"
+    },
+    "name": {
+      "label": "Tu nombre",
+      "placeholder": "Cómo te llaman"
+    },
+    "email": {
+      "label": "Tu correo",
+      "placeholder": "tu@ejemplo.es"
+    },
+    "noInvite": {
+      "question": "¿No tienes?",
+      "link": "Pídela en el grupo de WhatsApp"
+    },
+    "sent": {
+      "title": "Mira el correo",
+      "lede": "Lo hemos enviado a {{email}}. Si no está, mira en spam.",
+      "link": "Toca el enlace del correo y ya estás dentro.",
+      "orCode": "O, si lo prefieres, escribe el código de seis cifras que viene en el mismo correo.",
+      "linkOpensSafari": "El enlace del correo abre Safari, y desde ahí no entrarías aquí. Escribe el código y lo resuelves a la primera.",
+      "codeLabel": "Código del correo",
+      "verify": "Adelante",
+      "verifying": "Comprobando…",
+      "back": "Cambia el correo"
+    },
+    "errors": {
+      "sendFailed": "No hemos podido enviar el correo. Vuelve a probar en un momento.",
+      "badCode": "Este código no vale, o ya ha caducado. Pide otro."
+    }
+  },
+  "errors": {
+    "generic": "Ha habido un error. Vuelve a intentarlo.",
+    "network": "No se ha podido conectar con el servidor.",
+    "offline": "Se necesita conexión a internet para ver esta información.",
+    "unauthorized": "Hay que iniciar sesión.",
+    "forbidden": "No tienes permiso para hacer esta acción.",
+    "notFound": "No se ha encontrado.",
+    "rateLimited": "Demasiados intentos. Espera unos minutos.",
+    "expired": "Ha caducado."
+  },
+  "install": {
+    "title": "Ponla en la pantalla",
+    "lede": "Dos toques y la tienes como una app de verdad. Sin esto no hay avisos cuando abrimos plazas, y te las van a quitar.",
+    "step1": {
+      "title": "Toca Compartir, abajo",
+      "body": "Es el cuadradito con la flecha hacia arriba, en medio de la barra de Safari."
+    },
+    "step2": {
+      "title": "Baja hasta \"Añadir a pantalla de inicio\"",
+      "body": "Sale hacia abajo en la lista. Después, Añadir arriba a la derecha.",
+      "sheetAbove": "Añadir a Favoritos",
+      "sheetTarget": "Añadir a pantalla de inicio",
+      "sheetBelow": "Marcar como texto"
+    },
+    "payoff": {
+      "title": "Qué ganas",
+      "body": "Aviso cuando abrimos plazas, el QR sin buscar nada y pantalla completa. Con el navegador normal no llegan los avisos: es Apple, no somos nosotros."
+    },
+    "done": "Ya está hecho",
+    "later": "Ahora no, ya me apañaré",
+    "laterWarning": "Puedes seguir aquí en el navegador. Cuando la pongas en la pantalla de inicio tendrás que entrar otra vez, porque el iPhone las trata como dos cosas distintas."
+  },
+  "language": {
+    "label": "Idioma",
+    "ca": "Català",
+    "es": "Castellano",
+    "en": "English"
+  },
+  "legal": {
+    "privacy": "Política de privacidad",
+    "terms": "Condiciones de uso"
+  },
+  "nav": {
+    "home": "Inicio",
+    "ranking": "Ranking",
+    "qr": "Mi QR",
+    "proposals": "Propuestas",
+    "profile": "Perfil"
   },
   "scanner": {
     "ok": "Fichado. Ya estás dentro",
@@ -37,21 +129,11 @@
     "error": "No se ha podido conectar. Vuelve a probar",
     "queued": "Guardado. Se enviará cuando haya cobertura"
   },
-  "errors": {
-    "generic": "Ha habido un error. Vuelve a intentarlo.",
-    "network": "No se ha podido conectar con el servidor.",
-    "offline": "Se necesita conexión a internet para ver esta información.",
-    "unauthorized": "Hay que iniciar sesión.",
-    "forbidden": "No tienes permiso para hacer esta acción.",
-    "notFound": "No se ha encontrado.",
-    "rateLimited": "Demasiados intentos. Espera unos minutos.",
-    "expired": "Ha caducado."
-  },
-  "units": {
-    "points_one": "{{count}} punto",
-    "points_other": "{{count}} puntos",
-    "placesLeft_one": "Queda {{count}} plaza",
-    "placesLeft_other": "Quedan {{count}} plazas"
+  "state": {
+    "loading": "Un segundo…",
+    "empty": "Ahora mismo nada. Tranqui, ya caerá algo",
+    "offline": "Sin conexión",
+    "updating": "Actualizando…"
   },
   "time": {
     "today": "Hoy",
@@ -59,19 +141,10 @@
     "yesterday": "Ayer",
     "startsIn": "Empieza en {{duration}}"
   },
-  "language": {
-    "label": "Idioma",
-    "ca": "Català",
-    "es": "Castellano",
-    "en": "English"
-  },
-  "a11y": {
-    "tabBar": "Navegación principal",
-    "comingSoon": "próximamente",
-    "loading": "Cargando contenido"
-  },
-  "legal": {
-    "privacy": "Política de privacidad",
-    "terms": "Condiciones de uso"
+  "units": {
+    "points_one": "{{count}} punto",
+    "points_other": "{{count}} puntos",
+    "placesLeft_one": "Queda {{count}} plaza",
+    "placesLeft_other": "Quedan {{count}} plazas"
   }
 }

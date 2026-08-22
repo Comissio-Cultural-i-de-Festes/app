@@ -1,10 +1,8 @@
 {
-  "nav": {
-    "home": "Home",
-    "ranking": "Ranking",
-    "qr": "My QR",
-    "proposals": "Ideas",
-    "profile": "Profile"
+  "a11y": {
+    "tabBar": "Main navigation",
+    "comingSoon": "coming soon",
+    "loading": "Loading content"
   },
   "actions": {
     "yes": "I'm in",
@@ -20,11 +18,105 @@
     "signIn": "Sign in",
     "signOut": "Sign out"
   },
-  "state": {
-    "loading": "One sec…",
-    "empty": "Nothing right now. Something will turn up",
-    "offline": "No connection",
-    "updating": "Updating…"
+  "entry": {
+    "signedIn": "You're in. The screens land in the next batch.",
+    "sending": "Sending…",
+    "invited": {
+      "title": "You're invited",
+      "lede": "Someone from the group sent you the link. Put in whichever email you actually use, campus or otherwise, and you're one of us.",
+      "cta": "Come in",
+      "reassurance": "We email you a link, no passwords. If a link leaks, the committee can cut it off."
+    },
+    "open": {
+      "title": "You're not in yet",
+      "lede": "No invitation, no problem. Leave your name and email and someone on the committee will let you in.",
+      "cta": "Ask to join",
+      "reassurance": "We email you a link, no passwords. Until someone on the committee approves you, the app stays in waiting mode."
+    },
+    "invite": {
+      "label": "Invitation",
+      "expiresSoon": "Expires shortly",
+      "expiresHours_one": "Expires in {{count}} h",
+      "expiresHours_other": "Expires in {{count}} h",
+      "expiresDays_one": "Expires in {{count}} day",
+      "expiresDays_other": "Expires in {{count}} days"
+    },
+    "name": {
+      "label": "Your name",
+      "placeholder": "What people call you"
+    },
+    "email": {
+      "label": "Your email",
+      "placeholder": "you@example.com"
+    },
+    "noInvite": {
+      "question": "Haven't got one?",
+      "link": "Ask in the WhatsApp group"
+    },
+    "sent": {
+      "title": "Check your email",
+      "lede": "We sent it to {{email}}. If it isn't there, check spam.",
+      "link": "Tap the link in the email and you're in.",
+      "orCode": "Or, if you prefer, type the six-digit code in that same email.",
+      "linkOpensSafari": "The link opens Safari, and from there you would not end up in here. Type the code and it works first time.",
+      "codeLabel": "Code from the email",
+      "verify": "Go",
+      "verifying": "Checking…",
+      "back": "Change the email"
+    },
+    "errors": {
+      "sendFailed": "We could not send the email. Please try again in a moment.",
+      "badCode": "That code is not right, or it has expired. Ask for another."
+    }
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Could not reach the server.",
+    "offline": "An internet connection is needed to see this.",
+    "unauthorized": "Please sign in.",
+    "forbidden": "You do not have permission to do this.",
+    "notFound": "Not found.",
+    "rateLimited": "Too many attempts. Please wait a few minutes.",
+    "expired": "This has expired."
+  },
+  "install": {
+    "title": "Put it on your screen",
+    "lede": "Two taps and it behaves like a real app. Without it there are no alerts when places open, and they will go to someone else.",
+    "step1": {
+      "title": "Tap Share, at the bottom",
+      "body": "It's the little square with the arrow pointing up, in the middle of the Safari bar."
+    },
+    "step2": {
+      "title": "Scroll down to \"Add to Home Screen\"",
+      "body": "It's further down the list. Then Add, top right.",
+      "sheetAbove": "Add to Favourites",
+      "sheetTarget": "Add to Home Screen",
+      "sheetBelow": "Markup"
+    },
+    "payoff": {
+      "title": "What you get",
+      "body": "Alerts when places open, your QR without hunting for it, and full screen. In a normal browser tab the alerts never arrive: that's Apple, not us."
+    },
+    "done": "I've done it",
+    "later": "Not now, I'll manage",
+    "laterWarning": "You can carry on here in the browser. Once you add it to your home screen you'll sign in one more time, because the iPhone treats them as two separate things."
+  },
+  "language": {
+    "label": "Language",
+    "ca": "Català",
+    "es": "Castellano",
+    "en": "English"
+  },
+  "legal": {
+    "privacy": "Privacy policy",
+    "terms": "Terms of use"
+  },
+  "nav": {
+    "home": "Home",
+    "ranking": "Ranking",
+    "qr": "My QR",
+    "proposals": "Ideas",
+    "profile": "Profile"
   },
   "scanner": {
     "ok": "You're in",
@@ -37,21 +129,11 @@
     "error": "Couldn't connect. Try again",
     "queued": "Saved. It will send once there's signal"
   },
-  "errors": {
-    "generic": "Something went wrong. Please try again.",
-    "network": "Could not reach the server.",
-    "offline": "An internet connection is needed to see this.",
-    "unauthorized": "Please sign in.",
-    "forbidden": "You do not have permission to do this.",
-    "notFound": "Not found.",
-    "rateLimited": "Too many attempts. Please wait a few minutes.",
-    "expired": "This has expired."
-  },
-  "units": {
-    "points_one": "{{count}} point",
-    "points_other": "{{count}} points",
-    "placesLeft_one": "{{count}} place left",
-    "placesLeft_other": "{{count}} places left"
+  "state": {
+    "loading": "One sec…",
+    "empty": "Nothing right now. Something will turn up",
+    "offline": "No connection",
+    "updating": "Updating…"
   },
   "time": {
     "today": "Today",
@@ -59,19 +141,10 @@
     "yesterday": "Yesterday",
     "startsIn": "Starts in {{duration}}"
   },
-  "language": {
-    "label": "Language",
-    "ca": "Català",
-    "es": "Castellano",
-    "en": "English"
-  },
-  "a11y": {
-    "tabBar": "Main navigation",
-    "comingSoon": "coming soon",
-    "loading": "Loading content"
-  },
-  "legal": {
-    "privacy": "Privacy policy",
-    "terms": "Terms of use"
+  "units": {
+    "points_one": "{{count}} point",
+    "points_other": "{{count}} points",
+    "placesLeft_one": "{{count}} place left",
+    "placesLeft_other": "{{count}} places left"
   }
 }

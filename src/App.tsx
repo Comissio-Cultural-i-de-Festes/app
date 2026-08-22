@@ -1,3 +1,95 @@
+import type { Session } from '@supabase/supabase-js'
+import { useEffect, useState } from 'react'
+import { useTranslation } from 'react-i18next'
+
+import { EntryScreen } from '@/features/entry/EntryScreen'
+import { INVITE_PARAM, readInviteCode } from '@/features/entry/useInvite'
+import { InstallScreen } from '@/features/install/InstallScreen'
+import {
+  SNOOZE_DONE_MS,
+  SNOOZE_LATER_MS,
+  shouldPromptInstall,
+  snoozeInstall,
+} from '@/features/install/installGate'
+import { supabase } from '@/lib/supabase'
+
+/**
+ * The order of the gates, and why.
+ *
+ * On iOS the home-screen app has its own storage, so a session created in
+ * Safari is not there when the icon is tapped. Asking people to install before
+ * they sign in is the only order that does not end with somebody opening the
+ * icon and finding themselves signed out.
+ *
+ * It is a prompt, not a wall: skipping it goes straight on to the door.
+ */
 export default function App() {
-  return null
+  const { t } = useTranslation()
+  const [session, setSession] = useState<Session | null>(null)
+  const [ready, setReady] = useState(false)
+  const [promptInstall, setPromptInstall] = useState(() => shouldPromptInstall())
+
+  useEffect(() => {
+    void supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session)
+      setReady(true)
+    })
+
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
+      setSession(next)
+    })
+    return () => {
+      sub.subscription.unsubscribe()
+    }
+  }, [])
+
+  // Redeem the invitation once, as soon as there is a session to redeem it
+  // against. The code travelled in the redirect URL so this works even when
+  // the link is opened on a different device from the one that asked for it.
+  useEffect(() => {
+    if (!session) return
+    const code = readInviteCode()
+    if (code === null) return
+
+    void (async () => {
+      await supabase.rpc('redeem_invite', { p_codi: code })
+      const url = new URL(window.location.href)
+      url.searchParams.delete(INVITE_PARAM)
+      window.history.replaceState({}, '', url.toString())
+    })()
+  }, [session])
+
+  if (!ready) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-app">
+        <p className="text-fg-muted">{t('state.loading')}</p>
+      </main>
+    )
+  }
+
+  if (promptInstall && !session) {
+    return (
+      <InstallScreen
+        onDone={() => {
+          snoozeInstall(SNOOZE_DONE_MS)
+          setPromptInstall(false)
+        }}
+        onLater={() => {
+          snoozeInstall(SNOOZE_LATER_MS)
+          setPromptInstall(false)
+        }}
+      />
+    )
+  }
+
+  if (!session) return <EntryScreen />
+
+  // The screens behind the door are the next batch.
+  return (
+    <main className="flex min-h-dvh items-center justify-center bg-app px-6">
+      <p className="text-center text-lg text-fg-secondary [text-wrap:pretty]">
+        {t('entry.signedIn')}
+      </p>
+    </main>
+  )
 }

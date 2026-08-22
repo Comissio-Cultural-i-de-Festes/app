@@ -4,6 +4,8 @@ interface ImportMetaEnv {
   readonly VITE_APP_NAME: string
   readonly VITE_APP_SHORT_NAME: string
   readonly VITE_APP_DESCRIPTION?: string
+  readonly VITE_APP_TAGLINE?: string
+  readonly VITE_WHATSAPP_URL?: string
   readonly VITE_THEME_COLOR?: string
   readonly VITE_BACKGROUND_COLOR?: string
   readonly VITE_DEFAULT_LOCALE?: string

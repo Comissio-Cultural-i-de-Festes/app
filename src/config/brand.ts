@@ -15,4 +15,5 @@ export const brand = {
   name: env.appName,
   shortName: env.appShortName,
   description: env.appDescription,
+  tagline: env.appTagline,
 } as const

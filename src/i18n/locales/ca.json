@@ -1,10 +1,8 @@
 {
-  "nav": {
-    "home": "Inici",
-    "ranking": "Rànquing",
-    "qr": "El meu QR",
-    "proposals": "Propostes",
-    "profile": "Perfil"
+  "a11y": {
+    "tabBar": "Navegació principal",
+    "comingSoon": "properament",
+    "loading": "Carregant contingut"
   },
   "actions": {
     "yes": "Hi vaig",
@@ -20,11 +18,105 @@
     "signIn": "Entra",
     "signOut": "Tanca la sessió"
   },
-  "state": {
-    "loading": "Un segon…",
-    "empty": "Ara mateix res. Tranquil, ja caurà alguna cosa",
-    "offline": "Sense connexió",
-    "updating": "Actualitzant…"
+  "entry": {
+    "signedIn": "Ja ets dins. Les pantalles arriben a la propera tanda.",
+    "sending": "Enviant…",
+    "invited": {
+      "title": "T'han convidat",
+      "lede": "Algú del grup t'ha passat l'enllaç. Posa el correu que facis servir, el del campus o el de sempre, i ja ets dels nostres.",
+      "cta": "Entra",
+      "reassurance": "T'enviem un enllaç al correu, sense contrasenyes. Si l'enllaç s'ha filtrat, la junta el pot tallar."
+    },
+    "open": {
+      "title": "Encara no hi ets",
+      "lede": "No tens invitació, però tampoc passa res. Deixa el nom i el correu i algú de la junta t'obre la porta.",
+      "cta": "Demana l'accés",
+      "reassurance": "T'enviem un enllaç al correu, sense contrasenyes. Fins que algú de la junta ho aprovi, veuràs l'app en mode espera."
+    },
+    "invite": {
+      "label": "Invitació",
+      "expiresSoon": "Caduca de seguida",
+      "expiresHours_one": "Caduca en {{count}} h",
+      "expiresHours_other": "Caduca en {{count}} h",
+      "expiresDays_one": "Caduca en {{count}} dia",
+      "expiresDays_other": "Caduca en {{count}} dies"
+    },
+    "name": {
+      "label": "El teu nom",
+      "placeholder": "Com et diuen"
+    },
+    "email": {
+      "label": "El teu correu",
+      "placeholder": "tu@exemple.cat"
+    },
+    "noInvite": {
+      "question": "No en tens?",
+      "link": "Demana-la al grup de WhatsApp"
+    },
+    "sent": {
+      "title": "Mira el correu",
+      "lede": "L'hem enviat a {{email}}. Si no hi és, mira a la brossa.",
+      "link": "Toca l'enllaç del correu i ja estàs a dins.",
+      "orCode": "O, si t'estimes més, escriu el codi de sis xifres que hi ha al mateix correu.",
+      "linkOpensSafari": "L'enllaç del correu obre el Safari, i des d'allà no entraries aquí. Escriu el codi i te'n surts a la primera.",
+      "codeLabel": "Codi del correu",
+      "verify": "Endavant",
+      "verifying": "Comprovant…",
+      "back": "Canvia el correu"
+    },
+    "errors": {
+      "sendFailed": "No hem pogut enviar el correu. Torna-ho a provar d'aquí un moment.",
+      "badCode": "Aquest codi no és bo, o ja ha caducat. Demana-ne un altre."
+    }
+  },
+  "errors": {
+    "generic": "Hi ha hagut un error. Torna-ho a provar.",
+    "network": "No s'ha pogut connectar amb el servidor.",
+    "offline": "Cal connexió a internet per veure aquesta informació.",
+    "unauthorized": "Cal iniciar sessió.",
+    "forbidden": "No tens permís per fer aquesta acció.",
+    "notFound": "No s'ha trobat.",
+    "rateLimited": "Massa intents. Espera uns minuts.",
+    "expired": "Ha caducat."
+  },
+  "install": {
+    "title": "Posa-la a la pantalla",
+    "lede": "Dos tocs i la tens com una app de veritat. Sense això no hi ha avisos quan obrim places, i te les prendran.",
+    "step1": {
+      "title": "Toca Comparteix, a baix",
+      "body": "És el quadradet amb la fletxa cap amunt, al mig de la barra del Safari."
+    },
+    "step2": {
+      "title": "Baixa fins a \"Afegeix a la pantalla d'inici\"",
+      "body": "Surt cap avall a la llista. Després, Afegeix a dalt a la dreta.",
+      "sheetAbove": "Afegeix a Preferits",
+      "sheetTarget": "Afegeix a la pantalla d'inici",
+      "sheetBelow": "Marca com a text"
+    },
+    "payoff": {
+      "title": "Què guanyes",
+      "body": "Avís quan obrim places, el QR sense buscar res i pantalla completa. Amb el navegador normal no arriben els avisos: és l'Apple, no som nosaltres."
+    },
+    "done": "Ja ho tinc fet",
+    "later": "Ara no, ja m'espavilaré",
+    "laterWarning": "Pots seguir aquí al navegador. Quan la posis a la pantalla d'inici hauràs de tornar a entrar un cop, perquè l'iPhone les tracta com dues coses diferents."
+  },
+  "language": {
+    "label": "Idioma",
+    "ca": "Català",
+    "es": "Castellano",
+    "en": "English"
+  },
+  "legal": {
+    "privacy": "Política de privadesa",
+    "terms": "Condicions d'ús"
+  },
+  "nav": {
+    "home": "Inici",
+    "ranking": "Rànquing",
+    "qr": "El meu QR",
+    "proposals": "Propostes",
+    "profile": "Perfil"
   },
   "scanner": {
     "ok": "Fitxat. Ja ets dins",
@@ -37,21 +129,11 @@
     "error": "No s'ha pogut connectar. Torna-ho a provar",
     "queued": "Desat. S'enviarà quan hi hagi cobertura"
   },
-  "errors": {
-    "generic": "Hi ha hagut un error. Torna-ho a provar.",
-    "network": "No s'ha pogut connectar amb el servidor.",
-    "offline": "Cal connexió a internet per veure aquesta informació.",
-    "unauthorized": "Cal iniciar sessió.",
-    "forbidden": "No tens permís per fer aquesta acció.",
-    "notFound": "No s'ha trobat.",
-    "rateLimited": "Massa intents. Espera uns minuts.",
-    "expired": "Ha caducat."
-  },
-  "units": {
-    "points_one": "{{count}} punt",
-    "points_other": "{{count}} punts",
-    "placesLeft_one": "Queda {{count}} plaça",
-    "placesLeft_other": "Queden {{count}} places"
+  "state": {
+    "loading": "Un segon…",
+    "empty": "Ara mateix res. Tranquil, ja caurà alguna cosa",
+    "offline": "Sense connexió",
+    "updating": "Actualitzant…"
   },
   "time": {
     "today": "Avui",
@@ -59,19 +141,10 @@
     "yesterday": "Ahir",
     "startsIn": "Comença en {{duration}}"
   },
-  "language": {
-    "label": "Idioma",
-    "ca": "Català",
-    "es": "Castellano",
-    "en": "English"
-  },
-  "a11y": {
-    "tabBar": "Navegació principal",
-    "comingSoon": "properament",
-    "loading": "Carregant contingut"
-  },
-  "legal": {
-    "privacy": "Política de privadesa",
-    "terms": "Condicions d'ús"
+  "units": {
+    "points_one": "{{count}} punt",
+    "points_other": "{{count}} punts",
+    "placesLeft_one": "Queda {{count}} plaça",
+    "placesLeft_other": "Queden {{count}} places"
   }
 }

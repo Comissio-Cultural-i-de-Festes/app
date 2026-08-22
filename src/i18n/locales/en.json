@@ -22,15 +22,18 @@
     "sending": "One sec…",
     "invited": {
       "title": "You're invited",
-      "lede": "Someone from the group sent you the link. Sign in with your Google account — no new password to remember — and you are one of us.",
+      "lede": "Somebody in the group sent you the link. Sign in with your Google account and you are one of us. No new password.",
       "cta": "Sign in with Google",
-      "reassurance": "You sign in with your Google account, no new passwords. Google only tells us who you are; the invitation is what gets you in."
+      "reassurance": "From the account we take only your name, your email and your photo. The invitation is what grants access, and the committee can cut it off if it leaks."
     },
     "open": {
-      "title": "You're not in yet",
-      "lede": "No invitation, no problem. Sign in with Google and someone on the committee will let you in.",
-      "cta": "Ask to join with Google",
-      "reassurance": "You sign in with your Google account. Until someone on the committee approves you, the app stays in waiting mode."
+      "title": "Ask to join",
+      "lede": "You got here without an invitation. Sign in with Google and the committee will let you in by hand, usually the same day.",
+      "cta": "Sign in with Google",
+      "reassurance": "From the account we take only your name, your email and your photo. Until you are approved you can see the events, but you cannot sign up for them.",
+      "noCodeLabel": "No invitation",
+      "noCodeValue": "No code",
+      "noCodeAside": "The committee approves it"
     },
     "invite": {
       "label": "Invitation",
@@ -66,7 +69,11 @@
     },
     "stranded": "It looks like you signed in but the session stayed in the browser rather than here. Open the app from Safari, or tell the committee and we will sort it out.",
     "emailFallback": "Or, if Google is not working for you, sign in with your email.",
-    "emailCta": "Email me a link"
+    "emailCta": "Email me a link",
+    "hasCode": {
+      "question": "Got a code?",
+      "hint": "Open the invitation link"
+    }
   },
   "errors": {
     "generic": "Something went wrong. Please try again.",
@@ -155,8 +162,7 @@
       "body": "There is nothing on the calendar. Relax, something will turn up."
     },
     "waiting": {
-      "title": "You're on the list",
-      "body": "Someone on the committee has to let you in. Until then you will not see anything: it is not that nothing is happening, it is that you are not quite in yet."
+      "banner": "You are still on the waiting list. You can see what is coming, but you cannot sign up until the committee lets you in."
     }
   },
   "install": {
@@ -179,7 +185,8 @@
     },
     "done": "I've done it",
     "later": "Not now, I'll manage",
-    "laterWarning": "You can carry on here in the browser. Once you add it to your home screen you'll sign in one more time, because the iPhone treats them as two separate things."
+    "laterWarning": "You can carry on here in the browser. Once you add it to your home screen you'll sign in one more time, because the iPhone treats them as two separate things.",
+    "iconPreview": "This is how it will sit among your apps. The red icon is easy to spot when you are in a hurry."
   },
   "language": {
     "label": "Language",

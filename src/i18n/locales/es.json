@@ -22,15 +22,18 @@
     "sending": "Un segundo…",
     "invited": {
       "title": "Te han invitado",
-      "lede": "Alguien del grupo te ha pasado el enlace. Entra con tu Google, así no tienes que recordar ninguna contraseña nueva, y ya eres de los nuestros.",
+      "lede": "Alguien del grupo te ha pasado el enlace. Entra con tu cuenta de Google y ya eres de los nuestros. Ninguna contraseña nueva.",
       "cta": "Entra con Google",
-      "reassurance": "Entras con la cuenta de Google, sin contraseñas nuevas. Google solo nos dice quién eres; en la comi entras por la invitación."
+      "reassurance": "De la cuenta solo cogemos el nombre, el correo y la foto. La invitación es lo que da acceso, y la junta puede cortarla si se ha filtrado."
     },
     "open": {
-      "title": "Todavía no estás",
-      "lede": "No tienes invitación, pero tampoco pasa nada. Entra con Google y alguien de la junta te abre la puerta.",
-      "cta": "Pide el acceso con Google",
-      "reassurance": "Entras con la cuenta de Google. Hasta que alguien de la junta lo apruebe, verás la app en modo espera."
+      "title": "Pide entrar",
+      "lede": "Has llegado sin invitación. Entra con Google y la junta te dará el acceso a mano, normalmente el mismo día.",
+      "cta": "Entra con Google",
+      "reassurance": "De la cuenta solo cogemos el nombre, el correo y la foto. Hasta que te aprueben ves los eventos, pero no puedes apuntarte.",
+      "noCodeLabel": "Sin invitación",
+      "noCodeValue": "Ningún código",
+      "noCodeAside": "Lo aprueba la junta"
     },
     "invite": {
       "label": "Invitación",
@@ -66,7 +69,11 @@
     },
     "stranded": "Parece que has entrado pero la sesión se ha quedado en el navegador, no aquí. Abre la app desde Safari, o avisa a la junta y te lo arreglamos.",
     "emailFallback": "O, si Google te falla, entra con el correo de siempre.",
-    "emailCta": "Envía un enlace al correo"
+    "emailCta": "Envía un enlace al correo",
+    "hasCode": {
+      "question": "¿Tienes código?",
+      "hint": "Abre el enlace de la invitación"
+    }
   },
   "errors": {
     "generic": "Ha habido un error. Vuelve a intentarlo.",
@@ -155,8 +162,7 @@
       "body": "No hay nada en el calendario. Tranquilo, ya caerá algo."
     },
     "waiting": {
-      "title": "Estás en la lista",
-      "body": "Alguien de la junta tiene que darte el alta. Hasta entonces no verás nada: no es que no pase nada, es que aún no estás del todo dentro."
+      "banner": "Todavía estás en la lista de espera. Puedes mirar qué viene, pero no puedes apuntarte hasta que la junta te dé el alta."
     }
   },
   "install": {
@@ -179,7 +185,8 @@
     },
     "done": "Ya está hecho",
     "later": "Ahora no, ya me apañaré",
-    "laterWarning": "Puedes seguir aquí en el navegador. Cuando la pongas en la pantalla de inicio tendrás que entrar otra vez, porque el iPhone las trata como dos cosas distintas."
+    "laterWarning": "Puedes seguir aquí en el navegador. Cuando la pongas en la pantalla de inicio tendrás que entrar otra vez, porque el iPhone las trata como dos cosas distintas.",
+    "iconPreview": "Así quedará entre tus apps. El icono rojo se ve de lejos cuando lo buscas con prisa."
   },
   "language": {
     "label": "Idioma",

@@ -22,15 +22,18 @@
     "sending": "Un segon…",
     "invited": {
       "title": "T'han convidat",
-      "lede": "Algú del grup t'ha passat l'enllaç. Entra amb el teu Google, que no has de recordar cap contrasenya nova, i ja ets dels nostres.",
+      "lede": "Algú del grup t'ha passat l'enllaç. Entra amb el teu compte de Google i ja ets dels nostres. Cap contrasenya nova.",
       "cta": "Entra amb Google",
-      "reassurance": "Entres amb el compte de Google, sense contrasenyes noves. Google només ens diu qui ets; a la comi hi entres per la invitació."
+      "reassurance": "Del compte només agafem el nom, el correu i la foto. La invitació és el que dona accés, i la junta la pot tallar si s'ha filtrat."
     },
     "open": {
-      "title": "Encara no hi ets",
-      "lede": "No tens invitació, però tampoc passa res. Entra amb Google i algú de la junta t'obre la porta.",
-      "cta": "Demana l'accés amb Google",
-      "reassurance": "Entres amb el compte de Google. Fins que algú de la junta ho aprovi, veuràs l'app en mode espera."
+      "title": "Demana entrar",
+      "lede": "Has arribat sense invitació. Entra amb Google i la junta et donarà l'accés a mà, normalment el mateix dia.",
+      "cta": "Entra amb Google",
+      "reassurance": "Del compte només agafem el nom, el correu i la foto. Fins que t’aprovin veus els esdeveniments, però no pots apuntar-t'hi.",
+      "noCodeLabel": "Sense invitació",
+      "noCodeValue": "Cap codi",
+      "noCodeAside": "Ho aprova la junta"
     },
     "invite": {
       "label": "Invitació",
@@ -66,7 +69,11 @@
     },
     "stranded": "Sembla que has entrat però la sessió s'ha quedat al navegador, no aquí. Obre l'app des del Safari, o avisa la junta i t'ho arreglem.",
     "emailFallback": "O, si el Google et falla, entra amb el correu de sempre.",
-    "emailCta": "Envia un enllaç al correu"
+    "emailCta": "Envia un enllaç al correu",
+    "hasCode": {
+      "question": "Tens codi?",
+      "hint": "Obre l'enllaç de la invitació"
+    }
   },
   "errors": {
     "generic": "Hi ha hagut un error. Torna-ho a provar.",
@@ -155,8 +162,7 @@
       "body": "No hi ha res al calendari. Tranquil, ja caurà alguna cosa."
     },
     "waiting": {
-      "title": "Estàs a la llista",
-      "body": "Algú de la junta t'ha de donar l'alta. Fins llavors no veuràs res: no és que no passi res, és que encara no hi ets del tot."
+      "banner": "Encara ets a la llista d'espera. Pots mirar què ve, però no t'hi pots apuntar fins que la junta et doni l'alta."
     }
   },
   "install": {
@@ -179,7 +185,8 @@
     },
     "done": "Ja ho tinc fet",
     "later": "Ara no, ja m'espavilaré",
-    "laterWarning": "Pots seguir aquí al navegador. Quan la posis a la pantalla d'inici hauràs de tornar a entrar un cop, perquè l'iPhone les tracta com dues coses diferents."
+    "laterWarning": "Pots seguir aquí al navegador. Quan la posis a la pantalla d'inici hauràs de tornar a entrar un cop, perquè l'iPhone les tracta com dues coses diferents.",
+    "iconPreview": "Així quedarà entre les teves apps. La icona vermella es veu de lluny quan la busques amb pressa."
   },
   "language": {
     "label": "Idioma",

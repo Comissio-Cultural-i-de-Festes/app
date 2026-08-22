@@ -1,0 +1,44 @@
+# dependencies
+node_modules/
+
+# build output
+dist/
+dist-ssr/
+dev-dist/
+.vite/
+*.tsbuildinfo
+
+# test output
+coverage/
+
+# env — never commit real values
+.env
+.env.*
+!.env.example
+
+# supabase local state
+supabase/.temp/
+supabase/.branches/
+.supabase/
+
+# tooling caches
+.eslintcache
+.prettiercache
+
+# editors
+.idea/
+.vscode/*
+!.vscode/extensions.json
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# logs
+*.log
+npm-debug.log*
+
+# local agent state
+.remember/

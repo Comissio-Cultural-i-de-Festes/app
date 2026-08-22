@@ -1,0 +1,7 @@
+* text=auto eol=lf
+*.sh    text eol=lf
+*.sql   text eol=lf
+*.yml   text eol=lf
+*.png   binary
+*.woff2 binary
+package-lock.json -diff linguist-generated

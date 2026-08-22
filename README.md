@@ -127,6 +127,155 @@ Report the result either way: an issue on the repo, or a note wherever the
 committee keeps decisions. The next person to wonder should not have to test it
 again.
 
+## Deploying
+
+Do these in order. The Cloudflare URL does not exist until the first build, and
+Supabase needs it afterwards, so anything that depends on it comes last.
+
+Throughout, `<ref>` is the Supabase project ref (the subdomain of the project
+URL) and `<project>` is the Cloudflare Pages project name.
+
+### 1. Supabase — enable pg_cron, before anything else
+
+Dashboard → Database → Extensions → search `pg_cron` → enable.
+
+Do this first. The retention migration needs it, and creating the extension
+from a migration on a hosted project is known to leave the schema grants
+half-set even when the dashboard reports it active. Enabling it here makes the
+migration a no-op instead.
+
+### 2. Supabase — push the schema
+
+```
+npx supabase link --project-ref <ref>
+npm run db:push
+```
+
+**Do not run `supabase config push`.** It exists, and the CLI help makes it look
+like the right thing to do, but `supabase/config.toml` is tuned for local
+development: it would set the project's Site URL to `http://127.0.0.1:5173` and
+overwrite the Google credentials with the local test client. Auth settings are
+done in the dashboard, in the steps below.
+
+`db push` sends migrations and nothing else — not seeds, not auth config, not
+the email templates.
+
+### 3. Google Cloud — the production OAuth client
+
+APIs & Services → Credentials → Create credentials → OAuth client ID → Web
+application.
+
+**Authorized redirect URI** — exactly one, and it is Supabase's callback, not
+the app's address:
+
+```
+https://<ref>.supabase.co/auth/v1/callback
+```
+
+Leave **Authorized JavaScript origins** empty. The app never talks to Google
+directly; Supabase does the exchange.
+
+On the OAuth consent screen, the application name is what people see on the
+Google page as _"Continue to …"_. Put the association's name there.
+
+### 4. Supabase — turn Google on
+
+Authentication → Providers → Google → enable, and paste the client ID and
+secret from the previous step.
+
+### 5. Cloudflare Pages — connect and build
+
+Workers & Pages → Create → Pages → Connect to Git → pick the repository.
+
+| Setting                | Value           |
+| ---------------------- | --------------- |
+| Framework preset       | None            |
+| Build command          | `npm run build` |
+| Build output directory | `dist`          |
+| Root directory         | `/`             |
+
+Environment variables, for **both** Production and Preview:
+
+| Variable                 | Value                                     |
+| ------------------------ | ----------------------------------------- |
+| `NODE_VERSION`           | `24`                                      |
+| `VITE_APP_NAME`          | the association's full name               |
+| `VITE_APP_SHORT_NAME`    | the short one, what shows under the icon  |
+| `VITE_APP_DESCRIPTION`   | one line                                  |
+| `VITE_APP_TAGLINE`       | shown under the wordmark on the door      |
+| `VITE_THEME_COLOR`       | `#100909`                                 |
+| `VITE_BACKGROUND_COLOR`  | `#100909`                                 |
+| `VITE_DEFAULT_LOCALE`    | `ca`                                      |
+| `VITE_TIME_ZONE`         | `Europe/Madrid`                           |
+| `VITE_SUPABASE_URL`      | `https://<ref>.supabase.co`               |
+| `VITE_SUPABASE_ANON_KEY` | the project's anon key — public by design |
+| `VITE_WHATSAPP_URL`      | the group invite link                     |
+
+Paste the hex colours plain, with no quotes. The quoting rule in
+`.env.example` is a dotenv quirk and does not apply here.
+
+Forget one of `VITE_APP_NAME`, `VITE_APP_SHORT_NAME`, `VITE_SUPABASE_URL` or
+`VITE_SUPABASE_ANON_KEY` and the build stops with a message naming exactly
+which. That is deliberate: the alternative is a deploy that succeeds and shows
+`%VITE_APP_NAME%` in the title bar.
+
+`public/_headers` and `public/_redirects` are copied into `dist` and picked up
+automatically. They stop the HTTP cache holding a stale `index.html` or `sw.js`,
+which is what would otherwise show pre-reveal content after a reveal.
+
+Deploy. Note the URL: `https://<project>.pages.dev`.
+
+### 6. Supabase — point auth at the real address
+
+Authentication → URL Configuration.
+
+**Site URL**
+
+```
+https://<project>.pages.dev
+```
+
+**Redirect URLs** — the second line covers preview deploys, which get a
+different hostname on every pull request:
+
+```
+https://<project>.pages.dev/**
+https://*.<project>.pages.dev/**
+```
+
+No rebuild is needed after this. The app derives its redirect from
+`window.location.origin` at run time, so it follows whatever address it is
+served from.
+
+### 7. GitHub — the keepalive secrets
+
+Settings → Secrets and variables → Actions:
+
+| Secret              | Value                       |
+| ------------------- | --------------------------- |
+| `SUPABASE_URL`      | `https://<ref>.supabase.co` |
+| `SUPABASE_ANON_KEY` | the same anon key           |
+
+Free-tier projects pause after a week without activity, and over the summer
+that will happen. Note that GitHub also disables scheduled workflows in a
+public repository after 60 days with no commits, and emails the owner — so the
+thing keeping the database awake falls asleep first if work stops. Treat that
+email as an action item.
+
+### 8. Test it on an iPhone
+
+See _Checking the iPhone round trip_ above. Do it before the first event, not
+after.
+
+### If you ever turn the email fallback back on
+
+`VITE_AUTH_EMAIL_FALLBACK=true` is only half of it. The email templates in
+`supabase/templates/` are wired up in `config.toml`, which is local-only, so
+they have to be pasted into Authentication → Emails in the dashboard as well.
+Otherwise the association's first contact with a new member is Supabase's
+English default. Turn _Confirm email_ off there too, so the sign-in link is the
+confirmation rather than a second step.
+
 ## Security
 
 **The anon key is public by design.** It ships in the JavaScript bundle and is

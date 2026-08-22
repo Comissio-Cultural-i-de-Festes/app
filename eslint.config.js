@@ -44,6 +44,22 @@ export default tseslint.config(
     languageOptions: { globals: globals.node },
   },
   {
+    // Node types are enabled project-wide so tests can read fixtures off disk.
+    // Application code still runs in a browser and must not reach for them.
+    files: ['src/**/*.{ts,tsx}'],
+    ignores: ['src/**/*.test.{ts,tsx}'],
+    rules: {
+      'no-restricted-globals': [
+        'error',
+        {
+          name: 'process',
+          message: 'Browser code has no process. Read config from src/config/env.ts.',
+        },
+        { name: '__dirname', message: 'Browser code has no __dirname.' },
+      ],
+    },
+  },
+  {
     files: ['tests/**/*.{ts,tsx}', 'src/**/*.test.{ts,tsx}'],
     rules: { '@typescript-eslint/no-non-null-assertion': 'off' },
   },

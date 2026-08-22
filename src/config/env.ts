@@ -3,14 +3,23 @@
  * into the browser bundle at build time, so nothing secret may live here.
  */
 
+function read(key: keyof ImportMetaEnv): string | undefined {
+  // ImportMetaEnv from vite/client carries an `any` index signature, so a
+  // dynamic key read has to be narrowed here rather than at every call site.
+  const value: unknown = import.meta.env[key]
+  return typeof value === 'string' && value !== '' ? value : undefined
+}
+
 function required(key: keyof ImportMetaEnv): string {
-  const value = import.meta.env[key]
-  if (!value) throw new Error(`Missing ${key}. Copy .env.example to .env and fill it in.`)
+  const value = read(key)
+  if (value === undefined) {
+    throw new Error(`Missing ${key}. Copy .env.example to .env and fill it in.`)
+  }
   return value
 }
 
 function optional(key: keyof ImportMetaEnv, fallback: string): string {
-  return import.meta.env[key] || fallback
+  return read(key) ?? fallback
 }
 
 export const env = {

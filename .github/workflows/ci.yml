@@ -64,13 +64,12 @@ jobs:
 
       # A privileged key must never reach a browser. Checked against the built
       # bundle rather than the source, because that is what actually ships.
+      #
+      # The script looks for key values, not for the words: grepping dist/ for
+      # "service_role" matches supabase-js itself, which carries a key-format
+      # check and mentions the role all through its JSDoc.
       - name: no privileged credential in the bundle
-        run: |
-          set -euo pipefail
-          if grep -rIlE 'service_role|sb_secret_' dist/; then
-            echo "::error::a privileged credential is present in the built bundle"
-            exit 1
-          fi
+        run: node scripts/no-leaked-keys.mjs
 
   db:
     name: rls and check-in

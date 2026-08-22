@@ -124,3 +124,15 @@ begin
   perform set_config('request.jwt.claims', '', true);
   execute 'reset role';
 end $$;
+
+-- Midnight today in the association's time zone, which is the boundary the
+-- screens use for "avui". The database runs in UTC, so date_trunc('day',
+-- now()) is two hours late in summer and fixtures meant for today land
+-- yesterday.
+create or replace function tests.today_local()
+returns timestamptz
+language sql
+stable
+as $$
+  select date_trunc('day', now() at time zone 'Europe/Madrid') at time zone 'Europe/Madrid'
+$$;

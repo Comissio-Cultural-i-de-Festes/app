@@ -1,8 +1,13 @@
 import type { Session } from '@supabase/supabase-js'
 import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Navigate, Route, Routes } from 'react-router'
 
 import { EntryScreen } from '@/features/entry/EntryScreen'
+import { HomeScreen } from '@/features/home/HomeScreen'
+import { RankingScreen } from '@/features/ranking/RankingScreen'
+import { UserIdContext } from '@/features/session/context'
+import { AppShell } from '@/features/shell/AppShell'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
 import { INVITE_PARAM, readInviteCode } from '@/features/entry/useInvite'
 import { InstallScreen } from '@/features/install/InstallScreen'
@@ -88,12 +93,30 @@ export default function App() {
 
   if (!session) return <EntryScreen />
 
-  // The screens behind the door are the next batch.
   return (
-    <main className="flex min-h-dvh items-center justify-center bg-app px-6">
-      <p className="text-center text-lg text-fg-secondary [text-wrap:pretty]">
-        {t('entry.signedIn')}
-      </p>
-    </main>
+    <UserIdContext value={session.user.id}>
+      <Routes>
+        <Route
+          path="/"
+          element={
+            <AppShell current="home">
+              <HomeScreen />
+            </AppShell>
+          }
+        />
+        <Route
+          path="/ranquing"
+          element={
+            <AppShell current="ranking">
+              <RankingScreen />
+            </AppShell>
+          }
+        />
+        {/* A path that does not exist yet, or one left over from a shared link
+            to a screen that has not shipped. Home, rather than a 404 nobody
+            has designed. */}
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
+    </UserIdContext>
   )
 }

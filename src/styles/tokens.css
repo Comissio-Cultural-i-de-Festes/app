@@ -71,6 +71,13 @@
   --ds-text-faint-lo: oklch(0.5 0.012 45);
   --ds-text-inverse: oklch(0.16 0.012 25); /* on a light or filled chip */
 
+  /* Google's sign-in button, which is theirs and not ours. Their brand
+   * guidelines require the button be white or dark with their exact mark on
+   * it, so these two are deliberately outside the warm neutral ramp: a cool
+   * near-white and a cool near-black, as they specify. Never reuse them. */
+  --ds-google-bg: oklch(0.98 0.004 260);
+  --ds-google-fg: oklch(0.28 0.01 260);
+
   /* ─── BRAND ─── the only block a fork needs to touch ───────────────────
    * There are two reds and they are not interchangeable. The official logo
    * red is #991B16 = oklch(0.443 0.162 28.4). At that lightness over a 0.15

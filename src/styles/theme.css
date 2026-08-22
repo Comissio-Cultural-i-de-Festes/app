@@ -45,6 +45,8 @@
   --color-fg-selected: var(--ds-selected-fg);
   --color-on-brand: var(--ds-text-on-brand);
   --color-on-state: var(--ds-on-state);
+  --color-google-bg: var(--ds-google-bg);
+  --color-google-fg: var(--ds-google-fg);
 
   /* brand */
   --color-brand: var(--ds-brand);

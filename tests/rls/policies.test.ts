@@ -76,39 +76,99 @@ describe('identity cannot be self-assigned', () => {
       .from('profiles')
       .update({ hide_from_ranking: false })
       .eq('id', F.alfa)
-      // Named, not select(). See the contract test below.
       .select('id, hide_from_ranking')
 
     expect(error).toBeNull()
     expect(data).toHaveLength(1)
   })
 
-  it('select(*) on profiles is denied, and that is the contract', async () => {
-    // qr_token and telefon are revoked at the column level, and PostgREST
-    // expands * to every column, so `select('*')` on this table is a 42501 for
-    // a member. Screens must name the columns they want. This is asserted
-    // rather than documented because the first person to hit it will be
-    // tempted to "fix" it by handing the grants back.
+  it('select(*) on profiles works and carries nothing sensitive', async () => {
+    // This is why the credential and the phone number are in their own tables.
+    // Revoking them at the column level protected them just as well, but it
+    // made `*` fail — and a guarantee that shows up as a permission error on
+    // an ordinary query is a guarantee somebody eventually removes.
     const member = await as('alfa')
-    const { error } = await member.from('profiles').select('*').limit(1)
-    expect(error?.code).toBe('42501')
-
-    const { error: named } = await member
+    const { data, error } = await member
       .from('profiles')
-      .select('id, nombre, escola, curs, role, estat')
+      .select('*')
       .limit(1)
-    expect(named).toBeNull()
+      .returns<Record<string, unknown>[]>()
+
+    expect(error).toBeNull()
+    const columns = Object.keys(data?.[0] ?? {})
+    expect(columns).not.toContain('qr_token')
+    expect(columns).not.toContain('telefon')
+    expect(columns).toContain('nombre')
+  })
+})
+
+describe('the two things that are not the association’s business', () => {
+  it('a QR token is readable by its owner and nobody else', async () => {
+    const member = await as('alfa')
+
+    const { data: mine, error } = await member.from('profile_secret').select('id, qr_token')
+    expect(error).toBeNull()
+    expect(mine).toHaveLength(1)
+    expect(mine?.[0]?.id).toBe(F.alfa)
+
+    const { data: theirs } = await member.from('profile_secret').select('*').eq('id', F.bravo)
+    expect(theirs).toEqual([])
+
+    const { data: viaRpc } = await rpc<string>(member, 'my_qr')
+    expect(viaRpc).toBe(mine?.[0]?.qr_token)
   })
 
-  it('a QR token is not readable off the table, only through my_qr()', async () => {
+  it('and not even by an admin', async () => {
+    // There is no admin policy on profile_secret, on purpose. The junta never
+    // needs a token — check_in() resolves it inside a definer function — and
+    // one compromised admin account must not yield 300 forgeable credentials.
+    const admin = await as('junta_alfa')
+    const { data } = await admin.from('profile_secret').select('id')
+
+    expect(data?.map((r) => String(r.id))).toEqual([F.juntaAlfa])
+  })
+
+  it('a phone number is for its owner and the junta, not the association', async () => {
+    const svc = serviceClient()
+    await svc.from('profile_contact').upsert({ id: F.bravo, telefon: '+1 555 0142' })
+
     const member = await as('alfa')
+    const { data: seen } = await member.from('profile_contact').select('id').eq('id', F.bravo)
+    expect(seen).toEqual([])
 
-    const { error } = await member.from('profiles').select('qr_token').eq('id', F.bravo)
-    expect(error?.code).toBe('42501')
+    const admin = await as('junta_alfa')
+    const { data: junta } = await admin
+      .from('profile_contact')
+      .select('id, telefon')
+      .eq('id', F.bravo)
+    expect(junta).toHaveLength(1)
+    expect(junta?.[0]?.telefon).toBe('+1 555 0142')
 
-    const { data: mine, error: mineErr } = await rpc<string>(member, 'my_qr')
-    expect(mineErr).toBeNull()
-    expect(mine).toMatch(/^[0-9a-f-]{36}$/)
+    await svc.from('profile_contact').update({ telefon: null }).eq('id', F.bravo)
+  })
+
+  it('and a member can set their own', async () => {
+    // Update, not upsert: the row is created by the signup trigger, so it is
+    // always there and INSERT is deliberately not granted.
+    const member = await as('alfa')
+    const { data, error } = await member
+      .from('profile_contact')
+      .update({ telefon: '+1 555 0101' })
+      .eq('id', F.alfa)
+      .select('id, telefon')
+
+    expect(error).toBeNull()
+    expect(data?.[0]?.telefon).toBe('+1 555 0101')
+
+    // Somebody else's is filtered out by the policy, so it matches no rows.
+    const { data: theirs } = await member
+      .from('profile_contact')
+      .update({ telefon: '+1 555 0199' })
+      .eq('id', F.bravo)
+      .select('id')
+    expect(theirs).toEqual([])
+
+    await serviceClient().from('profile_contact').update({ telefon: null }).eq('id', F.alfa)
   })
 })
 

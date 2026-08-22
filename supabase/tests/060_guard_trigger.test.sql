@@ -17,7 +17,7 @@ select plan(6);
 
 -- Deliberately weaken the primary defence, inside a transaction that rolls
 -- back. From here on, only the trigger stands between a member and 'owner'.
-grant update (role, estat, qr_token) on public.profiles to authenticated;
+grant update (role, estat) on public.profiles to authenticated;
 
 reset role;
 select tests.authenticate_as('alfa');
@@ -28,7 +28,7 @@ select throws_ok(
   $$ update public.profiles set role = 'owner'
       where id = '00000000-0000-4000-8000-000000000001' $$,
   '42501',
-  'camps protegits: role, estat i qr_token nomes per rpc',
+  'camps protegits: role i estat nomes per rpc',
   'with the grant handed back, the trigger still blocks a role change'
 );
 
@@ -39,16 +39,8 @@ select throws_ok(
   $$ update public.profiles set estat = 'baixa'
       where id = '00000000-0000-4000-8000-000000000001' $$,
   '42501',
-  'camps protegits: role, estat i qr_token nomes per rpc',
+  'camps protegits: role i estat nomes per rpc',
   'and an estat change on their own row'
-);
-
-select throws_ok(
-  $$ update public.profiles set qr_token = gen_random_uuid()
-      where id = '00000000-0000-4000-8000-000000000001' $$,
-  '42501',
-  'camps protegits: role, estat i qr_token nomes per rpc',
-  'and a QR rotation done by hand rather than through the RPC'
 );
 
 -- The other half of the trigger's job: it must not fight the RPCs, which run
@@ -65,6 +57,17 @@ select is(
   public.redeem_invite('CODI-VALID-0001') ->> 'ok',
   'true',
   'and redeem_invite can still move somebody from pendent to actiu'
+);
+
+-- qr_token is not a column here any more, so the equivalent of the check
+-- above is that its table refuses a client write outright. Note there is no
+-- grant to hand back: profile_secret has no write privilege for anyone.
+select throws_ok(
+  $$ update public.profile_secret set qr_token = gen_random_uuid()
+      where id = '00000000-0000-4000-8000-000000000001' $$,
+  '42501',
+  null,
+  'and a QR cannot be rotated by hand, only through the RPC'
 );
 
 select * from finish();

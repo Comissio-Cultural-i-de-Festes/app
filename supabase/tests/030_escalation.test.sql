@@ -9,7 +9,7 @@
 -- fixture lookup must not be able to make a security assertion pass vacuously.
 
 begin;
-select plan(12);
+select plan(14);
 
 -- Own the starting state. These files run against a database an earlier suite
 -- may have written to, and an assertion that quietly stops proving anything is
@@ -93,12 +93,24 @@ select throws_ok(
   'role cannot ride along with a legitimate field'
 );
 
-select throws_ok(
-  $$ select qr_token from public.profiles
-      where id = '00000000-0000-4000-8000-000000000002' $$,
-  '42501',
-  null,
+select is(
+  (select count(*)::int from public.profile_secret
+    where id = '00000000-0000-4000-8000-000000000002'),
+  0,
   'a member cannot read anyone else''s QR token'
+);
+
+select is(
+  (select count(*)::int from public.profile_secret),
+  1,
+  'and sees exactly one row: their own'
+);
+
+select is(
+  (select count(*)::int from public.profile_contact
+    where id = '00000000-0000-4000-8000-000000000002'),
+  0,
+  'nor anyone else''s phone number'
 );
 
 select isnt(

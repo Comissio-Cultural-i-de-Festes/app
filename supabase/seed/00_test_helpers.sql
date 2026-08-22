@@ -59,7 +59,8 @@ begin
     'email', now(), now(), now()
   );
 
-  -- on_auth_user_created has already made the profile as pendent/member.
+  -- on_auth_user_created has already made the profile (pendent/member) and
+  -- both child rows.
   update public.profiles
      set role = p_role, estat = p_estat, escola = p_escola
    where id = p_uid;
@@ -80,7 +81,7 @@ create or replace function tests.qr(p_handle text)
 returns uuid
 language sql
 stable
-as $$ select p.qr_token from public.profiles p where p.id = tests.uid(p_handle) $$;
+as $$ select s.qr_token from public.profile_secret s where s.id = tests.uid(p_handle) $$;
 
 -- `set_config(..., true)` is the SET LOCAL form, so it unwinds with the test
 -- transaction. SET ROLE permission is checked against the session user, not

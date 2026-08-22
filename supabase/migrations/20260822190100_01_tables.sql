@@ -9,6 +9,9 @@
 -- ambiguous.
 
 -- ── profiles ────────────────────────────────────────────────────────────────
+-- Everything here is readable by any active member, so `select('*')` works and
+-- returns nothing sensitive. The two fields that are not for the whole
+-- association live in their own tables below.
 create table public.profiles (
   id                uuid primary key references auth.users (id) on delete cascade,
   nombre            text not null,
@@ -16,7 +19,6 @@ create table public.profiles (
   escola            text check (escola in ('politecnica', 'empresa', 'salut')),
   grau              text,
   curs              int check (curs between 1 and 6),
-  telefon           text,
   -- DEPARTURE FROM THE SPEC, and the one that matters most.
   --
   -- Section 3 has `default 'actiu'`. Supabase Auth will send a magic link to
@@ -30,30 +32,59 @@ create table public.profiles (
                       check (estat in ('pendent', 'actiu', 'baixa')),
   role              text not null default 'member'
                       check (role in ('member', 'admin', 'owner')),
-  qr_token          uuid not null default gen_random_uuid(),
   hide_from_ranking boolean not null default false,
   created_at        timestamptz not null default now()
 );
-
-comment on column public.profiles.qr_token is
-  'A bearer credential: whoever holds it can be checked in, and a check-in '
-  'writes to points_log. SELECT on this column is revoked from authenticated '
-  'in 03_grants.sql; a member reads their own through public.my_qr().';
-
-comment on column public.profiles.telefon is
-  'Personal data, kept so the junta can reconcile with the WhatsApp group. '
-  'SELECT is revoked from authenticated; the junta reads it through '
-  'public.admin_member_contacts().';
 
 comment on column public.profiles.hide_from_ranking is
   'A display preference, NOT a privacy guarantee. The public "si" attendance '
   'list plus events.puntos lets anyone reconstruct anyone else''s score. Do '
   'not describe this to members as hiding their points.';
 
--- qr_token is looked up once per scan, at the door, under time pressure.
-create unique index profiles_qr_token_key on public.profiles (qr_token);
 create index profiles_role_idx on public.profiles (role) where role <> 'member';
 create index profiles_escola_idx on public.profiles (escola) where escola is not null;
+
+-- ── profile_secret ──────────────────────────────────────────────────────────
+-- The check-in credential, in its own table.
+--
+-- This used to be a column on profiles with SELECT revoked from authenticated.
+-- That worked, and it made `select('*')` on profiles fail with a permission
+-- error, which meant every screen had to enumerate columns and the first
+-- person to hit it would be tempted to "fix" it by handing the grant back. A
+-- protection that depends on the discipline of whoever comes next is the wrong
+-- shape for a codebase whose maintainers rotate every year.
+--
+-- As a separate table, profiles is ordinary and complete, and the credential
+-- is protected by a policy that says one thing and cannot be widened by
+-- accident.
+create table public.profile_secret (
+  id         uuid primary key references public.profiles (id) on delete cascade,
+  qr_token   uuid not null default gen_random_uuid(),
+  rotated_at timestamptz
+);
+
+comment on table public.profile_secret is
+  'A bearer credential: whoever holds a qr_token can be checked in, and a '
+  'check-in writes to points_log. Own row only, and deliberately NOT readable '
+  'by admins — the junta never needs to see a token, because check_in() '
+  'resolves it inside a definer function. An admin account being compromised '
+  'must not hand over everyone''s check-in credential.';
+
+-- Looked up once per scan, at the door, under time pressure.
+create unique index profile_secret_qr_token_key on public.profile_secret (qr_token);
+
+-- ── profile_contact ─────────────────────────────────────────────────────────
+create table public.profile_contact (
+  id      uuid primary key references public.profiles (id) on delete cascade,
+  telefon text
+);
+
+comment on table public.profile_contact is
+  'Personal data. Readable by the person it belongs to and by the junta, who '
+  'need it to reconcile against the WhatsApp group — not by the whole '
+  'association. This is also where an alternate address goes when the question '
+  'of what happens to someone who graduates gets answered, so that decision '
+  'will not need to touch profiles.';
 
 -- ── invites ─────────────────────────────────────────────────────────────────
 create table public.invites (

@@ -48,6 +48,35 @@ create policy profiles_update_admin on public.profiles
 -- No INSERT policy: rows are created by the trigger on auth.users.
 -- No DELETE policy: members are deactivated, never deleted.
 
+-- ── profile_secret ──────────────────────────────────────────────────────────
+alter table public.profile_secret enable row level security;
+
+-- This is the entire policy set for the table, and the absence of an admin
+-- one is the point. The junta never needs to read a token: check_in() resolves
+-- it inside a definer function. Nobody writes here from a client either;
+-- rotation goes through public.rotate_qr_token().
+create policy psecret_select_self on public.profile_secret
+  for select to authenticated
+  using (id = (select auth.uid()));
+
+-- ── profile_contact ─────────────────────────────────────────────────────────
+alter table public.profile_contact enable row level security;
+
+create policy pcontact_select_self on public.profile_contact
+  for select to authenticated
+  using (id = (select auth.uid()));
+
+-- The junta reads phone numbers to reconcile against the WhatsApp group. The
+-- rest of the association does not.
+create policy pcontact_select_admin on public.profile_contact
+  for select to authenticated
+  using ((select private.is_admin()));
+
+create policy pcontact_update_self on public.profile_contact
+  for update to authenticated
+  using (id = (select auth.uid()))
+  with check (id = (select auth.uid()));
+
 -- ── invites ─────────────────────────────────────────────────────────────────
 alter table public.invites enable row level security;
 

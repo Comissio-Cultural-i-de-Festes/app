@@ -59,7 +59,13 @@ begin
   end if;
 
   if p_qr_token is not null then
-    select * into v_profile from public.profiles where qr_token = p_qr_token;
+    -- The token lives in profile_secret, which no client can read for anybody
+    -- but themselves. Resolving it here is the reason the junta never needs
+    -- access to it.
+    select p.* into v_profile
+    from public.profiles p
+    join public.profile_secret s on s.id = p.id
+    where s.qr_token = p_qr_token;
   else
     select * into v_profile from public.profiles where id = p_user_id;
   end if;
@@ -219,7 +225,7 @@ stable
 security definer
 set search_path = ''
 as $$
-  select encode(sha256(p.qr_token::text::bytea), 'hex'),
+  select encode(sha256(s.qr_token::text::bytea), 'hex'),
          p.id,
          p.nombre,
          p.escola,
@@ -228,6 +234,7 @@ as $$
          coalesce(a.pagado, false),
          a.checked_in_at is not null
   from public.profiles p
+  join public.profile_secret s on s.id = p.id
   left join public.attendances a
          on a.user_id = p.id and a.event_id = p_event_id
   where private.is_admin()

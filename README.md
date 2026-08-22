@@ -76,12 +76,14 @@ Two test layers, because each is blind to the other's failures:
   signature: resource embedding, the filtered `count=exact`, the status codes
   the UI branches on, and the real GoTrue signup path.
 
-Two conventions worth knowing before writing a query:
+Two things worth knowing before writing a query:
 
-- `select('*')` on `profiles` is **denied** for a member. `qr_token` is a
-  bearer credential for check-in and `telefon` is personal data, so both are
-  revoked at the column level; name the columns you want. A member reads their
-  own QR through `my_qr()`.
+- `profiles` is ordinary: `select('*')` works and carries nothing sensitive.
+  The check-in credential lives in `profile_secret` (own row only, and not
+  readable by admins either) and the phone number in `profile_contact` (own row
+  plus the junta). They are separate tables rather than revoked columns
+  because a revoke made `*` fail, and a guarantee that surfaces as a
+  permission error on an ordinary query is one somebody eventually removes.
 - Scheduled content is filtered with Postgres `now()`. An `if` in React is not
   hiding anything — the response is in the network tab either way.
 

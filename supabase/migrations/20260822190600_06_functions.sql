@@ -105,10 +105,12 @@ end $$;
 revoke all on function public.redeem_invite(text) from public, anon;
 grant execute on function public.redeem_invite(text) to authenticated;
 
--- ── the two revoked columns ─────────────────────────────────────────────────
+-- ── the check-in credential ─────────────────────────────────────────────────
 
--- A member reads their own QR token and nobody else's. SELECT on the column
--- itself is revoked, so this is the only way to it from a client.
+-- A member can read their own row of profile_secret directly; the policy says
+-- so. This exists on top of that because it also refuses an account that is
+-- not active, which is the shape the QR screen wants: a pending member should
+-- not be shown a code that the door will reject.
 create or replace function public.my_qr()
 returns uuid
 language sql
@@ -116,9 +118,10 @@ stable
 security definer
 set search_path = ''
 as $$
-  select p.qr_token
-  from public.profiles p
-  where p.id = (select auth.uid()) and p.estat = 'actiu'
+  select s.qr_token
+  from public.profile_secret s
+  join public.profiles p on p.id = s.id
+  where s.id = (select auth.uid()) and p.estat = 'actiu'
 $$;
 
 revoke all on function public.my_qr() from public, anon;
@@ -140,8 +143,8 @@ begin
     raise exception 'no autenticat' using errcode = '42501';
   end if;
 
-  update public.profiles
-     set qr_token = gen_random_uuid()
+  update public.profile_secret
+     set qr_token = gen_random_uuid(), rotated_at = now()
    where id = (select auth.uid())
   returning qr_token into v_new;
 
@@ -150,41 +153,6 @@ end $$;
 
 revoke all on function public.rotate_qr_token() from public, anon;
 grant execute on function public.rotate_qr_token() to authenticated;
-
-create or replace function public.set_my_phone(p_telefon text)
-returns void
-language plpgsql
-volatile
-security definer
-set search_path = ''
-as $$
-begin
-  if (select auth.uid()) is null then
-    raise exception 'no autenticat' using errcode = '42501';
-  end if;
-  update public.profiles set telefon = p_telefon where id = (select auth.uid());
-end $$;
-
-revoke all on function public.set_my_phone(text) from public, anon;
-grant execute on function public.set_my_phone(text) to authenticated;
-
--- The junta's list for reconciling against the WhatsApp group. Admin only,
--- which is why telefon is not simply readable on profiles.
-create or replace function public.admin_member_contacts()
-returns table (id uuid, nombre text, telefon text, estat text)
-language sql
-stable
-security definer
-set search_path = ''
-as $$
-  select p.id, p.nombre, p.telefon, p.estat
-  from public.profiles p
-  where private.is_admin()
-  order by p.nombre
-$$;
-
-revoke all on function public.admin_member_contacts() from public, anon;
-grant execute on function public.admin_member_contacts() to authenticated;
 
 -- ── roles and membership ────────────────────────────────────────────────────
 

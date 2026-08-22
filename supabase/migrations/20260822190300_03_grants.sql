@@ -21,21 +21,33 @@ revoke execute on all functions in schema public from public, anon, authenticate
 -- ── profiles ────────────────────────────────────────────────────────────────
 revoke all on public.profiles from anon, authenticated;
 
--- No SELECT on qr_token (a bearer credential for check-in) or telefon
--- (personal data). Both come back through a narrow RPC.
-grant select (
-  id, nombre, avatar_url, escola, grau, curs, estat, role, hide_from_ranking, created_at
-) on public.profiles to authenticated;
+-- The whole table. Nothing on profiles is sensitive any more: the check-in
+-- credential and the phone number live in their own tables, so `select('*')`
+-- works and returns only what the association may see. That is deliberate —
+-- a column-level SELECT revoke would work too, but it would break `*` and put
+-- the protection at the mercy of whoever gets the permission error first.
+grant select on public.profiles to authenticated;
 
 grant update (
   nombre, avatar_url, escola, grau, curs, hide_from_ranking
 ) on public.profiles to authenticated;
 -- Absent on purpose: insert, delete, and update on id / estat / role /
--- qr_token / telefon / created_at.
---
--- telefon is left out of the UPDATE list too, so it is set through
--- public.set_my_phone(). Keeping it out of the general update means the
--- onboarding form cannot accidentally clear it.
+-- created_at. Those go through the RPCs in 06_functions.sql, which is where
+-- the no-self-promotion rule and the audit entry belong anyway.
+
+-- ── profile_secret ──────────────────────────────────────────────────────────
+revoke all on public.profile_secret from anon, authenticated;
+grant select on public.profile_secret to authenticated; -- RLS: own row only
+-- No write privilege at all. Rotation goes through public.rotate_qr_token().
+
+-- ── profile_contact ─────────────────────────────────────────────────────────
+revoke all on public.profile_contact from anon, authenticated;
+grant select on public.profile_contact to authenticated; -- RLS: own row + junta
+grant update (telefon) on public.profile_contact to authenticated;
+-- No insert: the row is created by the signup trigger, so it always exists and
+-- a client only ever updates it. Leaving INSERT out also keeps upsert from
+-- working, which is the right outcome — an upsert would need UPDATE on `id`
+-- and there is no reason to hand that out.
 
 -- ── invites ─────────────────────────────────────────────────────────────────
 revoke all on public.invites from anon, authenticated;

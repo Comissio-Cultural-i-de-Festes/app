@@ -34,6 +34,11 @@ begin
   )
   on conflict (id) do nothing;
 
+  -- One row in each child table, so nothing downstream has to cope with a
+  -- missing one. profile_secret's default mints the QR token.
+  insert into public.profile_secret (id) values (new.id) on conflict (id) do nothing;
+  insert into public.profile_contact (id) values (new.id) on conflict (id) do nothing;
+
   return new;
 end $$;
 
@@ -71,10 +76,9 @@ begin
   if new.id is distinct from old.id
      or new.role is distinct from old.role
      or new.estat is distinct from old.estat
-     or new.qr_token is distinct from old.qr_token
      or new.created_at is distinct from old.created_at
   then
-    raise exception 'camps protegits: role, estat i qr_token nomes per rpc'
+    raise exception 'camps protegits: role i estat nomes per rpc'
       using errcode = '42501';
   end if;
 

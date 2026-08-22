@@ -7,7 +7,7 @@
 -- abused.
 
 begin;
-select plan(22);
+select plan(25);
 
 -- ── points_log is unreachable from a client ─────────────────────────────────
 select ok(
@@ -41,23 +41,55 @@ select ok(
   'authenticated cannot write profiles.estat'
 );
 select ok(
-  not has_column_privilege('authenticated', 'public.profiles', 'qr_token', 'UPDATE'),
-  'authenticated cannot write profiles.qr_token'
-);
-select ok(
   has_column_privilege('authenticated', 'public.profiles', 'nombre', 'UPDATE'),
   'a member can still edit their own name'
 );
 
--- qr_token is a bearer credential: whoever holds it can be checked in, and a
--- check-in writes to the points ledger.
+-- ── profiles is ordinary, and that is the design ────────────────────────────
+-- The check-in credential and the phone number are not here any more, so
+-- reading the whole row is safe and `select('*')` works. Protecting them with
+-- a column-level revoke also worked, but it made `*` fail, which left the
+-- guarantee resting on every future contributor choosing to enumerate columns
+-- instead of handing the grant back.
 select ok(
-  not has_column_privilege('authenticated', 'public.profiles', 'qr_token', 'SELECT'),
-  'nobody reads qr_token off the table; my_qr() returns only your own'
+  not exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'profiles'
+      and column_name in ('qr_token', 'telefon')
+  ),
+  'profiles holds nothing that needs hiding from the association'
+);
+
+select is_empty(
+  $$ select column_name::text
+       from information_schema.columns c
+      where c.table_schema = 'public' and c.table_name = 'profiles'
+        and not has_column_privilege('authenticated', 'public.profiles',
+                                     c.column_name, 'SELECT') $$,
+  'so every column of profiles is readable and select(*) does not fail'
+);
+
+-- ── profile_secret is write-proof ───────────────────────────────────────────
+select ok(
+  not has_table_privilege('authenticated', 'public.profile_secret', 'INSERT'),
+  'no client inserts a QR token'
 );
 select ok(
-  not has_column_privilege('authenticated', 'public.profiles', 'telefon', 'SELECT'),
-  'phone numbers are not readable by the whole association'
+  not has_table_privilege('authenticated', 'public.profile_secret', 'UPDATE'),
+  'nor rewrites one: rotation goes through rotate_qr_token()'
+);
+select ok(
+  not has_table_privilege('authenticated', 'public.profile_secret', 'DELETE'),
+  'nor deletes one'
+);
+
+-- The junta has no policy on this table at all. An admin never needs to see a
+-- token, and an admin account being compromised must not hand over everyone's.
+select is_empty(
+  $$ select polname::text from pg_policy
+      where polrelid = 'public.profile_secret'::regclass
+        and polname <> 'psecret_select_self' $$,
+  'and the only policy on it is the own-row read'
 );
 
 -- ── attendances: checking yourself in is the valuable bypass ────────────────

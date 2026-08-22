@@ -1,7 +1,9 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { brand } from '@/config/brand'
 import { Button } from '@/ui/Button/Button'
+import { LogoMark } from '@/ui/Logo/Logo'
 
 import { SafariShareSheetMock, SafariToolbarMock } from './IosMocks'
 
@@ -53,7 +55,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
   return (
     <main
       className={
-        'flex min-h-dvh flex-col overflow-y-auto bg-app px-6 ' +
+        'flex min-h-dvh flex-col overflow-y-auto bg-app px-12 ' +
         'pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+24px)]'
       }
     >
@@ -76,7 +78,20 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
         </Step>
       </ol>
 
-      <section className="mt-[26px] border-y border-surface-7 px-[18px] py-4">
+      {/* What they are about to end up with. The step before this one asks
+          them to hunt for a row in a system sheet; this one tells them what
+          success looks like, so they know when they have found it. */}
+      <section className="mt-[26px] flex items-center gap-8 border border-surface-7 bg-surface-2 px-[18px] py-8">
+        <div className="flex flex-none flex-col items-center gap-4">
+          <LogoMark size={62} />
+          <span className="text-[11.5px] font-medium text-fg-secondary">{brand.shortName}</span>
+        </div>
+        <p className="flex-1 text-md text-fg-secondary [text-wrap:pretty]">
+          {t('install.iconPreview')}
+        </p>
+      </section>
+
+      <section className="mt-[22px] border-y border-surface-7 px-[18px] py-8">
         <h2 className="text-xs font-extrabold tracking-[0.16em] text-[var(--ds-brand-accent-hi)] uppercase">
           {t('install.payoff.title')}
         </h2>
@@ -85,7 +100,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
         </p>
       </section>
 
-      <div className="mt-5">
+      <div className="mt-10">
         <Button size="lg" onClick={onDone}>
           {t('install.done')}
         </Button>
@@ -95,7 +110,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
         type="button"
         onClick={onLater}
         className={
-          'mt-3 w-full cursor-pointer border-0 bg-transparent text-center ' +
+          'mt-5 w-full cursor-pointer border-0 bg-transparent text-center ' +
           'text-[13.5px] font-semibold text-fg-muted [text-wrap:balance]'
         }
       >
@@ -104,7 +119,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
 
       {/* The reason skipping is allowed at all, said out loud rather than
           discovered later at the icon. */}
-      <p className="mt-2 text-center text-sm text-[var(--ds-text-faint)] [text-wrap:pretty]">
+      <p className="mt-6 text-center text-sm text-[var(--ds-text-faint)] [text-wrap:pretty]">
         {t('install.laterWarning')}
       </p>
     </main>

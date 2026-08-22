@@ -2,6 +2,8 @@ import { execFileSync } from 'node:child_process'
 
 import { createClient, type PostgrestError } from '@supabase/supabase-js'
 
+import type { Database } from '../../src/lib/database.types'
+
 /**
  * The second test layer: the same policies, but reached the way the app
  * reaches them — through Kong and PostgREST, with a real GoTrue token.
@@ -47,10 +49,10 @@ export const stack: StackEnv =
     : fromSupabaseStatus()
 
 export const anonClient = () =>
-  createClient(stack.apiUrl, stack.anonKey, { auth: { persistSession: false } })
+  createClient<Database>(stack.apiUrl, stack.anonKey, { auth: { persistSession: false } })
 
 export const serviceClient = () =>
-  createClient(stack.apiUrl, stack.serviceKey, { auth: { persistSession: false } })
+  createClient<Database>(stack.apiUrl, stack.serviceKey, { auth: { persistSession: false } })
 
 export type Client = ReturnType<typeof anonClient>
 
@@ -63,7 +65,7 @@ export async function rpc<T>(
   fn: string,
   args?: Record<string, unknown>,
 ): Promise<{ data: T | null; error: PostgrestError | null }> {
-  const res = await client.rpc(fn, args)
+  const res = await client.rpc(fn as never, args as never)
   return { data: res.data as T | null, error: res.error }
 }
 
@@ -76,7 +78,9 @@ export async function as(handle: string): Promise<Client> {
   const cached = sessions.get(handle)
   if (cached) return cached
 
-  const client = createClient(stack.apiUrl, stack.anonKey, { auth: { persistSession: false } })
+  const client = createClient<Database>(stack.apiUrl, stack.anonKey, {
+    auth: { persistSession: false },
+  })
   const { error } = await client.auth.signInWithPassword({
     email: `${handle}@example.test`,
     password: 'test-password-0000',

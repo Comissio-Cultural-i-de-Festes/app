@@ -274,8 +274,21 @@ describe('the ranking publishes aggregates without publishing the ledger', () =>
 describe('anon', () => {
   it('reads nothing', async () => {
     const anon = anonClient()
-    for (const table of ['profiles', 'events', 'attendances', 'points_log', 'ranking']) {
-      const { error } = await anon.from(table).select('*').limit(1)
+    // Written out one by one rather than looped over a list of names: the
+    // client is typed, so each name here is checked against the real schema
+    // and a table renamed out from under this test stops compiling instead of
+    // quietly passing because the request 404s.
+    const reads = [
+      ['profiles', anon.from('profiles').select('*').limit(1)],
+      ['events', anon.from('events').select('*').limit(1)],
+      ['attendances', anon.from('attendances').select('*').limit(1)],
+      ['points_log', anon.from('points_log').select('*').limit(1)],
+      ['ranking', anon.from('ranking').select('*').limit(1)],
+      ['ranking_periods', anon.from('ranking_periods').select('*').limit(1)],
+    ] as const
+
+    for (const [table, read] of reads) {
+      const { error } = await read
       expect(error, `anon could read ${table}`).not.toBeNull()
     }
   })

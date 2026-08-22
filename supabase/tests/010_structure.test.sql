@@ -7,7 +7,7 @@
 -- also returns them for tables the caller cannot read.
 
 begin;
-select plan(9);
+select plan(10);
 
 select is_empty(
   $$ select c.relname
@@ -26,10 +26,12 @@ select is_empty(
   'every table in public has at least one policy'
 );
 
--- The two ranking views are definer on purpose: they publish aggregates over a
--- ledger no client may read row by row. They are the only two allowed to be,
--- and the Supabase advisor should report exactly these.
-select set_eq(
+-- No view is elevated any more. The ranking's elevation moved into
+-- ranking_period() and ranking_escoles_period(), so the Supabase advisor's
+-- security_definer_view list should be empty and every future entry in it is a
+-- real finding rather than one of two exceptions everyone has been told to
+-- scroll past.
+select is_empty(
   $$ select c.relname::text
        from pg_class c
        join pg_namespace n on n.oid = c.relnamespace
@@ -37,8 +39,21 @@ select set_eq(
         and coalesce(
               (select option_value from pg_options_to_table(c.reloptions)
                 where option_name = 'security_invoker'), 'false') <> 'true' $$,
-  array['ranking', 'ranking_escoles'],
-  'only the two ranking views are security definer'
+  'no view in public is security definer'
+);
+
+-- And the elevation really is in the functions. Making either of these invoker
+-- would not error: points_log is readable by its owner, so the leaderboard
+-- would quietly become a table of one row containing you.
+select is(
+  (select count(*)::int
+     from pg_proc p
+     join pg_namespace n on n.oid = p.pronamespace
+    where n.nspname = 'public'
+      and p.proname in ('ranking_period', 'ranking_escoles_period')
+      and p.prosecdef),
+  2,
+  'the two ranking functions carry it instead'
 );
 
 -- Without this, the caller's search_path decides which `profiles` a definer

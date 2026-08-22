@@ -16,7 +16,7 @@ import type { ButtonHTMLAttributes, Ref } from 'react'
  */
 
 export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'destructive'
-export type ButtonSize = 'md' | 'lg'
+export type ButtonSize = 'md' | 'lg' | 'hero'
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   readonly variant?: ButtonVariant
@@ -27,15 +27,19 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 const BASE =
   'inline-flex w-full items-center justify-center rounded-cta border-0 ' +
   'px-[var(--ds-btn-pad-x)] py-[var(--ds-btn-pad-y)] ' +
-  'font-body text-xl font-bold leading-[var(--ds-btn-leading)] text-center ' +
+  'leading-[var(--ds-btn-leading)] text-center ' +
   '[text-wrap:balance] whitespace-normal [overflow-wrap:break-word] hyphens-auto ' +
   'cursor-pointer [touch-action:manipulation] [-webkit-tap-highlight-color:transparent] ' +
   'transition-[background-color,transform] duration-[var(--ds-dur-base)] ease-[var(--ds-ease)] ' +
   'active:scale-[0.985] disabled:cursor-default disabled:opacity-45 disabled:active:scale-100'
 
 const SIZES: Record<ButtonSize, string> = {
-  md: 'min-h-[var(--ds-btn-min-h)]',
-  lg: 'min-h-[var(--ds-btn-min-h-lg)]',
+  md: 'min-h-[var(--ds-btn-min-h)] font-body text-xl font-bold',
+  lg: 'min-h-[var(--ds-btn-min-h-lg)] font-body text-xl font-bold',
+  // The one-decision-on-the-screen button: ENTRA on the invitation screen is
+  // the display face, shouted. Still min-height and still balanced, so a
+  // longer word in Spanish grows the button instead of clipping.
+  hero: 'min-h-[60px] font-display text-[24px] tracking-[-0.035em] uppercase',
 }
 
 const VARIANTS: Record<ButtonVariant, string> = {

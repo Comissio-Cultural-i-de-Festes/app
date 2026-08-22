@@ -1,0 +1,150 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+# NEVER pull_request_target. This repo is public, so anyone can open a pull
+# request from a fork; pull_request_target would run the workflow in the base
+# repo's context with a read/write token and every secret in scope, and the
+# usual next step — checking out the head sha — hands a stranger's postinstall
+# script the lot.
+#
+# `pull_request` checks out the merge ref and runs the PR's own code with a
+# read-only token and no secrets. Untrusted code runs, and there is nothing for
+# it to take. The rule that keeps it that way: no job in this file may
+# reference `secrets.*`.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web:
+    name: lint, types, unit tests, build
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+      - run: npm run typecheck
+
+      # Includes the i18n parity check: a key that exists in ca.json and is
+      # missing from es.json or en.json fails here rather than showing up as a
+      # raw key on somebody's phone.
+      - run: npm test
+
+      # Placeholder values, not secrets. The anon key is public by design, and
+      # using literals proves a fork's pull request can build with nothing
+      # configured.
+      - run: npm run build
+        env:
+          VITE_APP_NAME: CI Build
+          VITE_APP_SHORT_NAME: CI
+          VITE_APP_DESCRIPTION: CI
+          VITE_THEME_COLOR: '#100909'
+          VITE_BACKGROUND_COLOR: '#100909'
+          VITE_DEFAULT_LOCALE: ca
+          VITE_TIME_ZONE: Europe/Madrid
+          VITE_SUPABASE_URL: https://ci-placeholder.supabase.co
+          VITE_SUPABASE_ANON_KEY: ci-placeholder
+
+      # A privileged key must never reach a browser. Checked against the built
+      # bundle rather than the source, because that is what actually ships.
+      - name: no privileged credential in the bundle
+        run: |
+          set -euo pipefail
+          if grep -rIlE 'service_role|sb_secret_' dist/; then
+            echo "::error::a privileged credential is present in the built bundle"
+            exit 1
+          fi
+
+  db:
+    name: rls and check-in
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      TZ: UTC
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # Reads the CLI version out of package-lock.json, so CI and a laptop
+      # cannot drift. That matters here: supabase/seed/00_test_helpers.sql
+      # writes auth.users by hand and is coupled to GoTrue's internal schema.
+      - uses: supabase/setup-cli@v1
+
+      # Do not add `auth` to the exclusions. GoTrue is what creates the auth
+      # schema, auth.users and auth.uid() when it starts; without it every test
+      # fails with `schema "auth" does not exist`.
+      - name: start the local stack
+        run: supabase start -x studio,imgproxy,logflare,vector,supavisor,realtime
+
+      - name: lint the schema
+        run: supabase db lint --level warning
+
+      # The two layers. pgTAP asserts what has no HTTP signature — RLS actually
+      # enabled, views that are security_invoker, definer functions with a
+      # pinned search_path, the partial unique index. Vitest asserts what has
+      # no SQL signature — PostgREST embedding, the filtered count, the status
+      # codes the UI branches on.
+      - name: policy tests (pgTAP)
+        run: supabase test db
+
+      - name: policy tests (through PostgREST)
+        run: npm run test:rls
+
+      - name: stop the stack
+        if: always()
+        run: supabase stop --no-backup
+
+  fixtures:
+    name: no real-world identifiers in fixtures
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      # The association is small enough that a realistic Catalan name is
+      # identifying even when invented, and this repo is public. Fixtures are
+      # obviously synthetic on purpose; a rule nobody checks decays, so it is
+      # checked.
+      - name: grep the deny list
+        run: |
+          set -euo pipefail
+          PATTERN='tecnocampus|esupt|escset|escst|matar(o|ó)|\+34[ -]?[67][0-9]|carrer |avinguda '
+          # Comment lines are stripped first. Several of these files name the
+          # forbidden terms in order to explain the rule, and a guard that
+          # trips on its own documentation gets deleted rather than fixed.
+          hits=$(grep -RIn --include='*.sql' --include='*.ts' -E '.' \
+                   supabase/seed supabase/tests tests/rls \
+                 | grep -vE ':[0-9]+: *(--|//|\*|#)' \
+                 | grep -iE "$PATTERN" || true)
+          if [ -n "$hits" ]; then
+            echo "$hits"
+            echo "::error::a real-world identifier is present in the fixtures"
+            exit 1
+          fi

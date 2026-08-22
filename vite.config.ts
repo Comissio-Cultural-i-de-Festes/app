@@ -133,6 +133,9 @@ export default defineConfig(({ mode, command }) => {
       globals: true,
       setupFiles: ['./tests/setup.ts'],
       include: ['tests/**/*.test.{ts,tsx}', 'src/**/*.test.{ts,tsx}'],
+      // tests/rls needs a running Supabase stack, so it has its own config and
+      // its own script. `npm test` must work with nothing but node_modules.
+      exclude: ['tests/rls/**'],
     },
   }
 })

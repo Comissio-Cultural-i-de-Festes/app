@@ -11,7 +11,30 @@
 begin;
 select plan(12);
 
+-- Own the starting state. These files run against a database an earlier suite
+-- may have written to, and an assertion that quietly stops proving anything is
+-- worse than one that fails.
+--
+-- Delete and re-insert rather than update: attendances_checkin_immutable
+-- refuses to move checked_in_at, for everyone including the owner, so a fresh
+-- row is the honest way to undo a scan.
 reset role;
+delete from public.points_log;
+delete from public.attendances;
+insert into public.attendances (user_id, event_id, estado) values
+  ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000e1', 'si'),
+  ('00000000-0000-4000-8000-000000000002', '00000000-0000-4000-8000-0000000000e1', 'si'),
+  ('00000000-0000-4000-8000-000000000003', '00000000-0000-4000-8000-0000000000e1', 'potser'),
+  ('00000000-0000-4000-8000-000000000004', '00000000-0000-4000-8000-0000000000e1', 'no'),
+  ('00000000-0000-4000-8000-000000000005', '00000000-0000-4000-8000-0000000000e1', 'si'),
+  ('00000000-0000-4000-8000-000000000006', '00000000-0000-4000-8000-0000000000e1', 'espera'),
+  ('00000000-0000-4000-8000-000000000005', '00000000-0000-4000-8000-0000000000e4', 'si');
+insert into public.points_log (user_id, motivo, puntos) values
+  ('00000000-0000-4000-8000-000000000001', 'montaje', 20),
+  ('00000000-0000-4000-8000-000000000002', 'manual', 45),
+  ('00000000-0000-4000-8000-000000000003', 'trajo_gente', 15),
+  ('00000000-0000-4000-8000-0000000000b3', 'manual', 999);
+
 select tests.authenticate_as('alfa');
 
 -- ── the points ledger ───────────────────────────────────────────────────────

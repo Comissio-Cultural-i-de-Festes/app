@@ -97,6 +97,76 @@ describe('the home screen queries', () => {
   })
 })
 
+describe('answering from the home screen', () => {
+  // A member and an event that no other file in this suite touches, so this
+  // one can write without moving the ground under the others.
+  const EVENT = '00000000-0000-4000-8000-0000000000e6'
+
+  it('saves an answer and then changes it, in one row', async () => {
+    const hotel = await as('hotel')
+
+    const first = await hotel.rpc('set_attendance', { p_event_id: EVENT, p_estado: 'si' })
+    expect(first.error).toBeNull()
+
+    const second = await hotel.rpc('set_attendance', { p_event_id: EVENT, p_estado: 'potser' })
+    expect(second.error).toBeNull()
+
+    const { data } = await hotel
+      .from('attendances')
+      .select('estado')
+      .eq('event_id', EVENT)
+      .eq('user_id', (await hotel.auth.getUser()).data.user?.id ?? '')
+
+    expect(data).toEqual([{ estado: 'potser' }])
+  })
+
+  it('is why the obvious upsert is not used: PostgREST writes every column', async () => {
+    // This is the bug the screen shipped with for an afternoon. `.upsert()`
+    // generates `on conflict do update set user_id = …, event_id = …, estado =
+    // …` — the whole body — and the client is granted UPDATE on `estado`
+    // alone, because moving your row onto somebody else's user_id is exactly
+    // what the column grants exist to stop. Privileges are checked before
+    // policies, so it fails with 42501 and no policy is ever consulted.
+    //
+    // Pinned here rather than only fixed, because `.upsert()` is what anybody
+    // would reach for next time and nothing else in the build would object.
+    const hotel = await as('hotel')
+    const userId = (await hotel.auth.getUser()).data.user?.id ?? ''
+
+    const { error } = await hotel
+      .from('attendances')
+      .upsert(
+        { user_id: userId, event_id: EVENT, estado: 'si' },
+        { onConflict: 'user_id,event_id' },
+      )
+
+    expect(error?.code).toBe('42501')
+  })
+
+  it('refuses to mark somebody as having attended', async () => {
+    const hotel = await as('hotel')
+    const { error } = await hotel.rpc('set_attendance', {
+      p_event_id: EVENT,
+      p_estado: 'asistio',
+    })
+
+    expect(error).not.toBeNull()
+  })
+
+  it('refuses to answer on somebody else’s behalf', async () => {
+    // There is no parameter for whose answer it is, which is the point: the
+    // function reads auth.uid() and there is nothing to tamper with.
+    const hotel = await as('hotel')
+    const { error } = await hotel.from('attendances').insert({
+      user_id: '00000000-0000-4000-8000-000000000001',
+      event_id: EVENT,
+      estado: 'si',
+    })
+
+    expect(error).not.toBeNull()
+  })
+})
+
 describe('the ranking screen queries', () => {
   it('returns the periods the chips are drawn from', async () => {
     const { data, error } = await member

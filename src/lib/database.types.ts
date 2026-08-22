@@ -839,6 +839,10 @@ export type Database = {
       }
       redeem_invite: { Args: { p_codi: string }; Returns: Json }
       rotate_qr_token: { Args: never; Returns: string }
+      set_attendance: {
+        Args: { p_estado: string; p_event_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

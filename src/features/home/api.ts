@@ -1,7 +1,7 @@
 import { zonedDayStart } from '@/i18n/format'
 import type { Answer, AttendanceState } from '@/lib/model'
 import type { AttendanceTable, EventRow } from '@/lib/schema'
-import { unwrap, unwrapAs } from '@/lib/db'
+import { DbError, unwrapAs } from '@/lib/db'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -108,13 +108,20 @@ export async function fetchAttendances(eventIds: readonly string[]): Promise<Att
   )
 }
 
-export async function setAnswer(userId: string, eventId: string, estado: Answer): Promise<void> {
-  await unwrap(
-    supabase
-      .from('attendances')
-      .upsert({ user_id: userId, event_id: eventId, estado }, { onConflict: 'user_id,event_id' })
-      .select('event_id'),
-  )
+/**
+ * Not `.upsert()`.
+ *
+ * PostgREST writes every column of the body in the ON CONFLICT branch, and the
+ * client may only update `estado` — moving your row onto somebody else's
+ * user_id is precisely what the column grants stop. The generic upsert is
+ * refused with 42501 before any policy runs. See migration 12.
+ */
+export async function setAnswer(eventId: string, estado: Answer): Promise<void> {
+  const { error } = await supabase.rpc('set_attendance', {
+    p_event_id: eventId,
+    p_estado: estado,
+  })
+  if (error) throw new DbError(error)
 }
 
 // ── derived, and tested on its own ──────────────────────────────────────────

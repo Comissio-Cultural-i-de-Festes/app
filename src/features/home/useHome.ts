@@ -114,17 +114,17 @@ export function useHome(): Home {
 /**
  * Saying yes from the home screen.
  *
- * An upsert, because the row may not exist yet or may say 'potser'. RLS allows
- * exactly si/potser/no here and nothing else, so there is no way for this path
- * to mark somebody as having attended.
+ * Through set_attendance(), because the row may not exist yet or may say
+ * 'potser' and PostgREST's own upsert cannot express that with the privileges
+ * the client has. RLS allows exactly si/potser/no, so there is no way for this
+ * path to mark somebody as having attended.
  */
 export function useAnswer() {
-  const userId = useUserId()
   const client = useQueryClient()
 
   return useMutation({
     mutationFn: ({ eventId, estado }: { eventId: string; estado: Answer }) =>
-      setAnswer(userId, eventId, estado),
+      setAnswer(eventId, estado),
     onSuccess: () => {
       void client.invalidateQueries({ queryKey: ['home', 'attendances'] })
     },

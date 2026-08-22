@@ -15,13 +15,30 @@ interface FieldShellProps {
   /** Right-hand side of the label row, e.g. an expiry. */
   readonly aside?: ReactNode
   readonly htmlFor?: string
+  /**
+   * Dashed for a block that stands for something absent — the "no invitation"
+   * panel on the door, which has the shape of the invitation block precisely
+   * so the missing thing is legible as missing.
+   */
+  readonly variant?: 'solid' | 'dashed'
 }
 
 const LABEL = 'text-[11.5px] font-extrabold tracking-[0.14em] uppercase text-fg-muted'
 
-export function FieldShell({ label, children, aside, htmlFor }: FieldShellProps) {
+export function FieldShell({
+  label,
+  children,
+  aside,
+  htmlFor,
+  variant = 'solid',
+}: FieldShellProps) {
+  const edge =
+    variant === 'dashed' ? 'border-dashed border-[var(--ds-border-input)]' : 'border-border-strong'
+
   return (
-    <div className="flex items-center justify-between gap-3 border border-border-strong bg-surface-1 px-[18px] py-[15px]">
+    <div
+      className={`flex items-center justify-between gap-3 border ${edge} bg-surface-1 px-[18px] py-[15px]`}
+    >
       <div className="min-w-0 flex-1">
         {htmlFor ? (
           <label className={`block ${LABEL}`} htmlFor={htmlFor}>

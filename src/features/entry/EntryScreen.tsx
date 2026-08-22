@@ -8,6 +8,7 @@ import { isStandalone } from '@/lib/platform'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/ui/Button/Button'
 import { FieldShell, TextField } from '@/ui/Field/Field'
+import { LogoMark, Wordmark } from '@/ui/Logo/Logo'
 
 import { GoogleButton } from './GoogleButton'
 import { looksStranded, signInWithGoogle } from './useGoogleSignIn'
@@ -99,21 +100,25 @@ export function EntryScreen() {
   const expiry = invite.status === 'valid' ? expiryLabel(invite.expiresAt, t) : null
 
   return (
-    <main className="flex min-h-dvh flex-col bg-app px-6 pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">
-      <header className="mt-[26px]">
-        <div className="font-display text-3xl tracking-[-0.04em] text-brand-strong uppercase">
-          {brand.shortName}
-        </div>
-        <div className="mt-1 text-sm font-semibold tracking-[0.04em] text-[var(--ds-text-muted-lo)]">
-          {brand.tagline}
+    <main className="flex min-h-dvh flex-col bg-app px-12 pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">
+      <header className="mt-[26px] flex items-center gap-6">
+        <LogoMark size={44} />
+        <div>
+          <Wordmark size={26} />
+          <div className="mt-[5px] text-sm font-semibold tracking-[0.04em] text-[var(--ds-text-muted-lo)]">
+            {brand.tagline}
+          </div>
         </div>
       </header>
 
-      <div className="mt-auto">
+      {/* Top-aligned, as drawn. Pushed to the bottom it sits nicely under a
+          thumb on a tall phone, and on a short one the title goes off the top
+          — and the title is the whole message. */}
+      <div className="mt-24">
         <h1 className="font-display text-d-lg leading-[0.87] tracking-[-0.05em] uppercase">
           {invited ? t('entry.invited.title') : t('entry.open.title')}
         </h1>
-        <p className="mt-4 max-w-[300px] text-lg text-fg-secondary [text-wrap:pretty]">
+        <p className="mt-8 max-w-[300px] text-lg text-fg-secondary [text-wrap:pretty]">
           {invited ? t('entry.invited.lede') : t('entry.open.lede')}
         </p>
 
@@ -128,8 +133,12 @@ export function EntryScreen() {
           </p>
         )}
 
-        {invite.status === 'valid' && (
-          <div className="mt-[26px]">
+        {/* The same block in both states, so the door has one shape. With a
+            code it holds the code; without one it holds the absence of one,
+            dashed, and says who resolves it. An empty space there would just
+            read as a screen that had not finished loading. */}
+        <div className="mt-[26px]">
+          {invite.status === 'valid' ? (
             <FieldShell
               label={t('entry.invite.label')}
               aside={
@@ -144,10 +153,24 @@ export function EntryScreen() {
                 {invite.code}
               </div>
             </FieldShell>
-          </div>
-        )}
+          ) : (
+            <FieldShell
+              variant="dashed"
+              label={t('entry.open.noCodeLabel')}
+              aside={
+                <span className="max-w-[104px] text-right text-[12.5px] font-bold text-fg-muted [text-wrap:pretty]">
+                  {t('entry.open.noCodeAside')}
+                </span>
+              }
+            >
+              <div className="mt-[5px] font-display text-[25px] tracking-[-0.02em] text-fg-faint">
+                {t('entry.open.noCodeValue')}
+              </div>
+            </FieldShell>
+          )}
+        </div>
 
-        <div className="mt-4">
+        <div className="mt-9">
           <GoogleButton onClick={() => void google()} disabled={busy}>
             {busy ? t('entry.sending') : invited ? t('entry.invited.cta') : t('entry.open.cta')}
           </GoogleButton>
@@ -159,7 +182,7 @@ export function EntryScreen() {
           </p>
         )}
 
-        <p className="mt-3 text-sm text-fg-muted [text-wrap:pretty]">
+        <p className="mt-6 text-sm text-fg-muted [text-wrap:pretty]">
           {invited ? t('entry.invited.reassurance') : t('entry.open.reassurance')}
         </p>
 
@@ -194,17 +217,28 @@ export function EntryScreen() {
           </form>
         )}
 
-        <p className="mt-[18px] text-md font-bold [text-wrap:pretty]">
-          {t('entry.noInvite.question')}{' '}
-          <a
-            href={env.whatsappUrl}
-            target="_blank"
-            rel="noreferrer noopener"
-            className="text-brand-label underline-offset-2 hover:underline"
-          >
-            {t('entry.noInvite.link')}
-          </a>
-        </p>
+        {/* With a code, where to get another one. Without one, what to do if
+            you actually have one and arrived here by typing the address. The
+            second is emphasis and not a link: there is nowhere for it to go
+            but the invitation in their own messages. */}
+        {invited ? (
+          <p className="mt-[18px] text-md font-bold [text-wrap:pretty]">
+            {t('entry.noInvite.question')}{' '}
+            <a
+              href={env.whatsappUrl}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="text-brand-label underline-offset-2 hover:underline"
+            >
+              {t('entry.noInvite.link')}
+            </a>
+          </p>
+        ) : (
+          <p className="mt-[18px] text-md font-bold [text-wrap:pretty]">
+            {t('entry.hasCode.question')}{' '}
+            <span className="text-brand-label">{t('entry.hasCode.hint')}</span>
+          </p>
+        )}
       </div>
     </main>
   )
@@ -270,7 +304,7 @@ function SentPanel({ email, onBack }: SentPanelProps) {
   )
 
   return (
-    <main className="flex min-h-dvh flex-col bg-app px-6 pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">
+    <main className="flex min-h-dvh flex-col bg-app px-12 pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">
       <div className="mt-auto">
         <h1 className="font-display text-d-lg leading-[0.87] tracking-[-0.05em] uppercase">
           {t('entry.sent.title')}

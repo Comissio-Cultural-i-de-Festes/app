@@ -3,19 +3,20 @@ import type { ButtonHTMLAttributes } from 'react'
 /**
  * The one decision on the screen.
  *
- * Same shape as the prototype's ENTRA — square, brand-filled, the display
- * face, min-height so a longer label in Spanish grows it rather than clipping.
- * The mark sits inside on a white tile because Google's brand guidelines ask
- * for it on white, and because a coloured logo on brand red reads as noise.
+ * White with dark text, which is Google's requirement and not a style choice:
+ * their guidelines allow their mark on a white or a dark button and nowhere
+ * else, and a four-colour logo on brand red reads as noise anyway. So this is
+ * the one button in the app that is not brand-filled, and the one that does
+ * not use the display face — it is Google's control, sitting in our screen.
+ *
+ * Square and min-height like everything else that takes a decision here, so a
+ * longer label in Spanish grows it instead of clipping.
  */
 
 function GoogleMark() {
   return (
-    <span
-      aria-hidden
-      className="flex size-[28px] flex-none items-center justify-center rounded-xs bg-white"
-    >
-      <svg width="18" height="18" viewBox="0 0 18 18">
+    <span aria-hidden className="flex flex-none items-center justify-center">
+      <svg width="22" height="22" viewBox="0 0 18 18">
         <path
           fill="#4285F4"
           d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.92c1.7-1.57 2.68-3.88 2.68-6.62Z"
@@ -43,13 +44,13 @@ export function GoogleButton({ children, ...rest }: ButtonHTMLAttributes<HTMLBut
       type="button"
       {...rest}
       className={
-        'inline-flex w-full min-h-[60px] items-center justify-center gap-3 rounded-cta border-0 ' +
-        'bg-brand-cta px-[var(--ds-btn-pad-x)] py-[var(--ds-btn-pad-y)] text-on-brand ' +
-        'font-display text-[24px] tracking-[-0.035em] uppercase ' +
+        'inline-flex min-h-[60px] w-full items-center justify-center gap-[13px] rounded-cta ' +
+        'border-0 bg-google-bg px-[18px] py-4 text-google-fg ' +
+        'text-lg font-bold tracking-[-0.01em] ' +
         'leading-[var(--ds-btn-leading)] text-center [text-wrap:balance] whitespace-normal ' +
         'cursor-pointer [touch-action:manipulation] [-webkit-tap-highlight-color:transparent] ' +
-        'transition-[background-color,transform] duration-[var(--ds-dur-base)] ease-[var(--ds-ease)] ' +
-        'hover:bg-[var(--ds-brand-hover)] active:scale-[0.985] ' +
+        'transition-[filter,transform] duration-[var(--ds-dur-base)] ease-[var(--ds-ease)] ' +
+        'hover:brightness-95 active:scale-[0.985] ' +
         'disabled:cursor-default disabled:opacity-45 disabled:active:scale-100'
       }
     >

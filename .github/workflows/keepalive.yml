@@ -20,9 +20,10 @@ jobs:
     # Scheduled runs are disabled in forks by GitHub already; this covers the
     # manual trigger, so a fork cannot poke somebody else's project.
     #
-    # CONFIRM THIS when the repository is created. A wrong value makes the job
-    # a silent no-op, which looks identical to a working one.
-    if: github.repository == 'aRetr0/app-comi'
+    # CONFIRM BOTH HALVES when the repository is created. A wrong value makes
+    # this job a silent no-op that looks exactly like a working one, and the
+    # first sign is Supabase pausing the project in August.
+    if: github.repository == 'Comissio-Cultural-i-de-Festes/app-comi'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:

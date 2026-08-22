@@ -136,6 +136,27 @@ export default defineConfig(({ mode, command }) => {
       // tests/rls needs a running Supabase stack, so it has its own config and
       // its own script. `npm test` must work with nothing but node_modules.
       exclude: ['tests/rls/**'],
+      // And it has to work with nothing but node_modules, which means not
+      // reading anybody's .env. Two reasons, and the second is the one that
+      // bites: config/env.ts throws on a missing VITE_APP_NAME, so on a fresh
+      // clone and on CI every suite that transitively imports it fails to load
+      // at all — and the time zone is read from configuration, so the date
+      // tests would quietly assert whatever zone the person running them has
+      // set rather than the association's.
+      //
+      // Obviously synthetic values, same rule as the database fixtures: no
+      // real association, no real campus, no real key.
+      env: {
+        VITE_APP_NAME: 'Associació de Proves',
+        VITE_APP_SHORT_NAME: 'proves.',
+        VITE_APP_DESCRIPTION: 'Fixture',
+        VITE_APP_TAGLINE: 'Campus Alfa',
+        VITE_WHATSAPP_URL: 'https://example.test/grup',
+        VITE_DEFAULT_LOCALE: 'ca',
+        VITE_TIME_ZONE: 'Europe/Madrid',
+        VITE_SUPABASE_URL: 'http://127.0.0.1:54321',
+        VITE_SUPABASE_ANON_KEY: 'fixture-anon-key',
+      },
     },
   }
 })

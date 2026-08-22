@@ -1,3 +1,17 @@
+# Cloudflare Pages.
+#
+# THERE IS NO _redirects FILE, AND THAT IS CORRECT.
+#
+# The usual SPA rule, "/*  /index.html  200", is redundant here: Pages treats a
+# project with no top-level 404.html as a single-page application and already
+# serves index.html for anything that does not match an asset. Ship the rule
+# anyway and the build warns "Infinite loop detected in this rule and has been
+# ignored", because index.html matches /* too.
+#
+# The thing to watch is the other direction: ADDING a 404.html turns the
+# fallback off, and deep links and refreshes start 404ing on a router that
+# worked yesterday. tests/spa-fallback.test.ts fails if one appears.
+
 # Cloudflare Pages. The shell and the service worker must never be held by the
 # HTTP cache: a stale index.html or sw.js is how a device keeps showing
 # pre-reveal content after the reveal has happened.

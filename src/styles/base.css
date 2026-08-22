@@ -1,128 +1,157 @@
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
+/*  Element resets and the handful of shared classes.
+ *
+ *  EVERYTHING HERE IS INSIDE A CASCADE LAYER, and that is load-bearing.
+ *
+ *  Tailwind emits its utilities inside `@layer utilities`. Unlayered CSS beats
+ *  every layer regardless of specificity, so a bare `button { font: inherit }`
+ *  in this file silently wins over `font-display` and `text-[24px]` on a
+ *  button — the class is in the DOM, the rule is in the stylesheet, and the
+ *  element still renders in the body face at the inherited size. It looks like
+ *  Tailwind is broken.
+ *
+ *  Element resets go in `base`, shared classes in `components`. Both sit below
+ *  `utilities`, which is the order that makes a utility do what it says.
+ */
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    background: var(--ds-bg-canvas);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    background: var(--ds-bg-canvas);
+    color: var(--ds-text-primary);
+    font-family: var(--ds-font-body);
+    font-size: var(--ds-fs-base);
+    font-weight: var(--ds-fw-medium);
+    line-height: var(--ds-leading-base);
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+    overscroll-behavior-y: none; /* kills the iOS rubber-band under a fixed bar */
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Mobile-only shell. The brief says design at 390px and only for phones, so
+   * on a laptop this centres a phone-width column instead of stretching a
+   * mobile layout across 1440px.
+   *
+   * No bottom padding here: the screens that sit under the tab bar opt into
+   * `.with-tabbar`, so the door and the install steps do not get a dead band. */
+  #root {
+    position: relative;
+    isolation: isolate;
+    max-width: var(--ds-shell-max-w);
+    min-height: 100dvh;
+    margin-inline: auto;
+    background: var(--ds-bg-app);
+    padding-top: var(--ds-safe-top);
+    padding-left: var(--ds-safe-left);
+    padding-right: var(--ds-safe-right);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  p,
+  figure {
+    margin: 0;
+  }
+
+  ul,
+  ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  img,
+  svg {
+    display: block;
+    max-width: 100%;
+  }
+
+  /* `font: inherit` is a shorthand and resets family, size, weight and leading
+   * all at once. Inside `base` a utility still overrides it; unlayered it
+   * would not. */
+  button,
+  input,
+  select,
+  textarea {
+    font: inherit;
+    color: inherit;
+  }
+
+  a {
+    color: var(--ds-link);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--ds-link-hover);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--ds-brand-label);
+    outline-offset: 2px;
+  }
 }
 
-html {
-  background: var(--ds-bg-canvas);
-  -webkit-text-size-adjust: 100%;
-  text-size-adjust: 100%;
-}
+@layer components {
+  /* Every point total and every ranking position. Without this the digits
+   * jitter as the numbers change and a leaderboard looks broken. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
 
-body {
-  margin: 0;
-  min-height: 100dvh;
-  background: var(--ds-bg-canvas);
-  color: var(--ds-text-primary);
-  font-family: var(--ds-font-body);
-  font-size: var(--ds-fs-base);
-  font-weight: var(--ds-fw-medium);
-  line-height: var(--ds-leading-base);
-  font-synthesis-weight: none;
-  -webkit-font-smoothing: antialiased;
-  overscroll-behavior-y: none; /* kills the iOS rubber-band under a fixed bar */
-  -webkit-tap-highlight-color: transparent;
-}
+  .eyebrow {
+    font-size: var(--ds-eyebrow-size);
+    font-weight: var(--ds-eyebrow-weight);
+    letter-spacing: var(--ds-eyebrow-tracking);
+    text-transform: uppercase;
+    color: var(--ds-text-dim);
+  }
 
-/* Mobile-only shell. The brief says design at 390px and only for phones, so on
- * a laptop this centres a phone-width column instead of stretching a mobile
- * layout across 1440px. */
-#root {
-  position: relative;
-  isolation: isolate;
-  max-width: var(--ds-shell-max-w);
-  min-height: 100dvh;
-  margin-inline: auto;
-  background: var(--ds-bg-app);
-  padding-top: var(--ds-safe-top);
-  padding-left: var(--ds-safe-left);
-  padding-right: var(--ds-safe-right);
-  padding-bottom: var(--ds-tabbar-offset);
-}
+  .display {
+    font-family: var(--ds-font-display);
+    font-weight: var(--ds-fw-regular); /* Archivo Black is a single weight */
+    text-transform: uppercase;
+    letter-spacing: var(--ds-display-tracking);
+    line-height: var(--ds-display-leading);
+  }
 
-h1,
-h2,
-h3,
-h4,
-p,
-figure {
-  margin: 0;
-}
+  /* A selected row is a tint plus an inset rail, always together. */
+  .selected {
+    background: var(--ds-brand-tint-strong);
+    box-shadow: inset var(--ds-selected-marker) 0 0 var(--ds-brand);
+  }
 
-ul,
-ol {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
+  .selected--soft {
+    background: var(--ds-brand-tint);
+    box-shadow: inset var(--ds-selected-marker) 0 0 var(--ds-brand);
+  }
 
-img,
-svg {
-  display: block;
-  max-width: 100%;
-}
+  .avatar-placeholder {
+    background-color: var(--ds-bg-avatar);
+    background-image: var(--ds-pattern-avatar);
+    border-radius: var(--ds-radius-circle);
+    box-shadow: inset 0 0 0 1px oklch(0.42 0.02 30 / 0.6);
+  }
 
-button,
-input,
-select,
-textarea {
-  font: inherit;
-  color: inherit;
-}
-
-a {
-  color: var(--ds-link);
-  text-decoration: none;
-}
-
-a:hover {
-  color: var(--ds-link-hover);
-}
-
-:focus-visible {
-  outline: 2px solid var(--ds-brand-label);
-  outline-offset: 2px;
-}
-
-/* Every point total and every ranking position. Without this the digits jitter
- * as the numbers change and a leaderboard looks broken. */
-.tabular {
-  font-variant-numeric: tabular-nums;
-}
-
-.eyebrow {
-  font-size: var(--ds-eyebrow-size);
-  font-weight: var(--ds-eyebrow-weight);
-  letter-spacing: var(--ds-eyebrow-tracking);
-  text-transform: uppercase;
-  color: var(--ds-text-dim);
-}
-
-.display {
-  font-family: var(--ds-font-display);
-  font-weight: var(--ds-fw-regular); /* Archivo Black is a single weight */
-  text-transform: uppercase;
-  letter-spacing: var(--ds-display-tracking);
-  line-height: var(--ds-display-leading);
-}
-
-/* A selected row is a tint plus an inset rail, always together. */
-.selected {
-  background: var(--ds-brand-tint-strong);
-  box-shadow: inset var(--ds-selected-marker) 0 0 var(--ds-brand);
-}
-
-.selected--soft {
-  background: var(--ds-brand-tint);
-  box-shadow: inset var(--ds-selected-marker) 0 0 var(--ds-brand);
-}
-
-.avatar-placeholder {
-  background-color: var(--ds-bg-avatar);
-  background-image: var(--ds-pattern-avatar);
-  border-radius: var(--ds-radius-circle);
-  box-shadow: inset 0 0 0 1px oklch(0.42 0.02 30 / 0.6);
+  /* Screens that sit under the tab bar reserve room for it. */
+  .with-tabbar {
+    padding-bottom: var(--ds-tabbar-offset);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

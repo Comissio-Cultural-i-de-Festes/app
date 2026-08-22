@@ -10,9 +10,11 @@ import { HomeIcon, ProfileIcon, ProposalsIcon, QrIcon, RankingIcon } from './ico
  * rather than a tab, because it is the one thing people open the app to do
  * while standing at a door.
  *
- * Content clears the bar via `padding-bottom: var(--ds-tabbar-offset)` on
- * `#root` in base.css. That token is derived from the same padding values used
- * here, so the two cannot drift.
+ * Content clears the bar with the `.with-tabbar` class from base.css, which
+ * screens that have one opt into. The offset token is derived from the same
+ * padding values used here, so the two cannot drift — and the screens without
+ * a tab bar, like the door and the install steps, do not get a dead band at
+ * the bottom.
  *
  * It is a `<nav>` of links, not `role="tablist"`: ARIA tabs imply same-page
  * panels and hijack the arrow keys. Routing is not wired yet — screens come in

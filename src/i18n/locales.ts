@@ -18,3 +18,12 @@ export const INTL_LOCALE: Record<Locale, string> = {
 export function isLocale(value: string): value is Locale {
   return (SUPPORTED_LOCALES as readonly string[]).includes(value)
 }
+
+/**
+ * i18next reports the resolved language as a plain string, and it can be
+ * undefined before init settles. Everything that formats a date needs a Locale,
+ * so the narrowing happens once here rather than at each call site.
+ */
+export function toLocale(value: string | undefined): Locale {
+  return value !== undefined && isLocale(value) ? value : DEFAULT_LOCALE
+}

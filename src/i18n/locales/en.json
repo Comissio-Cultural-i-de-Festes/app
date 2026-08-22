@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "home": "Home",
+    "ranking": "Ranking",
+    "qr": "My QR",
+    "proposals": "Ideas",
+    "profile": "Profile"
+  },
+  "actions": {
+    "yes": "I'm in",
+    "maybe": "Maybe",
+    "no": "Can't make it",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "retry": "Try again",
+    "close": "Close",
+    "back": "Back",
+    "save": "Save",
+    "share": "Share",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
+  },
+  "state": {
+    "loading": "One sec…",
+    "empty": "Nothing right now. Something will turn up",
+    "offline": "No connection",
+    "updating": "Updating…"
+  },
+  "scanner": {
+    "ok": "You're in",
+    "okWalkin": "Not on the list, but come on in",
+    "okWalkinReview": "Let them in — not signed up and not paid",
+    "alreadyCheckedIn": "This QR has already been used",
+    "notAMember": "This QR isn't one of ours",
+    "memberInactive": "This account isn't active yet",
+    "eventNotOpen": "This event isn't open",
+    "error": "Couldn't connect. Try again",
+    "queued": "Saved. It will send once there's signal"
+  },
+  "errors": {
+    "generic": "Something went wrong. Please try again.",
+    "network": "Could not reach the server.",
+    "offline": "An internet connection is needed to see this.",
+    "unauthorized": "Please sign in.",
+    "forbidden": "You do not have permission to do this.",
+    "notFound": "Not found.",
+    "rateLimited": "Too many attempts. Please wait a few minutes.",
+    "expired": "This has expired."
+  },
+  "units": {
+    "points_one": "{{count}} point",
+    "points_other": "{{count}} points",
+    "placesLeft_one": "{{count}} place left",
+    "placesLeft_other": "{{count}} places left"
+  },
+  "time": {
+    "today": "Today",
+    "tomorrow": "Tomorrow",
+    "yesterday": "Yesterday",
+    "startsIn": "Starts in {{duration}}"
+  },
+  "language": {
+    "label": "Language",
+    "ca": "Català",
+    "es": "Castellano",
+    "en": "English"
+  },
+  "a11y": {
+    "tabBar": "Main navigation",
+    "comingSoon": "coming soon",
+    "loading": "Loading content"
+  },
+  "legal": {
+    "privacy": "Privacy policy",
+    "terms": "Terms of use"
+  }
+}

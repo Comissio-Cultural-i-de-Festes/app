@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "home": "Inicio",
+    "ranking": "Ranking",
+    "qr": "Mi QR",
+    "proposals": "Propuestas",
+    "profile": "Perfil"
+  },
+  "actions": {
+    "yes": "Voy",
+    "maybe": "Quizás",
+    "no": "No voy",
+    "confirm": "Confirma",
+    "cancel": "Cancela",
+    "retry": "Vuelve a probar",
+    "close": "Cierra",
+    "back": "Atrás",
+    "save": "Guarda",
+    "share": "Comparte",
+    "signIn": "Entra",
+    "signOut": "Cierra la sesión"
+  },
+  "state": {
+    "loading": "Un segundo…",
+    "empty": "Ahora mismo nada. Tranqui, ya caerá algo",
+    "offline": "Sin conexión",
+    "updating": "Actualizando…"
+  },
+  "scanner": {
+    "ok": "Fichado. Ya estás dentro",
+    "okWalkin": "No estaba apuntado, pero adelante",
+    "okWalkinReview": "Entra, pero no estaba apuntado ni ha pagado",
+    "alreadyCheckedIn": "Este QR ya se ha usado",
+    "notAMember": "Este QR no es de la comi",
+    "memberInactive": "Todavía no está dado de alta",
+    "eventNotOpen": "Este evento no está abierto",
+    "error": "No se ha podido conectar. Vuelve a probar",
+    "queued": "Guardado. Se enviará cuando haya cobertura"
+  },
+  "errors": {
+    "generic": "Ha habido un error. Vuelve a intentarlo.",
+    "network": "No se ha podido conectar con el servidor.",
+    "offline": "Se necesita conexión a internet para ver esta información.",
+    "unauthorized": "Hay que iniciar sesión.",
+    "forbidden": "No tienes permiso para hacer esta acción.",
+    "notFound": "No se ha encontrado.",
+    "rateLimited": "Demasiados intentos. Espera unos minutos.",
+    "expired": "Ha caducado."
+  },
+  "units": {
+    "points_one": "{{count}} punto",
+    "points_other": "{{count}} puntos",
+    "placesLeft_one": "Queda {{count}} plaza",
+    "placesLeft_other": "Quedan {{count}} plazas"
+  },
+  "time": {
+    "today": "Hoy",
+    "tomorrow": "Mañana",
+    "yesterday": "Ayer",
+    "startsIn": "Empieza en {{duration}}"
+  },
+  "language": {
+    "label": "Idioma",
+    "ca": "Català",
+    "es": "Castellano",
+    "en": "English"
+  },
+  "a11y": {
+    "tabBar": "Navegación principal",
+    "comingSoon": "próximamente",
+    "loading": "Cargando contenido"
+  },
+  "legal": {
+    "privacy": "Política de privacidad",
+    "terms": "Condiciones de uso"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "nav": {
+    "home": "Inici",
+    "ranking": "Rànquing",
+    "qr": "El meu QR",
+    "proposals": "Propostes",
+    "profile": "Perfil"
+  },
+  "actions": {
+    "yes": "Hi vaig",
+    "maybe": "Potser",
+    "no": "No hi vaig",
+    "confirm": "Confirma",
+    "cancel": "Cancel·la",
+    "retry": "Torna-ho a provar",
+    "close": "Tanca",
+    "back": "Enrere",
+    "save": "Desa",
+    "share": "Comparteix",
+    "signIn": "Entra",
+    "signOut": "Tanca la sessió"
+  },
+  "state": {
+    "loading": "Un segon…",
+    "empty": "Ara mateix res. Tranquil, ja caurà alguna cosa",
+    "offline": "Sense connexió",
+    "updating": "Actualitzant…"
+  },
+  "scanner": {
+    "ok": "Fitxat. Ja ets dins",
+    "okWalkin": "No estava apuntat, però endavant",
+    "okWalkinReview": "Entra, però no estava apuntat ni ha pagat",
+    "alreadyCheckedIn": "Aquest QR ja s'ha fet servir",
+    "notAMember": "Aquest QR no és de la comi",
+    "memberInactive": "Encara no està donat d'alta",
+    "eventNotOpen": "Aquest esdeveniment no està obert",
+    "error": "No s'ha pogut connectar. Torna-ho a provar",
+    "queued": "Desat. S'enviarà quan hi hagi cobertura"
+  },
+  "errors": {
+    "generic": "Hi ha hagut un error. Torna-ho a provar.",
+    "network": "No s'ha pogut connectar amb el servidor.",
+    "offline": "Cal connexió a internet per veure aquesta informació.",
+    "unauthorized": "Cal iniciar sessió.",
+    "forbidden": "No tens permís per fer aquesta acció.",
+    "notFound": "No s'ha trobat.",
+    "rateLimited": "Massa intents. Espera uns minuts.",
+    "expired": "Ha caducat."
+  },
+  "units": {
+    "points_one": "{{count}} punt",
+    "points_other": "{{count}} punts",
+    "placesLeft_one": "Queda {{count}} plaça",
+    "placesLeft_other": "Queden {{count}} places"
+  },
+  "time": {
+    "today": "Avui",
+    "tomorrow": "Demà",
+    "yesterday": "Ahir",
+    "startsIn": "Comença en {{duration}}"
+  },
+  "language": {
+    "label": "Idioma",
+    "ca": "Català",
+    "es": "Castellano",
+    "en": "English"
+  },
+  "a11y": {
+    "tabBar": "Navegació principal",
+    "comingSoon": "properament",
+    "loading": "Carregant contingut"
+  },
+  "legal": {
+    "privacy": "Política de privadesa",
+    "terms": "Condicions d'ús"
+  }
+}

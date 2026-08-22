@@ -15,7 +15,27 @@
 -- built from, it is append-only, and losing it would silently rewrite two
 -- years of standings.
 
-create extension if not exists pg_cron;
+-- ENABLE pg_cron IN THE DASHBOARD BEFORE PUSHING THIS.
+--
+-- Database > Extensions > pg_cron. Then this becomes a no-op and everything
+-- lines up. Creating it from a migration on a hosted project is known to leave
+-- the schema grants half-set even though the dashboard reports it active, and
+-- the fix for that is to toggle it off and on in the dashboard anyway.
+--
+-- pg_catalog, not extensions: that is the schema Supabase documents for this
+-- one, and it is where it lands locally too.
+do $$
+begin
+  create extension if not exists pg_cron with schema pg_catalog;
+exception
+  when insufficient_privilege or feature_not_supported then
+    raise exception
+      'pg_cron is not enabled on this project. Turn it on in Dashboard > '
+      'Database > Extensions and push again. Do not skip this migration: '
+      'without the scheduled purge, audit_log keeps personal data for ever '
+      'and the 24-month retention policy is only a comment.'
+      using errcode = '0A000';
+end $$;
 
 create or replace function private.purge_audit_log()
 returns integer

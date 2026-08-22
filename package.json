@@ -26,12 +26,13 @@
     "db:new": "supabase migration new",
     "db:test": "supabase test db",
     "db:lint": "supabase db lint",
-    "db:types": "supabase gen types typescript --local -o src/lib/database.types.ts",
+    "db:types": "supabase gen types typescript --local > src/lib/database.types.ts",
     "db:push": "supabase db push",
     "fn:serve": "supabase functions serve",
     "test:rls": "vitest run --config vitest.rls.config.ts",
     "db:verify": "supabase db reset && supabase test db && npm run test:rls",
-    "check:keys": "node scripts/no-leaked-keys.mjs"
+    "check:keys": "node scripts/no-leaked-keys.mjs",
+    "db:types:check": "node scripts/check-db-types.mjs"
   },
   "dependencies": {
     "@fontsource-variable/archivo": "^5.3.0",

@@ -114,6 +114,12 @@ jobs:
       - name: policy tests (through PostgREST)
         run: npm run test:rls
 
+      # The generated types are only worth having if they are true. A stale
+      # file type-checks a column that no longer exists, which is worse than
+      # having no types at all, and nothing else in the build would notice.
+      - name: generated types match the migrations
+        run: npm run db:types:check
+
       - name: stop the stack
         if: always()
         run: supabase stop --no-backup

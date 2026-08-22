@@ -41,9 +41,17 @@ npm run db:reset          # re-applies every migration, then the seeds
 npm run db:new -- nom     # a new migration file
 npm run db:test           # the pgTAP policy tests
 npm run test:rls          # the same policies, through PostgREST
+npm run db:types          # regenerate src/lib/database.types.ts
+npm run db:types:check    # fail if that file no longer matches the schema
 npm run db:lint
 npm run db:stop
 ```
+
+**Run `npm run db:types` after any migration that changes a table, a view or a
+function signature, and commit the result.** CI runs `db:types:check` against a
+database built from the migrations in the commit and fails if the two disagree.
+A stale types file is worse than none: it type-checks a column that no longer
+exists and agrees with code that will fail at runtime.
 
 Applying to a hosted project:
 
@@ -54,6 +62,40 @@ npm run db:push
 
 `supabase/seed/` is applied by `db:start` and `db:reset` and never by
 `db:push`, which is why the test helpers live there rather than in a migration.
+
+### Term dates, and moving them every year
+
+The chips above the ranking — the whole course, first term, second, third —
+are rows in `public.ranking_periods`, not constants in the code. **The
+committee changes them itself; this needs no developer and no deploy.**
+
+The academic calendar moves every year and the committee turns over every year,
+so a term boundary that needs a pull request is a boundary that stays wrong for
+the whole of the term it is wrong in: the person who notices is not the person
+who can change it.
+
+In the Supabase dashboard, **Table Editor → `ranking_periods`**:
+
+| Column      | What it is                                                                                            |
+| ----------- | ----------------------------------------------------------------------------------------------------- |
+| `codi`      | `curs`, `t1`, `t2`, `t3`. The app translates these four; anything else falls back to `etiqueta`.      |
+| `etiqueta`  | Only for a period you invent. Leave it empty for the four above, or it will override the translation. |
+| `starts_at` | When the period opens. Empty means no lower bound.                                                    |
+| `ends_at`   | When it closes, **exclusive**. Empty means it never closes.                                           |
+| `ordre`     | Left-to-right order of the chips. The first one is what the app opens on.                             |
+
+The intervals are half-open, so the `ends_at` of one term should be the exact
+`starts_at` of the next. That way no evening of points falls into both or
+neither.
+
+Every September, edit the four rows: move `curs.starts_at` to the first of
+September, and shift `t1`, `t2` and `t3` to the new term dates. Leave
+`curs.ends_at` empty so the course does not expire on a date nobody is
+watching.
+
+A point counts in the term **the event happened in**, not the term the points
+were entered in — so entering the setup points for September's party in October
+still files them under September.
 
 ## Signing in
 
@@ -92,7 +134,14 @@ an installed app opens in an in-app browser, and a redirect back _into_ scope
 returns control to the app. The PKCE verifier stays in the context that started
 the trip, which is the same one that receives the code.
 
-That is the theory. It has not been proved on a handset.
+That was the theory, and it holds: it has been run on a real iPhone against the
+deployed app — installed from the icon, Safari closed completely — and it comes
+back inside the app with a session.
+
+Keep running it anyway. It depends on iOS behaviour that Apple has changed
+before and on the Google client being configured correctly for whichever
+origin you are testing, so it is worth ten minutes at the start of each year
+and after any change to the redirect URLs.
 
 **The test**
 

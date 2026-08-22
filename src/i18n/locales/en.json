@@ -130,11 +130,11 @@
       "going": "You're going · change it"
     },
     "movement": {
+      "line_one": "Signed up today: {{people}}",
+      "line_other": "Signed up today: {{people}}",
+      "more_one": "{{people}} and {{count}} more",
+      "more_other": "{{people}} and {{count}} more",
       "and": " and ",
-      "only_one": "{{people}} signed up today",
-      "only_other": "{{people}} signed up today",
-      "more_one": "{{people}} and {{count}} more signed up today",
-      "more_other": "{{people}} and {{count}} more signed up today",
       "comma": ", "
     },
     "rank": {

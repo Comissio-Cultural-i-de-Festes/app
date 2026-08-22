@@ -130,11 +130,11 @@
       "going": "Ja hi vas · canvia-ho"
     },
     "movement": {
+      "line_one": "S'hi ha apuntat avui: {{people}}",
+      "line_other": "S'hi han apuntat avui: {{people}}",
+      "more_one": "{{people}} i {{count}} més",
+      "more_other": "{{people}} i {{count}} més",
       "and": " i ",
-      "only_one": "{{people}} s'ha apuntat avui",
-      "only_other": "{{people}} s'han apuntat avui",
-      "more_one": "{{people}} i {{count}} més s'ha apuntat avui",
-      "more_other": "{{people}} i {{count}} més s'han apuntat avui",
       "comma": ", "
     },
     "rank": {

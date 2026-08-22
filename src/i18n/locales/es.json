@@ -130,11 +130,11 @@
       "going": "Ya vas · cámbialo"
     },
     "movement": {
+      "line_one": "Se ha apuntado hoy: {{people}}",
+      "line_other": "Se han apuntado hoy: {{people}}",
+      "more_one": "{{people}} y {{count}} más",
+      "more_other": "{{people}} y {{count}} más",
       "and": " y ",
-      "only_one": "{{people}} se ha apuntado hoy",
-      "only_other": "{{people}} se han apuntado hoy",
-      "more_one": "{{people}} y {{count}} más se ha apuntado hoy",
-      "more_other": "{{people}} y {{count}} más se han apuntado hoy",
       "comma": ", "
     },
     "rank": {

@@ -361,16 +361,22 @@ function RankingTeaser({ home }: { readonly home: Home }) {
         {school ? (
           <div className="pb-[5px] text-right">
             <p className="text-sm font-bold text-brand-accent">
+              {/* The subject form, with its article: "La Politècnica va 2a",
+                  "L'Empresa va 2a". Catalan contracts the article against the
+                  next word, so this cannot be assembled from the plain name in
+                  code — each form is its own key. */}
               {t('home.rank.school', {
-                school: t(`escola.${school.escola satisfies Escola}`),
+                school: t(`escolaSubject.${school.escola satisfies Escola}`),
                 position: formatOrdinal(school.posicio, locale, 'f'),
               })}
             </p>
             {gap !== null && above ? (
               <p className="mt-[3px] text-[12.5px] text-[var(--ds-text-muted-lo)]">
+                {/* And the genitive: "a 340 punts d'Empresa", not "de
+                    Empresa". */}
                 {t('home.rank.behind', {
                   count: gap,
-                  school: t(`escola.${above.escola satisfies Escola}`),
+                  school: t(`escolaOf.${above.escola satisfies Escola}`),
                 })}
               </p>
             ) : null}

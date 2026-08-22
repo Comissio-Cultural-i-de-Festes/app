@@ -14,6 +14,8 @@ export default tseslint.config(
       'supabase/.temp/**',
       'supabase/.branches/**',
       '.remember/**',
+      // Deno runtime, its own toolchain and its own type resolution.
+      'supabase/functions/**',
     ],
   },
   js.configs.recommended,

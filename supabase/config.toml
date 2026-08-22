@@ -412,3 +412,11 @@ enabled = true
 # declarative_schema_path = "./schemas"
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
+
+[functions.check-in]
+# A cheap first gate that keeps unauthenticated traffic from booting the
+# function. It is NOT the authorisation check: it proves there is a user, not
+# that the user is on the junta, and with legacy keys the anon key is itself a
+# valid JWT that ships in the browser bundle. The real check is inside
+# public.check_in().
+verify_jwt = true

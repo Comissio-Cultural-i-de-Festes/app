@@ -39,11 +39,11 @@ export function RankingScreen() {
   return (
     <div className="with-tabbar min-h-dvh bg-app">
       <div className="sticky top-0 z-20 border-b border-surface-5 bg-app">
-        <div className={`flex items-end justify-between gap-3 pt-[2px] pb-3 ${GUTTER}`}>
+        <div className={`flex items-end justify-between gap-6 pt-[2px] pb-6 ${GUTTER}`}>
           <h1 className="display text-[30px] tracking-[-0.045em]">{t('nav.ranking')}</h1>
           {periods.data && periods.data.length > 1 ? (
             <div
-              className="flex min-w-0 gap-[6px] overflow-x-auto pb-1 [scrollbar-width:none]"
+              className="flex min-w-0 gap-[6px] overflow-x-auto pb-2 [scrollbar-width:none]"
               role="group"
               aria-label={t('ranking.periodLabel')}
             >
@@ -62,7 +62,7 @@ export function RankingScreen() {
         </div>
 
         {me ? (
-          <div className="flex items-center gap-3 border-t border-brand-banner-border bg-brand-banner px-[var(--ds-gutter)] py-[11px]">
+          <div className="flex items-center gap-6 border-t border-brand-banner-border bg-brand-banner px-[var(--ds-gutter)] py-[11px]">
             <Avatar src={me.avatar_url} size={34} />
             <div className="flex-1">
               <p className="text-[14.5px] font-bold">
@@ -116,7 +116,7 @@ export function RankingScreen() {
 
           <section>
             <div
-              className={`mt-[22px] flex items-baseline justify-between border-b border-surface-5 pb-2 ${GUTTER}`}
+              className={`mt-[22px] flex items-baseline justify-between border-b border-surface-5 pb-4 ${GUTTER}`}
             >
               <h2 className="text-xs font-extrabold tracking-[0.17em] text-brand-accent uppercase">
                 {t('ranking.individual')}
@@ -140,7 +140,7 @@ export function RankingScreen() {
                 stops here when it plainly does not is just noise. */}
             {board.rows.length > LIST_LIMIT ? (
               <p
-                className={`pt-[18px] pb-3 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
+                className={`pt-[18px] pb-6 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
               >
                 {t('ranking.cutOff')}
               </p>
@@ -175,7 +175,7 @@ function PeriodChip({
       onClick={onSelect}
       aria-pressed={active}
       className={
-        'flex h-[30px] items-center rounded-[15px] px-3 text-[12.5px] whitespace-nowrap ' +
+        'flex h-[30px] items-center rounded-[15px] px-6 text-[12.5px] whitespace-nowrap ' +
         (active
           ? 'bg-brand font-bold text-on-brand'
           : 'border border-border-strong font-semibold text-fg-secondary')

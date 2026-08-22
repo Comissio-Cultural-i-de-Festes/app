@@ -1,7 +1,6 @@
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
-import { env } from '@/config/env'
 import { firstName } from '@/features/session/profile'
 import { useUserId } from '@/features/session/useUserId'
 import {
@@ -15,6 +14,7 @@ import {
 import { type Locale, toLocale } from '@/i18n/locales'
 import type { Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { LogoMark, Wordmark } from '@/ui/Logo/Logo'
 
 import {
   type AttendanceRow,
@@ -34,9 +34,27 @@ export function HomeScreen() {
   const locale = toLocale(i18n.resolvedLanguage)
   const home = useHome()
 
+  // Approved yet? A pending profile can read the calendar — that is what the
+  // door promises them — but every write and every list of names is still
+  // closed. The screen has to say so, or the only feedback is a button that
+  // fails.
+  const waiting = home.profile !== null && home.profile.estat !== 'actiu'
+
   return (
     <div className="with-tabbar min-h-dvh bg-app">
       <Header home={home} />
+
+      {waiting ? (
+        <p
+          role="status"
+          className={
+            'mx-[var(--ds-gutter)] mt-1 border-l-[3px] border-warning bg-surface-1 ' +
+            'px-[18px] py-[15px] text-md text-fg-secondary [text-wrap:pretty]'
+          }
+        >
+          {t('home.waiting.banner')}
+        </p>
+      ) : null}
 
       {home.isError ? (
         <ErrorPanel
@@ -50,12 +68,12 @@ export function HomeScreen() {
         <>
           <Hero event={home.hero} locale={locale} />
           <Places event={home.hero} attendances={home.attendances} />
-          <CallToAction event={home.hero} attendances={home.attendances} />
+          <CallToAction event={home.hero} attendances={home.attendances} waiting={waiting} />
         </>
       ) : home.isPending ? (
         <p className={`${GUTTER} py-16 text-center text-fg-muted`}>{t('state.loading')}</p>
       ) : (
-        <NothingNext waiting={home.profile !== null && home.profile.estat !== 'actiu'} />
+        <NothingNext />
       )}
 
       <RankingTeaser home={home} />
@@ -73,17 +91,18 @@ function Header({ home }: { readonly home: Home }) {
 
   return (
     <header
-      className={`sticky top-0 z-20 flex items-center justify-between gap-3 bg-app pt-1 pb-3 ${GUTTER}`}
+      className={`sticky top-0 z-20 flex items-center justify-between gap-3 bg-app pt-2 pb-6 ${GUTTER}`}
     >
-      <div>
-        <p className="display text-[21px] tracking-[-0.04em] text-brand-strong">
-          {env.appShortName}
-        </p>
-        {name === '' ? null : (
-          <p className="text-xs font-semibold tracking-[0.03em] text-fg-dim">
-            {t(`home.greeting.${greetingKey(new Date())}`, { name })}
-          </p>
-        )}
+      <div className="flex min-w-0 items-center gap-[10px]">
+        <LogoMark size={36} />
+        <div className="min-w-0">
+          <Wordmark size={22} />
+          {name === '' ? null : (
+            <p className="mt-2 truncate text-xs font-semibold tracking-[0.03em] text-fg-dim">
+              {t(`home.greeting.${greetingKey(new Date())}`, { name })}
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-none items-center gap-[10px]">
@@ -144,7 +163,7 @@ function Hero({ event, locale }: { readonly event: EventRow; readonly locale: Lo
 
       <div className="absolute right-4 bottom-4 left-[var(--ds-gutter)]">
         <p className="eyebrow text-brand-accent">{whenLabel(start, locale, t)}</p>
-        <h1 className="display mt-2 text-[40px] leading-[0.85] tracking-[-0.048em] [overflow-wrap:break-word] [text-wrap:balance]">
+        <h1 className="display mt-4 text-[40px] leading-[0.85] tracking-[-0.048em] [overflow-wrap:break-word] [text-wrap:balance]">
           {event.titulo}
         </h1>
       </div>
@@ -196,7 +215,7 @@ function Places({
         : `${t('home.places.of', { total: event.plazas })} · ${where}`
 
   return (
-    <section className={`flex items-end justify-between gap-[14px] pt-4 ${GUTTER}`}>
+    <section className={`flex items-end justify-between gap-[14px] pt-8 ${GUTTER}`}>
       <div className="min-w-0">
         {/* No cap, no number. The forty-pixel figure exists to say how much
             room is left, and an event with no limit has nothing to say there —
@@ -214,7 +233,7 @@ function Places({
         )}
       </div>
 
-      <div className="flex flex-none items-center gap-2 pb-1">
+      <div className="flex flex-none items-center gap-4 pb-2">
         <div className="flex items-center">
           {going.slice(0, 3).map((row, index) => (
             <span
@@ -241,9 +260,11 @@ function Places({
 function CallToAction({
   event,
   attendances,
+  waiting,
 }: {
   readonly event: EventRow
   readonly attendances: readonly AttendanceRow[]
+  readonly waiting: boolean
 }) {
   const { t } = useTranslation()
   const userId = useUserId()
@@ -258,8 +279,15 @@ function CallToAction({
     'text-[18px] font-bold tracking-[-0.01em] text-center [text-wrap:balance] rounded-cta'
 
   return (
-    <section className={`pt-4 ${GUTTER}`}>
-      {going ? (
+    <section className={`pt-8 ${GUTTER}`}>
+      {waiting ? (
+        // Not approved yet. The banner above says why; the button keeps its
+        // own label so the screen reads the same as everybody else's, which is
+        // the point of letting them in this far at all.
+        <button type="button" disabled className={`${base} bg-surface-2 text-fg-muted opacity-70`}>
+          {t('home.cta.join')}
+        </button>
+      ) : going ? (
         // "Ja hi vas · canvia-ho" opens the event, and the event screen is a
         // later batch. Disabled rather than silently doing nothing, so it
         // announces itself instead of feeling broken.
@@ -341,8 +369,8 @@ function RankingTeaser({ home }: { readonly home: Home }) {
       : Math.max(0, Math.round((above.punts_per_membre - school.punts_per_membre) * school.membres))
 
   return (
-    <section className={`mt-6 border-y border-surface-7 py-[18px] ${GUTTER}`}>
-      <div className="flex items-end justify-between gap-3">
+    <section className={`mt-12 border-y border-surface-7 py-[18px] ${GUTTER}`}>
+      <div className="flex items-end justify-between gap-6">
         <div>
           <p className={EYEBROW_TIGHT}>
             {t('home.rank.you', {
@@ -384,7 +412,7 @@ function RankingTeaser({ home }: { readonly home: Home }) {
         ) : null}
       </div>
 
-      <p className="mt-3 text-[13.5px] text-fg-muted [text-wrap:pretty]">
+      <p className="mt-6 text-[13.5px] text-fg-muted [text-wrap:pretty]">
         {t('home.rank.nudge')}{' '}
         <Link to="/ranquing" className="font-bold">
           {t('home.rank.link')}
@@ -410,7 +438,7 @@ function Recap({
 
   return (
     <section className={`pt-[22px] ${GUTTER}`}>
-      <h2 className={`${EYEBROW_TIGHT} mb-3`}>{t('home.recap.title')}</h2>
+      <h2 className={`${EYEBROW_TIGHT} mb-6`}>{t('home.recap.title')}</h2>
       <div className="flex items-stretch gap-[14px]">
         {event.cover_url === null ? (
           <div
@@ -435,7 +463,7 @@ function Recap({
               </p>
             ) : null}
           </div>
-          <p className="flex items-baseline gap-2">
+          <p className="flex items-baseline gap-4">
             <span className="tabular display text-3xl tracking-[-0.04em] text-brand-accent">
               +{event.puntos}
             </span>
@@ -462,7 +490,7 @@ function Upcoming({
 
   return (
     <section className={`pt-[26px] ${GUTTER}`}>
-      <h2 className={`${EYEBROW_TIGHT} mb-1`}>{t('home.upcoming.title')}</h2>
+      <h2 className={`${EYEBROW_TIGHT} mb-2`}>{t('home.upcoming.title')}</h2>
       <ul>
         {events.map((event) => {
           const start = new Date(event.starts_at)
@@ -489,7 +517,7 @@ function Upcoming({
                   {event.titulo}
                 </p>
                 {sub === '' ? null : (
-                  <p className="mt-1 text-sm text-fg-muted [text-wrap:pretty]">{sub}</p>
+                  <p className="mt-2 text-sm text-fg-muted [text-wrap:pretty]">{sub}</p>
                 )}
               </div>
               <span aria-hidden="true" className="flex-none text-[20px] text-fg-faint">
@@ -499,7 +527,7 @@ function Upcoming({
           )
         })}
       </ul>
-      <p className="pt-4 pb-[10px] text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+      <p className="pt-8 pb-[10px] text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
         {events.length === 0 ? t('home.upcoming.none') : t('home.upcoming.thatIsAll')}
       </p>
     </section>
@@ -507,23 +535,15 @@ function Upcoming({
 }
 
 /**
- * No events, which means one of two very different things.
- *
- * Somebody the junta has not approved yet sees an empty app, because RLS hides
- * every event from them — and telling that person "ara mateix res, ja caurà
- * alguna cosa" is not a small inaccuracy, it is the app saying nothing is
- * happening when in fact they are the thing that has not happened.
+ * No events at all. Since a pending profile can now read the calendar, this
+ * means what it says rather than "you are not allowed to see any of this".
  */
-function NothingNext({ waiting }: { readonly waiting: boolean }) {
+function NothingNext() {
   const { t } = useTranslation()
   return (
     <section className={`pt-10 ${GUTTER}`}>
-      <p className="display text-d-sm [text-wrap:balance]">
-        {waiting ? t('home.waiting.title') : t('home.empty.title')}
-      </p>
-      <p className="mt-3 text-fg-muted [text-wrap:pretty]">
-        {waiting ? t('home.waiting.body') : t('home.empty.body')}
-      </p>
+      <p className="display text-d-sm [text-wrap:balance]">{t('home.empty.title')}</p>
+      <p className="mt-3 text-fg-muted [text-wrap:pretty]">{t('home.empty.body')}</p>
     </section>
   )
 }

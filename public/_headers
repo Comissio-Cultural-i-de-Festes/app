@@ -1,0 +1,11 @@
+# Cloudflare Pages. The shell and the service worker must never be held by the
+# HTTP cache: a stale index.html or sw.js is how a device keeps showing
+# pre-reveal content after the reveal has happened.
+/index.html
+  Cache-Control: no-cache
+/sw.js
+  Cache-Control: no-cache
+/manifest.webmanifest
+  Cache-Control: no-cache
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

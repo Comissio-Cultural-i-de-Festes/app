@@ -2,6 +2,8 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import App from './App'
+import './i18n'
+import { setupPwa } from './lib/pwa'
 import './styles/index.css'
 
 const container = document.getElementById('root')
@@ -12,3 +14,5 @@ createRoot(container).render(
     <App />
   </StrictMode>,
 )
+
+setupPwa()

@@ -1,0 +1,9 @@
+dist
+dev-dist
+coverage
+package-lock.json
+supabase/.temp
+supabase/.branches
+
+# not ours: the product spec, kept in the working tree but never committed
+02-especificacion-tecnica.md

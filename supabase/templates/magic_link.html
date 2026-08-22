@@ -1,26 +1,31 @@
 <!--
-  The sign-in email.
+  COPY THE COMMITTEE WRITES. Same as src/i18n/locales/*.json — this is text
+  every member reads, so it belongs to them, not to whoever wrote the code.
+  What is below is a starting point in the right register, not finished wording.
 
-  It carries BOTH a link and a six-digit code, and that is not belt and braces.
+  Register: an email about getting in is instructions, not banter. Warm at the
+  top, unambiguous in the middle. Somebody may be reading this at the door.
 
-  On iOS the home-screen app has its own storage jar. Ask for a link from the
-  icon, tap it in Mail, and Safari opens: the session lands in Safari, the icon
-  is still signed out, and the PKCE verifier that was created in the app is not
-  in Safari either — so the link cannot even complete. Without a code there is
-  no way out of that loop except uninstalling.
+  Nothing here names the association: another campus association forks this
+  repo and the name comes from the sender, which is set on the Supabase
+  project. Do not paste it into the body.
 
-  Typing the code finishes the sign-in wherever it was typed, so the app can
-  say "type this" when it knows it is running from the icon, and "tap this"
-  when it knows it is in Safari.
+  Variables GoTrue substitutes:
+    {{ .ConfirmationURL }}  the sign-in link
+    {{ .Token }}            the six-digit code — REQUIRED, see below
+    {{ .SiteURL }}          the app's address
+    {{ .Email }}            who this went to
 
-  Plain, no jokes: this is an email about access, and half the people reading
-  it are doing so at the door.
+  BOTH the link and the code have to stay. On iOS the home-screen app has its
+  own storage: ask for a link from the icon, tap it in Mail, and Safari opens —
+  the session lands there, the icon is still signed out, and the PKCE verifier
+  created in the app is not in Safari either, so the link cannot even complete.
+  The code is the only way out of that. tests/email-templates.test.ts fails if
+  it disappears.
 -->
-<h2>{{ .SiteURL }}</h2>
-
 <p>Hola,</p>
 
-<p>Algú (esperem que tu) ha demanat entrar. Tens dues maneres de fer-ho:</p>
+<p>Algú ha demanat entrar amb aquesta adreça. Si has estat tu, tens dues maneres de fer-ho.</p>
 
 <p>
   <a href="{{ .ConfirmationURL }}">Entra des d'aquí</a>
@@ -32,8 +37,12 @@
 </p>
 
 <p>
-  Si has obert l'app des de la icona de la pantalla d'inici, fes servir el codi: l'enllaç obriria el
-  Safari i et deixaria fora.
+  Si has obert l'app des de la icona de la pantalla d'inici, fes servir el codi. L'enllaç obre el
+  Safari, i des d'allà no entraries a l'app.
 </p>
 
-<p>Si no has demanat res, ignora aquest correu i no passarà res.</p>
+<p>Si no has demanat res, no cal que facis res: ignora aquest correu.</p>
+
+<p style="color: #888; font-size: 13px">
+  Aquest correu ve de <a href="{{ .SiteURL }}">{{ .SiteURL }}</a>.
+</p>

@@ -243,13 +243,27 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
-# The sign-in email carries both a link and a six-digit code. On iOS the
-# home-screen app has its own storage, so a link requested from the icon opens
-# in Safari and completes there instead — the code is the only way through
-# without stranding somebody. See supabase/templates/magic_link.html.
+# EMAIL COPY. These subjects and the files they point at are text every member
+# reads, so they belong with src/i18n/locales/*.json in the "the committee
+# writes it" pile, not with the code. Subjects deliberately do not name the
+# association: the sender does that, and another association forks this repo.
+#
+# Both templates carry a link AND a six-digit code. On iOS the home-screen app
+# has its own storage, so a link requested from the icon opens in Safari and
+# completes there instead; the code is the only way through without stranding
+# somebody. tests/email-templates.test.ts fails if either disappears.
+
 [auth.email.template.magic_link]
 subject = "Entra a l'app"
 content_path = "./supabase/templates/magic_link.html"
+
+# The first email a brand-new member ever gets, IF confirmations are on — which
+# is the default on a hosted project even though it is off locally. Without
+# this file that one is Supabase's English default, in front of exactly the
+# people who just signed up at the welcome event.
+[auth.email.template.confirmation]
+subject = "Confirma el correu"
+content_path = "./supabase/templates/confirmation.html"
 
 # Uncomment to customize email template
 # [auth.email.template.invite]

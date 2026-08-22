@@ -122,6 +122,17 @@ Three places, and nothing else is association-specific:
 - Every user-facing string goes through i18next from the first commit.
   `npm test` fails if a key exists in `ca.json` and is missing from `es.json`
   or `en.json`.
+- **Copy belongs to the committee, not to whoever wrote the code**, and it
+  lives in two places, not one:
+  - `src/i18n/locales/*.json` — everything on screen.
+  - `supabase/templates/*.html` plus their subjects in `supabase/config.toml`
+    — the sign-in emails. Easy to forget, because nobody on the team sees them
+    once sign-in works. Both carry a link _and_ a six-digit code, and the code
+    is not optional: see the note in `magic_link.html`.
+
+  Informal Catalan for actions and empty states; plain and unfunny for errors,
+  money, the door and anything legal.
+
 - Colours live only in `src/styles/tokens.css`, and no state colour may use the
   brand hue. Both are tested.
 - Fixtures are obviously synthetic — NATO alphabet handles, `@example.test`

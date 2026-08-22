@@ -1,0 +1,44 @@
+<!--
+  COPY THE COMMITTEE WRITES. See magic_link.html for the register.
+
+  THIS IS THE FIRST EMAIL A NEW MEMBER EVER RECEIVES, and it is easy to forget
+  it exists.
+
+  With email confirmations enabled — which is the default on a hosted Supabase
+  project — a brand-new address signing in for the first time gets THIS
+  template, not magic_link.html. Locally `enable_confirmations = false` in
+  config.toml, so the magic link is sent instead and this one never fires,
+  which is exactly how it stays untranslated: nobody sees it until the welcome
+  event, when it lands in front of the newcomers.
+
+  Two ways to keep that from happening, and both are worth doing:
+    * this file, so the template is in Catalan wherever confirmations are on;
+    * turning confirmations off on the hosted project to match local, since
+      with passwordless sign-in the link IS the confirmation and a second one
+      adds a step for nothing.
+
+  Variables: {{ .ConfirmationURL }}, {{ .Token }}, {{ .SiteURL }}, {{ .Email }}
+-->
+<p>Hola,</p>
+
+<p>Benvingut o benvinguda. Només queda confirmar que aquesta adreça és teva.</p>
+
+<p>
+  <a href="{{ .ConfirmationURL }}">Confirma i entra</a>
+</p>
+
+<p>
+  O escriu aquest codi a l'app:<br />
+  <strong style="font-size: 24px; letter-spacing: 4px">{{ .Token }}</strong>
+</p>
+
+<p>
+  Si has obert l'app des de la icona de la pantalla d'inici, fes servir el codi. L'enllaç obre el
+  Safari, i des d'allà no entraries a l'app.
+</p>
+
+<p>Si no has demanat res, no cal que facis res: ignora aquest correu.</p>
+
+<p style="color: #888; font-size: 13px">
+  Aquest correu ve de <a href="{{ .SiteURL }}">{{ .SiteURL }}</a>.
+</p>

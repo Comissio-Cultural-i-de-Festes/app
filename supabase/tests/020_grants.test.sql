@@ -7,7 +7,7 @@
 -- abused.
 
 begin;
-select plan(20);
+select plan(22);
 
 -- ── points_log is unreachable from a client ─────────────────────────────────
 select ok(
@@ -107,6 +107,32 @@ select is_empty(
        from information_schema.column_privileges
       where table_schema = 'public' and grantee = 'anon' $$,
   'anon holds no column privilege in public either'
+);
+
+-- ── service_role keeps working ──────────────────────────────────────────────
+-- Not inherited. On this CLI version the postgres role's default privileges
+-- for schema public give service_role only Dxtm, so a table added by a future
+-- migration is invisible to the backend until it is granted. The symptom is a
+-- flat 403 from PostgREST with nothing to point at, so it is asserted here.
+select is_empty(
+  $$ select c.relname::text
+       from pg_class c
+       join pg_namespace n on n.oid = c.relnamespace
+      where n.nspname = 'public' and c.relkind = 'r'
+        and not (has_table_privilege('service_role', c.oid, 'SELECT')
+                 and has_table_privilege('service_role', c.oid, 'INSERT')
+                 and has_table_privilege('service_role', c.oid, 'UPDATE')
+                 and has_table_privilege('service_role', c.oid, 'DELETE')) $$,
+  'service_role can read and write every table in public'
+);
+
+select is_empty(
+  $$ select c.relname::text
+       from pg_class c
+       join pg_namespace n on n.oid = c.relnamespace
+      where n.nspname = 'public' and c.relkind = 'v'
+        and not has_table_privilege('service_role', c.oid, 'SELECT') $$,
+  'and read every view'
 );
 
 select * from finish();

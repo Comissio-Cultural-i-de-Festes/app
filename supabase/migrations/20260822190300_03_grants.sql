@@ -110,3 +110,20 @@ grant select on public.audit_log to authenticated; -- RLS: admin only
 -- anon gets no table access whatsoever. Its one need, checking an invitation
 -- code before someone bothers creating an account, is a single RPC granted in
 -- 06_functions.sql. Schema USAGE stays: PostgREST's introspection assumes it.
+
+-- ── service_role ────────────────────────────────────────────────────────────
+-- The backend's identity: Edge Functions, the CLI, and any server-side job.
+--
+-- Do not assume it inherits anything. On this CLI version the postgres role's
+-- default privileges for schema public hand service_role only Dxtm (truncate,
+-- references, trigger, maintain) — no select, insert, update or delete. A
+-- table created by a migration is therefore unreadable with the service key
+-- until it is granted here, and the failure surfaces as a flat 403 from
+-- PostgREST with nothing to point at.
+--
+-- Granting explicitly also makes the repo behave the same whatever a future
+-- CLI decides the defaults should be.
+grant all on all tables in schema public to service_role;
+grant all on all sequences in schema public to service_role;
+alter default privileges in schema public grant all on tables to service_role;
+alter default privileges in schema public grant all on sequences to service_role;

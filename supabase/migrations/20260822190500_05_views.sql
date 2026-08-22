@@ -44,7 +44,7 @@ comment on view public.events_public is
 
 alter view public.events_public owner to postgres;
 revoke all on public.events_public from anon, authenticated;
-grant select on public.events_public to authenticated;
+grant select on public.events_public to authenticated, service_role;
 
 -- ── ranking ─────────────────────────────────────────────────────────────────
 -- points_log rows are private to their owner, so an invoker view over them
@@ -77,7 +77,7 @@ comment on view public.ranking is
 
 alter view public.ranking owner to postgres;
 revoke all on public.ranking from anon, authenticated;
-grant select on public.ranking to authenticated;
+grant select on public.ranking to authenticated, service_role;
 
 -- Three properties make hide_from_ranking unbypassable, and all three are
 -- needed:
@@ -130,4 +130,4 @@ comment on view public.ranking_escoles is
 
 alter view public.ranking_escoles owner to postgres;
 revoke all on public.ranking_escoles from anon, authenticated;
-grant select on public.ranking_escoles to authenticated;
+grant select on public.ranking_escoles to authenticated, service_role;

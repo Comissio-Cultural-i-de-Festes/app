@@ -442,3 +442,16 @@ enabled = true
 # valid JWT that ships in the browser bundle. The real check is inside
 # public.check_in().
 verify_jwt = true
+
+# Sign in with Google. There is no association domain, so there is no verified
+# sender, so real email cannot be sent: Supabase's built-in SMTP is two
+# messages an hour and the first event is about a hundred sign-ups in an
+# evening. Google needs no email at all.
+#
+# The secret never enters the repo. Locally it comes from .env; on the hosted
+# project it is set in the dashboard.
+[auth.external.google]
+enabled = true
+client_id = "env(GOOGLE_OAUTH_CLIENT_ID)"
+secret = "env(GOOGLE_OAUTH_SECRET)"
+redirect_uri = "http://127.0.0.1:54321/auth/v1/callback"

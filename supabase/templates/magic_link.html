@@ -1,4 +1,19 @@
 <!--
+  NOT CURRENTLY SENT.
+
+  Entry is Sign in with Google. There is no association domain, so there is no
+  verified sender, so no real email can go out: the built-in SMTP allows two
+  messages an hour and the first event is about a hundred sign-ups in one
+  evening.
+  
+  This file is kept, not deleted, for two reasons. Buying a domain later brings
+  the email path back with one environment variable. And more urgently: if the
+  Google round trip turns out not to return to an installed app on iOS, this is
+  the only way anybody signs in from the home-screen icon. Set
+  VITE_AUTH_EMAIL_FALLBACK=true and it is live again — see "Checking the iPhone
+  round trip" in the README.
+-->
+<!--
   COPY THE COMMITTEE WRITES. Same as src/i18n/locales/*.json — this is text
   every member reads, so it belongs to them, not to whoever wrote the code.
   What is below is a starting point in the right register, not finished wording.

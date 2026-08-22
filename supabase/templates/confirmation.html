@@ -1,4 +1,19 @@
 <!--
+  NOT CURRENTLY SENT.
+
+  Entry is Sign in with Google. There is no association domain, so there is no
+  verified sender, so no real email can go out: the built-in SMTP allows two
+  messages an hour and the first event is about a hundred sign-ups in one
+  evening.
+  
+  This file is kept, not deleted, for two reasons. Buying a domain later brings
+  the email path back with one environment variable. And more urgently: if the
+  Google round trip turns out not to return to an installed app on iOS, this is
+  the only way anybody signs in from the home-screen icon. Set
+  VITE_AUTH_EMAIL_FALLBACK=true and it is live again — see "Checking the iPhone
+  round trip" in the README.
+-->
+<!--
   COPY THE COMMITTEE WRITES. See magic_link.html for the register.
 
   THIS IS THE FIRST EMAIL A NEW MEMBER EVER RECEIVES, and it is easy to forget

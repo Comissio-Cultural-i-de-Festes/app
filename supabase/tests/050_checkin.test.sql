@@ -6,7 +6,7 @@
 -- more than once, possibly from two junta phones at the same door.
 
 begin;
-select plan(21);
+select plan(23);
 
 -- Own the starting state. These files run against a database an earlier suite
 -- may have written to, and an assertion that quietly stops proving anything is
@@ -32,6 +32,17 @@ insert into public.points_log (user_id, motivo, puntos) values
   ('00000000-0000-4000-8000-000000000003', 'trajo_gente', 15),
   ('00000000-0000-4000-8000-0000000000b3', 'manual', 999);
 
+-- Read Bravo's token now, while still the session role. profile_secret is
+-- own-row only and the tests schema is revoked from authenticated, so neither
+-- is reachable from inside the impersonated blocks below. A set_config value
+-- is, and being the SET LOCAL form it unwinds with the transaction.
+select set_config(
+  'tests.qr_bravo',
+  (select s.qr_token::text from public.profile_secret s
+    where s.id = '00000000-0000-4000-8000-000000000002'),
+  true
+);
+
 -- ── authorisation ───────────────────────────────────────────────────────────
 reset role;
 select tests.authenticate_as('alfa');
@@ -55,6 +66,30 @@ select throws_ok(
 
 reset role;
 select tests.authenticate_as('junta_alfa');
+
+-- ── the actual door path: a scanned QR ──────────────────────────────────────
+-- The token now lives in profile_secret, which nobody but its owner can read,
+-- so check_in() joins to resolve it. Everything else in this file identifies
+-- people by user_id (the manual-add path), which would leave the primary path
+-- covered only by its failure case.
+select is(
+  public.check_in(
+    '00000000-0000-4000-8000-0000000000e1',
+    current_setting('tests.qr_bravo')::uuid,
+    null, null, null
+  ) ->> 'nombre',
+  'Bravo',
+  'scanning a real QR resolves the right person'
+);
+
+select is(
+  (select count(*)::int from public.points_log
+    where user_id = '00000000-0000-4000-8000-000000000002'
+      and event_id = '00000000-0000-4000-8000-0000000000e1'
+      and motivo = 'asistencia'),
+  1,
+  'and awards them the attendance points once'
+);
 
 -- ── a registered member, first scan ─────────────────────────────────────────
 select is(

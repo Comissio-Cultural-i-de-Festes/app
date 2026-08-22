@@ -1,0 +1,42 @@
+name: Supabase keepalive
+
+# Free-tier projects pause after a week without activity, and over the summer
+# that will happen. A weekly authenticated read is unambiguously project
+# activity, which a health endpoint may not be.
+#
+# The catch worth knowing: GitHub disables scheduled workflows in a public repo
+# after 60 days with no commits, and emails the owner. So the thing keeping the
+# database awake falls asleep first if development pauses. Treat that email as
+# an action item.
+on:
+  schedule:
+    - cron: '17 6 * * 1'
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  ping:
+    # Scheduled runs are disabled in forks by GitHub already; this covers the
+    # manual trigger, so a fork cannot poke somebody else's project.
+    #
+    # CONFIRM THIS when the repository is created. A wrong value makes the job
+    # a silent no-op, which looks identical to a working one.
+    if: github.repository == 'aRetr0/app-comi'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: read one row through PostgREST
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          set -euo pipefail
+          status=$(curl -sS --max-time 30 -o /tmp/out -w '%{http_code}' \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            "${SUPABASE_URL}/rest/v1/rpc/invite_preview" \
+            -H 'Content-Type: application/json' \
+            -d '{"p_codi":"keepalive"}')
+          echo "HTTP ${status}"
+          test "${status}" = "200"

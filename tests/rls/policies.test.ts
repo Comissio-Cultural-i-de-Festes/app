@@ -284,19 +284,27 @@ describe('anon', () => {
     const anon = anonClient()
     interface Preview {
       valid: boolean
+      expires_at?: string | null
     }
-    const valid = await rpc<Preview>(anon, 'invite_preview', { p_codi: 'CODI-VALID-0001' })
-    const revoked = await rpc<Preview>(anon, 'invite_preview', { p_codi: 'CODI-REVOCAT-02' })
+    const valid = await rpc<Preview>(anon, 'invite_preview', { p_codi: 'ALFA-7F3K' })
+    const revoked = await rpc<Preview>(anon, 'invite_preview', { p_codi: 'ALFA-REVK' })
+    const expired = await rpc<Preview>(anon, 'invite_preview', { p_codi: 'ALFA-OLD1' })
     const missing = await rpc<Preview>(anon, 'invite_preview', { p_codi: 'NO-EXISTEIX' })
 
-    expect(valid.data).toEqual({ valid: true })
+    // A valid code also carries its expiry, because the invitation screen
+    // shows it. No leak: the caller already holds the code.
+    expect(valid.data).toMatchObject({ valid: true })
+
+    // The negative answers carry nothing at all, and they are byte-identical
+    // to each other. That is the property that stops a code being probed for
+    // having once been real, or for having just run out.
     expect(revoked.data).toEqual({ valid: false })
-    // Identical, so a code cannot be probed for having once existed.
-    expect(missing.data).toEqual(revoked.data)
+    expect(expired.data).toEqual({ valid: false })
+    expect(missing.data).toEqual({ valid: false })
   })
 
   it('cannot redeem one', async () => {
-    const { error } = await anonClient().rpc('redeem_invite', { p_codi: 'CODI-VALID-0001' })
+    const { error } = await anonClient().rpc('redeem_invite', { p_codi: 'ALFA-7F3K' })
     expect(error).not.toBeNull()
   })
 })

@@ -101,9 +101,9 @@ insert into public.points_log (user_id, event_id, motivo, puntos, granted_by) va
 
 -- ── invites ─────────────────────────────────────────────────────────────────
 insert into public.invites (id, codi, created_by, expires_at, revoked, max_usos) values
-  ('00000000-0000-4000-8000-0000000000c1', 'CODI-VALID-0001',
+  ('00000000-0000-4000-8000-0000000000c1', 'ALFA-7F3K',
    '00000000-0000-4000-8000-0000000000a1', now() + interval '30 days', false, 10),
-  ('00000000-0000-4000-8000-0000000000c2', 'CODI-REVOCAT-02',
+  ('00000000-0000-4000-8000-0000000000c2', 'ALFA-REVK',
    '00000000-0000-4000-8000-0000000000a1', now() + interval '30 days', true, 10),
-  ('00000000-0000-4000-8000-0000000000c3', 'CODI-CADUCAT-03',
+  ('00000000-0000-4000-8000-0000000000c3', 'ALFA-OLD1',
    '00000000-0000-4000-8000-0000000000a1', now() - interval '1 day', false, 10);

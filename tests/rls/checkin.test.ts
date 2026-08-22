@@ -200,7 +200,7 @@ describe('the signup path', () => {
     expect(before.data?.estat).toBe('pendent')
 
     const { data, error } = await rpc<{ ok: boolean }>(pending, 'redeem_invite', {
-      p_codi: 'CODI-VALID-0001',
+      p_codi: 'ALFA-7F3K',
     })
     expect(error).toBeNull()
     expect(data).toMatchObject({ ok: true })

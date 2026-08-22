@@ -1,0 +1,39 @@
+<!--
+  The sign-in email.
+
+  It carries BOTH a link and a six-digit code, and that is not belt and braces.
+
+  On iOS the home-screen app has its own storage jar. Ask for a link from the
+  icon, tap it in Mail, and Safari opens: the session lands in Safari, the icon
+  is still signed out, and the PKCE verifier that was created in the app is not
+  in Safari either — so the link cannot even complete. Without a code there is
+  no way out of that loop except uninstalling.
+
+  Typing the code finishes the sign-in wherever it was typed, so the app can
+  say "type this" when it knows it is running from the icon, and "tap this"
+  when it knows it is in Safari.
+
+  Plain, no jokes: this is an email about access, and half the people reading
+  it are doing so at the door.
+-->
+<h2>{{ .SiteURL }}</h2>
+
+<p>Hola,</p>
+
+<p>Algú (esperem que tu) ha demanat entrar. Tens dues maneres de fer-ho:</p>
+
+<p>
+  <a href="{{ .ConfirmationURL }}">Entra des d'aquí</a>
+</p>
+
+<p>
+  O escriu aquest codi a l'app:<br />
+  <strong style="font-size: 24px; letter-spacing: 4px">{{ .Token }}</strong>
+</p>
+
+<p>
+  Si has obert l'app des de la icona de la pantalla d'inici, fes servir el codi: l'enllaç obriria el
+  Safari i et deixaria fora.
+</p>
+
+<p>Si no has demanat res, ignora aquest correu i no passarà res.</p>

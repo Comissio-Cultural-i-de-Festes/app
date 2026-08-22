@@ -54,7 +54,7 @@ select lives_ok(
 reset role;
 select tests.authenticate_as('pendent_alfa');
 select is(
-  public.redeem_invite('CODI-VALID-0001') ->> 'ok',
+  public.redeem_invite('ALFA-7F3K') ->> 'ok',
   'true',
   'and redeem_invite can still move somebody from pendent to actiu'
 );

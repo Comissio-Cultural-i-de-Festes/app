@@ -243,6 +243,14 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# The sign-in email carries both a link and a six-digit code. On iOS the
+# home-screen app has its own storage, so a link requested from the icon opens
+# in Safari and completes there instead — the code is the only way through
+# without stranding somebody. See supabase/templates/magic_link.html.
+[auth.email.template.magic_link]
+subject = "Entra a l'app"
+content_path = "./supabase/templates/magic_link.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"

@@ -92,9 +92,7 @@ export function ManualScreen() {
             </span>
             {t('door.backToScanner')}
           </Link>
-          <p className="min-w-0 truncate text-xs font-extrabold tracking-[0.14em] text-fg-muted uppercase">
-            {event.data?.titulo ?? ''}
-          </p>
+          <p className="eyebrow min-w-0 truncate text-fg-muted">{event.data?.titulo ?? ''}</p>
         </div>
 
         {queued === 0 && online ? null : (
@@ -109,7 +107,7 @@ export function ManualScreen() {
           </p>
         )}
 
-        <h1 className="display mt-4 text-[30px] tracking-[-0.045em] [text-wrap:balance]">
+        <h1 className="display mt-4 text-d-s tracking-[-0.045em] [text-wrap:balance]">
           {t('door.manualTitle')}
         </h1>
 

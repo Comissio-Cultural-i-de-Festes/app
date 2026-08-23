@@ -23,7 +23,7 @@ interface FieldShellProps {
   readonly variant?: 'solid' | 'dashed'
 }
 
-const LABEL = 'text-[11.5px] font-extrabold tracking-[0.14em] uppercase text-fg-muted'
+const LABEL = 'eyebrow-sm text-fg-muted'
 
 export function FieldShell({
   label,

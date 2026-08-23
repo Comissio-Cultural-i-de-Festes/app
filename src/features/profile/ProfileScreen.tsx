@@ -91,7 +91,7 @@ export function ProfileScreen() {
       <header className={`flex items-center gap-8 pt-[6px] ${GUTTER}`}>
         <Avatar src={profile?.avatar_url ?? null} size={72} />
         <div className="min-w-0 flex-1">
-          <h1 className="display text-[30px] tracking-[-0.045em] [text-wrap:balance]">
+          <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">
             {profile?.nombre ?? ''}
           </h1>
           {subtitle === '' ? null : (
@@ -118,9 +118,7 @@ export function ProfileScreen() {
       </section>
 
       <section className={`pt-6 ${GUTTER}`}>
-        <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
-          {t('profile.breakdown.title')}
-        </h2>
+        <h2 className="eyebrow text-fg-muted">{t('profile.breakdown.title')}</h2>
 
         {points.isPending ? (
           <p className="py-8 text-fg-muted">{t('state.loading')}</p>
@@ -150,9 +148,7 @@ export function ProfileScreen() {
 
       {points.data && points.data.length > 0 ? (
         <section className={`pt-6 ${GUTTER}`}>
-          <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
-            {t('profile.history.title')}
-          </h2>
+          <h2 className="eyebrow text-fg-muted">{t('profile.history.title')}</h2>
           <ul className="mt-2">
             {points.data.slice(0, 6).map((row) => (
               <li key={`${row.created_at}${row.motivo}`} className={ROW}>
@@ -173,9 +169,7 @@ export function ProfileScreen() {
       ) : null}
 
       <section className={`pt-12 pb-8 ${GUTTER}`}>
-        <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
-          {t('profile.settings.title')}
-        </h2>
+        <h2 className="eyebrow text-fg-muted">{t('profile.settings.title')}</h2>
 
         <button
           type="button"

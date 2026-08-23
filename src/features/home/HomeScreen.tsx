@@ -29,7 +29,7 @@ import {
 import { type Home, useAnswer, useHome } from './useHome'
 
 const GUTTER = 'px-[var(--ds-gutter)]'
-const EYEBROW_TIGHT = 'text-xs font-extrabold tracking-[0.17em] uppercase text-fg-muted'
+const EYEBROW_TIGHT = 'eyebrow text-fg-muted'
 
 export function HomeScreen() {
   const { t, i18n } = useTranslation()

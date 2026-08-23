@@ -39,9 +39,7 @@ export function JuntaHeader({
         {aside}
       </div>
       {title === undefined ? null : (
-        <h1 className="display mt-1 text-[30px] tracking-[-0.045em] [text-wrap:balance]">
-          {title}
-        </h1>
+        <h1 className="display mt-1 text-d-s tracking-[-0.045em] [text-wrap:balance]">{title}</h1>
       )}
     </header>
   )

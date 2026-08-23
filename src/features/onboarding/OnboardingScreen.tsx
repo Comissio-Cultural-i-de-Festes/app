@@ -93,9 +93,7 @@ export function OnboardingScreen() {
 
       <section className={`mt-[26px] ${GUTTER}`}>
         <div className="flex items-baseline justify-between gap-3">
-          <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
-            {t('onboarding.school.label')}
-          </h2>
+          <h2 className="eyebrow text-fg-muted">{t('onboarding.school.label')}</h2>
           <span className="text-[11.5px] font-bold tracking-[0.1em] text-brand-label uppercase">
             {t('onboarding.school.required')}
           </span>
@@ -158,10 +156,7 @@ export function OnboardingScreen() {
       </section>
 
       <section className={`mt-[26px] ${GUTTER}`}>
-        <label
-          htmlFor={grauId}
-          className="block text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase"
-        >
+        <label htmlFor={grauId} className="block eyebrow text-fg-muted">
           {t('onboarding.degree.label')}
         </label>
         <input
@@ -182,9 +177,7 @@ export function OnboardingScreen() {
       </section>
 
       <section className={`mt-9 ${GUTTER}`}>
-        <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
-          {t('onboarding.year.label')}
-        </h2>
+        <h2 className="eyebrow text-fg-muted">{t('onboarding.year.label')}</h2>
         <div className="mt-4 flex gap-4" role="group" aria-label={t('onboarding.year.label')}>
           {COURSES.map((n) => {
             const on = curs === n
@@ -211,10 +204,7 @@ export function OnboardingScreen() {
       </section>
 
       <section className={`mt-9 ${GUTTER}`}>
-        <label
-          htmlFor={phoneId}
-          className="block text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase"
-        >
+        <label htmlFor={phoneId} className="block eyebrow text-fg-muted">
           {t('onboarding.phone.label')}
         </label>
         <div

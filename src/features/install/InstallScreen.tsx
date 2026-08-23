@@ -92,9 +92,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
       </section>
 
       <section className="mt-[22px] border-y border-surface-7 px-[18px] py-8">
-        <h2 className="text-xs font-extrabold tracking-[0.16em] text-[var(--ds-brand-accent-hi)] uppercase">
-          {t('install.payoff.title')}
-        </h2>
+        <h2 className="eyebrow text-[var(--ds-brand-accent-hi)]">{t('install.payoff.title')}</h2>
         <p className="mt-[10px] text-base text-fg-secondary [text-wrap:pretty]">
           {t('install.payoff.body')}
         </p>

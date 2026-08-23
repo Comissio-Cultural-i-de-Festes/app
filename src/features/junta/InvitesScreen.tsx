@@ -95,16 +95,14 @@ export function InvitesScreen() {
           On a laptop that header is the top bar, so the title needs a row of
           its own — and the page needs an h1 either way. */}
       <div className="hidden items-center border-b border-surface-5 px-14 py-7 lg:flex">
-        <h1 className="display text-[30px] leading-none tracking-[-0.045em]">
+        <h1 className="display text-d-s leading-none tracking-[-0.045em]">
           {t('junta.invites.title')}
         </h1>
       </div>
 
       <div className="lg:grid lg:grid-cols-[404px_1fr] lg:items-start lg:gap-15 lg:px-14 lg:pb-16">
         <section className={`pt-8 ${GUTTER}`}>
-          <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
-            {t('junta.invites.whoEnters')}
-          </h2>
+          <h2 className="eyebrow text-fg-muted">{t('junta.invites.whoEnters')}</h2>
           <p className="mt-4 text-sm text-fg-muted [text-wrap:pretty]">
             {t('junta.invites.oneCode')}
           </p>
@@ -120,9 +118,7 @@ export function InvitesScreen() {
           ) : (
             <>
               <div className="mt-8 border border-border-strong bg-surface-1 px-9 py-8">
-                <p className="text-2xs font-extrabold tracking-[0.14em] text-fg-muted uppercase">
-                  {t('junta.invites.activeCode')}
-                </p>
+                <p className="eyebrow-sm text-fg-muted">{t('junta.invites.activeCode')}</p>
                 <p className="display mt-4 text-d-sm tracking-[0.02em]">{live.codi}</p>
                 <p className="mt-4 text-sm font-semibold text-fg-muted [text-wrap:pretty]">
                   {live.expires_at === null
@@ -138,9 +134,7 @@ export function InvitesScreen() {
                 </p>
               </div>
 
-              <p className="mt-9 text-2xs font-extrabold tracking-[0.14em] text-fg-muted uppercase">
-                {t('junta.invites.willPaste')}
-              </p>
+              <p className="eyebrow-sm mt-9 text-fg-muted">{t('junta.invites.willPaste')}</p>
               <p className="mt-4 border-l-[3px] border-surface-7 bg-surface-1 px-8 py-6 text-md text-fg-secondary [text-wrap:pretty]">
                 {shareText}
               </p>
@@ -180,9 +174,7 @@ export function InvitesScreen() {
         </section>
 
         <section className={`pt-12 ${GUTTER}`}>
-          <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
-            {t('junta.invites.wantIn')}
-          </h2>
+          <h2 className="eyebrow text-fg-muted">{t('junta.invites.wantIn')}</h2>
 
           {decide.isError ? (
             <p role="alert" className="pt-6 text-md font-bold text-error [text-wrap:pretty]">

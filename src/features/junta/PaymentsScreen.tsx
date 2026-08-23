@@ -140,7 +140,7 @@ function Picker({
         onChange={(e) => {
           void navigate(`/junta/pagaments/${e.target.value}`, { replace: true })
         }}
-        className={`truncate bg-transparent text-xs font-extrabold tracking-[0.14em] text-fg-muted uppercase ${className}`}
+        className={`eyebrow truncate bg-transparent text-fg-muted ${className}`}
       >
         {list.map((e) => (
           <option key={e.id} value={e.id}>

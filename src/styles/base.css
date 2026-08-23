@@ -160,6 +160,14 @@
     color: var(--ds-text-dim);
   }
 
+  .eyebrow-sm {
+    font-size: var(--ds-eyebrow-size-sm);
+    font-weight: var(--ds-eyebrow-weight);
+    letter-spacing: var(--ds-eyebrow-tracking-sm);
+    text-transform: uppercase;
+    color: var(--ds-text-dim);
+  }
+
   .display {
     font-family: var(--ds-font-display);
     font-weight: var(--ds-fw-regular); /* Archivo Black is a single weight */

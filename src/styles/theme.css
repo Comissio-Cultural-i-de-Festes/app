@@ -84,6 +84,7 @@
   --text-2xl: var(--ds-fs-2xl);
   --text-3xl: var(--ds-fs-3xl);
   --text-d-xs: var(--ds-display-xs);
+  --text-d-s: var(--ds-display-s);
   --text-d-sm: var(--ds-display-sm);
   --text-d-md: var(--ds-display-md);
   --text-d-lg: var(--ds-display-lg);

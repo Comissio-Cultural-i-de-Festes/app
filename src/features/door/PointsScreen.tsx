@@ -76,7 +76,7 @@ export function PointsScreen() {
         <div className="flex items-center justify-between gap-6">
           <Link
             to="/junta"
-            className="-ml-4 flex min-h-[56px] min-w-0 items-center gap-1 px-4 text-xs font-extrabold tracking-[0.16em] text-brand-accent uppercase no-underline"
+            className="-ml-4 flex min-h-[56px] min-w-0 items-center gap-1 px-4 eyebrow text-brand-accent no-underline"
           >
             <span aria-hidden="true">‹</span>
             <span className="truncate">{event.data?.titulo ?? t('junta.title')}</span>
@@ -93,14 +93,12 @@ export function PointsScreen() {
             </button>
           )}
         </div>
-        <h1 className="display mt-4 text-[30px] tracking-[-0.045em]">{t('door.pointsTitle')}</h1>
+        <h1 className="display mt-4 text-d-s tracking-[-0.045em]">{t('door.pointsTitle')}</h1>
         <p className="mt-3 text-sm text-fg-muted [text-wrap:pretty]">{t('door.pointsLede')}</p>
       </header>
 
       <div className="flex items-center justify-between gap-6 border-b border-surface-5 px-[var(--ds-gutter)] py-5">
-        <p className="text-xs font-extrabold tracking-[0.14em] text-fg-muted uppercase">
-          {t('door.whoIsHere', { count: here.length })}
-        </p>
+        <p className="eyebrow text-fg-muted">{t('door.whoIsHere', { count: here.length })}</p>
       </div>
 
       {roster.isPending ? (

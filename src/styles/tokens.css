@@ -170,6 +170,9 @@
 
   /* Display — uppercase, negative tracking, sub-1 leading. Archivo Black. */
   --ds-display-xs: 19px;
+  /* The screen title on seven screens. It had no step and was written
+   * as a literal every time. */
+  --ds-display-s: 30px;
   --ds-display-sm: 26px;
   --ds-display-md: 38px;
   --ds-display-lg: 44px;
@@ -197,7 +200,11 @@
 
   --ds-eyebrow-size: 12px;
   --ds-eyebrow-weight: 800;
-  --ds-eyebrow-tracking: 0.18em;
+  --ds-eyebrow-tracking: 0.16em; /* what 18 of the 23 eyebrows were written at */
+  /* The same label one step down: inside a bordered block, on a chip, above a
+   * field. Tighter tracking because it is set smaller. */
+  --ds-eyebrow-size-sm: 11px;
+  --ds-eyebrow-tracking-sm: 0.14em;
 
   /* ─── RADII ──────────────────────────────────────────────────────────── */
   /* DELIBERATE. The si/potser/no buttons and the point-reason buttons are

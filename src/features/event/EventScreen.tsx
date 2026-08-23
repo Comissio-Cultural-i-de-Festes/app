@@ -205,9 +205,7 @@ export function EventScreen() {
 
       {e.transport_info === null ? null : (
         <section className={`pt-12 ${GUTTER}`}>
-          <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
-            {t('event.transport')}
-          </h2>
+          <h2 className="eyebrow text-fg-muted">{t('event.transport')}</h2>
           <p className="mt-6 text-base text-fg-secondary [text-wrap:pretty]">{e.transport_info}</p>
         </section>
       )}

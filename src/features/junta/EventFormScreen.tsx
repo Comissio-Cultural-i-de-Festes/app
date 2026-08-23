@@ -153,7 +153,7 @@ export function EventFormScreen() {
       />
 
       <div className="hidden items-center border-b border-surface-5 px-14 py-7 lg:flex">
-        <h1 className="display text-[30px] leading-none tracking-[-0.045em] [text-wrap:balance]">
+        <h1 className="display text-d-s leading-none tracking-[-0.045em] [text-wrap:balance]">
           {editing
             ? form.titulo === ''
               ? t('junta.form.editTitle')
@@ -165,9 +165,7 @@ export function EventFormScreen() {
       <div className="lg:grid lg:grid-cols-[1fr_372px] lg:items-start lg:gap-15 lg:px-14 lg:pb-16">
         {showTemplates ? (
           <section className={`pt-8 lg:col-start-1 lg:row-start-1 ${GUTTER}`}>
-            <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
-              {t('junta.form.templates')}
-            </h2>
+            <h2 className="eyebrow text-fg-muted">{t('junta.form.templates')}</h2>
             <ul className="mt-4 flex flex-col gap-4">
               {templates.data?.slice(0, 3).map((e) => (
                 <li key={e.id}>
@@ -524,10 +522,7 @@ function Field({
   const id = useId()
   return (
     <div className="pb-9">
-      <label
-        htmlFor={id}
-        className="block text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase"
-      >
+      <label htmlFor={id} className="block eyebrow text-fg-muted">
         {label}
       </label>
       <div id={id}>{children}</div>
@@ -661,7 +656,7 @@ function RevealBlock({
               clock runs out, and it is the one part of the form whose effect
               is invisible from the form itself. */}
           <div className="border border-surface-7 bg-surface-1 p-8">
-            <p className="text-2xs font-extrabold tracking-[0.14em] text-[var(--ds-warning-deep)] uppercase">
+            <p className="eyebrow-sm text-[var(--ds-warning-deep)]">
               {t('junta.form.stillHidden')}
             </p>
             <p className="display mt-4 text-d-sm leading-[0.9] tracking-[-0.05em] [text-wrap:balance]">

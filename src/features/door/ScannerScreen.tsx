@@ -111,9 +111,7 @@ export function ScannerScreen() {
             <span aria-hidden="true">✕</span>
           </Link>
           <div className="min-w-0 text-center">
-            <p className="text-xs font-extrabold tracking-[0.16em] text-brand-accent uppercase">
-              {t('junta.title')}
-            </p>
+            <p className="eyebrow text-brand-accent">{t('junta.title')}</p>
             <p className="truncate text-md font-bold">{event.data?.titulo ?? '…'}</p>
           </div>
           <span className="w-[44px] flex-none" />

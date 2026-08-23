@@ -41,7 +41,7 @@ export function RankingScreen() {
     <div className="with-tabbar min-h-dvh bg-app">
       <div className="sticky top-0 z-20 border-b border-surface-5 bg-app pt-[var(--ds-safe-top)]">
         <div className={`flex items-end justify-between gap-6 pt-[2px] pb-6 ${GUTTER}`}>
-          <h1 className="display text-[30px] tracking-[-0.045em]">{t('nav.ranking')}</h1>
+          <h1 className="display text-d-s tracking-[-0.045em]">{t('nav.ranking')}</h1>
           {periods.data && periods.data.length > 1 ? (
             <div
               className="flex min-w-0 gap-[6px] overflow-x-auto pb-2 [scrollbar-width:none]"
@@ -100,9 +100,7 @@ export function RankingScreen() {
         <>
           <section>
             <div className={`pt-[18px] pb-[6px] ${GUTTER}`}>
-              <h2 className="text-xs font-extrabold tracking-[0.17em] text-brand-accent uppercase">
-                {t('ranking.schools')}
-              </h2>
+              <h2 className="eyebrow text-brand-accent">{t('ranking.schools')}</h2>
               <p className="mt-[5px] text-sm text-fg-muted [text-wrap:pretty]">
                 {t('ranking.schoolsLede')}
               </p>
@@ -123,9 +121,7 @@ export function RankingScreen() {
             <div
               className={`mt-[22px] flex items-baseline justify-between border-b border-surface-5 pb-4 ${GUTTER}`}
             >
-              <h2 className="text-xs font-extrabold tracking-[0.17em] text-brand-accent uppercase">
-                {t('ranking.individual')}
-              </h2>
+              <h2 className="eyebrow text-brand-accent">{t('ranking.individual')}</h2>
               <p className="text-xs font-semibold text-fg-dim">
                 {t('ranking.listed', { count: board.rows.length })}
               </p>

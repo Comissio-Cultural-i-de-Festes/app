@@ -69,9 +69,7 @@ export function JuntaHome() {
 
       {next === null ? null : (
         <section className={`pt-8 ${GUTTER}`}>
-          <h2 className="text-xs font-extrabold tracking-[0.16em] text-brand-accent uppercase">
-            {t('junta.door')}
-          </h2>
+          <h2 className="eyebrow text-brand-accent">{t('junta.door')}</h2>
           <p className="mt-4 text-xl font-bold [text-wrap:balance]">{next.titulo}</p>
           <p className="mt-1 text-sm text-fg-muted">
             {formatDateTime(new Date(next.starts_at), locale)}
@@ -97,9 +95,7 @@ export function JuntaHome() {
       )}
 
       <section className={`pt-12 ${GUTTER}`}>
-        <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
-          {t('junta.manage')}
-        </h2>
+        <h2 className="eyebrow text-fg-muted">{t('junta.manage')}</h2>
         <ul className="mt-2">
           <Row
             to="/junta/esdeveniment/nou"
@@ -120,9 +116,7 @@ export function JuntaHome() {
       </section>
 
       <section className={`pt-12 ${GUTTER}`}>
-        <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
-          {t('junta.events')}
-        </h2>
+        <h2 className="eyebrow text-fg-muted">{t('junta.events')}</h2>
         {events.isPending ? (
           <p className="py-8 text-fg-muted">{t('state.loading')}</p>
         ) : events.isError ? (

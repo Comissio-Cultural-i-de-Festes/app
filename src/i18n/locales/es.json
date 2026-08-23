@@ -277,7 +277,30 @@
       "reject": "No"
     },
     "payments": {
-      "title": "Pagos y junta"
+      "title": "Pagos y junta",
+      "pickEvent": "De qué evento",
+      "whoPaid": "Quién ha pagado",
+      "ofSignedUp_one": "de {{count}} apuntado",
+      "ofSignedUp_other": "de {{count}} apuntados",
+      "eachOne": "registrados a {{price}} cada uno",
+      "bizum": "El Bizum va aparte, como siempre. Aquí solo lo marcas para no acabar con un Excel en el móvil.",
+      "paid": "Pagado",
+      "pending": "Pendiente",
+      "nobody": "Todavía no se ha apuntado nadie. Cuando digan que sí saldrán aquí.",
+      "chaseThem": "A los que no han pagado el viernes por la mañana, avísalos tú por privado. En el grupo no funciona.",
+      "whoRuns": "Quién lleva esto",
+      "handover": "Cuando lo dejéis en junio, nombrad a los que vienen antes de iros. Si no, el curso que viene nadie puede crear nada.",
+      "you": "Tú",
+      "nameAdmin": "Nombrar a otro admin",
+      "adminCan": "Un admin puede crear eventos, fichar gente y dar puntos. Poned tres o cuatro, no uno.",
+      "searchMember": "Busca por el nombre",
+      "noMembers": "Ningún nombre que encaje.",
+      "makeAdmin": "Hazlo admin",
+      "role": {
+        "member": "socio",
+        "admin": "admin",
+        "owner": "owner"
+      }
     },
     "form": {
       "leaveIt": "Déjalo",

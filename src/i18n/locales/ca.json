@@ -277,7 +277,30 @@
       "reject": "No"
     },
     "payments": {
-      "title": "Pagaments i junta"
+      "title": "Pagaments i junta",
+      "pickEvent": "De quin esdeveniment",
+      "whoPaid": "Qui ha pagat",
+      "ofSignedUp_one": "d'{{count}} apuntat",
+      "ofSignedUp_other": "de {{count}} apuntats",
+      "eachOne": "registrats a {{price}} cadascun",
+      "bizum": "El Bizum va a part, com sempre. Aquí només ho marques per no acabar amb un Excel al mòbil.",
+      "paid": "Pagat",
+      "pending": "Pendent",
+      "nobody": "Encara no s'hi ha apuntat ningú. Quan diguin que sí sortiran aquí.",
+      "chaseThem": "Els que no han pagat el divendres al matí, avisa'ls tu al privat. Al grup no funciona.",
+      "whoRuns": "Qui manega això",
+      "handover": "Quan plegueu al juny, nomeneu els que venen abans de marxar. Si no, el curs que ve ningú pot crear res.",
+      "you": "Tu",
+      "nameAdmin": "Nomenar un altre admin",
+      "adminCan": "Un admin pot crear esdeveniments, fitxar gent i donar punts. Poseu-ne tres o quatre, no un.",
+      "searchMember": "Busca pel nom",
+      "noMembers": "Cap nom que hi encaixi.",
+      "makeAdmin": "Fes-lo admin",
+      "role": {
+        "member": "soci",
+        "admin": "admin",
+        "owner": "owner"
+      }
     },
     "form": {
       "leaveIt": "Deixa-ho",

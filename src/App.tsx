@@ -8,6 +8,7 @@ import { EventScreen } from '@/features/event/EventScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
 import { EventFormScreen } from '@/features/junta/EventFormScreen'
 import { InvitesScreen } from '@/features/junta/InvitesScreen'
+import { PaymentsScreen } from '@/features/junta/PaymentsScreen'
 import { JuntaHome } from '@/features/junta/JuntaHome'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
@@ -125,6 +126,8 @@ export default function App() {
             <Route index element={<JuntaHome />} />
             <Route path="invitacions" element={<InvitesScreen />} />
             <Route path="esdeveniment/:id" element={<EventFormScreen />} />
+            <Route path="pagaments" element={<PaymentsScreen />} />
+            <Route path="pagaments/:eventId" element={<PaymentsScreen />} />
           </Route>
         </Route>
 

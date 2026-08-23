@@ -11,7 +11,7 @@ import { supabase } from '@/lib/supabase'
  * The only way back to it is a list that shows it.
  */
 
-const COLUMNS = 'id, titulo, starts_at, published, reveal_at, revelat'
+const COLUMNS = 'id, titulo, starts_at, published, reveal_at, revelat, precio_cents, plazas'
 
 export const juntaEventKeys = {
   list: (horizon: string) => ['junta', 'events', horizon] as const,

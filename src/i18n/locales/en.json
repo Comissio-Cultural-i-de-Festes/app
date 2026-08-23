@@ -277,7 +277,30 @@
       "reject": "No"
     },
     "payments": {
-      "title": "Payments and committee"
+      "title": "Payments and committee",
+      "pickEvent": "Which event",
+      "whoPaid": "Who has paid",
+      "ofSignedUp_one": "of {{count}} signed up",
+      "ofSignedUp_other": "of {{count}} signed up",
+      "eachOne": "logged at {{price}} each",
+      "bizum": "The money still moves the way it always has. This is only so nobody ends up keeping a spreadsheet on their phone.",
+      "paid": "Paid",
+      "pending": "Pending",
+      "nobody": "Nobody has signed up yet. They appear here once they say yes.",
+      "chaseThem": "Anyone still unpaid on Friday morning, message them yourself. The group chat does not work.",
+      "whoRuns": "Who runs this",
+      "handover": "When you hand over in June, name the next lot before you go. Otherwise nobody can create anything next year.",
+      "you": "You",
+      "nameAdmin": "Name another admin",
+      "adminCan": "An admin can create events, check people in and award points. Have three or four, not one.",
+      "searchMember": "Search by name",
+      "noMembers": "No name matches that.",
+      "makeAdmin": "Make them an admin",
+      "role": {
+        "member": "member",
+        "admin": "admin",
+        "owner": "owner"
+      }
     },
     "form": {
       "leaveIt": "Leave it",

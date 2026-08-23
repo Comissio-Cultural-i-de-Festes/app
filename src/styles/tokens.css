@@ -138,6 +138,9 @@
   --ds-badge-past-fg: oklch(0.17 0.03 60);
   --ds-unknown: oklch(0.72 0.13 300); /* violet: QR not from this association */
   --ds-on-state: oklch(0.16 0.012 25); /* dark text on a filled state chip */
+  /* The paid row's tint. Barely a colour — enough that a scan down the list
+   * finds the unpaid ones, not so much that twelve green rows shout. */
+  --ds-bg-paid: oklch(0.185 0.02 145);
 
   /* ─── TYPOGRAPHY ─────────────────────────────────────────────────────── */
   --ds-font-display: 'Archivo Black', 'Archivo Variable', Archivo, sans-serif;

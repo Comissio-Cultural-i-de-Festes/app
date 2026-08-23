@@ -15,6 +15,13 @@ export type EventType = 'fiesta' | 'casa_rural' | 'actividad'
 
 export type AttendanceState = 'si' | 'potser' | 'no' | 'espera' | 'asistio' | 'cancelado'
 
+/**
+ * Who can do what. `owner` is infrastructure and nothing else: an admin can
+ * name other admins, so a committee can hand over in June without needing
+ * anybody who knows what a database is.
+ */
+export type MemberRole = 'member' | 'admin' | 'owner'
+
 /** The three answers a member can give. The rest are set by the door or the junta. */
 export const ANSWERS = ['si', 'potser', 'no'] as const
 export type Answer = (typeof ANSWERS)[number]

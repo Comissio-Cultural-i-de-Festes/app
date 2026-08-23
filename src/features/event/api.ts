@@ -54,6 +54,16 @@ export async function fetchWaitlist(eventId: string): Promise<WaitlistStatus> {
 /** Cents to something a person reads. Free is free, not "0,00 €". */
 export function formatPrice(cents: number, locale: string): string | null {
   if (cents <= 0) return null
+  return formatMoney(cents, locale)
+}
+
+/**
+ * The same, for an amount that is a total rather than a price.
+ *
+ * Zero is a real answer here — nobody has paid yet — where on an event it
+ * means the thing is free, which is why the two are separate functions.
+ */
+export function formatMoney(cents: number, locale: string): string {
   return new Intl.NumberFormat(locale, {
     style: 'currency',
     currency: 'EUR',

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 
@@ -42,6 +43,11 @@ export function EventScreen() {
   const userId = useUserId()
   const client = useQueryClient()
   const { id = '' } = useParams()
+
+  // One reading of the clock for the whole screen, taken once. Calling
+  // Date.now() twice during a render can put "already happened" and "signed up
+  // today" on opposite sides of the same midnight.
+  const [now] = useState(() => new Date())
 
   const event = useQuery({ queryKey: eventKeys.one(id), queryFn: () => fetchEvent(id) })
   const attendances = useQuery({
@@ -87,9 +93,9 @@ export function EventScreen() {
   const mine = myAnswer(rows, id, userId)
   const left = placesLeft(e, going.length)
   const starts = new Date(e.starts_at)
-  const isPast = starts.getTime() < Date.now()
+  const isPast = starts.getTime() < now.getTime()
   const price = formatPrice(e.precio_cents, INTL_LOCALE[locale])
-  const movement = signedUpToday(rows, id, userId, new Date())
+  const movement = signedUpToday(rows, id, userId, now)
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
@@ -146,10 +152,7 @@ export function EventScreen() {
       <section className={`mt-9 border-y border-surface-7 py-8 ${GUTTER}`}>
         <Fact label={t('event.facts.when')} value={whenText(e, starts, locale, t)} />
         {e.ubicacion === null ? null : <Fact label={t('event.facts.where')} value={e.ubicacion} />}
-        <Fact
-          label={t('event.facts.price')}
-          value={price === null ? t('event.facts.free') : price}
-        />
+        <Fact label={t('event.facts.price')} value={price ?? t('event.facts.free')} />
       </section>
 
       <Places

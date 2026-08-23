@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { type ReactNode, useEffect, useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
 
@@ -14,6 +14,7 @@ import { uploadCover } from '@/lib/storage'
 import { useCovers } from '@/ui/Cover/useCovers'
 
 import { EventPreview, type PreviewData } from './EventPreview'
+import { Field, INPUT } from './formBits'
 import { JuntaHeader } from './JuntaHeader'
 import {
   type EventDraft,
@@ -779,42 +780,6 @@ function PublishedStrip({
 }
 
 // ── pieces ──────────────────────────────────────────────────────────────────
-
-const INPUT =
-  'mt-4 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] py-[13px] ' +
-  'text-lg font-semibold text-fg outline-none caret-[var(--ds-brand-strong)] ' +
-  'placeholder:font-medium placeholder:text-fg-faint'
-
-function Field({
-  label,
-  hint,
-  children,
-}: {
-  readonly label: string
-  readonly hint?: string
-  readonly children: ReactNode
-}) {
-  // Not `<label htmlFor>`: the id was landing on the wrapper div, which is not
-  // a form control, so the association was void — no accessible name on any of
-  // these inputs and no enlarged tap target from the label either. A named
-  // group works for the three-button rows as well as the single inputs.
-  const id = useId()
-  return (
-    <div className="pb-9">
-      <span id={id} className="block eyebrow text-fg-muted">
-        {label}
-      </span>
-      <div role="group" aria-labelledby={id}>
-        {children}
-      </div>
-      {hint === undefined ? null : (
-        <p className="mt-4 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-          {hint}
-        </p>
-      )}
-    </div>
-  )
-}
 
 function CoverPicker({
   preview,

@@ -240,6 +240,12 @@
     },
     "later": "Todo esto lo puedes cambiar después en tu perfil."
   },
+  "qr": {
+    "codeLabel": "Tu código QR",
+    "offlineOk": "Brillo al máximo · va sin cobertura",
+    "howTo": "Enséñalo en la puerta y espera el \"fichado\". Si la pantalla está sucia, pásale la manga.",
+    "unavailable": "Ahora mismo no podemos mostrar tu código. Pruébalo con conexión y quedará guardado para la próxima."
+  },
   "ranking": {
     "periodLabel": "Periodo",
     "period": {

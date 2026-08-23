@@ -25,6 +25,7 @@ import { TabBar, type TabId } from '@/ui/TabBar/TabBar'
 const HREFS: Partial<Record<TabId, string>> = {
   home: '/',
   ranking: '/ranquing',
+  qr: '/qr',
 }
 
 function currentTab(pathname: string): TabId {

@@ -8,6 +8,7 @@ import { HomeScreen } from '@/features/home/HomeScreen'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen'
+import { QrScreen } from '@/features/qr/QrScreen'
 import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
@@ -107,6 +108,7 @@ export default function App() {
           <Route element={<TabLayout />}>
             <Route path="/" element={<HomeScreen />} />
             <Route path="/ranquing" element={<RankingScreen />} />
+            <Route path="/qr" element={<QrScreen />} />
           </Route>
         </Route>
 

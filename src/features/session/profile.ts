@@ -7,6 +7,10 @@ export interface MyProfile {
   readonly nombre: string
   readonly avatar_url: string | null
   readonly escola: Escola | null
+  readonly grau: string | null
+  readonly curs: number | null
+  readonly hide_from_ranking: boolean
+  readonly created_at: string
   readonly estat: 'pendent' | 'actiu' | 'baixa'
   readonly role: 'member' | 'admin' | 'owner'
 }
@@ -19,7 +23,9 @@ export async function fetchProfile(id: string): Promise<MyProfile | null> {
   return unwrapMaybe<MyProfile>(
     supabase
       .from('profiles')
-      .select('id, nombre, avatar_url, escola, estat, role')
+      .select(
+        'id, nombre, avatar_url, escola, grau, curs, hide_from_ranking, created_at, estat, role',
+      )
       .eq('id', id)
       .maybeSingle(),
   )

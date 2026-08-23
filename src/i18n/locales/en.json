@@ -240,6 +240,12 @@
     },
     "later": "You can change all of this later in your profile."
   },
+  "qr": {
+    "codeLabel": "Your QR code",
+    "offlineOk": "Brightness up · works with no signal",
+    "howTo": "Show it at the door and wait for the beep. If the screen is smudged, give it a wipe.",
+    "unavailable": "We cannot show your code right now. Try once with a connection and it will be saved for next time."
+  },
   "ranking": {
     "periodLabel": "Period",
     "period": {

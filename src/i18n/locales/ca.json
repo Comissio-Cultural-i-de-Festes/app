@@ -240,6 +240,12 @@
     },
     "later": "Tot això ho pots canviar després al teu perfil."
   },
+  "qr": {
+    "codeLabel": "El teu codi QR",
+    "offlineOk": "Brillantor al màxim · va sense cobertura",
+    "howTo": "Ensenya'l a la porta i espera el \"fitxat\". Si la pantalla està bruta, passa-hi la màniga.",
+    "unavailable": "Ara mateix no podem mostrar el teu codi. Prova-ho amb connexió i quedarà desat per la propera."
+  },
   "ranking": {
     "periodLabel": "Període",
     "period": {

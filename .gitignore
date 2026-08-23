@@ -42,3 +42,6 @@ npm-debug.log*
 
 # local agent state
 .remember/
+
+# per-machine tooling, not the project's
+.mcp.json

@@ -100,6 +100,12 @@ export function EventFormScreen() {
   })
 
   const ready = form.titulo.trim() !== '' && form.starts_at !== ''
+  const showTemplates = !editing && (templates.data?.length ?? 0) > 0
+  // Without templates there is nothing above the fields, so they take both
+  // rows rather than leaving a hole where the list would have been.
+  const fieldsPlacement = showTemplates
+    ? 'lg:col-start-1 lg:row-start-2'
+    : 'lg:col-start-1 lg:row-start-1 lg:row-span-2'
 
   // Editing something the whole association can already see is a different
   // act from creating one. Offering "guarda i plega" here would let a tap
@@ -112,242 +118,257 @@ export function EventFormScreen() {
     <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">
       <JuntaHeader
         to="/junta"
+        className="lg:hidden"
         label={t('junta.form.leaveIt')}
         title={editing ? t('junta.form.editTitle') : t('junta.form.newTitle')}
       />
 
-      {!editing && (templates.data?.length ?? 0) > 0 ? (
-        <section className={`pt-8 ${GUTTER}`}>
-          <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
-            {t('junta.form.templates')}
-          </h2>
-          <ul className="mt-4 flex flex-col gap-4">
-            {templates.data?.slice(0, 3).map((e) => (
-              <li key={e.id}>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setForm(templateFrom(e))
-                  }}
-                  className="flex min-h-[56px] w-full items-center gap-4 border-[1.5px] border-surface-7 bg-surface-1 px-8 py-6 text-left"
-                >
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-base font-bold">{e.titulo}</span>
-                    <span className="mt-[3px] block text-[12.5px] text-[var(--ds-text-muted-lo)]">
-                      {formatDateTime(new Date(e.starts_at), locale)}
+      <div className="hidden items-center border-b border-surface-5 px-14 py-7 lg:flex">
+        <h1 className="display text-[30px] leading-none tracking-[-0.045em] [text-wrap:balance]">
+          {editing
+            ? form.titulo === ''
+              ? t('junta.form.editTitle')
+              : form.titulo
+            : t('junta.form.newTitle')}
+        </h1>
+      </div>
+
+      <div className="lg:grid lg:grid-cols-[1fr_372px] lg:items-start lg:gap-15 lg:px-14 lg:pb-16">
+        {showTemplates ? (
+          <section className={`pt-8 lg:col-start-1 lg:row-start-1 ${GUTTER}`}>
+            <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
+              {t('junta.form.templates')}
+            </h2>
+            <ul className="mt-4 flex flex-col gap-4">
+              {templates.data?.slice(0, 3).map((e) => (
+                <li key={e.id}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForm(templateFrom(e))
+                    }}
+                    className="flex min-h-[56px] w-full items-center gap-4 border-[1.5px] border-surface-7 bg-surface-1 px-8 py-6 text-left"
+                  >
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate text-base font-bold">{e.titulo}</span>
+                      <span className="mt-[3px] block text-[12.5px] text-[var(--ds-text-muted-lo)]">
+                        {formatDateTime(new Date(e.starts_at), locale)}
+                      </span>
                     </span>
-                  </span>
-                  <span className="flex-none text-md font-bold text-brand-label">
-                    {t('junta.form.copyIt')}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        </section>
-      ) : null}
-
-      <section className={`pt-9 ${GUTTER}`}>
-        <CoverPicker
-          preview={coverPreview}
-          onPick={(f) => {
-            if (cover !== null) URL.revokeObjectURL(cover.url)
-            setCover({ file: f, url: URL.createObjectURL(f) })
-          }}
-        />
-      </section>
-
-      <section className={`pt-9 ${GUTTER}`}>
-        <Field label={t('junta.form.name')}>
-          <input
-            value={form.titulo}
-            onChange={(e) => {
-              setForm({ ...form, titulo: e.target.value })
-            }}
-            placeholder={t('junta.form.namePlaceholder')}
-            className={INPUT}
-          />
-        </Field>
-
-        <Field label={t('junta.form.what')}>
-          <div className="flex gap-4">
-            {TYPES.map((type) => (
-              <button
-                key={type}
-                type="button"
-                aria-pressed={form.tipo === type}
-                onClick={() => {
-                  setForm({ ...form, tipo: type })
-                }}
-                className={
-                  'flex min-h-[48px] flex-1 items-center justify-center px-2 text-md font-bold [text-wrap:balance] ' +
-                  (form.tipo === type
-                    ? 'bg-brand text-on-brand'
-                    : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-secondary')
-                }
-              >
-                {t(`eventType.${type}`)}
-              </button>
-            ))}
-          </div>
-        </Field>
-
-        <Field label={t('junta.form.starts')}>
-          <input
-            type="datetime-local"
-            value={form.starts_at}
-            onChange={(e) => {
-              setForm({ ...form, starts_at: e.target.value })
-            }}
-            className={INPUT}
-          />
-        </Field>
-
-        <Field label={t('junta.form.ends')}>
-          <input
-            type="datetime-local"
-            value={form.ends_at}
-            onChange={(e) => {
-              setForm({ ...form, ends_at: e.target.value })
-            }}
-            className={INPUT}
-          />
-        </Field>
-
-        <Field label={t('junta.form.where')}>
-          <input
-            value={form.ubicacion}
-            onChange={(e) => {
-              setForm({ ...form, ubicacion: e.target.value })
-            }}
-            placeholder={t('junta.form.wherePlaceholder')}
-            className={INPUT}
-          />
-        </Field>
-
-        <div className="grid grid-cols-3 gap-4">
-          <Field label={t('junta.form.places')}>
-            <input
-              type="number"
-              inputMode="numeric"
-              min={1}
-              value={form.plazas}
-              onChange={(e) => {
-                setForm({ ...form, plazas: e.target.value })
-              }}
-              placeholder={t('junta.form.noLimit')}
-              className={INPUT}
-            />
-          </Field>
-          <Field label={t('junta.form.price')}>
-            <input
-              type="number"
-              inputMode="decimal"
-              min={0}
-              step="0.5"
-              value={form.preu}
-              onChange={(e) => {
-                setForm({ ...form, preu: e.target.value })
-              }}
-              placeholder="0"
-              className={INPUT}
-            />
-          </Field>
-          <Field label={t('junta.form.points')}>
-            <input
-              type="number"
-              inputMode="numeric"
-              min={0}
-              value={form.puntos}
-              onChange={(e) => {
-                setForm({ ...form, puntos: e.target.value })
-              }}
-              placeholder={defaultPoints === null ? '' : String(defaultPoints)}
-              className={INPUT}
-            />
-          </Field>
-        </div>
-
-        <Field label={t('junta.form.description')}>
-          <textarea
-            value={form.descripcion}
-            onChange={(e) => {
-              setForm({ ...form, descripcion: e.target.value })
-            }}
-            rows={4}
-            placeholder={t('junta.form.descriptionPlaceholder')}
-            className={`${INPUT} resize-y`}
-          />
-        </Field>
-
-        <Field label={t('junta.form.transport')} hint={t('junta.form.transportHint')}>
-          <textarea
-            value={form.transport_info}
-            onChange={(e) => {
-              setForm({ ...form, transport_info: e.target.value })
-            }}
-            rows={3}
-            placeholder={t('junta.form.transportPlaceholder')}
-            className={`${INPUT} resize-y`}
-          />
-        </Field>
-      </section>
-
-      <RevealBlock
-        form={form}
-        locale={locale}
-        onChange={(next) => {
-          setForm(next)
-        }}
-      />
-
-      <section className={`pt-12 ${GUTTER}`}>
-        <button
-          type="button"
-          disabled={!ready || save.isPending}
-          onClick={() => {
-            save.mutate(true)
-          }}
-          className={
-            'flex min-h-[60px] w-full items-center justify-center px-8 py-4 text-2xl font-bold [text-wrap:balance] ' +
-            (ready
-              ? 'bg-brand-cta text-on-brand shadow-brand'
-              : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-muted')
-          }
-        >
-          {save.isPending
-            ? t('state.updating')
-            : live
-              ? t('junta.form.saveChanges')
-              : t('junta.form.publish')}
-        </button>
-        <p className="mt-4 text-center text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-          {form.reveal_at !== ''
-            ? t('junta.form.publishHidden')
-            : live
-              ? t('junta.form.saveChangesNote')
-              : t('junta.form.publishNow')}
-        </p>
-
-        {live ? null : (
-          <button
-            type="button"
-            disabled={!ready || save.isPending}
-            onClick={() => {
-              save.mutate(false)
-            }}
-            className="mt-8 min-h-[48px] w-full cursor-pointer border-0 bg-transparent text-center text-md font-bold text-fg-muted disabled:opacity-70"
-          >
-            {t('junta.form.saveDraft')}
-          </button>
-        )}
-
-        {save.isError ? (
-          <p role="alert" className="mt-6 text-md font-bold text-error [text-wrap:pretty]">
-            {t('errors.generic')}
-          </p>
+                    <span className="flex-none text-md font-bold text-brand-label">
+                      {t('junta.form.copyIt')}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </section>
         ) : null}
-      </section>
+
+        <section className={`pt-9 lg:col-start-2 lg:row-start-1 ${GUTTER}`}>
+          <CoverPicker
+            preview={coverPreview}
+            onPick={(f) => {
+              if (cover !== null) URL.revokeObjectURL(cover.url)
+              setCover({ file: f, url: URL.createObjectURL(f) })
+            }}
+          />
+        </section>
+
+        <section className={`pt-9 ${fieldsPlacement} ${GUTTER}`}>
+          <Field label={t('junta.form.name')}>
+            <input
+              value={form.titulo}
+              onChange={(e) => {
+                setForm({ ...form, titulo: e.target.value })
+              }}
+              placeholder={t('junta.form.namePlaceholder')}
+              className={INPUT}
+            />
+          </Field>
+
+          <Field label={t('junta.form.what')}>
+            <div className="flex gap-4">
+              {TYPES.map((type) => (
+                <button
+                  key={type}
+                  type="button"
+                  aria-pressed={form.tipo === type}
+                  onClick={() => {
+                    setForm({ ...form, tipo: type })
+                  }}
+                  className={
+                    'flex min-h-[48px] flex-1 items-center justify-center px-2 text-md font-bold [text-wrap:balance] ' +
+                    (form.tipo === type
+                      ? 'bg-brand text-on-brand'
+                      : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-secondary')
+                  }
+                >
+                  {t(`eventType.${type}`)}
+                </button>
+              ))}
+            </div>
+          </Field>
+
+          <Field label={t('junta.form.starts')}>
+            <input
+              type="datetime-local"
+              value={form.starts_at}
+              onChange={(e) => {
+                setForm({ ...form, starts_at: e.target.value })
+              }}
+              className={INPUT}
+            />
+          </Field>
+
+          <Field label={t('junta.form.ends')}>
+            <input
+              type="datetime-local"
+              value={form.ends_at}
+              onChange={(e) => {
+                setForm({ ...form, ends_at: e.target.value })
+              }}
+              className={INPUT}
+            />
+          </Field>
+
+          <Field label={t('junta.form.where')}>
+            <input
+              value={form.ubicacion}
+              onChange={(e) => {
+                setForm({ ...form, ubicacion: e.target.value })
+              }}
+              placeholder={t('junta.form.wherePlaceholder')}
+              className={INPUT}
+            />
+          </Field>
+
+          <div className="grid grid-cols-3 gap-4">
+            <Field label={t('junta.form.places')}>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                value={form.plazas}
+                onChange={(e) => {
+                  setForm({ ...form, plazas: e.target.value })
+                }}
+                placeholder={t('junta.form.noLimit')}
+                className={INPUT}
+              />
+            </Field>
+            <Field label={t('junta.form.price')}>
+              <input
+                type="number"
+                inputMode="decimal"
+                min={0}
+                step="0.5"
+                value={form.preu}
+                onChange={(e) => {
+                  setForm({ ...form, preu: e.target.value })
+                }}
+                placeholder="0"
+                className={INPUT}
+              />
+            </Field>
+            <Field label={t('junta.form.points')}>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={0}
+                value={form.puntos}
+                onChange={(e) => {
+                  setForm({ ...form, puntos: e.target.value })
+                }}
+                placeholder={defaultPoints === null ? '' : String(defaultPoints)}
+                className={INPUT}
+              />
+            </Field>
+          </div>
+
+          <Field label={t('junta.form.description')}>
+            <textarea
+              value={form.descripcion}
+              onChange={(e) => {
+                setForm({ ...form, descripcion: e.target.value })
+              }}
+              rows={4}
+              placeholder={t('junta.form.descriptionPlaceholder')}
+              className={`${INPUT} resize-y`}
+            />
+          </Field>
+
+          <Field label={t('junta.form.transport')} hint={t('junta.form.transportHint')}>
+            <textarea
+              value={form.transport_info}
+              onChange={(e) => {
+                setForm({ ...form, transport_info: e.target.value })
+              }}
+              rows={3}
+              placeholder={t('junta.form.transportPlaceholder')}
+              className={`${INPUT} resize-y`}
+            />
+          </Field>
+        </section>
+
+        <div className="lg:col-start-2 lg:row-start-2">
+          <RevealBlock
+            form={form}
+            locale={locale}
+            onChange={(next) => {
+              setForm(next)
+            }}
+          />
+
+          <section className={`pt-12 ${GUTTER}`}>
+            <button
+              type="button"
+              disabled={!ready || save.isPending}
+              onClick={() => {
+                save.mutate(true)
+              }}
+              className={
+                'flex min-h-[60px] w-full items-center justify-center px-8 py-4 text-2xl font-bold [text-wrap:balance] ' +
+                (ready
+                  ? 'bg-brand-cta text-on-brand shadow-brand'
+                  : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-muted')
+              }
+            >
+              {save.isPending
+                ? t('state.updating')
+                : live
+                  ? t('junta.form.saveChanges')
+                  : t('junta.form.publish')}
+            </button>
+            <p className="mt-4 text-center text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+              {form.reveal_at !== ''
+                ? t('junta.form.publishHidden')
+                : live
+                  ? t('junta.form.saveChangesNote')
+                  : t('junta.form.publishNow')}
+            </p>
+
+            {live ? null : (
+              <button
+                type="button"
+                disabled={!ready || save.isPending}
+                onClick={() => {
+                  save.mutate(false)
+                }}
+                className="mt-8 min-h-[48px] w-full cursor-pointer border-0 bg-transparent text-center text-md font-bold text-fg-muted disabled:opacity-70"
+              >
+                {t('junta.form.saveDraft')}
+              </button>
+            )}
+
+            {save.isError ? (
+              <p role="alert" className="mt-6 text-md font-bold text-error [text-wrap:pretty]">
+                {t('errors.generic')}
+              </p>
+            ) : null}
+          </section>
+        </div>
+      </div>
     </main>
   )
 }

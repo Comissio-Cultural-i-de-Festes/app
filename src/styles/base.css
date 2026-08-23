@@ -69,6 +69,24 @@
     }
   }
 
+  /* The junta's desk screens, and only from the point where two columns fit.
+   * Below it they are the phone layout, which is the right fallback rather
+   * than a squeezed version of a desktop one. */
+  @media (min-width: 1024px) {
+    #root[data-wide='true'] {
+      max-width: none;
+      border-inline: 0;
+    }
+  }
+
+  /* Keyboard focus. Nothing on a phone ever shows this; on a laptop it is the
+   * difference between the junta area being usable without a mouse and not.
+   * :focus-visible, so a tap never draws it. */
+  :focus-visible {
+    outline: 2px solid var(--ds-brand-strong);
+    outline-offset: 2px;
+  }
+
   h1,
   h2,
   h3,

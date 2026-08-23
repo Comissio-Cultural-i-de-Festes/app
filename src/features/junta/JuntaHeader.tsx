@@ -13,14 +13,19 @@ export function JuntaHeader({
   label,
   title,
   aside,
+  className = '',
 }: {
   readonly to: string
   readonly label: string
   readonly title?: string
   readonly aside?: ReactNode
+  /** `lg:hidden` on the screens that grow a top bar instead. */
+  readonly className?: string
 }) {
   return (
-    <header className="sticky top-0 z-20 border-b border-surface-5 bg-app px-[var(--ds-gutter)] pt-2 pb-4">
+    <header
+      className={`sticky top-0 z-20 border-b border-surface-5 bg-app px-[var(--ds-gutter)] pt-2 pb-4 ${className}`}
+    >
       <div className="flex items-center justify-between gap-3">
         <Link
           to={to}

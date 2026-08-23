@@ -1,6 +1,8 @@
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet } from 'react-router'
 
+import { JuntaNav } from '@/features/junta/JuntaNav'
 import { isJunta, useMyProfile } from '@/features/session/useMyProfile'
 
 /**
@@ -15,10 +17,25 @@ import { isJunta, useMyProfile } from '@/features/session/useMyProfile'
  * get instead is the home screen, because a screen full of empty panels and
  * silent failures reads as "the app is broken" rather than "this is not for
  * you".
+ *
+ * It is also where the 430-pixel column is released. Everything a member sees
+ * keeps it at every width; the junta's three desk screens do not, because
+ * going through forty payments in a phone-width column on a laptop is the kind
+ * of thing that makes people keep the spreadsheet.
  */
 export function JuntaLayout() {
   const { t } = useTranslation()
   const { data: profile, isPending } = useMyProfile()
+
+  // On #root rather than in a component, because the width cap lives on #root
+  // and a child cannot widen its own parent.
+  useEffect(() => {
+    const root = document.getElementById('root')
+    root?.setAttribute('data-wide', 'true')
+    return () => {
+      root?.removeAttribute('data-wide')
+    }
+  }, [])
 
   // Deciding while the profile is still in flight would bounce every admin
   // out of the door they just came through.
@@ -32,5 +49,10 @@ export function JuntaLayout() {
 
   if (!isJunta(profile)) return <Navigate to="/" replace />
 
-  return <Outlet />
+  return (
+    <>
+      <JuntaNav />
+      <Outlet />
+    </>
+  )
 }

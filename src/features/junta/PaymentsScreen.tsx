@@ -9,6 +9,7 @@ import { useMyProfile } from '@/features/session/useMyProfile'
 import { formatDayMonth } from '@/i18n/format'
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
 import type { MemberRole } from '@/lib/model'
+import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
 import { JuntaHeader } from './JuntaHeader'
@@ -42,9 +43,7 @@ import {
 const GUTTER = 'px-[var(--ds-gutter)]'
 
 export function PaymentsScreen() {
-  const { t, i18n } = useTranslation()
-  const locale = toLocale(i18n.resolvedLanguage)
-  const navigate = useNavigate()
+  const { t } = useTranslation()
   const { eventId } = useParams()
 
   const horizon = horizonIso()
@@ -70,46 +69,80 @@ export function PaymentsScreen() {
     <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">
       <JuntaHeader
         to="/junta"
+        className="lg:hidden"
         label={t('junta.back')}
-        aside={
-          list.length === 0 ? null : (
-            <label className="flex min-h-[44px] min-w-0 items-center">
-              <span className="sr-only">{t('junta.payments.pickEvent')}</span>
-              <select
-                value={chosen ?? ''}
-                onChange={(e) => {
-                  void navigate(`/junta/pagaments/${e.target.value}`, { replace: true })
-                }}
-                className="max-w-[220px] truncate bg-transparent text-right text-xs font-extrabold tracking-[0.14em] text-fg-muted uppercase"
-              >
-                {list.map((e) => (
-                  <option key={e.id} value={e.id}>
-                    {formatDayMonth(new Date(e.starts_at), locale)} · {e.titulo}
-                  </option>
-                ))}
-              </select>
-            </label>
-          )
-        }
+        aside={<Picker list={list} chosen={chosen} className="max-w-[220px] text-right" />}
       />
 
-      {events.isPending ? (
-        <p className={`pt-10 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
-      ) : event === null ? (
-        <p className={`pt-10 text-md text-fg-muted [text-wrap:pretty] ${GUTTER}`}>
-          {t('junta.noEvents')}
-        </p>
-      ) : (
-        <PaidList
-          eventId={event.id}
-          priceCents={event.precio_cents ?? 0}
-          rows={attendees.data ?? []}
-          loading={attendees.isPending}
-        />
-      )}
+      {/* The laptop has no back link to hang it off, so the picker gets its
+          own row. Without it the desk screen could only ever settle up the
+          first event on the calendar. */}
+      <div className="hidden items-center gap-6 border-b border-surface-5 px-14 py-6 lg:flex">
+        <Picker list={list} chosen={chosen} />
+      </div>
 
-      <Admins />
+      <div className="lg:grid lg:grid-cols-[1fr_340px] lg:items-start lg:gap-15 lg:px-14 lg:pb-16">
+        <div>
+          {events.isPending ? (
+            <p className={`pt-10 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
+          ) : event === null ? (
+            <p className={`pt-10 text-md text-fg-muted [text-wrap:pretty] ${GUTTER}`}>
+              {t('junta.noEvents')}
+            </p>
+          ) : (
+            <PaidList
+              eventId={event.id}
+              priceCents={event.precio_cents ?? 0}
+              rows={attendees.data ?? []}
+              loading={attendees.isPending}
+            />
+          )}
+        </div>
+        <Admins />
+      </div>
     </main>
+  )
+}
+
+/**
+ * Which event is being settled up.
+ *
+ * A native select on purpose: on a phone it is the system wheel, which beats
+ * anything a list of forty events could be made to do with one thumb, and on a
+ * laptop it takes the keyboard for free.
+ */
+function Picker({
+  list,
+  chosen,
+  className = '',
+}: {
+  readonly list: readonly EventRow[]
+  readonly chosen: string | null
+  readonly className?: string
+}) {
+  const { t, i18n } = useTranslation()
+  const locale = toLocale(i18n.resolvedLanguage)
+  const navigate = useNavigate()
+
+  if (list.length === 0) return null
+
+  return (
+    <label className="flex min-h-[44px] min-w-0 items-center">
+      <span className="sr-only">{t('junta.payments.pickEvent')}</span>
+      <select
+        value={chosen ?? ''}
+        onChange={(e) => {
+          void navigate(`/junta/pagaments/${e.target.value}`, { replace: true })
+        }}
+        className={`truncate bg-transparent text-xs font-extrabold tracking-[0.14em] text-fg-muted uppercase ${className}`}
+      >
+        {list.map((e) => (
+          <option key={e.id} value={e.id}>
+            {formatDayMonth(new Date(e.starts_at), locale)} · {e.titulo}
+          </option>
+        ))}
+      </select>
+    </label>
   )
 }
 
@@ -281,7 +314,7 @@ function Admins() {
   })
 
   return (
-    <section className="mt-14 border-t border-surface-5 pt-9">
+    <section className="mt-14 border-t border-surface-5 pt-9 lg:mt-0 lg:border-t-0">
       <div className={GUTTER}>
         <h2 className="display text-[26px] leading-none tracking-[-0.045em]">
           {t('junta.payments.whoRuns')}

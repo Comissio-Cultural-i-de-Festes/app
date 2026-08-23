@@ -117,12 +117,23 @@ enabled = true
 # The maximum file size allowed (e.g. "5MB", "500KB").
 file_size_limit = "50MiB"
 
-# Uncomment to configure local storage buckets
-# [storage.buckets.images]
-# public = false
-# file_size_limit = "50MiB"
-# allowed_mime_types = ["image/png", "image/jpeg"]
-# objects_path = "./images"
+# The buckets themselves are created by migration 14, so a `db push` makes them
+# on the hosted project too and nobody has to remember a dashboard step. These
+# entries exist so the local stack knows the same limits before any row is
+# inserted, and so the shapes are visible in one place.
+#
+# Neither is public: a public bucket is public to the internet, with a URL that
+# never expires and keeps working after somebody leaves. Both are read through
+# short-lived signed URLs.
+[storage.buckets.event-covers]
+public = false
+file_size_limit = "5MiB"
+allowed_mime_types = ["image/jpeg", "image/png", "image/webp"]
+
+[storage.buckets.door-photos]
+public = false
+file_size_limit = "2MiB"
+allowed_mime_types = ["image/jpeg", "image/webp"]
 
 # Allow connections via S3 compatible clients
 [storage.s3_protocol]

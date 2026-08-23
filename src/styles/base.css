@@ -59,6 +59,16 @@
     padding-right: var(--ds-safe-right);
   }
 
+  /* On anything wider than the shell there is canvas either side, and the two
+   * hairlines are what stop the app looking like a column that forgot to
+   * finish. On a phone the viewport is the shell, so they would be two lines
+   * down the edges of the screen — hence the query. */
+  @media (min-width: 431px) {
+    #root {
+      border-inline: 1px solid var(--ds-border-hairline);
+    }
+  }
+
   h1,
   h2,
   h3,

@@ -204,7 +204,11 @@
   --ds-gap-md: 14px;
 
   /* ─── LAYOUT AND SAFE AREAS ──────────────────────────────────────────── */
-  --ds-shell-max-w: 480px;
+  /* 430px, from the desktop mock: the app does not change on a laptop, it
+   * just stops stretching. Wider than the 390px the prototype is drawn at, so
+   * a modern phone uses its whole screen, and narrow enough that a line of
+   * text stays a line of text. */
+  --ds-shell-max-w: 430px;
   --ds-safe-top: env(safe-area-inset-top, 0px);
   --ds-safe-bottom: env(safe-area-inset-bottom, 0px);
   --ds-safe-left: env(safe-area-inset-left, 0px);

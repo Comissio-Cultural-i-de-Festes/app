@@ -7,7 +7,7 @@ import { EntryScreen } from '@/features/entry/EntryScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
-import { AppShell } from '@/features/shell/AppShell'
+import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
 import { INVITE_PARAM, readInviteCode } from '@/features/entry/useInvite'
 import { InstallScreen } from '@/features/install/InstallScreen'
@@ -96,22 +96,11 @@ export default function App() {
   return (
     <UserIdContext value={session.user.id}>
       <Routes>
-        <Route
-          path="/"
-          element={
-            <AppShell current="home">
-              <HomeScreen />
-            </AppShell>
-          }
-        />
-        <Route
-          path="/ranquing"
-          element={
-            <AppShell current="ranking">
-              <RankingScreen />
-            </AppShell>
-          }
-        />
+        <Route element={<TabLayout />}>
+          <Route path="/" element={<HomeScreen />} />
+          <Route path="/ranquing" element={<RankingScreen />} />
+        </Route>
+
         {/* A path that does not exist yet, or one left over from a shared link
             to a screen that has not shipped. Home, rather than a 404 nobody
             has designed. */}

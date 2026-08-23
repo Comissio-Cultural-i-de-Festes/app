@@ -44,7 +44,6 @@ select throws_ok(
 reset role;
 select tests.authenticate_as('alfa');
 
--- A policy-filtered INSERT does not quietly do nothing: WITH CHECK raises.
 select throws_ok(
   $$ insert into public.graus (escola, nom) values ('salut', 'Grau inventat') $$,
   '42501',
@@ -52,23 +51,28 @@ select throws_ok(
   'a member cannot add a degree'
 );
 
-select lives_ok(
+-- This used to run without error and change nothing, because a policy's USING
+-- clause filters rather than raises. Since migration 26 nobody holds the write
+-- grant at all, and privileges are checked before RLS — so it raises now, and
+-- for a stronger reason than the one it used to pass for.
+select throws_ok(
   $$ update public.graus set nom = 'Tocat' where escola = 'salut' $$,
-  'an update runs without error, because USING filters instead of raising'
+  '42501',
+  null,
+  'and cannot edit one either, stopped by the grant rather than the policy'
 );
 
 reset role;
 select is_empty(
   $$ select 1 from public.graus where nom = 'Tocat' $$,
-  'but it changed nothing, which is the half that has to be asserted'
+  'and it changed nothing, which is the half that has to be asserted'
 );
 
 -- ── the junta ───────────────────────────────────────────────────────────────
 select tests.authenticate_as('junta_alfa');
 
 select lives_ok(
-  $$ insert into public.graus (escola, nom, ordre)
-     values ('empresa', 'Un grau nou del curs que ve', 99) $$,
+  $$ select public.admin_save_grau('empresa', 'Un grau nou del curs que ve', 99) $$,
   'the junta can add one when the university opens it, without a deploy'
 );
 

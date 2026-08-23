@@ -834,6 +834,7 @@ export type Database = {
         }
       }
       admin_delete_event: { Args: { p_event_id: string }; Returns: undefined }
+      admin_delete_grau: { Args: { p_id: string }; Returns: undefined }
       admin_revoke_invite: { Args: { p_id: string }; Returns: undefined }
       admin_save_event: {
         Args: {
@@ -852,6 +853,15 @@ export type Database = {
           p_titulo: string
           p_transport_info?: string
           p_ubicacion?: string
+        }
+        Returns: string
+      }
+      admin_save_grau: {
+        Args: {
+          p_escola: string
+          p_id?: string
+          p_nom: string
+          p_ordre?: number
         }
         Returns: string
       }

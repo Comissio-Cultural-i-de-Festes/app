@@ -183,7 +183,11 @@
       "yesPublic": "Tu cara sale en la lista de arriba.",
       "privateAnswer": "El quizá y el no puedo solo los ve la junta.",
       "queuePrivate": "Estar en la lista no sale en ningún sitio. Solo lo ve la junta.",
-      "queueWarning": "Ponerte en la lista no sale en ningún sitio. Si se libera una plaza, la junta te avisa."
+      "queueWarning": "Ponerte en la lista no sale en ningún sitio. Si se libera una plaza, la junta te avisa.",
+      "confirmTitle": "¿Quieres venir? Las plazas las reparte la junta",
+      "request": "Pide plaza",
+      "requestWarning": "Pedirla no es tenerla. Lo decide la junta y te lo decimos por el grupo.",
+      "requestedPrivate": "Que lo hayas pedido no sale en ningún sitio. Solo lo ve la junta."
     },
     "queue": {
       "onList": "Estás en la lista de espera. Si alguien se echa atrás, la junta te avisa.",
@@ -203,7 +207,11 @@
       "no": "Has dicho que no. Otra vez será.",
       "noSub": "Si cambias de idea, vuelve mientras queden plazas.",
       "nothing": "Todavía no has dicho nada.",
-      "nothingSub": "Tres toques y ya está. El quizá también vale."
+      "nothingSub": "Tres toques y ya está. El quizá también vale.",
+      "requested": "Lo has pedido. Falta que la junta lo confirme.",
+      "requestedSub": "No compres billetes todavía. Cuando esté decidido te lo decimos por el grupo.",
+      "refused": "Esta vez no entras.",
+      "refusedSub": "Había más gente que camas. Vuelve a pedirlo si se mueve algo."
     },
     "lastOne": "de {{total}}. Corre.",
     "lastOneSub": "Esto no dura ni media hora.",
@@ -368,7 +376,14 @@
       },
       "queue_one": "Lista de espera · {{count}}",
       "queue_other": "Lista de espera · {{count}}",
-      "queueSub": "En el orden en que se han puesto. Si se libera una plaza, decidís vosotros quién entra."
+      "queueSub": "En el orden en que se han puesto. Si se libera una plaza, decidís vosotros quién entra.",
+      "requests_one": "{{count}} ha pedido plaza",
+      "requests_other": "{{count}} han pedido plaza",
+      "requestsSub": "Nadie tiene ninguna hasta que le dices que sí. A quien no confirmes se queda esperando, no le dices que no.",
+      "confirmIn": "Que entre",
+      "refuse": "Esta vez no",
+      "noRoomLeft": "No quedan plazas. Si quieres meter una más, sube el límite en el formulario del evento.",
+      "gone": "Esta persona ya no lo pide."
     },
     "form": {
       "leaveIt": "Déjalo",
@@ -431,7 +446,11 @@
       "preview": "Vista previa",
       "previewLive": "Esto es lo que verá la comi",
       "previewCovered": "Esto es lo que verá la comi hasta que se destape",
-      "previewBack": "Vuelve a editar"
+      "previewBack": "Vuelve a editar",
+      "confirm": "Quién entra",
+      "confirmHint": "Márcalo y apuntarse será pedir plaza: nadie tendrá ninguna hasta que la junta lo confirme, una por una. Se marca solo en las casas rurales.",
+      "confirmOn": "La junta confirma quién entra",
+      "confirmOff": "Quien se apunta tiene plaza enseguida"
     },
     "config": {
       "title": "Configuración",

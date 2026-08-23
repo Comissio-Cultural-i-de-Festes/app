@@ -183,7 +183,11 @@
       "yesPublic": "Your face is on the list above.",
       "privateAnswer": "Maybes and can't-makes go to the committee only.",
       "queuePrivate": "Being on the list does not show anywhere. Only the committee sees it.",
-      "queueWarning": "Joining the list does not show anywhere. If a place frees up, the committee will tell you."
+      "queueWarning": "Joining the list does not show anywhere. If a place frees up, the committee will tell you.",
+      "confirmTitle": "Want to come? The committee hands out the places",
+      "request": "Ask for a place",
+      "requestWarning": "Asking is not having. The committee decides, and we tell you in the group.",
+      "requestedPrivate": "Nobody can see that you asked. Only the committee."
     },
     "queue": {
       "onList": "You are on the waiting list. If somebody drops out, the committee will tell you.",
@@ -203,7 +207,11 @@
       "no": "You said no. Another time.",
       "noSub": "If you change your mind, come back while there are places left.",
       "nothing": "You have not said anything yet.",
-      "nothingSub": "Three taps and you are done. Maybe counts too."
+      "nothingSub": "Three taps and you are done. Maybe counts too.",
+      "requested": "You have asked. The committee still has to confirm it.",
+      "requestedSub": "Do not buy tickets yet. We will tell you in the group once it is decided.",
+      "refused": "Not this time.",
+      "refusedSub": "There were more people than beds. Ask again if anything changes."
     },
     "lastOne": "of {{total}}. Move.",
     "lastOneSub": "This will not last half an hour.",
@@ -368,7 +376,14 @@
       },
       "queue_one": "Waiting list · {{count}}",
       "queue_other": "Waiting list · {{count}}",
-      "queueSub": "In the order they joined. If a place frees up, you decide who takes it."
+      "queueSub": "In the order they joined. If a place frees up, you decide who takes it.",
+      "requests_one": "{{count}} has asked for a place",
+      "requests_other": "{{count}} have asked for a place",
+      "requestsSub": "Nobody has one until you say yes. Anybody you do not confirm stays waiting — that is not the same as being told no.",
+      "confirmIn": "Let them in",
+      "refuse": "Not this time",
+      "noRoomLeft": "No places left. Raise the cap on the event form if you want to fit one more.",
+      "gone": "That person is no longer asking."
     },
     "form": {
       "leaveIt": "Leave it",
@@ -431,7 +446,11 @@
       "preview": "Preview",
       "previewLive": "This is what the association will see",
       "previewCovered": "This is what they will see until it opens",
-      "previewBack": "Back to editing"
+      "previewBack": "Back to editing",
+      "confirm": "Who gets in",
+      "confirmHint": "Tick this and signing up becomes asking: nobody has a place until the committee confirms it, one by one. Ticked by default for a country house.",
+      "confirmOn": "The committee decides who gets in",
+      "confirmOff": "Signing up gives you a place straight away"
     },
     "config": {
       "title": "Settings",

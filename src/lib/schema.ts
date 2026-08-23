@@ -29,7 +29,15 @@ type PublicEvent = Database['public']['Views']['events_public']['Row']
 
 export type EventRow = Definite<
   PublicEvent,
-  'id' | 'titulo' | 'tipo' | 'starts_at' | 'puntos' | 'precio_cents' | 'published' | 'revelat'
+  | 'id'
+  | 'titulo'
+  | 'tipo'
+  | 'starts_at'
+  | 'puntos'
+  | 'precio_cents'
+  | 'published'
+  | 'revelat'
+  | 'cal_confirmacio'
 >
 
 export type AttendanceTable = Database['public']['Tables']['attendances']['Row']

@@ -232,6 +232,7 @@ export type Database = {
       }
       events: {
         Row: {
+          cal_confirmacio: boolean
           created_at: string
           created_by: string | null
           id: string
@@ -246,6 +247,7 @@ export type Database = {
           titulo: string
         }
         Insert: {
+          cal_confirmacio?: boolean
           created_at?: string
           created_by?: string | null
           id?: string
@@ -260,6 +262,7 @@ export type Database = {
           titulo: string
         }
         Update: {
+          cal_confirmacio?: boolean
           created_at?: string
           created_by?: string | null
           id?: string
@@ -762,6 +765,7 @@ export type Database = {
     Views: {
       events_public: {
         Row: {
+          cal_confirmacio: boolean | null
           cover_url: string | null
           created_at: string | null
           created_by: string | null
@@ -833,11 +837,16 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      admin_decide_attendance: {
+        Args: { p_accepta: boolean; p_event_id: string; p_user_id: string }
+        Returns: Json
+      }
       admin_delete_event: { Args: { p_event_id: string }; Returns: undefined }
       admin_delete_grau: { Args: { p_id: string }; Returns: undefined }
       admin_revoke_invite: { Args: { p_id: string }; Returns: undefined }
       admin_save_event: {
         Args: {
+          p_cal_confirmacio?: boolean
           p_cover_url?: string
           p_descripcion?: string
           p_ends_at?: string

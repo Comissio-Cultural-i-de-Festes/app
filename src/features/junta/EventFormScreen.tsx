@@ -269,7 +269,16 @@ function EventForm() {
                   type="button"
                   aria-pressed={form.tipo === type}
                   onClick={() => {
-                    setForm({ ...form, tipo: type })
+                    setForm({
+                      ...form,
+                      tipo: type,
+                      // A default, not a rule. A casa rural almost always
+                      // needs deciding, so picking one ticks the box; picking
+                      // something else leaves it alone, because a party with a
+                      // coach to hire needs deciding too and the junta has
+                      // just said so by hand.
+                      cal_confirmacio: type === 'casa_rural' || form.cal_confirmacio,
+                    })
                   }}
                   className={
                     'flex min-h-[48px] flex-1 items-center justify-center px-2 text-md font-bold [text-wrap:balance] ' +
@@ -359,6 +368,39 @@ function EventForm() {
               />
             </Field>
           </div>
+
+          <Field label={t('junta.form.confirm')} hint={t('junta.form.confirmHint')}>
+            <button
+              type="button"
+              aria-pressed={form.cal_confirmacio}
+              onClick={() => {
+                setForm({ ...form, cal_confirmacio: !form.cal_confirmacio })
+              }}
+              className={
+                'mt-4 flex min-h-[56px] w-full items-center gap-5 px-6 py-4 text-left ' +
+                (form.cal_confirmacio
+                  ? 'border-[1.5px] border-brand-cta bg-[var(--ds-bg-live)]'
+                  : 'border-[1.5px] border-surface-7 bg-surface-1')
+              }
+            >
+              <span
+                aria-hidden="true"
+                className={
+                  'grid size-[24px] flex-none place-items-center border-[1.5px] text-sm font-bold ' +
+                  (form.cal_confirmacio
+                    ? 'border-brand-cta bg-brand-cta text-on-brand'
+                    : 'border-surface-7 text-transparent')
+                }
+              >
+                ✓
+              </span>
+              <span className="min-w-0 flex-1 text-md font-bold [text-wrap:pretty]">
+                {form.cal_confirmacio
+                  ? t('junta.form.confirmOn')
+                  : t('junta.form.confirmOff')}
+              </span>
+            </button>
+          </Field>
 
           <Field label={t('junta.form.description')}>
             <textarea
@@ -466,6 +508,7 @@ interface FormState {
   descripcion: string
   transport_info: string
   cover_url: string | null
+  cal_confirmacio: boolean
 }
 
 function emptyForm(): FormState {
@@ -484,6 +527,7 @@ function emptyForm(): FormState {
     descripcion: '',
     transport_info: '',
     cover_url: null,
+    cal_confirmacio: false,
   }
 }
 
@@ -503,6 +547,7 @@ function formFrom(e: EventRow): FormState {
     descripcion: e.descripcion ?? '',
     transport_info: e.transport_info ?? '',
     cover_url: e.cover_url,
+    cal_confirmacio: e.cal_confirmacio,
   }
 }
 
@@ -533,6 +578,7 @@ function draftFrom(form: FormState, published: boolean, coverPath: string | null
     id: form.id,
     titulo: form.titulo.trim(),
     tipo: form.tipo,
+    cal_confirmacio: form.cal_confirmacio,
     starts_at: fromLocalInput(form.starts_at, APP_TIME_ZONE) ?? new Date().toISOString(),
     ends_at: fromLocalInput(form.ends_at, APP_TIME_ZONE),
     plazas: Number.isFinite(places) && places > 0 ? places : null,

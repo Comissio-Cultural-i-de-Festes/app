@@ -25,6 +25,8 @@ export interface EventDraft {
   readonly teaser: string | null
   readonly reveal_at: string | null
   readonly published: boolean
+  /** A yes on this one is a request the junta has to decide. */
+  readonly cal_confirmacio: boolean
   readonly descripcion: string | null
   readonly ubicacion: string | null
   readonly cover_url: string | null
@@ -49,6 +51,7 @@ export async function saveEvent(draft: EventDraft): Promise<string> {
     ...(draft.teaser === null ? {} : { p_teaser: draft.teaser }),
     ...(draft.reveal_at === null ? {} : { p_reveal_at: draft.reveal_at }),
     p_published: draft.published,
+    p_cal_confirmacio: draft.cal_confirmacio,
     ...(draft.descripcion === null ? {} : { p_descripcion: draft.descripcion }),
     ...(draft.ubicacion === null ? {} : { p_ubicacion: draft.ubicacion }),
     ...(draft.ends_at === null ? {} : { p_ends_at: draft.ends_at }),
@@ -73,7 +76,8 @@ export async function fetchTemplates(): Promise<EventRow[]> {
       .from('events_public')
       .select(
         'id, titulo, tipo, starts_at, teaser, reveal_at, revelat, plazas, precio_cents, ' +
-          'puntos, published, descripcion, ubicacion, ends_at, cover_url, transport_info',
+          'puntos, published, cal_confirmacio, descripcion, ubicacion, ends_at, cover_url, ' +
+          'transport_info',
       )
       .order('starts_at', { ascending: false })
       .limit(8),

@@ -21,7 +21,10 @@ import {
   fetchAdmins,
   fetchAttendees,
   fetchMembers,
+  type Decision,
+  decideRequest,
   fetchQueue,
+  fetchRequests,
   letInFromQueue,
   paymentKeys,
   setPaid,
@@ -105,11 +108,109 @@ export function PaymentsScreen() {
               failed={attendees.isError}
             />
           )}
+          {event === null ? null : <Requests eventId={event.id} />}
           {event === null ? null : <Queue eventId={event.id} />}
         </div>
         <Admins />
       </div>
     </main>
+  )
+}
+
+/**
+ * The people who have asked for a place, and the two words that answer them.
+ *
+ * Above the waiting list rather than folded into it, because the two are not
+ * the same question. The list is "somebody else had the last place, are you
+ * letting this one in"; this is "who is coming at all", and it has a no as
+ * well as a yes.
+ *
+ * Not numbered. The list is first-come-first-served and this is not, and a
+ * rank down the left would state a rule nobody agreed to.
+ */
+function Requests({ eventId }: { readonly eventId: string }) {
+  const { t } = useTranslation()
+  const client = useQueryClient()
+  const [note, setNote] = useState<Decision | null>(null)
+
+  const requests = useQuery({
+    queryKey: paymentKeys.requests(eventId),
+    queryFn: () => fetchRequests(eventId),
+  })
+
+  const decide = useMutation({
+    mutationFn: (v: { readonly userId: string; readonly accepta: boolean }) =>
+      decideRequest(eventId, v.userId, v.accepta),
+    onSuccess: async (result) => {
+      // `sense_places` and `no_demanat` are answers, not failures, so they get
+      // said out loud instead of arriving as a generic red line.
+      setNote(result === 'si' || result === 'rebutjat' ? null : result)
+      await client.invalidateQueries({ queryKey: paymentKeys.requests(eventId) })
+      await client.invalidateQueries({ queryKey: paymentKeys.attendees(eventId) })
+    },
+  })
+
+  // Nothing at all on an ordinary event: a heading that means nothing on nine
+  // events out of ten is a heading people stop reading.
+  const rows = requests.data ?? []
+  if (requests.isPending || rows.length === 0) return null
+
+  return (
+    <section className={`pt-14 ${GUTTER}`}>
+      <h2 className="display text-[26px] leading-none tracking-[-0.045em]">
+        {t('junta.payments.requests', { count: rows.length })}
+      </h2>
+      <p className="mt-4 text-sm text-fg-muted [text-wrap:pretty]">
+        {t('junta.payments.requestsSub')}
+      </p>
+
+      <ul className="mt-7">
+        {rows.map((r) => (
+          <li key={r.id} className="flex flex-wrap items-center gap-4 border-b border-surface-4 py-6">
+            <Avatar src={r.profiles?.avatar_url ?? null} size={36} />
+            <span className="min-w-0 flex-1 truncate text-base font-semibold">
+              {r.profiles?.nombre ?? '—'}
+            </span>
+            <span className="flex flex-none items-center gap-3">
+              <button
+                type="button"
+                disabled={decide.isPending}
+                onClick={() => {
+                  setNote(null)
+                  decide.mutate({ userId: r.user_id, accepta: true })
+                }}
+                className="min-h-[44px] bg-brand-cta px-5 text-md font-bold text-on-brand disabled:opacity-70"
+              >
+                {t('junta.payments.confirmIn')}
+              </button>
+              <button
+                type="button"
+                disabled={decide.isPending}
+                onClick={() => {
+                  setNote(null)
+                  decide.mutate({ userId: r.user_id, accepta: false })
+                }}
+                className="min-h-[44px] border-[1.5px] border-surface-7 px-5 text-md font-bold text-fg-secondary disabled:opacity-70"
+              >
+                {t('junta.payments.refuse')}
+              </button>
+            </span>
+          </li>
+        ))}
+      </ul>
+
+      {note === null ? null : (
+        <p role="alert" className="pt-6 text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]">
+          {t(note === 'sense_places' ? 'junta.payments.noRoomLeft' : 'junta.payments.gone')}
+        </p>
+      )}
+
+      {decide.isError ? (
+        <p role="alert" className="pt-6 text-md font-bold text-error">
+          {t(errorKey(decide.error))}
+        </p>
+      ) : null}
+    </section>
   )
 }
 

@@ -12,7 +12,8 @@ import { supabase } from '@/lib/supabase'
 
 const EVENT_COLUMNS =
   'id, titulo, tipo, starts_at, teaser, reveal_at, revelat, plazas, ' +
-  'precio_cents, puntos, published, descripcion, ubicacion, ends_at, cover_url, transport_info'
+  'precio_cents, puntos, published, cal_confirmacio, descripcion, ubicacion, ends_at, ' +
+  'cover_url, transport_info'
 
 export const eventKeys = {
   one: (id: string) => ['event', id] as const,

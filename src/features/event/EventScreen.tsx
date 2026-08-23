@@ -215,6 +215,7 @@ export function EventScreen() {
       {isPast ? null : (
         <AnswerBlock
           mine={mine}
+          confirm={e.cal_confirmacio}
           left={left}
           position={
             waitlist.data?.posicio == null ? null : formatOrdinal(waitlist.data.posicio, locale)
@@ -297,6 +298,7 @@ function Share({ event }: { readonly event: EventRow }) {
 
 function AnswerBlock({
   mine,
+  confirm,
   left,
   position,
   pending,
@@ -306,6 +308,8 @@ function AnswerBlock({
   where,
 }: {
   readonly mine: string | null
+  /** Whether a yes on this event is a request the junta has to decide. */
+  readonly confirm: boolean
   readonly left: number | null
   readonly position: string | null
   readonly pending: boolean
@@ -318,11 +322,20 @@ function AnswerBlock({
   const { t } = useTranslation()
   const full = left === 0
   const waiting = mine === 'espera'
+  // Asked and undecided, and turned down. Both are separate from a plain yes
+  // and from a plain no, and saying either of those instead would be the app
+  // telling somebody something that is not true about their own trip.
+  const requested = mine === 'sollicitat'
+  const refused = mine === 'rebutjat'
 
   return (
     <section className={`pt-12 pb-8 ${GUTTER}`}>
       <h2 className="text-lg font-bold [text-wrap:pretty]">
-        {full ? t('event.ask.full') : t('event.ask.title')}
+        {confirm
+          ? t('event.ask.confirmTitle')
+          : full
+            ? t('event.ask.full')
+            : t('event.ask.title')}
       </h2>
 
       {/* Answering back. A lit button is a weak confirmation on a phone — you
@@ -331,31 +344,41 @@ function AnswerBlock({
       {waiting ? null : (
         <div className="mt-6 border-l-[3px] border-surface-7 bg-surface-1 px-[18px] py-[15px]">
           <p className="text-base font-bold [text-wrap:pretty]">
-            {mine === 'si'
-              ? where === null
-                ? t('event.said.yesNoPlace', { when })
-                : t('event.said.yes', { when, where })
-              : mine === 'potser'
-                ? t('event.said.maybe')
-                : mine === 'no'
-                  ? t('event.said.no')
-                  : t('event.said.nothing')}
+            {requested
+              ? t('event.said.requested')
+              : refused
+                ? t('event.said.refused')
+                : mine === 'si'
+                  ? where === null
+                    ? t('event.said.yesNoPlace', { when })
+                    : t('event.said.yes', { when, where })
+                  : mine === 'potser'
+                    ? t('event.said.maybe')
+                    : mine === 'no'
+                      ? t('event.said.no')
+                      : t('event.said.nothing')}
           </p>
           <p className="mt-3 text-sm text-fg-muted [text-wrap:pretty]">
-            {mine === 'si'
-              ? t('event.said.yesSub')
-              : mine === 'potser'
-                ? t('event.said.maybeSub')
-                : mine === 'no'
-                  ? t('event.said.noSub')
-                  : t('event.said.nothingSub')}
+            {requested
+              ? t('event.said.requestedSub')
+              : refused
+                ? t('event.said.refusedSub')
+                : mine === 'si'
+                  ? t('event.said.yesSub')
+                  : mine === 'potser'
+                    ? t('event.said.maybeSub')
+                    : mine === 'no'
+                      ? t('event.said.noSub')
+                      : t('event.said.nothingSub')}
           </p>
         </div>
       )}
 
       <div className="mt-6 grid auto-cols-fr grid-flow-col items-stretch gap-[6px]">
         {ANSWERS.map((a) => {
-          const on = mine === a || (a === 'si' && waiting)
+          // A request lights the yes button: it is what was asked for, and
+          // a refusal does not, because nothing is selected any more.
+          const on = mine === a || (a === 'si' && (waiting || requested))
           return (
             <button
               key={a}
@@ -373,9 +396,13 @@ function AnswerBlock({
                   : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-secondary')
               }
             >
-              {a === 'si' && full
-                ? t('event.ask.queue')
-                : t(`actions.${a === 'si' ? 'yes' : a === 'potser' ? 'maybe' : 'no'}`)}
+              {a !== 'si'
+                ? t(`actions.${a === 'potser' ? 'maybe' : 'no'}`)
+                : confirm
+                  ? t('event.ask.request')
+                  : full
+                    ? t('event.ask.queue')
+                    : t('actions.yes')}
             </button>
           )
         })}
@@ -394,13 +421,17 @@ function AnswerBlock({
       <p className="mt-6 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
         {waiting
           ? t('event.ask.queuePrivate')
-          : mine === 'si'
-            ? t('event.ask.yesPublic')
-            : mine === 'potser' || mine === 'no'
-              ? t('event.ask.privateAnswer')
-              : full
-                ? t('event.ask.queueWarning')
-                : t('event.ask.yesWarning')}
+          : requested
+            ? t('event.ask.requestedPrivate')
+            : confirm && mine !== 'si'
+              ? t('event.ask.requestWarning')
+              : mine === 'si'
+                ? t('event.ask.yesPublic')
+                : mine === 'potser' || mine === 'no'
+                  ? t('event.ask.privateAnswer')
+                  : full
+                    ? t('event.ask.queueWarning')
+                    : t('event.ask.yesWarning')}
       </p>
 
       {waiting ? (

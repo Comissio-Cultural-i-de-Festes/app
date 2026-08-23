@@ -183,7 +183,11 @@
       "yesPublic": "La teva cara surt a la llista de dalt.",
       "privateAnswer": "Potser i no puc no surten a la llista: només ho veu la junta.",
       "queuePrivate": "Ser a la llista no surt enlloc. Només ho veu la junta.",
-      "queueWarning": "Posar-te a la llista no surt enlloc. Si s'allibera una plaça, la junta t'avisa."
+      "queueWarning": "Posar-te a la llista no surt enlloc. Si s'allibera una plaça, la junta t'avisa.",
+      "confirmTitle": "Hi vols venir? Les places les reparteix la junta",
+      "request": "Demana-hi plaça",
+      "requestWarning": "Demanar-ho no és tenir-la. Ho decideix la junta i t'ho diem pel grup.",
+      "requestedPrivate": "Que ho hagis demanat no surt enlloc. Només ho veu la junta."
     },
     "queue": {
       "onList": "Ets a la llista d'espera. Si algú es fa enrere, la junta t'avisa.",
@@ -203,7 +207,11 @@
       "no": "Has dit que no. Una altra vegada.",
       "noSub": "Si canvies d’idea, torna-hi mentre quedin places.",
       "nothing": "Encara no has dit res.",
-      "nothingSub": "Tres tocs i ja està. Potser també val."
+      "nothingSub": "Tres tocs i ja està. Potser també val.",
+      "requested": "Ho has demanat. Falta que la junta ho confirmi.",
+      "requestedSub": "No compris bitllets encara. Quan estigui decidit t’ho diem pel grup.",
+      "refused": "Aquest cop no hi entres.",
+      "refusedSub": "Hi havia més gent que llits. Torna-ho a demanar si es mou res."
     },
     "lastOne": "de {{total}}. Corre.",
     "lastOneSub": "Això no dura ni mitja hora.",
@@ -368,7 +376,14 @@
       },
       "queue_one": "Llista d'espera · {{count}}",
       "queue_other": "Llista d'espera · {{count}}",
-      "queueSub": "En l'ordre en què s'hi han posat. Si s'allibera una plaça, decidiu vosaltres qui hi entra."
+      "queueSub": "En l'ordre en què s'hi han posat. Si s'allibera una plaça, decidiu vosaltres qui hi entra.",
+      "requests_one": "{{count}} ha demanat plaça",
+      "requests_other": "{{count}} han demanat plaça",
+      "requestsSub": "Ningú en té cap fins que li dius que sí. Els que no confirmis es queden esperant, no els dius que no.",
+      "confirmIn": "Que entri",
+      "refuse": "Aquest cop no",
+      "noRoomLeft": "No queden places. Si en vols encabir un més, puja el límit al formulari de l'esdeveniment.",
+      "gone": "Aquesta persona ja no ho demana."
     },
     "form": {
       "leaveIt": "Deixa-ho",
@@ -431,7 +446,11 @@
       "preview": "Vista prèvia",
       "previewLive": "Això és el que veurà la comi",
       "previewCovered": "Això és el que veurà la comi fins que es destapi",
-      "previewBack": "Torna a editar"
+      "previewBack": "Torna a editar",
+      "confirm": "Qui hi entra",
+      "confirmHint": "Marca-ho i apuntar-s'hi serà demanar plaça: ningú en tindrà cap fins que la junta ho confirmi, una per una. Es marca sol a les cases rurals.",
+      "confirmOn": "La junta confirma qui hi entra",
+      "confirmOff": "Qui s'apunta té plaça de seguida"
     },
     "config": {
       "title": "Configuració",

@@ -34,6 +34,7 @@ export interface AdminRow {
 export const paymentKeys = {
   attendees: (eventId: string) => ['junta', 'payments', eventId] as const,
   queue: (eventId: string) => ['junta', 'queue', eventId] as const,
+  requests: (eventId: string) => ['junta', 'requests', eventId] as const,
   admins: () => ['junta', 'admins'] as const,
   members: () => ['junta', 'members'] as const,
 }
@@ -131,4 +132,42 @@ export async function setRole(userId: string, role: MemberRole): Promise<void> {
     p_role: role,
   })
   if (error) throw new DbError(error)
+}
+
+/**
+ * The people who have asked for a place on an event that needs deciding.
+ *
+ * Deliberately NOT ordered as a queue in the interface that uses this, even
+ * though it comes back oldest first. First-come-first-served is the waiting
+ * list's rule and it is not this one — the junta picks, and numbering the rows
+ * would tell them a rule that does not exist.
+ */
+export async function fetchRequests(eventId: string): Promise<AttendeeRow[]> {
+  return unwrapAs<AttendeeRow[]>(
+    supabase
+      .from('attendances')
+      .select(
+        'id, user_id, pagado, estado, profiles!attendances_user_id_fkey(nombre, avatar_url, escola, curs)',
+      )
+      .eq('event_id', eventId)
+      .eq('estado', 'sollicitat')
+      .order('created_at', { ascending: true }),
+  )
+}
+
+/** What deciding came back as. `sense_places` is an answer, not a fault. */
+export type Decision = 'si' | 'rebutjat' | 'sense_places' | 'no_demanat'
+
+export async function decideRequest(
+  eventId: string,
+  userId: string,
+  accepta: boolean,
+): Promise<Decision> {
+  const { data, error } = await supabase.rpc('admin_decide_attendance', {
+    p_event_id: eventId,
+    p_user_id: userId,
+    p_accepta: accepta,
+  })
+  if (error) throw new DbError(error)
+  return (data as unknown as { estat: Decision }).estat
 }

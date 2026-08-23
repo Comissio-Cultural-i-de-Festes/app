@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type { CheckInStatus } from '@/design/states'
+
 /**
  * The queue behind the scanner.
  *
@@ -32,7 +34,7 @@ vi.mock('@/lib/queue', () => ({
   pending: () => Promise.resolve([...store.values()]),
 }))
 
-const { awardPoints, flushQueue, scan } = await import('./api')
+const { awardPoints, flushQueue, scan, undo, undoTargetOf } = await import('./api')
 
 const EVENT = '00000000-0000-4000-8000-0000000000e1'
 const TOKEN = 'fd6b16d0-1030-4b84-a8d9-3db4b9fa6205'
@@ -122,5 +124,100 @@ describe('awarding points to several people', () => {
 
     await expect(awardPoints(['a', 'b', 'c', 'd'], EVENT, 'montaje', 20)).rejects.toBeDefined()
     expect(rpc).toHaveBeenCalledTimes(3)
+  })
+})
+
+describe('taking a scan back', () => {
+  const USER = '00000000-0000-4000-8000-0000000000a1'
+
+  function sent(status: CheckInStatus, id = 'r1') {
+    return {
+      kind: 'sent',
+      request: { clientRequestId: id, eventId: EVENT, qrToken: TOKEN, userId: null },
+      result: { status, user_id: USER, nombre: 'Alfa' },
+    } as const
+  }
+
+  it('undoes a landed scan against the server and leaves the queue alone', async () => {
+    const target = undoTargetOf(sent('ok'))
+    expect(target).toEqual({ kind: 'row', eventId: EVENT, userId: USER })
+
+    rpc.mockResolvedValue({ data: null, error: null })
+    await undo(target!)
+
+    expect(rpc).toHaveBeenCalledWith('admin_undo_checkin', {
+      p_event_id: EVENT,
+      p_user_id: USER,
+    })
+  })
+
+  it('refuses to undo a scan that changed nothing', () => {
+    // The dangerous one. `already_checked_in` means somebody else's earlier
+    // check-in is the only thing there is to take back, and the button would
+    // be claiming to undo the tap that just happened.
+    expect(undoTargetOf(sent('already_checked_in'))).toBeNull()
+    expect(undoTargetOf(sent('not_a_member'))).toBeNull()
+    expect(undoTargetOf(sent('member_inactive'))).toBeNull()
+    expect(undoTargetOf(sent('event_not_open'))).toBeNull()
+  })
+
+  it('undoes a queued scan by dropping it, without asking the server', async () => {
+    rpc.mockResolvedValue({ data: null, error: { message: 'offline', code: '' } })
+    await expect(scan(request('q1'))).rejects.toBeDefined()
+    expect(store.has('q1')).toBe(true)
+
+    const outcome = {
+      kind: 'queued',
+      request: { clientRequestId: 'q1', eventId: EVENT, qrToken: TOKEN, userId: null },
+    } as const
+    rpc.mockReset()
+
+    await undo(undoTargetOf(outcome)!)
+
+    expect(store.has('q1')).toBe(false)
+    expect(rpc).not.toHaveBeenCalled()
+  })
+
+  it('does both when a manual entry was sent and never answered', async () => {
+    // `scan` leaves a failure queued on purpose and the flush retries every
+    // twenty seconds, so by the time anybody reaches for undo the row may
+    // exist after all. Only a name tapped on the list can check: a QR never
+    // resolves to a person outside `check_in`.
+    const outcome = {
+      kind: 'failed',
+      request: { clientRequestId: 'f1', eventId: EVENT, qrToken: null, userId: USER },
+    } as const
+    const target = undoTargetOf(outcome)
+    expect(target).toMatchObject({ kind: 'unsure', clientRequestId: 'f1', userId: USER })
+
+    store.set('f1', outcome.request)
+    rpc.mockResolvedValue({ data: null, error: null })
+    await undo(target!)
+
+    expect(store.has('f1')).toBe(false)
+    expect(rpc).toHaveBeenCalledWith('admin_undo_checkin', {
+      p_event_id: EVENT,
+      p_user_id: USER,
+    })
+  })
+
+  it('treats "nobody was checked in" as success for a scan it was unsure about', async () => {
+    // P0002 is the RPC saying it never landed, which is the good answer here:
+    // the queue entry that was just removed was the whole of it.
+    const target = {
+      kind: 'unsure',
+      clientRequestId: 'f2',
+      eventId: EVENT,
+      userId: USER,
+    } as const
+    rpc.mockResolvedValue({ data: null, error: { message: 'no fitxat', code: 'P0002' } })
+
+    await expect(undo(target)).resolves.toBeUndefined()
+  })
+
+  it('still reports a refusal, so nobody is told a check-in is gone when it is not', async () => {
+    rpc.mockResolvedValue({ data: null, error: { message: 'nomes junta', code: '42501' } })
+
+    await expect(undo({ kind: 'row', eventId: EVENT, userId: USER })).rejects.toBeDefined()
   })
 })

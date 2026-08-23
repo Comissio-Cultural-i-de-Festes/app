@@ -8,10 +8,18 @@ import { SCAN_PRESENTATION, toneVar } from '@/design/states'
 import { fetchEvent } from '@/features/event/api'
 import { eventKeys } from '@/features/event/api'
 
-import { type DoorOutcome, doorKeys, fetchRoster, outcomeFromFailure, scan } from './api'
+import {
+  type DoorOutcome,
+  doorKeys,
+  fetchRoster,
+  outcomeFromFailure,
+  presentationOf,
+  scan,
+} from './api'
 import { ScanGlyph } from './icons'
 import { useCamera } from './useCamera'
 import { useQueue } from './useQueue'
+import { type Undo, useUndo, undoNoteKey } from './useUndo'
 
 /**
  * The door.
@@ -69,14 +77,14 @@ export function ScannerScreen() {
 
       void scan(request)
         .then((result) => {
-          setOutcome({ kind: 'sent', result })
+          setOutcome({ kind: 'sent', request, result })
           buzz(SCAN_PRESENTATION[result.status].haptic)
           void roster.refetch()
         })
         .catch(() => {
           // Queued, not lost. The person walks in either way, so the card says
           // what actually happened rather than telling the junta to try again.
-          setOutcome(outcomeFromFailure())
+          setOutcome(outcomeFromFailure(request))
           buzz(SCAN_PRESENTATION.error.haptic)
         })
         .finally(refreshQueue)
@@ -85,6 +93,15 @@ export function ScannerScreen() {
   )
 
   const cameraError = useCamera(videoRef, onCode)
+
+  // The wrong person, with a queue behind you. Undoing needs the roster back
+  // — they stop being checked in — and the queue count back, because an undo
+  // of something that never left removes an entry from it.
+  const afterUndo = useCallback(() => {
+    void roster.refetch()
+    refreshQueue()
+  }, [roster, refreshQueue])
+  const undoLast = useUndo(outcome, afterUndo)
 
   const checkedIn = roster.data?.filter((r) => r.checked_in).length ?? 0
   const expected = roster.data?.filter((r) => r.estado === 'si' || r.checked_in).length ?? 0
@@ -150,7 +167,7 @@ export function ScannerScreen() {
         )}
       </div>
 
-      {outcome === null ? null : <Verdict outcome={outcome} />}
+      {outcome === null ? null : <Verdict outcome={outcome} undo={undoLast} />}
 
       <footer className="relative z-10 border-t border-surface-5 bg-[var(--ds-scrim-bar)] px-8 pt-7 pb-[calc(env(safe-area-inset-bottom,0px)+16px)] backdrop-blur-[14px]">
         <Link
@@ -185,14 +202,22 @@ function Reticle() {
   )
 }
 
-function Verdict({ outcome }: { readonly outcome: DoorOutcome }) {
+function Verdict({ outcome, undo }: { readonly outcome: DoorOutcome; readonly undo: Undo }) {
   const { t } = useTranslation()
   const shown = presentationOf(outcome)
-  const tone = toneVar(shown.tone)
   const result = outcome.kind === 'sent' ? outcome.result : null
+  const nombre = result?.nombre ?? t('door.unknownPerson')
+  const undoNote = undoNoteKey(undo.state, undo.error)
+
+  // An undone card must stop claiming the person is in. Leaving the green
+  // "ja és dins" and the points above a line saying the opposite is the
+  // failure this whole screen is built to avoid: at a glance you read the
+  // colour and the headline, and both would be lying.
+  const gone = undo.state === 'undone' || undo.state === 'dropped'
+  const tone = gone ? 'var(--ds-text-secondary)' : toneVar(shown.tone)
 
   const detail =
-    result === null
+    result === null || gone
       ? ''
       : [
           result.points_awarded !== undefined && result.points_awarded > 0
@@ -204,6 +229,11 @@ function Verdict({ outcome }: { readonly outcome: DoorOutcome }) {
           .filter((s): s is string => s !== null)
           .join(' · ')
 
+  // The line under the name, and the one under that: a failed undo keeps the
+  // verdict and adds a warning, an undone one replaces it.
+  const headline = gone && undoNote !== null ? t(undoNote, { nombre }) : t(shown.messageKey)
+  const noteKey = gone ? null : (undoNote ?? shown.actionKey)
+
   return (
     <div
       role="status"
@@ -214,34 +244,34 @@ function Verdict({ outcome }: { readonly outcome: DoorOutcome }) {
       <ScanGlyph icon={shown.icon} />
       <div className="min-w-0 flex-1">
         <p className="display text-[27px] leading-none tracking-[-0.04em] [text-wrap:balance]">
-          {result?.nombre ?? t('door.unknownPerson')}
+          {nombre}
         </p>
-        <p className="mt-4 text-lg font-bold">{t(shown.messageKey)}</p>
+        <p className="mt-4 text-lg font-bold">{headline}</p>
         {detail === '' ? null : (
           <p className="mt-2 text-sm opacity-85 [text-wrap:pretty]">{detail}</p>
         )}
-        {shown.actionKey === null ? null : (
-          <p className="mt-2 text-sm text-fg-secondary [text-wrap:pretty]">{t(shown.actionKey)}</p>
+        {noteKey === null ? null : (
+          <p className="mt-2 text-sm text-fg-secondary [text-wrap:pretty]">
+            {t(noteKey, { nombre })}
+          </p>
         )}
       </div>
+      {undo.run === null ? null : (
+        <button
+          type="button"
+          onClick={undo.run}
+          disabled={undo.state === 'busy'}
+          // The prototype's control, from the manual list: uppercase, small
+          // and set apart, so it never competes with the name for the glance
+          // you get. Padded up to a thumb rather than left at its 16px height.
+          className="-mr-4 flex min-h-[44px] flex-none items-center px-4 text-[13px] font-extrabold tracking-[0.06em] uppercase"
+          style={{ color: tone }}
+        >
+          {undo.state === 'busy' ? t('door.undoing') : t('actions.undo')}
+        </button>
+      )}
     </div>
   )
-}
-
-/**
- * A queued scan borrows the "in, but look at this later" presentation.
- *
- * It is not a success — nothing has been checked against the database yet —
- * and it is not a failure either, because the person is through the door.
- * `ok_walkin_review` already means exactly that, so it gets the same tick with
- * a mark beside it and the same double buzz.
- */
-function presentationOf(outcome: DoorOutcome) {
-  if (outcome.kind === 'sent') return SCAN_PRESENTATION[outcome.result.status]
-  if (outcome.kind === 'queued') {
-    return { ...SCAN_PRESENTATION.ok_walkin_review, messageKey: 'scanner.queued' }
-  }
-  return SCAN_PRESENTATION.error
 }
 
 function buzz(pattern: readonly number[]): void {

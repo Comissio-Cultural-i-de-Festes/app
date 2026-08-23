@@ -45,6 +45,7 @@ export type Database = {
           exit_photo_url: string | null
           id: string
           pagado: boolean
+          prev_estado: string | null
           user_id: string
           was_registered: boolean | null
         }
@@ -58,6 +59,7 @@ export type Database = {
           exit_photo_url?: string | null
           id?: string
           pagado?: boolean
+          prev_estado?: string | null
           user_id: string
           was_registered?: boolean | null
         }
@@ -71,6 +73,7 @@ export type Database = {
           exit_photo_url?: string | null
           id?: string
           pagado?: boolean
+          prev_estado?: string | null
           user_id?: string
           was_registered?: boolean | null
         }
@@ -863,6 +866,10 @@ export type Database = {
       }
       admin_set_published: {
         Args: { p_event_id: string; p_published: boolean }
+        Returns: undefined
+      }
+      admin_undo_checkin: {
+        Args: { p_event_id: string; p_user_id: string }
         Returns: undefined
       }
       award_points: {

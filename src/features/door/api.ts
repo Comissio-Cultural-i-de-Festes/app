@@ -1,4 +1,4 @@
-import type { CheckInStatus } from '@/design/states'
+import { type CheckInStatus, SCAN_PRESENTATION, type ScanPresentation } from '@/design/states'
 import { DbError, unwrapAs } from '@/lib/db'
 import type { Escola } from '@/lib/model'
 import { type QueuedScan, bumpTries, dequeue, enqueue, pending } from '@/lib/queue'
@@ -107,15 +107,101 @@ export async function scan(request: ScanRequest): Promise<CheckInResult> {
  * `queued` is not a failure. The person walked through the door; only the row
  * is late. Telling the junta to "try again" there would be advice that makes
  * things worse, so it is its own outcome with its own words.
+ *
+ * Every outcome carries the request that produced it. Undoing needs the
+ * `clientRequestId`, and the scan that generated it is over by the time
+ * anybody reaches for the button — keeping the two apart is how the id used
+ * to get thrown away.
  */
 export type DoorOutcome =
-  | { readonly kind: 'sent'; readonly result: CheckInResult }
-  | { readonly kind: 'queued' }
-  | { readonly kind: 'failed' }
+  | { readonly kind: 'sent'; readonly request: ScanRequest; readonly result: CheckInResult }
+  | { readonly kind: 'queued'; readonly request: ScanRequest }
+  | { readonly kind: 'failed'; readonly request: ScanRequest }
 
 /** Which of the two a thrown scan was. Offline is the queue working. */
-export function outcomeFromFailure(): DoorOutcome {
-  return navigator.onLine ? { kind: 'failed' } : { kind: 'queued' }
+export function outcomeFromFailure(request: ScanRequest): DoorOutcome {
+  return navigator.onLine ? { kind: 'failed', request } : { kind: 'queued', request }
+}
+
+/**
+ * Taking a scan back, which is not one operation.
+ *
+ * Where the row is decides what has to happen, and getting it wrong is worse
+ * than not offering the button: undoing a queued scan against the server would
+ * hit a row that does not exist yet, and undoing a landed one by clearing the
+ * queue would report success and change nothing.
+ */
+export type UndoTarget =
+  /** It landed. There is a row, and the audited RPC is the only way to move it. */
+  | { readonly kind: 'row'; readonly eventId: string; readonly userId: string }
+  /** It never left. Removing the queue entry is the whole of it. */
+  | { readonly kind: 'queued'; readonly clientRequestId: string }
+  /**
+   * It was sent and never answered, so it is in the queue AND may be on the
+   * server: `scan()` leaves a failure queued on purpose, and the twenty-second
+   * flush may have got through since. Both, in that order.
+   */
+  | {
+      readonly kind: 'unsure'
+      readonly clientRequestId: string
+      readonly eventId: string
+      readonly userId: string
+    }
+
+/** The three that admitted somebody, which are the three there is anything to take back. */
+const UNDOABLE: ReadonlySet<CheckInStatus> = new Set<CheckInStatus>([
+  'ok',
+  'ok_walkin',
+  'ok_walkin_review',
+])
+
+/**
+ * What this outcome would undo, or null when the answer is nothing.
+ *
+ * `already_checked_in` is the one that looks undoable and must not be: that
+ * scan changed nothing, so the button would quietly take back an earlier
+ * check-in somebody else made while claiming to undo the tap just made.
+ */
+export function undoTargetOf(outcome: DoorOutcome): UndoTarget | null {
+  const { request } = outcome
+
+  if (outcome.kind === 'sent') {
+    const { status, user_id } = outcome.result
+    if (!UNDOABLE.has(status) || user_id === undefined) return null
+    return { kind: 'row', eventId: request.eventId, userId: user_id }
+  }
+
+  // A QR that never reached the server never resolved to anybody either — the
+  // token only becomes a person inside `check_in` — so the queue is all there
+  // is to go on. A name tapped on the manual list is the case that can do more.
+  if (outcome.kind === 'queued' || request.userId === null) {
+    return { kind: 'queued', clientRequestId: request.clientRequestId }
+  }
+
+  return {
+    kind: 'unsure',
+    clientRequestId: request.clientRequestId,
+    eventId: request.eventId,
+    userId: request.userId,
+  }
+}
+
+export async function undo(target: UndoTarget): Promise<void> {
+  // Out of the queue first. The other order leaves a window where the flush
+  // picks the entry up again after the server has been told to forget it.
+  if (target.kind !== 'row') await dequeue(target.clientRequestId)
+  if (target.kind === 'queued') return
+
+  const { error } = await supabase.rpc('admin_undo_checkin', {
+    p_event_id: target.eventId,
+    p_user_id: target.userId,
+  })
+  if (error === null) return
+  // P0002 is the RPC saying nobody was checked in, which for a scan we were
+  // unsure about is the good answer: it never landed, and the queue entry we
+  // just removed was the whole of it.
+  if (target.kind === 'unsure' && error.code === 'P0002') return
+  throw new DbError(error)
 }
 
 export interface FlushOutcome {
@@ -160,4 +246,21 @@ export async function awardPoints(
     })
     if (error) throw new DbError(error)
   }
+}
+
+/**
+ * How an outcome is drawn, wherever it is drawn.
+ *
+ * A queued scan borrows the "in, but look at this later" presentation. It is
+ * not a success — nothing has been checked against the database yet — and not
+ * a failure either, because the person is through the door. `ok_walkin_review`
+ * already means exactly that, so it gets the same tick with a mark beside it
+ * and the same double buzz.
+ */
+export function presentationOf(outcome: DoorOutcome): ScanPresentation {
+  if (outcome.kind === 'sent') return SCAN_PRESENTATION[outcome.result.status]
+  if (outcome.kind === 'queued') {
+    return { ...SCAN_PRESENTATION.ok_walkin_review, messageKey: 'scanner.queued' }
+  }
+  return SCAN_PRESENTATION.error
 }

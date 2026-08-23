@@ -519,13 +519,19 @@ function Field({
   readonly hint?: string
   readonly children: ReactNode
 }) {
+  // Not `<label htmlFor>`: the id was landing on the wrapper div, which is not
+  // a form control, so the association was void — no accessible name on any of
+  // these inputs and no enlarged tap target from the label either. A named
+  // group works for the three-button rows as well as the single inputs.
   const id = useId()
   return (
     <div className="pb-9">
-      <label htmlFor={id} className="block eyebrow text-fg-muted">
+      <span id={id} className="block eyebrow text-fg-muted">
         {label}
-      </label>
-      <div id={id}>{children}</div>
+      </span>
+      <div role="group" aria-labelledby={id}>
+        {children}
+      </div>
       {hint === undefined ? null : (
         <p className="mt-4 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
           {hint}

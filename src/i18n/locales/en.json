@@ -205,6 +205,41 @@
     "proposals": "Ideas",
     "profile": "Profile"
   },
+  "onboarding": {
+    "title": "You're in",
+    "lede": "Four things and you are in. We already have your name and photo from Google — check they look right.",
+    "nameHint": "Use the name people call you here, not the one on your ID.",
+    "school": {
+      "label": "Your school",
+      "required": "Required",
+      "lede": "Your points go to your school. The three of them compete all year.",
+      "stats": "{{members}} members · currently {{position}} with {{points}} points",
+      "noStats": "No points yet this year"
+    },
+    "degree": {
+      "label": "Degree",
+      "placeholder": "Which one are you doing?"
+    },
+    "year": {
+      "label": "Year",
+      "1": "1st",
+      "2": "2nd",
+      "3": "3rd",
+      "4": "4th"
+    },
+    "phone": {
+      "label": "Phone",
+      "prefix": "+34",
+      "placeholder": "600 00 00 00",
+      "why": "Only so we can add you to the WhatsApp group. It does not appear on your profile and nobody outside the committee sees it.",
+      "invalid": "That number does not look right. Leave it blank if you would rather not."
+    },
+    "cta": {
+      "ready": "Go in",
+      "pickSchool": "Pick a school and you are in"
+    },
+    "later": "You can change all of this later in your profile."
+  },
   "ranking": {
     "periodLabel": "Period",
     "period": {

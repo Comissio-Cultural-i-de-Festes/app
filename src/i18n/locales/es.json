@@ -205,6 +205,41 @@
     "proposals": "Propuestas",
     "profile": "Perfil"
   },
+  "onboarding": {
+    "title": "Ya estás dentro",
+    "lede": "Cuatro cosas y entras. El nombre y la foto ya los tenemos de tu Google, mira que estén bien.",
+    "nameHint": "Pon el nombre con el que te llaman en la comi, no el del DNI.",
+    "school": {
+      "label": "Tu escuela",
+      "required": "Obligatorio",
+      "lede": "Tus puntos van al saco de tu escuela. Las tres compiten durante todo el curso.",
+      "stats": "{{members}} miembros · ahora {{position}}.ª con {{points}} puntos",
+      "noStats": "Todavía sin puntos este curso"
+    },
+    "degree": {
+      "label": "Grado",
+      "placeholder": "¿Cuál estudias?"
+    },
+    "year": {
+      "label": "Curso",
+      "1": "1º",
+      "2": "2º",
+      "3": "3º",
+      "4": "4º"
+    },
+    "phone": {
+      "label": "Teléfono",
+      "prefix": "+34",
+      "placeholder": "600 00 00 00",
+      "why": "Solo para añadirte al grupo de WhatsApp. No sale en tu perfil ni lo ve nadie más que la comi.",
+      "invalid": "Este número no acaba de cuadrar. Déjalo en blanco si no lo quieres poner."
+    },
+    "cta": {
+      "ready": "Entrar",
+      "pickSchool": "Elige la escuela y entras"
+    },
+    "later": "Todo esto lo puedes cambiar después en tu perfil."
+  },
   "ranking": {
     "periodLabel": "Periodo",
     "period": {

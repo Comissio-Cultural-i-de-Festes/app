@@ -7,6 +7,8 @@ import { EntryScreen } from '@/features/entry/EntryScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
+import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen'
+import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
 import { INVITE_PARAM, readInviteCode } from '@/features/entry/useInvite'
@@ -96,9 +98,16 @@ export default function App() {
   return (
     <UserIdContext value={session.user.id}>
       <Routes>
-        <Route element={<TabLayout />}>
-          <Route path="/" element={<HomeScreen />} />
-          <Route path="/ranquing" element={<RankingScreen />} />
+        {/* Asked once, and it has to be its own route rather than a gate in
+            front of everything: a redirect that fires on every render would
+            trap somebody who came in through a shared link to an event. */}
+        <Route path="/primer-cop" element={<OnboardingScreen />} />
+
+        <Route element={<RequireOnboarding />}>
+          <Route element={<TabLayout />}>
+            <Route path="/" element={<HomeScreen />} />
+            <Route path="/ranquing" element={<RankingScreen />} />
+          </Route>
         </Route>
 
         {/* A path that does not exist yet, or one left over from a shared link

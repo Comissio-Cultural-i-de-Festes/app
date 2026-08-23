@@ -205,6 +205,41 @@
     "proposals": "Propostes",
     "profile": "Perfil"
   },
+  "onboarding": {
+    "title": "Ja ets dins",
+    "lede": "Quatre coses i entres. El nom i la foto ja els tenim del teu Google, mira que estiguin bé.",
+    "nameHint": "Posa-hi el nom amb què et diuen a la comi, no el del DNI.",
+    "school": {
+      "label": "La teva escola",
+      "required": "Obligatori",
+      "lede": "Els teus punts van a parar al sac de la teva escola. Les tres competeixen tot el curs.",
+      "stats": "{{members}} membres · ara {{position}}a amb {{points}} punts",
+      "noStats": "Encara sense punts aquest curs"
+    },
+    "degree": {
+      "label": "Grau",
+      "placeholder": "Quin estudies?"
+    },
+    "year": {
+      "label": "Curs",
+      "1": "1r",
+      "2": "2n",
+      "3": "3r",
+      "4": "4t"
+    },
+    "phone": {
+      "label": "Telèfon",
+      "prefix": "+34",
+      "placeholder": "600 00 00 00",
+      "why": "Només per afegir-te al grup de WhatsApp. No surt al teu perfil ni el veu ningú més que la comi.",
+      "invalid": "Aquest número no acaba de quadrar. Deixa-ho en blanc si no el vols posar."
+    },
+    "cta": {
+      "ready": "Entrar",
+      "pickSchool": "Tria l'escola i entres"
+    },
+    "later": "Tot això ho pots canviar després al teu perfil."
+  },
   "ranking": {
     "periodLabel": "Període",
     "period": {

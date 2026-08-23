@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
+
+import { warmDecoder } from '@/features/door/decoder'
 
 import { fetchUpcoming, homeKeys, horizonIso } from '@/features/home/api'
 import { useMyProfile } from '@/features/session/useMyProfile'
@@ -35,6 +38,12 @@ export function JuntaHome() {
     queryFn: () => fetchUpcoming(horizon),
   })
   const next = upcoming.data?.[0] ?? null
+
+  // Fetched here rather than at the door. This screen is opened on the way to
+  // the venue; the scanner is opened inside it, where there is no signal.
+  useEffect(() => {
+    if (navigator.onLine) void warmDecoder()
+  }, [])
 
   // Its own query rather than the member list: this one has to show the
   // drafts, which is the only way back to something saved and not published.

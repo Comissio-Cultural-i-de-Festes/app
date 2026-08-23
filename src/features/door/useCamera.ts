@@ -1,5 +1,7 @@
 import { type RefObject, useEffect, useRef, useState } from 'react'
 
+import { loadDetector } from './decoder'
+
 /**
  * The rear camera, and a QR read out of it.
  *
@@ -63,7 +65,7 @@ export function useCamera(
       video.srcObject = stream
       await video.play().catch(() => undefined)
 
-      const { BarcodeDetector } = await import('barcode-detector/ponyfill')
+      const BarcodeDetector = await loadDetector()
       const detector = new BarcodeDetector({ formats: ['qr_code'] })
 
       let busy = false

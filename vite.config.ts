@@ -109,6 +109,20 @@ export default defineConfig(({ mode, command }) => {
               ? [{ urlPattern: supabasePattern, handler: 'NetworkOnly' as const }]
               : []),
             {
+              // The QR decoder's wasm. Deliberately absent from the precache
+              // globs — a megabyte at install for two hundred members who will
+              // never open the scanner — and kept forever once the door has
+              // fetched it, because the second time the door is opened there
+              // is usually no signal left to fetch it with.
+              urlPattern: /\.wasm$/,
+              handler: 'CacheFirst' as const,
+              options: {
+                cacheName: 'wasm',
+                expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
               // Self-hosted fonts, same origin, content-hashed filenames.
               urlPattern: ({ request }: { request: Request }) => request.destination === 'font',
               handler: 'CacheFirst' as const,

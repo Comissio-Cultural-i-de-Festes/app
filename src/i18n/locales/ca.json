@@ -318,7 +318,9 @@
       "publish": "Publicar",
       "publishNow": "Es veurà de seguida a l’inici de tothom.",
       "publishHidden": "Es publica tapat i es destapa sol a l’hora que has posat.",
-      "saveDraft": "Guarda i plega"
+      "saveDraft": "Guarda i plega",
+      "saveChanges": "Desa els canvis",
+      "saveChangesNote": "Ja és a l’inici de tothom: el canvi es veu de seguida."
     }
   },
   "language": {

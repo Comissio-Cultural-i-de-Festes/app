@@ -318,7 +318,9 @@
       "publish": "Publicar",
       "publishNow": "Se verá enseguida en el inicio de todos.",
       "publishHidden": "Se publica tapado y se destapa solo a la hora que has puesto.",
-      "saveDraft": "Guarda y cierra"
+      "saveDraft": "Guarda y cierra",
+      "saveChanges": "Guarda los cambios",
+      "saveChangesNote": "Ya está en el inicio de todos: el cambio se ve enseguida."
     }
   },
   "language": {

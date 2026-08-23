@@ -100,6 +100,11 @@ export function EventFormScreen() {
   })
 
   const ready = form.titulo.trim() !== '' && form.starts_at !== ''
+
+  // Editing something the whole association can already see is a different
+  // act from creating one. Offering "guarda i plega" here would let a tap
+  // take a live event off everybody's home screen without saying so.
+  const live = editing && existing.data?.published === true
   const defaultPoints =
     points.data?.find((v) => v.mena === 'tipus_esdeveniment' && v.clau === form.tipo)?.punts ?? null
 
@@ -310,22 +315,32 @@ export function EventFormScreen() {
               : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-muted')
           }
         >
-          {save.isPending ? t('state.updating') : t('junta.form.publish')}
+          {save.isPending
+            ? t('state.updating')
+            : live
+              ? t('junta.form.saveChanges')
+              : t('junta.form.publish')}
         </button>
         <p className="mt-4 text-center text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-          {form.reveal_at === '' ? t('junta.form.publishNow') : t('junta.form.publishHidden')}
+          {form.reveal_at !== ''
+            ? t('junta.form.publishHidden')
+            : live
+              ? t('junta.form.saveChangesNote')
+              : t('junta.form.publishNow')}
         </p>
 
-        <button
-          type="button"
-          disabled={!ready || save.isPending}
-          onClick={() => {
-            save.mutate(false)
-          }}
-          className="mt-8 min-h-[48px] w-full cursor-pointer border-0 bg-transparent text-center text-md font-bold text-fg-muted disabled:opacity-70"
-        >
-          {t('junta.form.saveDraft')}
-        </button>
+        {live ? null : (
+          <button
+            type="button"
+            disabled={!ready || save.isPending}
+            onClick={() => {
+              save.mutate(false)
+            }}
+            className="mt-8 min-h-[48px] w-full cursor-pointer border-0 bg-transparent text-center text-md font-bold text-fg-muted disabled:opacity-70"
+          >
+            {t('junta.form.saveDraft')}
+          </button>
+        )}
 
         {save.isError ? (
           <p role="alert" className="mt-6 text-md font-bold text-error [text-wrap:pretty]">

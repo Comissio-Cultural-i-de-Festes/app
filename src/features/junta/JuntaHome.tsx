@@ -8,6 +8,7 @@ import { formatDateTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 
 import { JuntaHeader } from './JuntaHeader'
+import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
 
 /**
  * The way in to everything the junta does.
@@ -34,6 +35,13 @@ export function JuntaHome() {
     queryFn: () => fetchUpcoming(horizon),
   })
   const next = upcoming.data?.[0] ?? null
+
+  // Its own query rather than the member list: this one has to show the
+  // drafts, which is the only way back to something saved and not published.
+  const events = useQuery({
+    queryKey: juntaEventKeys.list(horizon),
+    queryFn: () => fetchJuntaEvents(horizon),
+  })
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">
@@ -95,13 +103,13 @@ export function JuntaHome() {
         <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
           {t('junta.events')}
         </h2>
-        {upcoming.isPending ? (
+        {events.isPending ? (
           <p className="py-8 text-fg-muted">{t('state.loading')}</p>
-        ) : (upcoming.data?.length ?? 0) === 0 ? (
+        ) : (events.data?.length ?? 0) === 0 ? (
           <p className="py-8 text-md text-fg-muted [text-wrap:pretty]">{t('junta.noEvents')}</p>
         ) : (
           <ul className="mt-2">
-            {upcoming.data?.map((e) => (
+            {events.data?.map((e) => (
               <li key={e.id}>
                 <Link to={`/junta/esdeveniment/${e.id}`} className={ROW}>
                   <span className="min-w-0 flex-1">

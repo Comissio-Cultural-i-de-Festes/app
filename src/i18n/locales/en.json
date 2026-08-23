@@ -318,7 +318,9 @@
       "publish": "Publish",
       "publishNow": "It appears on everybody's home screen straight away.",
       "publishHidden": "It publishes covered and opens by itself at the time you set.",
-      "saveDraft": "Save and close"
+      "saveDraft": "Save and close",
+      "saveChanges": "Save the changes",
+      "saveChangesNote": "It is already on everybody's home screen: the change shows straight away."
     }
   },
   "language": {

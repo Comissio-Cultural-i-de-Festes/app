@@ -148,6 +148,11 @@
       "back": "Torna a l'inici"
     }
   },
+  "eventType": {
+    "fiesta": "Festa",
+    "casa_rural": "Casa rural",
+    "actividad": "Activitat"
+  },
   "home": {
     "greeting": {
       "morning": "Bon dia, {{name}}",
@@ -273,6 +278,47 @@
     },
     "payments": {
       "title": "Pagaments i junta"
+    },
+    "form": {
+      "leaveIt": "Deixa-ho",
+      "newTitle": "Crear esdeveniment",
+      "editTitle": "Editar",
+      "templates": "No comencis de zero",
+      "copyIt": "Copia'l",
+      "coverEmpty": "Toca per posar la foto de portada",
+      "coverHint": "Horitzontal i que s'hi vegi gent. És el que fa que la gent hi entri.",
+      "name": "Com es diu",
+      "namePlaceholder": "Sopar de benvinguda",
+      "what": "Quina mena de cosa és",
+      "starts": "Comença",
+      "ends": "S'acaba",
+      "where": "On",
+      "wherePlaceholder": "El lloc i com arribar-hi",
+      "places": "Places",
+      "noLimit": "Sense",
+      "price": "Preu (€)",
+      "points": "Punts",
+      "description": "Explica-ho",
+      "descriptionPlaceholder": "Què hi haurà, qui hi toca, què cal portar",
+      "transport": "Com es torna",
+      "transportHint": "Escriu-ho sempre. És la pregunta que més surt al grup.",
+      "transportPlaceholder": "L'últim tren, el bus nocturn, qui fa cotxe",
+      "reveal": "Revelació programada",
+      "revealSub": "Publica-ho tapat: fins a l'hora que diguis, la gent només veu el teaser.",
+      "revealAt": "Es destapa",
+      "teaser": "Què es veu mentrestant",
+      "teaserHint": "Prou per encuriosir i res més. Si ho expliques, ja no cal destapar-ho.",
+      "teaserPlaceholder": "Aparteu el cap de setmana del 14",
+      "stillHidden": "Encara tapat",
+      "previewTitle": "Alguna cosa",
+      "previewTeaser": "Ja ho sabràs.",
+      "previewOpens": "Es destapa {{when}}",
+      "previewNoDate": "Posa-hi una hora i es destaparà sol",
+      "previewHiddenFields": "El lloc, la descripció, la portada i com es torna: amagats fins llavors.",
+      "publish": "Publicar",
+      "publishNow": "Es veurà de seguida a l’inici de tothom.",
+      "publishHidden": "Es publica tapat i es destapa sol a l’hora que has posat.",
+      "saveDraft": "Guarda i plega"
     }
   },
   "language": {

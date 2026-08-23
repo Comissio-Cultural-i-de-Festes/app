@@ -148,6 +148,11 @@
       "back": "Vuelve al inicio"
     }
   },
+  "eventType": {
+    "fiesta": "Fiesta",
+    "casa_rural": "Casa rural",
+    "actividad": "Actividad"
+  },
   "home": {
     "greeting": {
       "morning": "Buenos días, {{name}}",
@@ -273,6 +278,47 @@
     },
     "payments": {
       "title": "Pagos y junta"
+    },
+    "form": {
+      "leaveIt": "Déjalo",
+      "newTitle": "Crear evento",
+      "editTitle": "Editar",
+      "templates": "No empieces de cero",
+      "copyIt": "Cópialo",
+      "coverEmpty": "Toca para poner la foto de portada",
+      "coverHint": "Horizontal y que se vea gente. Es lo que hace que la gente entre.",
+      "name": "Cómo se llama",
+      "namePlaceholder": "Cena de bienvenida",
+      "what": "Qué tipo de cosa es",
+      "starts": "Empieza",
+      "ends": "Acaba",
+      "where": "Dónde",
+      "wherePlaceholder": "El sitio y cómo llegar",
+      "places": "Plazas",
+      "noLimit": "Sin",
+      "price": "Precio (€)",
+      "points": "Puntos",
+      "description": "Cuéntalo",
+      "descriptionPlaceholder": "Qué habrá, quién toca, qué hay que llevar",
+      "transport": "Cómo se vuelve",
+      "transportHint": "Escríbelo siempre. Es la pregunta que más sale en el grupo.",
+      "transportPlaceholder": "El último tren, el bus nocturno, quién lleva coche",
+      "reveal": "Revelación programada",
+      "revealSub": "Publícalo tapado: hasta la hora que digas, la gente solo ve el teaser.",
+      "revealAt": "Se destapa",
+      "teaser": "Qué se ve mientras tanto",
+      "teaserHint": "Lo justo para picar y nada más. Si lo cuentas, ya no hace falta destaparlo.",
+      "teaserPlaceholder": "Apartad el fin de semana del 14",
+      "stillHidden": "Todavía tapado",
+      "previewTitle": "Algo",
+      "previewTeaser": "Ya lo sabrás.",
+      "previewOpens": "Se destapa {{when}}",
+      "previewNoDate": "Pon una hora y se destapará solo",
+      "previewHiddenFields": "El sitio, la descripción, la portada y cómo se vuelve: escondidos hasta entonces.",
+      "publish": "Publicar",
+      "publishNow": "Se verá enseguida en el inicio de todos.",
+      "publishHidden": "Se publica tapado y se destapa solo a la hora que has puesto.",
+      "saveDraft": "Guarda y cierra"
     }
   },
   "language": {

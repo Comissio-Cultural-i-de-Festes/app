@@ -148,6 +148,11 @@
       "back": "Back to the start"
     }
   },
+  "eventType": {
+    "fiesta": "Party",
+    "casa_rural": "Country house",
+    "actividad": "Activity"
+  },
   "home": {
     "greeting": {
       "morning": "Morning, {{name}}",
@@ -273,6 +278,47 @@
     },
     "payments": {
       "title": "Payments and committee"
+    },
+    "form": {
+      "leaveIt": "Leave it",
+      "newTitle": "Create an event",
+      "editTitle": "Edit",
+      "templates": "Do not start from nothing",
+      "copyIt": "Copy it",
+      "coverEmpty": "Tap to add the cover photo",
+      "coverHint": "Landscape, with people in it. That is what makes people tap through.",
+      "name": "What it is called",
+      "namePlaceholder": "Welcome dinner",
+      "what": "What kind of thing it is",
+      "starts": "Starts",
+      "ends": "Ends",
+      "where": "Where",
+      "wherePlaceholder": "The place and how to get there",
+      "places": "Places",
+      "noLimit": "None",
+      "price": "Price (€)",
+      "points": "Points",
+      "description": "Tell them",
+      "descriptionPlaceholder": "What there will be, who is playing, what to bring",
+      "transport": "Getting home",
+      "transportHint": "Always write this. It is the question the group asks most.",
+      "transportPlaceholder": "The last train, the night bus, who is driving",
+      "reveal": "Scheduled reveal",
+      "revealSub": "Publish it covered: until the time you set, people only see the teaser.",
+      "revealAt": "Opens at",
+      "teaser": "What they see meanwhile",
+      "teaserHint": "Enough to intrigue and no more. Explain it and there is nothing left to reveal.",
+      "teaserPlaceholder": "Keep the weekend of the 14th free",
+      "stillHidden": "Still covered",
+      "previewTitle": "Something",
+      "previewTeaser": "You will find out.",
+      "previewOpens": "Opens {{when}}",
+      "previewNoDate": "Set a time and it opens by itself",
+      "previewHiddenFields": "The place, the description, the cover and getting home: hidden until then.",
+      "publish": "Publish",
+      "publishNow": "It appears on everybody's home screen straight away.",
+      "publishHidden": "It publishes covered and opens by itself at the time you set.",
+      "saveDraft": "Save and close"
     }
   },
   "language": {

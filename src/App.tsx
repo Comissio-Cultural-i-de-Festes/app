@@ -6,6 +6,7 @@ import { Navigate, Route, Routes } from 'react-router'
 import { EntryScreen } from '@/features/entry/EntryScreen'
 import { EventScreen } from '@/features/event/EventScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
+import { EventFormScreen } from '@/features/junta/EventFormScreen'
 import { InvitesScreen } from '@/features/junta/InvitesScreen'
 import { JuntaHome } from '@/features/junta/JuntaHome'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
@@ -123,6 +124,7 @@ export default function App() {
           <Route path="/junta" element={<JuntaLayout />}>
             <Route index element={<JuntaHome />} />
             <Route path="invitacions" element={<InvitesScreen />} />
+            <Route path="esdeveniment/:id" element={<EventFormScreen />} />
           </Route>
         </Route>
 

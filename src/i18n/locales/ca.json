@@ -123,7 +123,8 @@
     "forbidden": "Això no ho pots fer tu.",
     "notFound": "Això ja no hi és.",
     "rateLimited": "Massa intents seguits. Espera un parell de minuts i torna-hi.",
-    "expired": "Ha caducat."
+    "expired": "Ha caducat.",
+    "behindServer": "Això encara no hi és al servidor: l'app s'ha actualitzat abans que la base de dades. Si ets de la junta, apuja les migracions; si no, avisa'ls."
   },
   "escola": {
     "politecnica": "Politècnica",

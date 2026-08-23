@@ -24,6 +24,12 @@ export function errorKey(error: unknown, online = navigator.onLine): string {
     if (/^(?:42|22|23)/.test(error.code)) return 'errors.generic'
     // PostgREST's own: no row where one was required, and its parse failures.
     if (error.code === 'PGRST116') return 'errors.notFound'
+    // 202 is a function the schema cache does not have, 203 is one whose
+    // arguments no longer match. Both mean the same thing in practice: the app
+    // was deployed and the migrations were not. "Try again in a moment" is
+    // advice that cannot ever work for it, and the person reading it is
+    // usually the one who can fix it.
+    if (error.code === 'PGRST202' || error.code === 'PGRST203') return 'errors.behindServer'
     if (error.code.startsWith('PGRST')) return 'errors.generic'
     if (error.code === '429') return 'errors.rateLimited'
   }

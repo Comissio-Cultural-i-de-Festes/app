@@ -123,7 +123,8 @@
     "forbidden": "That one isn't yours to do.",
     "notFound": "That's not there any more.",
     "rateLimited": "Too many tries in a row. Give it a couple of minutes.",
-    "expired": "This has expired."
+    "expired": "This has expired.",
+    "behindServer": "This is not on the server yet: the app was deployed ahead of the database. If you are on the committee, push the migrations; if not, tell them."
   },
   "escola": {
     "politecnica": "Polytechnic",

@@ -123,7 +123,8 @@
     "forbidden": "Esto no lo puedes hacer tú.",
     "notFound": "Esto ya no está.",
     "rateLimited": "Demasiados intentos seguidos. Espera un par de minutos y vuelve.",
-    "expired": "Ha caducado."
+    "expired": "Ha caducado.",
+    "behindServer": "Esto todavía no está en el servidor: la app se ha actualizado antes que la base de datos. Si eres de la junta, sube las migraciones; si no, avísalos."
   },
   "escola": {
     "politecnica": "Politécnica",

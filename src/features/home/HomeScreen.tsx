@@ -14,6 +14,7 @@ import {
 import { type Locale, toLocale } from '@/i18n/locales'
 import type { Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { useCovers } from '@/ui/Cover/useCovers'
 import { LogoMark, Wordmark } from '@/ui/Logo/Logo'
 
 import {
@@ -33,6 +34,9 @@ export function HomeScreen() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
   const home = useHome()
+  // One signing round trip for every cover on the screen, rather than one per
+  // picture. The buckets are private, so a stored path is not a URL.
+  const covers = useCovers([home.hero?.cover_url ?? null, home.previous?.cover_url ?? null])
 
   // Approved yet? A pending profile can read the calendar — that is what the
   // door promises them — but every write and every list of names is still
@@ -66,7 +70,11 @@ export function HomeScreen() {
 
       {home.hero ? (
         <>
-          <Hero event={home.hero} locale={locale} />
+          <Hero
+            event={home.hero}
+            locale={locale}
+            coverUrl={covers.data?.get(home.hero.cover_url ?? '') ?? null}
+          />
           <Places event={home.hero} attendances={home.attendances} />
           <CallToAction event={home.hero} attendances={home.attendances} waiting={waiting} />
         </>
@@ -77,7 +85,13 @@ export function HomeScreen() {
       )}
 
       <RankingTeaser home={home} />
-      {home.previous ? <Recap event={home.previous} attendances={home.attendances} /> : null}
+      {home.previous ? (
+        <Recap
+          event={home.previous}
+          attendances={home.attendances}
+          coverUrl={covers.data?.get(home.previous.cover_url ?? '') ?? null}
+        />
+      ) : null}
       <Upcoming events={home.rest} attendances={home.attendances} locale={locale} />
     </div>
   )
@@ -133,7 +147,15 @@ function greetingKey(now: Date): 'morning' | 'afternoon' | 'evening' {
 
 // ── hero ────────────────────────────────────────────────────────────────────
 
-function Hero({ event, locale }: { readonly event: EventRow; readonly locale: Locale }) {
+function Hero({
+  event,
+  locale,
+  coverUrl,
+}: {
+  readonly event: EventRow
+  readonly locale: Locale
+  readonly coverUrl: string | null
+}) {
   const { t } = useTranslation()
   const start = new Date(event.starts_at)
 
@@ -142,14 +164,14 @@ function Hero({ event, locale }: { readonly event: EventRow; readonly locale: Lo
       to={`/esdeveniment/${event.id}`}
       className="relative block h-[260px] bg-[oklch(0.2_0.02_25)] no-underline"
     >
-      {event.cover_url === null ? (
+      {coverUrl === null ? (
         <div
           aria-hidden="true"
           className="absolute inset-0 bg-[var(--ds-bg-avatar)] bg-[image:var(--ds-pattern-avatar)]"
         />
       ) : (
         <img
-          src={event.cover_url}
+          src={coverUrl}
           alt=""
           className="absolute inset-0 size-full object-cover"
           decoding="async"
@@ -441,9 +463,11 @@ function RankingTeaser({ home }: { readonly home: Home }) {
 function Recap({
   event,
   attendances,
+  coverUrl,
 }: {
   readonly event: EventRow
   readonly attendances: readonly AttendanceRow[]
+  readonly coverUrl: string | null
 }) {
   const { t } = useTranslation()
   const attended = attendances.filter(
@@ -454,14 +478,14 @@ function Recap({
     <section className={`pt-[22px] ${GUTTER}`}>
       <h2 className={`${EYEBROW_TIGHT} mb-6`}>{t('home.recap.title')}</h2>
       <div className="flex items-stretch gap-[14px]">
-        {event.cover_url === null ? (
+        {coverUrl === null ? (
           <div
             aria-hidden="true"
             className="size-[104px] flex-none rounded-sm bg-[var(--ds-bg-avatar)] bg-[image:var(--ds-pattern-avatar)]"
           />
         ) : (
           <img
-            src={event.cover_url}
+            src={coverUrl}
             alt=""
             className="size-[104px] flex-none rounded-sm object-cover"
             decoding="async"

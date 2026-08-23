@@ -19,6 +19,7 @@ import { INTL_LOCALE, toLocale } from '@/i18n/locales'
 import { ANSWERS, type Answer } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { useCovers } from '@/ui/Cover/useCovers'
 
 import { eventKeys, fetchEvent, fetchWaitlist, formatPrice } from './api'
 
@@ -58,6 +59,7 @@ export function EventScreen() {
     queryKey: eventKeys.waitlist(id),
     queryFn: () => fetchWaitlist(id),
   })
+  const covers = useCovers([event.data?.cover_url ?? null])
 
   const answer = useMutation({
     mutationFn: (estado: Answer) => setAnswer(id, estado),
@@ -99,7 +101,7 @@ export function EventScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <Cover event={e} isPast={isPast} />
+      <Cover coverUrl={covers.data?.get(e.cover_url ?? '') ?? null} isPast={isPast} />
 
       <section className={`pt-8 ${GUTTER}`}>
         <p className="eyebrow text-brand-accent">{formatDateTime(starts, locale)}</p>
@@ -204,19 +206,25 @@ function whenText(e: EventRow, starts: Date, locale: ReturnType<typeof toLocale>
   return t('event.facts.until', { from, to: formatTime(new Date(e.ends_at), locale) })
 }
 
-function Cover({ event, isPast }: { readonly event: EventRow; readonly isPast: boolean }) {
+function Cover({
+  coverUrl,
+  isPast,
+}: {
+  readonly coverUrl: string | null
+  readonly isPast: boolean
+}) {
   const { t } = useTranslation()
 
   return (
     <section className="relative h-[240px] bg-[oklch(0.2_0.02_25)]">
-      {event.cover_url === null ? (
+      {coverUrl === null ? (
         <div
           aria-hidden="true"
           className="absolute inset-0 bg-[var(--ds-bg-avatar)] bg-[image:var(--ds-pattern-avatar)]"
         />
       ) : (
         <img
-          src={event.cover_url}
+          src={coverUrl}
           alt=""
           className="absolute inset-0 size-full object-cover"
           decoding="async"

@@ -868,6 +868,15 @@ export type Database = {
         Args: { p_attendance_id: string; p_pagado: boolean }
         Returns: undefined
       }
+      admin_set_point_value: {
+        Args: {
+          p_clau: string
+          p_mena: string
+          p_ordre?: number
+          p_punts: number
+        }
+        Returns: undefined
+      }
       admin_set_published: {
         Args: { p_event_id: string; p_published: boolean }
         Returns: undefined

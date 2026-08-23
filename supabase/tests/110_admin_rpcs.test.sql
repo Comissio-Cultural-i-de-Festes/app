@@ -214,19 +214,22 @@ select ok(
   'a member can read the scale, which is what draws the buttons'
 );
 
--- Not throws_ok. An UPDATE the privilege layer allows and a policy filters out
--- touches zero rows and returns success — asserting an error here would fail
--- for the wrong reason today and pass for the wrong reason the day somebody
--- widens the policy.
-select lives_ok(
+-- This was lives_ok until migration 25: an UPDATE the privilege layer allowed
+-- and a policy filtered out touched zero rows and returned success. The write
+-- grant is gone now, and privileges are checked before RLS, so it raises —
+-- which is the stronger of the two, and the reason the revoke was the point of
+-- that migration rather than the policy drop beside it.
+select throws_ok(
   $$ update public.point_values set punts = 999 where clau = 'montaje' $$,
-  'a member''s attempt to rewrite the scale is not an error'
+  '42501',
+  null,
+  'a member cannot rewrite the scale, stopped by the grant'
 );
 
 select is(
   (select punts from public.point_values where mena = 'motiu' and clau = 'montaje'),
   20,
-  'it simply matches no rows, and the scale is untouched'
+  'and the scale is untouched, which is the half that has to be asserted'
 );
 
 select * from finish();

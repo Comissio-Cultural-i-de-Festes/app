@@ -1,5 +1,5 @@
 import type { CheckInStatus } from '@/design/states'
-import { unwrapAs } from '@/lib/db'
+import { DbError, unwrapAs } from '@/lib/db'
 import type { Escola } from '@/lib/model'
 import { type QueuedScan, bumpTries, dequeue, enqueue, pending } from '@/lib/queue'
 import { supabase } from '@/lib/supabase'
@@ -56,7 +56,7 @@ export async function checkIn(request: ScanRequest): Promise<CheckInResult> {
     ...(request.qrToken === null ? {} : { p_qr_token: request.qrToken }),
     ...(request.userId === null ? {} : { p_user_id: request.userId }),
   })
-  if (error) throw error
+  if (error) throw new DbError(error)
   return data as unknown as CheckInResult
 }
 
@@ -158,6 +158,6 @@ export async function awardPoints(
       p_motivo: motivo,
       p_puntos: puntos,
     })
-    if (error) throw error
+    if (error) throw new DbError(error)
   }
 }

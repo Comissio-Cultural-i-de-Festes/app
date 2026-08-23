@@ -12,6 +12,7 @@ import {
   formatWeekdayLong,
 } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
+import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { useCovers } from '@/ui/Cover/useCovers'
@@ -62,13 +63,15 @@ export function HomeScreen() {
 
       {home.isError ? (
         <ErrorPanel
-          message={t('errors.network')}
+          message={t(errorKey(home.error))}
           onRetry={home.refetch}
           label={t('actions.retry')}
         />
       ) : null}
 
-      {home.hero ? (
+      {/* The empty state is a claim about the calendar. It cannot be made while
+          the request that would have filled it is the thing that failed. */}
+      {home.isError ? null : home.hero ? (
         <>
           <Hero
             event={home.hero}

@@ -6,17 +6,17 @@
   },
   "actions": {
     "yes": "Voy",
-    "maybe": "Quizás",
-    "no": "No voy",
+    "maybe": "Quizá",
+    "no": "No puedo",
     "confirm": "Confirma",
-    "cancel": "Cancela",
-    "retry": "Vuelve a probar",
-    "close": "Cierra",
+    "cancel": "Cancelar",
+    "retry": "Inténtalo otra vez",
+    "close": "Cerrar",
     "back": "Atrás",
-    "save": "Guarda",
-    "share": "Comparte",
+    "save": "Guardar",
+    "share": "Compartir",
     "signIn": "Entra",
-    "signOut": "Cierra la sesión"
+    "signOut": "Cerrar sesión"
   },
   "door": {
     "checkedIn": "{{count}} fichados de {{total}}",
@@ -32,29 +32,31 @@
     "unknownPerson": "Este QR",
     "notPaid": "no ha pagado",
     "camera": {
-      "denied": "No nos dejas usar la cámara. Abre los ajustes del navegador y dale permiso, o haz el alta por el nombre.",
+      "denied": "No podemos abrir la cámara. Dale permiso en los ajustes del navegador, o haz el alta por el nombre.",
       "missing": "Este aparato no tiene cámara. Haz el alta por el nombre.",
       "failed": "No se ha podido encender la cámara. Haz el alta por el nombre."
     },
     "backToScanner": "Escáner",
     "manualTitle": "Alta por el nombre",
-    "searchName": "Escribe el nombre",
+    "searchName": "Escribe y van saliendo. Con tres letras basta.",
     "nobodyExpected": "Todavía no hay nadie apuntado ni fichado.",
-    "noMatch": "Ningún nombre que encaje. Prueba con menos letras.",
+    "noMatch": "Ningún nombre así en la lista. Prueba por el apellido. Si no está, que pida entrar y lo apruebas mañana.",
     "letIn": "Fíchalo",
     "alreadyIn": "Ya está dentro",
-    "clear": "Limpia",
-    "pointsTitle": "Da puntos",
+    "clear": "Desmarca",
+    "pointsTitle": "Reparte puntos",
     "pointsLede": "Marca quién ha ayudado y toca el motivo. Dos toques y fuera.",
     "whoIsHere": "Quién ha fichado · {{count}}",
     "nobodyHere": "Todavía no ha fichado nadie. Los puntos se dan cuando la gente ya está dentro.",
     "pointsUndo": "Los puntos entran enseguida. Si te equivocas, los puedes quitar desde el perfil de la persona.",
-    "chosen_zero": "Nadie marcado",
-    "chosen_one": "{{count}} marcado",
-    "chosen_other": "{{count}} marcados",
+    "chosen_zero": "Nadie marcado todavía",
+    "chosen_one": "{{count}} persona marcada",
+    "chosen_other": "{{count}} personas marcadas",
     "gave_one": "Hecho: {{count}} persona, +{{points}}",
     "gave_other": "Hecho: {{count}} personas, +{{points}} cada una",
-    "tapReason": "Toca un motivo"
+    "tapReason": "Toca un motivo",
+    "rosterRefused": "La lista ha vuelto vacía, que es lo que pasa cuando ya no tienes acceso. Vuelve a entrar; si sigue igual, que te lo mire alguien de la junta.",
+    "pointsUnavailable": "No hemos podido leer cuántos puntos vale cada motivo. Sin eso no los podemos dar bien."
   },
   "entry": {
     "sending": "Un segundo…",
@@ -86,7 +88,7 @@
       "placeholder": "tu@ejemplo.es"
     },
     "noInvite": {
-      "question": "¿No tienes?",
+      "question": "¿No tienes ninguna?",
       "link": "Pídela en el grupo de WhatsApp"
     },
     "sent": {
@@ -114,13 +116,13 @@
     }
   },
   "errors": {
-    "generic": "Ha habido un error. Vuelve a intentarlo.",
-    "network": "No se ha podido conectar con el servidor.",
-    "offline": "Se necesita conexión a internet para ver esta información.",
-    "unauthorized": "Hay que iniciar sesión.",
-    "forbidden": "No tienes permiso para hacer esta acción.",
-    "notFound": "No se ha encontrado.",
-    "rateLimited": "Demasiados intentos. Espera unos minutos.",
+    "generic": "No ha salido. Inténtalo otra vez en un momento.",
+    "network": "No hay manera de conectar. Mira la cobertura y vuelve a intentarlo.",
+    "offline": "Necesitas conexión para ver esto.",
+    "unauthorized": "Entra primero.",
+    "forbidden": "Esto no lo puedes hacer tú.",
+    "notFound": "Esto ya no está.",
+    "rateLimited": "Demasiados intentos seguidos. Espera un par de minutos y vuelve.",
     "expired": "Ha caducado."
   },
   "escola": {
@@ -149,7 +151,7 @@
     "whoComes_other": "Van {{count}}",
     "whoCame_one": "Vino {{count}} persona",
     "whoCame_other": "Vinieron {{count}}",
-    "onlyYeses": "Solo salen los que han dicho que sí. Quizá y no puedo solo lo ve la junta.",
+    "onlyYeses": "Solo salen los que han dicho que sí.",
     "movement_one": "{{count}} se ha apuntado hoy",
     "movement_other": "{{count}} se han apuntado hoy",
     "facts": {
@@ -163,7 +165,7 @@
     "fullNoQueue": "Todavía no espera nadie. Apúntate y serás el primero si alguien se echa atrás.",
     "fullWithQueue_one": "Hay {{count}} persona esperando. La gente se echa atrás siempre.",
     "fullWithQueue_other": "Hay {{count}} esperando. La gente se echa atrás siempre.",
-    "wereThere": "estuvimos",
+    "wereThere": "fuimos",
     "pointsForComing": "puntos por venir",
     "transport": "Cómo se vuelve",
     "ask": {
@@ -172,7 +174,7 @@
       "queue": "A la lista",
       "yesWarning": "Si dices que vas, tu cara sale en la lista de arriba y la ve todo el mundo.",
       "yesPublic": "Tu cara sale en la lista de arriba.",
-      "privateAnswer": "Esto no sale en la lista: solo lo ve la junta.",
+      "privateAnswer": "El quizá y el no puedo solo los ve la junta.",
       "queuePrivate": "Estar en la lista no sale en ningún sitio. Solo lo ve la junta.",
       "queueWarning": "Ponerte en la lista no sale en ningún sitio. Si se libera una plaza, la junta te avisa."
     },
@@ -235,7 +237,7 @@
     "recap": {
       "title": "La última vez",
       "were_one": "{{count}} estuvo y todavía nos reímos",
-      "were_other": "{{count}} estuvimos y todavía nos reímos",
+      "were_other": "Fuimos {{count}} y aún nos reímos",
       "points": "puntos, si estuviste"
     },
     "upcoming": {
@@ -269,7 +271,7 @@
       "title": "Qué ganas",
       "body": "Aviso cuando abrimos plazas, el QR sin buscar nada y pantalla completa. Con el navegador normal no llegan los avisos: es Apple, no somos nosotros."
     },
-    "done": "Ya está hecho",
+    "done": "Ya lo he hecho",
     "later": "Ahora no, ya me apañaré",
     "laterWarning": "Puedes seguir aquí en el navegador. Cuando la pongas en la pantalla de inicio tendrás que entrar otra vez, porque el iPhone las trata como dos cosas distintas.",
     "iconPreview": "Así quedará entre tus apps. El icono rojo se ve de lejos cuando lo buscas con prisa."
@@ -285,7 +287,7 @@
     "newEventSub": "O copiar uno anterior y cambiarle la fecha",
     "invitesSub": "El código del grupo y quién quiere entrar",
     "paymentsSub": "Marcar quién ha pagado y nombrar admins",
-    "events": "Los eventos",
+    "events": "Eventos",
     "noEvents": "Todavía no hay nada en el calendario. Crea el primero.",
     "draft": "borrador",
     "youAreAdmin": "Eres admin: puedes crear eventos, fichar gente, dar puntos y nombrar otros admins.",
@@ -300,15 +302,15 @@
       "uses": "{{used}} de {{max}} usos",
       "usesOpen": "{{used}} usos, sin límite",
       "willPaste": "Se pegará esto",
-      "copy": "Copiar el texto",
-      "copied": "Copiado",
+      "copy": "Cópialo para el WhatsApp",
+      "copied": "Copiado · ya puedes pegarlo",
       "shareText": "Entra en la comi: {{link}} — el código es {{code}}. Entras con Google y listos.",
       "killAndRemake": "Matar este código y hacer otro",
       "makeFirst": "Hacer el primer código",
       "killExplains": "Quien ya ha entrado se queda dentro. Solo deja de funcionar para los nuevos.",
       "none": "Ahora mismo no hay ningún código activo. Nadie puede entrar con invitación.",
       "wantIn": "Quieren entrar",
-      "nobodyWaiting": "Nadie esperando. Cuando alguien pida entrar saldrá aquí.",
+      "nobodyWaiting": "Ya no queda ninguno. Vuelve mañana.",
       "letIn": "Que entre",
       "noSchool": "Sin escuela",
       "askFirst": "Si no conoces el nombre, pregunta al grupo antes de dejarlo entrar. Vale más tardar un día que tener gente de fuera en el ranking.",
@@ -365,7 +367,7 @@
       "transportHint": "Escríbelo siempre. Es la pregunta que más sale en el grupo.",
       "transportPlaceholder": "El último tren, el bus nocturno, quién lleva coche",
       "reveal": "Revelación programada",
-      "revealSub": "Publícalo tapado: hasta la hora que digas, la gente solo ve el teaser.",
+      "revealSub": "Publícalo tapado: hasta la hora que digas, la gente solo ve el teaser y la cuenta atrás.",
       "revealAt": "Se destapa",
       "teaser": "Qué se ve mientras tanto",
       "teaserHint": "Lo justo para picar y nada más. Si lo cuentas, ya no hace falta destaparlo.",
@@ -376,9 +378,9 @@
       "previewOpens": "Se destapa {{when}}",
       "previewNoDate": "Pon una hora y se destapará solo",
       "previewHiddenFields": "El sitio, la descripción, la portada y cómo se vuelve: escondidos hasta entonces.",
-      "publish": "Publicar",
+      "publish": "Publícalo",
       "publishNow": "Se verá enseguida en el inicio de todos.",
-      "publishHidden": "Se publica tapado y se destapa solo a la hora que has puesto.",
+      "publishHidden": "Se destapa solo a la hora que has puesto. No tienes que hacer nada más.",
       "saveDraft": "Guarda y cierra",
       "saveChanges": "Guarda los cambios",
       "saveChangesNote": "Ya está en el inicio de todos: el cambio se ve enseguida."
@@ -429,7 +431,9 @@
       "1": "1º",
       "2": "2º",
       "3": "3º",
-      "4": "4º"
+      "4": "4º",
+      "5": "5.º",
+      "6": "6.º"
     },
     "phone": {
       "label": "Teléfono",
@@ -504,10 +508,11 @@
       "down_other": "{{count}} puestos abajo esta semana",
       "same": "Igual que la semana pasada"
     },
-    "cutOff": "Hasta aquí llega la lista. Si no te ves, es que tienes que salir más."
+    "cutOff": "Hasta aquí llega la lista. Si no te ves, es que tienes que salir más.",
+    "nothingYet": "Todavía no hay puntos de nadie. El primer evento los pondrá en marcha."
   },
   "scanner": {
-    "ok": "Fichado. Ya estás dentro",
+    "ok": "Fichado. Ya está dentro",
     "okWalkin": "No estaba apuntado, pero adelante",
     "okWalkinReview": "Entra, pero no estaba apuntado ni ha pagado",
     "alreadyCheckedIn": "Este QR ya se ha usado",

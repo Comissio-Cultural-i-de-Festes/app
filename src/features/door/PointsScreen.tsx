@@ -7,6 +7,8 @@ import { eventKeys, fetchEvent } from '@/features/event/api'
 import { fetchPointValues } from '@/features/junta/eventFormApi'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
+import { errorKey } from '@/lib/errors'
+
 import { awardPoints, doorKeys, fetchRoster } from './api'
 
 /**
@@ -103,6 +105,21 @@ export function PointsScreen() {
 
       {roster.isPending ? (
         <p className="px-[var(--ds-gutter)] pt-10 text-fg-muted">{t('state.loading')}</p>
+      ) : roster.isError ? (
+        <p
+          role="alert"
+          className="px-[var(--ds-gutter)] pt-10 text-md font-bold text-error [text-wrap:pretty]"
+        >
+          {t(errorKey(roster.error))}
+        </p>
+      ) : (roster.data?.length ?? 0) === 0 ? (
+        // Same trap as the manual list: zero rows is what a refusal looks like.
+        <p
+          role="alert"
+          className="px-[var(--ds-gutter)] pt-10 text-md font-bold text-error [text-wrap:pretty]"
+        >
+          {t('door.rosterRefused')}
+        </p>
       ) : here.length === 0 ? (
         <p className="px-[var(--ds-gutter)] pt-10 text-md text-fg-muted [text-wrap:pretty]">
           {t('door.nobodyHere')}
@@ -195,6 +212,12 @@ export function PointsScreen() {
             )
           })}
         </div>
+
+        {values.isError ? (
+          <p role="alert" className="mt-4 text-md font-bold text-error [text-wrap:pretty]">
+            {t('door.pointsUnavailable')}
+          </p>
+        ) : null}
 
         {award.isError ? (
           <p role="alert" className="mt-4 text-md font-bold text-error">

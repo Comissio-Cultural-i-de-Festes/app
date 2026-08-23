@@ -9,6 +9,7 @@ import { useMyProfile } from '@/features/session/useMyProfile'
 import { formatDayMonth } from '@/i18n/format'
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
 import type { MemberRole } from '@/lib/model'
+import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
@@ -85,6 +86,10 @@ export function PaymentsScreen() {
         <div>
           {events.isPending ? (
             <p className={`pt-10 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
+          ) : events.isError ? (
+            <p role="alert" className={`pt-10 text-md font-bold text-error ${GUTTER}`}>
+              {t(errorKey(events.error))}
+            </p>
           ) : event === null ? (
             <p className={`pt-10 text-md text-fg-muted [text-wrap:pretty] ${GUTTER}`}>
               {t('junta.noEvents')}
@@ -95,6 +100,7 @@ export function PaymentsScreen() {
               priceCents={event.precio_cents ?? 0}
               rows={attendees.data ?? []}
               loading={attendees.isPending}
+              failed={attendees.isError}
             />
           )}
         </div>
@@ -151,11 +157,13 @@ function PaidList({
   priceCents,
   rows,
   loading,
+  failed,
 }: {
   readonly eventId: string
   readonly priceCents: number
   readonly rows: readonly AttendeeRow[]
   readonly loading: boolean
+  readonly failed: boolean
 }) {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
@@ -207,6 +215,10 @@ function PaidList({
 
       {loading ? (
         <p className={`pt-10 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
+      ) : failed ? (
+        <p role="alert" className={`pt-10 text-md font-bold text-error ${GUTTER}`}>
+          {t('errors.generic')}
+        </p>
       ) : rows.length === 0 ? (
         <p className={`pt-10 text-md text-fg-muted [text-wrap:pretty] ${GUTTER}`}>
           {t('junta.payments.nobody')}
@@ -323,6 +335,14 @@ function Admins() {
           {t('junta.payments.handover')}
         </p>
       </div>
+
+      {admins.isPending ? (
+        <p className={`pt-8 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
+      ) : admins.isError ? (
+        <p role="alert" className={`pt-8 text-md font-bold text-error ${GUTTER}`}>
+          {t(errorKey(admins.error))}
+        </p>
+      ) : null}
 
       <ul className="mt-7">
         {admins.data?.map((a) => (

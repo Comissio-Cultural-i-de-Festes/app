@@ -19,28 +19,28 @@
     "signOut": "Sign out"
   },
   "door": {
-    "checkedIn": "{{count}} in of {{total}}",
+    "checkedIn": "{{count}} of {{total}} in",
     "queued_one": "{{count}} waiting to send",
     "queued_other": "{{count}} waiting to send",
     "queuedOffline_one": "{{count}} waiting, no signal",
     "queuedOffline_other": "{{count}} waiting, no signal",
     "aim": "Point at the QR. Nothing to tap.",
     "manual": "Check somebody in by name",
-    "photoOn": "The entry photo is taken automatically on a valid scan.",
+    "photoOn": "The entry photo takes itself when the scan goes through.",
     "photoOff": "No entry photo.",
     "buzzes": "Buzzes on every QR",
     "unknownPerson": "This QR",
     "notPaid": "has not paid",
     "camera": {
-      "denied": "The camera is blocked. Allow it in the browser settings, or check people in by name.",
+      "denied": "We can't get at the camera. Allow it in your browser settings, or check people in by name.",
       "missing": "This device has no camera. Check people in by name.",
       "failed": "The camera would not start. Check people in by name."
     },
     "backToScanner": "Scanner",
     "manualTitle": "Check in by name",
-    "searchName": "Type the name",
+    "searchName": "Type and they appear. Three letters is enough.",
     "nobodyExpected": "Nobody has signed up or come in yet.",
-    "noMatch": "No name matches. Try fewer letters.",
+    "noMatch": "No name like that. Try the surname. If they are not there, have them ask to join and approve it tomorrow.",
     "letIn": "Let them in",
     "alreadyIn": "Already in",
     "clear": "Clear",
@@ -49,12 +49,14 @@
     "whoIsHere": "Who is in · {{count}}",
     "nobodyHere": "Nobody has come in yet. Points go to people who are already here.",
     "pointsUndo": "Points land straight away. If you get it wrong you can take them off from that person’s profile.",
-    "chosen_zero": "Nobody ticked",
-    "chosen_one": "{{count}} ticked",
-    "chosen_other": "{{count}} ticked",
+    "chosen_zero": "Nobody ticked yet",
+    "chosen_one": "{{count}} person ticked",
+    "chosen_other": "{{count}} people ticked",
     "gave_one": "Done: {{count}} person, +{{points}}",
     "gave_other": "Done: {{count}} people, +{{points}} each",
-    "tapReason": "Tap a reason"
+    "tapReason": "Tap a reason",
+    "rosterRefused": "The list came back empty, which is what happens when you no longer have access. Sign in again, and if it stays like this ask somebody on the committee.",
+    "pointsUnavailable": "We could not read what each reason is worth. Without that the points would be wrong."
   },
   "entry": {
     "sending": "One sec…",
@@ -114,13 +116,13 @@
     }
   },
   "errors": {
-    "generic": "Something went wrong. Please try again.",
-    "network": "Could not reach the server.",
-    "offline": "An internet connection is needed to see this.",
-    "unauthorized": "Please sign in.",
-    "forbidden": "You do not have permission to do this.",
-    "notFound": "Not found.",
-    "rateLimited": "Too many attempts. Please wait a few minutes.",
+    "generic": "That didn't go through. Try again in a moment.",
+    "network": "Can't get through. Check your signal and try again.",
+    "offline": "You need to be online for this.",
+    "unauthorized": "Sign in first.",
+    "forbidden": "That one isn't yours to do.",
+    "notFound": "That's not there any more.",
+    "rateLimited": "Too many tries in a row. Give it a couple of minutes.",
     "expired": "This has expired."
   },
   "escola": {
@@ -149,7 +151,7 @@
     "whoComes_other": "{{count}} going",
     "whoCame_one": "{{count}} person came",
     "whoCame_other": "{{count}} came",
-    "onlyYeses": "Only the yeses appear here. Maybe and no are seen by the committee only.",
+    "onlyYeses": "Only the yeses appear here.",
     "movement_one": "{{count}} signed up today",
     "movement_other": "{{count}} signed up today",
     "facts": {
@@ -172,7 +174,7 @@
       "queue": "Join list",
       "yesWarning": "If you say yes, your face goes on the list above and everybody sees it.",
       "yesPublic": "Your face is on the list above.",
-      "privateAnswer": "This does not go on the list — only the committee sees it.",
+      "privateAnswer": "Maybes and can't-makes go to the committee only.",
       "queuePrivate": "Being on the list does not show anywhere. Only the committee sees it.",
       "queueWarning": "Joining the list does not show anywhere. If a place frees up, the committee will tell you."
     },
@@ -183,7 +185,7 @@
     "gone": {
       "title": "Nothing here",
       "body": "This event is gone, or you cannot see it yet. Go back and see what is on.",
-      "back": "Back to the start"
+      "back": "Back to Home"
     }
   },
   "eventType": {
@@ -206,7 +208,7 @@
       "left_one": "{{count}} left",
       "left_other": "{{count}} left",
       "full": "Full",
-      "of": "places of {{total}}"
+      "of": "out of {{total}}"
     },
     "going_one": "{{count}} going",
     "going_other": "{{count}} going",
@@ -229,7 +231,7 @@
       "school": "{{school}} is {{position}}",
       "behind_one": "{{count}} point behind {{school}}",
       "behind_other": "{{count}} points behind {{school}}",
-      "nudge": "The ones above you are not resting.",
+      "nudge": "Nobody above you is slowing down.",
       "link": "See the ranking"
     },
     "recap": {
@@ -300,15 +302,15 @@
       "uses": "{{used}} of {{max}} uses",
       "usesOpen": "{{used}} uses, no limit",
       "willPaste": "This gets pasted",
-      "copy": "Copy the text",
-      "copied": "Copied",
+      "copy": "Copy it for WhatsApp",
+      "copied": "Copied · paste it anywhere",
       "shareText": "Join us: {{link}} — the code is {{code}}. Sign in with Google and that is it.",
       "killAndRemake": "Kill this code and make another",
       "makeFirst": "Make the first code",
       "killExplains": "Anybody already in stays in. It only stops working for new people.",
       "none": "There is no active code right now. Nobody can get in by invitation.",
-      "wantIn": "Want to join",
-      "nobodyWaiting": "Nobody waiting. When somebody asks to join they appear here.",
+      "wantIn": "Waiting to get in",
+      "nobodyWaiting": "None left. Come back tomorrow.",
       "letIn": "Let them in",
       "noSchool": "No school",
       "askFirst": "If you do not know the name, ask the group before letting them in. Better to take a day than to have strangers in the ranking.",
@@ -344,7 +346,7 @@
       "leaveIt": "Leave it",
       "newTitle": "Create an event",
       "editTitle": "Edit",
-      "templates": "Do not start from nothing",
+      "templates": "Don't start from scratch",
       "copyIt": "Copy it",
       "coverEmpty": "Tap to add the cover photo",
       "coverHint": "Landscape, with people in it. That is what makes people tap through.",
@@ -365,7 +367,7 @@
       "transportHint": "Always write this. It is the question the group asks most.",
       "transportPlaceholder": "The last train, the night bus, who is driving",
       "reveal": "Scheduled reveal",
-      "revealSub": "Publish it covered: until the time you set, people only see the teaser.",
+      "revealSub": "Publish it covered: until the time you set, people see the teaser and the countdown.",
       "revealAt": "Opens at",
       "teaser": "What they see meanwhile",
       "teaserHint": "Enough to intrigue and no more. Explain it and there is nothing left to reveal.",
@@ -377,11 +379,11 @@
       "previewNoDate": "Set a time and it opens by itself",
       "previewHiddenFields": "The place, the description, the cover and getting home: hidden until then.",
       "publish": "Publish",
-      "publishNow": "It appears on everybody's home screen straight away.",
-      "publishHidden": "It publishes covered and opens by itself at the time you set.",
+      "publishNow": "It appears on everyone's Home straight away.",
+      "publishHidden": "It opens by itself at the time you set. Nothing else to do.",
       "saveDraft": "Save and close",
       "saveChanges": "Save the changes",
-      "saveChangesNote": "It is already on everybody's home screen: the change shows straight away."
+      "saveChangesNote": "It is already on everyone's Home: the change shows straight away."
     }
   },
   "language": {
@@ -429,7 +431,9 @@
       "1": "1st",
       "2": "2nd",
       "3": "3rd",
-      "4": "4th"
+      "4": "4th",
+      "5": "5th",
+      "6": "6th"
     },
     "phone": {
       "label": "Phone",
@@ -504,10 +508,11 @@
       "down_other": "{{count}} places down this week",
       "same": "Same as last week"
     },
-    "cutOff": "That is as far as the list goes. If you cannot see yourself, you need to get out more."
+    "cutOff": "That is as far as the list goes. If you cannot see yourself, you need to get out more.",
+    "nothingYet": "Nobody has any points yet. The first event gets it started."
   },
   "scanner": {
-    "ok": "You're in",
+    "ok": "Checked in",
     "okWalkin": "Not on the list, but come on in",
     "okWalkinReview": "Let them in — not signed up and not paid",
     "alreadyCheckedIn": "This QR has already been used",

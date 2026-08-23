@@ -11,6 +11,8 @@ import { formatDateTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 
 import { JuntaHeader } from './JuntaHeader'
+import { errorKey } from '@/lib/errors'
+
 import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
 
 /**
@@ -55,6 +57,15 @@ export function JuntaHome() {
   return (
     <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">
       <JuntaHeader to="/perfil" label={t('nav.profile')} title={t('junta.title')} />
+
+      {upcoming.isError ? (
+        <p
+          role="alert"
+          className={`pt-8 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}
+        >
+          {t(errorKey(upcoming.error))}
+        </p>
+      ) : null}
 
       {next === null ? null : (
         <section className={`pt-8 ${GUTTER}`}>
@@ -114,6 +125,10 @@ export function JuntaHome() {
         </h2>
         {events.isPending ? (
           <p className="py-8 text-fg-muted">{t('state.loading')}</p>
+        ) : events.isError ? (
+          <p role="alert" className="py-8 text-md font-bold text-error [text-wrap:pretty]">
+            {t(errorKey(events.error))}
+          </p>
         ) : (events.data?.length ?? 0) === 0 ? (
           <p className="py-8 text-md text-fg-muted [text-wrap:pretty]">{t('junta.noEvents')}</p>
         ) : (

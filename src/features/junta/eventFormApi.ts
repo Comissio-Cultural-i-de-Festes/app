@@ -1,4 +1,4 @@
-import { unwrapAs } from '@/lib/db'
+import { DbError, unwrapAs } from '@/lib/db'
 import type { EventType } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
 import { supabase } from '@/lib/supabase'
@@ -55,7 +55,7 @@ export async function saveEvent(draft: EventDraft): Promise<string> {
     ...(draft.transport_info === null ? {} : { p_transport_info: draft.transport_info }),
   })
 
-  if (error) throw error
+  if (error) throw new DbError(error)
   return data
 }
 

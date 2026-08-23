@@ -10,6 +10,7 @@ import { isJunta, useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
 import { formatDayMonth, formatOrdinal } from '@/i18n/format'
 import { SUPPORTED_LOCALES, toLocale } from '@/i18n/locales'
+import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { supabase } from '@/lib/supabase'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -207,6 +208,15 @@ export function ProfileScreen() {
             />
           </span>
         </button>
+
+        {/* A privacy setting that looks saved and was not is the worst kind of
+            silent failure: the toggle springs back on the next render and
+            nothing says why. */}
+        {hide.isError ? (
+          <p role="alert" className="pt-4 text-md font-bold text-error [text-wrap:pretty]">
+            {t(errorKey(hide.error))}
+          </p>
+        ) : null}
 
         <div className={ROW}>
           <span className="flex-1 text-base font-semibold">{t('language.label')}</span>

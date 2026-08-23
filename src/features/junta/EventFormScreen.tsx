@@ -7,6 +7,7 @@ import { eventKeys, fetchEvent } from '@/features/event/api'
 import { APP_TIME_ZONE, formatDateTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import type { EventType } from '@/lib/model'
+import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
 import { uploadCover } from '@/lib/storage'
 import { useCovers } from '@/ui/Cover/useCovers'
@@ -113,6 +114,34 @@ export function EventFormScreen() {
   const live = editing && existing.data?.published === true
   const defaultPoints =
     points.data?.find((v) => v.mena === 'tipus_esdeveniment' && v.clau === form.tipo)?.punts ?? null
+
+  // An id in the address bar and no row to go with it is not an empty form.
+  // Falling through to one left `id` null, so `admin_save_event` was sent no
+  // p_id and CREATED A SECOND EVENT — the original untouched, the calendar now
+  // holding two, and nothing on screen to say so.
+  if (editing && existing.isPending) {
+    return (
+      <main className="flex min-h-dvh items-center justify-center bg-app">
+        <p className="text-fg-muted">{t('state.loading')}</p>
+      </main>
+    )
+  }
+  if (editing && (existing.isError || existing.data == null)) {
+    return (
+      <main className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-app px-12">
+        <p role="alert" className="text-center text-lg font-bold text-error [text-wrap:pretty]">
+          {existing.isError ? t(errorKey(existing.error)) : t('errors.notFound')}
+        </p>
+        <button
+          type="button"
+          onClick={() => void existing.refetch()}
+          className="min-h-[44px] px-4 text-md font-bold text-brand-label"
+        >
+          {t('actions.retry')}
+        </button>
+      </main>
+    )
+  }
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">

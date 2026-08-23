@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useUserId } from '@/features/session/useUserId'
 import { formatOrdinal } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
+import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
@@ -80,7 +81,7 @@ export function RankingScreen() {
 
       {board.isError ? (
         <div role="alert" className={`flex items-center justify-between gap-3 py-4 ${GUTTER}`}>
-          <p className="text-sm text-error [text-wrap:pretty]">{t('errors.network')}</p>
+          <p className="text-sm text-error [text-wrap:pretty]">{t(errorKey(board.error))}</p>
           <button
             type="button"
             onClick={board.refetch}
@@ -91,6 +92,10 @@ export function RankingScreen() {
         </div>
       ) : board.isPending ? (
         <p className={`${GUTTER} py-16 text-center text-fg-muted`}>{t('state.loading')}</p>
+      ) : board.rows.length === 0 && board.schools.length === 0 ? (
+        <p className={`${GUTTER} py-16 text-center text-md text-fg-muted [text-wrap:pretty]`}>
+          {t('ranking.nothingYet')}
+        </p>
       ) : (
         <>
           <section>

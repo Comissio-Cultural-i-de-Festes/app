@@ -1,4 +1,4 @@
-import { unwrapAs } from '@/lib/db'
+import { DbError, unwrapAs } from '@/lib/db'
 import type { EventRow } from '@/lib/schema'
 import { supabase } from '@/lib/supabase'
 
@@ -44,6 +44,12 @@ export async function fetchWaitlist(eventId: string): Promise<WaitlistStatus> {
     supabase.rpc('waitlist_position', { p_event_id: eventId }),
     supabase.rpc('waitlist_size', { p_event_id: eventId }),
   ])
+
+  // `?? null` and `?? 0` would have turned both failures into facts: no
+  // position means "you are on the list somewhere" and a size of zero means
+  // "nobody is waiting". Neither is something we know.
+  if (position.error) throw new DbError(position.error)
+  if (size.error) throw new DbError(size.error)
 
   return {
     posicio: position.data ?? null,

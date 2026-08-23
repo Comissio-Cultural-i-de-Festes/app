@@ -1,4 +1,4 @@
-import { unwrap, unwrapAs } from '@/lib/db'
+import { DbError, unwrap, unwrapAs } from '@/lib/db'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -54,7 +54,7 @@ export async function fetchAttendedCount(userId: string): Promise<number> {
     .eq('user_id', userId)
     .eq('estado', 'asistio')
 
-  if (error) throw error
+  if (error) throw new DbError(error)
   return count ?? 0
 }
 

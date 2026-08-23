@@ -134,6 +134,50 @@ export function ManualScreen() {
         <p role="alert" className="px-[var(--ds-gutter)] pt-10 text-md font-bold text-error">
           {t('errors.generic')}
         </p>
+      ) : rows.length === 0 ? (
+        // checkin_roster hands back zero rows rather than an error to anybody
+        // who is not on the junta, and it otherwise returns EVERY active
+        // member. So an empty roster is not an empty association; it is a
+        // refusal wearing the same clothes as a success.
+        <p
+          role="alert"
+          className="px-[var(--ds-gutter)] pt-10 text-md font-bold text-error [text-wrap:pretty]"
+        >
+          {t('door.rosterRefused')}
+        </p>
+      ) : rows.length === 0 ? (
+        // checkin_roster hands back zero rows rather than an error to anybody
+        // who is not on the junta, and it otherwise returns EVERY active
+        // member. So an empty roster is not an empty association; it is a
+        // refusal wearing the same clothes as a success.
+        <p
+          role="alert"
+          className="px-[var(--ds-gutter)] pt-10 text-md font-bold text-error [text-wrap:pretty]"
+        >
+          {t('door.rosterRefused')}
+        </p>
+      ) : rows.length === 0 ? (
+        // checkin_roster hands back zero rows rather than an error to anybody
+        // who is not on the junta, and it otherwise returns EVERY active
+        // member. So an empty roster is not an empty association; it is a
+        // refusal wearing the same clothes as a success.
+        <p
+          role="alert"
+          className="px-[var(--ds-gutter)] pt-10 text-md font-bold text-error [text-wrap:pretty]"
+        >
+          {t('door.rosterRefused')}
+        </p>
+      ) : rows.length === 0 ? (
+        // checkin_roster hands back zero rows rather than an error to anybody
+        // who is not on the junta, and it otherwise returns EVERY active
+        // member. So an empty roster is not an empty association; it is a
+        // refusal wearing the same clothes as a success.
+        <p
+          role="alert"
+          className="px-[var(--ds-gutter)] pt-10 text-md font-bold text-error [text-wrap:pretty]"
+        >
+          {t('door.rosterRefused')}
+        </p>
       ) : shown.length === 0 ? (
         <p className="px-[var(--ds-gutter)] pt-10 text-md text-fg-muted [text-wrap:pretty]">
           {needle === '' ? t('door.nobodyExpected') : t('door.noMatch')}

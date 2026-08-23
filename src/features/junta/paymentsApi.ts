@@ -1,4 +1,4 @@
-import { unwrapAs } from '@/lib/db'
+import { DbError, unwrapAs } from '@/lib/db'
 import type { Escola, MemberRole } from '@/lib/model'
 import { supabase } from '@/lib/supabase'
 
@@ -62,7 +62,7 @@ export async function setPaid(attendanceId: string, pagado: boolean): Promise<vo
     p_attendance_id: attendanceId,
     p_pagado: pagado,
   })
-  if (error) throw error
+  if (error) throw new DbError(error)
 }
 
 export async function fetchAdmins(): Promise<AdminRow[]> {
@@ -93,5 +93,5 @@ export async function setRole(userId: string, role: MemberRole): Promise<void> {
     p_user_id: userId,
     p_role: role,
   })
-  if (error) throw error
+  if (error) throw new DbError(error)
 }

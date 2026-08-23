@@ -1,4 +1,4 @@
-import { unwrapAs } from '@/lib/db'
+import { DbError, unwrapAs } from '@/lib/db'
 import type { Escola } from '@/lib/model'
 import { supabase } from '@/lib/supabase'
 
@@ -80,12 +80,12 @@ export async function createInvite(expiresAt: Date | null, maxUses: number | nul
     ...(expiresAt === null ? {} : { p_expires_at: expiresAt.toISOString() }),
     ...(maxUses === null ? {} : { p_max_usos: maxUses }),
   })
-  if (error) throw error
+  if (error) throw new DbError(error)
 }
 
 export async function revokeInvite(id: string): Promise<void> {
   const { error } = await supabase.rpc('admin_revoke_invite', { p_id: id })
-  if (error) throw error
+  if (error) throw new DbError(error)
 }
 
 export async function setMemberState(userId: string, estat: 'actiu' | 'baixa'): Promise<void> {
@@ -93,7 +93,7 @@ export async function setMemberState(userId: string, estat: 'actiu' | 'baixa'): 
     p_user_id: userId,
     p_estat: estat,
   })
-  if (error) throw error
+  if (error) throw new DbError(error)
 }
 
 /**

@@ -16,6 +16,7 @@ import {
 import { useUserId } from '@/features/session/useUserId'
 import { formatDateLong, formatDateTime, formatOrdinal, formatTime } from '@/i18n/format'
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
+import { errorKey } from '@/lib/errors'
 import { ANSWERS, type Answer } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -73,6 +74,23 @@ export function EventScreen() {
     return (
       <main className="with-tabbar flex min-h-dvh items-center justify-center bg-app pt-[var(--ds-safe-top)]">
         <p className="text-fg-muted">{t('state.loading')}</p>
+      </main>
+    )
+  }
+
+  if (event.isError) {
+    return (
+      <main className={`with-tabbar min-h-dvh bg-app pt-[calc(var(--ds-safe-top)+32px)] ${GUTTER}`}>
+        <p role="alert" className="text-lg font-bold text-error [text-wrap:pretty]">
+          {t(errorKey(event.error))}
+        </p>
+        <button
+          type="button"
+          onClick={() => void event.refetch()}
+          className="-ml-2 mt-8 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-brand-label"
+        >
+          {t('actions.retry')}
+        </button>
       </main>
     )
   }

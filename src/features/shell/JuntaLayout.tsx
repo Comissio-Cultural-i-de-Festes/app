@@ -4,6 +4,7 @@ import { Navigate, Outlet } from 'react-router'
 
 import { JuntaNav } from '@/features/junta/JuntaNav'
 import { isJunta, useMyProfile } from '@/features/session/useMyProfile'
+import { errorKey } from '@/lib/errors'
 
 /**
  * The junta area.
@@ -25,7 +26,7 @@ import { isJunta, useMyProfile } from '@/features/session/useMyProfile'
  */
 export function JuntaLayout() {
   const { t } = useTranslation()
-  const { data: profile, isPending } = useMyProfile()
+  const { data: profile, isPending, isError, error, refetch } = useMyProfile()
 
   // On #root rather than in a component, because the width cap lives on #root
   // and a child cannot widen its own parent.
@@ -43,6 +44,26 @@ export function JuntaLayout() {
     return (
       <main className="flex min-h-dvh items-center justify-center bg-app">
         <p className="text-fg-muted">{t('state.loading')}</p>
+      </main>
+    )
+  }
+
+  // A profile that failed to load is not a profile that says "not junta".
+  // Redirecting on it bounces an admin out of the door they are standing at,
+  // on one bar of signal, with nothing on screen to explain why.
+  if (isError) {
+    return (
+      <main className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-app px-12">
+        <p role="alert" className="text-center text-lg font-bold text-error [text-wrap:pretty]">
+          {t(errorKey(error))}
+        </p>
+        <button
+          type="button"
+          onClick={() => void refetch()}
+          className="min-h-[44px] px-4 text-md font-bold text-brand-label"
+        >
+          {t('actions.retry')}
+        </button>
       </main>
     )
   }

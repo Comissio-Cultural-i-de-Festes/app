@@ -7,7 +7,7 @@
   "actions": {
     "yes": "Hi vaig",
     "maybe": "Potser",
-    "no": "No hi vaig",
+    "no": "No puc",
     "confirm": "Confirma",
     "cancel": "Cancel·la",
     "retry": "Torna-ho a provar",
@@ -32,15 +32,15 @@
     "unknownPerson": "Aquest QR",
     "notPaid": "no ha pagat",
     "camera": {
-      "denied": "No ens deixes fer servir la càmera. Obre els ajustos del navegador i dona-hi permís, o fes l'alta pel nom.",
+      "denied": "No podem obrir la càmera. Dona-hi permís als ajustos del navegador, o fes l'alta pel nom.",
       "missing": "Aquest aparell no té càmera. Fes l’alta pel nom.",
       "failed": "No s’ha pogut engegar la càmera. Fes l’alta pel nom."
     },
     "backToScanner": "Escàner",
     "manualTitle": "Alta pel nom",
-    "searchName": "Escriu el nom",
+    "searchName": "Escriu i van sortint. Amb tres lletres n'hi ha prou.",
     "nobodyExpected": "Encara no hi ha ningú apuntat ni fitxat.",
-    "noMatch": "Cap nom que hi encaixi. Prova amb menys lletres.",
+    "noMatch": "Cap nom així a la llista. Prova pel cognom. Si no hi és, que demani entrar i l'aproves demà.",
     "letIn": "Fitxa’l",
     "alreadyIn": "Ja és dins",
     "clear": "Neteja",
@@ -49,12 +49,14 @@
     "whoIsHere": "Qui hi ha fitxat · {{count}}",
     "nobodyHere": "Encara no ha fitxat ningú. Els punts es donen quan la gent ja és dins.",
     "pointsUndo": "Els punts entren de seguida. Si t'equivoques, els pots treure des del perfil de la persona.",
-    "chosen_zero": "Ningú marcat",
-    "chosen_one": "{{count}} marcat",
-    "chosen_other": "{{count}} marcats",
+    "chosen_zero": "Ningú marcat encara",
+    "chosen_one": "{{count}} persona marcada",
+    "chosen_other": "{{count}} persones marcades",
     "gave_one": "Fet: {{count}} persona, +{{points}}",
     "gave_other": "Fet: {{count}} persones, +{{points}} cadascuna",
-    "tapReason": "Toca un motiu"
+    "tapReason": "Toca un motiu",
+    "rosterRefused": "La llista ha tornat buida, que és el que passa quan ja no hi tens accés. Torna a entrar; si segueix igual, que t'ho miri algú de la junta.",
+    "pointsUnavailable": "No hem pogut llegir quants punts val cada motiu. Sense això no els podem donar bé."
   },
   "entry": {
     "sending": "Un segon…",
@@ -114,13 +116,13 @@
     }
   },
   "errors": {
-    "generic": "Hi ha hagut un error. Torna-ho a provar.",
-    "network": "No s'ha pogut connectar amb el servidor.",
-    "offline": "Cal connexió a internet per veure aquesta informació.",
-    "unauthorized": "Cal iniciar sessió.",
-    "forbidden": "No tens permís per fer aquesta acció.",
-    "notFound": "No s'ha trobat.",
-    "rateLimited": "Massa intents. Espera uns minuts.",
+    "generic": "No ha sortit bé. Torna-ho a provar d'aquí un moment.",
+    "network": "No hi ha manera de connectar. Mira la cobertura i torna-ho a provar.",
+    "offline": "Necessites connexió per veure això.",
+    "unauthorized": "Has d'entrar primer.",
+    "forbidden": "Això no ho pots fer tu.",
+    "notFound": "Això ja no hi és.",
+    "rateLimited": "Massa intents seguits. Espera un parell de minuts i torna-hi.",
     "expired": "Ha caducat."
   },
   "escola": {
@@ -149,7 +151,7 @@
     "whoComes_other": "Hi van {{count}}",
     "whoCame_one": "Hi va venir {{count}} persona",
     "whoCame_other": "Hi van venir {{count}}",
-    "onlyYeses": "Només surten els que han dit que sí. Potser i no puc només ho veu la junta.",
+    "onlyYeses": "Només surten els que han dit sí.",
     "movement_one": "{{count}} s'hi ha apuntat avui",
     "movement_other": "{{count}} s'hi han apuntat avui",
     "facts": {
@@ -172,7 +174,7 @@
       "queue": "A la llista",
       "yesWarning": "Si dius que hi vas, la teva cara surt a la llista de dalt i tothom la veu.",
       "yesPublic": "La teva cara surt a la llista de dalt.",
-      "privateAnswer": "Això no surt a la llista: només ho veu la junta.",
+      "privateAnswer": "Potser i no puc no surten a la llista: només ho veu la junta.",
       "queuePrivate": "Ser a la llista no surt enlloc. Només ho veu la junta.",
       "queueWarning": "Posar-te a la llista no surt enlloc. Si s'allibera una plaça, la junta t'avisa."
     },
@@ -285,7 +287,7 @@
     "newEventSub": "O copiar-ne un d’abans i canviar-hi la data",
     "invitesSub": "El codi del grup i qui vol entrar",
     "paymentsSub": "Marcar qui ha pagat i nomenar admins",
-    "events": "Els esdeveniments",
+    "events": "Esdeveniments",
     "noEvents": "Encara no hi ha res al calendari. Crea el primer.",
     "draft": "esborrany",
     "youAreAdmin": "Ets admin: pots crear esdeveniments, fitxar gent, donar punts i nomenar altres admins.",
@@ -300,15 +302,15 @@
       "uses": "{{used}} de {{max}} usos",
       "usesOpen": "{{used}} usos, sense límit",
       "willPaste": "S'enganxarà això",
-      "copy": "Copiar el text",
-      "copied": "Copiat",
+      "copy": "Copia-ho per al WhatsApp",
+      "copied": "Copiat · ja pots enganxar-ho",
       "shareText": "Entra a la comi: {{link}} — el codi és {{code}}. Entres amb el Google i llestos.",
       "killAndRemake": "Matar aquest codi i fer-ne un altre",
       "makeFirst": "Fer el primer codi",
       "killExplains": "Qui ja ha entrat es queda dins. Només deixa de funcionar per als nous.",
       "none": "Ara mateix no hi ha cap codi actiu. Ningú pot entrar amb invitació.",
       "wantIn": "Volen entrar",
-      "nobodyWaiting": "Ningú esperant. Quan algú demani entrar sortirà aquí.",
+      "nobodyWaiting": "Ja no en queda cap. Torna-hi demà.",
       "letIn": "Que entri",
       "noSchool": "Sense escola",
       "askFirst": "Si no coneixes el nom, pregunta al grup abans de deixar-lo entrar. Val més trigar un dia que tenir gent de fora al rànquing.",
@@ -365,7 +367,7 @@
       "transportHint": "Escriu-ho sempre. És la pregunta que més surt al grup.",
       "transportPlaceholder": "L'últim tren, el bus nocturn, qui fa cotxe",
       "reveal": "Revelació programada",
-      "revealSub": "Publica-ho tapat: fins a l'hora que diguis, la gent només veu el teaser.",
+      "revealSub": "Publica-ho tapat: fins a l'hora que diguis, la gent només veu el teaser i el compte enrere.",
       "revealAt": "Es destapa",
       "teaser": "Què es veu mentrestant",
       "teaserHint": "Prou per encuriosir i res més. Si ho expliques, ja no cal destapar-ho.",
@@ -376,9 +378,9 @@
       "previewOpens": "Es destapa {{when}}",
       "previewNoDate": "Posa-hi una hora i es destaparà sol",
       "previewHiddenFields": "El lloc, la descripció, la portada i com es torna: amagats fins llavors.",
-      "publish": "Publicar",
+      "publish": "Publica-ho",
       "publishNow": "Es veurà de seguida a l’inici de tothom.",
-      "publishHidden": "Es publica tapat i es destapa sol a l’hora que has posat.",
+      "publishHidden": "Es destapa sol a l'hora que has posat. No has de fer res més.",
       "saveDraft": "Guarda i plega",
       "saveChanges": "Desa els canvis",
       "saveChangesNote": "Ja és a l’inici de tothom: el canvi es veu de seguida."
@@ -429,7 +431,9 @@
       "1": "1r",
       "2": "2n",
       "3": "3r",
-      "4": "4t"
+      "4": "4t",
+      "5": "5è",
+      "6": "6è"
     },
     "phone": {
       "label": "Telèfon",
@@ -504,10 +508,11 @@
       "down_other": "{{count}} llocs avall aquesta setmana",
       "same": "Igual que la setmana passada"
     },
-    "cutOff": "Fins aquí arriba la llista. Si no et veus, és que has de sortir més."
+    "cutOff": "Fins aquí arriba la llista. Si no et veus, és que has de sortir més.",
+    "nothingYet": "Encara no hi ha punts de ningú. El primer esdeveniment els posarà en marxa."
   },
   "scanner": {
-    "ok": "Fitxat. Ja ets dins",
+    "ok": "Fitxat. Ja és dins",
     "okWalkin": "No estava apuntat, però endavant",
     "okWalkinReview": "Entra, però no estava apuntat ni ha pagat",
     "alreadyCheckedIn": "Aquest QR ja s'ha fet servir",

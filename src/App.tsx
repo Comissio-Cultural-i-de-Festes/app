@@ -74,7 +74,11 @@ export default function App() {
     if (code === null) return
 
     void (async () => {
-      await supabase.rpc('redeem_invite', { p_codi: code })
+      const { error } = await supabase.rpc('redeem_invite', { p_codi: code })
+      // The code is only rubbed out of the address bar once it has been spent.
+      // Removing it either way left somebody pending, with the one string that
+      // could have got them in already gone.
+      if (error) return
       const url = new URL(window.location.href)
       url.searchParams.delete(INVITE_PARAM)
       window.history.replaceState({}, '', url.toString())

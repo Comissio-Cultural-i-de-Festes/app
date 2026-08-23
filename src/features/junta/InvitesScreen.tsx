@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { formatDateTime } from '@/i18n/format'
+import { errorKey } from '@/lib/errors'
 import { toLocale } from '@/i18n/locales'
 import type { Escola } from '@/lib/model'
 
@@ -182,6 +183,12 @@ export function InvitesScreen() {
           <h2 className="text-xs font-extrabold tracking-[0.16em] text-fg-muted uppercase">
             {t('junta.invites.wantIn')}
           </h2>
+
+          {decide.isError ? (
+            <p role="alert" className="pt-6 text-md font-bold text-error [text-wrap:pretty]">
+              {t(errorKey(decide.error))}
+            </p>
+          ) : null}
 
           {pending.isPending ? (
             <p className="py-8 text-fg-muted">{t('state.loading')}</p>

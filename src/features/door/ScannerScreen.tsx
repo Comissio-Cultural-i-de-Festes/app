@@ -222,6 +222,9 @@ function Verdict({ outcome }: { readonly outcome: DoorOutcome }) {
         {detail === '' ? null : (
           <p className="mt-2 text-sm opacity-85 [text-wrap:pretty]">{detail}</p>
         )}
+        {shown.actionKey === null ? null : (
+          <p className="mt-2 text-sm text-fg-secondary [text-wrap:pretty]">{t(shown.actionKey)}</p>
+        )}
       </div>
     </div>
   )

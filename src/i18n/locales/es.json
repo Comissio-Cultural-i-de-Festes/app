@@ -186,6 +186,17 @@
       "title": "Aquí no hay nada",
       "body": "Este evento ya no está, o todavía no puedes verlo. Vuelve al inicio y mira qué hay.",
       "back": "Vuelve al inicio"
+    },
+    "said": {
+      "yes": "Estás dentro: {{when}}, {{where}}.",
+      "yesNoPlace": "Estás dentro: {{when}}.",
+      "yesSub": "Cámbialo cuando quieras, pero dilo pronto: la junta cuenta contigo.",
+      "maybe": "Has dicho quizá. Te guardamos la plaza.",
+      "maybeSub": "Si al final no puedes, dilo y la plaza pasa a otro.",
+      "no": "Has dicho que no. Otra vez será.",
+      "noSub": "Si cambias de idea, vuelve mientras queden plazas.",
+      "nothing": "Todavía no has dicho nada.",
+      "nothingSub": "Tres toques y ya está. El quizá también vale."
     }
   },
   "eventType": {
@@ -520,7 +531,16 @@
     "memberInactive": "Todavía no está dado de alta",
     "eventNotOpen": "Este evento no está abierto",
     "error": "No se ha podido conectar. Vuelve a probar",
-    "queued": "Guardado. Se enviará cuando haya cobertura"
+    "queued": "Guardado. Se enviará cuando haya cobertura",
+    "action": {
+      "okWalkin": "No estaba apuntado. Ya consta que ha venido.",
+      "okWalkinReview": "Mira que pague antes de entrar, o apúntalo.",
+      "alreadyCheckedIn": "Ya había pasado. Si insiste, míralo en el alta manual.",
+      "notAMember": "Que te diga el nombre y lo buscas a mano. No lo dejes pasar sin apuntarlo.",
+      "memberInactive": "Que pida entrar. Lo aprobáis mañana desde la zona junta.",
+      "eventNotOpen": "Comprueba que es el evento correcto y que está publicado.",
+      "error": "Sigue escaneando. Cuando vuelva la cobertura se envía solo."
+    }
   },
   "state": {
     "loading": "Un segundo…",

@@ -186,6 +186,17 @@
       "title": "Aquí no hi ha res",
       "body": "Aquest esdeveniment ja no hi és, o encara no el pots veure. Torna a l'inici i mira què hi ha.",
       "back": "Torna a l'inici"
+    },
+    "said": {
+      "yes": "Ets dins: {{when}}, {{where}}.",
+      "yesNoPlace": "Ets dins: {{when}}.",
+      "yesSub": "Canvia-ho quan vulguis, però digues-ho aviat: la junta compta amb tu.",
+      "maybe": "Has dit potser. Et guardem la plaça.",
+      "maybeSub": "Si al final no pots, digues-ho i la plaça passa a algú altre.",
+      "no": "Has dit que no. Una altra vegada.",
+      "noSub": "Si canvies d’idea, torna-hi mentre quedin places.",
+      "nothing": "Encara no has dit res.",
+      "nothingSub": "Tres tocs i ja està. Potser també val."
     }
   },
   "eventType": {
@@ -520,7 +531,16 @@
     "memberInactive": "Encara no està donat d'alta",
     "eventNotOpen": "Aquest esdeveniment no està obert",
     "error": "No s'ha pogut connectar. Torna-ho a provar",
-    "queued": "Desat. S'enviarà quan hi hagi cobertura"
+    "queued": "Desat. S'enviarà quan hi hagi cobertura",
+    "action": {
+      "okWalkin": "No estava apuntat. Ja consta que ha vingut.",
+      "okWalkinReview": "Mira que pagui abans d’entrar, o apunta-ho.",
+      "alreadyCheckedIn": "Ja havia passat. Si insisteix, mira-ho a l’alta manual.",
+      "notAMember": "Que et digui el nom i el busques a mà. No el deixis passar sense apuntar-lo.",
+      "memberInactive": "Que demani entrar. L’aproveu demà des de la zona junta.",
+      "eventNotOpen": "Comprova que és l’esdeveniment bo i que està publicat.",
+      "error": "Segueix escanejant. Quan torni la cobertura s’envia sol."
+    }
   },
   "state": {
     "loading": "Un segon…",

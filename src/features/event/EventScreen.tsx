@@ -198,6 +198,8 @@ export function EventScreen() {
           onAnswer={(a) => {
             answer.mutate(a)
           }}
+          when={formatDateLong(starts, locale)}
+          where={e.ubicacion}
         />
       )}
 
@@ -346,6 +348,8 @@ function AnswerBlock({
   pending,
   failed,
   onAnswer,
+  when,
+  where,
 }: {
   readonly mine: string | null
   readonly left: number | null
@@ -353,6 +357,9 @@ function AnswerBlock({
   readonly pending: boolean
   readonly failed: boolean
   readonly onAnswer: (a: Answer) => void
+  /** Weekday, date and start time in one — formatDateLong already joins them. */
+  readonly when: string
+  readonly where: string | null
 }) {
   const { t } = useTranslation()
   const full = left === 0
@@ -363,6 +370,34 @@ function AnswerBlock({
       <h2 className="text-lg font-bold [text-wrap:pretty]">
         {full ? t('event.ask.full') : t('event.ask.title')}
       </h2>
+
+      {/* Answering back. A lit button is a weak confirmation on a phone — you
+          tap, a colour changes, and you are not sure it saved — and this is
+          also where the two things you need on the way there get repeated. */}
+      {waiting ? null : (
+        <div className="mt-6 border-l-[3px] border-surface-7 bg-surface-1 px-[18px] py-[15px]">
+          <p className="text-base font-bold [text-wrap:pretty]">
+            {mine === 'si'
+              ? where === null
+                ? t('event.said.yesNoPlace', { when })
+                : t('event.said.yes', { when, where })
+              : mine === 'potser'
+                ? t('event.said.maybe')
+                : mine === 'no'
+                  ? t('event.said.no')
+                  : t('event.said.nothing')}
+          </p>
+          <p className="mt-3 text-sm text-fg-muted [text-wrap:pretty]">
+            {mine === 'si'
+              ? t('event.said.yesSub')
+              : mine === 'potser'
+                ? t('event.said.maybeSub')
+                : mine === 'no'
+                  ? t('event.said.noSub')
+                  : t('event.said.nothingSub')}
+          </p>
+        </div>
+      )}
 
       <div className="mt-6 grid auto-cols-fr grid-flow-col items-stretch gap-[6px]">
         {ANSWERS.map((a) => {

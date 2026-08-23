@@ -186,6 +186,17 @@
       "title": "Nothing here",
       "body": "This event is gone, or you cannot see it yet. Go back and see what is on.",
       "back": "Back to Home"
+    },
+    "said": {
+      "yes": "You're in: {{when}}, {{where}}.",
+      "yesNoPlace": "You're in: {{when}}.",
+      "yesSub": "Change it whenever you like, but say so early: the committee is counting on you.",
+      "maybe": "You said maybe. We are holding your place.",
+      "maybeSub": "If it turns out you can’t, say so and the place goes to someone else.",
+      "no": "You said no. Another time.",
+      "noSub": "If you change your mind, come back while there are places left.",
+      "nothing": "You have not said anything yet.",
+      "nothingSub": "Three taps and you are done. Maybe counts too."
     }
   },
   "eventType": {
@@ -520,7 +531,16 @@
     "memberInactive": "This account isn't active yet",
     "eventNotOpen": "This event isn't open",
     "error": "Couldn't connect. Try again",
-    "queued": "Saved. It will send once there's signal"
+    "queued": "Saved. It will send once there's signal",
+    "action": {
+      "okWalkin": "They were not signed up. It is recorded now.",
+      "okWalkinReview": "Check they pay on the way in, or note it down.",
+      "alreadyCheckedIn": "They already came through. If they insist, check the manual list.",
+      "notAMember": "Ask their name and find them by hand. Do not wave them through unrecorded.",
+      "memberInactive": "Have them ask to join. You approve it tomorrow from the junta area.",
+      "eventNotOpen": "Check this is the right event and that it is published.",
+      "error": "Keep scanning. It sends itself when the signal comes back."
+    }
   },
   "state": {
     "loading": "One sec…",

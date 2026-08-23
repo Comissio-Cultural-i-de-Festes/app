@@ -63,6 +63,16 @@ export interface ScanPresentation {
   readonly admitted: boolean
   /** i18n key for the headline shown on the feedback card. */
   readonly messageKey: string
+  /**
+   * i18n key for the line under it: what the person holding the phone should
+   * do now, or null where there is nothing to do — the ordinary yes, whose
+   * detail line already carries the school and the points.
+   *
+   * A verdict without one is a statement at somebody standing in a doorway
+   * with a queue behind them, which is exactly what the brief rules out for
+   * the door.
+   */
+  readonly actionKey: string | null
 }
 
 export const SCAN_PRESENTATION = {
@@ -72,6 +82,7 @@ export const SCAN_PRESENTATION = {
     tone: 'success',
     admitted: true,
     messageKey: 'scanner.ok',
+    actionKey: null,
   },
   ok_walkin: {
     icon: 'check-plus',
@@ -79,6 +90,7 @@ export const SCAN_PRESENTATION = {
     tone: 'success',
     admitted: true,
     messageKey: 'scanner.okWalkin',
+    actionKey: 'scanner.action.okWalkin',
   },
   ok_walkin_review: {
     icon: 'check-alert',
@@ -86,6 +98,7 @@ export const SCAN_PRESENTATION = {
     tone: 'warning',
     admitted: true,
     messageKey: 'scanner.okWalkinReview',
+    actionKey: 'scanner.action.okWalkinReview',
   },
   already_checked_in: {
     icon: 'cross',
@@ -96,6 +109,7 @@ export const SCAN_PRESENTATION = {
     tone: 'warning',
     admitted: false,
     messageKey: 'scanner.alreadyCheckedIn',
+    actionKey: 'scanner.action.alreadyCheckedIn',
   },
   not_a_member: {
     icon: 'question',
@@ -103,6 +117,7 @@ export const SCAN_PRESENTATION = {
     tone: 'unknown',
     admitted: false,
     messageKey: 'scanner.notAMember',
+    actionKey: 'scanner.action.notAMember',
   },
   member_inactive: {
     icon: 'pause',
@@ -110,6 +125,7 @@ export const SCAN_PRESENTATION = {
     tone: 'unknown',
     admitted: false,
     messageKey: 'scanner.memberInactive',
+    actionKey: 'scanner.action.memberInactive',
   },
   event_not_open: {
     icon: 'lock',
@@ -117,6 +133,7 @@ export const SCAN_PRESENTATION = {
     tone: 'error',
     admitted: false,
     messageKey: 'scanner.eventNotOpen',
+    actionKey: 'scanner.action.eventNotOpen',
   },
   error: {
     icon: 'alert',
@@ -124,6 +141,7 @@ export const SCAN_PRESENTATION = {
     tone: 'error',
     admitted: false,
     messageKey: 'scanner.error',
+    actionKey: 'scanner.action.error',
   },
 } as const satisfies Record<CheckInStatus, ScanPresentation>
 

@@ -351,6 +351,27 @@ export type Database = {
           },
         ]
       }
+      point_values: {
+        Row: {
+          clau: string
+          mena: string
+          ordre: number
+          punts: number
+        }
+        Insert: {
+          clau: string
+          mena: string
+          ordre?: number
+          punts: number
+        }
+        Update: {
+          clau?: string
+          mena?: string
+          ordre?: number
+          punts?: number
+        }
+        Relationships: []
+      }
       points_log: {
         Row: {
           client_request_id: string | null
@@ -767,6 +788,45 @@ export type Database = {
       }
     }
     Functions: {
+      admin_create_invite: {
+        Args: { p_expires_at?: string; p_max_usos?: number }
+        Returns: {
+          codi: string
+          created_at: string
+          created_by: string | null
+          expires_at: string | null
+          id: string
+          max_usos: number | null
+          revoked: boolean
+        }
+        SetofOptions: {
+          from: "*"
+          to: "invites"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      admin_revoke_invite: { Args: { p_id: string }; Returns: undefined }
+      admin_save_event: {
+        Args: {
+          p_cover_url?: string
+          p_descripcion?: string
+          p_ends_at?: string
+          p_id?: string
+          p_plazas?: number
+          p_precio_cents?: number
+          p_published?: boolean
+          p_puntos?: number
+          p_reveal_at?: string
+          p_starts_at: string
+          p_teaser?: string
+          p_tipo: string
+          p_titulo: string
+          p_transport_info?: string
+          p_ubicacion?: string
+        }
+        Returns: string
+      }
       admin_set_member_estat: {
         Args: { p_estat: string; p_user_id: string }
         Returns: undefined
@@ -841,8 +901,10 @@ export type Database = {
       rotate_qr_token: { Args: never; Returns: string }
       set_attendance: {
         Args: { p_estado: string; p_event_id: string }
-        Returns: undefined
+        Returns: Json
       }
+      waitlist_position: { Args: { p_event_id: string }; Returns: number }
+      waitlist_size: { Args: { p_event_id: string }; Returns: number }
     }
     Enums: {
       [_ in never]: never

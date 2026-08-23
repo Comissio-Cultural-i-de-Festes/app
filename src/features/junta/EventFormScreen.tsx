@@ -13,6 +13,7 @@ import type { EventRow } from '@/lib/schema'
 import { uploadCover } from '@/lib/storage'
 import { useCovers } from '@/ui/Cover/useCovers'
 
+import { EventPreview, type PreviewData } from './EventPreview'
 import { JuntaHeader } from './JuntaHeader'
 import {
   type EventDraft,
@@ -84,6 +85,7 @@ function EventForm() {
   // The row is the starting point and the edits are the overlay, rather than
   // an effect that copies one into the other: an effect would have to be
   // careful not to fire again and overwrite what somebody is typing.
+  const [previewing, setPreviewing] = useState(false)
   const [edits, setEdits] = useState<FormState | null>(null)
   const form = edits ?? (existing.data == null ? emptyForm() : formFrom(existing.data))
   const setForm = setEdits
@@ -164,10 +166,31 @@ function EventForm() {
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">
+      {previewing ? (
+        <EventPreview
+          data={previewFrom(form, coverPreview)}
+          locale={locale}
+          onClose={() => {
+            setPreviewing(false)
+          }}
+        />
+      ) : null}
+
       <JuntaHeader
         to="/junta"
         className="lg:hidden"
         label={t('junta.form.leaveIt')}
+        aside={
+          <button
+            type="button"
+            onClick={() => {
+              setPreviewing(true)
+            }}
+            className="-mr-2 min-h-[44px] flex-none px-2 text-md font-bold text-brand-label"
+          >
+            {t('junta.form.preview')}
+          </button>
+        }
         title={editing ? t('junta.form.editTitle') : t('junta.form.newTitle')}
       />
 
@@ -521,6 +544,37 @@ function draftFrom(form: FormState, published: boolean, coverPath: string | null
     ubicacion: blankToNull(form.ubicacion),
     cover_url: coverPath,
     transport_info: blankToNull(form.transport_info),
+  }
+}
+
+/**
+ * The form's strings as the member's screen wants them.
+ *
+ * Deliberately separate from `draftFrom`: that one is the RPC payload and
+ * clamps and defaults things on the way to the database, while this one has to
+ * show exactly what has been typed, including a start time that is still half
+ * entered. A date that will not parse becomes null and the preview simply
+ * leaves that line out.
+ */
+function previewFrom(form: FormState, coverUrl: string | null): PreviewData {
+  const starts = fromLocalInput(form.starts_at, APP_TIME_ZONE)
+  const ends = fromLocalInput(form.ends_at, APP_TIME_ZONE)
+  const reveal = fromLocalInput(form.reveal_at, APP_TIME_ZONE)
+  const price = Number.parseFloat(form.preu)
+  const places = Number.parseInt(form.plazas, 10)
+
+  return {
+    titulo: form.titulo,
+    teaser: form.teaser,
+    startsAt: starts === null ? null : new Date(starts),
+    endsAt: ends === null ? null : new Date(ends),
+    ubicacion: form.ubicacion,
+    plazas: Number.isFinite(places) && places > 0 ? places : null,
+    precioCents: Number.isFinite(price) && price > 0 ? Math.round(price * 100) : 0,
+    coverUrl,
+    transport: form.transport_info,
+    descripcion: form.descripcion,
+    hidden: reveal !== null && Date.parse(reveal) > Date.now(),
   }
 }
 

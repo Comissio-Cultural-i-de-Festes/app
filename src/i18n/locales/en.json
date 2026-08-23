@@ -420,7 +420,11 @@
       "delete": "Delete this event",
       "deleteAsk": "Sure? It goes for good, along with everyone who signed up. This cannot be undone.",
       "deleteConfirm": "Delete it",
-      "deleteHasPoints": "This one has points on it and cannot be deleted: the points would be left with nothing to say where they came from. Unpublish it and it disappears from everyone’s Home."
+      "deleteHasPoints": "This one has points on it and cannot be deleted: the points would be left with nothing to say where they came from. Unpublish it and it disappears from everyone’s Home.",
+      "preview": "Preview",
+      "previewLive": "This is what the association will see",
+      "previewCovered": "This is what they will see until it opens",
+      "previewBack": "Back to editing"
     }
   },
   "language": {

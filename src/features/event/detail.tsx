@@ -1,8 +1,6 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import type { EventRow } from '@/lib/schema'
-
 /**
  * The parts of the event detail that only draw.
  *
@@ -75,13 +73,16 @@ export function Fact({ label, value }: { readonly label: string; readonly value:
 }
 
 export function Places({
-  event,
+  total,
+  puntos,
   left,
   going,
   isPast,
   waiting,
 }: {
-  readonly event: EventRow
+  /** Places the event has, or null when it has no cap. */
+  readonly total: number | null
+  readonly puntos: number
   readonly left: number | null
   readonly going: number
   readonly isPast: boolean
@@ -98,7 +99,7 @@ export function Places({
         </div>
         <div>
           <p className="tabular display text-d-sm leading-[0.85] tracking-[-0.05em] text-brand-accent">
-            +{event.puntos}
+            +{puntos}
           </p>
           <p className="mt-2 text-sm font-bold text-fg-muted">{t('event.pointsForComing')}</p>
         </div>
@@ -132,8 +133,8 @@ export function Places({
             ? t('event.fullWithQueue', { count: waiting })
             : t('event.fullNoQueue')
           : urgent
-            ? t('event.lastOne', { total: event.plazas })
-            : t('home.places.of', { total: event.plazas })}
+            ? t('event.lastOne', { total })
+            : t('home.places.of', { total })}
       </p>
       {urgent ? (
         <p className="mt-3 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">

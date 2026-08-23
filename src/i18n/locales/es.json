@@ -420,7 +420,11 @@
       "delete": "Borra este evento",
       "deleteAsk": "¿Seguro? Desaparece para siempre, con quien se haya apuntado. No se puede deshacer.",
       "deleteConfirm": "Bórralo",
-      "deleteHasPoints": "Este ya tiene puntos dados y no se puede borrar: los puntos se quedarían sin saber de dónde vienen. Despublícalo y desaparece del inicio de todos."
+      "deleteHasPoints": "Este ya tiene puntos dados y no se puede borrar: los puntos se quedarían sin saber de dónde vienen. Despublícalo y desaparece del inicio de todos.",
+      "preview": "Vista previa",
+      "previewLive": "Esto es lo que verá la comi",
+      "previewCovered": "Esto es lo que verá la comi hasta que se destape",
+      "previewBack": "Vuelve a editar"
     }
   },
   "language": {

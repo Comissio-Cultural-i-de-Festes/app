@@ -204,7 +204,8 @@ export function EventScreen() {
       </section>
 
       <Places
-        event={e}
+        total={e.plazas}
+        puntos={e.puntos}
         left={left}
         going={going.length}
         isPast={isPast}

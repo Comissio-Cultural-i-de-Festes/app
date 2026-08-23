@@ -827,6 +827,7 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      admin_delete_event: { Args: { p_event_id: string }; Returns: undefined }
       admin_revoke_invite: { Args: { p_id: string }; Returns: undefined }
       admin_save_event: {
         Args: {

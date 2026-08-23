@@ -409,7 +409,11 @@
       "countdown": "Opens in",
       "leftDaysHours": "{{days}}d {{hours}}h",
       "leftHoursMinutes": "{{hours}}h {{minutes}}m",
-      "leftMinutes": "{{minutes}}m"
+      "leftMinutes": "{{minutes}}m",
+      "delete": "Delete this event",
+      "deleteAsk": "Sure? It goes for good, along with everyone who signed up. This cannot be undone.",
+      "deleteConfirm": "Delete it",
+      "deleteHasPoints": "This one has points on it and cannot be deleted: the points would be left with nothing to say where they came from. Unpublish it and it disappears from everyone’s Home."
     }
   },
   "language": {

@@ -409,7 +409,11 @@
       "countdown": "Falten",
       "leftDaysHours": "{{days}} d {{hours}} h",
       "leftHoursMinutes": "{{hours}} h {{minutes}} min",
-      "leftMinutes": "{{minutes}} min"
+      "leftMinutes": "{{minutes}} min",
+      "delete": "Esborra aquest esdeveniment",
+      "deleteAsk": "Segur? Desapareix per sempre, amb qui s'hi hagi apuntat. No es pot desfer.",
+      "deleteConfirm": "Esborra-ho",
+      "deleteHasPoints": "Aquest ja té punts donats i no es pot esborrar: els punts es quedarien sense saber d’on venen. Despublica’l i desapareix de l’inici de tothom."
     }
   },
   "language": {

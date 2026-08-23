@@ -7,6 +7,7 @@ import { eventKeys, fetchEvent } from '@/features/event/api'
 import { APP_TIME_ZONE, formatDateTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import type { EventType } from '@/lib/model'
+import { DbError } from '@/lib/db'
 import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
 import { uploadCover } from '@/lib/storage'
@@ -16,6 +17,7 @@ import { JuntaHeader } from './JuntaHeader'
 import {
   type EventDraft,
   eventFormKeys,
+  deleteEvent,
   fetchMemberCount,
   fetchPointValues,
   fetchTemplates,
@@ -41,7 +43,22 @@ import {
 const GUTTER = 'px-[var(--ds-gutter)]'
 const TYPES: readonly EventType[] = ['fiesta', 'casa_rural', 'actividad']
 
+/**
+ * Keyed on the id, which is not a detail.
+ *
+ * Everything below keeps per-event state that React Router would otherwise
+ * carry from one event to the next, because the route matches either way and
+ * the component is never unmounted. The worst of it is `edits`: go from one
+ * event to another and the form would show the first one's values while
+ * pointing at the second, and saving would write them onto it. The open
+ * confirmations do the same thing more visibly and less expensively.
+ */
 export function EventFormScreen() {
+  const { id } = useParams()
+  return <EventForm key={id ?? 'nou'} />
+}
+
+function EventForm() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
   const navigate = useNavigate()
@@ -399,6 +416,8 @@ export function EventFormScreen() {
                 {t('errors.generic')}
               </p>
             ) : null}
+
+            {editing ? <DeleteEvent eventId={id ?? ''} /> : null}
           </section>
         </div>
       </div>
@@ -507,6 +526,78 @@ function draftFrom(form: FormState, published: boolean, coverPath: string | null
 
 function blankToNull(value: string): string | null {
   return value.trim() === '' ? null : value.trim()
+}
+
+/**
+ * Getting rid of one that should not exist.
+ *
+ * At the very bottom, past everything else, and it asks. The database refuses
+ * an event with points on it whatever this button does — deleting one of those
+ * keeps the points and loses what they were for — so the interesting job here
+ * is saying that clearly rather than reporting a failure.
+ */
+function DeleteEvent({ eventId }: { readonly eventId: string }) {
+  const { t } = useTranslation()
+  const navigate = useNavigate()
+  const [asking, setAsking] = useState(false)
+
+  const remove = useMutation({
+    mutationFn: () => deleteEvent(eventId),
+    onSuccess: () => {
+      void navigate('/junta', { replace: true })
+    },
+  })
+
+  // P0001 is the "it has points" refusal. Anything else is an ordinary
+  // failure, and telling somebody to unpublish would be the wrong advice.
+  const hasPoints = remove.error instanceof DbError && remove.error.code === 'P0001'
+
+  return (
+    <div className="mt-14 border-t border-surface-5 pt-9">
+      {asking ? (
+        <>
+          <p className="text-md font-bold [text-wrap:pretty]">{t('junta.form.deleteAsk')}</p>
+          <div className="mt-6 flex gap-4">
+            <button
+              type="button"
+              disabled={remove.isPending}
+              onClick={() => {
+                remove.mutate()
+              }}
+              className="min-h-[48px] flex-1 border-[1.5px] border-[var(--ds-warning)] px-6 text-md font-bold text-[var(--ds-warning)] disabled:opacity-70"
+            >
+              {t('junta.form.deleteConfirm')}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setAsking(false)
+              }}
+              className="min-h-[48px] flex-1 border-[1.5px] border-surface-7 px-6 text-md font-bold text-fg-secondary"
+            >
+              {t('actions.cancel')}
+            </button>
+          </div>
+        </>
+      ) : (
+        <button
+          type="button"
+          onClick={() => {
+            setAsking(true)
+          }}
+          className="min-h-[48px] w-full text-center text-md font-bold text-[var(--ds-warning)]"
+        >
+          {t('junta.form.delete')}
+        </button>
+      )}
+
+      {remove.isError ? (
+        <p role="alert" className="mt-6 text-md font-bold text-error [text-wrap:pretty]">
+          {hasPoints ? t('junta.form.deleteHasPoints') : t(errorKey(remove.error))}
+        </p>
+      ) : null}
+    </div>
+  )
 }
 
 /**

@@ -98,6 +98,19 @@ export async function setPublished(eventId: string, published: boolean): Promise
 }
 
 /**
+ * Removes an event that never happened.
+ *
+ * Refused by the database when the event has points on it — `points_log`'s
+ * foreign key is ON DELETE SET NULL, so deleting one of those would keep
+ * everybody's points and lose what they were for. That case comes back as
+ * P0001 and the screen says to unpublish instead.
+ */
+export async function deleteEvent(eventId: string): Promise<void> {
+  const { error } = await supabase.rpc('admin_delete_event', { p_event_id: eventId })
+  if (error) throw new DbError(error)
+}
+
+/**
  * How many people would see it. The number is what makes the sentence land —
  * "no ho veu ningú" and "ho veuen 214 persones" are different decisions.
  */

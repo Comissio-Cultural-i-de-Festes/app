@@ -31,9 +31,19 @@ export function QrScreen() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [drawError, setDrawError] = useState(false)
 
+  // A profile that is not active has no door token and cannot get one — the
+  // door would turn them away anyway. Known BEFORE the request, so the screen
+  // says the true thing instead of asking the server a question whose NULL
+  // answer is indistinguishable from a request that never arrived.
+  //
+  // Only when the profile has actually loaded. Offline it has not, and offline
+  // is exactly when the cached token below has to win.
+  const inactive = profile !== undefined && profile !== null && profile.estat !== 'actiu'
+
   const token = useQuery({
     queryKey: qrKeys.mine(userId),
     queryFn: () => fetchQrToken(userId),
+    enabled: !inactive,
     // The token does not change unless somebody rotates it, and this screen is
     // opened in exactly the places with the worst signal.
     staleTime: 24 * 60 * 60 * 1000,
@@ -94,6 +104,19 @@ export function QrScreen() {
   ]
     .filter((part): part is string => part !== null)
     .join(' · ')
+
+  if (inactive) {
+    return (
+      <main className="with-tabbar flex min-h-dvh flex-col items-center justify-center gap-6 bg-app px-12 pt-[var(--ds-safe-top)]">
+        <h1 className="display text-center text-d-s tracking-[-0.045em] [text-wrap:balance]">
+          {t('qr.notYet.title')}
+        </h1>
+        <p className="text-center text-md text-fg-secondary [text-wrap:pretty]">
+          {profile?.estat === 'pendent' ? t('qr.notYet.pending') : t('qr.notYet.left')}
+        </p>
+      </main>
+    )
+  }
 
   return (
     <main className="with-tabbar flex min-h-dvh flex-col items-center justify-center bg-app px-10 pt-[var(--ds-safe-top)]">

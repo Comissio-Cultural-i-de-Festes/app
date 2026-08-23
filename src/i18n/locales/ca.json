@@ -508,7 +508,12 @@
     "codeLabel": "El teu codi QR",
     "offlineOk": "Brillantor al màxim · va sense cobertura",
     "howTo": "Ensenya'l a la porta i espera el \"fitxat\". Si la pantalla està bruta, passa-hi la màniga.",
-    "unavailable": "Ara mateix no podem mostrar el teu codi. Prova-ho amb connexió i quedarà desat per la propera."
+    "unavailable": "Ara mateix no podem mostrar el teu codi. Prova-ho amb connexió i quedarà desat per la propera.",
+    "notYet": {
+      "title": "Encara no tens codi",
+      "pending": "El QR surt quan la junta et dona l'alta. Mentrestant pots mirar què ve, però a la porta encara no et poden fitxar.",
+      "left": "Aquest compte ja no és actiu. Si creus que és un error, parla amb la junta."
+    }
   },
   "ranking": {
     "periodLabel": "Període",

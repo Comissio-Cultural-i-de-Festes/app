@@ -508,7 +508,12 @@
     "codeLabel": "Your QR code",
     "offlineOk": "Brightness up · works with no signal",
     "howTo": "Show it at the door and wait for the beep. If the screen is smudged, give it a wipe.",
-    "unavailable": "We cannot show your code right now. Try once with a connection and it will be saved for next time."
+    "unavailable": "We cannot show your code right now. Try once with a connection and it will be saved for next time.",
+    "notYet": {
+      "title": "No code yet",
+      "pending": "Your QR appears once the committee lets you in. Until then you can see what is coming, but the door cannot check you in.",
+      "left": "This account is no longer active. If you think that is a mistake, talk to the committee."
+    }
   },
   "ranking": {
     "periodLabel": "Period",

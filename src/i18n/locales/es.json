@@ -508,7 +508,12 @@
     "codeLabel": "Tu código QR",
     "offlineOk": "Brillo al máximo · va sin cobertura",
     "howTo": "Enséñalo en la puerta y espera el \"fichado\". Si la pantalla está sucia, pásale la manga.",
-    "unavailable": "Ahora mismo no podemos mostrar tu código. Pruébalo con conexión y quedará guardado para la próxima."
+    "unavailable": "Ahora mismo no podemos mostrar tu código. Pruébalo con conexión y quedará guardado para la próxima.",
+    "notYet": {
+      "title": "Todavía no tienes código",
+      "pending": "El QR sale cuando la junta te da el alta. Mientras tanto puedes mirar qué viene, pero en la puerta aún no te pueden fichar.",
+      "left": "Esta cuenta ya no está activa. Si crees que es un error, habla con la junta."
+    }
   },
   "ranking": {
     "periodLabel": "Periodo",

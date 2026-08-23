@@ -6,11 +6,14 @@ import { Navigate, Route, Routes } from 'react-router'
 import { EntryScreen } from '@/features/entry/EntryScreen'
 import { EventScreen } from '@/features/event/EventScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
+import { InvitesScreen } from '@/features/junta/InvitesScreen'
+import { JuntaHome } from '@/features/junta/JuntaHome'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen'
 import { ProfileScreen } from '@/features/profile/ProfileScreen'
 import { QrScreen } from '@/features/qr/QrScreen'
+import { JuntaLayout } from '@/features/shell/JuntaLayout'
 import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
@@ -113,6 +116,13 @@ export default function App() {
             <Route path="/qr" element={<QrScreen />} />
             <Route path="/perfil" element={<ProfileScreen />} />
             <Route path="/esdeveniment/:id" element={<EventScreen />} />
+          </Route>
+
+          {/* No tab bar in here: these are places you go into and come back
+              out of, and each one draws its own way out. */}
+          <Route path="/junta" element={<JuntaLayout />}>
+            <Route index element={<JuntaHome />} />
+            <Route path="invitacions" element={<InvitesScreen />} />
           </Route>
         </Route>
 

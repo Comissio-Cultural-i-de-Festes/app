@@ -18,8 +18,30 @@ create temporary table who as
 select tests.uid('alfa') as alfa, tests.uid('golf') as golf;
 grant select on who to authenticated;
 
--- e1 is published, free and uncapped. alfa said yes to it in the seed; golf
--- has no row at all.
+-- The starting state, SET rather than assumed. `supabase test db` rolls each
+-- file back, but `npm run test:rls` talks to this same database over HTTP and
+-- does not, and it checks people in at e1. Asserting the seed here made this
+-- file pass only on the first run after a reset — which is exactly the kind
+-- of test that is green until somebody else needs it.
+delete from public.points_log
+ where event_id = '00000000-0000-4000-8000-0000000000e1'
+   and user_id in (select alfa from who union all select golf from who);
+
+delete from public.attendances
+ where event_id = '00000000-0000-4000-8000-0000000000e1'
+   and user_id = (select golf from who);
+
+insert into public.attendances (user_id, event_id, estado)
+select alfa, '00000000-0000-4000-8000-0000000000e1', 'si' from who
+on conflict (user_id, event_id) do nothing;
+
+update public.attendances
+   set estado = 'si', prev_estado = null, checked_in_at = null,
+       checked_in_by = null, was_registered = null, entry_photo_url = null
+ where event_id = '00000000-0000-4000-8000-0000000000e1'
+   and user_id = (select alfa from who);
+
+-- e1 is published, free and uncapped. alfa says yes to it; golf has no row.
 select is(
   (select estado from public.attendances
     where user_id = (select alfa from who) and event_id = '00000000-0000-4000-8000-0000000000e1'),

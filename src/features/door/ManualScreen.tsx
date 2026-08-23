@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router'
 
 import { SCAN_PRESENTATION } from '@/design/states'
 import { eventKeys, fetchEvent } from '@/features/event/api'
+import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
 import {
@@ -130,40 +131,7 @@ export function ManualScreen() {
         <p className="px-[var(--ds-gutter)] pt-10 text-fg-muted">{t('state.loading')}</p>
       ) : roster.isError ? (
         <p role="alert" className="px-[var(--ds-gutter)] pt-10 text-md font-bold text-error">
-          {t('errors.generic')}
-        </p>
-      ) : rows.length === 0 ? (
-        // checkin_roster hands back zero rows rather than an error to anybody
-        // who is not on the junta, and it otherwise returns EVERY active
-        // member. So an empty roster is not an empty association; it is a
-        // refusal wearing the same clothes as a success.
-        <p
-          role="alert"
-          className="px-[var(--ds-gutter)] pt-10 text-md font-bold text-error [text-wrap:pretty]"
-        >
-          {t('door.rosterRefused')}
-        </p>
-      ) : rows.length === 0 ? (
-        // checkin_roster hands back zero rows rather than an error to anybody
-        // who is not on the junta, and it otherwise returns EVERY active
-        // member. So an empty roster is not an empty association; it is a
-        // refusal wearing the same clothes as a success.
-        <p
-          role="alert"
-          className="px-[var(--ds-gutter)] pt-10 text-md font-bold text-error [text-wrap:pretty]"
-        >
-          {t('door.rosterRefused')}
-        </p>
-      ) : rows.length === 0 ? (
-        // checkin_roster hands back zero rows rather than an error to anybody
-        // who is not on the junta, and it otherwise returns EVERY active
-        // member. So an empty roster is not an empty association; it is a
-        // refusal wearing the same clothes as a success.
-        <p
-          role="alert"
-          className="px-[var(--ds-gutter)] pt-10 text-md font-bold text-error [text-wrap:pretty]"
-        >
-          {t('door.rosterRefused')}
+          {t(errorKey(roster.error))}
         </p>
       ) : rows.length === 0 ? (
         // checkin_roster hands back zero rows rather than an error to anybody

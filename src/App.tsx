@@ -6,8 +6,10 @@ import { Navigate, Route, Routes } from 'react-router'
 import { EntryScreen } from '@/features/entry/EntryScreen'
 import { EventScreen } from '@/features/event/EventScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
-import { ConfigScreen } from '@/features/junta/ConfigScreen'
 import { EventFormScreen } from '@/features/junta/EventFormScreen'
+import { GrausScreen } from '@/features/junta/GrausScreen'
+import { PeriodsScreen } from '@/features/junta/PeriodsScreen'
+import { ScaleScreen } from '@/features/junta/ScaleScreen'
 import { ManualScreen } from '@/features/door/ManualScreen'
 import { PointsScreen } from '@/features/door/PointsScreen'
 import { ScannerScreen } from '@/features/door/ScannerScreen'
@@ -134,7 +136,9 @@ export default function App() {
             <Route index element={<JuntaHome />} />
             <Route path="invitacions" element={<InvitesScreen />} />
             <Route path="esdeveniment/:id" element={<EventFormScreen />} />
-            <Route path="configuracio" element={<ConfigScreen />} />
+            <Route path="periodes" element={<PeriodsScreen />} />
+            <Route path="barem" element={<ScaleScreen />} />
+            <Route path="graus" element={<GrausScreen />} />
             <Route path="pagaments" element={<PaymentsScreen />} />
             <Route path="pagaments/:eventId" element={<PaymentsScreen />} />
             <Route path="escaner/:eventId" element={<ScannerScreen />} />

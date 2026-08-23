@@ -8,6 +8,7 @@ import { ESCOLES, type Escola } from '@/lib/model'
 
 import { type Grau, configKeys, deleteGrau, fetchAllGraus, saveGrau } from './configApi'
 import { INPUT } from './formBits'
+import { JuntaHeader } from './JuntaHeader'
 
 /**
  * The degree list the first-run screen offers.
@@ -26,7 +27,7 @@ interface Draft {
   readonly ordre: string
 }
 
-export function GrausBlock() {
+function GrausBlock() {
   const { t } = useTranslation()
   const client = useQueryClient()
   const [draft, setDraft] = useState<Draft | null>(null)
@@ -264,3 +265,22 @@ const draftOf = (grau: Grau): Draft => ({
   nom: grau.nom,
   ordre: String(grau.ordre),
 })
+
+const GUTTER = 'px-[var(--ds-gutter)]'
+
+export function GrausScreen() {
+  const { t } = useTranslation()
+  return (
+    <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+32px)]">
+      <JuntaHeader
+        to="/junta"
+        label={t('junta.back')}
+        title={t('junta.config.graus.title')}
+        className="lg:hidden"
+      />
+      <div className={`pt-8 ${GUTTER}`}>
+        <GrausBlock />
+      </div>
+    </main>
+  )
+}

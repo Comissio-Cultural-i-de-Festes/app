@@ -8,6 +8,7 @@ import { errorKey } from '@/lib/errors'
 
 import { chainFromPeriods, periodsFromChain, savePeriods } from './configApi'
 import { Field, INPUT } from './formBits'
+import { JuntaHeader } from './JuntaHeader'
 
 /**
  * When each term starts.
@@ -21,7 +22,7 @@ import { Field, INPUT } from './formBits'
  * Migration 24 refuses both. This is the half that means nobody has to find
  * out about the refusal.
  */
-export function PeriodsBlock() {
+function PeriodsBlock() {
   const { t } = useTranslation()
   const client = useQueryClient()
   const [edits, setEdits] = useState<string[] | null>(null)
@@ -127,5 +128,24 @@ export function PeriodsBlock() {
         </p>
       ) : null}
     </>
+  )
+}
+
+const GUTTER = 'px-[var(--ds-gutter)]'
+
+export function PeriodsScreen() {
+  const { t } = useTranslation()
+  return (
+    <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+32px)]">
+      <JuntaHeader
+        to="/junta"
+        label={t('junta.back')}
+        title={t('junta.config.periods.title')}
+        className="lg:hidden"
+      />
+      <div className={`pt-8 ${GUTTER}`}>
+        <PeriodsBlock />
+      </div>
+    </main>
   )
 }

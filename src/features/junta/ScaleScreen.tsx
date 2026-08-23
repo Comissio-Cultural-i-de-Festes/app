@@ -6,6 +6,7 @@ import { doorKeys } from '@/features/door/api'
 import { errorKey } from '@/lib/errors'
 
 import { setPointValue } from './configApi'
+import { JuntaHeader } from './JuntaHeader'
 import { type PointValue, fetchPointValues } from './eventFormApi'
 
 /**
@@ -17,7 +18,7 @@ import { type PointValue, fetchPointValues } from './eventFormApi'
  * that exists, looks right, and fails when somebody presses it at a door. The
  * prototype already drew that button once.
  */
-export function ScaleBlock() {
+function ScaleBlock() {
   const { t } = useTranslation()
   const client = useQueryClient()
   const [edits, setEdits] = useState<Record<string, string>>({})
@@ -135,3 +136,22 @@ export function ScaleBlock() {
 }
 
 const keyOf = (v: { readonly mena: string; readonly clau: string }) => `${v.mena}:${v.clau}`
+
+const GUTTER = 'px-[var(--ds-gutter)]'
+
+export function ScaleScreen() {
+  const { t } = useTranslation()
+  return (
+    <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+32px)]">
+      <JuntaHeader
+        to="/junta"
+        label={t('junta.back')}
+        title={t('junta.config.scale.title')}
+        className="lg:hidden"
+      />
+      <div className={`pt-8 ${GUTTER}`}>
+        <ScaleBlock />
+      </div>
+    </main>
+  )
+}

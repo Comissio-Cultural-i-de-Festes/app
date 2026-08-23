@@ -38,7 +38,7 @@ export function RankingScreen() {
 
   return (
     <div className="with-tabbar min-h-dvh bg-app">
-      <div className="sticky top-0 z-20 border-b border-surface-5 bg-app">
+      <div className="sticky top-0 z-20 border-b border-surface-5 bg-app pt-[var(--ds-safe-top)]">
         <div className={`flex items-end justify-between gap-6 pt-[2px] pb-6 ${GUTTER}`}>
           <h1 className="display text-[30px] tracking-[-0.045em]">{t('nav.ranking')}</h1>
           {periods.data && periods.data.length > 1 ? (
@@ -84,7 +84,7 @@ export function RankingScreen() {
           <button
             type="button"
             onClick={board.refetch}
-            className="flex-none text-sm font-bold text-brand-label"
+            className="-mr-3 min-h-[44px] flex-none px-3 text-sm font-bold text-brand-label"
           >
             {t('actions.retry')}
           </button>
@@ -175,9 +175,9 @@ function PeriodChip({
       onClick={onSelect}
       aria-pressed={active}
       className={
-        'flex h-[30px] items-center rounded-[15px] px-6 text-[12.5px] whitespace-nowrap ' +
+        'flex min-h-[44px] items-center rounded-[22px] px-6 text-[12.5px] whitespace-nowrap ' +
         (active
-          ? 'bg-brand font-bold text-on-brand'
+          ? 'bg-brand-cta font-bold text-on-brand'
           : 'border border-border-strong font-semibold text-fg-secondary')
       }
     >
@@ -221,7 +221,7 @@ function SchoolLine({
             {t(`escola.${school.escola satisfies Escola}`)}
           </span>
           {mine ? (
-            <span className="rounded-xs bg-brand px-[7px] py-[3px] text-[10.5px] font-extrabold tracking-[0.1em] whitespace-nowrap text-on-brand uppercase">
+            <span className="rounded-xs bg-brand-cta px-[7px] py-[3px] text-[10.5px] font-extrabold tracking-[0.1em] whitespace-nowrap text-on-brand uppercase">
               {t('ranking.yours')}
             </span>
           ) : null}
@@ -340,7 +340,7 @@ function Movement({ delta }: { readonly delta: number | null }) {
       aria-label={label}
       className={
         'tabular w-[30px] flex-none text-center text-[11.5px] font-bold ' +
-        (delta > 0 ? 'text-success' : delta < 0 ? 'text-fg-dim' : 'text-fg-faint-lo')
+        (delta > 0 ? 'text-success' : delta < 0 ? 'text-fg-muted' : 'text-fg-faint')
       }
     >
       <span aria-hidden="true">

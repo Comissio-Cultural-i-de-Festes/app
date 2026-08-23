@@ -89,7 +89,10 @@ export const SCAN_PRESENTATION = {
   },
   already_checked_in: {
     icon: 'cross',
-    haptic: HAPTIC.double,
+    // Long, not double. `ok_walkin_review` is also warning-toned and was also
+    // a double buzz, so the one signal meant to work without looking said the
+    // same thing for "they are in" and "they are not".
+    haptic: HAPTIC.long,
     tone: 'warning',
     admitted: false,
     messageKey: 'scanner.alreadyCheckedIn',

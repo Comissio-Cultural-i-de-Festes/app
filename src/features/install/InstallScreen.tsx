@@ -31,7 +31,7 @@ function Step({ n, title, body, children }: StepProps) {
     <li className="mt-[26px] flex items-start gap-[14px]">
       <span
         aria-hidden
-        className="flex size-[34px] flex-none items-center justify-center bg-brand font-display text-lg text-on-brand"
+        className="flex size-[34px] flex-none items-center justify-center bg-brand-cta font-display text-lg text-on-brand"
       >
         {n}
       </span>
@@ -55,7 +55,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
   return (
     <main
       className={
-        'flex min-h-dvh flex-col overflow-y-auto bg-app px-12 ' +
+        'flex min-h-dvh flex-col overflow-y-auto bg-app px-12 pt-[var(--ds-safe-top)] ' +
         'pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+24px)]'
       }
     >
@@ -110,7 +110,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
         type="button"
         onClick={onLater}
         className={
-          'mt-5 w-full cursor-pointer border-0 bg-transparent text-center ' +
+          'mt-5 min-h-[44px] w-full cursor-pointer border-0 bg-transparent text-center ' +
           'text-[13.5px] font-semibold text-fg-muted [text-wrap:balance]'
         }
       >

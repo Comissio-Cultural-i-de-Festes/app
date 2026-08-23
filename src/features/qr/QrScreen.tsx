@@ -96,7 +96,7 @@ export function QrScreen() {
     .join(' · ')
 
   return (
-    <main className="with-tabbar flex min-h-dvh flex-col items-center justify-center bg-app px-10">
+    <main className="with-tabbar flex min-h-dvh flex-col items-center justify-center bg-app px-10 pt-[var(--ds-safe-top)]">
       {token.data === undefined ? (
         <p className="text-center text-fg-muted [text-wrap:pretty]">
           {token.isError ? t('qr.unavailable') : t('state.loading')}

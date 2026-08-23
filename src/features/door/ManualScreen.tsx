@@ -81,11 +81,11 @@ export function ManualScreen() {
 
   return (
     <main className="flex min-h-dvh flex-col bg-[var(--ds-bg-door)]">
-      <header className="sticky top-0 z-20 border-b border-surface-5 bg-[var(--ds-bg-door)] px-[var(--ds-gutter)] pt-[calc(env(safe-area-inset-top,0px)+8px)] pb-6">
+      <header className="sticky top-0 z-20 border-b border-surface-5 bg-[var(--ds-bg-door)] px-[var(--ds-gutter)] pt-[calc(var(--ds-safe-top)+8px)] pb-6">
         <div className="flex items-center justify-between gap-6">
           <Link
             to={`/junta/escaner/${id}`}
-            className="-ml-2 flex min-h-[44px] items-center gap-1 px-2 text-md font-bold text-fg-muted no-underline"
+            className="-ml-4 flex min-h-[56px] items-center gap-1 px-4 text-md font-bold text-fg-muted no-underline"
           >
             <span aria-hidden="true" className="text-lg">
               ‹
@@ -120,7 +120,7 @@ export function ManualScreen() {
           }}
           // Bigger than anywhere else in the app on purpose: this is typed
           // with one thumb, standing up, with people waiting.
-          className="mt-6 min-h-[54px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-7 py-6 text-xl font-semibold text-fg outline-none placeholder:font-medium placeholder:text-fg-faint"
+          className="mt-6 min-h-[54px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-7 py-6 text-xl font-semibold text-fg outline-none placeholder:font-medium placeholder:text-fg-dim"
           placeholder={t('door.searchName')}
           autoComplete="off"
           autoCapitalize="off"

@@ -19,7 +19,7 @@ import { Wordmark } from '@/ui/Logo/Logo'
  */
 
 const LINK =
-  'flex min-h-[38px] items-center px-[13px] py-4 text-md font-semibold no-underline ' +
+  'flex min-h-[44px] items-center px-[13px] py-4 text-md font-semibold no-underline ' +
   'text-fg-secondary hover:text-fg'
 const ACTIVE = 'bg-surface-4 font-bold text-fg'
 
@@ -30,9 +30,13 @@ export function JuntaNav() {
   return (
     <nav
       aria-label={t('junta.title')}
-      className="sticky top-0 z-30 hidden h-[62px] items-center gap-[34px] border-b border-surface-5 bg-surface-1 px-14 lg:flex"
+      className="sticky top-0 z-30 hidden min-h-[62px] items-center gap-[34px] border-b border-surface-5 bg-surface-1 px-14 pt-[var(--ds-safe-top)] lg:flex"
     >
-      <NavLink to="/" className="flex-none no-underline" aria-label={t('nav.home')}>
+      <NavLink
+        to="/"
+        className="flex min-h-[44px] flex-none items-center no-underline"
+        aria-label={t('nav.home')}
+      >
         <Wordmark size={19} />
       </NavLink>
 
@@ -47,7 +51,7 @@ export function JuntaNav() {
 
       <NavLink
         to="/perfil"
-        className="flex min-h-[38px] items-center gap-4 text-sm font-semibold text-fg-secondary no-underline"
+        className="flex min-h-[44px] items-center gap-4 text-sm font-semibold text-fg-secondary no-underline"
       >
         {profile?.nombre ?? ''}
       </NavLink>

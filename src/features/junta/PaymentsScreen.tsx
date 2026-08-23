@@ -256,7 +256,7 @@ function PaidList({
                 <span
                   className={
                     'flex-none text-right text-lg font-extrabold tabular-nums ' +
-                    (r.pagado ? 'text-success' : 'text-fg-faint')
+                    (r.pagado ? 'text-success' : 'text-fg-dim')
                   }
                 >
                   {r.pagado ? (each ?? '✓') : '—'}
@@ -387,7 +387,7 @@ function RoleTag({ role }: { readonly role: MemberRole }) {
     <span
       className={
         'flex-none px-[7px] py-[4px] text-2xs font-extrabold tracking-[0.1em] uppercase ' +
-        (brand ? 'bg-brand text-on-brand' : 'bg-surface-6 text-fg-secondary')
+        (brand ? 'bg-brand-cta text-on-brand' : 'bg-surface-6 text-fg-secondary')
       }
     >
       {t(`junta.payments.role.${role}`)}

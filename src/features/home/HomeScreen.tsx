@@ -105,7 +105,7 @@ function Header({ home }: { readonly home: Home }) {
 
   return (
     <header
-      className={`sticky top-0 z-20 flex items-center justify-between gap-3 bg-app pt-2 pb-6 ${GUTTER}`}
+      className={`sticky top-0 z-20 flex items-center justify-between gap-3 bg-app pt-[calc(var(--ds-safe-top)+4px)] pb-6 ${GUTTER}`}
     >
       <div className="flex min-w-0 items-center gap-[10px]">
         <LogoMark size={36} />
@@ -603,7 +603,7 @@ function ErrorPanel({
       <button
         type="button"
         onClick={onRetry}
-        className="flex-none text-sm font-bold text-brand-label"
+        className="-mr-3 min-h-[44px] flex-none px-3 text-sm font-bold text-brand-label"
       >
         {label}
       </button>

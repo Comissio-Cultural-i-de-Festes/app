@@ -212,7 +212,7 @@ export function InvitesScreen() {
                     onClick={() => {
                       decide.mutate({ id: p.id, estat: 'baixa' })
                     }}
-                    className="min-h-[44px] flex-none border-[1.5px] border-surface-7 px-6 text-md font-bold text-fg-secondary disabled:opacity-70"
+                    className="min-h-[44px] min-w-[52px] flex-none border-[1.5px] border-surface-7 px-6 text-md font-bold text-fg-secondary disabled:opacity-70"
                   >
                     {t('junta.invites.reject')}
                   </button>

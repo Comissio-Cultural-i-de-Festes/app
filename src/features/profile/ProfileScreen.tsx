@@ -86,7 +86,7 @@ export function ProfileScreen() {
   }
 
   return (
-    <main className="with-tabbar min-h-dvh bg-app">
+    <main className="with-tabbar min-h-dvh bg-app pt-[var(--ds-safe-top)]">
       <header className={`flex items-center gap-8 pt-[6px] ${GUTTER}`}>
         <Avatar src={profile?.avatar_url ?? null} size={72} />
         <div className="min-w-0 flex-1">
@@ -220,9 +220,9 @@ export function ProfileScreen() {
                   void i18n.changeLanguage(code)
                 }}
                 className={
-                  'min-h-[34px] rounded-chip px-4 text-sm font-bold ' +
+                  'min-h-[44px] rounded-chip px-4 text-sm font-bold ' +
                   (code === locale
-                    ? 'bg-brand text-on-brand'
+                    ? 'bg-brand-cta text-on-brand'
                     : 'border border-border-strong text-fg-secondary')
                 }
               >

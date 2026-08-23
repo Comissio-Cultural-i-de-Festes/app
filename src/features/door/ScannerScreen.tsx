@@ -101,12 +101,12 @@ export function ScannerScreen() {
       />
       <div aria-hidden="true" className="door-scrim absolute inset-0" />
 
-      <header className="relative z-10 pt-[calc(env(safe-area-inset-top,0px)+8px)]">
+      <header className="relative z-10 pt-[calc(var(--ds-safe-top)+8px)]">
         <div className="flex items-center justify-between gap-6 px-8">
           <Link
             to="/junta"
             aria-label={t('actions.close')}
-            className="flex size-[44px] flex-none items-center justify-center rounded-full bg-[var(--ds-scrim-chip)] text-xl font-bold text-fg no-underline"
+            className="flex size-[56px] flex-none items-center justify-center rounded-full bg-[var(--ds-scrim-chip)] text-xl font-bold text-fg no-underline"
           >
             <span aria-hidden="true">✕</span>
           </Link>

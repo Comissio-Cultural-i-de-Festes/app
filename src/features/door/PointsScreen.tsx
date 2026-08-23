@@ -70,11 +70,11 @@ export function PointsScreen() {
 
   return (
     <main className="flex min-h-dvh flex-col bg-app">
-      <header className="sticky top-0 z-20 border-b border-surface-5 bg-app px-[var(--ds-gutter)] pt-[calc(env(safe-area-inset-top,0px)+8px)] pb-7">
+      <header className="sticky top-0 z-20 border-b border-surface-5 bg-app px-[var(--ds-gutter)] pt-[calc(var(--ds-safe-top)+8px)] pb-7">
         <div className="flex items-center justify-between gap-6">
           <Link
             to="/junta"
-            className="-ml-2 flex min-h-[44px] min-w-0 items-center gap-1 px-2 text-xs font-extrabold tracking-[0.16em] text-brand-accent uppercase no-underline"
+            className="-ml-4 flex min-h-[56px] min-w-0 items-center gap-1 px-4 text-xs font-extrabold tracking-[0.16em] text-brand-accent uppercase no-underline"
           >
             <span aria-hidden="true">‹</span>
             <span className="truncate">{event.data?.titulo ?? t('junta.title')}</span>
@@ -85,7 +85,7 @@ export function PointsScreen() {
               onClick={() => {
                 setPicked(new Set())
               }}
-              className="min-h-[44px] flex-none px-2 text-sm font-bold text-fg-muted"
+              className="-mr-4 min-h-[56px] flex-none px-4 text-sm font-bold text-fg-muted"
             >
               {t('door.clear')}
             </button>
@@ -130,7 +130,7 @@ export function PointsScreen() {
                     className={
                       'flex size-[26px] flex-none items-center justify-center rounded-full text-sm font-extrabold ' +
                       (on
-                        ? 'bg-brand text-on-brand'
+                        ? 'bg-brand-cta text-on-brand'
                         : 'border-[1.5px] border-[var(--ds-border-input)] text-transparent')
                     }
                   >

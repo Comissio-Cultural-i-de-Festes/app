@@ -68,7 +68,7 @@ export function TextField({ id, label, ref, ...rest }: TextFieldProps) {
         id={id}
         ref={ref}
         className={
-          'mt-[7px] w-full border-0 bg-transparent p-0 text-xl font-semibold ' +
+          'mt-[7px] min-h-[30px] w-full border-0 bg-transparent p-0 text-xl font-semibold ' +
           'text-fg caret-[var(--ds-brand-strong)] outline-none ' +
           'placeholder:text-[var(--ds-text-faint)] placeholder:font-normal'
         }

@@ -71,7 +71,7 @@ export function EventScreen() {
 
   if (event.isPending) {
     return (
-      <main className="with-tabbar flex min-h-dvh items-center justify-center bg-app">
+      <main className="with-tabbar flex min-h-dvh items-center justify-center bg-app pt-[var(--ds-safe-top)]">
         <p className="text-fg-muted">{t('state.loading')}</p>
       </main>
     )
@@ -79,10 +79,13 @@ export function EventScreen() {
 
   if (event.data == null) {
     return (
-      <main className={`with-tabbar min-h-dvh bg-app pt-16 ${GUTTER}`}>
+      <main className={`with-tabbar min-h-dvh bg-app pt-[calc(var(--ds-safe-top)+32px)] ${GUTTER}`}>
         <p className="display text-d-sm [text-wrap:balance]">{t('event.gone.title')}</p>
         <p className="mt-6 text-fg-muted [text-wrap:pretty]">{t('event.gone.body')}</p>
-        <Link to="/" className="mt-8 inline-block text-md font-bold text-brand-label">
+        <Link
+          to="/"
+          className="-ml-2 mt-8 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-brand-label"
+        >
           {t('event.gone.back')}
         </Link>
       </main>

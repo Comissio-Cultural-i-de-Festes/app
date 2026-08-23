@@ -200,7 +200,7 @@ export function EventFormScreen() {
                   className={
                     'flex min-h-[48px] flex-1 items-center justify-center px-2 text-md font-bold [text-wrap:balance] ' +
                     (form.tipo === type
-                      ? 'bg-brand text-on-brand'
+                      ? 'bg-brand-cta text-on-brand'
                       : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-secondary')
                   }
                 >
@@ -580,7 +580,7 @@ function RevealBlock({
               : toLocalInput(new Date(Date.now() + 86_400_000).toISOString(), APP_TIME_ZONE),
           })
         }}
-        className="flex w-full items-center gap-4 text-left"
+        className="flex min-h-[56px] w-full items-center gap-4 py-[15px] text-left"
       >
         <span className="min-w-0 flex-1">
           <span className="block text-base font-bold">{t('junta.form.reveal')}</span>

@@ -64,7 +64,7 @@
    * prototype (54 times). Keep it exact. */
   --ds-text-dim: oklch(0.62 0.012 45);
   /* 4.0:1 — BELOW AA for body text. Decorative and disabled states only. */
-  --ds-text-faint: oklch(0.55 0.012 45);
+  --ds-text-faint: oklch(0.595 0.012 45);
   /* 3.4:1 — quieter than faint on purpose: the "=" in the ranking's
    * movement column, which has to be visibly less loud than the arrows
    * on either side of it. Never text. */
@@ -94,7 +94,7 @@
   /* The wordmark, the outline Safari's Share button is picked out with, and
    * the primary button's hover. One value, three jobs, named for the loudest. */
   --ds-brand-strong: oklch(0.68 0.22 25);
-  --ds-brand-hover: var(--ds-brand-strong);
+  --ds-brand-hover: oklch(0.55 0.22 25); /* 5.26:1 under --ds-text-on-brand */
   --ds-brand-icon: oklch(0.7 0.2 25); /* active tab icon */
   --ds-brand-accent: oklch(0.72 0.2 25); /* top-3 rank numbers, eyebrows */
   --ds-brand-accent-hi: oklch(0.74 0.2 25);
@@ -122,18 +122,21 @@
    * association, not to failure. The scanner especially must never show brand
    * red for a rejected QR — you get half a second to read it, at night, with a
    * queue behind you. Enforced by tests/design-tokens.test.ts. */
-  --ds-success: oklch(0.78 0.17 145); /* scanner tick, positive deltas, points */
-  --ds-success-hi: oklch(0.8 0.17 145);
+  /* Lifted from L 0.78, where it had exactly the same lightness as
+   * --ds-brand-label — a green delta and a red link, side by side on the home
+   * screen, identical in greyscale and to anyone with a red-green deficiency. */
+  --ds-success: oklch(0.84 0.16 145); /* scanner tick, positive deltas, points */
+  --ds-success-hi: oklch(0.88 0.16 145);
   /* Bright orange. Separated from the brand in BOTH lightness (0.62 to 0.74)
    * and hue (25 to 48), which is what lets them be told apart at low
    * brightness. */
-  --ds-error: oklch(0.74 0.19 48);
+  --ds-error: oklch(0.62 0.19 48);
   /* "QR already used", expiries. Moved from the prototype's hue 78 to 90. At
    * 78 it sat only 30 degrees from --ds-error, and in the scanner those two
    * ARE the two failure states. At 90 the gap is 42 degrees. A deliberate
    * departure from the prototype. */
   --ds-warning: oklch(0.84 0.15 90);
-  --ds-warning-deep: oklch(0.8 0.15 86); /* last places, "full up" */
+  --ds-warning-deep: oklch(0.68 0.15 86); /* last places, "full up", pending */
   --ds-badge-past-bg: oklch(0.78 0.15 86); /* the "already happened" chip */
   --ds-badge-past-fg: oklch(0.17 0.03 60);
   --ds-unknown: oklch(0.72 0.13 300); /* violet: QR not from this association */

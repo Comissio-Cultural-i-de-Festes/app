@@ -45,8 +45,13 @@
    * on a laptop this centres a phone-width column instead of stretching a
    * mobile layout across 1440px.
    *
-   * No bottom padding here: the screens that sit under the tab bar opt into
-   * `.with-tabbar`, so the door and the install steps do not get a dead band. */
+   * No padding at the top or the bottom. The bottom belongs to `.with-tabbar`,
+   * which only the screens under the tab bar opt into. The top belongs to
+   * whatever each screen puts at its top, because there is no one right answer
+   * here: a sticky header has to paint THROUGH the status bar and hold its
+   * content below it, and the scanner's camera has to reach the very top of
+   * the glass. Padding on the root can do neither, and it silently added its
+   * own height to every `min-h-dvh` inside it. */
   #root {
     position: relative;
     isolation: isolate;
@@ -54,7 +59,6 @@
     min-height: 100dvh;
     margin-inline: auto;
     background: var(--ds-bg-app);
-    padding-top: var(--ds-safe-top);
     padding-left: var(--ds-safe-left);
     padding-right: var(--ds-safe-right);
   }

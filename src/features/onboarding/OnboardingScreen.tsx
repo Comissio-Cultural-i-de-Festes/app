@@ -68,7 +68,7 @@ export function OnboardingScreen() {
   const ready = escola !== null && phoneOk
 
   return (
-    <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
+    <main className="min-h-dvh bg-app pt-[var(--ds-safe-top)] pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
       <header className={`flex items-center justify-between gap-3 pt-4 pb-2 ${GUTTER}`}>
         <Wordmark size={20} />
       </header>
@@ -119,7 +119,7 @@ export function OnboardingScreen() {
                 className={
                   'flex w-full items-center gap-[14px] px-4 py-[15px] text-left ' +
                   (on
-                    ? 'bg-brand text-on-brand shadow-brand'
+                    ? 'bg-brand-cta text-on-brand shadow-brand'
                     : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg')
                 }
               >
@@ -130,7 +130,7 @@ export function OnboardingScreen() {
                   <span
                     className={
                       'mt-[5px] block text-[12.5px] font-semibold ' +
-                      (on ? 'text-[oklch(0.95_0.05_30)]' : 'text-[var(--ds-text-muted-lo)]')
+                      (on ? 'text-on-brand' : 'text-[var(--ds-text-muted-lo)]')
                     }
                   >
                     {row
@@ -199,7 +199,7 @@ export function OnboardingScreen() {
                 className={
                   'flex min-h-[50px] flex-1 items-center justify-center text-xl font-bold ' +
                   (on
-                    ? 'bg-brand text-on-brand'
+                    ? 'bg-brand-cta text-on-brand'
                     : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-secondary')
                 }
               >

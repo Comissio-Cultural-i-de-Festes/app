@@ -172,8 +172,18 @@ select throws_ok(
 reset role;
 select tests.authenticate_as('junta_alfa');
 
+-- Still without a deploy, which was always the point — but through the RPC
+-- now, because four separate PATCHes served a half-written calendar to
+-- everybody who loaded the app in between. See 180_save_periods.
 select lives_ok(
-  $$ update public.ranking_periods set ends_at = now() + interval '400 days' where codi = 't3' $$,
+  $$ select public.admin_save_periods((
+       select jsonb_agg(jsonb_build_object(
+                'codi', codi, 'etiqueta', etiqueta, 'mena', mena, 'ordre', ordre,
+                'starts_at', starts_at,
+                'ends_at', case when codi = 't3'
+                                then now() + interval '400 days'
+                                else ends_at end))
+         from public.ranking_periods)) $$,
   'the junta can move a boundary without a deploy, which is the whole point'
 );
 

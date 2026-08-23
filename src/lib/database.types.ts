@@ -645,6 +645,7 @@ export type Database = {
           codi: string
           ends_at: string | null
           etiqueta: string | null
+          mena: string
           ordre: number
           starts_at: string | null
         }
@@ -652,6 +653,7 @@ export type Database = {
           codi: string
           ends_at?: string | null
           etiqueta?: string | null
+          mena?: string
           ordre?: number
           starts_at?: string | null
         }
@@ -659,6 +661,7 @@ export type Database = {
           codi?: string
           ends_at?: string | null
           etiqueta?: string | null
+          mena?: string
           ordre?: number
           starts_at?: string | null
         }
@@ -852,6 +855,7 @@ export type Database = {
         }
         Returns: string
       }
+      admin_save_periods: { Args: { p_periods: Json }; Returns: undefined }
       admin_set_member_estat: {
         Args: { p_estat: string; p_user_id: string }
         Returns: undefined

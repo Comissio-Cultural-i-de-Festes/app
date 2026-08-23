@@ -87,6 +87,22 @@ export function formatOrdinal(n: number, l: Locale, gender: 'm' | 'f' = 'm'): st
 export const formatNumber = (n: number, l: Locale): string =>
   new Intl.NumberFormat(INTL_LOCALE[l]).format(n)
 
+/**
+ * The long form, for the one place on a screen that spells the date out.
+ *
+ * Anywhere else this is too much: "divendres, 12 de setembre de 2026, 21:00"
+ * is a sentence, and a sentence in an eyebrow stops being read.
+ */
+export const formatDateLong = (d: Date, l: Locale): string =>
+  dtf(l, {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(d)
+
 export const formatMonthShort = (d: Date, l: Locale): string => dtf(l, { month: 'short' }).format(d)
 
 export const formatDayNumber = (d: Date, l: Locale): string => dtf(l, { day: 'numeric' }).format(d)

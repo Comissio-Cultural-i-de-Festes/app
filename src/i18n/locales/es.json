@@ -105,6 +105,49 @@
     "empresa": "Empresa",
     "salut": "La Salud"
   },
+  "event": {
+    "past": "Ya ha pasado",
+    "whoComes_one": "Va {{count}} persona",
+    "whoComes_other": "Van {{count}}",
+    "whoCame_one": "Vino {{count}} persona",
+    "whoCame_other": "Vinieron {{count}}",
+    "onlyYeses": "Solo salen los que han dicho que sí. Quizá y no puedo solo lo ve la junta.",
+    "movement_one": "{{count}} se ha apuntado hoy",
+    "movement_other": "{{count}} se han apuntado hoy",
+    "facts": {
+      "when": "Cuándo",
+      "where": "Dónde",
+      "price": "Precio",
+      "free": "Gratis",
+      "until": "{{from}} hasta las {{to}}"
+    },
+    "full": "Lleno del todo",
+    "fullNoQueue": "Todavía no espera nadie. Apúntate y serás el primero si alguien se echa atrás.",
+    "fullWithQueue_one": "Hay {{count}} persona esperando. La gente se echa atrás siempre.",
+    "fullWithQueue_other": "Hay {{count}} esperando. La gente se echa atrás siempre.",
+    "wereThere": "estuvimos",
+    "pointsForComing": "puntos por venir",
+    "transport": "Cómo se vuelve",
+    "ask": {
+      "title": "¿Vienes? Dilo ahora, aunque sea quizá",
+      "full": "No quedan plazas. Puedes ponerte en la lista de espera",
+      "queue": "A la lista",
+      "yesWarning": "Si dices que vas, tu cara sale en la lista de arriba y la ve todo el mundo.",
+      "yesPublic": "Tu cara sale en la lista de arriba.",
+      "privateAnswer": "Esto no sale en la lista: solo lo ve la junta.",
+      "queuePrivate": "Estar en la lista no sale en ningún sitio. Solo lo ve la junta.",
+      "queueWarning": "Ponerte en la lista no sale en ningún sitio. Si se libera una plaza, la junta te avisa."
+    },
+    "queue": {
+      "onList": "Estás en la lista de espera. Si alguien se echa atrás, la junta te avisa.",
+      "position": "Eres el {{position}} de la lista de espera. Si alguien se echa atrás, la junta te avisa."
+    },
+    "gone": {
+      "title": "Aquí no hay nada",
+      "body": "Este evento ya no está, o todavía no puedes verlo. Vuelve al inicio y mira qué hay.",
+      "back": "Vuelve al inicio"
+    }
+  },
   "home": {
     "greeting": {
       "morning": "Buenos días, {{name}}",

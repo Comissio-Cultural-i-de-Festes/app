@@ -105,6 +105,49 @@
     "empresa": "L'Empresa",
     "salut": "La Salut"
   },
+  "event": {
+    "past": "Ja ha passat",
+    "whoComes_one": "Hi va {{count}} persona",
+    "whoComes_other": "Hi van {{count}}",
+    "whoCame_one": "Hi va venir {{count}} persona",
+    "whoCame_other": "Hi van venir {{count}}",
+    "onlyYeses": "Només surten els que han dit que sí. Potser i no puc només ho veu la junta.",
+    "movement_one": "{{count}} s'hi ha apuntat avui",
+    "movement_other": "{{count}} s'hi han apuntat avui",
+    "facts": {
+      "when": "Quan",
+      "where": "On",
+      "price": "Preu",
+      "free": "Gratis",
+      "until": "{{from}} fins a les {{to}}"
+    },
+    "full": "Ple del tot",
+    "fullNoQueue": "Encara no hi ha ningú esperant. Apunta-t'hi i seràs el primer si algú es fa enrere.",
+    "fullWithQueue_one": "Hi ha {{count}} persona esperant. La gent es fa enrere sempre.",
+    "fullWithQueue_other": "Hi ha {{count}} esperant. La gent es fa enrere sempre.",
+    "wereThere": "hi vam ser",
+    "pointsForComing": "punts per venir",
+    "transport": "Com es torna",
+    "ask": {
+      "title": "Hi véns? Digues-ho ara, encara que sigui potser",
+      "full": "No queden places. Pots posar-te a la llista d'espera",
+      "queue": "A la llista",
+      "yesWarning": "Si dius que hi vas, la teva cara surt a la llista de dalt i tothom la veu.",
+      "yesPublic": "La teva cara surt a la llista de dalt.",
+      "privateAnswer": "Això no surt a la llista: només ho veu la junta.",
+      "queuePrivate": "Ser a la llista no surt enlloc. Només ho veu la junta.",
+      "queueWarning": "Posar-te a la llista no surt enlloc. Si s'allibera una plaça, la junta t'avisa."
+    },
+    "queue": {
+      "onList": "Ets a la llista d'espera. Si algú es fa enrere, la junta t'avisa.",
+      "position": "Ets el {{position}} de la llista d'espera. Si algú es fa enrere, la junta t'avisa."
+    },
+    "gone": {
+      "title": "Aquí no hi ha res",
+      "body": "Aquest esdeveniment ja no hi és, o encara no el pots veure. Torna a l'inici i mira què hi ha.",
+      "back": "Torna a l'inici"
+    }
+  },
   "home": {
     "greeting": {
       "morning": "Bon dia, {{name}}",

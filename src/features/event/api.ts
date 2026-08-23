@@ -1,0 +1,62 @@
+import { unwrapAs } from '@/lib/db'
+import type { EventRow } from '@/lib/schema'
+import { supabase } from '@/lib/supabase'
+
+/**
+ * One event, in full.
+ *
+ * Same columns as the home screen's list, because it is the same view and the
+ * same reveal rules: the detail columns are absent rather than blank until
+ * reveal_at, and `revelat` is what says which it is.
+ */
+
+const EVENT_COLUMNS =
+  'id, titulo, tipo, starts_at, teaser, reveal_at, revelat, plazas, ' +
+  'precio_cents, puntos, published, descripcion, ubicacion, ends_at, cover_url, transport_info'
+
+export const eventKeys = {
+  one: (id: string) => ['event', id] as const,
+  waitlist: (id: string) => ['event', id, 'waitlist'] as const,
+}
+
+export async function fetchEvent(id: string): Promise<EventRow | null> {
+  const rows = await unwrapAs<EventRow[]>(
+    supabase.from('events_public').select(EVENT_COLUMNS).eq('id', id).limit(1),
+  )
+  return rows[0] ?? null
+}
+
+export interface WaitlistStatus {
+  readonly posicio: number | null
+  readonly total: number
+}
+
+/**
+ * Where you are in the queue, and how long it is.
+ *
+ * Two definer functions rather than a read of the table: working out that you
+ * are fourth means counting three rows belonging to other people, and a member
+ * cannot read those. They come back as numbers and nothing else — no names, no
+ * hint of who is ahead.
+ */
+export async function fetchWaitlist(eventId: string): Promise<WaitlistStatus> {
+  const [position, size] = await Promise.all([
+    supabase.rpc('waitlist_position', { p_event_id: eventId }),
+    supabase.rpc('waitlist_size', { p_event_id: eventId }),
+  ])
+
+  return {
+    posicio: position.data ?? null,
+    total: size.data ?? 0,
+  }
+}
+
+/** Cents to something a person reads. Free is free, not "0,00 €". */
+export function formatPrice(cents: number, locale: string): string | null {
+  if (cents <= 0) return null
+  return new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: cents % 100 === 0 ? 0 : 2,
+  }).format(cents / 100)
+}

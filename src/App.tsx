@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Navigate, Route, Routes } from 'react-router'
 
 import { EntryScreen } from '@/features/entry/EntryScreen'
+import { EventScreen } from '@/features/event/EventScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
@@ -111,6 +112,7 @@ export default function App() {
             <Route path="/ranquing" element={<RankingScreen />} />
             <Route path="/qr" element={<QrScreen />} />
             <Route path="/perfil" element={<ProfileScreen />} />
+            <Route path="/esdeveniment/:id" element={<EventScreen />} />
           </Route>
         </Route>
 

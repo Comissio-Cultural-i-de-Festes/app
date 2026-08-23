@@ -105,6 +105,49 @@
     "empresa": "Business",
     "salut": "Health Sciences"
   },
+  "event": {
+    "past": "Already happened",
+    "whoComes_one": "{{count}} person going",
+    "whoComes_other": "{{count}} going",
+    "whoCame_one": "{{count}} person came",
+    "whoCame_other": "{{count}} came",
+    "onlyYeses": "Only the yeses appear here. Maybe and no are seen by the committee only.",
+    "movement_one": "{{count}} signed up today",
+    "movement_other": "{{count}} signed up today",
+    "facts": {
+      "when": "When",
+      "where": "Where",
+      "price": "Price",
+      "free": "Free",
+      "until": "{{from}} until {{to}}"
+    },
+    "full": "Completely full",
+    "fullNoQueue": "Nobody is waiting yet. Join the list and you are first if somebody drops out.",
+    "fullWithQueue_one": "{{count}} person is waiting. People always drop out.",
+    "fullWithQueue_other": "{{count}} are waiting. People always drop out.",
+    "wereThere": "were there",
+    "pointsForComing": "points for coming",
+    "transport": "Getting home",
+    "ask": {
+      "title": "Coming? Say so now, even if it is a maybe",
+      "full": "No places left. You can join the waiting list",
+      "queue": "Join list",
+      "yesWarning": "If you say yes, your face goes on the list above and everybody sees it.",
+      "yesPublic": "Your face is on the list above.",
+      "privateAnswer": "This does not go on the list — only the committee sees it.",
+      "queuePrivate": "Being on the list does not show anywhere. Only the committee sees it.",
+      "queueWarning": "Joining the list does not show anywhere. If a place frees up, the committee will tell you."
+    },
+    "queue": {
+      "onList": "You are on the waiting list. If somebody drops out, the committee will tell you.",
+      "position": "You are {{position}} on the waiting list. If somebody drops out, the committee will tell you."
+    },
+    "gone": {
+      "title": "Nothing here",
+      "body": "This event is gone, or you cannot see it yet. Go back and see what is on.",
+      "back": "Back to the start"
+    }
+  },
   "home": {
     "greeting": {
       "morning": "Morning, {{name}}",

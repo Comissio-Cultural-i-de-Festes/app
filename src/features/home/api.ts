@@ -116,12 +116,21 @@ export async function fetchAttendances(eventIds: readonly string[]): Promise<Att
  * user_id is precisely what the column grants stop. The generic upsert is
  * refused with 42501 before any policy runs. See migration 12.
  */
-export async function setAnswer(eventId: string, estado: Answer): Promise<void> {
-  const { error } = await supabase.rpc('set_attendance', {
+export interface AnswerResult {
+  /** What was actually recorded. Asking for 'si' on a full event lands here as 'espera'. */
+  readonly estado: AttendanceState
+  readonly ple: boolean
+  /** Place in the queue, when the answer became one. */
+  readonly posicio: number | null
+}
+
+export async function setAnswer(eventId: string, estado: Answer): Promise<AnswerResult> {
+  const { data, error } = await supabase.rpc('set_attendance', {
     p_event_id: eventId,
     p_estado: estado,
   })
   if (error) throw new DbError(error)
+  return data as unknown as AnswerResult
 }
 
 // ── derived, and tested on its own ──────────────────────────────────────────

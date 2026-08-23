@@ -138,7 +138,10 @@ function Hero({ event, locale }: { readonly event: EventRow; readonly locale: Lo
   const start = new Date(event.starts_at)
 
   return (
-    <section className="relative h-[260px] bg-[oklch(0.2_0.02_25)]">
+    <Link
+      to={`/esdeveniment/${event.id}`}
+      className="relative block h-[260px] bg-[oklch(0.2_0.02_25)] no-underline"
+    >
       {event.cover_url === null ? (
         <div
           aria-hidden="true"
@@ -167,7 +170,7 @@ function Hero({ event, locale }: { readonly event: EventRow; readonly locale: Lo
           {event.titulo}
         </h1>
       </div>
-    </section>
+    </Link>
   )
 }
 
@@ -511,29 +514,31 @@ function Upcoming({
             .join(' · ')
 
           return (
-            <li
-              key={event.id}
-              className="flex items-center gap-[14px] border-b border-surface-5 py-[15px]"
-            >
-              <div className="w-[46px] flex-none text-center">
-                <p className="text-2xs font-extrabold tracking-[0.1em] uppercase text-brand-accent">
-                  {formatMonthShort(start, locale)}
-                </p>
-                <p className="tabular display text-[27px] leading-[0.9] tracking-[-0.04em]">
-                  {formatDayNumber(start, locale)}
-                </p>
-              </div>
-              <div className="flex-1">
-                <p className="text-lg leading-[1.15] font-bold [text-wrap:pretty]">
-                  {event.titulo}
-                </p>
-                {sub === '' ? null : (
-                  <p className="mt-2 text-sm text-fg-muted [text-wrap:pretty]">{sub}</p>
-                )}
-              </div>
-              <span aria-hidden="true" className="flex-none text-[20px] text-fg-faint">
-                ›
-              </span>
+            <li key={event.id} className="border-b border-surface-5">
+              <Link
+                to={`/esdeveniment/${event.id}`}
+                className="flex items-center gap-[14px] py-[15px] no-underline"
+              >
+                <div className="w-[46px] flex-none text-center">
+                  <p className="text-2xs font-extrabold tracking-[0.1em] uppercase text-brand-accent">
+                    {formatMonthShort(start, locale)}
+                  </p>
+                  <p className="tabular display text-[27px] leading-[0.9] tracking-[-0.04em]">
+                    {formatDayNumber(start, locale)}
+                  </p>
+                </div>
+                <div className="flex-1">
+                  <p className="text-lg leading-[1.15] font-bold [text-wrap:pretty]">
+                    {event.titulo}
+                  </p>
+                  {sub === '' ? null : (
+                    <p className="mt-2 text-sm text-fg-muted [text-wrap:pretty]">{sub}</p>
+                  )}
+                </div>
+                <span aria-hidden="true" className="flex-none text-[20px] text-fg-faint">
+                  ›
+                </span>
+              </Link>
             </li>
           )
         })}

@@ -21,6 +21,8 @@ import {
   fetchAdmins,
   fetchAttendees,
   fetchMembers,
+  fetchQueue,
+  letInFromQueue,
   paymentKeys,
   setPaid,
   setRole,
@@ -103,10 +105,85 @@ export function PaymentsScreen() {
               failed={attendees.isError}
             />
           )}
+          {event === null ? null : <Queue eventId={event.id} />}
         </div>
         <Admins />
       </div>
     </main>
+  )
+}
+
+/**
+ * The waiting list, and letting somebody in off it.
+ *
+ * The member's side of this is deliberately blind — you see your own position
+ * and how many are waiting, never who. This is the other half: the only place
+ * the queue exists as a list of names, and the only place anybody can move
+ * someone off it, which the junta does by hand on purpose.
+ */
+function Queue({ eventId }: { readonly eventId: string }) {
+  const { t } = useTranslation()
+  const client = useQueryClient()
+
+  const queue = useQuery({
+    queryKey: paymentKeys.queue(eventId),
+    queryFn: () => fetchQueue(eventId),
+  })
+
+  const letIn = useMutation({
+    mutationFn: (attendanceId: string) => letInFromQueue(attendanceId),
+    onSuccess: async () => {
+      await client.invalidateQueries({ queryKey: paymentKeys.queue(eventId) })
+      await client.invalidateQueries({ queryKey: paymentKeys.attendees(eventId) })
+    },
+  })
+
+  // Nothing at all when nobody is waiting: an empty "waiting list" heading on
+  // every event would be a section that means nothing 90% of the time.
+  if (queue.isPending || (queue.data?.length ?? 0) === 0) return null
+
+  return (
+    <section className={`pt-14 ${GUTTER}`}>
+      <h2 className="display text-[26px] leading-none tracking-[-0.045em]">
+        {t('junta.payments.queue', { count: queue.data?.length ?? 0 })}
+      </h2>
+      <p className="mt-4 text-sm text-fg-muted [text-wrap:pretty]">
+        {t('junta.payments.queueSub')}
+      </p>
+
+      <ul className="mt-7">
+        {queue.data?.map((r, index) => (
+          <li
+            key={r.id}
+            className="flex min-h-[56px] items-center gap-4 border-b border-surface-4 py-6"
+          >
+            <span className="tabular w-[22px] flex-none text-md font-bold text-fg-muted">
+              {index + 1}
+            </span>
+            <Avatar src={r.profiles?.avatar_url ?? null} size={36} />
+            <span className="min-w-0 flex-1 truncate text-base font-semibold">
+              {r.profiles?.nombre ?? '—'}
+            </span>
+            <button
+              type="button"
+              disabled={letIn.isPending}
+              onClick={() => {
+                letIn.mutate(r.id)
+              }}
+              className="min-h-[44px] flex-none bg-brand-cta px-6 text-md font-bold text-on-brand disabled:opacity-70"
+            >
+              {t('junta.invites.letIn')}
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      {letIn.isError ? (
+        <p role="alert" className="pt-6 text-md font-bold text-error">
+          {t(errorKey(letIn.error))}
+        </p>
+      ) : null}
+    </section>
   )
 }
 

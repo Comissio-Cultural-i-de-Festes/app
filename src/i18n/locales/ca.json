@@ -351,7 +351,10 @@
         "member": "soci",
         "admin": "admin",
         "owner": "owner"
-      }
+      },
+      "queue_one": "Llista d'espera · {{count}}",
+      "queue_other": "Llista d'espera · {{count}}",
+      "queueSub": "En l'ordre en què s'hi han posat. Si s'allibera una plaça, decidiu vosaltres qui hi entra."
     },
     "form": {
       "leaveIt": "Deixa-ho",

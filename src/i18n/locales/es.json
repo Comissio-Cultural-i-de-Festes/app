@@ -351,7 +351,10 @@
         "member": "socio",
         "admin": "admin",
         "owner": "owner"
-      }
+      },
+      "queue_one": "Lista de espera · {{count}}",
+      "queue_other": "Lista de espera · {{count}}",
+      "queueSub": "En el orden en que se han puesto. Si se libera una plaza, decidís vosotros quién entra."
     },
     "form": {
       "leaveIt": "Déjalo",

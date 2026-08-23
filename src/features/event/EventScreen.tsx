@@ -125,7 +125,10 @@ export function EventScreen() {
       <Cover coverUrl={covers.data?.get(e.cover_url ?? '') ?? null} isPast={isPast} />
 
       <section className={`pt-8 ${GUTTER}`}>
-        <p className="eyebrow text-brand-accent">{formatDateTime(starts, locale)}</p>
+        <div className="flex items-start justify-between gap-6">
+          <p className="eyebrow text-brand-accent">{formatDateTime(starts, locale)}</p>
+          {isPast ? null : <Share event={e} />}
+        </div>
         <h1 className="display mt-4 text-d-md leading-[0.88] tracking-[-0.05em] [overflow-wrap:break-word] [text-wrap:balance]">
           {e.titulo}
         </h1>
@@ -273,6 +276,56 @@ function Cover({
   )
 }
 
+/**
+ * Passing an event on to somebody.
+ *
+ * The way an event actually spreads is one person sending a link into a group
+ * chat, and until now the only way to do that was to copy the address bar,
+ * which nobody does from an installed app because there is no address bar.
+ *
+ * `navigator.share` where it exists — on an installed iPhone it opens the
+ * system sheet with WhatsApp first, which is where this is going anyway — and
+ * the clipboard where it does not. The label is the confirmation, the same as
+ * the invitation code's copy button, because a toast on a screen somebody is
+ * about to leave is a toast nobody reads.
+ */
+function Share({ event }: { readonly event: EventRow }) {
+  const { t } = useTranslation()
+  const [copied, setCopied] = useState(false)
+
+  const link = `${window.location.origin}/esdeveniment/${event.id}`
+
+  async function send(): Promise<void> {
+    const text = t('event.shareText', { title: event.titulo, link })
+    try {
+      if (typeof navigator.share === 'function') {
+        await navigator.share({ text })
+        return
+      }
+      await navigator.clipboard.writeText(text)
+      setCopied(true)
+      setTimeout(() => {
+        setCopied(false)
+      }, 2500)
+    } catch {
+      // The share sheet was dismissed, or the clipboard was refused. Neither
+      // is a failure worth a message: nothing was lost and the person is
+      // looking at the thing they wanted to send.
+      setCopied(false)
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      onClick={() => void send()}
+      className="-mr-2 -mt-2 min-h-[44px] flex-none px-2 text-md font-bold text-brand-label"
+    >
+      {copied ? t('event.shared') : t('actions.share')}
+    </button>
+  )
+}
+
 function Fact({ label, value }: { readonly label: string; readonly value: string }) {
   return (
     <div className="flex gap-6 py-2">
@@ -318,14 +371,22 @@ function Places({
 
   if (left === null) return null
 
+  // The last place is not the twentieth place. The prototype gives it its own
+  // state — amber, "Corre.", and a line saying it will not last — because the
+  // number is the whole reason somebody opens this screen twice in an evening.
+  const urgent = left === 1
+
   return (
     <section className={`pt-9 ${GUTTER}`}>
       <p
         className={
           'tabular display text-d-lg leading-[0.85] tracking-[-0.05em] ' +
-          (left === 0 ? 'text-[var(--ds-warning-deep)]' : '')
+          (left === 0 || urgent ? 'text-[var(--ds-warning-deep)]' : '')
         }
       >
+        {/* "Ple del tot" here and "Ple" on the home hero are deliberately
+            different strings: this one is a whole screen about one event and
+            it can afford the emphasis. Not a duplicate to collapse. */}
         {left === 0 ? t('event.full') : t('home.places.left', { count: left })}
       </p>
       <p className="mt-4 text-sm font-bold text-fg-muted [text-wrap:pretty]">
@@ -333,8 +394,15 @@ function Places({
           ? waiting > 0
             ? t('event.fullWithQueue', { count: waiting })
             : t('event.fullNoQueue')
-          : t('home.places.of', { total: event.plazas })}
+          : urgent
+            ? t('event.lastOne', { total: event.plazas })
+            : t('home.places.of', { total: event.plazas })}
       </p>
+      {urgent ? (
+        <p className="mt-3 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+          {t('event.lastOneSub')}
+        </p>
+      ) : null}
     </section>
   )
 }

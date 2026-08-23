@@ -198,7 +198,11 @@
       "noSub": "If you change your mind, come back while there are places left.",
       "nothing": "You have not said anything yet.",
       "nothingSub": "Three taps and you are done. Maybe counts too."
-    }
+    },
+    "lastOne": "of {{total}}. Move.",
+    "lastOneSub": "This will not last half an hour.",
+    "shareText": "{{title}} — coming? {{link}}",
+    "shared": "Copied"
   },
   "eventType": {
     "fiesta": "Party",

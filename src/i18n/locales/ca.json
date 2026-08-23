@@ -198,7 +198,11 @@
       "noSub": "Si canvies d’idea, torna-hi mentre quedin places.",
       "nothing": "Encara no has dit res.",
       "nothingSub": "Tres tocs i ja està. Potser també val."
-    }
+    },
+    "lastOne": "de {{total}}. Corre.",
+    "lastOneSub": "Això no dura ni mitja hora.",
+    "shareText": "{{title}} — hi véns? {{link}}",
+    "shared": "Copiat"
   },
   "eventType": {
     "fiesta": "Festa",

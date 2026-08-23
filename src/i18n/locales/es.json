@@ -198,7 +198,11 @@
       "noSub": "Si cambias de idea, vuelve mientras queden plazas.",
       "nothing": "Todavía no has dicho nada.",
       "nothingSub": "Tres toques y ya está. El quizá también vale."
-    }
+    },
+    "lastOne": "de {{total}}. Corre.",
+    "lastOneSub": "Esto no dura ni media hora.",
+    "shareText": "{{title}} — ¿te vienes? {{link}}",
+    "shared": "Copiado"
   },
   "eventType": {
     "fiesta": "Fiesta",

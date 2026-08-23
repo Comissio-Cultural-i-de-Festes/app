@@ -23,6 +23,17 @@ import { Avatar } from '@/ui/Avatar/Avatar'
 import { useCovers } from '@/ui/Cover/useCovers'
 
 import { eventKeys, fetchEvent, fetchWaitlist, formatPrice } from './api'
+import { Cover, Fact, Places } from './detail'
+
+const GUTTER = 'px-[var(--ds-gutter)]'
+
+type Translate = ReturnType<typeof useTranslation>['t']
+
+function whenText(e: EventRow, starts: Date, locale: ReturnType<typeof toLocale>, t: Translate) {
+  const from = formatDateLong(starts, locale)
+  if (e.ends_at === null) return from
+  return t('event.facts.until', { from, to: formatTime(new Date(e.ends_at), locale) })
+}
 
 /**
  * One event, at length.
@@ -36,7 +47,6 @@ import { eventKeys, fetchEvent, fetchWaitlist, formatPrice } from './api'
  * knowing before rather than after.
  */
 
-const GUTTER = 'px-[var(--ds-gutter)]'
 const FACES = 5
 
 export function EventScreen() {
@@ -122,7 +132,19 @@ export function EventScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <Cover coverUrl={covers.data?.get(e.cover_url ?? '') ?? null} isPast={isPast} />
+      <Cover
+        coverUrl={covers.data?.get(e.cover_url ?? '') ?? null}
+        isPast={isPast}
+        corner={
+          <Link
+            to="/"
+            aria-label={t('actions.back')}
+            className="grid size-[44px] place-items-center rounded-full bg-[oklch(0.15_0.012_25/0.7)] text-2xl text-fg backdrop-blur-[6px]"
+          >
+            <span aria-hidden="true">←</span>
+          </Link>
+        }
+      />
 
       <section className={`pt-8 ${GUTTER}`}>
         <div className="flex items-start justify-between gap-6">
@@ -222,60 +244,6 @@ export function EventScreen() {
   )
 }
 
-type Translate = ReturnType<typeof useTranslation>['t']
-
-function whenText(e: EventRow, starts: Date, locale: ReturnType<typeof toLocale>, t: Translate) {
-  const from = formatDateLong(starts, locale)
-  if (e.ends_at === null) return from
-  return t('event.facts.until', { from, to: formatTime(new Date(e.ends_at), locale) })
-}
-
-function Cover({
-  coverUrl,
-  isPast,
-}: {
-  readonly coverUrl: string | null
-  readonly isPast: boolean
-}) {
-  const { t } = useTranslation()
-
-  return (
-    <section className="relative h-[240px] bg-[oklch(0.2_0.02_25)]">
-      {coverUrl === null ? (
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 bg-[var(--ds-bg-avatar)] bg-[image:var(--ds-pattern-avatar)]"
-        />
-      ) : (
-        <img
-          src={coverUrl}
-          alt=""
-          className="absolute inset-0 size-full object-cover"
-          decoding="async"
-        />
-      )}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[linear-gradient(to_bottom,oklch(0.15_0.012_25/0.55)_0%,oklch(0.15_0.012_25/0.1)_40%,oklch(0.15_0.012_25/0.8)_82%,oklch(0.15_0.012_25)_100%)]"
-      />
-
-      <Link
-        to="/"
-        aria-label={t('actions.back')}
-        className="absolute top-4 left-4 grid size-[44px] place-items-center rounded-full bg-[oklch(0.15_0.012_25/0.7)] text-2xl text-fg backdrop-blur-[6px]"
-      >
-        <span aria-hidden="true">←</span>
-      </Link>
-
-      {isPast ? (
-        <p className="absolute top-6 right-4 rounded-xs bg-[var(--ds-badge-past-bg)] px-4 py-2 text-2xs font-extrabold tracking-[0.1em] text-[var(--ds-badge-past-fg)] uppercase">
-          {t('event.past')}
-        </p>
-      ) : null}
-    </section>
-  )
-}
-
 /**
  * Passing an event on to somebody.
  *
@@ -323,87 +291,6 @@ function Share({ event }: { readonly event: EventRow }) {
     >
       {copied ? t('event.shared') : t('actions.share')}
     </button>
-  )
-}
-
-function Fact({ label, value }: { readonly label: string; readonly value: string }) {
-  return (
-    <div className="flex gap-6 py-2">
-      <p className="w-[64px] flex-none text-2xs font-extrabold tracking-[0.08em] text-fg-dim uppercase">
-        {label}
-      </p>
-      <p className="flex-1 text-base text-fg-secondary [text-wrap:pretty]">{value}</p>
-    </div>
-  )
-}
-
-function Places({
-  event,
-  left,
-  going,
-  isPast,
-  waiting,
-}: {
-  readonly event: EventRow
-  readonly left: number | null
-  readonly going: number
-  readonly isPast: boolean
-  readonly waiting: number
-}) {
-  const { t } = useTranslation()
-
-  if (isPast) {
-    return (
-      <section className={`flex items-end gap-9 pt-9 ${GUTTER}`}>
-        <div>
-          <p className="tabular display text-d-lg leading-[0.85] tracking-[-0.05em]">{going}</p>
-          <p className="mt-2 text-sm font-bold text-fg-muted">{t('event.wereThere')}</p>
-        </div>
-        <div>
-          <p className="tabular display text-d-sm leading-[0.85] tracking-[-0.05em] text-brand-accent">
-            +{event.puntos}
-          </p>
-          <p className="mt-2 text-sm font-bold text-fg-muted">{t('event.pointsForComing')}</p>
-        </div>
-      </section>
-    )
-  }
-
-  if (left === null) return null
-
-  // The last place is not the twentieth place. The prototype gives it its own
-  // state — amber, "Corre.", and a line saying it will not last — because the
-  // number is the whole reason somebody opens this screen twice in an evening.
-  const urgent = left === 1
-
-  return (
-    <section className={`pt-9 ${GUTTER}`}>
-      <p
-        className={
-          'tabular display text-d-lg leading-[0.85] tracking-[-0.05em] ' +
-          (left === 0 || urgent ? 'text-[var(--ds-warning-deep)]' : '')
-        }
-      >
-        {/* "Ple del tot" here and "Ple" on the home hero are deliberately
-            different strings: this one is a whole screen about one event and
-            it can afford the emphasis. Not a duplicate to collapse. */}
-        {left === 0 ? t('event.full') : t('home.places.left', { count: left })}
-      </p>
-      <p className="mt-4 text-sm font-bold text-fg-muted [text-wrap:pretty]">
-        {left === 0
-          ? waiting > 0
-            ? t('event.fullWithQueue', { count: waiting })
-            : t('event.fullNoQueue')
-          : urgent
-            ? t('event.lastOne', { total: event.plazas })
-            : t('home.places.of', { total: event.plazas })}
-      </p>
-      {urgent ? (
-        <p className="mt-3 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-          {t('event.lastOneSub')}
-        </p>
-      ) : null}
-    </section>
   )
 }
 

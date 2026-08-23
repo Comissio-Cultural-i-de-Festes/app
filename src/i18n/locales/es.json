@@ -397,7 +397,19 @@
       "publishHidden": "Se destapa solo a la hora que has puesto. No tienes que hacer nada más.",
       "saveDraft": "Guarda y cierra",
       "saveChanges": "Guarda los cambios",
-      "saveChangesNote": "Ya está en el inicio de todos: el cambio se ve enseguida."
+      "saveChangesNote": "Ya está en el inicio de todos: el cambio se ve enseguida.",
+      "live": "Publicado",
+      "liveSub_one": "Lo ve {{count}} persona de la comi, ahora mismo.",
+      "liveSub_other": "Lo ven {{count}} personas de la comi, ahora mismo.",
+      "liveSubPlain": "Lo ve toda la comi, ahora mismo.",
+      "draft": "Borrador",
+      "draftSub": "No lo ve nadie más que vosotros.",
+      "unpublishAsk": "Si lo despublicas, desaparece del inicio de todos. Los que se han apuntado siguen apuntados.",
+      "unpublish": "Despublícalo",
+      "countdown": "Faltan",
+      "leftDaysHours": "{{days}} d {{hours}} h",
+      "leftHoursMinutes": "{{hours}} h {{minutes}} min",
+      "leftMinutes": "{{minutes}} min"
     }
   },
   "language": {

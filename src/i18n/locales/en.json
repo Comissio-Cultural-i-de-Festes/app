@@ -397,7 +397,19 @@
       "publishHidden": "It opens by itself at the time you set. Nothing else to do.",
       "saveDraft": "Save and close",
       "saveChanges": "Save the changes",
-      "saveChangesNote": "It is already on everyone's Home: the change shows straight away."
+      "saveChangesNote": "It is already on everyone's Home: the change shows straight away.",
+      "live": "Published",
+      "liveSub_one": "{{count}} person can see it right now.",
+      "liveSub_other": "{{count}} people can see it right now.",
+      "liveSubPlain": "Everybody can see it right now.",
+      "draft": "Draft",
+      "draftSub": "Nobody but you can see it.",
+      "unpublishAsk": "Unpublish it and it disappears from everyone’s Home. Anyone already signed up stays signed up.",
+      "unpublish": "Unpublish it",
+      "countdown": "Opens in",
+      "leftDaysHours": "{{days}}d {{hours}}h",
+      "leftHoursMinutes": "{{hours}}h {{minutes}}m",
+      "leftMinutes": "{{minutes}}m"
     }
   },
   "language": {

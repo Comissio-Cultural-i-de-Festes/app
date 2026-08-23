@@ -839,6 +839,10 @@ export type Database = {
         Args: { p_attendance_id: string; p_pagado: boolean }
         Returns: undefined
       }
+      admin_set_published: {
+        Args: { p_event_id: string; p_published: boolean }
+        Returns: undefined
+      }
       award_points: {
         Args: {
           p_event_id: string

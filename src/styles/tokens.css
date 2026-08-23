@@ -144,6 +144,9 @@
   /* The paid row's tint. Barely a colour — enough that a scan down the list
    * finds the unpaid ones, not so much that twelve green rows shout. */
   --ds-bg-paid: oklch(0.185 0.02 145);
+  /* The "this is live" strip at the top of the event form. Louder than
+   * the paid row because it is a state, not a row in a list. */
+  --ds-bg-live: oklch(0.22 0.05 145);
 
   /* ─── THE DOOR ─────────────────────────────────────────────────────────
    * Darker than the app, because a camera picture is behind it and the phone

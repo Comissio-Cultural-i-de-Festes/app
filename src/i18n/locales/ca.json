@@ -397,7 +397,19 @@
       "publishHidden": "Es destapa sol a l'hora que has posat. No has de fer res més.",
       "saveDraft": "Guarda i plega",
       "saveChanges": "Desa els canvis",
-      "saveChangesNote": "Ja és a l’inici de tothom: el canvi es veu de seguida."
+      "saveChangesNote": "Ja és a l’inici de tothom: el canvi es veu de seguida.",
+      "live": "Publicat",
+      "liveSub_one": "Ho veu {{count}} persona de la comi, ara mateix.",
+      "liveSub_other": "Ho veuen {{count}} persones de la comi, ara mateix.",
+      "liveSubPlain": "Ho veu tota la comi, ara mateix.",
+      "draft": "Esborrany",
+      "draftSub": "No ho veu ningú més que vosaltres.",
+      "unpublishAsk": "Si el despubliques, desapareix de l'inici de tothom. Els qui s'hi han apuntat es queden apuntats.",
+      "unpublish": "Despublica-ho",
+      "countdown": "Falten",
+      "leftDaysHours": "{{days}} d {{hours}} h",
+      "leftHoursMinutes": "{{hours}} h {{minutes}} min",
+      "leftMinutes": "{{minutes}} min"
     }
   },
   "language": {

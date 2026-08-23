@@ -16,10 +16,12 @@ import { JuntaHeader } from './JuntaHeader'
 import {
   type EventDraft,
   eventFormKeys,
+  fetchMemberCount,
   fetchPointValues,
   fetchTemplates,
   fromLocalInput,
   saveEvent,
+  setPublished,
   toLocalInput,
 } from './eventFormApi'
 
@@ -161,6 +163,10 @@ export function EventFormScreen() {
             : t('junta.form.newTitle')}
         </h1>
       </div>
+
+      {editing && existing.data !== null && existing.data !== undefined ? (
+        <PublishedStrip eventId={existing.data.id} published={existing.data.published} />
+      ) : null}
 
       <div className="lg:grid lg:grid-cols-[1fr_372px] lg:items-start lg:gap-15 lg:px-14 lg:pb-16">
         {showTemplates ? (
@@ -503,6 +509,130 @@ function blankToNull(value: string): string | null {
   return value.trim() === '' ? null : value.trim()
 }
 
+/**
+ * Live or not, at the top of the form, with the switch in it.
+ *
+ * Above everything else and outside the scrolling columns on a laptop,
+ * because the whole point is that you cannot edit an event for two minutes
+ * without knowing whether people are looking at it.
+ */
+function PublishedStrip({
+  eventId,
+  published,
+}: {
+  readonly eventId: string
+  readonly published: boolean
+}) {
+  const { t } = useTranslation()
+  const client = useQueryClient()
+  const [confirming, setConfirming] = useState(false)
+
+  const members = useQuery({
+    queryKey: eventFormKeys.memberCount(),
+    queryFn: fetchMemberCount,
+    enabled: published,
+  })
+
+  const flip = useMutation({
+    mutationFn: (next: boolean) => setPublished(eventId, next),
+    onSuccess: async () => {
+      setConfirming(false)
+      await client.invalidateQueries()
+    },
+  })
+
+  const tone = published
+    ? 'bg-[var(--ds-bg-live)] border-b-2 border-success'
+    : 'bg-surface-2 border-b-2 border-dashed border-[var(--ds-border-input)]'
+
+  return (
+    <div>
+      <button
+        type="button"
+        role="switch"
+        aria-checked={published}
+        disabled={flip.isPending}
+        onClick={() => {
+          // One way is a decision you undo with another tap; the other takes
+          // the thing off two hundred phones. Only one of them asks.
+          if (published) setConfirming((was) => !was)
+          else flip.mutate(true)
+        }}
+        className={`flex min-h-[76px] w-full items-center gap-7 px-[var(--ds-gutter)] py-8 text-left ${tone}`}
+      >
+        <span
+          aria-hidden="true"
+          className={
+            'flex size-[44px] flex-none items-center justify-center rounded-full text-xl font-extrabold ' +
+            (published ? 'bg-success text-[var(--ds-on-state)]' : 'bg-surface-7 text-fg-muted')
+          }
+        >
+          {published ? '◉' : '◌'}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="display block text-[22px] leading-none tracking-[-0.04em]">
+            {published ? t('junta.form.live') : t('junta.form.draft')}
+          </span>
+          <span className="mt-[5px] block text-sm font-semibold [text-wrap:pretty]">
+            {published
+              ? members.data === undefined
+                ? t('junta.form.liveSubPlain')
+                : t('junta.form.liveSub', { count: members.data })
+              : t('junta.form.draftSub')}
+          </span>
+        </span>
+        <span
+          aria-hidden="true"
+          className={
+            'flex h-[28px] w-[48px] flex-none items-center rounded-full p-[3px] ' +
+            (published ? 'bg-success' : 'bg-surface-6')
+          }
+        >
+          <span
+            className={
+              'size-[22px] rounded-full bg-fg transition-transform ' +
+              (published ? 'translate-x-[20px]' : '')
+            }
+          />
+        </span>
+      </button>
+
+      {confirming ? (
+        <div className={`border-b border-surface-5 bg-surface-1 py-8 ${GUTTER}`}>
+          <p className="text-md font-bold [text-wrap:pretty]">{t('junta.form.unpublishAsk')}</p>
+          <div className="mt-6 flex gap-4">
+            <button
+              type="button"
+              disabled={flip.isPending}
+              onClick={() => {
+                flip.mutate(false)
+              }}
+              className="min-h-[48px] flex-1 border-[1.5px] border-[var(--ds-warning)] px-6 text-md font-bold text-[var(--ds-warning)] disabled:opacity-70"
+            >
+              {t('junta.form.unpublish')}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setConfirming(false)
+              }}
+              className="min-h-[48px] flex-1 border-[1.5px] border-surface-7 px-6 text-md font-bold text-fg-secondary"
+            >
+              {t('actions.cancel')}
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {flip.isError ? (
+        <p role="alert" className={`py-6 text-md font-bold text-error ${GUTTER}`}>
+          {t(errorKey(flip.error))}
+        </p>
+      ) : null}
+    </div>
+  )
+}
+
 // ── pieces ──────────────────────────────────────────────────────────────────
 
 const INPUT =
@@ -595,6 +725,7 @@ function RevealBlock({
   const { t } = useTranslation()
   const on = form.reveal_at !== ''
   const when = fromLocalInput(form.reveal_at, APP_TIME_ZONE)
+  const left = when === null ? null : timeLeft(when, t)
 
   return (
     <section className={`border-y border-surface-7 py-9 ${GUTTER}`}>
@@ -647,6 +778,15 @@ function RevealBlock({
             />
           </Field>
 
+          {/* Half the promise of a scheduled reveal is the countdown the
+              member sees, so the person setting it should see the same number
+              rather than working it out from two dates. */}
+          {left === null ? null : (
+            <p className="-mt-5 pb-9 text-sm font-bold text-[var(--ds-unknown)]">
+              {t('junta.form.countdown')} <span className="tabular">{left}</span>
+            </p>
+          )}
+
           <Field label={t('junta.form.teaser')} hint={t('junta.form.teaserHint')}>
             <input
               value={form.teaser}
@@ -686,4 +826,26 @@ function RevealBlock({
       ) : null}
     </section>
   )
+}
+
+type Translate = ReturnType<typeof useTranslation>['t']
+
+/**
+ * "6 d 4 h", and nothing longer.
+ *
+ * Two units is all anybody reads off a countdown, and the second one stops
+ * mattering once the first is in weeks. Returns null once the moment has gone
+ * — a negative countdown is a bug pretending to be information.
+ */
+function timeLeft(iso: string, t: Translate): string | null {
+  const ms = new Date(iso).getTime() - Date.now()
+  if (!Number.isFinite(ms) || ms <= 0) return null
+
+  const minutes = Math.floor(ms / 60_000)
+  const hours = Math.floor(minutes / 60)
+  const days = Math.floor(hours / 24)
+
+  if (days > 0) return t('junta.form.leftDaysHours', { days, hours: hours % 24 })
+  if (hours > 0) return t('junta.form.leftHoursMinutes', { hours, minutes: minutes % 60 })
+  return t('junta.form.leftMinutes', { minutes })
 }

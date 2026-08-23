@@ -33,6 +33,7 @@ export interface EventDraft {
 
 export const eventFormKeys = {
   templates: () => ['junta', 'templates'] as const,
+  memberCount: () => ['junta', 'memberCount'] as const,
   pointValues: () => ['junta', 'pointValues'] as const,
 }
 
@@ -77,6 +78,36 @@ export async function fetchTemplates(): Promise<EventRow[]> {
       .order('starts_at', { ascending: false })
       .limit(8),
   )
+}
+
+/**
+ * Puts an event on, or takes it off, every member's home screen.
+ *
+ * Its own RPC rather than a `published` flag on admin_save_event, for two
+ * reasons: it is one tap from a screen that is not otherwise saving anything,
+ * and it is the change most worth having in audit_log on its own line. The
+ * direct UPDATE grant on `events` was revoked in the same migration, so this
+ * is now the only way the column moves.
+ */
+export async function setPublished(eventId: string, published: boolean): Promise<void> {
+  const { error } = await supabase.rpc('admin_set_published', {
+    p_event_id: eventId,
+    p_published: published,
+  })
+  if (error) throw new DbError(error)
+}
+
+/**
+ * How many people would see it. The number is what makes the sentence land —
+ * "no ho veu ningú" and "ho veuen 214 persones" are different decisions.
+ */
+export async function fetchMemberCount(): Promise<number> {
+  const { count, error } = await supabase
+    .from('profiles')
+    .select('id', { count: 'exact', head: true })
+    .eq('estat', 'actiu')
+  if (error) throw new DbError(error)
+  return count ?? 0
 }
 
 export interface PointValue {

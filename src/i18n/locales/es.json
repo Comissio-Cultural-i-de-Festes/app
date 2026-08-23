@@ -330,7 +330,9 @@
       "letIn": "Que entre",
       "noSchool": "Sin escuela",
       "askFirst": "Si no conoces el nombre, pregunta al grupo antes de dejarlo entrar. Vale más tardar un día que tener gente de fuera en el ranking.",
-      "reject": "No"
+      "reject": "No",
+      "letInDone": "{{name}} ya está dentro. Puede entrar con el código.",
+      "rejectDone": "{{name}} no entra. No recibirá nada."
     },
     "payments": {
       "title": "Pagos y junta",

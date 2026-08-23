@@ -54,11 +54,23 @@ export function InvitesScreen() {
     },
   })
 
+  // The row vanishes the moment the decision lands, so the confirmation has
+  // to be taken before the list refetches or there is nothing left to name.
+  // Same trick as the points screen, which snapshots the count before clearing
+  // the selection.
+  const [decided, setDecided] = useState<{ nombre: string; estat: 'actiu' | 'baixa' } | null>(null)
+  const [deciding, setDeciding] = useState<string | null>(null)
+
   const decide = useMutation({
-    mutationFn: ({ id, estat }: { id: string; estat: 'actiu' | 'baixa' }) =>
+    mutationFn: ({ id, estat }: { id: string; estat: 'actiu' | 'baixa'; nombre: string }) =>
       setMemberState(id, estat),
-    onSuccess: async () => {
+    onSuccess: async (_data, variables) => {
+      setDecided({ nombre: variables.nombre, estat: variables.estat })
+      setDeciding(null)
       await client.invalidateQueries({ queryKey: juntaKeys.pending() })
+    },
+    onError: () => {
+      setDeciding(null)
     },
   })
 
@@ -182,6 +194,20 @@ export function InvitesScreen() {
             </p>
           ) : null}
 
+          {decided === null ? null : (
+            <p
+              role="status"
+              className={
+                'pt-6 text-md font-bold [text-wrap:pretty] ' +
+                (decided.estat === 'actiu' ? 'text-success' : 'text-fg-muted')
+              }
+            >
+              {decided.estat === 'actiu'
+                ? t('junta.invites.letInDone', { name: decided.nombre })
+                : t('junta.invites.rejectDone', { name: decided.nombre })}
+            </p>
+          )}
+
           {pending.isPending ? (
             <p className="py-8 text-fg-muted">{t('state.loading')}</p>
           ) : (pending.data?.length ?? 0) === 0 ? (
@@ -207,9 +233,10 @@ export function InvitesScreen() {
                   </div>
                   <button
                     type="button"
-                    disabled={decide.isPending}
+                    disabled={deciding !== null}
                     onClick={() => {
-                      decide.mutate({ id: p.id, estat: 'baixa' })
+                      setDeciding(p.id)
+                      decide.mutate({ id: p.id, estat: 'baixa', nombre: p.nombre })
                     }}
                     className="min-h-[44px] min-w-[52px] flex-none border-[1.5px] border-surface-7 px-6 text-md font-bold text-fg-secondary disabled:opacity-70"
                   >
@@ -217,9 +244,10 @@ export function InvitesScreen() {
                   </button>
                   <button
                     type="button"
-                    disabled={decide.isPending}
+                    disabled={deciding !== null}
                     onClick={() => {
-                      decide.mutate({ id: p.id, estat: 'actiu' })
+                      setDeciding(p.id)
+                      decide.mutate({ id: p.id, estat: 'actiu', nombre: p.nombre })
                     }}
                     className="min-h-[44px] flex-none bg-brand-cta px-6 text-md font-bold text-on-brand disabled:opacity-70"
                   >

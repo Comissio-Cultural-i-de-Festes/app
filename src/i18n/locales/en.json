@@ -330,7 +330,9 @@
       "letIn": "Let them in",
       "noSchool": "No school",
       "askFirst": "If you do not know the name, ask the group before letting them in. Better to take a day than to have strangers in the ranking.",
-      "reject": "No"
+      "reject": "No",
+      "letInDone": "{{name}} is in. They can join with the code.",
+      "rejectDone": "{{name}} does not get in. They are not told anything."
     },
     "payments": {
       "title": "Payments and committee",

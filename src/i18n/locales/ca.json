@@ -330,7 +330,9 @@
       "letIn": "Que entri",
       "noSchool": "Sense escola",
       "askFirst": "Si no coneixes el nom, pregunta al grup abans de deixar-lo entrar. Val més trigar un dia que tenir gent de fora al rànquing.",
-      "reject": "No"
+      "reject": "No",
+      "letInDone": "{{name}} ja és dins. Pot entrar amb el codi.",
+      "rejectDone": "{{name}} no entra. No rebrà res."
     },
     "payments": {
       "title": "Pagaments i junta",

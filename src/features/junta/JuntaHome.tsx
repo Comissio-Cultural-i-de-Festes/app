@@ -112,6 +112,11 @@ export function JuntaHome() {
             title={t('junta.payments.title')}
             sub={t('junta.paymentsSub')}
           />
+          <Row
+            to="/junta/configuracio"
+            title={t('junta.config.title')}
+            sub={t('junta.configSub')}
+          />
         </ul>
       </section>
 

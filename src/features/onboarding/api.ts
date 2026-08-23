@@ -18,6 +18,8 @@ export interface Degree {
 
 export const onboardingKeys = {
   degrees: (escola: Escola | null) => ['onboarding', 'degrees', escola] as const,
+  /** Every school's list at once, for invalidating after the junta edits one. */
+  allDegrees: () => ['onboarding', 'degrees'] as const,
 }
 
 /**

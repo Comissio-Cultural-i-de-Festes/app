@@ -73,7 +73,7 @@ export async function fetchPeriods(): Promise<Period[]> {
   return unwrapAs<Period[]>(
     supabase
       .from('ranking_periods')
-      .select('codi, etiqueta, starts_at, ends_at, ordre')
+      .select('codi, etiqueta, mena, starts_at, ends_at, ordre')
       .order('ordre'),
   )
 }

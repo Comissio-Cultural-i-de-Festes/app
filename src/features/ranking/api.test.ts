@@ -12,7 +12,7 @@ import {
 const NOW = Date.UTC(2026, 10, 15, 12, 0, 0)
 
 function period(over: Partial<Period> = {}): Period {
-  return { codi: 't1', etiqueta: null, starts_at: null, ends_at: null, ordre: 1, ...over }
+  return { codi: 't1', etiqueta: null, mena: 'tram', starts_at: null, ends_at: null, ordre: 1, ...over }
 }
 
 function row(user_id: string, posicio: number): RankingRow {

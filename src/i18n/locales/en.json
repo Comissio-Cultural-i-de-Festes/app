@@ -309,6 +309,7 @@
     "newEventSub": "Or copy an earlier one and change the date",
     "invitesSub": "The group code and who wants in",
     "paymentsSub": "Mark who has paid and name admins",
+    "configSub": "Ranking periods, the scale and the degrees",
     "events": "Events",
     "noEvents": "Nothing on the calendar yet. Create the first one.",
     "draft": "draft",
@@ -431,6 +432,41 @@
       "previewLive": "This is what the association will see",
       "previewCovered": "This is what they will see until it opens",
       "previewBack": "Back to editing"
+    },
+    "config": {
+      "title": "Settings",
+      "sub": "The calendar, the scale and the degrees",
+      "lede": "Three things the app reads every day that until now could only be changed from the Supabase dashboard.",
+      "saved": "Saved.",
+      "periods": {
+        "title": "The ranking periods",
+        "lede": "Where one term ends the next begins, so there is only one date between any two. They save together: if one is wrong, none of them is saved.",
+        "startsCourse": "The course and the {{label}} begin",
+        "starts": "The {{label}} begins",
+        "ends": "The course ends",
+        "outOfOrder": "The dates have to run from first to last, and none can be missing.",
+        "none": "No terms defined yet."
+      },
+      "scale": {
+        "title": "The scale",
+        "lede": "Motives are the buttons on the awarding screen. Types only pre-fill a new event and never restate one that already exists.",
+        "motius": "Motives",
+        "tipus": "Event types",
+        "cantAdd": "Adding a new one cannot be done from here: it also needs a change in the database, and a row on its own would be a button that fails when somebody presses it."
+      },
+      "graus": {
+        "title": "The degrees",
+        "lede": "The list people pick from. Rename one and everybody who already picked it changes too.",
+        "add": "Add one",
+        "name": "Degree name",
+        "order": "Order",
+        "remove": "Delete",
+        "removeSure": "Sure? Anybody already on it keeps it; it just stops being offered.",
+        "empty": "No degrees in this school.",
+        "renamed_one": "Renamed. {{count}} person is on it.",
+        "renamed_other": "Renamed. {{count}} people are on it.",
+        "removed": "Off the list."
+      }
     }
   },
   "language": {

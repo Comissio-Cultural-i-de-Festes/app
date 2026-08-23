@@ -309,6 +309,7 @@
     "newEventSub": "O copiar uno anterior y cambiarle la fecha",
     "invitesSub": "El código del grupo y quién quiere entrar",
     "paymentsSub": "Marcar quién ha pagado y nombrar admins",
+    "configSub": "Periodos del ranking, baremo y grados",
     "events": "Eventos",
     "noEvents": "Todavía no hay nada en el calendario. Crea el primero.",
     "draft": "borrador",
@@ -431,6 +432,41 @@
       "previewLive": "Esto es lo que verá la comi",
       "previewCovered": "Esto es lo que verá la comi hasta que se destape",
       "previewBack": "Vuelve a editar"
+    },
+    "config": {
+      "title": "Configuración",
+      "sub": "El calendario, el baremo y los grados",
+      "lede": "Tres cosas que la app lee cada día y que hasta ahora solo se podían tocar desde el panel de Supabase.",
+      "saved": "Guardado.",
+      "periods": {
+        "title": "Los periodos del ranking",
+        "lede": "Donde acaba un trimestre empieza el siguiente, o sea que entre dos solo hay una fecha. Se guardan todos a la vez: si una está mal, no se guarda ninguna.",
+        "startsCourse": "Empiezan el curso y el {{label}}",
+        "starts": "Empieza el {{label}}",
+        "ends": "Acaba el curso",
+        "outOfOrder": "Las fechas tienen que ir de la primera a la última, y no puede faltar ninguna.",
+        "none": "Todavía no hay ningún trimestre definido."
+      },
+      "scale": {
+        "title": "El baremo",
+        "lede": "Los motivos son los botones de dar puntos. Los tipos solo rellenan el valor por defecto de un evento nuevo y nunca reescriben los que ya existen.",
+        "motius": "Motivos",
+        "tipus": "Tipos de evento",
+        "cantAdd": "Añadir uno nuevo no se puede hacer desde aquí: también hay que tocar la base de datos, y una fila sola sería un botón que falla cuando alguien lo pulsa."
+      },
+      "graus": {
+        "title": "Los grados",
+        "lede": "La lista que sale al elegir carrera. Si renombras uno, la gente que ya lo tenía elegido también cambia.",
+        "add": "Añade uno",
+        "name": "Nombre del grado",
+        "order": "Orden",
+        "remove": "Borra",
+        "removeSure": "¿Seguro? Quien ya lo tenía se lo queda; solo deja de salir en la lista.",
+        "empty": "Ningún grado en esta escuela.",
+        "renamed_one": "Renombrado. {{count}} persona lo lleva.",
+        "renamed_other": "Renombrado. {{count}} personas lo llevan.",
+        "removed": "Fuera de la lista."
+      }
     }
   },
   "language": {

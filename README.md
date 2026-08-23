@@ -311,7 +311,39 @@ public repository after 60 days with no commits, and emails the owner — so the
 thing keeping the database awake falls asleep first if work stops. Treat that
 email as an action item.
 
-### 8. Test it on an iPhone
+### 8. Supabase — make the first person the owner
+
+Sign in through the app with Google first, so the profile row exists. Then, in
+the SQL editor:
+
+```sql
+-- Once, for the first person. Everything after this happens in the app.
+update public.profiles
+   set estat = 'actiu',
+       role  = 'owner'
+ where id = (select id from auth.users where email = 'you@example.com');
+```
+
+This is the one thing that cannot be done from the app, and that is deliberate.
+`admin_set_member_role` refuses anybody who is not already an admin, and the
+`owner` role on top of that refuses anybody who is not already an owner — so
+with an empty table there is no first move. The SQL editor has one because it
+runs as `postgres`, and the trigger that protects `role` and `estat` only fires
+for `authenticated`.
+
+Make the first account `owner` and not `admin`. Only an owner can grant the
+owner role, so an installation whose first account is merely an admin can never
+have one. From here on nothing else needs the editor: an owner or an admin
+names the rest of the junta from _Pagaments i junta_, and every one of those
+changes lands in `audit_log`. This first one does not — it happened outside the
+function that writes the trail, which is worth knowing when you read it back.
+
+If somebody signs in and sees "encara ets a la llista d'espera", that is the
+same table: they are `pendent` until the junta approves them from
+_Invitacions_. A pending member can look around but cannot sign up for anything
+and has no QR, because the door would turn them away.
+
+### 9. Test it on an iPhone
 
 See _Checking the iPhone round trip_ above. Do it before the first event, not
 after.

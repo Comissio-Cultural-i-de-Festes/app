@@ -450,7 +450,11 @@
     },
     "degree": {
       "label": "Degree",
-      "placeholder": "Which one are you doing?"
+      "placeholder": "Which one are you doing?",
+      "schoolFirst": "Pick your school first",
+      "other": "Not on the list",
+      "otherPlaceholder": "Type what it is called",
+      "listFailed": "We could not load the list of degrees. Carry on and add it later from your profile."
     },
     "year": {
       "label": "Year",

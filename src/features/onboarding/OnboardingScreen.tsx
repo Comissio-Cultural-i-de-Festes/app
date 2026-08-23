@@ -10,7 +10,7 @@ import { ESCOLES, type Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { Wordmark } from '@/ui/Logo/Logo'
 
-import { looksLikePhone, saveFirstRun } from './api'
+import { fetchDegrees, looksLikePhone, onboardingKeys, saveFirstRun } from './api'
 
 /**
  * The four questions asked once, right after the door.
@@ -28,6 +28,14 @@ const GUTTER = 'px-[var(--ds-gutter)]'
 // and simultaneous degree runs five, so a fifth-year student had no button to
 // press. Mirrors profiles_curs_check, which is 1 to 5.
 const COURSES = [1, 2, 3, 4, 5] as const
+/**
+ * Sentinel for the "not on the list" option.
+ *
+ * A plain string rather than a control character: a NUL survives React but
+ * not every path that reads a value attribute back out of the DOM, and this
+ * one has to compare equal after a round trip through the select.
+ */
+const OTHER = '__altre__'
 
 export function OnboardingScreen() {
   const { t } = useTranslation()
@@ -40,8 +48,19 @@ export function OnboardingScreen() {
 
   const [escola, setEscola] = useState<Escola | null>(null)
   const [grau, setGrau] = useState('')
+  // Set when the person picks "not on the list", so the text box stays open
+  // even after they clear it.
+  const [typing, setTyping] = useState(false)
   const [curs, setCurs] = useState<number | null>(null)
   const [phone, setPhone] = useState('')
+
+  const degrees = useQuery({
+    queryKey: onboardingKeys.degrees(escola),
+    // `enabled` keeps this from running before a school is chosen, which the
+    // types cannot see from here.
+    queryFn: () => fetchDegrees(escola ?? 'politecnica'),
+    enabled: escola !== null,
+  })
 
   // Only to put a number under each school. The board is already cached by the
   // home screen, so on the ordinary path this costs nothing.
@@ -116,6 +135,10 @@ export function OnboardingScreen() {
                 aria-pressed={on}
                 onClick={() => {
                   setEscola(code)
+                  // The list is per school, so a degree picked under the
+                  // previous one is no longer on offer.
+                  setGrau('')
+                  setTyping(false)
                 }}
                 className={
                   'flex w-full items-center gap-[14px] px-4 py-[15px] text-left ' +
@@ -162,21 +185,64 @@ export function OnboardingScreen() {
         <label htmlFor={grauId} className="block eyebrow text-fg-muted">
           {t('onboarding.degree.label')}
         </label>
-        <input
+
+        {/* A native select on purpose: on a phone it is the system wheel, and
+            twenty degrees on a wheel beat twenty rows of anything else typed
+            with one thumb. */}
+        <select
           id={grauId}
-          value={grau}
+          value={typing ? OTHER : grau}
+          disabled={escola === null || degrees.isPending}
           onChange={(e) => {
-            setGrau(e.target.value)
+            const picked = e.target.value
+            setTyping(picked === OTHER)
+            setGrau(picked === OTHER ? '' : picked)
           }}
-          autoComplete="off"
-          enterKeyHint="next"
-          placeholder={t('onboarding.degree.placeholder')}
           className={
             'mt-4 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] ' +
-            'py-[13px] text-lg font-semibold text-fg outline-none ' +
-            'caret-[var(--ds-brand-strong)] placeholder:font-medium placeholder:text-fg-faint'
+            'py-[13px] text-lg font-semibold text-fg outline-none disabled:text-fg-faint'
           }
-        />
+        >
+          <option value="">
+            {escola === null
+              ? t('onboarding.degree.schoolFirst')
+              : t('onboarding.degree.placeholder')}
+          </option>
+          {degrees.data?.map((d) => (
+            <option key={d.id} value={d.nom}>
+              {d.nom}
+            </option>
+          ))}
+          {escola === null ? null : <option value={OTHER}>{t('onboarding.degree.other')}</option>}
+        </select>
+
+        {/* The list is the university's and this app is not the place to argue
+            with it. An exchange student, a master's, a programme opened last
+            week: all of them type it. */}
+        {typing ? (
+          <input
+            value={grau}
+            onChange={(e) => {
+              setGrau(e.target.value)
+            }}
+            autoComplete="off"
+            enterKeyHint="next"
+            autoFocus
+            placeholder={t('onboarding.degree.otherPlaceholder')}
+            aria-label={t('onboarding.degree.other')}
+            className={
+              'mt-4 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] ' +
+              'py-[13px] text-lg font-semibold text-fg outline-none ' +
+              'caret-[var(--ds-brand-strong)] placeholder:font-medium placeholder:text-fg-faint'
+            }
+          />
+        ) : null}
+
+        {degrees.isError ? (
+          <p role="alert" className="mt-4 text-md font-bold text-error [text-wrap:pretty]">
+            {t('onboarding.degree.listFailed')}
+          </p>
+        ) : null}
       </section>
 
       <section className={`mt-9 ${GUTTER}`}>

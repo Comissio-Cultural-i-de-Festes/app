@@ -280,6 +280,27 @@ export type Database = {
           },
         ]
       }
+      graus: {
+        Row: {
+          escola: string
+          id: string
+          nom: string
+          ordre: number
+        }
+        Insert: {
+          escola: string
+          id?: string
+          nom: string
+          ordre?: number
+        }
+        Update: {
+          escola?: string
+          id?: string
+          nom?: string
+          ordre?: number
+        }
+        Relationships: []
+      }
       invite_uses: {
         Row: {
           created_at: string

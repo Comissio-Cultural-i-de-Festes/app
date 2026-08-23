@@ -450,7 +450,11 @@
     },
     "degree": {
       "label": "Grado",
-      "placeholder": "¿Cuál estudias?"
+      "placeholder": "¿Cuál estudias?",
+      "schoolFirst": "Elige primero la escuela",
+      "other": "No está en la lista",
+      "otherPlaceholder": "Escribe cómo se llama",
+      "listFailed": "No hemos podido cargar la lista de grados. Puedes seguir y ponerlo luego en el perfil."
     },
     "year": {
       "label": "Curso",

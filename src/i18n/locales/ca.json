@@ -450,7 +450,11 @@
     },
     "degree": {
       "label": "Grau",
-      "placeholder": "Quin estudies?"
+      "placeholder": "Quin estudies?",
+      "schoolFirst": "Tria primer l'escola",
+      "other": "No hi és a la llista",
+      "otherPlaceholder": "Escriu com es diu",
+      "listFailed": "No hem pogut carregar la llista de graus. Pots continuar i posar-ho després al perfil."
     },
     "year": {
       "label": "Curs",

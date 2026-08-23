@@ -1,4 +1,4 @@
-import { unwrap } from '@/lib/db'
+import { unwrap, unwrapAs } from '@/lib/db'
 import type { Escola } from '@/lib/model'
 import { supabase } from '@/lib/supabase'
 
@@ -10,6 +10,29 @@ import { supabase } from '@/lib/supabase'
  * gave us, so that `select('*')` on `profiles` can be handed to any member
  * without leaking anybody's number.
  */
+
+export interface Degree {
+  readonly id: string
+  readonly nom: string
+}
+
+export const onboardingKeys = {
+  degrees: (escola: Escola | null) => ['onboarding', 'degrees', escola] as const,
+}
+
+/**
+ * The degrees on offer at one school.
+ *
+ * From the database rather than a constant in here: the list belongs to a
+ * university and not to this app, it changes when the university opens a
+ * programme, and the junta can edit it without a deploy. Readable by a profile
+ * that is still pending, which is exactly who is looking at this screen.
+ */
+export async function fetchDegrees(escola: Escola): Promise<Degree[]> {
+  return unwrapAs<Degree[]>(
+    supabase.from('graus').select('id, nom').eq('escola', escola).order('ordre').order('nom'),
+  )
+}
 
 export interface FirstRunAnswers {
   readonly escola: Escola

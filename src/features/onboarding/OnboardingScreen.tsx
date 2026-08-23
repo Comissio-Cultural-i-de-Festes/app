@@ -24,7 +24,10 @@ import { looksLikePhone, saveFirstRun } from './api'
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
-const COURSES = [1, 2, 3, 4] as const
+// Five, not four. The single degrees here run four years and every double
+// and simultaneous degree runs five, so a fifth-year student had no button to
+// press. Mirrors profiles_curs_check, which is 1 to 5.
+const COURSES = [1, 2, 3, 4, 5] as const
 
 export function OnboardingScreen() {
   const { t } = useTranslation()

@@ -41,10 +41,13 @@ export function JuntaNav() {
       </NavLink>
 
       <ul className="flex items-center gap-1">
-        <Item to="/junta" end label={t('junta.events')} />
+        {/* /junta is the rebedor now, and everything else on this bar is
+            reachable from it — so it is named for what it is, and the
+            configuration rows live there rather than as a fifth item. */}
+        <Item to="/junta" end label={t('junta.title')} />
         <Item to="/junta/invitacions" label={t('junta.invites.title')} />
         <Item to="/junta/pagaments" label={t('junta.payments.title')} />
-        <Item to="/junta/periodes" label={t('junta.config.title')} />
+        <Item to="/junta/socis" label={t('junta.members.title')} />
         <Item to="/ranquing" label={t('nav.ranking')} />
       </ul>
 

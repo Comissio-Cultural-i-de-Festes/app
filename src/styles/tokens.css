@@ -153,6 +153,10 @@
    * is held up in the dark. The scrims are what keep white text legible over
    * whatever the lens happens to be pointing at. */
   --ds-bg-door: oklch(0.11 0.008 25);
+  /* The "at the door right now" panel on the junta home. Warmer and lighter
+   * than the app behind it, because it is the one thing on that screen that
+   * is happening in the next few hours. */
+  --ds-bg-door-panel: oklch(0.19 0.03 25);
   --ds-scrim-door: radial-gradient(
     70% 50% at 50% 42%,
     oklch(0.28 0.02 25 / 0.55),

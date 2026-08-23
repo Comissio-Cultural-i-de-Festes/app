@@ -939,6 +939,7 @@ export type Database = {
       }
       claim_first_owner: { Args: never; Returns: undefined }
       invite_preview: { Args: { p_codi: string }; Returns: Json }
+      junta_home: { Args: never; Returns: Json }
       my_qr: { Args: never; Returns: string }
       ranking_escoles_period: {
         Args: { p_from?: string; p_to?: string }

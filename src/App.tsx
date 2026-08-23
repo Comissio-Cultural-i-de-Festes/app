@@ -7,6 +7,9 @@ import { EntryScreen } from '@/features/entry/EntryScreen'
 import { EventScreen } from '@/features/event/EventScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
 import { EventFormScreen } from '@/features/junta/EventFormScreen'
+import { ManualScreen } from '@/features/door/ManualScreen'
+import { PointsScreen } from '@/features/door/PointsScreen'
+import { ScannerScreen } from '@/features/door/ScannerScreen'
 import { InvitesScreen } from '@/features/junta/InvitesScreen'
 import { PaymentsScreen } from '@/features/junta/PaymentsScreen'
 import { JuntaHome } from '@/features/junta/JuntaHome'
@@ -128,6 +131,9 @@ export default function App() {
             <Route path="esdeveniment/:id" element={<EventFormScreen />} />
             <Route path="pagaments" element={<PaymentsScreen />} />
             <Route path="pagaments/:eventId" element={<PaymentsScreen />} />
+            <Route path="escaner/:eventId" element={<ScannerScreen />} />
+            <Route path="alta/:eventId" element={<ManualScreen />} />
+            <Route path="punts/:eventId" element={<PointsScreen />} />
           </Route>
         </Route>
 

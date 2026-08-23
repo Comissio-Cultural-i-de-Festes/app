@@ -118,6 +118,12 @@
 }
 
 @layer components {
+  /* The wash over the camera picture at the door. A gradient, so it cannot be
+   * an arbitrary background-colour utility: it has to be background-image. */
+  .door-scrim {
+    background-image: var(--ds-scrim-door);
+  }
+
   /* Every point total and every ranking position. Without this the digits
    * jitter as the numbers change and a leaderboard looks broken. */
   .tabular {

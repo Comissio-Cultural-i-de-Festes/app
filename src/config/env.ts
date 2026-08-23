@@ -53,6 +53,17 @@ export const env = {
    * in the README.
    */
   authEmailFallback: flag('VITE_AUTH_EMAIL_FALLBACK'),
+  /**
+   * Photograph everybody who is checked in at the door.
+   *
+   * Off, and it ships off. The prototype has the camera fire by itself on a
+   * valid scan, and the whole thing is built — a private bucket nobody but the
+   * junta can read, short-lived signed URLs, no UPDATE policy so a photograph
+   * cannot be swapped for another. What does not exist yet is the text telling
+   * people it happens, and taking a picture of somebody's face without that is
+   * not a feature, it is a problem. Turn it on when the notice is written.
+   */
+  entryPhoto: flag('VITE_ENTRY_PHOTO'),
   supabaseUrl: required('VITE_SUPABASE_URL'),
   supabaseAnonKey: required('VITE_SUPABASE_ANON_KEY'),
 } as const

@@ -142,6 +142,19 @@
    * finds the unpaid ones, not so much that twelve green rows shout. */
   --ds-bg-paid: oklch(0.185 0.02 145);
 
+  /* ─── THE DOOR ─────────────────────────────────────────────────────────
+   * Darker than the app, because a camera picture is behind it and the phone
+   * is held up in the dark. The scrims are what keep white text legible over
+   * whatever the lens happens to be pointing at. */
+  --ds-bg-door: oklch(0.11 0.008 25);
+  --ds-scrim-door: radial-gradient(
+    70% 50% at 50% 42%,
+    oklch(0.28 0.02 25 / 0.55),
+    oklch(0.11 0.008 25 / 0.92) 78%
+  );
+  --ds-scrim-chip: oklch(0.16 0.012 25 / 0.85);
+  --ds-scrim-bar: oklch(0.13 0.012 25 / 0.94);
+
   /* ─── TYPOGRAPHY ─────────────────────────────────────────────────────── */
   --ds-font-display: 'Archivo Black', 'Archivo Variable', Archivo, sans-serif;
   --ds-font-body: 'Archivo Variable', Archivo, system-ui, -apple-system, sans-serif;

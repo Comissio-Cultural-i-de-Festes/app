@@ -198,6 +198,14 @@
     "privacy": "Privacy policy",
     "terms": "Terms of use"
   },
+  "motive": {
+    "asistencia": "Turning up",
+    "montaje": "Setting up",
+    "trajo_gente": "Bringing people",
+    "propuso": "Their idea",
+    "conduir": "Driving",
+    "manual": "By hand"
+  },
   "nav": {
     "home": "Home",
     "ranking": "Ranking",
@@ -239,6 +247,33 @@
       "pickSchool": "Pick a school and you are in"
     },
     "later": "You can change all of this later in your profile."
+  },
+  "profile": {
+    "memberSince": "member since {{year}}",
+    "youAreJunta": "You are on the committee",
+    "stats": {
+      "points": "points",
+      "position": "of {{total}}",
+      "attended": "turned up"
+    },
+    "breakdown": {
+      "title": "Where the points came from",
+      "times_one": "{{count}} time",
+      "times_other": "{{count}} times",
+      "empty": "No points yet. Come to something and this fills itself in."
+    },
+    "history": {
+      "title": "The last thing you did"
+    },
+    "settings": {
+      "title": "Settings",
+      "public": "Show me in the public ranking",
+      "publicOn": "You appear with your name and face.",
+      "publicOff": "You do not appear, but your points still count for your school.",
+      "junta": "Committee area",
+      "juntaSub": "Scanner, points, invitations"
+    },
+    "footer": "Made between lectures."
   },
   "qr": {
     "codeLabel": "Your QR code",

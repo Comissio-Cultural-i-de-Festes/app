@@ -167,6 +167,36 @@ describe('answering from the home screen', () => {
   })
 })
 
+describe('the profile screen queries', () => {
+  it("gives an admin their own points and not the association's", async () => {
+    // points_log has two select policies: your own rows, and the whole ledger
+    // for an admin. Leaning on row-level security to scope "my points" works
+    // perfectly for an ordinary member and shows somebody on the junta every
+    // point ever awarded as though it were theirs — which is exactly what the
+    // profile screen did until the filter was added.
+    const junta = await as('junta_alfa')
+    const me = (await junta.auth.getUser()).data.user?.id ?? ''
+
+    const scoped = await junta.from('points_log').select('user_id, puntos').eq('user_id', me)
+
+    const unscoped = await junta.from('points_log').select('user_id, puntos')
+
+    expect(scoped.error).toBeNull()
+    expect(scoped.data?.every((r) => r.user_id === me)).toBe(true)
+    // The point of the test: without the filter the same query returns more.
+    expect(unscoped.data?.length ?? 0).toBeGreaterThan(scoped.data?.length ?? 0)
+  })
+
+  it('gives an ordinary member only their own, filter or not', async () => {
+    const alfa = await as('alfa')
+    const me = (await alfa.auth.getUser()).data.user?.id ?? ''
+
+    const { data } = await alfa.from('points_log').select('user_id')
+
+    expect(data?.every((r) => r.user_id === me)).toBe(true)
+  })
+})
+
 describe('the ranking screen queries', () => {
   it('returns the periods the chips are drawn from', async () => {
     const { data, error } = await member

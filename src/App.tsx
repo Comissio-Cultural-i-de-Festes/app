@@ -8,6 +8,7 @@ import { HomeScreen } from '@/features/home/HomeScreen'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen'
+import { ProfileScreen } from '@/features/profile/ProfileScreen'
 import { QrScreen } from '@/features/qr/QrScreen'
 import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
@@ -109,6 +110,7 @@ export default function App() {
             <Route path="/" element={<HomeScreen />} />
             <Route path="/ranquing" element={<RankingScreen />} />
             <Route path="/qr" element={<QrScreen />} />
+            <Route path="/perfil" element={<ProfileScreen />} />
           </Route>
         </Route>
 

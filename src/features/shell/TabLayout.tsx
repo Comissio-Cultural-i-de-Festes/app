@@ -26,6 +26,7 @@ const HREFS: Partial<Record<TabId, string>> = {
   home: '/',
   ranking: '/ranquing',
   qr: '/qr',
+  profile: '/perfil',
 }
 
 function currentTab(pathname: string): TabId {

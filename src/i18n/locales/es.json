@@ -198,6 +198,14 @@
     "privacy": "Política de privacidad",
     "terms": "Condiciones de uso"
   },
+  "motive": {
+    "asistencia": "Venir",
+    "montaje": "Montaje",
+    "trajo_gente": "Traer gente",
+    "propuso": "Propuesta suya",
+    "conduir": "Conducir",
+    "manual": "A mano"
+  },
   "nav": {
     "home": "Inicio",
     "ranking": "Ranking",
@@ -239,6 +247,33 @@
       "pickSchool": "Elige la escuela y entras"
     },
     "later": "Todo esto lo puedes cambiar después en tu perfil."
+  },
+  "profile": {
+    "memberSince": "socio desde {{year}}",
+    "youAreJunta": "Eres de la junta",
+    "stats": {
+      "points": "puntos",
+      "position": "de {{total}}",
+      "attended": "has ido"
+    },
+    "breakdown": {
+      "title": "De dónde vienen los puntos",
+      "times_one": "{{count}} vez",
+      "times_other": "{{count}} veces",
+      "empty": "Todavía ningún punto. Ven a algo y esto se llena solo."
+    },
+    "history": {
+      "title": "Lo último que has hecho"
+    },
+    "settings": {
+      "title": "Ajustes",
+      "public": "Salgo en el ranking público",
+      "publicOn": "Sales con nombre y cara.",
+      "publicOff": "No sales, pero tus puntos siguen sumando para tu escuela.",
+      "junta": "Zona junta",
+      "juntaSub": "Escáner, puntos, invitaciones"
+    },
+    "footer": "Hecho entre clase y clase."
   },
   "qr": {
     "codeLabel": "Tu código QR",

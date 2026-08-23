@@ -198,6 +198,14 @@
     "privacy": "Política de privadesa",
     "terms": "Condicions d'ús"
   },
+  "motive": {
+    "asistencia": "Venir",
+    "montaje": "Muntatge",
+    "trajo_gente": "Portar gent",
+    "propuso": "Proposta seva",
+    "conduir": "Conduir",
+    "manual": "A mà"
+  },
   "nav": {
     "home": "Inici",
     "ranking": "Rànquing",
@@ -239,6 +247,33 @@
       "pickSchool": "Tria l'escola i entres"
     },
     "later": "Tot això ho pots canviar després al teu perfil."
+  },
+  "profile": {
+    "memberSince": "soci des del {{year}}",
+    "youAreJunta": "Ets de la junta",
+    "stats": {
+      "points": "punts",
+      "position": "de {{total}}",
+      "attended": "hi has anat"
+    },
+    "breakdown": {
+      "title": "D'on venen els punts",
+      "times_one": "{{count}} vegada",
+      "times_other": "{{count}} vegades",
+      "empty": "Encara cap punt. Vine a alguna cosa i això s’omple sol."
+    },
+    "history": {
+      "title": "L'últim que has fet"
+    },
+    "settings": {
+      "title": "Ajustos",
+      "public": "Surto al rànquing públic",
+      "publicOn": "Hi surts amb nom i cara.",
+      "publicOff": "No hi surts, però els teus punts segueixen sumant per la teva escola.",
+      "junta": "Zona junta",
+      "juntaSub": "Escàner, punts, invitacions"
+    },
+    "footer": "Fet entre classe i classe."
   },
   "qr": {
     "codeLabel": "El teu codi QR",

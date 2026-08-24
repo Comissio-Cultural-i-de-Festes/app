@@ -8,7 +8,7 @@
 -- look at the same list on the same Sunday evening.
 
 begin;
-select plan(20);
+select plan(22);
 
 reset role;
 delete from public.audit_log;
@@ -38,6 +38,24 @@ select throws_ok(
   '42501',
   null,
   'and cannot hand themselves an accepted one'
+);
+
+-- The client picks the key so that resending a queued idea is the same idea.
+-- A second attempt collides rather than posting it twice.
+select lives_ok(
+  $$ insert into public.proposals (id, user_id, titol)
+     values ('00000000-0000-4000-8000-00000000d001',
+             (select auth.uid()), 'Idea escrita sense cobertura') $$,
+  'a member may choose the id, which is what makes a resend idempotent'
+);
+
+select throws_ok(
+  $$ insert into public.proposals (id, user_id, titol)
+     values ('00000000-0000-4000-8000-00000000d001',
+             (select auth.uid()), 'Idea escrita sense cobertura') $$,
+  '23505',
+  null,
+  'and sending it twice collides instead of making a second one'
 );
 
 reset role;

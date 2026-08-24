@@ -16,6 +16,7 @@ export type PointMotive =
   'asistencia' | 'montaje' | 'trajo_gente' | 'propuso' | 'conduir' | 'manual'
 
 export interface PointRow {
+  readonly id: string
   readonly motivo: PointMotive
   readonly puntos: number
   readonly created_at: string
@@ -57,7 +58,7 @@ export async function fetchMyPoints(userId: string): Promise<PointRow[]> {
   return unwrapAs<PointRow[]>(
     supabase
       .from('points_log')
-      .select('motivo, puntos, created_at, nota, events(titulo)')
+      .select('id, motivo, puntos, created_at, nota, events(titulo)')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(200),

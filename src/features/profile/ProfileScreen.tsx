@@ -160,7 +160,7 @@ export function ProfileScreen() {
           <h2 className="eyebrow text-fg-muted">{t('profile.history.title')}</h2>
           <ul className="mt-2">
             {points.data.slice(0, 6).map((row) => (
-              <li key={`${row.created_at}${row.motivo}`} className={ROW}>
+              <li key={row.id} className={ROW}>
                 <p className="w-[52px] flex-none text-[12.5px] font-semibold text-fg-dim">
                   {formatDayMonth(new Date(row.created_at), locale)}
                 </p>

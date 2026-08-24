@@ -358,11 +358,50 @@ describe('a door photo can only be signed by whose face it is', () => {
     expect(data).toBeNull()
   })
 
-  it('while the junta signs both, which is what makes a walk-in checkable', async () => {
+  it('and hides the exit half from the junta, which the camera screen promises', async () => {
+    // «Aquesta foto no la veu ningú més. Ni la junta, ni el grup, ni el
+    // rànquing» is printed on the screen that takes the picture. A promise
+    // made there has to hold here.
     const junta = await as('junta_alfa')
     for (const path of [mine, theirs]) {
       const { error } = await junta.storage.from(BUCKET).createSignedUrl(path, 60)
-      expect(error).toBeNull()
+      expect(error).not.toBeNull()
     }
+  })
+
+  it('while the junta signs the entry half, which is what makes a walk-in checkable', async () => {
+    const svc = serviceClient()
+    const door = `entrada/${F.e1}/${F.bravo}/rls.jpg`
+    const body = new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xd9])], { type: 'image/jpeg' })
+    await svc.storage.from(BUCKET).upload(door, body, {
+      contentType: 'image/jpeg',
+      upsert: true,
+    })
+
+    const junta = await as('junta_alfa')
+    const { error } = await junta.storage.from(BUCKET).createSignedUrl(door, 60)
+    expect(error).toBeNull()
+
+    // And a member still cannot look at somebody else's door photograph.
+    const member = await as('alfa')
+    const denied = await member.storage.from(BUCKET).createSignedUrl(door, 60)
+    expect(denied.error).not.toBeNull()
+  })
+
+  it('lets you delete your own exit photo and nobody else do it', async () => {
+    // The one thing pgTAP cannot reach: `storage.protect_delete()` refuses
+    // every direct DELETE, so the policy only ever runs behind the API.
+    const bravo = await as('bravo')
+    const refused = await bravo.storage.from(BUCKET).remove([mine])
+    // The API reports a refused delete as an empty result rather than an
+    // error, so the object still being there is the assertion.
+    expect(refused.data?.length ?? 0).toBe(0)
+
+    const member = await as('alfa')
+    const { data } = await member.storage.from(BUCKET).remove([mine])
+    expect(data?.length).toBe(1)
+
+    const gone = await member.storage.from(BUCKET).createSignedUrl(mine, 60)
+    expect(gone.error).not.toBeNull()
   })
 })

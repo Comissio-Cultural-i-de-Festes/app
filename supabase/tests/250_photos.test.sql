@@ -5,7 +5,7 @@
 -- d'`storage.objects`, provades inserint-hi files com ho faria el servei.
 
 begin;
-select plan(27);
+select plan(33);
 
 reset role;
 
@@ -231,6 +231,8 @@ select is(
 reset role;
 select tests.authenticate_as('bravo');
 
+-- Bravo no hi va entrar, o sigui que aquella nit no li surt: `my_photos`
+-- llista les nits que has fitxat, amb foto o sense.
 select is(
   (select count(*)::int from public.my_photos()
     where event_id = (select ev from what)),
@@ -244,6 +246,46 @@ select throws_ok(
   '42501',
   null,
   'el camí de la foto no es llegeix de la taula'
+);
+
+-- ── l'hora, i esborrar-la ───────────────────────────────────────────────────
+reset role;
+select tests.authenticate_as('alfa');
+
+select isnt(
+  (select exit_photo_at from public.my_photos()
+    where event_id = (select ev from what)),
+  null,
+  'la de sortida porta la seva hora, que és el que va sota el díptic'
+);
+
+select is(
+  public.clear_exit_photo((select ev from what)) ->> 'cami',
+  'sortida/' || (select ev from what) || '/' || (select alfa from who) || '/2.jpg',
+  'esborrar-la torna el camí, perquè el client pugui treure el fitxer'
+);
+
+select is(
+  (select exit_photo_url from public.my_photos()
+    where event_id = (select ev from what)),
+  null,
+  'i la fila ja no hi apunta'
+);
+
+select is(
+  public.clear_exit_photo((select ev from what)) ->> 'estat',
+  'no_en_tens',
+  'i esborrar-la dues vegades no és cap error'
+);
+
+-- Torna-la a posar, que les polítiques d'storage de sota volen una nit sencera.
+select is(
+  public.set_exit_photo(
+    (select ev from what),
+    'sortida/' || (select ev from what) || '/' || (select alfa from who) || '/3.jpg'
+  ) ->> 'estat',
+  'desada',
+  'i se la pot tornar a fer després d''esborrar-la'
 );
 
 -- ── les polítiques d'storage ────────────────────────────────────────────────
@@ -310,10 +352,25 @@ select tests.authenticate_as('junta_alfa');
 
 select is(
   (select count(*)::int from storage.objects
-    where bucket_id = 'door-photos' and name like '%' || (select ev from what) || '%'),
-  2,
-  'i la junta els veu tots, que és el que fa comprovable una alta manual'
+    where bucket_id = 'door-photos'
+      and name like 'entrada/' || (select ev from what) || '/%'),
+  1,
+  'la junta veu les d''entrada, que és el que fa comprovable una alta manual'
 );
+
+-- La promesa que hi ha escrita a la pantalla de la càmera: «ni la junta».
+select is(
+  (select count(*)::int from storage.objects
+    where bucket_id = 'door-photos'
+      and name like 'sortida/' || (select ev from what) || '/%'),
+  0,
+  'i cap de sortida, ni una'
+);
+
+-- Que un soci pugui esborrar la seva foto de sortida no es pot provar des
+-- d'aquí: `storage.protect_delete()` prohibeix el DELETE directe a tothom,
+-- inclosa la sessió que fa aquest test. Va a la suite d'RLS, que hi arriba per
+-- l'API d'storage, que és per on hi arriba l'app.
 
 reset role;
 select * from finish();

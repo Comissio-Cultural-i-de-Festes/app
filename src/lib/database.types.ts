@@ -42,6 +42,7 @@ export type Database = {
           entry_photo_url: string | null
           estado: string
           event_id: string
+          exit_photo_at: string | null
           exit_photo_url: string | null
           id: string
           pagado: boolean
@@ -56,6 +57,7 @@ export type Database = {
           entry_photo_url?: string | null
           estado?: string
           event_id: string
+          exit_photo_at?: string | null
           exit_photo_url?: string | null
           id?: string
           pagado?: boolean
@@ -70,6 +72,7 @@ export type Database = {
           entry_photo_url?: string | null
           estado?: string
           event_id?: string
+          exit_photo_at?: string | null
           exit_photo_url?: string | null
           id?: string
           pagado?: boolean
@@ -985,6 +988,7 @@ export type Database = {
         }[]
       }
       claim_first_owner: { Args: never; Returns: undefined }
+      clear_exit_photo: { Args: { p_event_id: string }; Returns: Json }
       invite_preview: { Args: { p_codi: string }; Returns: Json }
       invite_to_ride: {
         Args: { p_ride_id: string; p_user_id: string }
@@ -995,8 +999,10 @@ export type Database = {
       my_photos: {
         Args: never
         Returns: {
+          checked_in_at: string
           entry_photo_url: string
           event_id: string
+          exit_photo_at: string
           exit_photo_url: string
           starts_at: string
           titulo: string

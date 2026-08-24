@@ -45,3 +45,4 @@ npm-debug.log*
 
 # per-machine tooling, not the project's
 .mcp.json
+

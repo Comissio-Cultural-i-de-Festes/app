@@ -427,3 +427,79 @@ describe('a door photo can only be signed by whose face it is', () => {
     expect(gone.error).not.toBeNull()
   })
 })
+
+describe('ratxes i insígnies', () => {
+  interface Streak {
+    actual: number
+    millor: number
+    perduda: number
+    trencada_el: string | null
+    compten: number
+    hi_has_anat: number
+  }
+
+  it('a member gets their own streak and a pending profile gets a hard denial', async () => {
+    const member = await as('alfa')
+    const { data, error } = await rpc<Streak>(member, 'my_streak')
+
+    expect(error).toBeNull()
+    expect(typeof data?.actual).toBe('number')
+    expect(typeof data?.millor).toBe('number')
+    // The invariant that has to hold for every possible history: you cannot be
+    // on a longer run right now than the longest run you have ever had.
+    expect(data!.actual).toBeLessThanOrEqual(data!.millor)
+    expect(data!.hi_has_anat).toBeLessThanOrEqual(data!.compten)
+
+    const pendent = await as('pendent_alfa')
+    const denied = await rpc<Streak>(pendent, 'my_streak')
+    expect(denied.error?.code).toBe('42501')
+  })
+
+  it('anon cannot ask for a streak at all', async () => {
+    const { error } = await rpc<Streak>(anonClient(), 'my_streak')
+    expect(error).not.toBeNull()
+  })
+
+  it('hands out what you already earned, and hands it out once', async () => {
+    const member = await as('alfa')
+    const first = await member.rpc('my_badges')
+    expect(first.error).toBeNull()
+    expect(first.data?.map((b) => b.codi)).toContain('primera')
+
+    // Idempotence is the whole reason this can be called on every screen open.
+    // It also makes this test rerunnable, which matters: this suite writes to
+    // the same database and rolls nothing back.
+    const second = await member.rpc('my_badges')
+    expect(second.data?.length).toBe(first.data?.length)
+  })
+
+  it('cannot be given to yourself, or marked seen by hand', async () => {
+    const member = await as('alfa')
+
+    const insert = await member.from('badges').insert({ user_id: F.alfa, codi: 'vint_i_cinc' })
+    expect(insert.error?.code).toBe('42501')
+
+    const update = await member.from('badges').update({ seen_at: null }).eq('user_id', F.alfa)
+    expect(update.error?.code).toBe('42501')
+
+    const remove = await member.from('badges').delete().eq('user_id', F.alfa)
+    expect(remove.error?.code).toBe('42501')
+  })
+
+  it('shows you yours and nobody else’s, and the junta everyone’s', async () => {
+    const bravo = await as('bravo')
+    await bravo.rpc('my_badges')
+
+    const member = await as('alfa')
+    await member.rpc('my_badges')
+
+    const { data, error } = await member.from('badges').select('user_id')
+    expect(error).toBeNull()
+    expect(data?.length).toBeGreaterThan(0)
+    expect(data?.every((r) => r.user_id === F.alfa)).toBe(true)
+
+    const admin = await as('junta_alfa')
+    const seen = await admin.from('badges').select('user_id')
+    expect(seen.data?.some((r) => r.user_id === F.bravo)).toBe(true)
+  })
+})

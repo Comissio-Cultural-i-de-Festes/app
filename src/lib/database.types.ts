@@ -161,6 +161,35 @@ export type Database = {
           },
         ]
       }
+      badges: {
+        Row: {
+          codi: string
+          earned_at: string
+          seen_at: string | null
+          user_id: string
+        }
+        Insert: {
+          codi: string
+          earned_at?: string
+          seen_at?: string | null
+          user_id: string
+        }
+        Update: {
+          codi?: string
+          earned_at?: string
+          seen_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "badges_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_content: {
         Row: {
           cos: Json | null
@@ -1049,6 +1078,15 @@ export type Database = {
       }
       join_ride: { Args: { p_ride_id: string }; Returns: Json }
       junta_home: { Args: never; Returns: Json }
+      mark_badges_seen: { Args: never; Returns: number }
+      my_badges: {
+        Args: never
+        Returns: {
+          codi: string
+          earned_at: string
+          nova: boolean
+        }[]
+      }
       my_photos: {
         Args: never
         Returns: {
@@ -1062,6 +1100,7 @@ export type Database = {
         }[]
       }
       my_qr: { Args: never; Returns: string }
+      my_streak: { Args: never; Returns: Json }
       ranking_escoles_period: {
         Args: { p_from?: string; p_to?: string }
         Returns: {

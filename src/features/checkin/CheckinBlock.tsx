@@ -55,6 +55,12 @@ export function CheckinBlock({
   const [state, setState] = useState<State>({ kind: 'idle' })
 
   const go = useMutation({
+    // Sense això no s'executa gens sense cobertura, i és justament el cas
+    // per al qual existeix. React Query, per defecte, posa les mutacions en
+    // pausa quan `navigator.onLine` diu que no: no falla, no llança, no
+    // crida `mutationFn` — no fa res. La cua d'IndexedDB viu a dins, o sigui
+    // que la pausa se l'empassa sencera.
+    networkMode: 'always',
     mutationFn: async () => {
       setState({ kind: 'locating' })
       const fix = await getFix()
@@ -124,9 +130,7 @@ export function CheckinBlock({
           ) : null}
 
           {state.kind === 'verdict' && state.verdict.estat === 'lluny' ? (
-            <Note tone="warn">
-              {t('checkin.far', { metres: state.verdict.metres })}
-            </Note>
+            <Note tone="warn">{t('checkin.far', { metres: state.verdict.metres })}</Note>
           ) : null}
 
           {state.kind === 'verdict' && state.verdict.estat === 'tancat' ? (
@@ -163,7 +167,9 @@ function Done({ event, punts }: { readonly event: EventRow; readonly punts: numb
       >
         {t('checkin.takePhoto')}
       </Link>
-      <p className="mt-5 text-[12.5px] text-fg-muted [text-wrap:pretty]">{t('checkin.photoNote')}</p>
+      <p className="mt-5 text-[12.5px] text-fg-muted [text-wrap:pretty]">
+        {t('checkin.photoNote')}
+      </p>
     </>
   )
 }

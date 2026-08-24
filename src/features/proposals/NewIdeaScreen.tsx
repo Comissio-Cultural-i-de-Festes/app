@@ -40,6 +40,12 @@ export function NewIdeaScreen() {
   const reward = values.data?.find((v) => v.mena === 'motiu' && v.clau === 'propuso')?.punts ?? null
 
   const save = useMutation({
+    // Sense això no s'executa gens sense cobertura, i és justament el cas
+    // per al qual existeix. React Query, per defecte, posa les mutacions en
+    // pausa quan `navigator.onLine` diu que no: no falla, no llança, no
+    // crida `mutationFn` — no fa res. La cua d'IndexedDB viu a dins, o sigui
+    // que la pausa se l'empassa sencera.
+    networkMode: 'always',
     mutationFn: () => propose(titol, descripcio, userId),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: proposalKeys.list() })

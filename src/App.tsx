@@ -14,6 +14,7 @@ import { NewIdeaScreen } from '@/features/proposals/NewIdeaScreen'
 import { MyRideScreen } from '@/features/rides/MyRideScreen'
 import { OfferRideScreen } from '@/features/rides/OfferRideScreen'
 import { RidesScreen } from '@/features/rides/RidesScreen'
+import { useCheckinQueue } from '@/features/checkin/useCheckinQueue'
 import { CheckinsScreen } from '@/features/junta/CheckinsScreen'
 import { EventFormScreen } from '@/features/junta/EventFormScreen'
 import { AuditScreen } from '@/features/junta/AuditScreen'
@@ -57,6 +58,18 @@ import { supabase } from '@/lib/supabase'
  *
  * It is a prompt, not a wall: skipping it goes straight on to the door.
  */
+/**
+ * Només per penjar el hook de la cua a l'arbre.
+ *
+ * Un component i no una crida dins d'`App`: allà hi ha retorns condicionals
+ * abans d'aquest punt —la pantalla d'instal·lació, la d'entrada— i un hook
+ * darrere d'un `return` és un hook que unes vegades s'executa i altres no.
+ */
+function DrainCheckins() {
+  useCheckinQueue()
+  return null
+}
+
 export default function App() {
   const { t } = useTranslation()
   const [session, setSession] = useState<Session | null>(null)
@@ -127,6 +140,10 @@ export default function App() {
 
   return (
     <UserIdContext value={session.user.id}>
+      {/* A l'arrel i no a cap pantalla: es fitxa a la porta i tot seguit es
+          guarda el mòbil, o sigui que la pantalla on es va prémer el botó no
+          es torna a obrir. */}
+      <DrainCheckins />
       <Routes>
         {/* Asked once, and it has to be its own route rather than a gate in
             front of everything: a redirect that fires on every render would

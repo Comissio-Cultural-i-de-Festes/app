@@ -394,14 +394,19 @@ describe('a door photo can only be signed by whose face it is', () => {
     const member = await as('alfa')
     const body = new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xd9])], { type: 'image/jpeg' })
 
+    // Un nom nou a cada passada, com fa l'app: aquesta suite escriu a la
+    // mateixa base i no fa rollback, i `upsert` no és sortida perquè seria un
+    // UPDATE i el bucket no en té política —a posta, perquè cada foto és un
+    // fitxer nou amb la seva hora i no se'n substitueix cap.
+    const stamp = `${String(Date.now())}${String(Math.floor(Math.random() * 1000))}`
     const own = await member.storage
       .from(BUCKET)
-      .upload(`entrada/${F.e1}/${F.alfa}/rls-own.jpg`, body, { contentType: 'image/jpeg' })
+      .upload(`entrada/${F.e1}/${F.alfa}/${stamp}.jpg`, body, { contentType: 'image/jpeg' })
     expect(own.error).toBeNull()
 
     const other = await member.storage
       .from(BUCKET)
-      .upload(`entrada/${F.e1}/${F.bravo}/rls-nope.jpg`, body, { contentType: 'image/jpeg' })
+      .upload(`entrada/${F.e1}/${F.bravo}/${stamp}.jpg`, body, { contentType: 'image/jpeg' })
     expect(other.error).not.toBeNull()
   })
 

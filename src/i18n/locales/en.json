@@ -283,6 +283,21 @@
       "banner": "You are still on the waiting list. You can see what is coming, but you cannot sign up until the committee lets you in."
     }
   },
+  "inside": {
+    "now": "Right now",
+    "was": "That night",
+    "count_one": "{{count}} inside {{where}}",
+    "count_other": "{{count}} inside {{where}}",
+    "countPast_one": "{{count}} got in",
+    "countPast_other": "{{count}} got in",
+    "lede": "The ones the scanner let in at the door. Nobody has to touch anything.",
+    "ledePast": "The ones the scanner let in at the door.",
+    "ofExpected": "of {{count}} signed up",
+    "nobody": "Nobody has checked in yet",
+    "note": "The faces are a sample. The number in the middle is the real count.",
+    "link": "Who is inside now",
+    "linkPast": "Who got in"
+  },
   "ideas": {
     "title": "Ideas",
     "lede": "What to do on the days when nothing is on. The committee looks at whichever has most votes.",

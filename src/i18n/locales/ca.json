@@ -283,6 +283,21 @@
       "banner": "Encara ets a la llista d'espera. Pots mirar què ve, però no t'hi pots apuntar fins que la junta et doni l'alta."
     }
   },
+  "inside": {
+    "now": "Ara mateix",
+    "was": "Aquell vespre",
+    "count_one": "{{count}} dins {{where}}",
+    "count_other": "{{count}} dins {{where}}",
+    "countPast_one": "{{count}} hi va entrar",
+    "countPast_other": "{{count}} hi van entrar",
+    "lede": "Els que han fitxat a la porta. Ho diu l'escàner: no cal que ningú toqui res.",
+    "ledePast": "Els que van fitxar a la porta.",
+    "ofExpected": "de {{count}} apuntats",
+    "nobody": "Encara no ha fitxat ningú",
+    "note": "Les cares són una mostra. El número del mig és el compte de debò.",
+    "link": "Qui hi ha ara dins",
+    "linkPast": "Qui hi va entrar"
+  },
   "ideas": {
     "title": "Idees",
     "lede": "Què fem els dies que no hi ha res. La que més vots té, la junta se la mira.",

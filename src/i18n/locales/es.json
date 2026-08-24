@@ -283,6 +283,21 @@
       "banner": "Todavía estás en la lista de espera. Puedes mirar qué viene, pero no puedes apuntarte hasta que la junta te dé el alta."
     }
   },
+  "inside": {
+    "now": "Ahora mismo",
+    "was": "Aquella noche",
+    "count_one": "{{count}} dentro {{where}}",
+    "count_other": "{{count}} dentro {{where}}",
+    "countPast_one": "{{count}} entró",
+    "countPast_other": "{{count}} entraron",
+    "lede": "Los que han fichado en la puerta. Lo dice el escáner: no hace falta que nadie toque nada.",
+    "ledePast": "Los que ficharon en la puerta.",
+    "ofExpected": "de {{count}} apuntados",
+    "nobody": "Todavía no ha fichado nadie",
+    "note": "Las caras son una muestra. El número del medio es la cuenta de verdad.",
+    "link": "Quién hay dentro ahora",
+    "linkPast": "Quién entró"
+  },
   "ideas": {
     "title": "Ideas",
     "lede": "Qué hacemos los días que no hay nada. La que más votos tiene, la junta se la mira.",

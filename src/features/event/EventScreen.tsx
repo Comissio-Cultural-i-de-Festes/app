@@ -8,6 +8,7 @@ import {
   fetchAttendances,
   goingRows,
   homeKeys,
+  IN_PROGRESS_MS,
   myAnswer,
   placesLeft,
   setAnswer,
@@ -131,6 +132,13 @@ export function EventScreen() {
   const isPast = starts.getTime() < now.getTime()
   const price = formatPrice(e.precio_cents, INTL_LOCALE[locale])
   const movement = signedUpToday(rows, id, userId, now)
+  // Only worth a tap once the door has let somebody in. Before that the
+  // screen has nothing on it, and a link to nothing is a dead end.
+  const inside = rows.filter((r) => r.event_id === id && r.estado === 'asistio').length
+  // `isPast` starts the moment the event does, which is right for everything
+  // else on this page and wrong here: a party in progress is the one time
+  // "who is inside" is worth asking. The pulse stops when the party does.
+  const ended = now.getTime() >= new Date(e.ends_at ?? starts.getTime() + IN_PROGRESS_MS).getTime()
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
@@ -213,6 +221,28 @@ export function EventScreen() {
         isPast={isPast}
         waiting={waitlist.data?.total ?? 0}
       />
+
+      {inside === 0 ? null : (
+        <section className={`pt-12 ${GUTTER}`}>
+          <Link
+            to={`/esdeveniment/${id}/dins`}
+            className="flex min-h-[64px] items-center justify-between gap-6 border border-surface-8 bg-surface-2 px-7 py-6 text-fg"
+          >
+            <span className="flex items-center gap-5">
+              {ended ? null : (
+                <span
+                  aria-hidden="true"
+                  className="size-[10px] flex-none animate-pulse rounded-full bg-success"
+                />
+              )}
+              <span className="text-md font-bold [text-wrap:balance]">
+                {t(ended ? 'inside.linkPast' : 'inside.link')}
+              </span>
+            </span>
+            <span className="display flex-none text-2xl">{inside}</span>
+          </Link>
+        </section>
+      )}
 
       {isPast ? null : (
         <AnswerBlock

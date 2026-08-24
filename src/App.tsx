@@ -6,6 +6,7 @@ import { Navigate, Route, Routes } from 'react-router'
 import { EntryScreen } from '@/features/entry/EntryScreen'
 import { EventScreen } from '@/features/event/EventScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
+import { InsideScreen } from '@/features/event/InsideScreen'
 import { IdeasScreen } from '@/features/proposals/IdeasScreen'
 import { NewIdeaScreen } from '@/features/proposals/NewIdeaScreen'
 import { MyRideScreen } from '@/features/rides/MyRideScreen'
@@ -138,6 +139,7 @@ export default function App() {
             <Route path="/idees/nova" element={<NewIdeaScreen />} />
             <Route path="/perfil" element={<ProfileScreen />} />
             <Route path="/esdeveniment/:id" element={<EventScreen />} />
+            <Route path="/esdeveniment/:eventId/dins" element={<InsideScreen />} />
             <Route path="/esdeveniment/:eventId/cotxes" element={<RidesScreen />} />
             <Route path="/esdeveniment/:eventId/cotxes/nou" element={<OfferRideScreen />} />
             <Route path="/esdeveniment/:eventId/cotxes/:rideId" element={<MyRideScreen />} />

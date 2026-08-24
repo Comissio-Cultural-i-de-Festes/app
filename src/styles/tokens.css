@@ -157,6 +157,9 @@
   --ds-car-body: oklch(0.225 0.016 25);
   --ds-car-line: oklch(0.34 0.016 25);
   --ds-car-wheel: oklch(0.32 0.016 25);
+  /* The room on "who is inside now". Lighter than the app so the box reads
+   * as a place, dark enough that the faces around it stay the subject. */
+  --ds-venue: oklch(0.175 0.014 25);
 
   /* ─── THE DOOR ─────────────────────────────────────────────────────────
    * Darker than the app, because a camera picture is behind it and the phone

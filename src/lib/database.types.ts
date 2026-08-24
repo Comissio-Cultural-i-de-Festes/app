@@ -918,6 +918,10 @@ export type Database = {
         Returns: string
       }
       admin_save_periods: { Args: { p_periods: Json }; Returns: undefined }
+      admin_set_entry_photo: {
+        Args: { p_event_id: string; p_path: string; p_user_id: string }
+        Returns: Json
+      }
       admin_set_member_estat: {
         Args: { p_estat: string; p_user_id: string }
         Returns: undefined
@@ -988,6 +992,16 @@ export type Database = {
       }
       join_ride: { Args: { p_ride_id: string }; Returns: Json }
       junta_home: { Args: never; Returns: Json }
+      my_photos: {
+        Args: never
+        Returns: {
+          entry_photo_url: string
+          event_id: string
+          exit_photo_url: string
+          starts_at: string
+          titulo: string
+        }[]
+      }
       my_qr: { Args: never; Returns: string }
       ranking_escoles_period: {
         Args: { p_from?: string; p_to?: string }
@@ -1031,6 +1045,10 @@ export type Database = {
       rotate_qr_token: { Args: never; Returns: string }
       set_attendance: {
         Args: { p_estado: string; p_event_id: string }
+        Returns: Json
+      }
+      set_exit_photo: {
+        Args: { p_event_id: string; p_path: string }
         Returns: Json
       }
       waitlist_position: { Args: { p_event_id: string }; Returns: number }

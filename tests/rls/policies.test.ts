@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest'
+import { beforeAll, describe, expect, it } from 'vitest'
 
 import { anonClient, as, F, rpc, serviceClient } from './helpers'
 
@@ -226,10 +226,14 @@ describe('attendance visibility survives PostgREST, not just SQL', () => {
   })
 
   it('an exact count is the filtered count, not the real one', async () => {
+    // `select('id')` and not `select('*')`: migration 34 took the table-wide
+    // SELECT off attendances and gave it back column by column, so that no
+    // member can list the storage path of everybody else's face. A star from a
+    // member is now a privilege error rather than a filtered count.
     const member = await as('alfa')
     const { count } = await member
       .from('attendances')
-      .select('*', { count: 'exact', head: true })
+      .select('id', { count: 'exact', head: true })
       .eq('event_id', F.e1)
 
     const { count: actual } = await serviceClient()
@@ -319,5 +323,46 @@ describe('anon', () => {
   it('cannot redeem one', async () => {
     const { error } = await anonClient().rpc('redeem_invite', { p_codi: 'ALFA-7F3K' })
     expect(error).not.toBeNull()
+  })
+})
+
+describe('a door photo can only be signed by whose face it is', () => {
+  // The wall the whole diptych rests on, and the one pgTAP cannot see: signing
+  // a URL is an HTTP call into the storage API, not a SELECT anybody can run.
+  const BUCKET = 'door-photos'
+  const mine = `sortida/${F.e1}/${F.alfa}/rls.jpg`
+  const theirs = `sortida/${F.e1}/${F.bravo}/rls.jpg`
+
+  beforeAll(async () => {
+    const svc = serviceClient()
+    const body = new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xd9])], { type: 'image/jpeg' })
+    for (const path of [mine, theirs]) {
+      await svc.storage.from(BUCKET).upload(path, body, {
+        contentType: 'image/jpeg',
+        upsert: true,
+      })
+    }
+  })
+
+  it('signs your own', async () => {
+    const member = await as('alfa')
+    const { data, error } = await member.storage.from(BUCKET).createSignedUrl(mine, 60)
+    expect(error).toBeNull()
+    expect(data?.signedUrl).toContain(encodeURIComponent(BUCKET))
+  })
+
+  it("and refuses somebody else's", async () => {
+    const member = await as('alfa')
+    const { data, error } = await member.storage.from(BUCKET).createSignedUrl(theirs, 60)
+    expect(error).not.toBeNull()
+    expect(data).toBeNull()
+  })
+
+  it('while the junta signs both, which is what makes a walk-in checkable', async () => {
+    const junta = await as('junta_alfa')
+    for (const path of [mine, theirs]) {
+      const { error } = await junta.storage.from(BUCKET).createSignedUrl(path, 60)
+      expect(error).toBeNull()
+    }
   })
 })

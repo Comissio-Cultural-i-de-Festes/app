@@ -17,6 +17,7 @@ import { supabase } from './supabase'
 
 export const COVERS = 'event-covers'
 export const DOOR_PHOTOS = 'door-photos'
+export const EVENT_PHOTOS = 'event-photos'
 
 const SIGNED_TTL_SECONDS = 3600
 
@@ -55,6 +56,59 @@ export async function shrinkImage(file: File): Promise<Blob> {
   } catch {
     return file
   }
+}
+
+/**
+ * Torna a codificar una imatge a JPEG, encongida si cal.
+ *
+ * `shrinkImage` torna el fitxer tal com va arribar quan no val la pena
+ * re-codificar-lo, i per a una portada això està bé. Per a la galeria no: el
+ * seu bucket només accepta JPEG i WebP, o sigui que un PNG petit passaria pel
+ * camí ràpid i el rebutjaria el servidor — o pitjor, s'hi desaria amb un tipus
+ * declarat que no és el que té a dins. Aquí sempre en surt un JPEG.
+ */
+async function encodeJpeg(source: Blob, maxEdge: number, quality: number): Promise<Blob> {
+  const bitmap = await createImageBitmap(source)
+  const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height))
+
+  const canvas = document.createElement('canvas')
+  canvas.width = Math.max(1, Math.round(bitmap.width * scale))
+  canvas.height = Math.max(1, Math.round(bitmap.height * scale))
+
+  const context = canvas.getContext('2d')
+  if (context === null) throw new Error('no canvas')
+  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+  bitmap.close()
+
+  const blob = await new Promise<Blob | null>((resolve) => {
+    canvas.toBlob(resolve, 'image/jpeg', quality)
+  })
+  if (blob === null) throw new Error('no jpeg')
+  return blob
+}
+
+/** La foto de galeria, a mida de mirar-la i no a mida de càmera. */
+export function galleryImage(file: Blob): Promise<Blob> {
+  return encodeJpeg(file, MAX_EDGE, JPEG_QUALITY)
+}
+
+/**
+ * La miniatura, feta al telèfon abans de pujar res.
+ *
+ * El sostre de la galeria no és el que ocupa sinó el que es baixa: dues-centes
+ * fotos recorregudes a mida completa són trenta-sis megues cada vegada que algú
+ * passa la graella, i amb miniatures en són cinc. Quatre-cents píxels és el
+ * triple del que ocupa una casella de la graella en un telèfon a 3x.
+ *
+ * Es fa aquí i no en cap servidor perquè no n'hi ha cap: la decisió de no
+ * dependre de la màquina de ningú és el que fa que això hagi de viure al
+ * navegador de qui puja.
+ */
+const THUMB_EDGE = 400
+const THUMB_QUALITY = 0.7
+
+export function thumbnail(file: Blob): Promise<Blob> {
+  return encodeJpeg(file, THUMB_EDGE, THUMB_QUALITY)
 }
 
 const EXTENSIONS: Readonly<Record<string, string>> = {

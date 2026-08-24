@@ -407,6 +407,50 @@
     "entryLabel": "Com hi vaig entrar",
     "exitLabel": "Com en surto"
   },
+  "gallery": {
+    "title": "Les fotos",
+    "backToEvent": "L’activitat",
+    "count": "{{n}} de {{people}}",
+    "countShort": "{{n}} · {{people}}",
+    "people_one": "{{count}} persona",
+    "people_other": "{{count}} persones",
+    "blockEmpty": "Encara no n’hi ha cap d’aquesta nit.",
+    "openAll": "Mira-les totes",
+    "openEmpty": "Obre la galeria",
+    "upload": "Puja les teves",
+    "whoCanUpload": "Pot pujar-ne qui va fitxar aquella nit.",
+    "thumbsNote": "Aquí tot són miniatures. La bona, amb tot el detall, es carrega només quan n’obres una.",
+    "uploading": "Pujant",
+    "uploadCount": "{{n}} de {{total}}",
+    "uploadNote": "Van d’una en una i la miniatura es fa aquí mateix abans de pujar. Deixa la pantalla oberta fins que acabi; les que fallin es queden aquí.",
+    "delete": "Esborra-la",
+    "state": {
+      "esperant": "esperant",
+      "pujant": "pujant…",
+      "feta": "pujada",
+      "fallada": "no ha pujat"
+    },
+    "empty": {
+      "title": "Encara no hi ha cap foto d’aquesta nit",
+      "yours": "Tu hi eres. La primera és teva si vols.",
+      "theirs": "Les pugen els que hi van fitxar. Quan n’hi hagi, les veuràs aquí."
+    },
+    "viewer": {
+      "label": "La foto, a mida completa",
+      "position": "{{n}} de {{total}}",
+      "by": "La va pujar {{name}} · {{when}}"
+    },
+    "report": {
+      "action": "Denuncia-la",
+      "already": "Ja ho has demanat",
+      "title": "Què li passa, a aquesta foto?",
+      "hi_surto": "Hi surto i no vull sortir-hi",
+      "no_es_d_aquella_nit": "No és d’aquesta nit",
+      "altra": "Una altra cosa",
+      "send": "Envia-ho a la junta",
+      "note": "La junta la veu i la despenja si cal. Qui l’ha pujada no sabrà que ho has demanat tu."
+    }
+  },
   "ideas": {
     "title": "Idees",
     "lede": "Què fem els dies que no hi ha res. La que més vots té, la junta se la mira.",
@@ -769,6 +813,16 @@
       "pushSub": "Una empenta al mòbil de tothom",
       "periodsStale": "Els trimestres no cobreixen el dia d'avui",
       "periodsOk": "Quan comença i acaba cada trimestre"
+    },
+    "photos": {
+      "title": "Fotos denunciades",
+      "empty": "Cap. Ningú ha demanat que mireu res.",
+      "by": "{{event}} · pujada per {{name}}",
+      "times_one": "{{count}} persona ho ha demanat",
+      "times_other": "{{count}} persones ho han demanat",
+      "hide": "Despenja-la",
+      "keep": "Deixa-la",
+      "note": "Despenjar-la l’amaga de tothom a l’instant, i es pot desfer. Qui va denunciar no surt enlloc; qui la va pujar només veu que ja no hi és."
     },
     "geo": {
       "hint": "Escriu-la i tria-la de la llista: així la gent la llegeix i, alhora, hi pot fitxar. Sense punt al mapa només queda l'escàner.",

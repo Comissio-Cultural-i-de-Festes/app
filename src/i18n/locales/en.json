@@ -407,6 +407,50 @@
     "entryLabel": "How I got in",
     "exitLabel": "How I am leaving"
   },
+  "gallery": {
+    "title": "The photos",
+    "backToEvent": "The event",
+    "count": "{{n}} from {{people}}",
+    "countShort": "{{n}} · {{people}}",
+    "people_one": "{{count}} person",
+    "people_other": "{{count}} people",
+    "blockEmpty": "None from this night yet.",
+    "openAll": "See all of them",
+    "openEmpty": "Open the gallery",
+    "upload": "Add yours",
+    "whoCanUpload": "Anybody who checked in that night can add photos.",
+    "thumbsNote": "These are all thumbnails. The full-size one loads only when you open it.",
+    "uploading": "Uploading",
+    "uploadCount": "{{n}} of {{total}}",
+    "uploadNote": "They go one at a time and the thumbnail is made right here before uploading. Keep the screen open until it finishes; anything that fails stays here.",
+    "delete": "Delete it",
+    "state": {
+      "esperant": "waiting",
+      "pujant": "uploading…",
+      "feta": "uploaded",
+      "fallada": "did not upload"
+    },
+    "empty": {
+      "title": "No photos from this night yet",
+      "yours": "You were there. The first one is yours if you want it.",
+      "theirs": "They come from whoever checked in. When there are some, you will see them here."
+    },
+    "viewer": {
+      "label": "The photo, full size",
+      "position": "{{n}} of {{total}}",
+      "by": "Added by {{name}} · {{when}}"
+    },
+    "report": {
+      "action": "Report it",
+      "already": "You have asked already",
+      "title": "What is wrong with this photo?",
+      "hi_surto": "I am in it and I do not want to be",
+      "no_es_d_aquella_nit": "It is not from this night",
+      "altra": "Something else",
+      "send": "Send it to the junta",
+      "note": "The junta sees it and takes it down if needed. Whoever added it will not know you asked."
+    }
+  },
   "ideas": {
     "title": "Ideas",
     "lede": "What to do on the days when nothing is on. The committee looks at whichever has most votes.",
@@ -769,6 +813,16 @@
       "pushSub": "A push to everybody's phone",
       "periodsStale": "The terms do not cover today",
       "periodsOk": "When each term starts and ends"
+    },
+    "photos": {
+      "title": "Reported photos",
+      "empty": "None. Nobody has asked you to look at anything.",
+      "by": "{{event}} · added by {{name}}",
+      "times_one": "{{count}} person asked",
+      "times_other": "{{count}} people asked",
+      "hide": "Take it down",
+      "keep": "Leave it",
+      "note": "Taking it down hides it from everybody at once, and it can be undone. Whoever reported it appears nowhere; whoever added it only sees that it has gone."
     },
     "geo": {
       "hint": "Type it and pick it from the list: that way people read it and can also check in. With no point on the map, only the scanner is left.",

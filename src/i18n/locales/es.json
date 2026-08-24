@@ -407,6 +407,50 @@
     "entryLabel": "Cómo entré",
     "exitLabel": "Cómo salgo"
   },
+  "gallery": {
+    "title": "Las fotos",
+    "backToEvent": "La actividad",
+    "count": "{{n}} de {{people}}",
+    "countShort": "{{n}} · {{people}}",
+    "people_one": "{{count}} persona",
+    "people_other": "{{count}} personas",
+    "blockEmpty": "Todavía no hay ninguna de esta noche.",
+    "openAll": "Míralas todas",
+    "openEmpty": "Abre la galería",
+    "upload": "Sube las tuyas",
+    "whoCanUpload": "Puede subirlas quien fichó aquella noche.",
+    "thumbsNote": "Aquí todo son miniaturas. La buena, con todo el detalle, se carga solo cuando abres una.",
+    "uploading": "Subiendo",
+    "uploadCount": "{{n}} de {{total}}",
+    "uploadNote": "Van de una en una y la miniatura se hace aquí mismo antes de subir. Deja la pantalla abierta hasta que acabe; las que fallen se quedan aquí.",
+    "delete": "Bórrala",
+    "state": {
+      "esperant": "esperando",
+      "pujant": "subiendo…",
+      "feta": "subida",
+      "fallada": "no ha subido"
+    },
+    "empty": {
+      "title": "Todavía no hay ninguna foto de esta noche",
+      "yours": "Tú estuviste. La primera es tuya si quieres.",
+      "theirs": "Las suben los que ficharon. Cuando haya, las verás aquí."
+    },
+    "viewer": {
+      "label": "La foto, a tamaño completo",
+      "position": "{{n}} de {{total}}",
+      "by": "La subió {{name}} · {{when}}"
+    },
+    "report": {
+      "action": "Denúnciala",
+      "already": "Ya lo has pedido",
+      "title": "¿Qué le pasa, a esta foto?",
+      "hi_surto": "Salgo y no quiero salir",
+      "no_es_d_aquella_nit": "No es de esta noche",
+      "altra": "Otra cosa",
+      "send": "Envíalo a la junta",
+      "note": "La junta la ve y la descuelga si hace falta. Quien la subió no sabrá que lo has pedido tú."
+    }
+  },
   "ideas": {
     "title": "Ideas",
     "lede": "Qué hacemos los días que no hay nada. La que más votos tiene, la junta se la mira.",
@@ -769,6 +813,16 @@
       "pushSub": "Un empujón al móvil de todo el mundo",
       "periodsStale": "Los trimestres no cubren el día de hoy",
       "periodsOk": "Cuándo empieza y acaba cada trimestre"
+    },
+    "photos": {
+      "title": "Fotos denunciadas",
+      "empty": "Ninguna. Nadie ha pedido que miréis nada.",
+      "by": "{{event}} · subida por {{name}}",
+      "times_one": "{{count}} persona lo ha pedido",
+      "times_other": "{{count}} personas lo han pedido",
+      "hide": "Descuélgala",
+      "keep": "Déjala",
+      "note": "Descolgarla la esconde de todos al instante, y se puede deshacer. Quien denunció no aparece en ningún sitio; quien la subió solo ve que ya no está."
     },
     "geo": {
       "hint": "Escríbela y elígela de la lista: así la gente la lee y, a la vez, puede fichar. Sin punto en el mapa solo queda el escáner.",

@@ -19,6 +19,7 @@ import { CheckinsScreen } from '@/features/junta/CheckinsScreen'
 import { EventFormScreen } from '@/features/junta/EventFormScreen'
 import { AuditScreen } from '@/features/junta/AuditScreen'
 import { GrausScreen } from '@/features/junta/GrausScreen'
+import { PhotoReportsScreen } from '@/features/junta/PhotoReportsScreen'
 import { IdeasReviewScreen } from '@/features/junta/IdeasReviewScreen'
 import { MembersScreen } from '@/features/junta/MembersScreen'
 import { PeriodsScreen } from '@/features/junta/PeriodsScreen'
@@ -33,6 +34,7 @@ import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen'
 import { BadgesScreen } from '@/features/badges/BadgesScreen'
+import { GalleryScreen } from '@/features/gallery/GalleryScreen'
 import { ProfileScreen } from '@/features/profile/ProfileScreen'
 import { QrScreen } from '@/features/qr/QrScreen'
 import { JuntaLayout } from '@/features/shell/JuntaLayout'
@@ -162,6 +164,7 @@ export default function App() {
             <Route path="/perfil/insignies" element={<BadgesScreen />} />
             <Route path="/esdeveniment/:id" element={<EventScreen />} />
             <Route path="/esdeveniment/:eventId/dins" element={<InsideScreen />} />
+            <Route path="/esdeveniment/:id/fotos" element={<GalleryScreen />} />
             <Route path="/perfil/nits" element={<DiptychScreen />} />
             <Route path="/perfil/nits/:eventId" element={<DiptychScreen />} />
             <Route path="/esdeveniment/:eventId/cotxes" element={<RidesScreen />} />
@@ -186,6 +189,7 @@ export default function App() {
             <Route path="periodes" element={<PeriodsScreen />} />
             <Route path="barem" element={<ScaleScreen />} />
             <Route path="graus" element={<GrausScreen />} />
+            <Route path="fotos" element={<PhotoReportsScreen />} />
             <Route path="pagaments" element={<PaymentsScreen />} />
             <Route path="pagaments/:eventId" element={<PaymentsScreen />} />
             <Route path="escaner/:eventId" element={<ScannerScreen />} />

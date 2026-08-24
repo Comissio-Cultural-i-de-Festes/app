@@ -1295,6 +1295,10 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      admin_dashboard: {
+        Args: { p_from?: string; p_to?: string }
+        Returns: Json
+      }
       admin_decide_attendance: {
         Args: { p_accepta: boolean; p_event_id: string; p_user_id: string }
         Returns: Json

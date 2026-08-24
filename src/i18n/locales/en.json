@@ -340,7 +340,11 @@
     "pickEvent": "Which event",
     "noEvents": "An event has to exist already before an idea can become one.",
     "alreadyDecided": "Somebody else has already decided it.",
-    "whyNotNote": "It cannot be turned down without a reason: that sentence is the whole of what the person receives, and it is the difference between them proposing another one and never proposing again."
+    "whyNotNote": "It cannot be turned down without a reason: that sentence is the whole of what the person receives, and it is the difference between them proposing another one and never proposing again.",
+    "queued_one": "{{count}} idea to send",
+    "queued_other": "{{count}} ideas to send",
+    "queuedOffline_one": "{{count}} idea saved, it goes up when there is signal",
+    "queuedOffline_other": "{{count}} ideas saved, they go up when there is signal"
   },
   "install": {
     "title": "Put it on your screen",

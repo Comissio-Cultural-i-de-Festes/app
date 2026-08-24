@@ -45,6 +45,14 @@ export function NewIdeaScreen() {
       await client.invalidateQueries({ queryKey: proposalKeys.list() })
       await navigate('/idees')
     },
+    // Offline is not a refusal. `propose` writes the idea to the queue before
+    // it tries to send it, so it is safe on the phone either way and the list
+    // is where the waiting count lives. Anything else — a policy saying no, a
+    // title the CHECK refuses — stays on this screen with its reason.
+    onError: () => {
+      if (navigator.onLine) return
+      void navigate('/idees')
+    },
   })
 
   // The CHECK on the column is 3 to 120. Mirrored here so the button is off

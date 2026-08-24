@@ -18,8 +18,18 @@
  */
 
 const DB_NAME = 'comi'
-const DB_VERSION = 1
-const STORE = 'checkin-queue'
+const DB_VERSION = 2
+
+/**
+ * Two queues, one database.
+ *
+ * The scanner's is the one that matters and the one everything here was
+ * written for. Ideas share the plumbing because the shape is identical — write
+ * it down, try to send it, rub it out when it lands — and a second IndexedDB
+ * with its own open handshake would be the same code twice.
+ */
+export const SCANS = 'checkin-queue'
+export const IDEAS = 'idea-queue'
 
 export interface QueuedScan {
   /** Generated at the moment of the scan. The idempotency key. */
@@ -46,8 +56,13 @@ function open(): Promise<IDBDatabase | null> {
     const request = indexedDB.open(DB_NAME, DB_VERSION)
     request.onupgradeneeded = () => {
       const db = request.result
-      if (!db.objectStoreNames.contains(STORE)) {
-        db.createObjectStore(STORE, { keyPath: 'clientRequestId' })
+      if (!db.objectStoreNames.contains(SCANS)) {
+        db.createObjectStore(SCANS, { keyPath: 'clientRequestId' })
+      }
+      // Added at version 2. An existing database is upgraded in place, so a
+      // phone with scans already waiting keeps them.
+      if (!db.objectStoreNames.contains(IDEAS)) {
+        db.createObjectStore(IDEAS, { keyPath: 'id' })
       }
     }
     request.onsuccess = () => {
@@ -64,6 +79,7 @@ function open(): Promise<IDBDatabase | null> {
 }
 
 function run<T>(
+  storeName: string,
   mode: IDBTransactionMode,
   body: (store: IDBObjectStore) => IDBRequest<T>,
 ): Promise<T | null> {
@@ -76,7 +92,7 @@ function run<T>(
         }
         let request: IDBRequest<T>
         try {
-          request = body(db.transaction(STORE, mode).objectStore(STORE))
+          request = body(db.transaction(storeName, mode).objectStore(storeName))
         } catch {
           resolve(null)
           return
@@ -91,17 +107,24 @@ function run<T>(
   )
 }
 
+/** Anything the queues hold: a key, when it happened, and how often it failed. */
+export interface Queued {
+  readonly at: number
+  readonly tries: number
+}
+
 export async function enqueue(scan: QueuedScan): Promise<void> {
-  await run('readwrite', (store) => store.put(scan))
+  await run(SCANS, 'readwrite', (store) => store.put(scan))
 }
 
 export async function dequeue(clientRequestId: string): Promise<void> {
-  await run('readwrite', (store) => store.delete(clientRequestId))
+  await run(SCANS, 'readwrite', (store) => store.delete(clientRequestId))
 }
 
 /** Oldest first: the door queue is a queue, not a stack. */
 export async function pending(): Promise<QueuedScan[]> {
   const rows = await run<QueuedScan[]>(
+    SCANS,
     'readonly',
     (store) => store.getAll() as IDBRequest<QueuedScan[]>,
   )
@@ -109,7 +132,7 @@ export async function pending(): Promise<QueuedScan[]> {
 }
 
 export async function count(): Promise<number> {
-  return (await run<number>('readonly', (store) => store.count())) ?? 0
+  return (await run<number>(SCANS, 'readonly', (store) => store.count())) ?? 0
 }
 
 export async function bumpTries(scan: QueuedScan): Promise<void> {
@@ -118,5 +141,24 @@ export async function bumpTries(scan: QueuedScan): Promise<void> {
 
 /** For the tests, and for signing out on a shared phone. */
 export async function clearQueue(): Promise<void> {
-  await run('readwrite', (store) => store.clear())
+  await run(SCANS, 'readwrite', (store) => store.clear())
+}
+
+// ── the same three verbs, for any other store ───────────────────────────────
+
+export async function put<T extends Queued>(storeName: string, item: T): Promise<void> {
+  await run(storeName, 'readwrite', (store) => store.put(item))
+}
+
+export async function drop(storeName: string, key: string): Promise<void> {
+  await run(storeName, 'readwrite', (store) => store.delete(key))
+}
+
+export async function waiting<T extends Queued>(storeName: string): Promise<T[]> {
+  const rows = await run<T[]>(
+    storeName,
+    'readonly',
+    (store) => store.getAll() as IDBRequest<T[]>,
+  )
+  return (rows ?? []).sort((a, b) => a.at - b.at)
 }

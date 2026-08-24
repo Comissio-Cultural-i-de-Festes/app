@@ -1,4 +1,5 @@
 import { DbError, unwrapAs } from '@/lib/db'
+import { IDEAS, type Queued, drop, put, waiting } from '@/lib/queue'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -77,13 +78,75 @@ export async function vote(proposalId: string, userId: string, on: boolean): Pro
   if (error) throw new DbError(error)
 }
 
-export async function propose(titol: string, descripcio: string, userId: string): Promise<void> {
+/**
+ * An idea on its way, whether or not there is any signal.
+ *
+ * Written down before it is sent and rubbed out when it lands, the same order
+ * as a scan at the door and for the same reason: a request that hangs for
+ * thirty seconds would otherwise be lost between the two.
+ *
+ * The id is generated here and sent, so a resend is the same idea rather than
+ * a second one. That is what migration 30 opened the insert grant for.
+ */
+export interface QueuedIdea extends Queued {
+  readonly id: string
+  readonly titol: string
+  readonly descripcio: string | null
+  readonly userId: string
+}
+
+async function send(idea: QueuedIdea): Promise<void> {
   const { error } = await supabase.from('proposals').insert({
-    user_id: userId,
+    id: idea.id,
+    user_id: idea.userId,
+    titol: idea.titol,
+    descripcio: idea.descripcio,
+  })
+  // 23505 is the primary key already being there: a previous attempt landed
+  // and only the answer was lost. Nothing to do, and not a failure.
+  if (error !== null && error.code !== '23505') throw new DbError(error)
+}
+
+export async function propose(titol: string, descripcio: string, userId: string): Promise<void> {
+  const idea: QueuedIdea = {
+    id: crypto.randomUUID(),
     titol: titol.trim(),
     descripcio: descripcio.trim() === '' ? null : descripcio.trim(),
-  })
-  if (error) throw new DbError(error)
+    userId,
+    at: Date.now(),
+    tries: 0,
+  }
+  await put(IDEAS, idea)
+
+  try {
+    await send(idea)
+    await drop(IDEAS, idea.id)
+  } catch (cause) {
+    // Left in the queue on purpose: the idea is written down either way.
+    await put(IDEAS, { ...idea, tries: idea.tries + 1 })
+    throw cause
+  }
+}
+
+/** How many ideas are still waiting to be sent. */
+export async function queuedIdeas(): Promise<number> {
+  return (await waiting<QueuedIdea>(IDEAS)).length
+}
+
+/** Sends whatever is waiting. Stops at the first failure rather than hammering. */
+export async function flushIdeas(): Promise<number> {
+  let sent = 0
+  for (const idea of await waiting<QueuedIdea>(IDEAS)) {
+    try {
+      await send(idea)
+      await drop(IDEAS, idea.id)
+      sent += 1
+    } catch {
+      await put(IDEAS, { ...idea, tries: idea.tries + 1 })
+      break
+    }
+  }
+  return sent
 }
 
 /** Only while nobody has backed it: taking it away would take their vote too. */

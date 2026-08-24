@@ -340,7 +340,11 @@
     "pickEvent": "A quin esdeveniment",
     "noEvents": "Cal un esdeveniment ja creat per convertir-hi una idea.",
     "alreadyDecided": "Algú altre ja l’ha decidit.",
-    "whyNotNote": "Sense el per què no es pot descartar: és l'única cosa que la persona rebrà, i és la diferència entre que en torni a proposar una o que no n'hi torni cap."
+    "whyNotNote": "Sense el per què no es pot descartar: és l'única cosa que la persona rebrà, i és la diferència entre que en torni a proposar una o que no n'hi torni cap.",
+    "queued_one": "{{count}} idea per enviar",
+    "queued_other": "{{count}} idees per enviar",
+    "queuedOffline_one": "{{count}} idea desada, s'enviarà quan hi hagi cobertura",
+    "queuedOffline_other": "{{count}} idees desades, s'enviaran quan hi hagi cobertura"
   },
   "install": {
     "title": "Posa-la a la pantalla",

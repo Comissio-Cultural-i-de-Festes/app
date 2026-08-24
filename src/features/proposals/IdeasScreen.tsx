@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useCallback } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
@@ -11,6 +12,7 @@ import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
 import { type Proposal, fetchMyVotes, fetchProposals, proposalKeys, vote, withdraw } from './api'
+import { useIdeaQueue } from './useIdeaQueue'
 
 /**
  * Ideas, which exist to fill the weeks when nothing is on.
@@ -46,6 +48,11 @@ export function IdeasScreen() {
     await client.invalidateQueries({ queryKey: proposalKeys.myVotes() })
   }
 
+  const onSent = useCallback(() => {
+    void client.invalidateQueries({ queryKey: proposalKeys.list() })
+  }, [client])
+  const queue = useIdeaQueue(onSent)
+
   const toggle = useMutation({
     mutationFn: (v: { readonly id: string; readonly on: boolean }) => vote(v.id, userId, v.on),
     onSuccess: refresh,
@@ -79,6 +86,21 @@ export function IdeasScreen() {
           {t('ideas.propose')}
         </Link>
       </header>
+
+      {queue.queued === 0 ? null : (
+        <p
+          role="status"
+          className={`flex items-center gap-3 pb-6 text-sm font-bold text-[var(--ds-warning-deep)] ${GUTTER}`}
+        >
+          <span
+            aria-hidden="true"
+            className="size-[8px] flex-none animate-pulse rounded-full bg-[var(--ds-warning-deep)]"
+          />
+          {queue.online
+            ? t('ideas.queued', { count: queue.queued })
+            : t('ideas.queuedOffline', { count: queue.queued })}
+        </p>
+      )}
 
       {list.isPending ? (
         <>

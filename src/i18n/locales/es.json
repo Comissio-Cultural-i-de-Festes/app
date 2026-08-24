@@ -340,7 +340,11 @@
     "pickEvent": "A qué evento",
     "noEvents": "Hace falta un evento ya creado para convertir una idea.",
     "alreadyDecided": "Alguien más ya la ha decidido.",
-    "whyNotNote": "Sin el por qué no se puede descartar: es lo único que la persona recibirá, y es la diferencia entre que vuelva a proponer una o que no vuelva ninguna."
+    "whyNotNote": "Sin el por qué no se puede descartar: es lo único que la persona recibirá, y es la diferencia entre que vuelva a proponer una o que no vuelva ninguna.",
+    "queued_one": "{{count}} idea por enviar",
+    "queued_other": "{{count}} ideas por enviar",
+    "queuedOffline_one": "{{count}} idea guardada, se enviará cuando haya cobertura",
+    "queuedOffline_other": "{{count}} ideas guardadas, se enviarán cuando haya cobertura"
   },
   "install": {
     "title": "Ponla en la pantalla",

@@ -1,0 +1,19 @@
+/*  Tailwind entry for the design-sync build.
+ *
+ *  The app's own stylesheet is authored, not compiled: `src/styles/index.css`
+ *  is Tailwind source. Rendered designs receive only compiled CSS, so this
+ *  file is what gets compiled — the app's entry verbatim, plus the source
+ *  globs the utility scan must cover.
+ *
+ *  The @source lines matter more here than in the app: preview cards use
+ *  arbitrary values (`bg-[oklch(...)]`, `text-[27px]`) that only exist in the
+ *  output if the scanner saw the file that wrote them. `previews/` is where
+ *  the authored cards live, so it has to be scanned alongside src/.
+ */
+
+@import '../src/styles/index.css';
+
+@source '../src/**/*.{ts,tsx}';
+@source './previews/**/*.tsx';
+@source './entry.tsx';
+@source './safelist.txt';

@@ -1,0 +1,21 @@
+// Path map for the design-sync bundle only — esbuild reads compilerOptions.paths
+// from here (cfg.tsconfig). The two exact keys win over the @/* wildcard and swap
+// the env-reading modules for preview-safe stubs: the real src/config/env.ts reads
+// import.meta.env and throws on a missing key, which in an IIFE with no .env would
+// take the whole window.AppComi global down at load. The app's own tsconfig.app.json
+// is untouched.
+{
+  "compilerOptions": {
+    "baseUrl": "..",
+    "paths": {
+      "@/config/env": ["./.design-sync/stubs/env.ts"],
+      "@/config/brand": ["./.design-sync/stubs/brand.ts"],
+      // Both of these name a DIRECTORY as well as a module, and the resolver
+      // tries the bare path before the extensions — so it hands esbuild a
+      // directory to read. Pinning the file is the whole fix.
+      "@/i18n": ["./src/i18n/index.ts"],
+      "@/i18n/locales": ["./src/i18n/locales.ts"],
+      "@/*": ["./src/*"]
+    }
+  }
+}

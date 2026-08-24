@@ -182,7 +182,7 @@ export function JuntaHome() {
               : t('junta.members.rowSub', { count: home.data.socis })
           }
         />
-        <Later title={t('junta.home.proposals')} sub={t('junta.home.proposalsSub')} phase={2} />
+        <Row to="/junta/idees" title={t('ideas.juntaTitle')} sub={t('junta.home.proposalsSub')} />
         <Later title={t('junta.home.push')} sub={t('junta.home.pushSub')} phase={3} />
       </div>
 

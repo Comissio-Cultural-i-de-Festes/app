@@ -339,7 +339,8 @@
     "whyYes": "Per què sí, si vols dir-ho",
     "pickEvent": "A quin esdeveniment",
     "noEvents": "Cal un esdeveniment ja creat per convertir-hi una idea.",
-    "alreadyDecided": "Algú altre ja l’ha decidit."
+    "alreadyDecided": "Algú altre ja l’ha decidit.",
+    "whyNotNote": "Sense el per què no es pot descartar: és l'única cosa que la persona rebrà, i és la diferència entre que en torni a proposar una o que no n'hi torni cap."
   },
   "install": {
     "title": "Posa-la a la pantalla",

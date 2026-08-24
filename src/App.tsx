@@ -11,6 +11,7 @@ import { NewIdeaScreen } from '@/features/proposals/NewIdeaScreen'
 import { EventFormScreen } from '@/features/junta/EventFormScreen'
 import { AuditScreen } from '@/features/junta/AuditScreen'
 import { GrausScreen } from '@/features/junta/GrausScreen'
+import { IdeasReviewScreen } from '@/features/junta/IdeasReviewScreen'
 import { MembersScreen } from '@/features/junta/MembersScreen'
 import { PeriodsScreen } from '@/features/junta/PeriodsScreen'
 import { ScaleScreen } from '@/features/junta/ScaleScreen'
@@ -142,6 +143,7 @@ export default function App() {
             <Route index element={<JuntaHome />} />
             <Route path="invitacions" element={<InvitesScreen />} />
             <Route path="esdeveniment/:id" element={<EventFormScreen />} />
+            <Route path="idees" element={<IdeasReviewScreen />} />
             <Route path="socis" element={<MembersScreen />} />
             <Route path="registre" element={<AuditScreen />} />
             <Route path="periodes" element={<PeriodsScreen />} />

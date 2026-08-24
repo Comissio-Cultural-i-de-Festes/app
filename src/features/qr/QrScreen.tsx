@@ -3,7 +3,6 @@ import QRCode from 'qrcode'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { env } from '@/config/env'
 import { useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
 import type { Escola } from '@/lib/model'
@@ -166,19 +165,6 @@ export function QrScreen() {
           <p className="mt-[14px] max-w-[300px] text-center text-md text-fg-muted [text-wrap:pretty]">
             {t('qr.howTo')}
           </p>
-
-          {/* Where the notice about the door photograph belongs, and it took
-              until now to see it. `door.photoOn` lives in the scanner's footer,
-              which is a junta screen: the person being photographed never read
-              a word of it. This is the screen they are holding up when it
-              happens, so it is the one that has to say so — and only while the
-              flag is on, because with it off there is no photograph and the
-              sentence would be a lie. */}
-          {env.entryPhoto ? (
-            <p className="mt-[18px] max-w-[300px] text-center text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-              {t('qr.photo')}
-            </p>
-          ) : null}
         </>
       )}
     </main>

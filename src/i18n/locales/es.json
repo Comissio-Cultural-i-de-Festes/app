@@ -27,9 +27,6 @@
     "queuedOffline_other": "{{count}} en la cola, sin red",
     "aim": "Apunta al QR. No hace falta tocar nada.",
     "manual": "Alta manual por el nombre",
-    "photoOn": "La foto de entrada se hace sola al validar.",
-    "photoFailed": "La última foto no se ha subido. Los fichajes sí.",
-    "photoOff": "Sin foto de entrada.",
     "buzzes": "Vibra en cada QR",
     "unknownPerson": "Este QR",
     "notPaid": "no ha pagado",
@@ -835,7 +832,6 @@
     "codeLabel": "Tu código QR",
     "offlineOk": "Brillo al máximo · va sin cobertura",
     "howTo": "Enséñalo en la puerta y espera el \"fichado\". Si la pantalla está sucia, pásale la manga.",
-    "photo": "Cuando te validen el código, el escáner te hace una foto. Sirve para que la junta pueda cuadrar quién entró. La veis ellos y tú, en tu perfil, y si no la quieres, pídelo y te la quitan.",
     "unavailable": "Ahora mismo no podemos mostrar tu código. Pruébalo con conexión y quedará guardado para la próxima.",
     "notYet": {
       "title": "Todavía no tienes código",

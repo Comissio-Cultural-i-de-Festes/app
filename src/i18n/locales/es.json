@@ -288,7 +288,7 @@
     "count_other": "{{count}} dentro {{where}}",
     "countPast_one": "{{count}} entró",
     "countPast_other": "{{count}} entraron",
-    "lede": "Los que han fichado en la puerta. Lo dice el escáner: no hace falta que nadie toque nada.",
+    "lede": "Los que han fichado. Cada uno desde su móvil al llegar, o con el escáner si el móvil no llegaba.",
     "ledePast": "Los que ficharon en la puerta.",
     "ofExpected": "de {{count}} apuntados",
     "nobody": "Todavía no ha fichado nadie",
@@ -380,8 +380,8 @@
   "exitCard": {
     "eyebrow": "Ayer por la noche",
     "title": "Falta cómo saliste",
-    "body": "La de entrada te la hizo el escáner, en {{titol}}. La de salida te la haces tú, y el díptico solo lo ves tú.",
-    "bodyWithTime": "Entraste en {{titol}} a las {{hora}}. La de salida te la haces tú, y el díptico solo lo ves tú.",
+    "body": "La de llegada te la hiciste en {{titol}}. La de salida te la haces ahora, y el díptico solo lo ves tú.",
+    "bodyWithTime": "Fichaste en {{titol}} a las {{hora}}. La de salida te la haces tú, y el díptico solo lo ves tú.",
     "closesTonight": "Se cierra esta noche"
   },
   "share": {
@@ -895,7 +895,7 @@
   "qr": {
     "codeLabel": "Tu código QR",
     "offlineOk": "Brillo al máximo · va sin cobertura",
-    "howTo": "Enséñalo en la puerta y espera el \"fichado\". Si la pantalla está sucia, pásale la manga.",
+    "howTo": "El de recambio: si no puedes fichar desde el móvil, enséñalo en la puerta y espera el «fichado».",
     "unavailable": "Ahora mismo no podemos mostrar tu código. Pruébalo con conexión y quedará guardado para la próxima.",
     "notYet": {
       "title": "Todavía no tienes código",

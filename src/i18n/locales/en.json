@@ -288,7 +288,7 @@
     "count_other": "{{count}} inside {{where}}",
     "countPast_one": "{{count}} got in",
     "countPast_other": "{{count}} got in",
-    "lede": "The ones the scanner let in at the door. Nobody has to touch anything.",
+    "lede": "The ones who checked in. Each from their own phone on arrival, or with the scanner when the phone could not.",
     "ledePast": "The ones the scanner let in at the door.",
     "ofExpected": "of {{count}} signed up",
     "nobody": "Nobody has checked in yet",
@@ -380,8 +380,8 @@
   "exitCard": {
     "eyebrow": "Last night",
     "title": "The way out is missing",
-    "body": "The scanner took the way-in one at {{titol}}. The way-out one is yours to take, and the diptych is yours to look at.",
-    "bodyWithTime": "You got into {{titol}} at {{hora}}. The way-out one is yours to take, and the diptych is yours to look at.",
+    "body": "You took the arrival one at {{titol}}. The way-out one is yours to take now, and the diptych is yours alone.",
+    "bodyWithTime": "You checked in at {{titol}} at {{hora}}. The way-out one is yours to take, and the diptych is yours alone.",
     "closesTonight": "Closes tonight"
   },
   "share": {
@@ -895,7 +895,7 @@
   "qr": {
     "codeLabel": "Your QR code",
     "offlineOk": "Brightness up · works with no signal",
-    "howTo": "Show it at the door and wait for the beep. If the screen is smudged, give it a wipe.",
+    "howTo": "The fallback: if you cannot check in from your phone, show this at the door and wait for the \"checked in\".",
     "unavailable": "We cannot show your code right now. Try once with a connection and it will be saved for next time.",
     "notYet": {
       "title": "No code yet",

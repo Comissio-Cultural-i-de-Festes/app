@@ -288,7 +288,7 @@
     "count_other": "{{count}} dins {{where}}",
     "countPast_one": "{{count}} hi va entrar",
     "countPast_other": "{{count}} hi van entrar",
-    "lede": "Els que han fitxat a la porta. Ho diu l'escàner: no cal que ningú toqui res.",
+    "lede": "Els que han fitxat. Cadascú des del seu mòbil en arribar, o amb l'escàner si el mòbil no hi arribava.",
     "ledePast": "Els que van fitxar a la porta.",
     "ofExpected": "de {{count}} apuntats",
     "nobody": "Encara no ha fitxat ningú",
@@ -380,8 +380,8 @@
   "exitCard": {
     "eyebrow": "Ahir a la nit",
     "title": "Falta com en vas sortir",
-    "body": "La d'entrada te la va fer l'escàner, a {{titol}}. La de sortida te la fas tu, i el díptic només el veus tu.",
-    "bodyWithTime": "Vas entrar a {{titol}} a les {{hora}}. La de sortida te la fas tu, i el díptic només el veus tu.",
+    "body": "La d'arribada te la vas fer a {{titol}}. La de sortida te la fas ara, i el díptic només el veus tu.",
+    "bodyWithTime": "Vas fitxar a {{titol}} a les {{hora}}. La de sortida te la fas tu, i el díptic només el veus tu.",
     "closesTonight": "Es tanca aquesta nit"
   },
   "share": {
@@ -895,7 +895,7 @@
   "qr": {
     "codeLabel": "El teu codi QR",
     "offlineOk": "Brillantor al màxim · va sense cobertura",
-    "howTo": "Ensenya'l a la porta i espera el \"fitxat\". Si la pantalla està bruta, passa-hi la màniga.",
+    "howTo": "El de recanvi: si no pots fitxar des del mòbil, ensenya'l a la porta i espera el «fitxat».",
     "unavailable": "Ara mateix no podem mostrar el teu codi. Prova-ho amb connexió i quedarà desat per la propera.",
     "notYet": {
       "title": "Encara no tens codi",

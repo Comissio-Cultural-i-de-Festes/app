@@ -835,6 +835,7 @@
     "codeLabel": "Your QR code",
     "offlineOk": "Brightness up · works with no signal",
     "howTo": "Show it at the door and wait for the beep. If the screen is smudged, give it a wipe.",
+    "photo": "When your code is scanned, the scanner takes your photo. It is there so the junta can work out who came in. They see it and you see it, in your profile, and if you would rather it did not exist, ask and it goes.",
     "unavailable": "We cannot show your code right now. Try once with a connection and it will be saved for next time.",
     "notYet": {
       "title": "No code yet",

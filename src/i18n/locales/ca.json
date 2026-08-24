@@ -835,6 +835,7 @@
     "codeLabel": "El teu codi QR",
     "offlineOk": "Brillantor al màxim · va sense cobertura",
     "howTo": "Ensenya'l a la porta i espera el \"fitxat\". Si la pantalla està bruta, passa-hi la màniga.",
+    "photo": "Quan et validin el codi, l'escàner et fa una foto. Serveix perquè la junta pugui quadrar qui va entrar. La veieu ells i tu, al teu perfil, i si no la vols, demana-ho i te la treuen.",
     "unavailable": "Ara mateix no podem mostrar el teu codi. Prova-ho amb connexió i quedarà desat per la propera.",
     "notYet": {
       "title": "Encara no tens codi",

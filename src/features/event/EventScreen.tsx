@@ -22,6 +22,8 @@ import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { useCovers } from '@/ui/Cover/useCovers'
 
+import { RidesBlock } from '@/features/rides/RidesBlock'
+
 import { eventKeys, fetchEvent, fetchWaitlist, formatPrice } from './api'
 import { Cover, Fact, Places } from './detail'
 
@@ -236,6 +238,11 @@ export function EventScreen() {
           <p className="mt-6 text-base text-fg-secondary [text-wrap:pretty]">{e.transport_info}</p>
         </section>
       )}
+
+      {/* Only where somebody has to drive. The flag is per event and not per
+          type: a party out of town needs cars, a casa rural fifteen minutes
+          away does not. */}
+      {e.te_cotxes ? <RidesBlock eventId={e.id} /> : null}
 
       {e.descripcion === null ? null : (
         <section className={`pt-9 pb-8 ${GUTTER}`}>

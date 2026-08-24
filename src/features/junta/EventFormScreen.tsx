@@ -278,6 +278,7 @@ function EventForm() {
                       // coach to hire needs deciding too and the junta has
                       // just said so by hand.
                       cal_confirmacio: type === 'casa_rural' || form.cal_confirmacio,
+                      te_cotxes: type === 'casa_rural' || form.te_cotxes,
                     })
                   }}
                   className={
@@ -402,6 +403,37 @@ function EventForm() {
             </button>
           </Field>
 
+          <Field label={t('junta.form.cars')} hint={t('junta.form.carsHint')}>
+            <button
+              type="button"
+              aria-pressed={form.te_cotxes}
+              onClick={() => {
+                setForm({ ...form, te_cotxes: !form.te_cotxes })
+              }}
+              className={
+                'mt-4 flex min-h-[56px] w-full items-center gap-5 px-6 py-4 text-left ' +
+                (form.te_cotxes
+                  ? 'border-[1.5px] border-brand-cta bg-[var(--ds-bg-live)]'
+                  : 'border-[1.5px] border-surface-7 bg-surface-1')
+              }
+            >
+              <span
+                aria-hidden="true"
+                className={
+                  'grid size-[24px] flex-none place-items-center border-[1.5px] text-sm font-bold ' +
+                  (form.te_cotxes
+                    ? 'border-brand-cta bg-brand-cta text-on-brand'
+                    : 'border-surface-7 text-transparent')
+                }
+              >
+                ✓
+              </span>
+              <span className="min-w-0 flex-1 text-md font-bold [text-wrap:pretty]">
+                {form.te_cotxes ? t('junta.form.carsOn') : t('junta.form.carsOff')}
+              </span>
+            </button>
+          </Field>
+
           <Field label={t('junta.form.description')}>
             <textarea
               value={form.descripcion}
@@ -509,6 +541,7 @@ interface FormState {
   transport_info: string
   cover_url: string | null
   cal_confirmacio: boolean
+  te_cotxes: boolean
 }
 
 function emptyForm(): FormState {
@@ -528,6 +561,7 @@ function emptyForm(): FormState {
     transport_info: '',
     cover_url: null,
     cal_confirmacio: false,
+    te_cotxes: false,
   }
 }
 
@@ -548,6 +582,7 @@ function formFrom(e: EventRow): FormState {
     transport_info: e.transport_info ?? '',
     cover_url: e.cover_url,
     cal_confirmacio: e.cal_confirmacio,
+    te_cotxes: e.te_cotxes,
   }
 }
 
@@ -579,6 +614,7 @@ function draftFrom(form: FormState, published: boolean, coverPath: string | null
     titulo: form.titulo.trim(),
     tipo: form.tipo,
     cal_confirmacio: form.cal_confirmacio,
+    te_cotxes: form.te_cotxes,
     starts_at: fromLocalInput(form.starts_at, APP_TIME_ZONE) ?? new Date().toISOString(),
     ends_at: fromLocalInput(form.ends_at, APP_TIME_ZONE),
     plazas: Number.isFinite(places) && places > 0 ? places : null,

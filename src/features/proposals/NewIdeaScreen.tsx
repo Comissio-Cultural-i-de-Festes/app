@@ -61,7 +61,7 @@ export function NewIdeaScreen() {
   const valid = clean.length >= 3 && clean.length <= 120
 
   return (
-    <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+32px)]">
+    <main className="with-tabbar min-h-dvh bg-app">
       <JuntaHeader to="/idees" label={t('ideas.title')} title={t('ideas.newTitle')} />
 
       <div className={`pt-8 ${GUTTER}`}>

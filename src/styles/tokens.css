@@ -152,6 +152,11 @@
    * shout. */
   --ds-bg-winning: oklch(0.185 0.024 25);
   --ds-bar-idea: oklch(0.42 0.07 25);
+  /* The drawn car on the lifts screen. Quiet on purpose: the faces around it
+   * are what the picture is about, and a bright car would outrank them. */
+  --ds-car-body: oklch(0.225 0.016 25);
+  --ds-car-line: oklch(0.34 0.016 25);
+  --ds-car-wheel: oklch(0.32 0.016 25);
 
   /* ─── THE DOOR ─────────────────────────────────────────────────────────
    * Darker than the app, because a camera picture is behind it and the phone

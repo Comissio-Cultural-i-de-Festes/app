@@ -691,21 +691,34 @@ export type Database = {
       }
       ride_seats: {
         Row: {
+          convidat_per: string | null
           created_at: string
+          estat: string
           ride_id: string
           user_id: string
         }
         Insert: {
+          convidat_per?: string | null
           created_at?: string
+          estat?: string
           ride_id: string
           user_id: string
         }
         Update: {
+          convidat_per?: string | null
           created_at?: string
+          estat?: string
           ride_id?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "ride_seats_convidat_per_fkey"
+            columns: ["convidat_per"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "ride_seats_ride_id_fkey"
             columns: ["ride_id"]
@@ -886,6 +899,7 @@ export type Database = {
           p_puntos?: number
           p_reveal_at?: string
           p_starts_at: string
+          p_te_cotxes?: boolean
           p_teaser?: string
           p_tipo: string
           p_titulo: string
@@ -968,6 +982,10 @@ export type Database = {
       }
       claim_first_owner: { Args: never; Returns: undefined }
       invite_preview: { Args: { p_codi: string }; Returns: Json }
+      invite_to_ride: {
+        Args: { p_ride_id: string; p_user_id: string }
+        Returns: Json
+      }
       join_ride: { Args: { p_ride_id: string }; Returns: Json }
       junta_home: { Args: never; Returns: Json }
       my_qr: { Args: never; Returns: string }
@@ -994,6 +1012,14 @@ export type Database = {
         }[]
       }
       redeem_invite: { Args: { p_codi: string }; Returns: Json }
+      ride_candidates: {
+        Args: { p_ride_id: string }
+        Returns: {
+          avatar_url: string
+          nombre: string
+          user_id: string
+        }[]
+      }
       ride_phones: {
         Args: { p_ride_id: string }
         Returns: {

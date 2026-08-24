@@ -8,6 +8,9 @@ import { EventScreen } from '@/features/event/EventScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
 import { IdeasScreen } from '@/features/proposals/IdeasScreen'
 import { NewIdeaScreen } from '@/features/proposals/NewIdeaScreen'
+import { MyRideScreen } from '@/features/rides/MyRideScreen'
+import { OfferRideScreen } from '@/features/rides/OfferRideScreen'
+import { RidesScreen } from '@/features/rides/RidesScreen'
 import { EventFormScreen } from '@/features/junta/EventFormScreen'
 import { AuditScreen } from '@/features/junta/AuditScreen'
 import { GrausScreen } from '@/features/junta/GrausScreen'
@@ -135,6 +138,9 @@ export default function App() {
             <Route path="/idees/nova" element={<NewIdeaScreen />} />
             <Route path="/perfil" element={<ProfileScreen />} />
             <Route path="/esdeveniment/:id" element={<EventScreen />} />
+            <Route path="/esdeveniment/:eventId/cotxes" element={<RidesScreen />} />
+            <Route path="/esdeveniment/:eventId/cotxes/nou" element={<OfferRideScreen />} />
+            <Route path="/esdeveniment/:eventId/cotxes/:rideId" element={<MyRideScreen />} />
           </Route>
 
           {/* No tab bar in here: these are places you go into and come back

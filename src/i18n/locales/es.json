@@ -865,6 +865,48 @@
       "periodsStale": "Los trimestres no cubren el día de hoy",
       "periodsOk": "Cuándo empieza y acaba cada trimestre"
     },
+    "dashboard": {
+      "title": "El panel",
+      "rowSub": "Quién se está descolgando y qué hacemos",
+      "lead": "Datos desde septiembre. Se actualiza solo; no hay que exportar nada.",
+      "drifting": {
+        "title": "Se están descolgando",
+        "lead": "Venían a menudo y hace dos actividades seguidas que no vienen. Es el número que justifica la fase.",
+        "none": "Nadie descolgado ahora mismo. Mejor.",
+        "was": "Vino a {{n}} de las {{total}} que le contaban",
+        "last": "Última: {{event}} · {{when}}",
+        "never": "Sin ninguna actividad todavía",
+        "write": "Escríbele",
+        "noPhone": "Sin teléfono",
+        "action": "→ Repartíos la lista: un mensaje personal cada uno. En el grupo no funciona."
+      },
+      "attendance": {
+        "title": "Asistencia a lo largo del curso",
+        "avg": "{{n}} de media por actividad.",
+        "action": "→ La semana después de los exámenes, algo gratuito y de jueves."
+      },
+      "types": {
+        "title": "Qué tipo funciona",
+        "avg": "{{n}} de media",
+        "alwaysFull": "Siempre llena, con lista de espera.",
+        "action": "→ En enero: una fiesta y una actividad entre semana, no dos actividades."
+      },
+      "schools": {
+        "title": "Las tres escuelas",
+        "active": "{{n}} activos de {{total}} el último mes",
+        "note": "Activos = han venido a algo los últimos 30 días."
+      },
+      "points": {
+        "title": "De dónde salen los puntos",
+        "action": "→ Montar y conducir son puntos fáciles de repartir en enero: anunciadlos antes de cada plan."
+      },
+      "limits": {
+        "title": "Límites y datos",
+        "years": "«Quién llevaba años viniendo» todavía no se puede decir: los datos empiezan en septiembre. El panel lee el ritmo dentro del curso.",
+        "noTables": "Ninguna tabla nueva: todo son consultas sobre fichajes, puntos, perfiles y periodos.",
+        "write": "«Escríbele» abre WhatsApp con el teléfono que la junta ya ve. No se envía nada automático."
+      }
+    },
     "gimcana": {
       "leave": "Déjalo",
       "lead": "Cuelga de {{event}}: se destapa cuando empiece y se cierra cuando acabe.",
@@ -906,6 +948,7 @@
     },
     "photos": {
       "title": "Fotos denunciadas",
+      "rowSub": "Las que alguien ha pedido que miréis",
       "empty": "Ninguna. Nadie ha pedido que miréis nada.",
       "by": "{{event}} · subida por {{name}}",
       "times_one": "{{count}} persona lo ha pedido",

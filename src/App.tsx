@@ -19,6 +19,7 @@ import { CheckinsScreen } from '@/features/junta/CheckinsScreen'
 import { EventFormScreen } from '@/features/junta/EventFormScreen'
 import { AuditScreen } from '@/features/junta/AuditScreen'
 import { GrausScreen } from '@/features/junta/GrausScreen'
+import { DashboardScreen } from '@/features/junta/DashboardScreen'
 import { GimcanaFormScreen } from '@/features/junta/GimcanaFormScreen'
 import { GimcanaValidateScreen } from '@/features/junta/GimcanaValidateScreen'
 import { PhotoReportsScreen } from '@/features/junta/PhotoReportsScreen'
@@ -198,6 +199,7 @@ export default function App() {
             <Route path="barem" element={<ScaleScreen />} />
             <Route path="graus" element={<GrausScreen />} />
             <Route path="fotos" element={<PhotoReportsScreen />} />
+            <Route path="tauler" element={<DashboardScreen />} />
             <Route path="esdeveniment/:id/gimcana" element={<GimcanaFormScreen />} />
             <Route path="gimcana/:eventId" element={<GimcanaValidateScreen />} />
             <Route path="pagaments" element={<PaymentsScreen />} />

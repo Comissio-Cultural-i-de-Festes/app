@@ -865,6 +865,48 @@
       "periodsStale": "Els trimestres no cobreixen el dia d'avui",
       "periodsOk": "Quan comença i acaba cada trimestre"
     },
+    "dashboard": {
+      "title": "El tauler",
+      "rowSub": "Qui s’està despenjant i què hi fem",
+      "lead": "Dades des del setembre. S’actualitza sol; no cal exportar res.",
+      "drifting": {
+        "title": "S’estan despenjant",
+        "lead": "Venien sovint i fa dues activitats seguides que no vénen. És el número que justifica la fase.",
+        "none": "Ningú despenjat ara mateix. Millor.",
+        "was": "Va venir a {{n}} de les {{total}} que li comptaven",
+        "last": "Última: {{event}} · {{when}}",
+        "never": "Sense cap activitat encara",
+        "write": "Escriu-li",
+        "noPhone": "Sense telèfon",
+        "action": "→ Repartiu-vos la llista: un missatge personal cadascú. Al grup no funciona."
+      },
+      "attendance": {
+        "title": "Assistència al llarg del curs",
+        "avg": "{{n}} de mitjana per activitat.",
+        "action": "→ La setmana després dels exàmens, alguna cosa gratuïta i de dijous."
+      },
+      "types": {
+        "title": "Quin tipus funciona",
+        "avg": "{{n}} de mitjana",
+        "alwaysFull": "Sempre plena, amb llista d’espera.",
+        "action": "→ Al gener: una festa i una activitat entre setmana, no dues activitats."
+      },
+      "schools": {
+        "title": "Les tres escoles",
+        "active": "{{n}} actius de {{total}} el darrer mes",
+        "note": "Actius = han vingut a alguna cosa els últims 30 dies."
+      },
+      "points": {
+        "title": "D’on surten els punts",
+        "action": "→ Muntar i conduir són punts fàcils de repartir al gener: anuncieu-los abans de cada pla."
+      },
+      "limits": {
+        "title": "Límits i dades",
+        "years": "«Qui feia anys que venia» encara no es pot dir: les dades comencen al setembre. El tauler llegeix el ritme dins del curs.",
+        "noTables": "Cap taula nova: tot són consultes sobre fitxatges, punts, perfils i períodes.",
+        "write": "«Escriu-li» obre el WhatsApp amb el telèfon que la junta ja veu. No s’envia res automàtic."
+      }
+    },
     "gimcana": {
       "leave": "Deixa-ho",
       "lead": "Penja de {{event}}: es destapa quan comenci i es tanca quan acabi.",
@@ -906,6 +948,7 @@
     },
     "photos": {
       "title": "Fotos denunciades",
+      "rowSub": "Les que algú ha demanat que mireu",
       "empty": "Cap. Ningú ha demanat que mireu res.",
       "by": "{{event}} · pujada per {{name}}",
       "times_one": "{{count}} persona ho ha demanat",

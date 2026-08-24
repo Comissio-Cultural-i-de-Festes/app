@@ -865,6 +865,48 @@
       "periodsStale": "The terms do not cover today",
       "periodsOk": "When each term starts and ends"
     },
+    "dashboard": {
+      "title": "The dashboard",
+      "rowSub": "Who is drifting away, and what to do about it",
+      "lead": "Data since September. It updates itself; nothing to export.",
+      "drifting": {
+        "title": "Drifting away",
+        "lead": "They came often and have missed the last two events in a row. This is the number this phase exists for.",
+        "none": "Nobody drifting right now. Good.",
+        "was": "Came to {{n}} of the {{total}} that counted for them",
+        "last": "Last: {{event}} · {{when}}",
+        "never": "No events yet",
+        "write": "Message them",
+        "noPhone": "No phone number",
+        "action": "→ Split the list between you: one personal message each. The group chat does not work."
+      },
+      "attendance": {
+        "title": "Attendance through the course",
+        "avg": "{{n}} on average per event.",
+        "action": "→ The week after exams, something free and on a Thursday."
+      },
+      "types": {
+        "title": "What kind works",
+        "avg": "{{n}} on average",
+        "alwaysFull": "Always full, with a waiting list.",
+        "action": "→ In January: one party and one weekday activity, not two activities."
+      },
+      "schools": {
+        "title": "The three schools",
+        "active": "{{n}} of {{total}} active this month",
+        "note": "Active = came to something in the last 30 days."
+      },
+      "points": {
+        "title": "Where the points come from",
+        "action": "→ Setting up and driving are easy points to hand out in January: announce them before each plan."
+      },
+      "limits": {
+        "title": "Limits and data",
+        "years": "“Who had been coming for years” cannot be said yet: the data starts in September. The dashboard reads the rhythm within the course.",
+        "noTables": "No new tables: it is all queries over check-ins, points, profiles and periods.",
+        "write": "“Message them” opens WhatsApp with the number the junta already sees. Nothing is sent automatically."
+      }
+    },
     "gimcana": {
       "leave": "Leave it",
       "lead": "It hangs off {{event}}: it opens when the party starts and closes when it ends.",
@@ -906,6 +948,7 @@
     },
     "photos": {
       "title": "Reported photos",
+      "rowSub": "The ones somebody asked you to look at",
       "empty": "None. Nobody has asked you to look at anything.",
       "by": "{{event}} · added by {{name}}",
       "times_one": "{{count}} person asked",

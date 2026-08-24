@@ -183,6 +183,8 @@ export function JuntaHome() {
           }
         />
         <Row to="/junta/idees" title={t('ideas.juntaTitle')} sub={t('junta.home.proposalsSub')} />
+        <Row to="/junta/tauler" title={t('junta.dashboard.title')} sub={t('junta.dashboard.rowSub')} />
+        <Row to="/junta/fotos" title={t('junta.photos.title')} sub={t('junta.photos.rowSub')} />
         <Later title={t('junta.home.push')} sub={t('junta.home.pushSub')} phase={3} />
       </div>
 

@@ -48,6 +48,7 @@ export function JuntaNav() {
         <Item to="/junta/invitacions" label={t('junta.invites.title')} />
         <Item to="/junta/pagaments" label={t('junta.payments.title')} />
         <Item to="/junta/socis" label={t('junta.members.title')} />
+        <Item to="/junta/tauler" label={t('junta.dashboard.title')} />
         <Item to="/ranquing" label={t('nav.ranking')} />
       </ul>
 

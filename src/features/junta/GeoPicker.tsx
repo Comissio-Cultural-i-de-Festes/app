@@ -33,6 +33,16 @@ export interface Geo {
 }
 
 const DEFAULT_RADIUS = 150
+/**
+ * Els extrems de la barra.
+ *
+ * La base n'accepta fins a dos mil, però amb dos quilòmetres de radi ja no
+ * s'està comprovant res, i una barra que arriba tan lluny deixa la franja
+ * útil —de cinquanta a tres-cents— en un pessic del costat esquerre que no es
+ * pot afinar amb el dit.
+ */
+const MIN_RADIUS = 20
+const MAX_RADIUS = 1000
 /** Prou perquè no surti una petició per tecla, prou poc per no notar-ho. */
 const DEBOUNCE_MS = 350
 
@@ -212,7 +222,36 @@ export function GeoPicker({
         </p>
       ) : null}
 
-      <div className="mt-7 grid grid-cols-2 gap-5">
+      {/* El radi, arrossegant. Un número escrit et fa pensar quants metres és
+          un bar; una barra amb el cercle movent-se al mapa al mateix temps
+          t'ho ensenya. */}
+      <div className="mt-8">
+        <div className="flex items-baseline justify-between gap-5">
+          <span className="eyebrow text-fg-muted">{t('junta.geo.radius')}</span>
+          <span className="display text-lg tabular-nums text-fg">
+            {t('junta.geo.metres', { count: radius })}
+          </span>
+        </div>
+        <input
+          type="range"
+          min={MIN_RADIUS}
+          max={MAX_RADIUS}
+          step={10}
+          value={radius}
+          disabled={value === null}
+          aria-label={t('junta.geo.radius')}
+          onChange={(e) => {
+            const next = Number(e.target.value)
+            if (value !== null && Number.isFinite(next)) onChange({ ...value, radi_m: next })
+          }}
+          className="radius-slider mt-5 w-full disabled:opacity-40"
+        />
+        <p className="mt-4 text-[12.5px] text-fg-muted [text-wrap:pretty]">
+          {t('junta.geo.radiusNote')}
+        </p>
+      </div>
+
+      <div className="mt-8">
         <Field label={t('junta.geo.paste')} hint={t('junta.geo.pasteHint')}>
           <input
             type="text"
@@ -227,25 +266,7 @@ export function GeoPicker({
             className={INPUT}
           />
         </Field>
-        <Field label={t('junta.geo.radius')}>
-          <input
-            type="number"
-            min={20}
-            max={2000}
-            step={10}
-            value={radius}
-            disabled={value === null}
-            onChange={(e) => {
-              const next = Number(e.target.value)
-              if (value !== null && Number.isFinite(next)) {
-                onChange({ ...value, radi_m: Math.min(2000, Math.max(20, Math.round(next))) })
-              }
-            }}
-            className={INPUT}
-          />
-        </Field>
       </div>
-      <p className="text-[12.5px] text-fg-muted [text-wrap:pretty]">{t('junta.geo.radiusNote')}</p>
     </section>
   )
 }

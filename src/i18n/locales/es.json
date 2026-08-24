@@ -783,7 +783,9 @@
       "paste": "O pega las coordenadas",
       "pasteHint": "Por si la búsqueda no encuentra el sitio: cópialas de donde sea y ponlas aquí.",
       "radius": "Radio (m)",
-      "radiusNote": "Cincuenta metros para un bar, trescientos para una finca. Al radio se le suma el margen del GPS de cada móvil, o habría gente de pie en la sala que no cabría."
+      "radiusNote": "Cincuenta metros para un bar, trescientos para una finca. Al radio se le suma el margen del GPS de cada móvil, o habría gente de pie en la sala que no cabría.",
+      "metres_one": "{{count}} m",
+      "metres_other": "{{count}} m"
     },
     "checkins": {
       "title": "Quién ha fichado",

@@ -783,7 +783,9 @@
       "paste": "O enganxa-hi les coordenades",
       "pasteHint": "Per si la cerca no troba el lloc: copia-les d'on sigui i posa-les aquí.",
       "radius": "Radi (m)",
-      "radiusNote": "Cinquanta metres per un bar, tres-cents per una finca. Al radi se li suma el marge del GPS de cada mòbil, o hi hauria gent dreta a la sala que no hi cabria."
+      "radiusNote": "Cinquanta metres per un bar, tres-cents per una finca. Al radi se li suma el marge del GPS de cada mòbil, o hi hauria gent dreta a la sala que no hi cabria.",
+      "metres_one": "{{count}} m",
+      "metres_other": "{{count}} m"
     },
     "checkins": {
       "title": "Qui ha fitxat",

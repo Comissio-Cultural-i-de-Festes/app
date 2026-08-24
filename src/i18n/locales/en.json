@@ -783,7 +783,9 @@
       "paste": "Or paste the coordinates",
       "pasteHint": "For when the search cannot find the place: copy them from anywhere and put them here.",
       "radius": "Radius (m)",
-      "radiusNote": "Fifty metres for a bar, three hundred for a farmhouse. Each phone’s own GPS margin is added to the radius, or people standing in the room would fall outside it."
+      "radiusNote": "Fifty metres for a bar, three hundred for a farmhouse. Each phone’s own GPS margin is added to the radius, or people standing in the room would fall outside it.",
+      "metres_one": "{{count}} m",
+      "metres_other": "{{count}} m"
     },
     "checkins": {
       "title": "Who checked in",

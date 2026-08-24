@@ -198,6 +198,63 @@
   .with-tabbar {
     padding-bottom: var(--ds-tabbar-offset);
   }
+
+  /* The radius slider on the event form.
+   *
+   * A range input cannot be styled with utilities: its track and its thumb are
+   * pseudo-elements with a different name in every engine, and Tailwind has no
+   * variant for them. Written out here rather than left at the browser default,
+   * which on a dark screen is a light-grey bar from another application.
+   *
+   * The thumb is 28px because it is dragged with a thumb, on a phone, and the
+   * 44px target comes from the padding around it rather than from the handle
+   * itself — a 44px circle would hide the track it is meant to point at. */
+  .radius-slider {
+    appearance: none;
+    background: transparent;
+    padding-block: 12px;
+    cursor: pointer;
+  }
+
+  .radius-slider::-webkit-slider-runnable-track {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--ds-surface-7);
+  }
+
+  .radius-slider::-moz-range-track {
+    height: 6px;
+    border-radius: 3px;
+    background: var(--ds-surface-7);
+  }
+
+  .radius-slider::-webkit-slider-thumb {
+    appearance: none;
+    width: 28px;
+    height: 28px;
+    margin-top: -11px;
+    border-radius: var(--ds-radius-circle);
+    background: var(--ds-brand-cta);
+    border: 3px solid var(--ds-text-on-brand);
+  }
+
+  .radius-slider::-moz-range-thumb {
+    width: 28px;
+    height: 28px;
+    border: 3px solid var(--ds-text-on-brand);
+    border-radius: var(--ds-radius-circle);
+    background: var(--ds-brand-cta);
+  }
+
+  .radius-slider:focus-visible::-webkit-slider-thumb {
+    outline: 2px solid var(--ds-brand-strong);
+    outline-offset: 2px;
+  }
+
+  .radius-slider:focus-visible::-moz-range-thumb {
+    outline: 2px solid var(--ds-brand-strong);
+    outline-offset: 2px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

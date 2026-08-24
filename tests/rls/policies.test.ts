@@ -388,6 +388,23 @@ describe('a door photo can only be signed by whose face it is', () => {
     expect(denied.error).not.toBeNull()
   })
 
+  it('lets you upload your own entry photo now that you are the one taking it', async () => {
+    // Migration 36 moved `entrada/` from the junta to the member: the scanner
+    // stopped firing by itself, so the folder belongs to whose face it is.
+    const member = await as('alfa')
+    const body = new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xd9])], { type: 'image/jpeg' })
+
+    const own = await member.storage
+      .from(BUCKET)
+      .upload(`entrada/${F.e1}/${F.alfa}/rls-own.jpg`, body, { contentType: 'image/jpeg' })
+    expect(own.error).toBeNull()
+
+    const other = await member.storage
+      .from(BUCKET)
+      .upload(`entrada/${F.e1}/${F.bravo}/rls-nope.jpg`, body, { contentType: 'image/jpeg' })
+    expect(other.error).not.toBeNull()
+  })
+
   it('lets you delete your own exit photo and nobody else do it', async () => {
     // The one thing pgTAP cannot reach: `storage.protect_delete()` refuses
     // every direct DELETE, so the policy only ever runs behind the API.

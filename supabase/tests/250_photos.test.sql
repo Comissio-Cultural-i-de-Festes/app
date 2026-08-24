@@ -75,29 +75,18 @@ select is(
   'i un uuid que no ho és retorna null en comptes de petar'
 );
 
--- ── enganxar la foto d'entrada ──────────────────────────────────────────────
+-- ── la foto d'entrada, que ara te la fas tu ─────────────────────────────────
+-- Fins a la migració 36 la feia l'escàner tot sol i l'escrivia la junta amb
+-- `admin_set_entry_photo`. Ara arribes, fitxes per ubicació i te la fas, o no.
 select tests.authenticate_as('alfa');
 
-select throws_ok(
-  format(
-    'select public.admin_set_entry_photo(%L, %L, %L)',
-    (select ev from what), (select alfa from who), 'entrada/x/y/1.jpg'
-  ),
-  '42501',
-  null,
-  'un soci no pot enganxar cap foto a cap fitxatge'
-);
-
-reset role;
-select tests.authenticate_as('junta_alfa');
-
 select is(
-  public.admin_set_entry_photo(
-    (select ev from what), (select alfa from who),
+  public.set_entry_photo(
+    (select ev from what),
     'entrada/' || (select ev from what) || '/' || (select alfa from who) || '/1.jpg'
   ) ->> 'estat',
   'desada',
-  'la junta sí'
+  'la teva pròpia foto d''arribada'
 );
 
 reset role;
@@ -107,42 +96,44 @@ select is(
   'entrada/' || (select ev from what) || '/' || (select alfa from who) || '/1.jpg',
   'i queda desada a la fila'
 );
-select tests.authenticate_as('junta_alfa');
+select tests.authenticate_as('alfa');
 
+-- A diferència de quan la feia l'escàner, aquesta te la pots tornar a fer: la
+-- d'abans era un registre que et feien i havia de ser immutable; aquesta és la
+-- teva cara.
 select is(
-  public.admin_set_entry_photo(
-    (select ev from what), (select alfa from who),
+  public.set_entry_photo(
+    (select ev from what),
     'entrada/' || (select ev from what) || '/' || (select alfa from who) || '/2.jpg'
   ) ->> 'estat',
-  'ja_en_te',
-  'la primera guanya: una segona passada no la canvia'
+  'desada',
+  'i te la pots repetir'
 );
 
 reset role;
 select is(
   (select entry_photo_url from public.attendances
     where user_id = (select alfa from who) and event_id = (select ev from what)),
-  'entrada/' || (select ev from what) || '/' || (select alfa from who) || '/1.jpg',
-  'i de debò no la canvia'
+  'entrada/' || (select ev from what) || '/' || (select alfa from who) || '/2.jpg',
+  'la darrera és la que val'
 );
-select tests.authenticate_as('junta_alfa');
-
-select is(
-  public.admin_set_entry_photo(
-    (select ev from what), (select bravo from who), 'entrada/x/y/1.jpg'
-  ) ->> 'estat',
-  'no_hi_es',
-  'a qui no ha fitxat no se li pot enganxar res'
-);
+select tests.authenticate_as('alfa');
 
 select throws_ok(
   format(
-    'select public.admin_set_entry_photo(%L, %L, null)',
-    (select ev from what), (select alfa from who)
+    'select public.set_entry_photo(%L, %L)',
+    (select ev from what),
+    'entrada/' || (select ev from what) || '/' || (select bravo from who) || '/1.jpg'
   ),
-  '22023',
+  '42501',
   null,
-  'i sense camí es refusa'
+  'i la carpeta d''un altre es refusa igual que a la de sortida'
+);
+
+-- La funció de la junta ja no hi és: no queda cap camí que l'hi porti.
+select hasnt_function(
+  'public'::name, 'admin_set_entry_photo'::name,
+  'la junta ja no escriu la foto d''entrada de ningú'
 );
 
 -- ── la de sortida, la fa qui hi surt ────────────────────────────────────────
@@ -224,7 +215,7 @@ select is(
 select is(
   (select entry_photo_url from public.my_photos()
     where event_id = (select ev from what)),
-  'entrada/' || (select ev from what) || '/' || (select alfa from who) || '/1.jpg',
+  'entrada/' || (select ev from what) || '/' || (select alfa from who) || '/2.jpg',
   'amb la d''entrada'
 );
 
@@ -296,16 +287,28 @@ select is(
 reset role;
 select tests.authenticate_as('alfa');
 
+-- Des de la 36 la d'entrada te la fas tu, o sigui que la teva carpeta és teva
+-- a totes dues bandes.
+select lives_ok(
+  format(
+    'insert into storage.objects (bucket_id, name, owner) values (%L, %L, %L)',
+    'door-photos',
+    'entrada/' || (select ev from what) || '/' || (select alfa from who) || '/9.jpg',
+    (select alfa from who)
+  ),
+  'la d''entrada a la seva pròpia carpeta, sí'
+);
+
 select throws_ok(
   format(
     'insert into storage.objects (bucket_id, name, owner) values (%L, %L, %L)',
     'door-photos',
-    'entrada/' || (select ev from what) || '/' || (select alfa from who) || '/1.jpg',
+    'entrada/' || (select ev from what) || '/' || (select bravo from who) || '/9.jpg',
     (select alfa from who)
   ),
   '42501',
   null,
-  'un soci no pot pujar cap foto d''entrada, ni la seva'
+  'i a la d''un altre, no'
 );
 
 select lives_ok(
@@ -343,8 +346,8 @@ select tests.authenticate_as('alfa');
 select is(
   (select count(*)::int from storage.objects
     where bucket_id = 'door-photos' and name like '%' || (select ev from what) || '%'),
-  1,
-  'un soci només veu els objectes de la seva carpeta'
+  2,
+  'un soci veu les seves dues i cap altra'
 );
 
 reset role;
@@ -354,8 +357,8 @@ select is(
   (select count(*)::int from storage.objects
     where bucket_id = 'door-photos'
       and name like 'entrada/' || (select ev from what) || '/%'),
-  1,
-  'la junta veu les d''entrada, que és el que fa comprovable una alta manual'
+  2,
+  'la junta veu totes les d''entrada, que és el que fa comprovable una alta manual'
 );
 
 -- La promesa que hi ha escrita a la pantalla de la càmera: «ni la junta».

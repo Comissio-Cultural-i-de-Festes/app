@@ -38,6 +38,11 @@ export type Database = {
         Row: {
           checked_in_at: string | null
           checked_in_by: string | null
+          checkin_dist_m: number | null
+          checkin_lat: number | null
+          checkin_lng: number | null
+          checkin_precisio_m: number | null
+          checkin_via: string | null
           created_at: string
           entry_photo_url: string | null
           estado: string
@@ -53,6 +58,11 @@ export type Database = {
         Insert: {
           checked_in_at?: string | null
           checked_in_by?: string | null
+          checkin_dist_m?: number | null
+          checkin_lat?: number | null
+          checkin_lng?: number | null
+          checkin_precisio_m?: number | null
+          checkin_via?: string | null
           created_at?: string
           entry_photo_url?: string | null
           estado?: string
@@ -68,6 +78,11 @@ export type Database = {
         Update: {
           checked_in_at?: string | null
           checked_in_by?: string | null
+          checkin_dist_m?: number | null
+          checkin_lat?: number | null
+          checkin_lng?: number | null
+          checkin_precisio_m?: number | null
+          checkin_via?: string | null
           created_at?: string
           entry_photo_url?: string | null
           estado?: string
@@ -855,6 +870,20 @@ export type Database = {
       }
     }
     Functions: {
+      admin_checkins: {
+        Args: { p_event_id: string }
+        Returns: {
+          avatar_url: string
+          checked_in_at: string
+          checkin_dist_m: number
+          checkin_precisio_m: number
+          checkin_via: string
+          nombre: string
+          pagado: boolean
+          user_id: string
+          was_registered: boolean
+        }[]
+      }
       admin_create_invite: {
         Args: { p_expires_at?: string; p_max_usos?: number }
         Returns: {
@@ -888,6 +917,14 @@ export type Database = {
       }
       admin_delete_event: { Args: { p_event_id: string }; Returns: undefined }
       admin_delete_grau: { Args: { p_id: string }; Returns: undefined }
+      admin_event_geo: {
+        Args: { p_event_id: string }
+        Returns: {
+          lat: number
+          lng: number
+          radi_m: number
+        }[]
+      }
       admin_revoke_invite: { Args: { p_id: string }; Returns: undefined }
       admin_save_event: {
         Args: {
@@ -911,6 +948,15 @@ export type Database = {
         }
         Returns: string
       }
+      admin_save_geo: {
+        Args: {
+          p_event_id: string
+          p_lat: number
+          p_lng: number
+          p_radi_m?: number
+        }
+        Returns: Json
+      }
       admin_save_grau: {
         Args: {
           p_escola: string
@@ -921,10 +967,6 @@ export type Database = {
         Returns: string
       }
       admin_save_periods: { Args: { p_periods: Json }; Returns: undefined }
-      admin_set_entry_photo: {
-        Args: { p_event_id: string; p_path: string; p_user_id: string }
-        Returns: Json
-      }
       admin_set_member_estat: {
         Args: { p_estat: string; p_user_id: string }
         Returns: undefined
@@ -971,6 +1013,17 @@ export type Database = {
           p_event_id: string
           p_qr_token?: string
           p_user_id?: string
+        }
+        Returns: Json
+      }
+      check_in_here: {
+        Args: {
+          p_client_request_id?: string
+          p_event_id: string
+          p_lat: number
+          p_lng: number
+          p_precisio_m?: number
+          p_taken_at?: string
         }
         Returns: Json
       }
@@ -1051,6 +1104,10 @@ export type Database = {
       rotate_qr_token: { Args: never; Returns: string }
       set_attendance: {
         Args: { p_estado: string; p_event_id: string }
+        Returns: Json
+      }
+      set_entry_photo: {
+        Args: { p_event_id: string; p_path: string }
         Returns: Json
       }
       set_exit_photo: {

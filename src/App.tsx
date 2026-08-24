@@ -32,6 +32,7 @@ import { JuntaHome } from '@/features/junta/JuntaHome'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen'
+import { BadgesScreen } from '@/features/badges/BadgesScreen'
 import { ProfileScreen } from '@/features/profile/ProfileScreen'
 import { QrScreen } from '@/features/qr/QrScreen'
 import { JuntaLayout } from '@/features/shell/JuntaLayout'
@@ -158,6 +159,7 @@ export default function App() {
             <Route path="/idees" element={<IdeasScreen />} />
             <Route path="/idees/nova" element={<NewIdeaScreen />} />
             <Route path="/perfil" element={<ProfileScreen />} />
+            <Route path="/perfil/insignies" element={<BadgesScreen />} />
             <Route path="/esdeveniment/:id" element={<EventScreen />} />
             <Route path="/esdeveniment/:eventId/dins" element={<InsideScreen />} />
             <Route path="/perfil/nits" element={<DiptychScreen />} />

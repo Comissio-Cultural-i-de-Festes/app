@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
+import { BadgeStrip } from '@/features/badges/BadgeStrip'
 import { forgetCachedTokens } from '@/features/qr/api'
 import { periodBounds, rankingKeys } from '@/features/ranking/api'
 import { fetchRanking } from '@/features/ranking/api'
@@ -15,6 +16,7 @@ import type { Escola } from '@/lib/model'
 import { supabase } from '@/lib/supabase'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
+import { StreakCard } from './StreakCard'
 import {
   byMotive,
   fetchAttendedCount,
@@ -117,7 +119,14 @@ export function ProfileScreen() {
         <Stat value={String(attended.data ?? 0)} label={t('profile.stats.attended')} divided />
       </section>
 
-      <section className={`pt-6 ${GUTTER}`}>
+      {/* La ratxa i les insígnies van entre els números i el registre de punts,
+          i en aquest ordre: totes dues diuen com estàs ara, i el que ve a sota
+          és el que has fet. Es busquen les seves pròpies dades i entren aquí en
+          una línia, com l'ExitPhotoCard i el MyNightBlock. */}
+      <StreakCard />
+      <BadgeStrip />
+
+      <section className={`pt-12 ${GUTTER}`}>
         <h2 className="eyebrow text-fg-muted">{t('profile.breakdown.title')}</h2>
 
         {points.isPending ? (

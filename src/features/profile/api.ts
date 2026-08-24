@@ -1,6 +1,8 @@
 import { DbError, unwrap, unwrapAs } from '@/lib/db'
 import { supabase } from '@/lib/supabase'
 
+import type { Streak } from './streak'
+
 /**
  * Where the points came from, and what has happened lately.
  *
@@ -24,6 +26,22 @@ export interface PointRow {
 export const profileScreenKeys = {
   points: (userId: string) => ['profile', 'points', userId] as const,
   attended: (userId: string) => ['profile', 'attended', userId] as const,
+  streak: (userId: string) => ['profile', 'streak', userId] as const,
+}
+
+/**
+ * La ratxa, calculada pel servidor a cada crida.
+ *
+ * No es desa enlloc a posta: un comptador desat es desquadraria el dia que la
+ * junta desfés un fitxatge amb `admin_undo_checkin`. El que decideix quines
+ * activitats compten viu tot a `private.streak_rows()`, i el client no en sap
+ * res — ni ho ha de saber, perquè una regla que viu al navegador és una regla
+ * que es pot reescriure.
+ */
+export async function fetchStreak(): Promise<Streak> {
+  const { data, error } = await supabase.rpc('my_streak')
+  if (error) throw new DbError(error)
+  return data as unknown as Streak
 }
 
 /**

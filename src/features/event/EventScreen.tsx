@@ -14,6 +14,7 @@ import {
   setAnswer,
   signedUpToday,
 } from '@/features/home/api'
+import { StreakLine } from '@/features/profile/StreakLine'
 import { useUserId } from '@/features/session/useUserId'
 import {
   formatDateLong,
@@ -499,6 +500,8 @@ function AnswerBlock({
             ? t('event.ask.full')
             : t('event.ask.title')}
       </h2>
+
+      <StreakLine />
 
       {/* Answering back. A lit button is a weak confirmation on a phone — you
           tap, a colour changes, and you are not sure it saved — and this is

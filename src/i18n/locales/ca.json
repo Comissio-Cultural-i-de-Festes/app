@@ -867,6 +867,91 @@
     },
     "later": "Tot això ho pots canviar després al teu perfil."
   },
+  "badges": {
+    "title": "Insígnies",
+    "all": "Totes ›",
+    "count": "{{n}} de {{total}}",
+    "new": "Insígnia nova",
+    "lead": "Es guanyen fent coses, no demanant-les. Ningú te’n pot donar cap.",
+    "leadEmpty": "Encara cap, i és el punt de partida de tothom. Totes viuen d’anar a coses: la primera cau el primer dia.",
+    "stripEmpty": "Encara cap. La primera cau el primer dia que vinguis.",
+    "footerGrid": "Les que et falten diuen com es guanyen. Cap compta enrere, cap caduca.",
+    "footer": "Una insígnia guanyada no marxa mai, ni que deixis de complir la condició.",
+    "holders": "La tenen {{n}} de {{total}}",
+    "soFar": "en portes {{n}}",
+    "progress": "En portes {{n}} de {{target}}",
+    "earnedAt": "{{event}} · {{month}}",
+    "primera": {
+      "title": "La primera",
+      "hint": "El primer fitxatge",
+      "done": "El teu primer fitxatge",
+      "about": "El dia que vas entrar per una porta i va quedar constància. No se’n pot tenir cap altra abans que aquesta.",
+      "won": "Ja hi ha una primera vegada. Es queda al teu perfil."
+    },
+    "activitats": {
+      "title": "Cinc, deu, vint-i-cinc",
+      "hint": "Vine a cinc activitats",
+      "done": "Activitats a les quals has vingut",
+      "about": "Activitats a les quals has vingut. Una sola insígnia que puja de nivell: no cal col·leccionar-ne tres.",
+      "won": "Una activitat més de les que compten. Es queda al teu perfil."
+    },
+    "capDeSetmana": {
+      "title": "Cap de setmana",
+      "hint": "La primera casa rural",
+      "done": "La teva primera casa rural",
+      "about": "Una casa rural no és una nit, són dos dies amb la mateixa gent. És l’única insígnia que demana fer les maletes.",
+      "won": "Primer cap de setmana. Es queda al teu perfil."
+    },
+    "deTot": {
+      "title": "De tot",
+      "hint": "Els tres tipus de pla",
+      "done": "Festa, casa rural i activitat",
+      "about": "Festa, casa rural i activitat. La comi fa tres coses molt diferents i aquesta diu que has provat les tres.",
+      "won": "Ja has fet els tres tipus de pla. Es queda al teu perfil."
+    },
+    "alVolant": {
+      "title": "Al volant",
+      "hint": "Porta algú al teu cotxe",
+      "done": "Has portat gent al teu cotxe",
+      "about": "Has ofert places i algú les ha ocupades. Un cotxe ofert i buit no compta: el que es reconeix és haver portat gent.",
+      "won": "Has portat gent. Es queda al teu perfil."
+    },
+    "aMuntar": {
+      "title": "A muntar",
+      "hint": "Vine a muntar una activitat",
+      "done": "Has vingut a muntar",
+      "about": "Has vingut abans que ningú a fer la part que no es veu. La dóna la junta amb els punts de muntatge.",
+      "won": "Has vingut a muntar. Es queda al teu perfil."
+    },
+    "copilot": {
+      "title": "Copilot",
+      "hint": "Puja al cotxe d’algú",
+      "done": "Has anat al cotxe d’algú",
+      "about": "Has anat al cotxe d’un altre. Compartir cotxe funciona quan hi ha les dues meitats, i aquesta és l’altra.",
+      "won": "Has compartit cotxe. Es queda al teu perfil."
+    },
+    "vaSerIdeaMeva": {
+      "title": "Va ser idea meva",
+      "hint": "Una proposta teva que tira endavant",
+      "done": "Una proposta teva, acceptada",
+      "about": "Vas proposar una cosa i la junta la va acceptar. De totes les insígnies, és la que deixa més rastre.",
+      "won": "La teva idea tira endavant. Es queda al teu perfil."
+    },
+    "entradaISortida": {
+      "title": "Entrada i sortida",
+      "hint": "Les dues fotos d’una mateixa nit",
+      "done": "Les dues fotos d’una nit",
+      "about": "La cara d’arribar i la de marxar, de la mateixa festa. El díptic és teu i no el veu la junta.",
+      "won": "Tens el díptic sencer. Es queda al teu perfil."
+    },
+    "deLesPrimeres": {
+      "title": "De les primeres",
+      "hint": "Fitxa dels cinc primers una nit",
+      "done": "Dels cinc primers a fitxar",
+      "about": "Dels cinc primers a fitxar, i només en activitats amb deu persones o més. Arribar aviat quan hi ha gent.",
+      "won": "Has fitxat dels cinc primers. Es queda al teu perfil."
+    }
+  },
   "profile": {
     "memberSince": "soci des del {{year}}",
     "youAreJunta": "Ets de la junta",
@@ -895,6 +980,25 @@
       "nightsSub": "El díptic d'entrada i sortida de cada festa"
     },
     "footer": "Fet entre classe i classe."
+  },
+  "streak": {
+    "title": "La ratxa",
+    "label_one": "activitat seguida",
+    "label_other": "activitats seguides",
+    "none": {
+      "label": "cap ratxa en marxa",
+      "sub": "Comença a la primera que vinguis."
+    },
+    "going": "En marxa. La teva millor marca: {{best}}",
+    "bestOnly": "La teva millor marca: {{best}}",
+    "best": "La teva millor marca, ara mateix.",
+    "note": "Compten les activitats a les quals podies venir. La llista d’espera no la trenca.",
+    "broken": {
+      "title": "La ratxa s’ha quedat a {{n}}",
+      "body": "Aquestes {{n}} queden com la teva millor marca. La pròxima activitat en comença una altra, per a tothom igual.",
+      "ok": "Entesos"
+    },
+    "atStake": "Portes {{n}} seguides. Aquesta hi compta."
   },
   "qr": {
     "codeLabel": "El teu codi QR",

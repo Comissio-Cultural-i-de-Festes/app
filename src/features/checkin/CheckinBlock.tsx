@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
+import { badgeKeys } from '@/features/badges/api'
+import { NewBadgeCard } from '@/features/badges/NewBadgeCard'
 import { homeKeys } from '@/features/home/api'
 import { insideKeys } from '@/features/event/insideApi'
 import { photoKeys } from '@/features/photos/api'
@@ -77,6 +79,10 @@ export function CheckinBlock({
           queryClient.invalidateQueries({ queryKey: insideKeys.list(event.id) }),
           queryClient.invalidateQueries({ queryKey: homeKeys.attendances([event.id]) }),
           queryClient.invalidateQueries({ queryKey: photoKeys.nights() }),
+          // Fitxar pot haver-ne guanyat una —la primera, la cinquena, la de
+          // fitxar dels cinc primers— i és `my_badges()` qui la reparteix. Sense
+          // aquesta línia la targeta de sota surt de la cau i no ensenya res.
+          queryClient.invalidateQueries({ queryKey: badgeKeys.all() }),
         ])
       }
     },
@@ -161,6 +167,7 @@ function Done({ event, punts }: { readonly event: EventRow; readonly punts: numb
       >
         {punts > 0 ? t('checkin.done', { count: punts }) : t('checkin.doneNoPoints')}
       </p>
+      <NewBadgeCard />
       <Link
         to={`/perfil/nits/${event.id}/camera?half=entrada`}
         className="mt-6 flex min-h-[56px] w-full items-center justify-center border border-surface-8 bg-surface-2 px-8 py-7 text-md font-bold text-fg no-underline [text-wrap:balance]"

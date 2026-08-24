@@ -867,6 +867,91 @@
     },
     "later": "Todo esto lo puedes cambiar después en tu perfil."
   },
+  "badges": {
+    "title": "Insignias",
+    "all": "Todas ›",
+    "count": "{{n}} de {{total}}",
+    "new": "Insignia nueva",
+    "lead": "Se ganan haciendo cosas, no pidiéndolas. Nadie te puede dar ninguna.",
+    "leadEmpty": "Todavía ninguna, y es el punto de partida de todos. Todas viven de ir a cosas: la primera cae el primer día.",
+    "stripEmpty": "Todavía ninguna. La primera cae el primer día que vengas.",
+    "footerGrid": "Las que te faltan dicen cómo se ganan. Ninguna cuenta atrás, ninguna caduca.",
+    "footer": "Una insignia ganada no se va nunca, ni aunque dejes de cumplir la condición.",
+    "holders": "La tienen {{n}} de {{total}}",
+    "soFar": "llevas {{n}}",
+    "progress": "Llevas {{n}} de {{target}}",
+    "earnedAt": "{{event}} · {{month}}",
+    "primera": {
+      "title": "La primera",
+      "hint": "El primer fichaje",
+      "done": "Tu primer fichaje",
+      "about": "El día que entraste por una puerta y quedó constancia. No se puede tener ninguna otra antes que esta.",
+      "won": "Ya hay una primera vez. Se queda en tu perfil."
+    },
+    "activitats": {
+      "title": "Cinco, diez, veinticinco",
+      "hint": "Ven a cinco actividades",
+      "done": "Actividades a las que has venido",
+      "about": "Actividades a las que has venido. Una sola insignia que sube de nivel: no hay que coleccionar tres.",
+      "won": "Una actividad más de las que cuentan. Se queda en tu perfil."
+    },
+    "capDeSetmana": {
+      "title": "Fin de semana",
+      "hint": "La primera casa rural",
+      "done": "Tu primera casa rural",
+      "about": "Una casa rural no es una noche, son dos días con la misma gente. Es la única insignia que pide hacer la maleta.",
+      "won": "Primer fin de semana. Se queda en tu perfil."
+    },
+    "deTot": {
+      "title": "De todo",
+      "hint": "Los tres tipos de plan",
+      "done": "Fiesta, casa rural y actividad",
+      "about": "Fiesta, casa rural y actividad. La comi hace tres cosas muy distintas y esta dice que has probado las tres.",
+      "won": "Ya has hecho los tres tipos de plan. Se queda en tu perfil."
+    },
+    "alVolant": {
+      "title": "Al volante",
+      "hint": "Lleva a alguien en tu coche",
+      "done": "Has llevado gente en tu coche",
+      "about": "Has ofrecido plazas y alguien las ha ocupado. Un coche ofrecido y vacío no cuenta: lo que se reconoce es haber llevado gente.",
+      "won": "Has llevado gente. Se queda en tu perfil."
+    },
+    "aMuntar": {
+      "title": "A montar",
+      "hint": "Ven a montar una actividad",
+      "done": "Has venido a montar",
+      "about": "Has venido antes que nadie a hacer la parte que no se ve. La da la junta con los puntos de montaje.",
+      "won": "Has venido a montar. Se queda en tu perfil."
+    },
+    "copilot": {
+      "title": "Copiloto",
+      "hint": "Súbete al coche de alguien",
+      "done": "Has ido en el coche de alguien",
+      "about": "Has ido en el coche de otro. Compartir coche funciona cuando están las dos mitades, y esta es la otra.",
+      "won": "Has compartido coche. Se queda en tu perfil."
+    },
+    "vaSerIdeaMeva": {
+      "title": "Fue idea mía",
+      "hint": "Una propuesta tuya que sale adelante",
+      "done": "Una propuesta tuya, aceptada",
+      "about": "Propusiste algo y la junta lo aceptó. De todas las insignias, es la que deja más rastro.",
+      "won": "Tu idea sale adelante. Se queda en tu perfil."
+    },
+    "entradaISortida": {
+      "title": "Entrada y salida",
+      "hint": "Las dos fotos de una misma noche",
+      "done": "Las dos fotos de una noche",
+      "about": "La cara de llegar y la de irse, de la misma fiesta. El díptico es tuyo y no lo ve la junta.",
+      "won": "Tienes el díptico entero. Se queda en tu perfil."
+    },
+    "deLesPrimeres": {
+      "title": "De las primeras",
+      "hint": "Ficha entre los cinco primeros una noche",
+      "done": "De los cinco primeros en fichar",
+      "about": "De los cinco primeros en fichar, y solo en actividades con diez personas o más. Llegar pronto cuando hay gente.",
+      "won": "Has fichado entre los cinco primeros. Se queda en tu perfil."
+    }
+  },
   "profile": {
     "memberSince": "socio desde {{year}}",
     "youAreJunta": "Eres de la junta",
@@ -895,6 +980,25 @@
       "nightsSub": "El díptico de entrada y salida de cada fiesta"
     },
     "footer": "Hecho entre clase y clase."
+  },
+  "streak": {
+    "title": "La racha",
+    "label_one": "actividad seguida",
+    "label_other": "actividades seguidas",
+    "none": {
+      "label": "ninguna racha en marcha",
+      "sub": "Empieza en la primera a la que vengas."
+    },
+    "going": "En marcha. Tu mejor marca: {{best}}",
+    "bestOnly": "Tu mejor marca: {{best}}",
+    "best": "Tu mejor marca, ahora mismo.",
+    "note": "Cuentan las actividades a las que podías venir. La lista de espera no la rompe.",
+    "broken": {
+      "title": "La racha se ha quedado en {{n}}",
+      "body": "Esas {{n}} quedan como tu mejor marca. La próxima actividad empieza otra, igual para todos.",
+      "ok": "Entendido"
+    },
+    "atStake": "Llevas {{n}} seguidas. Esta cuenta."
   },
   "qr": {
     "codeLabel": "Tu código QR",

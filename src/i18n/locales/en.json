@@ -867,6 +867,91 @@
     },
     "later": "You can change all of this later in your profile."
   },
+  "badges": {
+    "title": "Badges",
+    "all": "All of them ›",
+    "count": "{{n}} of {{total}}",
+    "new": "New badge",
+    "lead": "You earn them by doing things, not by asking. Nobody can hand you one.",
+    "leadEmpty": "None yet, and that is where everybody starts. They all come from turning up: the first one lands on day one.",
+    "stripEmpty": "None yet. The first one lands the first day you come.",
+    "footerGrid": "The ones you are missing tell you how they are earned. None counts down, none expires.",
+    "footer": "A badge you have earned never goes away, even if you stop meeting the condition.",
+    "holders": "{{n}} of {{total}} have it",
+    "soFar": "you are on {{n}}",
+    "progress": "You are on {{n}} of {{target}}",
+    "earnedAt": "{{event}} · {{month}}",
+    "primera": {
+      "title": "The first one",
+      "hint": "Your first check-in",
+      "done": "Your first check-in",
+      "about": "The day you walked through a door and it was recorded. No other badge can come before this one.",
+      "won": "There is a first time now. It stays on your profile."
+    },
+    "activitats": {
+      "title": "Five, ten, twenty-five",
+      "hint": "Come to five events",
+      "done": "Events you have turned up to",
+      "about": "Events you have turned up to. One badge that levels up: there is no set of three to collect.",
+      "won": "One more event that counts. It stays on your profile."
+    },
+    "capDeSetmana": {
+      "title": "Weekend away",
+      "hint": "Your first country house",
+      "done": "Your first country house",
+      "about": "A country house is not a night, it is two days with the same people. The only badge that asks you to pack.",
+      "won": "First weekend away. It stays on your profile."
+    },
+    "deTot": {
+      "title": "A bit of everything",
+      "hint": "All three kinds of plan",
+      "done": "Party, country house and activity",
+      "about": "Party, country house and activity. The comi does three very different things, and this says you have tried all three.",
+      "won": "You have done all three kinds of plan. It stays on your profile."
+    },
+    "alVolant": {
+      "title": "Behind the wheel",
+      "hint": "Take somebody in your car",
+      "done": "You drove people there",
+      "about": "You offered seats and somebody took them. An empty offered car does not count: what this recognises is having driven people.",
+      "won": "You drove people there. It stays on your profile."
+    },
+    "aMuntar": {
+      "title": "Setting up",
+      "hint": "Come and help set an event up",
+      "done": "You came to set up",
+      "about": "You turned up before anybody else to do the part nobody sees. The junta awards it with the set-up points.",
+      "won": "You came to set up. It stays on your profile."
+    },
+    "copilot": {
+      "title": "Passenger",
+      "hint": "Ride in somebody’s car",
+      "done": "You rode in somebody’s car",
+      "about": "You rode in somebody else’s car. Car sharing works when both halves show up, and this is the other one.",
+      "won": "You shared a car. It stays on your profile."
+    },
+    "vaSerIdeaMeva": {
+      "title": "That was my idea",
+      "hint": "An idea of yours that goes ahead",
+      "done": "An idea of yours, taken up",
+      "about": "You suggested something and the junta took it. Of all the badges, this is the one that leaves the most behind.",
+      "won": "Your idea is going ahead. It stays on your profile."
+    },
+    "entradaISortida": {
+      "title": "In and out",
+      "hint": "Both photos from one night",
+      "done": "Both photos from one night",
+      "about": "The face arriving and the face leaving, from the same party. The diptych is yours and the junta cannot see it.",
+      "won": "You have the whole diptych. It stays on your profile."
+    },
+    "deLesPrimeres": {
+      "title": "Early on",
+      "hint": "Check in among the first five one night",
+      "done": "Among the first five to check in",
+      "about": "Among the first five to check in, and only at events with ten people or more. Turning up early when it matters.",
+      "won": "You checked in among the first five. It stays on your profile."
+    }
+  },
   "profile": {
     "memberSince": "member since {{year}}",
     "youAreJunta": "You are on the committee",
@@ -895,6 +980,25 @@
       "nightsSub": "The in-and-out diptych from every party"
     },
     "footer": "Made between lectures."
+  },
+  "streak": {
+    "title": "Your streak",
+    "label_one": "event in a row",
+    "label_other": "events in a row",
+    "none": {
+      "label": "no streak going",
+      "sub": "It starts at the first one you come to."
+    },
+    "going": "Going. Your best: {{best}}",
+    "bestOnly": "Your best: {{best}}",
+    "best": "Your best, right now.",
+    "note": "Only events you could have come to count. A waiting list never breaks it.",
+    "broken": {
+      "title": "The streak stopped at {{n}}",
+      "body": "Those {{n}} stay as your best. The next event starts another one, the same for everybody.",
+      "ok": "Got it"
+    },
+    "atStake": "You are on {{n}} in a row. This one counts."
   },
   "qr": {
     "codeLabel": "Your QR code",

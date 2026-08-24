@@ -105,6 +105,15 @@ export const formatDateLong = (d: Date, l: Locale): string =>
 
 export const formatMonthShort = (d: Date, l: Locale): string => dtf(l, { month: 'short' }).format(d)
 
+/**
+ * El mes sencer, per a les insígnies: «Can Bravo · desembre».
+ *
+ * Sense any a posta. Una insígnia és d'una nit concreta i la nit ja té nom al
+ * costat; l'any només caldria per distingir dos desembres, i quan això passi el
+ * títol de l'activitat ja serà diferent.
+ */
+export const formatMonthLong = (d: Date, l: Locale): string => dtf(l, { month: 'long' }).format(d)
+
 export const formatDayNumber = (d: Date, l: Locale): string => dtf(l, { day: 'numeric' }).format(d)
 
 export const formatWeekdayLong = (d: Date, l: Locale): string =>

@@ -664,15 +664,13 @@ security definer
 set search_path = ''
 as $$
 declare
-  v_me   uuid := (select auth.uid());
-  v_row  public.gimcana_enviaments%rowtype;
+  v_me uuid := (select auth.uid());
 begin
   if not private.is_admin() then
     raise exception 'nomes junta' using errcode = '42501';
   end if;
 
-  select * into v_row from public.gimcana_enviaments where id = p_enviament_id;
-  if not found then
+  if not exists (select 1 from public.gimcana_enviaments where id = p_enviament_id) then
     return jsonb_build_object('estat', 'no_hi_es');
   end if;
 
@@ -864,8 +862,9 @@ security definer
 set search_path = ''
 as $$
 declare
+  -- `v_i` no es declara: el `for` de sota es fa la seva pròpia variable i
+  -- declarar-la aquí n'hi hauria dues amb el mateix nom.
   v_event uuid;
-  v_i     int;
   v_ids   uuid[];
   v_gent  int;
 begin

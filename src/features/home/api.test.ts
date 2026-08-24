@@ -26,6 +26,7 @@ function event(over: Partial<EventRow> = {}): EventRow {
     reveal_at: null,
     revelat: true,
     cal_confirmacio: false,
+    te_cotxes: false,
     plazas: null,
     precio_cents: 0,
     puntos: 10,

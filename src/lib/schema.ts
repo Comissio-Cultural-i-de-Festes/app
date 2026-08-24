@@ -38,6 +38,7 @@ export type EventRow = Definite<
   | 'published'
   | 'revelat'
   | 'cal_confirmacio'
+  | 'te_cotxes'
 >
 
 export type AttendanceTable = Database['public']['Tables']['attendances']['Row']

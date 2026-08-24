@@ -242,6 +242,7 @@ export type Database = {
           puntos: number
           reveal_at: string | null
           starts_at: string
+          te_cotxes: boolean
           teaser: string | null
           tipo: string
           titulo: string
@@ -257,6 +258,7 @@ export type Database = {
           puntos?: number
           reveal_at?: string | null
           starts_at: string
+          te_cotxes?: boolean
           teaser?: string | null
           tipo: string
           titulo: string
@@ -272,6 +274,7 @@ export type Database = {
           puntos?: number
           reveal_at?: string | null
           starts_at?: string
+          te_cotxes?: boolean
           teaser?: string | null
           tipo?: string
           titulo?: string
@@ -795,6 +798,7 @@ export type Database = {
           reveal_at: string | null
           revelat: boolean | null
           starts_at: string | null
+          te_cotxes: boolean | null
           teaser: string | null
           tipo: string | null
           titulo: string | null
@@ -964,6 +968,7 @@ export type Database = {
       }
       claim_first_owner: { Args: never; Returns: undefined }
       invite_preview: { Args: { p_codi: string }; Returns: Json }
+      join_ride: { Args: { p_ride_id: string }; Returns: Json }
       junta_home: { Args: never; Returns: Json }
       my_qr: { Args: never; Returns: string }
       ranking_escoles_period: {
@@ -989,6 +994,14 @@ export type Database = {
         }[]
       }
       redeem_invite: { Args: { p_codi: string }; Returns: Json }
+      ride_phones: {
+        Args: { p_ride_id: string }
+        Returns: {
+          nombre: string
+          telefon: string
+          user_id: string
+        }[]
+      }
       rotate_qr_token: { Args: never; Returns: string }
       set_attendance: {
         Args: { p_estado: string; p_event_id: string }

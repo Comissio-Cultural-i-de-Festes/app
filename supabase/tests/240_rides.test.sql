@@ -35,7 +35,7 @@ select tests.authenticate_as('alfa');
 
 select lives_ok(
   $$ insert into public.rides (event_id, driver_id, sentit, origen, places, hora_sortida)
-     values ((select casa from who), (select auth.uid()), 'anada', 'Mataró Nord', 2,
+     values ((select casa from who), (select auth.uid()), 'anada', 'Placa Inventada', 2,
              now() + interval '20 days') $$,
   'a member can offer a car on an event that has them'
 );
@@ -43,7 +43,7 @@ select lives_ok(
 -- Not something a screen should have to remember not to do.
 select throws_ok(
   $$ insert into public.rides (event_id, driver_id, sentit, origen, places)
-     values ((select festa from who), (select auth.uid()), 'anada', 'Mataró Nord', 3) $$,
+     values ((select festa from who), (select auth.uid()), 'anada', 'Placa Inventada', 3) $$,
   '42501',
   null,
   'and cannot offer one where the event has no cars'
@@ -51,7 +51,7 @@ select throws_ok(
 
 reset role;
 create temporary table ids as
-select (select id from public.rides where origen = 'Mataró Nord') as cotxe;
+select (select id from public.rides where origen = 'Placa Inventada') as cotxe;
 grant select on ids to authenticated;
 
 select ok(
@@ -131,12 +131,12 @@ select is(
 -- ── one seat per direction ──────────────────────────────────────────────────
 reset role;
 insert into public.rides (event_id, driver_id, sentit, origen, places)
-values ((select casa from who), (select delta from who), 'anada', 'Vilassar', 3);
+values ((select casa from who), (select delta from who), 'anada', 'Poble Fals', 3);
 
 select tests.authenticate_as('bravo');
 select is(
   public.join_ride(
-    (select id from public.rides where origen = 'Vilassar')
+    (select id from public.rides where origen = 'Poble Fals')
   )->>'estat',
   'altre_cotxe',
   'somebody already going one way cannot also be in a second car going the same way'
@@ -145,12 +145,12 @@ select is(
 -- The other direction is a different journey.
 reset role;
 insert into public.rides (event_id, driver_id, sentit, origen, places)
-values ((select casa from who), (select delta from who), 'tornada', 'Vidrà', 3);
+values ((select casa from who), (select delta from who), 'tornada', 'Casa Falsa', 3);
 
 select tests.authenticate_as('bravo');
 select is(
   public.join_ride(
-    (select id from public.rides where origen = 'Vidrà')
+    (select id from public.rides where origen = 'Casa Falsa')
   )->>'estat',
   'a_dins',
   'but coming back is'

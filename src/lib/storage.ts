@@ -85,6 +85,39 @@ export async function uploadCover(file: File, eventId: string): Promise<string> 
   return path
 }
 
+/** Which half of the diptych, which is also which permission. */
+export type DoorPhotoKind = 'entrada' | 'sortida'
+
+/**
+ * Uploads a door photograph and returns the path to store on the attendance.
+ *
+ * The path is the permission — see migration 34. `{kind}/{event}/{uid}/{when}`,
+ * with the member's id as a folder rather than the filename, so a policy can
+ * decide who may touch the object without consulting a table and so that
+ * retaking one writes a new object instead of overwriting the old.
+ *
+ * The bucket refuses PNG, unlike the covers one, so the extension comes from
+ * what the blob actually is and anything unexpected is called what it will be
+ * encoded as.
+ */
+export async function uploadDoorPhoto(
+  body: Blob,
+  kind: DoorPhotoKind,
+  eventId: string,
+  userId: string,
+): Promise<string> {
+  const type = body.type === 'image/webp' ? 'image/webp' : 'image/jpeg'
+  const extension = type === 'image/webp' ? 'webp' : 'jpg'
+  const path = `${kind}/${eventId}/${userId}/${String(Date.now())}.${extension}`
+
+  const { error } = await supabase.storage
+    .from(DOOR_PHOTOS)
+    .upload(path, body, { contentType: type, upsert: false })
+
+  if (error) throw error
+  return path
+}
+
 /**
  * A URL for one stored object, good for an hour.
  *

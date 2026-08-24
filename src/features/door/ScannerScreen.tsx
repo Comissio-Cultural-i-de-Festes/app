@@ -8,8 +8,12 @@ import { SCAN_PRESENTATION, toneVar } from '@/design/states'
 import { fetchEvent } from '@/features/event/api'
 import { eventKeys } from '@/features/event/api'
 
+import { captureFrame } from '@/lib/frame'
+
 import {
   type DoorOutcome,
+  admittedSomebody,
+  attachEntryPhoto,
   doorKeys,
   fetchRoster,
   outcomeFromFailure,
@@ -57,6 +61,11 @@ export function ScannerScreen() {
   const [outcome, setOutcome] = useState<DoorOutcome | null>(null)
   const lastToken = useRef<{ value: string; at: number } | null>(null)
   const { queued, online, refresh: refreshQueue } = useQueue()
+  // Not shown per scan: the verdict card has half a second of somebody's
+  // attention and it is not for this. But a bucket that has stopped accepting
+  // photographs is worth knowing about before Monday, so it goes in the
+  // footer, next to the line that says pictures are being taken at all.
+  const [photoFailed, setPhotoFailed] = useState(false)
 
   // The same QR stays in front of the lens for a second or two after it is
   // read. Without this the card would flicker through four identical scans and
@@ -75,11 +84,30 @@ export function ScannerScreen() {
         userId: null,
       }
 
+      // Grabbed now, uploaded later. `captureFrame` draws before it awaits, so
+      // this is the frame the QR was read out of and not one from two seconds
+      // afterwards, when the person has already walked past.
+      const shot = env.entryPhoto ? captureFrame(videoRef.current) : null
+
       void scan(request)
         .then((result) => {
           setOutcome({ kind: 'sent', request, result })
           buzz(SCAN_PRESENTATION[result.status].haptic)
           void roster.refetch()
+
+          // Only somebody who just walked in. Scanned twice, the second
+          // verdict still carries their name, and photographing that would be
+          // a picture of somebody who has been inside for an hour.
+          const who = result.user_id
+          if (shot === null || who === undefined || !admittedSomebody(result)) return
+          void shot
+            .then((photo) => (photo === null ? undefined : attachEntryPhoto(id, who, photo)))
+            .then(() => {
+              setPhotoFailed(false)
+            })
+            .catch(() => {
+              setPhotoFailed(true)
+            })
         })
         .catch(() => {
           // Queued, not lost. The person walks in either way, so the card says
@@ -178,7 +206,11 @@ export function ScannerScreen() {
         </Link>
         <div className="mt-5 flex items-center justify-between gap-6 text-[12.5px] text-fg-muted">
           <span className="flex-1 [text-wrap:pretty]">
-            {env.entryPhoto ? t('door.photoOn') : t('door.photoOff')}
+            {!env.entryPhoto
+              ? t('door.photoOff')
+              : photoFailed
+                ? t('door.photoFailed')
+                : t('door.photoOn')}
           </span>
           {typeof navigator.vibrate === 'function' ? (
             <span className="flex-none font-bold text-fg-secondary">{t('door.buzzes')}</span>

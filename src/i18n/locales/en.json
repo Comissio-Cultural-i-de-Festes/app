@@ -28,6 +28,7 @@
     "aim": "Point at the QR. Nothing to tap.",
     "manual": "Check somebody in by name",
     "photoOn": "The entry photo takes itself when the scan goes through.",
+    "photoFailed": "The last photo didn't upload. The check-ins did.",
     "photoOff": "No entry photo.",
     "buzzes": "Buzzes on every QR",
     "unknownPerson": "This QR",

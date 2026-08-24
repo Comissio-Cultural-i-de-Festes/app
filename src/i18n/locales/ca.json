@@ -28,6 +28,7 @@
     "aim": "Apunta al QR. No cal tocar res.",
     "manual": "Alta manual pel nom",
     "photoOn": "La foto d'entrada es fa sola en validar.",
+    "photoFailed": "L'última foto no s'ha pujat. Els fitxatges sí.",
     "photoOff": "Sense foto d'entrada.",
     "buzzes": "Vibra a cada QR",
     "unknownPerson": "Aquest QR",

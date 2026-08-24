@@ -28,6 +28,7 @@
     "aim": "Apunta al QR. No hace falta tocar nada.",
     "manual": "Alta manual por el nombre",
     "photoOn": "La foto de entrada se hace sola al validar.",
+    "photoFailed": "La última foto no se ha subido. Los fichajes sí.",
     "photoOff": "Sin foto de entrada.",
     "buzzes": "Vibra en cada QR",
     "unknownPerson": "Este QR",

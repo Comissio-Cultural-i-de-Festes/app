@@ -2,6 +2,7 @@ import { type CheckInStatus, SCAN_PRESENTATION, type ScanPresentation } from '@/
 import { DbError, unwrapAs } from '@/lib/db'
 import type { Escola } from '@/lib/model'
 import { type QueuedScan, bumpTries, dequeue, enqueue, pending } from '@/lib/queue'
+import { DOOR_PHOTOS, uploadDoorPhoto } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -117,6 +118,51 @@ export type DoorOutcome =
   | { readonly kind: 'sent'; readonly request: ScanRequest; readonly result: CheckInResult }
   | { readonly kind: 'queued'; readonly request: ScanRequest }
   | { readonly kind: 'failed'; readonly request: ScanRequest }
+
+/**
+ * The photograph, after the fact.
+ *
+ * Deliberately not part of `scan()`. The door cannot wait for an upload before
+ * saying "endavant" — that is a wifi round trip with a queue behind you — so
+ * the person is let in first and the picture follows. If it never follows, the
+ * check-in is untouched, which is the right way round: the photograph is
+ * useful and the check-in is the point.
+ *
+ * Nothing is queued for later. A blob cannot be sent by the twenty-second
+ * flush without holding a megabyte per waiting scan in IndexedDB and pushing
+ * it up in a basement, and the thing worth saving there is the check-in.
+ */
+export async function attachEntryPhoto(
+  eventId: string,
+  userId: string,
+  photo: Blob,
+): Promise<void> {
+  const path = await uploadDoorPhoto(photo, 'entrada', eventId, userId)
+  const { data, error } = await supabase.rpc('admin_set_entry_photo', {
+    p_event_id: eventId,
+    p_user_id: userId,
+    p_path: path,
+  })
+  if (error) throw new DbError(error)
+
+  // The bytes have to go up before there is a path to offer, so a row that
+  // already had a photograph leaves this one with nothing pointing at it.
+  // Taking it straight back out is the only moment anybody knows it is an
+  // orphan; a week later it is indistinguishable from a real photograph.
+  const verdict = (data as { estat?: string } | null)?.estat
+  if (verdict !== 'desada') await supabase.storage.from(DOOR_PHOTOS).remove([path])
+}
+
+/**
+ * Whether this verdict means somebody just walked in.
+ *
+ * `already_checked_in` is the one that has a name and a user id and must not
+ * count: that scan changed nothing, so photographing it would be a second
+ * picture of somebody who has been inside for an hour.
+ */
+export function admittedSomebody(result: CheckInResult): boolean {
+  return UNDOABLE.has(result.status)
+}
 
 /** Which of the two a thrown scan was. Offline is the queue working. */
 export function outcomeFromFailure(request: ScanRequest): DoorOutcome {

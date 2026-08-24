@@ -221,6 +221,57 @@
     "casa_rural": "Country house",
     "actividad": "Activity"
   },
+  "gimcana": {
+    "title": "The gymkhana",
+    "back": "The event",
+    "none": "This event does not have one.",
+    "closed": "Nothing shows until the party starts. It closes when the party ends.",
+    "gone": "That challenge is not there any more.",
+    "teamNumber": "Team {{n}}",
+    "playingWith": "You are playing with {{team}}",
+    "doneTonight_one": "{{count}} challenge cleared tonight",
+    "doneTonight_other": "{{count}} challenges cleared tonight",
+    "doneCount_one": "{{count}} challenge cleared",
+    "doneCount_other": "{{count}} challenges cleared",
+    "sentBy": "Sent by {{name}}",
+    "juntaLooking": "the junta is looking at it",
+    "worth": "Worth +{{n}} to the team",
+    "worthEyebrow": "Challenge · worth +{{n}}",
+    "tryAgain": "That one did not count. Have another go.",
+    "inQueue_one": "{{count}} photo in the queue",
+    "inQueue_other": "{{count}} photos in the queue",
+    "linkSub": "{{done}} of {{total}} challenges",
+    "rule": "Anybody on the team can do any challenge. One challenge, one photo: the first one that counts, scores.",
+    "boardLink": "The scoreboard",
+    "board": "Scoreboard",
+    "boardLead_one": "It moves when the junta approves. Right now there is {{count}} photo in the queue.",
+    "boardLead_other": "It moves when the junta approves. Right now there are {{count}} photos in the queue.",
+    "boardLeadEmpty": "It moves when the junta approves.",
+    "boardEmpty": "Nothing approved yet. The first photos are already in the queue: this will move shortly.",
+    "boardNote": "The scoreboard is for tonight only: it does not touch the course ranking. If the winning team gets something, you decide that at the party.",
+    "yours": "yours",
+    "state": {
+      "validada": "approved",
+      "pendent": "sent",
+      "rebutjada": "did not count"
+    },
+    "takePhoto": "Take the photo or pick one from your camera roll",
+    "send": "Send it to be approved",
+    "sendNote": "Somebody on the junta looks at it the same night. The points land when they say it counts.",
+    "offlineNote": "It works with no signal too: it is saved and sent by itself when the network comes back.",
+    "queued": "Saved. It will send itself when the network comes back — you can close the app.",
+    "rejected": {
+      "title": "That one did not count",
+      "noReason": "You can send another photo: the challenge is still open."
+    },
+    "pick": {
+      "title": "Who are you playing with?",
+      "lead": "Pick a team. You can change it until you send something.",
+      "people_one": "{{count}} person",
+      "people_other": "{{count}} people",
+      "full": "That team is full. Pick another one."
+    }
+  },
   "home": {
     "greeting": {
       "morning": "Morning, {{name}}",
@@ -813,6 +864,45 @@
       "pushSub": "A push to everybody's phone",
       "periodsStale": "The terms do not cover today",
       "periodsOk": "When each term starts and ends"
+    },
+    "gimcana": {
+      "leave": "Leave it",
+      "lead": "It hangs off {{event}}: it opens when the party starts and closes when it ends.",
+      "teamsHow": "How teams are made",
+      "mena": {
+        "escoles": "The three schools",
+        "junta": "The junta makes them",
+        "sorteig": "At random",
+        "lliure": "People pick their own"
+      },
+      "menaSub": {
+        "escoles": "Automatic, nothing to configure and nobody left without a team.",
+        "junta": "You name each team and split people up yourselves.",
+        "sorteig": "One button splits up whoever checked in that night.",
+        "lliure": "You create the teams and everybody joins the one they want."
+      },
+      "shuffleTitle": "Split at random",
+      "shuffle": "Shuffle",
+      "shuffleNote": "Splits up whoever checked in. Anybody who arrives later lands in the smallest team when they open it.",
+      "alreadyPlayed": "Challenges have already been approved. Shuffling now would invalidate the scoreboard.",
+      "namesTitle": "The teams",
+      "addTeam": "+ Add a team",
+      "saveTeams": "Save the teams",
+      "proves": "Challenges",
+      "provaPlaceholder": "What they have to photograph",
+      "addProva": "+ Add a challenge",
+      "provesNote": "Challenges that can be photographed, and round numbers. The face of the game: between five and ten.",
+      "publish": "Publish it with the party",
+      "publishNote": "Nobody sees it until the party starts. The challenges can be changed until then.",
+      "validateTitle": "Approve the gymkhana",
+      "inQueue_one": "{{count}} in the queue",
+      "inQueue_other": "{{count}} in the queue",
+      "queueEmpty": "No photos waiting. Come back in a while.",
+      "yes": "It counts: +{{n}}",
+      "no": "Does not count",
+      "whyPlaceholder": "If it does not count, say why. Whoever sent it will read this.",
+      "justDid": "You have just decided on “{{prova}}”.",
+      "pace": "Counts or does not, and the next one comes up by itself. At two a minute, a night’s queue is five minutes between you."
     },
     "photos": {
       "title": "Reported photos",

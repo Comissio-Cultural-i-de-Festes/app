@@ -19,6 +19,8 @@ import { CheckinsScreen } from '@/features/junta/CheckinsScreen'
 import { EventFormScreen } from '@/features/junta/EventFormScreen'
 import { AuditScreen } from '@/features/junta/AuditScreen'
 import { GrausScreen } from '@/features/junta/GrausScreen'
+import { GimcanaFormScreen } from '@/features/junta/GimcanaFormScreen'
+import { GimcanaValidateScreen } from '@/features/junta/GimcanaValidateScreen'
 import { PhotoReportsScreen } from '@/features/junta/PhotoReportsScreen'
 import { IdeasReviewScreen } from '@/features/junta/IdeasReviewScreen'
 import { MembersScreen } from '@/features/junta/MembersScreen'
@@ -35,6 +37,9 @@ import { UserIdContext } from '@/features/session/context'
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen'
 import { BadgesScreen } from '@/features/badges/BadgesScreen'
 import { GalleryScreen } from '@/features/gallery/GalleryScreen'
+import { ProvesScreen } from '@/features/gimcana/ProvesScreen'
+import { ScoreboardScreen } from '@/features/gimcana/ScoreboardScreen'
+import { SubmitScreen } from '@/features/gimcana/SubmitScreen'
 import { ProfileScreen } from '@/features/profile/ProfileScreen'
 import { QrScreen } from '@/features/qr/QrScreen'
 import { JuntaLayout } from '@/features/shell/JuntaLayout'
@@ -165,6 +170,9 @@ export default function App() {
             <Route path="/esdeveniment/:id" element={<EventScreen />} />
             <Route path="/esdeveniment/:eventId/dins" element={<InsideScreen />} />
             <Route path="/esdeveniment/:id/fotos" element={<GalleryScreen />} />
+            <Route path="/esdeveniment/:id/gimcana" element={<ProvesScreen />} />
+            <Route path="/esdeveniment/:id/gimcana/marcador" element={<ScoreboardScreen />} />
+            <Route path="/esdeveniment/:id/gimcana/:provaId" element={<SubmitScreen />} />
             <Route path="/perfil/nits" element={<DiptychScreen />} />
             <Route path="/perfil/nits/:eventId" element={<DiptychScreen />} />
             <Route path="/esdeveniment/:eventId/cotxes" element={<RidesScreen />} />
@@ -190,6 +198,8 @@ export default function App() {
             <Route path="barem" element={<ScaleScreen />} />
             <Route path="graus" element={<GrausScreen />} />
             <Route path="fotos" element={<PhotoReportsScreen />} />
+            <Route path="esdeveniment/:id/gimcana" element={<GimcanaFormScreen />} />
+            <Route path="gimcana/:eventId" element={<GimcanaValidateScreen />} />
             <Route path="pagaments" element={<PaymentsScreen />} />
             <Route path="pagaments/:eventId" element={<PaymentsScreen />} />
             <Route path="escaner/:eventId" element={<ScannerScreen />} />

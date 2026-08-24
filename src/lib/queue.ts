@@ -18,19 +18,20 @@
  */
 
 const DB_NAME = 'comi'
-const DB_VERSION = 3
+const DB_VERSION = 4
 
 /**
- * Three queues, one database.
+ * Four queues, one database.
  *
  * The scanner's is the one that matters and the one everything here was
- * written for. The other two share the plumbing because the shape is identical
+ * written for. The others share the plumbing because the shape is identical
  * — write it down, try to send it, rub it out when it lands — and a second
  * IndexedDB with its own open handshake would be the same code twice.
  */
 export const SCANS = 'checkin-queue'
 export const IDEAS = 'idea-queue'
 export const HERE = 'here-queue'
+export const PROVES = 'gimcana-queue'
 
 export interface QueuedScan {
   /** Generated at the moment of the scan. The idempotency key. */
@@ -70,6 +71,14 @@ function open(): Promise<IDBDatabase | null> {
       // store exists for.
       if (!db.objectStoreNames.contains(HERE)) {
         db.createObjectStore(HERE, { keyPath: 'id' })
+      }
+      // Version 4: the gimcana. This one holds a Blob, which the other three do
+      // not: a photograph is the whole point of a prova, and a queue that kept
+      // the caption and threw the picture away would be worse than no queue.
+      // Fifteen of them is tens of megabytes in IndexedDB, and that is the
+      // price of «sense cobertura també funciona».
+      if (!db.objectStoreNames.contains(PROVES)) {
+        db.createObjectStore(PROVES, { keyPath: 'id' })
       }
     }
     request.onsuccess = () => {

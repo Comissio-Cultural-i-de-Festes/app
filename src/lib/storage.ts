@@ -18,6 +18,7 @@ import { supabase } from './supabase'
 export const COVERS = 'event-covers'
 export const DOOR_PHOTOS = 'door-photos'
 export const EVENT_PHOTOS = 'event-photos'
+export const GIMCANA_PHOTOS = 'gimcana-photos'
 
 const SIGNED_TTL_SECONDS = 3600
 

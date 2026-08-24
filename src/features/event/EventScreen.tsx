@@ -35,6 +35,7 @@ import { useCovers } from '@/ui/Cover/useCovers'
 import { CheckinBlock } from '@/features/checkin/CheckinBlock'
 import { checkinWindow, isOpen } from '@/features/checkin/window'
 import { GalleryBlock } from '@/features/gallery/GalleryBlock'
+import { GimcanaLink } from '@/features/gimcana/GimcanaLink'
 import { MyNightBlock } from '@/features/photos/MyNightBlock'
 import { fetchNights, fetchPhotoUrls, photoKeys } from '@/features/photos/api'
 import { ShareCard } from '@/features/share/ShareCard'
@@ -305,6 +306,10 @@ export function EventScreen() {
 
       {/* Only once it is over, and then for ever: the card on the Inici is the
           nudge and this is where somebody comes looking a fortnight later. */}
+      {/* La gimcana surt sola mentre la festa passa i desapareix quan acaba:
+          la mateixa finestra que la de fitxar, i cap interruptor. */}
+      <GimcanaLink eventId={e.id} />
+
       {ended ? <MyNightBlock eventId={e.id} /> : null}
 
       {/* La galeria és d'una nit que ja ha passat: mentre la festa dura, la

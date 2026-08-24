@@ -221,6 +221,57 @@
     "casa_rural": "Casa rural",
     "actividad": "Activitat"
   },
+  "gimcana": {
+    "title": "La gimcana",
+    "back": "L’activitat",
+    "none": "Aquesta activitat no en té.",
+    "closed": "Fins que no comenci la festa no es veu res. Es tanca quan acabi.",
+    "gone": "Aquesta prova ja no hi és.",
+    "teamNumber": "Equip {{n}}",
+    "playingWith": "Jugues amb {{team}}",
+    "doneTonight_one": "{{count}} prova validada aquesta nit",
+    "doneTonight_other": "{{count}} proves validades aquesta nit",
+    "doneCount_one": "{{count}} prova validada",
+    "doneCount_other": "{{count}} proves validades",
+    "sentBy": "La va enviar {{name}}",
+    "juntaLooking": "la junta la mira",
+    "worth": "Val +{{n}} per a l’equip",
+    "worthEyebrow": "Prova · val +{{n}}",
+    "tryAgain": "Aquesta no ha valgut. Torna-hi.",
+    "inQueue_one": "{{count}} foto a la cua",
+    "inQueue_other": "{{count}} fotos a la cua",
+    "linkSub": "{{done}} de {{total}} proves",
+    "rule": "Qualsevol de l’equip pot fer qualsevol prova. Una prova, una foto: la primera que valgui, puntua.",
+    "boardLink": "El marcador entre equips",
+    "board": "Marcador",
+    "boardLead_one": "Es mou quan la junta valida. Ara mateix hi ha {{count}} foto a la cua.",
+    "boardLead_other": "Es mou quan la junta valida. Ara mateix hi ha {{count}} fotos a la cua.",
+    "boardLeadEmpty": "Es mou quan la junta valida.",
+    "boardEmpty": "Encara no hi ha res validat. Les primeres fotos ja són a la cua: d’aquí a res això es mou.",
+    "boardNote": "El marcador és de la nit i prou: no toca el rànquing del curs. Si l’equip que guanya s’ha d’endur alguna cosa, ho decidiu vosaltres a la festa.",
+    "yours": "el teu",
+    "state": {
+      "validada": "validada",
+      "pendent": "enviada",
+      "rebutjada": "no ha valgut"
+    },
+    "takePhoto": "Fes la foto o tria-la del carret",
+    "send": "Envia-la a validar",
+    "sendNote": "La mira algú de la junta aquesta mateixa nit. Els punts surten quan digui que val.",
+    "offlineNote": "Sense cobertura també funciona: es desa i s’envia sola quan torni la xarxa.",
+    "queued": "Desada. S’enviarà sola quan torni la xarxa: pots tancar l’app.",
+    "rejected": {
+      "title": "Aquesta no ha valgut",
+      "noReason": "La pots tornar a enviar amb una altra foto: la prova segueix oberta."
+    },
+    "pick": {
+      "title": "Amb qui jugues?",
+      "lead": "Tria equip. Mentre no hagis enviat res, el pots canviar.",
+      "people_one": "{{count}} persona",
+      "people_other": "{{count}} persones",
+      "full": "Aquest equip ja és ple. Tria’n un altre."
+    }
+  },
   "home": {
     "greeting": {
       "morning": "Bon dia, {{name}}",
@@ -813,6 +864,45 @@
       "pushSub": "Una empenta al mòbil de tothom",
       "periodsStale": "Els trimestres no cobreixen el dia d'avui",
       "periodsOk": "Quan comença i acaba cada trimestre"
+    },
+    "gimcana": {
+      "leave": "Deixa-ho",
+      "lead": "Penja de {{event}}: es destapa quan comenci i es tanca quan acabi.",
+      "teamsHow": "Com es fan els equips",
+      "mena": {
+        "escoles": "Les tres escoles",
+        "junta": "Els fa la junta",
+        "sorteig": "A l’atzar",
+        "lliure": "Se’ls fan ells"
+      },
+      "menaSub": {
+        "escoles": "Automàtic, sense configurar res i sense ningú sense equip.",
+        "junta": "Poseu nom a cada equip i repartiu la gent vosaltres.",
+        "sorteig": "Un botó reparteix qui ha fitxat aquella nit.",
+        "lliure": "Creeu els equips i cadascú s’apunta al que vol."
+      },
+      "shuffleTitle": "Repartir a l’atzar",
+      "shuffle": "Remena",
+      "shuffleNote": "Reparteix qui ha fitxat. Qui arribi després cau al més petit en obrir la gimcana.",
+      "alreadyPlayed": "Ja hi ha proves validades. Remenar els equips ara invalidaria el marcador.",
+      "namesTitle": "Els equips",
+      "addTeam": "+ Afegeix un equip",
+      "saveTeams": "Desa els equips",
+      "proves": "Proves",
+      "provaPlaceholder": "Què han de fotografiar",
+      "addProva": "+ Afegeix una prova",
+      "provesNote": "Proves que es puguin fotografiar i punts rodons. Les cares del joc: entre cinc i deu.",
+      "publish": "Publica-la amb la festa",
+      "publishNote": "Fins que comenci la festa ningú la veu. Les proves es poden retocar fins llavors.",
+      "validateTitle": "Validar la gimcana",
+      "inQueue_one": "{{count}} a la cua",
+      "inQueue_other": "{{count}} a la cua",
+      "queueEmpty": "Cap foto esperant. Torneu-hi d’aquí a una estona.",
+      "yes": "Val: +{{n}}",
+      "no": "No val",
+      "whyPlaceholder": "Si no val, digues per què. Ho llegirà qui l’ha enviada.",
+      "justDid": "Acabes de decidir «{{prova}}».",
+      "pace": "Val o no val i surt la següent sola. A dues per minut, la cua de la nit són cinc minuts entre tots."
     },
     "photos": {
       "title": "Fotos denunciades",

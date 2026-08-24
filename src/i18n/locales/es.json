@@ -221,6 +221,57 @@
     "casa_rural": "Casa rural",
     "actividad": "Actividad"
   },
+  "gimcana": {
+    "title": "La gincana",
+    "back": "La actividad",
+    "none": "Esta actividad no tiene.",
+    "closed": "Hasta que no empiece la fiesta no se ve nada. Se cierra cuando acabe.",
+    "gone": "Esta prueba ya no está.",
+    "teamNumber": "Equipo {{n}}",
+    "playingWith": "Juegas con {{team}}",
+    "doneTonight_one": "{{count}} prueba validada esta noche",
+    "doneTonight_other": "{{count}} pruebas validadas esta noche",
+    "doneCount_one": "{{count}} prueba validada",
+    "doneCount_other": "{{count}} pruebas validadas",
+    "sentBy": "La envió {{name}}",
+    "juntaLooking": "la junta la mira",
+    "worth": "Vale +{{n}} para el equipo",
+    "worthEyebrow": "Prueba · vale +{{n}}",
+    "tryAgain": "Esta no ha valido. Vuelve a intentarlo.",
+    "inQueue_one": "{{count}} foto en la cola",
+    "inQueue_other": "{{count}} fotos en la cola",
+    "linkSub": "{{done}} de {{total}} pruebas",
+    "rule": "Cualquiera del equipo puede hacer cualquier prueba. Una prueba, una foto: la primera que valga, puntúa.",
+    "boardLink": "El marcador entre equipos",
+    "board": "Marcador",
+    "boardLead_one": "Se mueve cuando la junta valida. Ahora mismo hay {{count}} foto en la cola.",
+    "boardLead_other": "Se mueve cuando la junta valida. Ahora mismo hay {{count}} fotos en la cola.",
+    "boardLeadEmpty": "Se mueve cuando la junta valida.",
+    "boardEmpty": "Todavía no hay nada validado. Las primeras fotos ya están en la cola: dentro de nada esto se mueve.",
+    "boardNote": "El marcador es de la noche y ya está: no toca el ranking del curso. Si el equipo que gana se tiene que llevar algo, lo decidís vosotros en la fiesta.",
+    "yours": "el tuyo",
+    "state": {
+      "validada": "validada",
+      "pendent": "enviada",
+      "rebutjada": "no ha valido"
+    },
+    "takePhoto": "Haz la foto o elígela del carrete",
+    "send": "Envíala a validar",
+    "sendNote": "La mira alguien de la junta esta misma noche. Los puntos salen cuando diga que vale.",
+    "offlineNote": "Sin cobertura también funciona: se guarda y se envía sola cuando vuelva la red.",
+    "queued": "Guardada. Se enviará sola cuando vuelva la red: puedes cerrar la app.",
+    "rejected": {
+      "title": "Esta no ha valido",
+      "noReason": "La puedes volver a enviar con otra foto: la prueba sigue abierta."
+    },
+    "pick": {
+      "title": "¿Con quién juegas?",
+      "lead": "Elige equipo. Mientras no hayas enviado nada, lo puedes cambiar.",
+      "people_one": "{{count}} persona",
+      "people_other": "{{count}} personas",
+      "full": "Este equipo ya está lleno. Elige otro."
+    }
+  },
   "home": {
     "greeting": {
       "morning": "Buenos días, {{name}}",
@@ -813,6 +864,45 @@
       "pushSub": "Un empujón al móvil de todo el mundo",
       "periodsStale": "Los trimestres no cubren el día de hoy",
       "periodsOk": "Cuándo empieza y acaba cada trimestre"
+    },
+    "gimcana": {
+      "leave": "Déjalo",
+      "lead": "Cuelga de {{event}}: se destapa cuando empiece y se cierra cuando acabe.",
+      "teamsHow": "Cómo se hacen los equipos",
+      "mena": {
+        "escoles": "Las tres escuelas",
+        "junta": "Los hace la junta",
+        "sorteig": "Al azar",
+        "lliure": "Se los hacen ellos"
+      },
+      "menaSub": {
+        "escoles": "Automático, sin configurar nada y sin nadie sin equipo.",
+        "junta": "Ponéis nombre a cada equipo y repartís la gente vosotros.",
+        "sorteig": "Un botón reparte a quien fichó aquella noche.",
+        "lliure": "Creáis los equipos y cada uno se apunta al que quiere."
+      },
+      "shuffleTitle": "Repartir al azar",
+      "shuffle": "Baraja",
+      "shuffleNote": "Reparte a quien ha fichado. Quien llegue después cae en el más pequeño al abrir la gincana.",
+      "alreadyPlayed": "Ya hay pruebas validadas. Barajar los equipos ahora invalidaría el marcador.",
+      "namesTitle": "Los equipos",
+      "addTeam": "+ Añade un equipo",
+      "saveTeams": "Guarda los equipos",
+      "proves": "Pruebas",
+      "provaPlaceholder": "Qué tienen que fotografiar",
+      "addProva": "+ Añade una prueba",
+      "provesNote": "Pruebas que se puedan fotografiar y puntos redondos. Las caras del juego: entre cinco y diez.",
+      "publish": "Publícala con la fiesta",
+      "publishNote": "Hasta que empiece la fiesta no la ve nadie. Las pruebas se pueden retocar hasta entonces.",
+      "validateTitle": "Validar la gincana",
+      "inQueue_one": "{{count}} en la cola",
+      "inQueue_other": "{{count}} en la cola",
+      "queueEmpty": "Ninguna foto esperando. Volved dentro de un rato.",
+      "yes": "Vale: +{{n}}",
+      "no": "No vale",
+      "whyPlaceholder": "Si no vale, di por qué. Lo leerá quien la ha enviado.",
+      "justDid": "Acabas de decidir «{{prova}}».",
+      "pace": "Vale o no vale y sale la siguiente sola. A dos por minuto, la cola de la noche son cinco minutos entre todos."
     },
     "photos": {
       "title": "Fotos denunciadas",

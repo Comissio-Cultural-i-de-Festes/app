@@ -294,6 +294,68 @@ export type Database = {
           },
         ]
       }
+      event_photos: {
+        Row: {
+          created_at: string
+          event_id: string
+          hidden_at: string | null
+          hidden_by: string | null
+          id: string
+          path: string
+          thumb_path: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          hidden_at?: string | null
+          hidden_by?: string | null
+          id?: string
+          path: string
+          thumb_path: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          hidden_at?: string | null
+          hidden_by?: string | null
+          id?: string
+          path?: string
+          thumb_path?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_photos_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_photos_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_photos_hidden_by_fkey"
+            columns: ["hidden_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_photos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           cal_confirmacio: boolean
@@ -439,6 +501,58 @@ export type Database = {
           {
             foreignKeyName: "invites_created_by_fkey"
             columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      photo_reports: {
+        Row: {
+          created_at: string
+          id: string
+          motiu: string
+          photo_id: string
+          resolt_at: string | null
+          resolt_per: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          motiu: string
+          photo_id: string
+          resolt_at?: string | null
+          resolt_per?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          motiu?: string
+          photo_id?: string
+          resolt_at?: string | null
+          resolt_per?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_reports_photo_id_fkey"
+            columns: ["photo_id"]
+            isOneToOne: false
+            referencedRelation: "event_photos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photo_reports_resolt_per_fkey"
+            columns: ["resolt_per"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photo_reports_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -952,6 +1066,10 @@ export type Database = {
         Args: { p_accepta: boolean; p_event_id: string; p_user_id: string }
         Returns: Json
       }
+      admin_decide_photo: {
+        Args: { p_despenja: boolean; p_photo_id: string }
+        Returns: Json
+      }
       admin_decide_proposal: {
         Args: {
           p_accepta: boolean
@@ -969,6 +1087,20 @@ export type Database = {
           lat: number
           lng: number
           radi_m: number
+        }[]
+      }
+      admin_reported_photos: {
+        Args: never
+        Returns: {
+          despenjada: boolean
+          event_id: string
+          motiu: string
+          path: string
+          photo_id: string
+          pujada_per: string
+          quantes: number
+          thumb_path: string
+          titol: string
         }[]
       }
       admin_revoke_invite: { Args: { p_id: string }; Returns: undefined }
@@ -1097,6 +1229,26 @@ export type Database = {
       }
       claim_first_owner: { Args: never; Returns: undefined }
       clear_exit_photo: { Args: { p_event_id: string }; Returns: Json }
+      event_photo_count: {
+        Args: { p_event_id: string }
+        Returns: {
+          persones: number
+          quantes: number
+        }[]
+      }
+      event_photos: {
+        Args: { p_event_id: string }
+        Returns: {
+          created_at: string
+          denunciada: boolean
+          id: string
+          meva: boolean
+          nom: string
+          path: string
+          thumb_path: string
+          user_id: string
+        }[]
+      }
       invite_preview: { Args: { p_codi: string }; Returns: Json }
       invite_to_ride: {
         Args: { p_ride_id: string; p_user_id: string }
@@ -1153,6 +1305,10 @@ export type Database = {
         }[]
       }
       redeem_invite: { Args: { p_codi: string }; Returns: Json }
+      report_photo: {
+        Args: { p_motiu: string; p_photo_id: string }
+        Returns: Json
+      }
       ride_candidates: {
         Args: { p_ride_id: string }
         Returns: {

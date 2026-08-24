@@ -528,3 +528,79 @@ describe('ratxes i insígnies', () => {
     expect(seen.data?.some((r) => r.user_id === F.bravo)).toBe(true)
   })
 })
+
+describe('galeria', () => {
+  const BUCKET = 'event-photos'
+  const jpeg = () => new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xd9])], { type: 'image/jpeg' })
+
+  /** Una activitat on l'alfa hi va ser de debò, segons el seed. */
+  let attended = ''
+
+  beforeAll(async () => {
+    const { data } = await serviceClient()
+      .from('attendances')
+      .select('event_id')
+      .eq('user_id', F.alfa)
+      .eq('estado', 'asistio')
+      .limit(1)
+    attended = data?.[0]?.event_id ?? ''
+    expect(attended).not.toBe('')
+  })
+
+  // La que aguanta que la galeria d'una nit sigui d'aquella nit. pgTAP prova la
+  // taula; això prova el bucket, que és on arriba el fitxer primer.
+  it('lets somebody who was there upload, into their own folder only', async () => {
+    const member = await as('alfa')
+    const stamp = `${String(Date.now())}${String(Math.floor(Math.random() * 1000))}`
+
+    const own = await member.storage
+      .from(BUCKET)
+      .upload(`${attended}/${F.alfa}/${stamp}.jpg`, jpeg(), { contentType: 'image/jpeg' })
+    expect(own.error).toBeNull()
+
+    const other = await member.storage
+      .from(BUCKET)
+      .upload(`${attended}/${F.bravo}/${stamp}.jpg`, jpeg(), { contentType: 'image/jpeg' })
+    expect(other.error).not.toBeNull()
+
+    // I la seva, la pot esborrar.
+    const gone = await member.storage.from(BUCKET).remove([`${attended}/${F.alfa}/${stamp}.jpg`])
+    expect(gone.data?.length).toBe(1)
+  })
+
+  it('refuses a night somebody was not at', async () => {
+    // `e4` és publicada i l'alfa no hi té cap fila: no hi va anar. Aquesta és la
+    // que aguanta que la galeria d'una nit sigui d'aquella nit.
+    const member = await as('alfa')
+    const stamp = `${String(Date.now())}${String(Math.floor(Math.random() * 1000))}`
+
+    const denied = await member.storage
+      .from(BUCKET)
+      .upload(`${F.e4}/${F.alfa}/${stamp}.jpg`, jpeg(), { contentType: 'image/jpeg' })
+    expect(denied.error).not.toBeNull()
+  })
+
+  it('cannot be written to by a pending profile at all', async () => {
+    const pendent = await as('pendent_alfa')
+    const stamp = `${String(Date.now())}${String(Math.floor(Math.random() * 1000))}`
+
+    const denied = await pendent.storage
+      .from(BUCKET)
+      .upload(`${attended}/${F.pendent}/${stamp}.jpg`, jpeg(), { contentType: 'image/jpeg' })
+    expect(denied.error).not.toBeNull()
+  })
+
+  it('keeps who reported a photo away from whoever posted it', async () => {
+    const member = await as('alfa')
+    const insert = await member
+      .from('photo_reports')
+      .insert({ photo_id: F.e1, user_id: F.bravo, motiu: 'hi_surto' })
+
+    // A nom d'un altre no, i llegir les dels altres tampoc.
+    expect(insert.error).not.toBeNull()
+
+    const { data, error } = await member.from('photo_reports').select('user_id')
+    expect(error).toBeNull()
+    expect(data?.every((r) => r.user_id === F.alfa)).toBe(true)
+  })
+})

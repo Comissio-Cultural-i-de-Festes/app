@@ -15,8 +15,16 @@ import {
   signedUpToday,
 } from '@/features/home/api'
 import { useUserId } from '@/features/session/useUserId'
-import { formatDateLong, formatDateTime, formatOrdinal, formatTime } from '@/i18n/format'
+import {
+  formatDateLong,
+  formatDateTime,
+  formatDayMonth,
+  formatOrdinal,
+  formatTime,
+  formatWeekdayLong,
+} from '@/i18n/format'
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
+import { type Card, loadCardImage } from '@/lib/cards'
 import { errorKey } from '@/lib/errors'
 import { ANSWERS, type Answer } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
@@ -24,6 +32,8 @@ import { Avatar } from '@/ui/Avatar/Avatar'
 import { useCovers } from '@/ui/Cover/useCovers'
 
 import { MyNightBlock } from '@/features/photos/MyNightBlock'
+import { fetchNights, fetchPhotoUrls, photoKeys } from '@/features/photos/api'
+import { ShareCard } from '@/features/share/ShareCard'
 import { RidesBlock } from '@/features/rides/RidesBlock'
 
 import { eventKeys, fetchEvent, fetchWaitlist, formatPrice } from './api'
@@ -140,6 +150,7 @@ export function EventScreen() {
   // else on this page and wrong here: a party in progress is the one time
   // "who is inside" is worth asking. The pulse stops when the party does.
   const ended = now.getTime() >= new Date(e.ends_at ?? starts.getTime() + IN_PROGRESS_MS).getTime()
+  const cover = covers.data?.get(e.cover_url ?? '') ?? null
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
@@ -263,9 +274,39 @@ export function EventScreen() {
         />
       )}
 
+      {/* Right after fitxar, which is the moment somebody wants to say so.
+          Only for whoever the door actually let in. */}
+      {mine === 'asistio' && !ended ? (
+        <section className={`pt-12 ${GUTTER}`}>
+          <CheckinShare event={e} cover={cover} going={going.length} />
+        </section>
+      ) : null}
+
       {/* Only once it is over, and then for ever: the card on the Inici is the
           nudge and this is where somebody comes looking a fortnight later. */}
       {ended ? <MyNightBlock eventId={e.id} /> : null}
+
+      {ended ? (
+        <section className={`pt-12 ${GUTTER}`}>
+          <ShareCard
+            variant="quiet"
+            card={async (): Promise<Card> => ({
+              kind: 'recap',
+              photo: await loadCardImage(cover),
+              eyebrow: `${formatDayMonth(starts, locale)} · ${t('share.recap')}`,
+              headline: e.titulo,
+              stats: [
+                { value: String(going.length), label: t('share.wereThere') },
+                ...(e.puntos > 0
+                  ? [{ value: `+${String(e.puntos)}`, label: t('share.pointsFor') }]
+                  : []),
+              ],
+              footnote: null,
+            })}
+            name={[e.titulo, 'recap']}
+          />
+        </section>
+      ) : null}
 
       {e.transport_info === null ? null : (
         <section className={`pt-12 ${GUTTER}`}>
@@ -285,6 +326,66 @@ export function EventScreen() {
         </section>
       )}
     </main>
+  )
+}
+
+/**
+ * "Ja sóc dins", with the photograph the scanner took.
+ *
+ * Its own component so the nights query only runs on an event somebody is
+ * actually checked in to, rather than on every event page for the sake of a
+ * button that is usually not there.
+ */
+function CheckinShare({
+  event,
+  cover,
+  going,
+}: {
+  readonly event: EventRow
+  readonly cover: string | null
+  readonly going: number
+}) {
+  const { t, i18n } = useTranslation()
+  const locale = toLocale(i18n.language)
+
+  const nights = useQuery({ queryKey: photoKeys.nights(), queryFn: fetchNights })
+  const night = nights.data?.find((n) => n.event_id === event.id)
+  const entry = night?.entry_photo_url ?? null
+
+  const urls = useQuery({
+    queryKey: photoKeys.urls(entry === null ? [] : [entry]),
+    queryFn: () => fetchPhotoUrls(entry === null ? [] : [entry]),
+    enabled: entry !== null,
+  })
+
+  const at = night?.checked_in_at == null ? null : new Date(night.checked_in_at)
+  const starts = new Date(event.starts_at)
+
+  return (
+    <ShareCard
+      card={async (): Promise<Card> => ({
+        kind: 'checkin',
+        // Your own door photograph if there is one, and the poster if not:
+        // both are pictures of that night, and one of them always exists.
+        photo: await loadCardImage(
+          entry === null ? cover : (urls.data?.get(entry) ?? cover),
+        ),
+        // The day and the time you walked in, not the day and the time it
+        // started: `formatDateLong` already ends in "a les 22:00", so using it
+        // here printed two different times next to each other.
+        when:
+          at === null
+            ? `${formatWeekdayLong(starts, locale)} ${formatDayMonth(starts, locale)}`
+            : `${formatWeekdayLong(starts, locale)} ${formatDayMonth(starts, locale)} · ${formatTime(at, locale)}`,
+        headline: t('share.checkin'),
+        what: event.ubicacion === null ? event.titulo : `${event.titulo} · ${event.ubicacion}`,
+        count:
+          event.plazas === null
+            ? null
+            : t('share.weAre', { dins: going, total: event.plazas }),
+      })}
+      name={[event.titulo, 'dins']}
+    />
   )
 }
 

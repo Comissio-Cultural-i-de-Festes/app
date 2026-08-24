@@ -2,9 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 
+import { brand } from '@/config/brand'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
-import { formatDateLong, formatTime } from '@/i18n/format'
+import { ShareCard } from '@/features/share/ShareCard'
+import { formatDateLong, formatDayMonth, formatTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
+import { type Card, loadCardImage } from '@/lib/cards'
 import { errorKey } from '@/lib/errors'
 
 import {
@@ -152,6 +155,28 @@ export function DiptychScreen() {
               >
                 {t('diptych.takeExit')}
               </Link>
+            ) : null}
+
+            {/* Only with both halves. Sharing one is not a diptych, and the
+                drawings say so: «sense les dues, no hi ha díptic». */}
+            {shape === 'both' ? (
+              <div className="mb-8">
+                <ShareCard
+                  card={async (): Promise<Card> => ({
+                    kind: 'diptych',
+                    entry: await loadCardImage(url(night.entry_photo_url)),
+                    exit: await loadCardImage(url(night.exit_photo_url)),
+                    entryLabel: t('share.entryLabel'),
+                    entryTime: inAt === null ? '' : formatTime(inAt, locale),
+                    exitLabel: t('share.exitLabel'),
+                    exitTime: outAt === null ? '' : formatTime(outAt, locale),
+                    title: night.titulo,
+                    subtitle: `${brand.name} · ${formatDayMonth(starts, locale)}`,
+                    badge: howLong,
+                  })}
+                  name={[night.titulo, 'diptic']}
+                />
+              </div>
             ) : null}
 
             <p className="mt-5 border-l-[3px] border-brand-cta bg-surface-3 px-7 py-6 text-sm text-fg-secondary [text-wrap:pretty]">

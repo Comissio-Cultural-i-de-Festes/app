@@ -2,8 +2,10 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useUserId } from '@/features/session/useUserId'
+import { ShareCard } from '@/features/share/ShareCard'
 import { formatOrdinal } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
+import { type Card, loadCardImage } from '@/lib/cards'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -36,6 +38,11 @@ export function RankingScreen() {
 
   const board = useBoard(period)
   const me = board.rows.find((r) => r.user_id === userId) ?? null
+  // Only offered when you actually went up. A card that says "+0 posicions"
+  // is not a thing anybody puts on a story.
+  const climb = me === null ? 0 : (board.deltas.get(me.user_id) ?? 0)
+  const mySchool =
+    me?.escola == null ? null : (board.schools.find((s) => s.escola === me.escola) ?? null)
 
   return (
     <div className="with-tabbar min-h-dvh bg-app">
@@ -78,6 +85,42 @@ export function RankingScreen() {
           </div>
         ) : null}
       </div>
+
+      {me !== null && climb > 0 ? (
+        <section className={`pt-9 ${GUTTER}`}>
+          <ShareCard
+            variant="quiet"
+            card={async (): Promise<Card> => ({
+              kind: 'ranking',
+              photo: await loadCardImage(me.avatar_url),
+              // The same label the period chips show, so the card and the
+              // screen cannot disagree about which weeks it is about.
+              eyebrow:
+                period == null
+                  ? t('share.ranking')
+                  : `${t('share.ranking')} · ${t(`ranking.period.${period.codi}`, {
+                      defaultValue: period.etiqueta ?? period.codi,
+                    })}`,
+              delta: `+${String(climb)}`,
+              deltaLabel: t('share.positions'),
+              deltaSub: t('share.inAWeek'),
+              from: formatOrdinal(me.posicio + climb, locale),
+              to: formatOrdinal(me.posicio, locale),
+              outOf: t('share.outOf', { count: board.rows.length }),
+              points: String(me.punts),
+              pointsLabel: t('share.points'),
+              extra: mySchool === null ? null : formatOrdinal(mySchool.posicio, locale, 'f'),
+              extraLabel:
+                mySchool === null
+                  ? null
+                  : t('share.schoolGoes', {
+                      escola: t(`escola.${mySchool.escola satisfies Escola}`),
+                    }),
+            })}
+            name={['ranquing', String(me.posicio)]}
+          />
+        </section>
+      ) : null}
 
       {board.isError ? (
         <div role="alert" className={`flex items-center justify-between gap-3 py-4 ${GUTTER}`}>

@@ -40,7 +40,7 @@ desktop.ini
 *.log
 npm-debug.log*
 
-# local agent state
+# local session state
 .remember/
 
 # per-machine tooling, not the project's

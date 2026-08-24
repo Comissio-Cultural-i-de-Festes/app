@@ -14,8 +14,8 @@ export default tseslint.config(
       'supabase/.temp/**',
       'supabase/.branches/**',
       '.remember/**',
-      // Local worktrees are full checkouts of this same repo. Left in,
-      // every file gets linted twice and the TypeScript parser refuses both,
+      // Local worktrees are full checkouts of this same repo. Left in, every
+      // file gets linted twice and the TypeScript parser refuses both,
       // because two tsconfig roots are two candidate project roots.
       '**/worktrees/**',
       // design-sync: staged converter scripts and its build output, neither of

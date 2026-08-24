@@ -340,16 +340,16 @@ function EventForm() {
             />
           </Field>
 
-          <Field label={t('junta.form.where')}>
-            <input
-              value={form.ubicacion}
-              onChange={(e) => {
-                setForm({ ...form, ubicacion: e.target.value })
-              }}
-              placeholder={t('junta.form.wherePlaceholder')}
-              className={INPUT}
-            />
-          </Field>
+          <GeoPicker
+            where={form.ubicacion}
+            onWhere={(text) => {
+              setForm({ ...form, ubicacion: text })
+            }}
+            value={geo}
+            onChange={(next) => {
+              setGeoEdits({ value: next })
+            }}
+          />
 
           <div className="grid grid-cols-3 gap-4">
             <Field label={t('junta.form.places')}>
@@ -457,16 +457,6 @@ function EventForm() {
               </span>
             </button>
           </Field>
-
-          {/* Just després d'on és escrit i abans de la descripció: el text del
-              lloc i el punt del mapa són la mateixa pregunta feta dues vegades,
-              una per a la gent i l'altra per al fitxatge. */}
-          <GeoPicker
-            value={geo}
-            onChange={(next) => {
-              setGeoEdits({ value: next })
-            }}
-          />
 
           {/* Només d'un esdeveniment que existeix, i sota el mapa perquè les
               dues coses són la mateixa: aquí es tria on es pot fitxar, i allà

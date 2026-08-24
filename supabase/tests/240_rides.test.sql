@@ -6,7 +6,7 @@
 -- anybody's — not the passengers between themselves, not the junta.
 
 begin;
-select plan(21);
+select plan(30);
 
 reset role;
 
@@ -211,6 +211,102 @@ select is(
   (select count(*)::int from public.ride_seats where ride_id = (select cotxe from ids)),
   1,
   'and the seat goes back'
+);
+
+-- ── holding a seat for somebody ─────────────────────────────────────────────
+-- A driver knowing who two of the seats are for is the ordinary case. Deciding
+-- for those people is not, so a held seat is held and nothing more.
+reset role;
+select tests.authenticate_as('bravo');
+
+select throws_ok(
+  $$ select public.invite_to_ride((select cotxe from ids), (select delta from who)) $$,
+  '42501',
+  'nomes el conductor',
+  'a passenger cannot hold a seat in somebody else''s car'
+);
+
+reset role;
+select tests.authenticate_as('alfa');
+
+-- Down to exactly one free seat, so the held one below is genuinely the last.
+update public.rides set places = 2 where id = (select cotxe from ids);
+
+select is(
+  public.invite_to_ride((select cotxe from ids), (select delta from who))->>'estat',
+  'convidat',
+  'the driver can hold one'
+);
+
+reset role;
+select is(
+  (select estat from public.ride_seats
+    where ride_id = (select cotxe from ids) and user_id = (select delta from who)),
+  'convidat',
+  'and it is held, not taken: nobody has said this person is coming'
+);
+
+-- The whole point of holding it. A seat anybody could still take is not held.
+select tests.authenticate_as('junta_alfa');
+select is(
+  public.join_ride((select cotxe from ids))->>'estat',
+  'sense_places',
+  'a held seat occupies the place, so nobody else can take it'
+);
+
+-- Being held a seat is not being in the car: the person says so themselves.
+reset role;
+select tests.authenticate_as('delta');
+
+select is(
+  public.join_ride((select cotxe from ids))->>'estat',
+  'a_dins',
+  'and taking it is accepting it rather than asking for a second one'
+);
+
+reset role;
+select is(
+  (select count(*)::int from public.ride_seats where ride_id = (select cotxe from ids)),
+  2,
+  'still two seats: accepting did not add one'
+);
+
+-- Turning it down is the same act as getting out of a car, and uses the same
+-- policy. Nothing new was needed for it.
+reset role;
+select tests.authenticate_as('alfa');
+select public.invite_to_ride((select cotxe from ids), (select bravo from who));
+
+reset role;
+select tests.authenticate_as('bravo');
+select lives_ok(
+  $$ delete from public.ride_seats
+      where ride_id = (select cotxe from ids) and user_id = (select auth.uid()) $$,
+  'and turning a held seat down is just getting out of the car'
+);
+
+-- Only the person themselves, and only from held to taken.
+reset role;
+select tests.authenticate_as('alfa');
+select public.invite_to_ride((select cotxe from ids), (select bravo from who));
+
+-- The policy's USING filters rather than refusing, so the update touches no
+-- rows and raises nothing. Asserting an error here would pass for the wrong
+-- reason; what has to be true is that the seat is still only held.
+reset role;
+select tests.authenticate_as('charlie');
+select lives_ok(
+  $$ update public.ride_seats set estat = 'a_dins'
+      where ride_id = (select cotxe from ids) and user_id = (select bravo from who) $$,
+  'accepting on somebody else''s behalf runs without error, because USING filters'
+);
+
+reset role;
+select is(
+  (select estat from public.ride_seats
+    where ride_id = (select cotxe from ids) and user_id = (select bravo from who)),
+  'convidat',
+  'but it changed nothing, which is the half that has to be asserted'
 );
 
 select * from finish();

@@ -165,22 +165,39 @@ export type Database = {
         Row: {
           codi: string
           earned_at: string
+          event_id: string | null
           seen_at: string | null
           user_id: string
         }
         Insert: {
           codi: string
           earned_at?: string
+          event_id?: string | null
           seen_at?: string | null
           user_id: string
         }
         Update: {
           codi?: string
           earned_at?: string
+          event_id?: string | null
           seen_at?: string | null
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "badges_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "badges_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_public"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "badges_user_id_fkey"
             columns: ["user_id"]
@@ -1035,6 +1052,15 @@ export type Database = {
         }
         Returns: string
       }
+      badge_holders: {
+        Args: never
+        Returns: {
+          cares: string[]
+          codi: string
+          quants: number
+          total: number
+        }[]
+      }
       check_in: {
         Args: {
           p_client_request_id?: string
@@ -1084,7 +1110,10 @@ export type Database = {
         Returns: {
           codi: string
           earned_at: string
+          event_id: string
           nova: boolean
+          starts_at: string
+          titol: string
         }[]
       }
       my_photos: {

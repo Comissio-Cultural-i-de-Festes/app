@@ -13,7 +13,7 @@
 -- Persones i esdeveniments inventats, com a tot el repo.
 
 begin;
-select plan(36);
+select plan(47);
 
 reset role;
 
@@ -247,7 +247,7 @@ select private.grant_badges((select i from qui));
 select private.grant_badges((select tard from qui));
 
 create temporary table seves as
-select codi from public.badges where user_id = (select i from qui);
+select codi, event_id from public.badges where user_id = (select i from qui);
 grant select on seves to authenticated;
 
 select ok(exists (select 1 from seves where codi = 'primera'),
@@ -282,6 +282,96 @@ select ok(not exists (select 1 from seves where codi = 'copilot'),
 
 select ok(exists (select 1 from seves where codi = 'de_les_primeres'),
   'el tercer a fitxar en una activitat de deu hi és');
+
+-- ── d'on ve cada una ──────────────────────────────────────────
+-- La targeta guanyada diu «Can Bravo · desembre», i això només pot sortir de la
+-- fila. Les de comptar són les que més fàcil és equivocar: la primera activitat
+-- d'insig_a és la més antiga en el temps, no la primera que es va inserir.
+
+select is(
+  (select event_id from seves where codi = 'primera'),
+  (select deu_gent from que),
+  'la primera és l''activitat més antiga a la qual va anar, no la primera inserida'
+);
+
+select is(
+  (select event_id from seves where codi = 'cinc'),
+  (select e4 from que),
+  'i la de cinc és la cinquena de la fila, comptada per data'
+);
+
+select is(
+  (select event_id from seves where codi = 'cap_de_setmana'),
+  (select e2 from que),
+  'el cap de setmana porta la casa rural'
+);
+
+select is(
+  (select event_id from seves where codi = 'entrada_i_sortida'),
+  (select e2 from que),
+  'i entrada i sortida, la nit de les dues fotos'
+);
+
+select is(
+  (select event_id from seves where codi = 'a_muntar'),
+  (select e1 from que),
+  'muntar porta l''activitat dels punts de muntatge'
+);
+
+select is(
+  (select event_id from seves where codi = 'al_volant'),
+  (select e2 from que),
+  'i al volant, la del cotxe'
+);
+
+select is(
+  (select event_id from seves where codi = 'de_les_primeres'),
+  (select deu_gent from que),
+  'de les primeres porta la nit on va fitxar dels cinc primers'
+);
+
+-- Tres menes d'activitat no són cap activitat en concret, i inventar-se'n una
+-- seria mentir a la targeta. La pantalla ensenya la descripció.
+select is(
+  (select event_id from seves where codi = 'de_tot'),
+  null,
+  'de tot no porta cap activitat, perquè no n''hi ha cap de sola'
+);
+
+-- ── qui més la té ────────────────────────────────────────────
+update public.profiles set avatar_url = 'https://exemple.invalid/a.jpg'
+ where id = (select i from qui);
+update public.profiles set avatar_url = 'https://exemple.invalid/h.jpg'
+ where id = tests.uid('hidden_alfa');
+
+select private.grant_badges(tests.uid('hidden_alfa'));
+
+select tests.authenticate_as('insig_a');
+
+select cmp_ok(
+  (select quants from public.badge_holders() where codi = 'primera'),
+  '>=', 2,
+  'la primera la tenen com a mínim dues persones'
+);
+
+select is(
+  (select total from public.badge_holders() where codi = 'primera'),
+  (select count(*)::int from public.profiles where estat = 'actiu'),
+  'i el total és la gent que hi és, que és el de «23 de 97»'
+);
+
+-- Amagar-se del rànquing treu la cara i no la persona: «la tenen 23» amb 22
+-- cares seria una manera rebuscada de dir qui és el que falta.
+select ok(
+  'https://exemple.invalid/a.jpg' = any (
+    select unnest(cares) from public.badge_holders() where codi = 'primera')
+  and not (
+    'https://exemple.invalid/h.jpg' = any (
+      select unnest(cares) from public.badge_holders() where codi = 'primera')),
+  'qui s''amaga del rànquing compta però no hi posa la cara'
+);
+
+reset role;
 
 -- ── els dos casos que fan que la insígnia vulgui dir alguna cosa ───────────
 select ok(

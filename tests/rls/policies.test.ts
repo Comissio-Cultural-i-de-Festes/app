@@ -486,6 +486,31 @@ describe('ratxes i insígnies', () => {
     expect(remove.error?.code).toBe('42501')
   })
 
+  it('counts who else has one without opening the table', async () => {
+    // The sheet says «la tenen 23 de 97». `badges` is readable only for
+    // yourself, so if this ever starts returning nothing the count silently
+    // disappears from the screen rather than erroring — hence asserting the
+    // shape and not just the absence of an error.
+    interface Holders {
+      codi: string
+      quants: number
+      total: number
+      cares: string[] | null
+    }
+    const member = await as('alfa')
+    await member.rpc('my_badges')
+
+    const { data, error } = await rpc<Holders[]>(member, 'badge_holders')
+    expect(error).toBeNull()
+
+    const first = data?.find((h) => h.codi === 'primera')
+    expect(first?.quants).toBeGreaterThan(0)
+    expect(first?.total).toBeGreaterThanOrEqual(first?.quants ?? 0)
+
+    const anon = await rpc<Holders[]>(anonClient(), 'badge_holders')
+    expect(anon.error).not.toBeNull()
+  })
+
   it('shows you yours and nobody else’s, and the junta everyone’s', async () => {
     const bravo = await as('bravo')
     await bravo.rpc('my_badges')

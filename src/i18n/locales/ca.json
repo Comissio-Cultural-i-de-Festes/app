@@ -296,10 +296,31 @@
     "link": "Qui hi ha ara dins",
     "linkPast": "Qui hi va entrar"
   },
+  "checkin": {
+    "title": "Ja hi ets?",
+    "lede": "Fitxa des d'aquí mateix. Mira on ets i, si ets al lloc, ja està: no cal que ningú t'escanegi res.",
+    "here": "Sóc aquí",
+    "locating": "Mirant on ets…",
+    "sending": "Fitxant…",
+    "done_one": "Fitxat. {{count}} punt.",
+    "done_other": "Fitxat. {{count}} punts.",
+    "doneNoPoints": "Fitxat. Els punts d'aquesta nit ja els tenies.",
+    "already": "Ja hi eres des de les {{hora}}.",
+    "far": "Ets a {{metres}} m del lloc. Si hi ets de debò, és el GPS: prova de sortir un moment a fora, o digues-ho a la junta i t'hi apunten a mà.",
+    "closed": "Encara no s'hi pot fitxar, o ja s'ha acabat.",
+    "noPlace": "Aquest esdeveniment no té el lloc posat al mapa. Digues-ho a la junta i el posen en un moment.",
+    "gone": "Aquest esdeveniment ja no hi és.",
+    "queued": "Sense cobertura. Ho hem apuntat amb l'hora i el lloc d'ara, i sortirà sol quan torni la xarxa.",
+    "takePhoto": "Fes-te la foto d'arribada",
+    "photoNote": "Opcional, i només la veus tu i la junta. Si te la fas, tindràs el díptic amb la de sortida.",
+    "nofix": {
+      "denied": "No ens deixes veure on ets. Als ajustos del navegador pots donar permís d'ubicació per a aquesta pàgina, o digues-ho a la junta i t'hi apunten a mà.",
+      "unavailable": "El mòbil no sap on és. Sovint es resol sortint un moment a fora o encenent el GPS.",
+      "timeout": "Ha trigat massa. Torna-ho a provar.",
+      "unsupported": "Aquest navegador no sap dir on ets. Digues-ho a la junta i t'hi apunten a mà."
+    }
+  },
   "exitPhoto": {
-    "eyebrow": "Com en surto",
-    "title": "Tal com estàs ara",
-    "nobodyElse": "Aquesta foto no la veu ningú més. Ni la junta, ni el grup, ni el rànquing: es guarda al teu perfil i el díptic te'l mires tu.",
     "notNow": "Ara no",
     "canRetake": "La pots repetir",
     "shutter": "Fes la foto",
@@ -309,6 +330,23 @@
     "flip": "Canvia de càmera",
     "thatsHowYouCameIn": "Així vas entrar",
     "entryAlt": "La foto de quan vas entrar"
+  },
+  "doorPhoto": {
+    "entrada": {
+      "eyebrow": "Com hi arribo",
+      "title": "Tal com hi entres",
+      "note": "Aquesta foto només la veus tu i la junta, que la fa servir per quadrar qui va entrar. Si te'n fas també la de sortida, tindràs el díptic."
+    },
+    "sortida": {
+      "eyebrow": "Com en surto",
+      "title": "Tal com estàs ara",
+      "note": "Aquesta foto no la veu ningú més. Ni la junta, ni el grup, ni el rànquing: es guarda al teu perfil i el díptic te'l mires tu."
+    },
+    "camera": {
+      "denied": "No podem obrir la càmera. Dona-hi permís als ajustos del navegador, o deixa-ho estar: la foto és opcional i ja has fitxat.",
+      "missing": "Aquest aparell no té càmera. Ja has fitxat igualment; la foto és el que et perds.",
+      "failed": "No s'ha pogut engegar la càmera. Torna-ho a provar, o deixa-ho: ja has fitxat."
+    }
   },
   "diptych": {
     "title": "Les teves nits",

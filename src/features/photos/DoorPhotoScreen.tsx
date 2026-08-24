@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { useUserId } from '@/features/session/useUserId'
 import { formatTime } from '@/i18n/format'
@@ -9,28 +9,36 @@ import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { captureFrame } from '@/lib/frame'
 
-import { fetchNights, fetchPhotoUrls, photoKeys, saveExitPhoto } from './api'
+import { fetchNights, fetchPhotoUrls, photoKeys, saveEntryPhoto, saveExitPhoto } from './api'
 import { useSelfie } from './useSelfie'
 
 /**
- * How you are getting out.
+ * Les dues fotos de la nit, amb la mateixa càmera.
  *
- * The camera is asked for here and not when the app opens: a lens that turns
- * itself on at eleven in the morning is an ambush. So the photograph is only
- * ever one tap away from a card or a button that says what it is for.
+ * Quina, ho diu `?half=`. Des de la migració 36 totes dues te les fas tu: la
+ * d'arribada la disparava l'escàner tot sol i ja no, o sigui que l'única
+ * diferència entre les dues és el text i on va a parar el fitxer.
  *
- * The entry photograph sits in the corner while you take it, which is the
- * whole joke of the diptych — you can see what you looked like on the way in.
- * It is only ever your own: the storage policy would refuse anybody else's.
+ * La càmera es demana aquí i no en obrir l'app: un objectiu que s'encén sol a
+ * les onze del matí és una emboscada. Sempre a un toc d'un botó que diu per
+ * què.
+ *
+ * A la de sortida, la d'arribada surt a la cantonada mentre te la fas, que és
+ * tota la gràcia del díptic. Només la teva: la política d'storage refusaria la
+ * de qualsevol altre.
  */
 
 const NO_FRAME = 'no_frame'
 
-export function ExitPhotoScreen() {
+export function DoorPhotoScreen() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.language)
   const { eventId } = useParams()
+  const [params] = useSearchParams()
   const id = eventId ?? ''
+  // Sortida per defecte: és la que porta enllaçada tot el que hi havia abans
+  // d'existir la d'arribada.
+  const half = params.get('half') === 'entrada' ? 'entrada' : 'sortida'
   const meId = useUserId()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -62,11 +70,14 @@ export function ExitPhotoScreen() {
       // routing it through errorKey would blame the network for a lens that is
       // still waking up.
       if (photo === null) throw new Error(NO_FRAME)
-      await saveExitPhoto(id, meId, photo)
+      if (half === 'entrada') await saveEntryPhoto(id, meId, photo)
+      else await saveExitPhoto(id, meId, photo)
     },
     onSuccess: async () => {
       await queryClient.invalidateQueries({ queryKey: photoKeys.nights() })
-      await navigate(`/perfil/nits/${id}`, { replace: true })
+      await navigate(half === 'entrada' ? `/esdeveniment/${id}` : `/perfil/nits/${id}`, {
+        replace: true,
+      })
     },
   })
 
@@ -101,7 +112,7 @@ export function ExitPhotoScreen() {
           >
             <span aria-hidden="true">✕</span>
           </button>
-          <p className="eyebrow text-fg-secondary">{t('exitPhoto.eyebrow')}</p>
+          <p className="eyebrow text-fg-secondary">{t(`doorPhoto.${half}.eyebrow`)}</p>
           <button
             type="button"
             onClick={() => {
@@ -117,7 +128,7 @@ export function ExitPhotoScreen() {
       </header>
 
       {/* How you came in, while you decide how you are going out. */}
-      {entry === null ? null : (
+      {half === 'entrada' || entry === null ? null : (
         <div className="absolute top-[118px] right-8 z-10 w-[88px]">
           <img
             src={thumb.data?.get(entry) ?? ''}
@@ -140,10 +151,10 @@ export function ExitPhotoScreen() {
       {cameraError === null ? (
         <div className="relative z-10 bg-[oklch(0.11_0.008_25/0.9)] px-8 pt-8">
           <h1 className="display text-[27px] leading-[0.98] tracking-[-0.042em] [text-wrap:balance]">
-            {t('exitPhoto.title')}
+            {t(`doorPhoto.${half}.title`)}
           </h1>
           <p className="mt-5 text-sm text-fg-secondary [text-wrap:pretty]">
-            {t('exitPhoto.nobodyElse')}
+            {t(`doorPhoto.${half}.note`)}
           </p>
         </div>
       ) : (
@@ -152,7 +163,10 @@ export function ExitPhotoScreen() {
             role="alert"
             className="text-lg font-bold text-[var(--ds-warning)] [text-wrap:pretty]"
           >
-            {t(`door.camera.${cameraError}`)}
+            {/* Les d'aquesta pantalla i no les de l'escàner: aquelles diuen
+                «fes l'alta pel nom», que és una acció de la junta i no de qui
+                s'està fent la foto. */}
+            {t(`doorPhoto.camera.${cameraError}`)}
           </p>
         </div>
       )}

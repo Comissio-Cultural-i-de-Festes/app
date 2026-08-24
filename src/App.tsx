@@ -8,7 +8,7 @@ import { EventScreen } from '@/features/event/EventScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
 import { InsideScreen } from '@/features/event/InsideScreen'
 import { DiptychScreen } from '@/features/photos/DiptychScreen'
-import { ExitPhotoScreen } from '@/features/photos/ExitPhotoScreen'
+import { DoorPhotoScreen } from '@/features/photos/DoorPhotoScreen'
 import { IdeasScreen } from '@/features/proposals/IdeasScreen'
 import { NewIdeaScreen } from '@/features/proposals/NewIdeaScreen'
 import { MyRideScreen } from '@/features/rides/MyRideScreen'
@@ -151,7 +151,7 @@ export default function App() {
 
           {/* The camera goes outside the tab bar, like the scanner: a tab bar
               over a shutter button is a mis-tap waiting to happen. */}
-          <Route path="/perfil/nits/:eventId/camera" element={<ExitPhotoScreen />} />
+          <Route path="/perfil/nits/:eventId/camera" element={<DoorPhotoScreen />} />
 
           {/* No tab bar in here: these are places you go into and come back
               out of, and each one draws its own way out. */}

@@ -31,6 +31,8 @@ import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { useCovers } from '@/ui/Cover/useCovers'
 
+import { CheckinBlock } from '@/features/checkin/CheckinBlock'
+import { checkinWindow, isOpen } from '@/features/checkin/window'
 import { MyNightBlock } from '@/features/photos/MyNightBlock'
 import { fetchNights, fetchPhotoUrls, photoKeys } from '@/features/photos/api'
 import { ShareCard } from '@/features/share/ShareCard'
@@ -74,6 +76,7 @@ export function EventScreen() {
   // Date.now() twice during a render can put "already happened" and "signed up
   // today" on opposite sides of the same midnight.
   const [now] = useState(() => new Date())
+  const [justCheckedIn, setJustCheckedIn] = useState(false)
 
   const event = useQuery({ queryKey: eventKeys.one(id), queryFn: () => fetchEvent(id) })
   const attendances = useQuery({
@@ -151,6 +154,13 @@ export function EventScreen() {
   // "who is inside" is worth asking. The pulse stops when the party does.
   const ended = now.getTime() >= new Date(e.ends_at ?? starts.getTime() + IN_PROGRESS_MS).getTime()
   const cover = covers.data?.get(e.cover_url ?? '') ?? null
+  // Mentre la festa passa, la pregunta deixa de ser «hi véns?». I un cop
+  // fitxat el bloc es queda: acaba de dir-te que hi ets i t'ofereix la foto, i
+  // desmuntar-lo perquè `mine` ha canviat seria treure-ho de la pantalla en el
+  // mateix moment que hi apareix.
+  const canCheckIn =
+    justCheckedIn ||
+    (mine !== 'asistio' && isOpen(checkinWindow(e.starts_at, e.ends_at), now.getTime()))
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
@@ -256,7 +266,16 @@ export function EventScreen() {
         </section>
       )}
 
-      {isPast ? null : (
+      {canCheckIn ? (
+        <CheckinBlock
+          event={e}
+          onDone={() => {
+            setJustCheckedIn(true)
+          }}
+        />
+      ) : null}
+
+      {isPast || canCheckIn ? null : (
         <AnswerBlock
           mine={mine}
           confirm={e.cal_confirmacio}

@@ -18,18 +18,19 @@
  */
 
 const DB_NAME = 'comi'
-const DB_VERSION = 2
+const DB_VERSION = 3
 
 /**
- * Two queues, one database.
+ * Three queues, one database.
  *
  * The scanner's is the one that matters and the one everything here was
- * written for. Ideas share the plumbing because the shape is identical — write
- * it down, try to send it, rub it out when it lands — and a second IndexedDB
- * with its own open handshake would be the same code twice.
+ * written for. The other two share the plumbing because the shape is identical
+ * — write it down, try to send it, rub it out when it lands — and a second
+ * IndexedDB with its own open handshake would be the same code twice.
  */
 export const SCANS = 'checkin-queue'
 export const IDEAS = 'idea-queue'
+export const HERE = 'here-queue'
 
 export interface QueuedScan {
   /** Generated at the moment of the scan. The idempotency key. */
@@ -63,6 +64,12 @@ function open(): Promise<IDBDatabase | null> {
       // phone with scans already waiting keeps them.
       if (!db.objectStoreNames.contains(IDEAS)) {
         db.createObjectStore(IDEAS, { keyPath: 'id' })
+      }
+      // Version 3: checking yourself in by where you are. A farmhouse in the
+      // Pyrenees with a hundred phones on one cell is exactly the case this
+      // store exists for.
+      if (!db.objectStoreNames.contains(HERE)) {
+        db.createObjectStore(HERE, { keyPath: 'id' })
       }
     }
     request.onsuccess = () => {

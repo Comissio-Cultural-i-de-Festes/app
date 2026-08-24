@@ -296,10 +296,31 @@
     "link": "Who is inside now",
     "linkPast": "Who got in"
   },
+  "checkin": {
+    "title": "Are you there?",
+    "lede": "Check in from right here. It looks at where you are, and if you are at the place, that is it: nobody has to scan anything.",
+    "here": "I am here",
+    "locating": "Finding you…",
+    "sending": "Checking in…",
+    "done_one": "Checked in. {{count}} point.",
+    "done_other": "Checked in. {{count}} points.",
+    "doneNoPoints": "Checked in. You already had tonight’s points.",
+    "already": "You were already in from {{hora}}.",
+    "far": "You are {{metres}} m from the place. If you really are there, it is the GPS: try stepping outside for a moment, or tell the junta and they will add you by hand.",
+    "closed": "Check-in is not open yet, or it is over.",
+    "noPlace": "This event has no place on the map yet. Tell the junta and they will set it in a moment.",
+    "gone": "This event is not there any more.",
+    "queued": "No signal. We wrote it down with the time and the place you are at now, and it will go on its own when the network comes back.",
+    "takePhoto": "Take your arrival photo",
+    "photoNote": "Optional, and only you and the junta see it. Take it and you get the diptych with the one on the way out.",
+    "nofix": {
+      "denied": "You are not letting us see where you are. Your browser settings can give this page location permission, or tell the junta and they will add you by hand.",
+      "unavailable": "The phone cannot work out where it is. Stepping outside for a moment or turning the GPS on usually fixes it.",
+      "timeout": "That took too long. Try again.",
+      "unsupported": "This browser cannot tell where you are. Tell the junta and they will add you by hand."
+    }
+  },
   "exitPhoto": {
-    "eyebrow": "On the way out",
-    "title": "However you are right now",
-    "nobodyElse": "Nobody else sees this photo. Not the junta, not the group, not the ranking: it goes in your profile and the diptych is yours to look at.",
     "notNow": "Not now",
     "canRetake": "You can retake it",
     "shutter": "Take the photo",
@@ -309,6 +330,23 @@
     "flip": "Switch camera",
     "thatsHowYouCameIn": "How you came in",
     "entryAlt": "The photo from when you came in"
+  },
+  "doorPhoto": {
+    "entrada": {
+      "eyebrow": "On the way in",
+      "title": "However you are arriving",
+      "note": "Only you and the junta see this one, and they use it to work out who came in. Take the one on the way out too and you get the diptych."
+    },
+    "sortida": {
+      "eyebrow": "On the way out",
+      "title": "However you are right now",
+      "note": "Nobody else sees this photo. Not the junta, not the group, not the ranking: it goes in your profile and the diptych is yours to look at."
+    },
+    "camera": {
+      "denied": "We cannot open the camera. Give it permission in your browser settings, or leave it: the photo is optional and you are already checked in.",
+      "missing": "This device has no camera. You are checked in all the same; the photo is what you miss.",
+      "failed": "The camera would not start. Try again, or leave it: you are already checked in."
+    }
   },
   "diptych": {
     "title": "Your nights",

@@ -83,6 +83,33 @@ export async function saveExitPhoto(eventId: string, userId: string, photo: Blob
 }
 
 /**
+ * La d'arribada, que des de la migració 36 també te la fas tu.
+ *
+ * Mateixa forma que la de sortida i pel mateix motiu: el camí no existeix fins
+ * que l'objecte hi és, o sigui que primer puja i després la fila hi apunta. Si
+ * la RPC diu que no, l'objecte se'n va tot seguit — una foto solta de la cara
+ * d'algú no es deixa per allà perquè una escriptura ha fallat.
+ */
+export async function saveEntryPhoto(eventId: string, userId: string, photo: Blob): Promise<void> {
+  const path = await uploadDoorPhoto(photo, 'entrada', eventId, userId)
+
+  const { data, error } = await supabase.rpc('set_entry_photo', {
+    p_event_id: eventId,
+    p_path: path,
+  })
+  if (error) {
+    await supabase.storage.from(DOOR_PHOTOS).remove([path])
+    throw new DbError(error)
+  }
+
+  const verdict = (data as { estat?: string } | null)?.estat
+  if (verdict !== 'desada') {
+    await supabase.storage.from(DOOR_PHOTOS).remove([path])
+    throw new Error(verdict ?? 'unknown')
+  }
+}
+
+/**
  * Forgetting one. The row lets go first and the file goes second: the other
  * order leaves a moment where the diptych points at something that is gone,
  * which draws a broken picture rather than the "take one" it should.

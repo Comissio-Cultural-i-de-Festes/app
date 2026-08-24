@@ -296,10 +296,31 @@
     "link": "Quién hay dentro ahora",
     "linkPast": "Quién entró"
   },
+  "checkin": {
+    "title": "¿Ya estás?",
+    "lede": "Ficha desde aquí mismo. Mira dónde estás y, si estás en el sitio, ya está: no hace falta que nadie te escanee nada.",
+    "here": "Estoy aquí",
+    "locating": "Mirando dónde estás…",
+    "sending": "Fichando…",
+    "done_one": "Fichado. {{count}} punto.",
+    "done_other": "Fichado. {{count}} puntos.",
+    "doneNoPoints": "Fichado. Los puntos de esta noche ya los tenías.",
+    "already": "Ya estabas desde las {{hora}}.",
+    "far": "Estás a {{metres}} m del sitio. Si estás de verdad, es el GPS: prueba a salir un momento fuera, o díselo a la junta y te apuntan a mano.",
+    "closed": "Todavía no se puede fichar, o ya se ha acabado.",
+    "noPlace": "Este evento no tiene el sitio puesto en el mapa. Díselo a la junta y lo ponen en un momento.",
+    "gone": "Este evento ya no está.",
+    "queued": "Sin cobertura. Lo hemos apuntado con la hora y el sitio de ahora, y saldrá solo cuando vuelva la red.",
+    "takePhoto": "Hazte la foto de llegada",
+    "photoNote": "Opcional, y solo la ves tú y la junta. Si te la haces, tendrás el díptico con la de salida.",
+    "nofix": {
+      "denied": "No nos dejas ver dónde estás. En los ajustes del navegador puedes dar permiso de ubicación para esta página, o díselo a la junta y te apuntan a mano.",
+      "unavailable": "El móvil no sabe dónde está. A menudo se resuelve saliendo un momento fuera o encendiendo el GPS.",
+      "timeout": "Ha tardado demasiado. Vuelve a probarlo.",
+      "unsupported": "Este navegador no sabe decir dónde estás. Díselo a la junta y te apuntan a mano."
+    }
+  },
   "exitPhoto": {
-    "eyebrow": "Cómo salgo",
-    "title": "Tal como estás ahora",
-    "nobodyElse": "Esta foto no la ve nadie más. Ni la junta, ni el grupo, ni el ranking: se guarda en tu perfil y el díptico te lo miras tú.",
     "notNow": "Ahora no",
     "canRetake": "La puedes repetir",
     "shutter": "Haz la foto",
@@ -309,6 +330,23 @@
     "flip": "Cambia de cámara",
     "thatsHowYouCameIn": "Así entraste",
     "entryAlt": "La foto de cuando entraste"
+  },
+  "doorPhoto": {
+    "entrada": {
+      "eyebrow": "Cómo llego",
+      "title": "Tal como entras",
+      "note": "Esta foto solo la ves tú y la junta, que la usa para cuadrar quién entró. Si te haces también la de salida, tendrás el díptico."
+    },
+    "sortida": {
+      "eyebrow": "Cómo salgo",
+      "title": "Tal como estás ahora",
+      "note": "Esta foto no la ve nadie más. Ni la junta, ni el grupo, ni el ranking: se guarda en tu perfil y el díptico te lo miras tú."
+    },
+    "camera": {
+      "denied": "No podemos abrir la cámara. Dale permiso en los ajustes del navegador, o déjalo: la foto es opcional y ya has fichado.",
+      "missing": "Este aparato no tiene cámara. Ya has fichado igualmente; la foto es lo que te pierdes.",
+      "failed": "No se ha podido encender la cámara. Vuelve a probarlo, o déjalo: ya has fichado."
+    }
   },
   "diptych": {
     "title": "Tus noches",

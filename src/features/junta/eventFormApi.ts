@@ -39,6 +39,39 @@ export const eventFormKeys = {
   templates: () => ['junta', 'templates'] as const,
   memberCount: () => ['junta', 'memberCount'] as const,
   pointValues: () => ['junta', 'pointValues'] as const,
+  geo: (eventId: string) => ['junta', 'geo', eventId] as const,
+}
+
+/**
+ * On és un esdeveniment.
+ *
+ * Va per RPC i no per `select` perquè la taula viu al schema `private` i no té
+ * cap grant: és l'única escletxa per on surten les coordenades, i està tancada
+ * amb la mateixa clau que la resta del panell. Un soci que cridi això rep zero
+ * files, no un error.
+ */
+export interface Geo {
+  readonly lat: number
+  readonly lng: number
+  readonly radi_m: number
+}
+
+export async function fetchGeo(eventId: string): Promise<Geo | null> {
+  const rows = await unwrapAs<Geo[]>(
+    supabase.rpc('admin_event_geo', { p_event_id: eventId }).select('*'),
+  )
+  return rows[0] ?? null
+}
+
+/** Null l'esborra, que és com es treu el fitxatge per ubicació d'un esdeveniment. */
+export async function saveGeo(eventId: string, geo: Geo | null): Promise<void> {
+  const { error } = await supabase.rpc('admin_save_geo', {
+    p_event_id: eventId,
+    ...(geo === null
+      ? {}
+      : { p_lat: geo.lat, p_lng: geo.lng, p_radi_m: geo.radi_m }),
+  })
+  if (error) throw new DbError(error)
 }
 
 export async function saveEvent(draft: EventDraft): Promise<string> {

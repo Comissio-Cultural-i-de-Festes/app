@@ -291,10 +291,13 @@ revoke all on function public.check_in_here(uuid, double precision, double preci
 grant execute on function public.check_in_here(uuid, double precision, double precision, double precision, uuid, timestamptz) to authenticated;
 
 -- ── la junta: on és, i qui hi ha fitxat ─────────────────────────────────────
+-- Les coordenades amb valor per defecte, i no per comoditat: cridar-la sense
+-- elles és com es treu el punt d'un esdeveniment, i el client ha de poder
+-- ometre-les sense enviar nulls explícits.
 create or replace function public.admin_save_geo(
   p_event_id uuid,
-  p_lat double precision,
-  p_lng double precision,
+  p_lat double precision default null,
+  p_lng double precision default null,
   p_radi_m int default 150
 )
 returns jsonb

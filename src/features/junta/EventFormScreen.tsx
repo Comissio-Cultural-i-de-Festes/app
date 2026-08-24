@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import { APP_TIME_ZONE, formatDateTime } from '@/i18n/format'
@@ -14,17 +14,21 @@ import { uploadCover } from '@/lib/storage'
 import { useCovers } from '@/ui/Cover/useCovers'
 
 import { EventPreview, type PreviewData } from './EventPreview'
+import { GeoPicker } from './GeoPicker'
 import { Field, INPUT } from './formBits'
 import { JuntaHeader } from './JuntaHeader'
 import {
+  deleteEvent,
   type EventDraft,
   eventFormKeys,
-  deleteEvent,
+  fetchGeo,
   fetchMemberCount,
   fetchPointValues,
   fetchTemplates,
   fromLocalInput,
+  type Geo,
   saveEvent,
+  saveGeo,
   setPublished,
   toLocalInput,
 } from './eventFormApi'
@@ -98,23 +102,43 @@ function EventForm() {
     if (cover !== null) URL.revokeObjectURL(cover.url)
   })
 
+  // El punt del mapa viu a part del formulari perquè viu a una altra taula i
+  // s'escriu amb una altra RPC. Mateix patró que la portada: la fila és el
+  // punt de partida i les edicions van a sobre.
+  const savedGeo = useQuery({
+    queryKey: eventFormKeys.geo(id ?? ''),
+    queryFn: () => fetchGeo(id ?? ''),
+    enabled: editing,
+  })
+  const [geoEdits, setGeoEdits] = useState<{ readonly value: Geo | null } | null>(null)
+  const geo = geoEdits === null ? (savedGeo.data ?? null) : geoEdits.value
+
   const covers = useCovers([form.cover_url])
   const coverPreview = cover?.url ?? covers.data?.get(form.cover_url ?? '') ?? null
 
   const save = useMutation({
     mutationFn: async (publish: boolean) => {
       let coverPath = form.cover_url
+      let eventId: string
       if (cover !== null) {
         // Uploaded under the event's own id, so a new event has to exist
         // first. Saving twice is cheaper than inventing an id here and
         // orphaning the upload if the save then fails.
-        const eventId = await saveEvent(draftFrom(form, publish, coverPath))
+        eventId = await saveEvent(draftFrom(form, publish, coverPath))
         coverPath = await uploadCover(cover.file, eventId)
-        return saveEvent(
+        eventId = await saveEvent(
           draftFrom({ ...form, id: eventId, cover_url: coverPath }, publish, coverPath),
         )
+      } else {
+        eventId = await saveEvent(draftFrom(form, publish, coverPath))
       }
-      return saveEvent(draftFrom(form, publish, coverPath))
+
+      // Després i per separat, pel mateix motiu que la portada: fins que
+      // l'esdeveniment no existeix no hi ha id a què enganxar-lo. Només quan
+      // s'ha tocat: sense això, guardar un esdeveniment mentre el mapa encara
+      // carrega n'esborraria el punt.
+      if (geoEdits !== null) await saveGeo(eventId, geoEdits.value)
+      return eventId
     },
     onSuccess: async () => {
       await client.invalidateQueries()
@@ -433,6 +457,33 @@ function EventForm() {
               </span>
             </button>
           </Field>
+
+          {/* Just després d'on és escrit i abans de la descripció: el text del
+              lloc i el punt del mapa són la mateixa pregunta feta dues vegades,
+              una per a la gent i l'altra per al fitxatge. */}
+          <GeoPicker
+            value={geo}
+            onChange={(next) => {
+              setGeoEdits({ value: next })
+            }}
+          />
+
+          {/* Només d'un esdeveniment que existeix, i sota el mapa perquè les
+              dues coses són la mateixa: aquí es tria on es pot fitxar, i allà
+              es veu qui ho ha fet. */}
+          {editing ? (
+            <Link
+              to={`/junta/esdeveniment/${id ?? ''}/fitxatges`}
+              className="mb-9 flex min-h-[56px] items-center justify-between gap-5 border border-surface-8 bg-surface-2 px-7 py-6 text-fg no-underline"
+            >
+              <span className="text-md font-bold [text-wrap:balance]">
+                {t('junta.checkins.title')}
+              </span>
+              <span aria-hidden="true" className="flex-none text-lg text-fg-muted">
+                ›
+              </span>
+            </Link>
+          ) : null}
 
           <Field label={t('junta.form.description')}>
             <textarea

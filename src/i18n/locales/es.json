@@ -770,6 +770,32 @@
       "pushSub": "Un empujón al móvil de todo el mundo",
       "periodsStale": "Los trimestres no cubren el día de hoy",
       "periodsOk": "Cuándo empieza y acaba cada trimestre"
+    },
+    "geo": {
+      "title": "Dónde está, para poder fichar",
+      "lede": "Toca el mapa, o pulsa «estoy aquí» si ya estás montándolo. Sin punto, la gente no puede fichar por ubicación y solo queda el escáner.",
+      "mapLabel": "Mapa para elegir dónde está el evento",
+      "here": "Estoy aquí",
+      "locating": "Mirando dónde estás…",
+      "clear": "Quita el punto",
+      "noFix": "No hemos podido saber dónde estás. Toca el mapa o pega las coordenadas.",
+      "paste": "Coordenadas",
+      "radius": "Radio (m)",
+      "radiusNote": "Cincuenta metros para un bar, trescientos para una finca. Al radio se le suma el margen del GPS de cada móvil, o habría gente de pie en la sala que no cabría."
+    },
+    "checkins": {
+      "title": "Quién ha fichado",
+      "lede": "Los puntos se dan solos al fichar. Esto es para quitarlos cuando toca, no para darlos: mira los metros, y el que fichó de lejos se ve solo.",
+      "nobody": "Todavía no ha fichado nadie.",
+      "undo": "Quítalo",
+      "walkin": "no estaba apuntado",
+      "metres_one": "a {{count}} m",
+      "metres_other": "a {{count}} m",
+      "via": {
+        "qr": "por QR",
+        "ubicacio": "por ubicación",
+        "manual": "alta a mano"
+      }
     }
   },
   "language": {

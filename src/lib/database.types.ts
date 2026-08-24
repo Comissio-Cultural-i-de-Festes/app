@@ -951,8 +951,8 @@ export type Database = {
       admin_save_geo: {
         Args: {
           p_event_id: string
-          p_lat: number
-          p_lng: number
+          p_lat?: number
+          p_lng?: number
           p_radi_m?: number
         }
         Returns: Json

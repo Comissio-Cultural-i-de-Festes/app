@@ -770,6 +770,32 @@
       "pushSub": "Una empenta al mòbil de tothom",
       "periodsStale": "Els trimestres no cobreixen el dia d'avui",
       "periodsOk": "Quan comença i acaba cada trimestre"
+    },
+    "geo": {
+      "title": "On és, per poder-hi fitxar",
+      "lede": "Toca el mapa, o prem «sóc aquí» si ja hi ets muntant-ho. Sense punt, la gent no pot fitxar per ubicació i només queda l'escàner.",
+      "mapLabel": "Mapa per triar on és l'esdeveniment",
+      "here": "Sóc aquí",
+      "locating": "Mirant on ets…",
+      "clear": "Treu el punt",
+      "noFix": "No hem pogut saber on ets. Toca el mapa o enganxa-hi les coordenades.",
+      "paste": "Coordenades",
+      "radius": "Radi (m)",
+      "radiusNote": "Cinquanta metres per un bar, tres-cents per una finca. Al radi se li suma el marge del GPS de cada mòbil, o hi hauria gent dreta a la sala que no hi cabria."
+    },
+    "checkins": {
+      "title": "Qui ha fitxat",
+      "lede": "Els punts es donen sols en fitxar. Això és per treure'ls quan cal, no per donar-los: mira els metres, i el que va fitxar de lluny es veu sol.",
+      "nobody": "Encara no ha fitxat ningú.",
+      "undo": "Treu-ho",
+      "walkin": "no estava apuntat",
+      "metres_one": "a {{count}} m",
+      "metres_other": "a {{count}} m",
+      "via": {
+        "qr": "per QR",
+        "ubicacio": "per ubicació",
+        "manual": "alta a mà"
+      }
     }
   },
   "language": {

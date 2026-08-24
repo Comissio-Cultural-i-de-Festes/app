@@ -770,6 +770,32 @@
       "pushSub": "A push to everybody's phone",
       "periodsStale": "The terms do not cover today",
       "periodsOk": "When each term starts and ends"
+    },
+    "geo": {
+      "title": "Where it is, so people can check in",
+      "lede": "Tap the map, or press \"I am here\" if you are already setting up there. With no point, nobody can check in by location and only the scanner is left.",
+      "mapLabel": "Map for choosing where the event is",
+      "here": "I am here",
+      "locating": "Finding you…",
+      "clear": "Remove the point",
+      "noFix": "We could not work out where you are. Tap the map or paste the coordinates.",
+      "paste": "Coordinates",
+      "radius": "Radius (m)",
+      "radiusNote": "Fifty metres for a bar, three hundred for a farmhouse. Each phone’s own GPS margin is added to the radius, or people standing in the room would fall outside it."
+    },
+    "checkins": {
+      "title": "Who checked in",
+      "lede": "Points are granted on check-in. This is for taking them back when needed, not for granting them: look at the metres, and whoever checked in from far away stands out.",
+      "nobody": "Nobody has checked in yet.",
+      "undo": "Take it back",
+      "walkin": "was not signed up",
+      "metres_one": "{{count}} m away",
+      "metres_other": "{{count}} m away",
+      "via": {
+        "qr": "by QR",
+        "ubicacio": "by location",
+        "manual": "added by hand"
+      }
     }
   },
   "language": {

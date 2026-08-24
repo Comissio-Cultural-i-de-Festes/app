@@ -26,12 +26,14 @@ const HREFS: Partial<Record<TabId, string>> = {
   home: '/',
   ranking: '/ranquing',
   qr: '/qr',
+  proposals: '/idees',
   profile: '/perfil',
 }
 
 function currentTab(pathname: string): TabId {
   if (pathname.startsWith('/ranquing')) return 'ranking'
   if (pathname.startsWith('/qr')) return 'qr'
+  if (pathname.startsWith('/idees')) return 'proposals'
   if (pathname.startsWith('/perfil')) return 'profile'
   return 'home'
 }
@@ -56,7 +58,12 @@ export function TabLayout() {
           profile: t('nav.profile'),
         }}
         renderLink={({ href, className, children, ...rest }) => (
-          <Link to={href} className={className} aria-current={rest['aria-current']}>
+          <Link
+            to={href}
+            className={className}
+            aria-label={rest['aria-label']}
+            aria-current={rest['aria-current']}
+          >
             {children}
           </Link>
         )}

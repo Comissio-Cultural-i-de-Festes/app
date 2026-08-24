@@ -28,6 +28,12 @@ export type TabId = 'home' | 'ranking' | 'qr' | 'proposals' | 'profile'
 export interface TabLinkProps {
   readonly href: string
   readonly className: string
+  /**
+   * The tab's name, said out loud rather than left to the visible text. Every
+   * icon in here is `aria-hidden`, so a tab whose label is not rendered — five
+   * of them at this width is close — would otherwise be an unnamed link.
+   */
+  readonly 'aria-label': string
   readonly 'aria-current': 'page' | undefined
   readonly children: ReactNode
 }
@@ -65,7 +71,9 @@ const ICONS: Record<TabId, (p: { className?: string }) => ReactNode> = {
   profile: ProfileIcon,
 }
 
-const ORDER: readonly TabId[] = ['home', 'ranking', 'qr', 'proposals', 'profile']
+// Ideas second, and the QR square in the middle. Ideas is the reason to open
+// the app on the days nothing is on, so it sits where a thumb lands.
+const ORDER: readonly TabId[] = ['home', 'proposals', 'qr', 'ranking', 'profile']
 
 const ITEM =
   'flex min-h-[var(--ds-tabbar-item-h)] flex-col items-center justify-end gap-[var(--ds-gap-xs)] ' +
@@ -147,6 +155,11 @@ export function TabBar({
             {renderLink({
               href,
               className: `${ITEM} no-underline`,
+              // Named explicitly rather than by its visible text. Every icon
+              // here is aria-hidden, so the day the labels come off — five of
+              // them at this width is close — these four would otherwise be
+              // four unnamed links.
+              'aria-label': labels[id],
               'aria-current': isCurrent ? 'page' : undefined,
               children: (
                 <>

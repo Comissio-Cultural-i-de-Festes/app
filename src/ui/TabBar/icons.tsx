@@ -45,10 +45,11 @@ export function QrIcon({ className }: IconProps) {
   )
 }
 
+/** A speech bubble: somebody said something. From the prototype's own bar. */
 export function ProposalsIcon({ className }: IconProps) {
   return (
     <svg viewBox="0 0 21 21" fill="none" aria-hidden className={className ?? base}>
-      <circle cx="10.5" cy="10.5" r="7.5" stroke="currentColor" strokeWidth="2" />
+      <path d="M2.6 3.4h15.8v10.4H8.4L4.4 17.6v-3.8H2.6z" fill="currentColor" />
     </svg>
   )
 }

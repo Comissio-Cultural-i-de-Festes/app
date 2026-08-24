@@ -147,6 +147,11 @@
   /* The "this is live" strip at the top of the event form. Louder than
    * the paid row because it is a state, not a row in a list. */
   --ds-bg-live: oklch(0.22 0.05 145);
+  /* The idea that is winning, and the proportion bar under the rest. Barely a
+   * tint: one row out of five is highlighted and twelve rows of it would
+   * shout. */
+  --ds-bg-winning: oklch(0.185 0.024 25);
+  --ds-bar-idea: oklch(0.42 0.07 25);
 
   /* ─── THE DOOR ─────────────────────────────────────────────────────────
    * Darker than the app, because a camera picture is behind it and the phone

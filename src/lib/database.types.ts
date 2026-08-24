@@ -591,35 +591,51 @@ export type Database = {
       proposals: {
         Row: {
           created_at: string
+          decided_at: string | null
+          decided_by: string | null
           descripcio: string | null
           estat: string
           event_id: string | null
           id: string
+          nota_junta: string | null
           titol: string
           user_id: string
           vots: number
         }
         Insert: {
           created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
           descripcio?: string | null
           estat?: string
           event_id?: string | null
           id?: string
+          nota_junta?: string | null
           titol: string
           user_id: string
           vots?: number
         }
         Update: {
           created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
           descripcio?: string | null
           estat?: string
           event_id?: string | null
           id?: string
+          nota_junta?: string | null
           titol?: string
           user_id?: string
           vots?: number
         }
         Relationships: [
+          {
+            foreignKeyName: "proposals_decided_by_fkey"
+            columns: ["decided_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "proposals_event_id_fkey"
             columns: ["event_id"]
@@ -839,6 +855,15 @@ export type Database = {
       }
       admin_decide_attendance: {
         Args: { p_accepta: boolean; p_event_id: string; p_user_id: string }
+        Returns: Json
+      }
+      admin_decide_proposal: {
+        Args: {
+          p_accepta: boolean
+          p_event_id?: string
+          p_id: string
+          p_nota?: string
+        }
         Returns: Json
       }
       admin_delete_event: { Args: { p_event_id: string }; Returns: undefined }

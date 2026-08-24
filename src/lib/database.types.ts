@@ -415,6 +415,239 @@ export type Database = {
           },
         ]
       }
+      gimcana_enviaments: {
+        Row: {
+          client_request_id: string | null
+          created_at: string
+          equip_id: string
+          estat: string
+          id: string
+          motiu: string | null
+          path: string
+          prova_id: string
+          user_id: string
+          validat_a: string | null
+          validat_per: string | null
+        }
+        Insert: {
+          client_request_id?: string | null
+          created_at?: string
+          equip_id: string
+          estat?: string
+          id?: string
+          motiu?: string | null
+          path: string
+          prova_id: string
+          user_id: string
+          validat_a?: string | null
+          validat_per?: string | null
+        }
+        Update: {
+          client_request_id?: string | null
+          created_at?: string
+          equip_id?: string
+          estat?: string
+          id?: string
+          motiu?: string | null
+          path?: string
+          prova_id?: string
+          user_id?: string
+          validat_a?: string | null
+          validat_per?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gimcana_enviaments_equip_id_fkey"
+            columns: ["equip_id"]
+            isOneToOne: false
+            referencedRelation: "gimcana_equips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gimcana_enviaments_prova_id_fkey"
+            columns: ["prova_id"]
+            isOneToOne: false
+            referencedRelation: "gimcana_proves"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gimcana_enviaments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gimcana_enviaments_validat_per_fkey"
+            columns: ["validat_per"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gimcana_equips: {
+        Row: {
+          escola: string | null
+          gimcana_id: string
+          id: string
+          nom: string | null
+          ordre: number
+        }
+        Insert: {
+          escola?: string | null
+          gimcana_id: string
+          id?: string
+          nom?: string | null
+          ordre?: number
+        }
+        Update: {
+          escola?: string | null
+          gimcana_id?: string
+          id?: string
+          nom?: string | null
+          ordre?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gimcana_equips_gimcana_id_fkey"
+            columns: ["gimcana_id"]
+            isOneToOne: false
+            referencedRelation: "gimcanes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gimcana_membres: {
+        Row: {
+          created_at: string
+          equip_id: string
+          gimcana_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          equip_id: string
+          gimcana_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          equip_id?: string
+          gimcana_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gimcana_membres_equip_id_fkey"
+            columns: ["equip_id"]
+            isOneToOne: false
+            referencedRelation: "gimcana_equips"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gimcana_membres_gimcana_id_fkey"
+            columns: ["gimcana_id"]
+            isOneToOne: false
+            referencedRelation: "gimcanes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gimcana_membres_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gimcana_proves: {
+        Row: {
+          created_at: string
+          descripcio: string | null
+          gimcana_id: string
+          id: string
+          ordre: number
+          punts: number
+          titol: string
+        }
+        Insert: {
+          created_at?: string
+          descripcio?: string | null
+          gimcana_id: string
+          id?: string
+          ordre?: number
+          punts?: number
+          titol: string
+        }
+        Update: {
+          created_at?: string
+          descripcio?: string | null
+          gimcana_id?: string
+          id?: string
+          ordre?: number
+          punts?: number
+          titol?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gimcana_proves_gimcana_id_fkey"
+            columns: ["gimcana_id"]
+            isOneToOne: false
+            referencedRelation: "gimcanes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gimcanes: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          event_id: string
+          id: string
+          mena_equips: string
+          topall_equip: number | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          event_id: string
+          id?: string
+          mena_equips?: string
+          topall_equip?: number | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          event_id?: string
+          id?: string
+          mena_equips?: string
+          topall_equip?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gimcanes_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gimcanes_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "gimcanes_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       graus: {
         Row: {
           escola: string
@@ -1079,6 +1312,10 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_decide_prova: {
+        Args: { p_enviament_id: string; p_motiu?: string; p_val: boolean }
+        Returns: Json
+      }
       admin_delete_event: { Args: { p_event_id: string }; Returns: undefined }
       admin_delete_grau: { Args: { p_id: string }; Returns: undefined }
       admin_event_geo: {
@@ -1087,6 +1324,20 @@ export type Database = {
           lat: number
           lng: number
           radi_m: number
+        }[]
+      }
+      admin_gimcana_queue: {
+        Args: { p_event_id: string }
+        Returns: {
+          a_la_cua: number
+          equip: string
+          escola: string
+          id: string
+          path: string
+          prova: string
+          punts: number
+          quan: string
+          qui: string
         }[]
       }
       admin_reported_photos: {
@@ -1135,6 +1386,15 @@ export type Database = {
         }
         Returns: Json
       }
+      admin_save_gimcana: {
+        Args: {
+          p_event_id: string
+          p_mena_equips: string
+          p_proves: Json
+          p_topall?: number
+        }
+        Returns: Json
+      }
       admin_save_grau: {
         Args: {
           p_escola: string
@@ -1145,6 +1405,10 @@ export type Database = {
         Returns: string
       }
       admin_save_periods: { Args: { p_periods: Json }; Returns: undefined }
+      admin_save_teams: {
+        Args: { p_gimcana_id: string; p_noms: string[] }
+        Returns: Json
+      }
       admin_set_member_estat: {
         Args: { p_estat: string; p_user_id: string }
         Returns: undefined
@@ -1170,10 +1434,15 @@ export type Database = {
         Args: { p_event_id: string; p_published: boolean }
         Returns: undefined
       }
+      admin_shuffle_teams: {
+        Args: { p_gimcana_id: string; p_quants: number }
+        Returns: Json
+      }
       admin_undo_checkin: {
         Args: { p_event_id: string; p_user_id: string }
         Returns: undefined
       }
+      admin_undo_prova: { Args: { p_enviament_id: string }; Returns: Json }
       award_points: {
         Args: {
           p_event_id: string
@@ -1249,6 +1518,28 @@ export type Database = {
           user_id: string
         }[]
       }
+      gimcana_for_event: { Args: { p_event_id: string }; Returns: Json }
+      gimcana_scoreboard: {
+        Args: { p_gimcana_id: string }
+        Returns: {
+          equip_id: string
+          escola: string
+          meu: boolean
+          nom: string
+          proves: number
+          punts: number
+        }[]
+      }
+      gimcana_teams: {
+        Args: { p_gimcana_id: string }
+        Returns: {
+          escola: string
+          id: string
+          meu: boolean
+          nom: string
+          quants: number
+        }[]
+      }
       invite_preview: { Args: { p_codi: string }; Returns: Json }
       invite_to_ride: {
         Args: { p_ride_id: string; p_user_id: string }
@@ -1282,6 +1573,7 @@ export type Database = {
       }
       my_qr: { Args: never; Returns: string }
       my_streak: { Args: never; Returns: Json }
+      pick_team: { Args: { p_equip_id: string }; Returns: Json }
       ranking_escoles_period: {
         Args: { p_from?: string; p_to?: string }
         Returns: {
@@ -1336,6 +1628,14 @@ export type Database = {
       }
       set_exit_photo: {
         Args: { p_event_id: string; p_path: string }
+        Returns: Json
+      }
+      submit_prova: {
+        Args: {
+          p_client_request_id?: string
+          p_path: string
+          p_prova_id: string
+        }
         Returns: Json
       }
       waitlist_position: { Args: { p_event_id: string }; Returns: number }

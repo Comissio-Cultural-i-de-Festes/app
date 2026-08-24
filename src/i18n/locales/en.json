@@ -317,7 +317,6 @@
     "newEventSub": "Or copy an earlier one and change the date",
     "invitesSub": "The group code and who wants in",
     "paymentsSub": "Mark who has paid and name admins",
-    "configSub": "Ranking periods, the scale and the degrees",
     "events": "Events",
     "noEvents": "Nothing on the calendar yet. Create the first one.",
     "draft": "draft",
@@ -453,9 +452,6 @@
       "confirmOff": "Signing up gives you a place straight away"
     },
     "config": {
-      "title": "Settings",
-      "sub": "The calendar, the scale and the degrees",
-      "lede": "Three things the app reads every day that until now could only be changed from the Supabase dashboard.",
       "saved": "Saved.",
       "periods": {
         "title": "The ranking periods",
@@ -483,9 +479,6 @@
         "remove": "Delete",
         "removeSure": "Sure? Anybody already on it keeps it; it just stops being offered.",
         "empty": "No degrees in this school.",
-        "renamed_one": "Renamed. {{count}} person is on it.",
-        "renamed_other": "Renamed. {{count}} people are on it.",
-        "removed": "Off the list.",
         "rowSub": "In case the university opens a new one"
       }
     },

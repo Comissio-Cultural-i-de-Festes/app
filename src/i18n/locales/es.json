@@ -317,7 +317,6 @@
     "newEventSub": "O copiar uno anterior y cambiarle la fecha",
     "invitesSub": "El código del grupo y quién quiere entrar",
     "paymentsSub": "Marcar quién ha pagado y nombrar admins",
-    "configSub": "Periodos del ranking, baremo y grados",
     "events": "Eventos",
     "noEvents": "Todavía no hay nada en el calendario. Crea el primero.",
     "draft": "borrador",
@@ -453,9 +452,6 @@
       "confirmOff": "Quien se apunta tiene plaza enseguida"
     },
     "config": {
-      "title": "Configuración",
-      "sub": "El calendario, el baremo y los grados",
-      "lede": "Tres cosas que la app lee cada día y que hasta ahora solo se podían tocar desde el panel de Supabase.",
       "saved": "Guardado.",
       "periods": {
         "title": "Los periodos del ranking",
@@ -483,9 +479,6 @@
         "remove": "Borra",
         "removeSure": "¿Seguro? Quien ya lo tenía se lo queda; solo deja de salir en la lista.",
         "empty": "Ningún grado en esta escuela.",
-        "renamed_one": "Renombrado. {{count}} persona lo lleva.",
-        "renamed_other": "Renombrado. {{count}} personas lo llevan.",
-        "removed": "Fuera de la lista.",
         "rowSub": "Por si la uni abre uno nuevo"
       }
     },

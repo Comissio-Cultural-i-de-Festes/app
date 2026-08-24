@@ -317,7 +317,6 @@
     "newEventSub": "O copiar-ne un d’abans i canviar-hi la data",
     "invitesSub": "El codi del grup i qui vol entrar",
     "paymentsSub": "Marcar qui ha pagat i nomenar admins",
-    "configSub": "Períodes del rànquing, barem i graus",
     "events": "Esdeveniments",
     "noEvents": "Encara no hi ha res al calendari. Crea el primer.",
     "draft": "esborrany",
@@ -453,9 +452,6 @@
       "confirmOff": "Qui s'apunta té plaça de seguida"
     },
     "config": {
-      "title": "Configuració",
-      "sub": "El calendari, el barem i els graus",
-      "lede": "Tres coses que l'app llegeix cada dia i que fins ara només es podien tocar des del panell de Supabase.",
       "saved": "Desat.",
       "periods": {
         "title": "Els períodes del rànquing",
@@ -483,9 +479,6 @@
         "remove": "Esborra",
         "removeSure": "Segur? Qui ja el tenia se’l queda; només deixa de sortir a la llista.",
         "empty": "Cap grau en aquesta escola.",
-        "renamed_one": "Reanomenat. {{count}} persona el porta.",
-        "renamed_other": "Reanomenat. {{count}} persones el porten.",
-        "removed": "Fora de la llista.",
         "rowSub": "Per si la uni n'obre un de nou"
       }
     },

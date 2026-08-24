@@ -223,9 +223,11 @@ as $$
                 select 1 from public.proposals
                  where user_id = p_user and estat = 'acceptada')
 
-    -- Conduir no deixa cap rastre a `points_log` —el seu check no accepta cap
-    -- motiu de cotxes— o sigui que la font és el cotxe mateix. I amb algú a
-    -- dins: un cotxe ofert i buit no és haver portat ningú.
+    -- La font és el cotxe i no `points_log`, encara que hi hagi un motiu
+    -- `conduir` des de la migració 15: aquells punts els ha de donar la junta
+    -- a mà i no els ha donat mai ningú. Una insígnia que depengui de si alguú
+    -- se'n va recordar no premia haver conduït, premia haver tingut sort.
+    -- I amb algú a dins: un cotxe ofert i buit no és haver portat ningú.
     union all select 'al_volant' where exists (
                 select 1 from public.rides r
                   join public.ride_seats s on s.ride_id = r.id

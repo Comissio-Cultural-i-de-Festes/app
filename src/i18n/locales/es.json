@@ -299,6 +299,56 @@
     "link": "Quién hay dentro ahora",
     "linkPast": "Quién entró"
   },
+  "exitPhoto": {
+    "eyebrow": "Cómo salgo",
+    "title": "Tal como estás ahora",
+    "nobodyElse": "Esta foto no la ve nadie más. Ni la junta, ni el grupo, ni el ranking: se guarda en tu perfil y el díptico te lo miras tú.",
+    "notNow": "Ahora no",
+    "canRetake": "La puedes repetir",
+    "shutter": "Haz la foto",
+    "saving": "Guardando…",
+    "noFrame": "La cámara todavía no da imagen. Un segundo y vuelve a probarlo.",
+    "waking": "Abriendo la cámara…",
+    "flip": "Cambia de cámara",
+    "thatsHowYouCameIn": "Así entraste",
+    "entryAlt": "La foto de cuando entraste"
+  },
+  "diptych": {
+    "title": "Tus noches",
+    "entry": "Entrada",
+    "exit": "Salida",
+    "entryMissing": "Aquel día no se hacían fotos en la puerta",
+    "exitMissing": "Aquí va la de salida",
+    "worseOut": "Se sale peor de lo que se entra. Es toda la gracia.",
+    "stillTime": "Aún estás a tiempo: se puede hacer siempre, también dentro de dos semanas. Saldrás con otro jersey y da igual.",
+    "takeExit": "Hazte la de salida",
+    "nobodyElse": "Estas dos fotos no las ve nadie más: ni la junta, ni el grupo. Si lo compartes, lo compartes tú.",
+    "forgetExit": "Borra la de salida",
+    "previous": "Las anteriores",
+    "youWereThere": "estuviste {{long}}",
+    "hoursMinutes": "{{hours}} h {{minutes}}",
+    "minutes_one": "{{count}} minuto",
+    "minutes_other": "{{count}} minutos",
+    "entryOnly": "solo la de entrada",
+    "noPhotos": "ninguna foto",
+    "noNights": "Todavía no has fichado en ninguna puerta. Cuando lo hagas, la noche sale aquí.",
+    "neither": {
+      "title": "De aquella noche no tienes ninguna foto",
+      "body": "Aquel día la junta tenía las fotos de la puerta apagadas, y la de salida no te la hiciste. Estuviste igual.",
+      "nextTime": "La próxima vez, la de salida te la puedes hacer aunque la de la puerta no esté: entonces el díptico sale con la hora de entrada en lugar de la foto."
+    },
+    "yourNight": "Tu noche",
+    "pending": "falta",
+    "staysHere": "Este botón se queda para siempre, aunque hayan pasado dos semanas. La tarjeta del Inicio se va; este no.",
+    "seeIt": "Mira el díptico"
+  },
+  "exitCard": {
+    "eyebrow": "Ayer por la noche",
+    "title": "Falta cómo saliste",
+    "body": "La de entrada te la hizo el escáner, en {{titol}}. La de salida te la haces tú, y el díptico solo lo ves tú.",
+    "bodyWithTime": "Entraste en {{titol}} a las {{hora}}. La de salida te la haces tú, y el díptico solo lo ves tú.",
+    "closesTonight": "Se cierra esta noche"
+  },
   "ideas": {
     "title": "Ideas",
     "lede": "Qué hacemos los días que no hay nada. La que más votos tiene, la junta se la mira.",
@@ -752,7 +802,9 @@
       "publicOn": "Sales con nombre y cara.",
       "publicOff": "No sales, pero tus puntos siguen sumando para tu escuela.",
       "junta": "Zona junta",
-      "juntaSub": "Escáner, puntos, invitaciones"
+      "juntaSub": "Escáner, puntos, invitaciones",
+      "nights": "Tus noches",
+      "nightsSub": "El díptico de entrada y salida de cada fiesta"
     },
     "footer": "Hecho entre clase y clase."
   },

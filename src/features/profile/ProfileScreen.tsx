@@ -236,6 +236,20 @@ export function ProfileScreen() {
           </div>
         </div>
 
+        <Link to="/perfil/nits" className={`${ROW} no-underline`}>
+          <span className="min-w-0 flex-1">
+            <span className="block text-base font-semibold text-fg">
+              {t('profile.settings.nights')}
+            </span>
+            <span className="mt-[3px] block text-[12.5px] text-[var(--ds-text-muted-lo)]">
+              {t('profile.settings.nightsSub')}
+            </span>
+          </span>
+          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
+            ›
+          </span>
+        </Link>
+
         {isJunta(profile) ? (
           <Link to="/junta" className={`${ROW} no-underline`}>
             <span className="min-w-0 flex-1">

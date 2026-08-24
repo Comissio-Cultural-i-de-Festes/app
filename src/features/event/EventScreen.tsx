@@ -23,6 +23,7 @@ import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { useCovers } from '@/ui/Cover/useCovers'
 
+import { MyNightBlock } from '@/features/photos/MyNightBlock'
 import { RidesBlock } from '@/features/rides/RidesBlock'
 
 import { eventKeys, fetchEvent, fetchWaitlist, formatPrice } from './api'
@@ -261,6 +262,10 @@ export function EventScreen() {
           where={e.ubicacion}
         />
       )}
+
+      {/* Only once it is over, and then for ever: the card on the Inici is the
+          nudge and this is where somebody comes looking a fortnight later. */}
+      {ended ? <MyNightBlock eventId={e.id} /> : null}
 
       {e.transport_info === null ? null : (
         <section className={`pt-12 ${GUTTER}`}>

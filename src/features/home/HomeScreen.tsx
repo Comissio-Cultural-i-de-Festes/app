@@ -12,6 +12,7 @@ import {
   formatWeekdayLong,
 } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
+import { ExitPhotoCard } from '@/features/photos/ExitPhotoCard'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -60,6 +61,13 @@ export function HomeScreen() {
           {t('home.waiting.banner')}
         </p>
       ) : null}
+
+      {/* The morning after, above everything else: it is about last night and
+          it is gone by tonight, so burying it under the next event would be
+          burying the one thing on this screen with a deadline. */}
+      <div className={GUTTER}>
+        <ExitPhotoCard event={home.previous ?? null} />
+      </div>
 
       {home.isError ? (
         <ErrorPanel

@@ -299,6 +299,56 @@
     "link": "Qui hi ha ara dins",
     "linkPast": "Qui hi va entrar"
   },
+  "exitPhoto": {
+    "eyebrow": "Com en surto",
+    "title": "Tal com estàs ara",
+    "nobodyElse": "Aquesta foto no la veu ningú més. Ni la junta, ni el grup, ni el rànquing: es guarda al teu perfil i el díptic te'l mires tu.",
+    "notNow": "Ara no",
+    "canRetake": "La pots repetir",
+    "shutter": "Fes la foto",
+    "saving": "Desant…",
+    "noFrame": "La càmera encara no dona imatge. Un segon i torna-ho a provar.",
+    "waking": "Obrint la càmera…",
+    "flip": "Canvia de càmera",
+    "thatsHowYouCameIn": "Així vas entrar",
+    "entryAlt": "La foto de quan vas entrar"
+  },
+  "diptych": {
+    "title": "Les teves nits",
+    "entry": "Entrada",
+    "exit": "Sortida",
+    "entryMissing": "Aquell dia no es feien fotos a la porta",
+    "exitMissing": "Aquí hi va la de sortida",
+    "worseOut": "Se surt pitjor del que s'entra. És tota la gràcia.",
+    "stillTime": "Encara hi ets a temps: es pot fer sempre, també d'aquí a dues setmanes. Sortiràs amb un altre jersei i tant se val.",
+    "takeExit": "Fes-te la de sortida",
+    "nobodyElse": "Aquestes dues fotos no les veu ningú més: ni la junta, ni el grup. Si el comparteixes, el comparteixes tu.",
+    "forgetExit": "Esborra la de sortida",
+    "previous": "Les anteriors",
+    "youWereThere": "hi vas ser {{long}}",
+    "hoursMinutes": "{{hours}} h {{minutes}}",
+    "minutes_one": "{{count}} minut",
+    "minutes_other": "{{count}} minuts",
+    "entryOnly": "només la d'entrada",
+    "noPhotos": "cap foto",
+    "noNights": "Encara no has fitxat a cap porta. Quan hi vagis, la nit surt aquí.",
+    "neither": {
+      "title": "D'aquella nit no en tens cap foto",
+      "body": "Aquell dia la junta tenia les fotos de la porta apagades, i la de sortida no te la vas fer. Hi vas ser igual.",
+      "nextTime": "A la pròxima, la de sortida te la pots fer encara que la de la porta no hi sigui: llavors el díptic surt amb l'hora d'entrada en lloc de la foto."
+    },
+    "yourNight": "La teva nit",
+    "pending": "falta",
+    "staysHere": "Aquest botó es queda per sempre, encara que hagin passat dues setmanes. La targeta de l'Inici marxa; aquest no.",
+    "seeIt": "Mira el díptic"
+  },
+  "exitCard": {
+    "eyebrow": "Ahir a la nit",
+    "title": "Falta com en vas sortir",
+    "body": "La d'entrada te la va fer l'escàner, a {{titol}}. La de sortida te la fas tu, i el díptic només el veus tu.",
+    "bodyWithTime": "Vas entrar a {{titol}} a les {{hora}}. La de sortida te la fas tu, i el díptic només el veus tu.",
+    "closesTonight": "Es tanca aquesta nit"
+  },
   "ideas": {
     "title": "Idees",
     "lede": "Què fem els dies que no hi ha res. La que més vots té, la junta se la mira.",
@@ -752,7 +802,9 @@
       "publicOn": "Hi surts amb nom i cara.",
       "publicOff": "No hi surts, però els teus punts segueixen sumant per la teva escola.",
       "junta": "Zona junta",
-      "juntaSub": "Escàner, punts, invitacions"
+      "juntaSub": "Escàner, punts, invitacions",
+      "nights": "Les teves nits",
+      "nightsSub": "El díptic d'entrada i sortida de cada festa"
     },
     "footer": "Fet entre classe i classe."
   },

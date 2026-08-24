@@ -299,6 +299,56 @@
     "link": "Who is inside now",
     "linkPast": "Who got in"
   },
+  "exitPhoto": {
+    "eyebrow": "On the way out",
+    "title": "However you are right now",
+    "nobodyElse": "Nobody else sees this photo. Not the junta, not the group, not the ranking: it goes in your profile and the diptych is yours to look at.",
+    "notNow": "Not now",
+    "canRetake": "You can retake it",
+    "shutter": "Take the photo",
+    "saving": "Saving…",
+    "noFrame": "The camera has not given a picture yet. Give it a second and try again.",
+    "waking": "Opening the camera…",
+    "flip": "Switch camera",
+    "thatsHowYouCameIn": "How you came in",
+    "entryAlt": "The photo from when you came in"
+  },
+  "diptych": {
+    "title": "Your nights",
+    "entry": "In",
+    "exit": "Out",
+    "entryMissing": "No door photos that night",
+    "exitMissing": "The way out goes here",
+    "worseOut": "You come out worse than you went in. That is the whole point.",
+    "stillTime": "Still time: you can take it whenever, two weeks from now included. Different jumper, same idea.",
+    "takeExit": "Take the one on the way out",
+    "nobodyElse": "Nobody else sees these two photos: not the junta, not the group. If you share it, you share it.",
+    "forgetExit": "Delete the one on the way out",
+    "previous": "Earlier ones",
+    "youWereThere": "you were there {{long}}",
+    "hoursMinutes": "{{hours}} h {{minutes}}",
+    "minutes_one": "{{count}} minute",
+    "minutes_other": "{{count}} minutes",
+    "entryOnly": "only the way in",
+    "noPhotos": "no photos",
+    "noNights": "You have not checked in at a door yet. When you do, the night shows up here.",
+    "neither": {
+      "title": "No photos from that night",
+      "body": "The junta had the door camera off that day, and you never took the one on the way out. You were there all the same.",
+      "nextTime": "Next time you can take the way-out one even without the door one: the diptych then shows your arrival time instead of the picture."
+    },
+    "yourNight": "Your night",
+    "pending": "missing",
+    "staysHere": "This button stays for good, even a fortnight later. The card on the home screen goes away; this one does not.",
+    "seeIt": "See the diptych"
+  },
+  "exitCard": {
+    "eyebrow": "Last night",
+    "title": "The way out is missing",
+    "body": "The scanner took the way-in one at {{titol}}. The way-out one is yours to take, and the diptych is yours to look at.",
+    "bodyWithTime": "You got into {{titol}} at {{hora}}. The way-out one is yours to take, and the diptych is yours to look at.",
+    "closesTonight": "Closes tonight"
+  },
   "ideas": {
     "title": "Ideas",
     "lede": "What to do on the days when nothing is on. The committee looks at whichever has most votes.",
@@ -752,7 +802,9 @@
       "publicOn": "You appear with your name and face.",
       "publicOff": "You do not appear, but your points still count for your school.",
       "junta": "Committee area",
-      "juntaSub": "Scanner, points, invitations"
+      "juntaSub": "Scanner, points, invitations",
+      "nights": "Your nights",
+      "nightsSub": "The in-and-out diptych from every party"
     },
     "footer": "Made between lectures."
   },

@@ -36,6 +36,11 @@ export function NewIdeaScreen() {
   const [titol, setTitol] = useState(() => params.get('titol') ?? '')
   const [descripcio, setDescripcio] = useState('')
 
+  // Qui obre «Proposa» ve a escriure, i aquesta pantalla competeix amb obrir
+  // el grup de WhatsApp, que són zero tocs. Si el títol ja arriba posat des
+  // d'una llavor, el cursor va on falta text.
+  const [seeded] = useState(() => params.get('titol') !== null)
+
   const values = useQuery({ queryKey: doorKeys.pointValues(), queryFn: fetchPointValues })
   const reward = values.data?.find((v) => v.mena === 'motiu' && v.clau === 'propuso')?.punts ?? null
 
@@ -82,6 +87,10 @@ export function NewIdeaScreen() {
             onChange={(e) => {
               setTitol(e.target.value)
             }}
+            // És el camp pel qual s'ha obert la pantalla, i no n'hi ha cap
+            // altre abans.
+            autoFocus={!seeded}
+            enterKeyHint="next"
             maxLength={120}
             placeholder={t('ideas.newNamePlaceholder')}
             className={INPUT}
@@ -94,6 +103,8 @@ export function NewIdeaScreen() {
             onChange={(e) => {
               setDescripcio(e.target.value)
             }}
+            // Amb el títol ja posat, el que falta d'escriure és això.
+            autoFocus={seeded}
             rows={4}
             maxLength={2000}
             placeholder={t('ideas.newBodyPlaceholder')}

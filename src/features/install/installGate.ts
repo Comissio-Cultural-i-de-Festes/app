@@ -52,11 +52,70 @@ export function clearInstallSnooze(): void {
 }
 
 /**
- * Android and desktop are excluded: they have their own install affordances,
- * and the two mock-ups on this screen are of Safari specifically.
+ * El diàleg natiu d'instal·lació, quan el navegador l'ofereix.
+ *
+ * Android era la meitat del públic i no tenia cap camí: aquesta pantalla només
+ * sortia a iOS, amb raó —els dos mock-ups són del Safari— però el resultat era
+ * que a Android no sortia res, i el mini-infobar del Chrome es perd de seguida.
+ *
+ * `beforeinstallprompt` s'ha de capturar aviat i s'ha de guardar: el navegador
+ * el dispara un cop, i `prompt()` només es pot cridar sobre l'esdeveniment
+ * original. `preventDefault()` és el que amaga l'infobar del navegador perquè
+ * el botó d'aquesta app sigui l'única oferta, en lloc de dues alhora.
+ *
+ * El listener es registra en importar el mòdul i no des d'un component:
+ * l'esdeveniment arriba abans que React hagi muntat res.
+ */
+interface InstallPromptEvent extends Event {
+  prompt: () => Promise<void>
+  userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+}
+
+let deferred: InstallPromptEvent | null = null
+const listeners = new Set<() => void>()
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault()
+    deferred = e as InstallPromptEvent
+    for (const notify of listeners) notify()
+  })
+}
+
+/** Que el navegador ens ha donat un diàleg per oferir. */
+export function hasNativeInstallPrompt(): boolean {
+  return deferred !== null
+}
+
+/**
+ * Avisa quan arriba. `shouldPromptInstall()` es llegeix un sol cop en muntar
+ * l'app, i a Android l'esdeveniment sovint arriba després.
+ */
+export function onNativeInstallPrompt(cb: () => void): () => void {
+  listeners.add(cb)
+  return () => {
+    listeners.delete(cb)
+  }
+}
+
+/** `true` si l'ha acceptat. El diàleg només es pot obrir un cop. */
+export async function promptNativeInstall(): Promise<boolean> {
+  const event = deferred
+  if (event === null) return false
+  deferred = null
+  await event.prompt()
+  const { outcome } = await event.userChoice
+  return outcome === 'accepted'
+}
+
+/**
+ * iOS sempre, perquè allà la instal·lació ha d'anar ABANS del login —l'app de
+ * la pantalla d'inici té el seu propi magatzem— i el navegador no hi ofereix
+ * cap diàleg. A la resta, només quan n'hi ha un: sense diàleg no hi ha res a
+ * ensenyar que no siguin instruccions d'un altre navegador.
  */
 export function shouldPromptInstall(now = Date.now()): boolean {
-  if (!isIos()) return false
+  if (!isIos() && !hasNativeInstallPrompt()) return false
   if (isStandalone()) return false
   return now >= readSnooze()
 }

@@ -52,6 +52,7 @@ import { InstallScreen } from '@/features/install/InstallScreen'
 import {
   SNOOZE_DONE_MS,
   SNOOZE_LATER_MS,
+  onNativeInstallPrompt,
   shouldPromptInstall,
   snoozeInstall,
 } from '@/features/install/installGate'
@@ -84,6 +85,15 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null)
   const [ready, setReady] = useState(false)
   const [promptInstall, setPromptInstall] = useState(() => shouldPromptInstall())
+
+  // A Android el `beforeinstallprompt` sol arribar després del muntatge, i
+  // aquest estat es llegeix un sol cop: sense tornar-hi, la pantalla no
+  // sortiria mai on hi ha diàleg natiu.
+  useEffect(() => {
+    return onNativeInstallPrompt(() => {
+      setPromptInstall(shouldPromptInstall())
+    })
+  }, [])
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {

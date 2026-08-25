@@ -600,7 +600,11 @@
     "done": "I've done it",
     "later": "Not now, I'll manage",
     "laterWarning": "You can carry on here in the browser. Once you add it to your home screen you'll sign in one more time, because the iPhone treats them as two separate things.",
-    "iconPreview": "This is how it will sit among your apps. The red icon is easy to spot when you are in a hurry."
+    "iconPreview": "This is how it will sit among your apps. The red icon is easy to spot when you are in a hurry.",
+    "android": {
+      "lede": "One tap and it is on your home screen: full screen, the QR to hand, and no browser in the way.",
+      "cta": "Install the app"
+    }
   },
   "junta": {
     "title": "Committee area",

@@ -600,7 +600,11 @@
     "done": "Ja ho tinc fet",
     "later": "Ara no, ja m'espavilaré",
     "laterWarning": "Pots seguir aquí al navegador. Quan la posis a la pantalla d'inici hauràs de tornar a entrar un cop, perquè l'iPhone les tracta com dues coses diferents.",
-    "iconPreview": "Així quedarà entre les teves apps. La icona vermella es veu de lluny quan la busques amb pressa."
+    "iconPreview": "Així quedarà entre les teves apps. La icona vermella es veu de lluny quan la busques amb pressa.",
+    "android": {
+      "lede": "Un toc i la tens a la pantalla d'inici: a pantalla completa, amb el QR a mà i sense passar pel navegador.",
+      "cta": "Instal·la l'app"
+    }
   },
   "junta": {
     "title": "Zona junta",

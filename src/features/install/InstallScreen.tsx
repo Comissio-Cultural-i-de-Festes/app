@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { brand } from '@/config/brand'
@@ -6,6 +6,7 @@ import { Button } from '@/ui/Button/Button'
 import { LogoMark } from '@/ui/Logo/Logo'
 
 import { SafariShareSheetMock, SafariToolbarMock } from './IosMocks'
+import { hasNativeInstallPrompt, promptNativeInstall } from './installGate'
 
 /**
  * Adding the app to the home screen.
@@ -51,6 +52,68 @@ export interface InstallScreenProps {
 
 export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
   const { t } = useTranslation()
+  const [native] = useState(() => hasNativeInstallPrompt())
+
+  // Amb diàleg natiu no hi ha res a explicar: els dos passos d'aquesta
+  // pantalla són del Safari, i ensenyar-los a algú que té un botó que instal·la
+  // l'app de debò seria ensenyar-li com fer-ho al mòbil d'algú altre.
+  //
+  // Tampoc l'avís de tornar a entrar: allà on hi ha diàleg, la instal·lació no
+  // canvia de magatzem. És un fet de l'iPhone, no de totes les instal·lacions.
+  if (native) {
+    return (
+      <main
+        className={
+          'flex min-h-dvh flex-col justify-center overflow-y-auto bg-app px-12 ' +
+          'pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+24px)]'
+        }
+      >
+        <h1 className="font-display text-d-md leading-[0.88] tracking-[-0.05em] uppercase">
+          {t('install.title')}
+        </h1>
+        <p className="mt-[14px] text-lg text-fg-secondary [text-wrap:pretty]">
+          {t('install.android.lede')}
+        </p>
+
+        <section className="mt-[26px] flex items-center gap-8 border border-surface-7 bg-surface-2 px-[18px] py-8">
+          <div className="flex flex-none flex-col items-center gap-4">
+            <LogoMark size={62} />
+            <span className="text-[11.5px] font-medium text-fg-secondary">{brand.shortName}</span>
+          </div>
+          <p className="flex-1 text-md text-fg-secondary [text-wrap:pretty]">
+            {t('install.iconPreview')}
+          </p>
+        </section>
+
+        <div className="mt-10">
+          <Button
+            size="lg"
+            onClick={() => {
+              // Acceptar-lo tanca aquesta pantalla; descartar-lo la deixa on
+              // era, perquè el diàleg ja no tornarà i el botó de sota és
+              // l'única sortida que queda.
+              void promptNativeInstall().then((accepted) => {
+                if (accepted) onDone()
+              })
+            }}
+          >
+            {t('install.android.cta')}
+          </Button>
+        </div>
+
+        <button
+          type="button"
+          onClick={onLater}
+          className={
+            'mt-5 min-h-[44px] w-full cursor-pointer border-0 bg-transparent text-center ' +
+            'text-[13.5px] font-semibold text-fg-muted [text-wrap:balance]'
+          }
+        >
+          {t('install.later')}
+        </button>
+      </main>
+    )
+  }
 
   return (
     <main

@@ -753,7 +753,8 @@
       "cars": "Cómo se llega",
       "carsHint": "Márcalo y saldrá el bloque de coches compartidos en el detalle. Se marca solo en las casas rurales; desmárcalo si se llega a pie.",
       "carsOn": "Hay coches compartidos",
-      "carsOff": "Sin coches compartidos"
+      "carsOff": "Sin coches compartidos",
+      "coverFailed": "La portada no se ha podido subir; el evento se ha guardado sin ella. Vuelve a probarlo cuando quieras."
     },
     "config": {
       "saved": "Guardado.",

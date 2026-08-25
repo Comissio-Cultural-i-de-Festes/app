@@ -59,6 +59,14 @@ const TYPES: readonly EventType[] = ['fiesta', 'casa_rural', 'actividad']
  * pointing at the second, and saving would write them onto it. The open
  * confirmations do the same thing more visibly and less expensively.
  */
+/** Perquè la pantalla pugui dir quin dels dos passos ha fallat. */
+class CoverFailed extends Error {
+  constructor(cause: unknown) {
+    super('cover upload failed', { cause })
+    this.name = 'CoverFailed'
+  }
+}
+
 export function EventFormScreen() {
   const { id } = useParams()
   return <EventForm key={id ?? 'nou'} />
@@ -125,7 +133,14 @@ function EventForm() {
         // first. Saving twice is cheaper than inventing an id here and
         // orphaning the upload if the save then fails.
         eventId = await saveEvent(draftFrom(form, publish, coverPath))
-        coverPath = await uploadCover(cover.file, eventId)
+        try {
+          coverPath = await uploadCover(cover.file, eventId)
+        } catch (cause) {
+          // L'esdeveniment ja és desat: el que ha fallat és només la portada,
+          // i dir «no s'ha pogut» a seques faria pensar que s'han perdut els
+          // quinze camps. Aquesta és la frase certa.
+          throw new CoverFailed(cause)
+        }
         eventId = await saveEvent(
           draftFrom({ ...form, id: eventId, cover_url: coverPath }, publish, coverPath),
         )
@@ -420,9 +435,7 @@ function EventForm() {
                 ✓
               </span>
               <span className="min-w-0 flex-1 text-md font-bold [text-wrap:pretty]">
-                {form.cal_confirmacio
-                  ? t('junta.form.confirmOn')
-                  : t('junta.form.confirmOff')}
+                {form.cal_confirmacio ? t('junta.form.confirmOn') : t('junta.form.confirmOff')}
               </span>
             </button>
           </Field>
@@ -552,7 +565,9 @@ function EventForm() {
 
             {save.isError ? (
               <p role="alert" className="mt-6 text-md font-bold text-error [text-wrap:pretty]">
-                {t('errors.generic')}
+                {save.error instanceof CoverFailed
+                  ? t('junta.form.coverFailed')
+                  : t(errorKey(save.error))}
               </p>
             ) : null}
 

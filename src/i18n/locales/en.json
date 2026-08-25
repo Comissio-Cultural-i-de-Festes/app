@@ -753,7 +753,8 @@
       "cars": "Getting there",
       "carsHint": "Tick this and the shared-cars block appears on the event. Ticked by default for a country house; untick it if people can walk.",
       "carsOn": "Shared cars",
-      "carsOff": "No shared cars"
+      "carsOff": "No shared cars",
+      "coverFailed": "The cover image would not upload; the event was saved without it. Try again whenever you like."
     },
     "config": {
       "saved": "Saved.",

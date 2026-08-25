@@ -21,19 +21,29 @@
 export function Notice({
   tone = 'warn',
   size = 'default',
+  live = false,
   className = '',
   children,
 }: {
   readonly tone?: 'ok' | 'warn'
   /** `tight` per als avisos que ja viuen dins d'un bloc amb coixí propi. */
   readonly size?: 'default' | 'tight'
+  /**
+   * Si apareix mentre algú mira la pantalla, i per tant s'ha d'anunciar.
+   *
+   * Per defecte no. `role="status"` de sèrie volia dir que a l'Inici hi
+   * podien coincidir quatre regions live i que obrir l'app eren tres anuncis
+   * seguits abans de saber quin esdeveniment ve. El que ja hi és en carregar
+   * no s'ha d'anunciar: només s'ha de poder llegir en ordre.
+   */
+  readonly live?: boolean
   /** Només per al marge i la posició. */
   readonly className?: string
   readonly children: React.ReactNode
 }) {
   return (
     <p
-      role="status"
+      {...(live ? { role: 'status' as const } : {})}
       className={
         'border-l-[3px] text-md [text-wrap:pretty] ' +
         (size === 'tight' ? 'px-7 py-6 ' : 'px-[18px] py-[15px] ') +

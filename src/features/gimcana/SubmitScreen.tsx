@@ -158,7 +158,9 @@ export function SubmitScreen() {
                   {t(errorKey(send.error))}
                 </p>
               ) : (
-                <Notice className="mt-5">{t('gimcana.queued')}</Notice>
+                <Notice live className="mt-5">
+                  {t('gimcana.queued')}
+                </Notice>
               )
             ) : null}
 

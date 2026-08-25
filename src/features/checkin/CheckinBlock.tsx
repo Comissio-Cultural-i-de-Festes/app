@@ -205,7 +205,7 @@ function Note({
   readonly children: React.ReactNode
 }) {
   return (
-    <Notice tone={tone} size="tight" className="mt-6">
+    <Notice tone={tone} size="tight" live className="mt-6">
       {children}
     </Notice>
   )

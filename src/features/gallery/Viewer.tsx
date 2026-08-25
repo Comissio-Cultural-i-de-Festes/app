@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { formatDateTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
+import { useModalFocus } from '@/ui/Modal/useModalFocus'
 
 import { deletePhoto, type GalleryPhoto, galleryKeys } from './api'
 import { ReportSheet } from './ReportSheet'
@@ -59,9 +60,13 @@ export function Viewer({
     },
   })
 
+  // Escape, la trampa del tabulador, el scroll bloquejat i el retorn del focus:
+  // el mateix que el Sheet, que fins ara era l'únic que ho tenia.
+  const panel = useRef<HTMLDivElement>(null)
+  useModalFocus(panel, onClose)
+
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
       if (e.key === 'ArrowRight') setAt((i) => Math.min(photos.length - 1, i + 1))
       if (e.key === 'ArrowLeft') setAt((i) => Math.max(0, i - 1))
     }
@@ -69,7 +74,7 @@ export function Viewer({
     return () => {
       window.removeEventListener('keydown', onKey)
     }
-  }, [onClose, photos.length])
+  }, [photos.length])
 
   // El comptador «3 de 42» promet una navegació que amb fletxes de teclat no
   // existeix en un mòbil, que és el 100% del públic: mirar les quaranta fotos
@@ -99,10 +104,13 @@ export function Viewer({
 
   return (
     <div
+      ref={panel}
+      // Perquè el focus tingui on caure si el diàleg encara no té cap botó.
+      tabIndex={-1}
       role="dialog"
       aria-modal="true"
       aria-label={t('gallery.viewer.label')}
-      className="fixed inset-0 z-50 mx-auto flex max-w-[var(--ds-shell-max-w)] flex-col bg-root"
+      className="fixed inset-0 z-50 mx-auto flex max-w-[var(--ds-shell-max-w)] flex-col bg-root outline-none"
     >
       <div className="flex items-center justify-between px-7 py-5">
         <button

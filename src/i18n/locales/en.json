@@ -31,7 +31,7 @@
     "unknownPerson": "This QR",
     "notPaid": "has not paid",
     "camera": {
-      "denied": "We can't get at the camera. Allow it in your browser settings, or check people in by name.",
+      "denied": "We can't get at the camera. Allow it in your browser settings — Settings › {{app}} › Camera — and come back, or check people in by name.",
       "missing": "This device has no camera. Check people in by name.",
       "failed": "The camera would not start. Check people in by name."
     },

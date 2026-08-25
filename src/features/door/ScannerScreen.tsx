@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 
+import { brand } from '@/config/brand'
 import { SCAN_PRESENTATION, toneVar } from '@/design/states'
 import { fetchEvent } from '@/features/event/api'
 import { eventKeys } from '@/features/event/api'
@@ -90,7 +91,7 @@ export function ScannerScreen() {
     [id, roster, refreshQueue],
   )
 
-  const cameraError = useCamera(videoRef, onCode)
+  const camera = useCamera(videoRef, onCode)
 
   // The wrong person, with a queue behind you. Undoing needs the roster back
   // — they stop being checked in — and the queue count back, because an undo
@@ -151,7 +152,7 @@ export function ScannerScreen() {
       </header>
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-12">
-        {cameraError === null ? (
+        {camera.error === null ? (
           <>
             <Reticle />
             <p className="mt-8 text-center text-sm text-fg-secondary [text-wrap:pretty]">
@@ -159,9 +160,24 @@ export function ScannerScreen() {
             </p>
           </>
         ) : (
-          <p className="max-w-[280px] text-center text-lg font-bold text-[var(--ds-warning)] [text-wrap:pretty]">
-            {t(`door.camera.${cameraError}`)}
-          </p>
+          // El missatge ja apunta a l'alta pel nom, que és el botó del peu. El
+          // que faltava era poder tornar-hi a provar: fins ara l'error es
+          // quedava fins que algú sortia de la pantalla, amb cua al davant.
+          <>
+            <p
+              role="alert"
+              className="max-w-[280px] text-center text-lg font-bold text-warning [text-wrap:pretty]"
+            >
+              {t(`door.camera.${camera.error}`, { app: brand.shortName })}
+            </p>
+            <button
+              type="button"
+              onClick={camera.retry}
+              className="mt-7 min-h-[44px] px-4 text-md font-bold text-brand-label"
+            >
+              {t('actions.retry')}
+            </button>
+          </>
         )}
       </div>
 

@@ -31,7 +31,7 @@
     "unknownPerson": "Este QR",
     "notPaid": "no ha pagado",
     "camera": {
-      "denied": "No podemos abrir la cámara. Dale permiso en los ajustes del navegador, o haz el alta por el nombre.",
+      "denied": "No podemos abrir la cámara. Dale permiso en los ajustes del navegador —Ajustes › {{app}} › Cámara— y vuelve, o haz el alta por el nombre.",
       "missing": "Este aparato no tiene cámara. Haz el alta por el nombre.",
       "failed": "No se ha podido encender la cámara. Haz el alta por el nombre."
     },

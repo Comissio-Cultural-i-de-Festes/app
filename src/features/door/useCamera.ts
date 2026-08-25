@@ -21,11 +21,22 @@ import { loadDetector } from './decoder'
 
 export type CameraError = 'denied' | 'missing' | 'failed'
 
+export interface Camera {
+  readonly error: CameraError | null
+  /** Torna a demanar el corrent. Res més del hook es reinicia. */
+  readonly retry: () => void
+}
+
 export function useCamera(
   videoRef: RefObject<HTMLVideoElement | null>,
   onCode: (value: string) => void,
-): CameraError | null {
+): Camera {
   const [error, setError] = useState<CameraError | null>(null)
+  // Un «failed» transitori —una altra app tenia la càmera, l'iPhone acabat de
+  // desbloquejar— deixava la porta morta fins que algú sortia de la pantalla i
+  // hi tornava, amb cua al davant. Aquest comptador és l'única dependència que
+  // fa tornar a executar l'efecte; canviar-lo és tornar a demanar la càmera.
+  const [attempt, setAttempt] = useState(0)
 
   // The callback changes on every render of the screen above. Kept in a ref so
   // the camera is not torn down and restarted each time, which on a phone is a
@@ -43,6 +54,11 @@ export function useCamera(
     async function start() {
       const video = videoRef.current
       if (video === null) return
+
+      // Un reintent comença sense error: si el segon intent també falla,
+      // `setError` el torna a posar, i si va bé la pantalla ha de deixar de
+      // parlar del primer.
+      setError(null)
 
       try {
         stream = await navigator.mediaDevices.getUserMedia({
@@ -94,7 +110,12 @@ export function useCamera(
       cancelAnimationFrame(frame)
       if (stream !== null) for (const track of stream.getTracks()) track.stop()
     }
-  }, [videoRef])
+  }, [videoRef, attempt])
 
-  return error
+  return {
+    error,
+    retry: () => {
+      setAttempt((n) => n + 1)
+    },
+  }
 }

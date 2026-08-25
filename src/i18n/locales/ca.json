@@ -31,7 +31,7 @@
     "unknownPerson": "Aquest QR",
     "notPaid": "no ha pagat",
     "camera": {
-      "denied": "No podem obrir la càmera. Dona-hi permís als ajustos del navegador, o fes l'alta pel nom.",
+      "denied": "No podem obrir la càmera. Dona-hi permís als ajustos del navegador —Ajustos › {{app}} › Càmera— i torna-hi, o fes l'alta pel nom.",
       "missing": "Aquest aparell no té càmera. Fes l’alta pel nom.",
       "failed": "No s’ha pogut engegar la càmera. Fes l’alta pel nom."
     },

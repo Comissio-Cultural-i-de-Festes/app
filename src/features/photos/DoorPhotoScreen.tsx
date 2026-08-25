@@ -3,6 +3,7 @@ import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams, useSearchParams } from 'react-router'
 
+import { brand } from '@/config/brand'
 import { useUserId } from '@/features/session/useUserId'
 import { formatTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
@@ -163,7 +164,7 @@ export function DoorPhotoScreen() {
             {/* Les d'aquesta pantalla i no les de l'escàner: aquelles diuen
                 «fes l'alta pel nom», que és una acció de la junta i no de qui
                 s'està fent la foto. */}
-            {t(`doorPhoto.camera.${cameraError}`)}
+            {t(`doorPhoto.camera.${cameraError}`, { app: brand.shortName })}
           </p>
         </div>
       )}

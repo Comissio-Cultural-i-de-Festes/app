@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
+import { brand } from '@/config/brand'
 import { badgeKeys } from '@/features/badges/api'
 import { NewBadgeCard } from '@/features/badges/NewBadgeCard'
 import { homeKeys } from '@/features/home/api'
@@ -134,7 +135,7 @@ export function CheckinBlock({
           {state.kind === 'queued' ? <Note tone="warn">{t('checkin.queued')}</Note> : null}
 
           {state.kind === 'nofix' ? (
-            <Note tone="warn">{t(`checkin.nofix.${state.why}`)}</Note>
+            <Note tone="warn">{t(`checkin.nofix.${state.why}`, { app: brand.shortName })}</Note>
           ) : null}
 
           {state.kind === 'verdict' && state.verdict.estat === 'lluny' ? (

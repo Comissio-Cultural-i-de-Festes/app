@@ -371,7 +371,7 @@
     "takePhoto": "Hazte la foto de llegada",
     "photoNote": "Opcional, y solo la ves tú y la junta. Si te la haces, tendrás el díptico con la de salida.",
     "nofix": {
-      "denied": "No nos dejas ver dónde estás. En los ajustes del navegador puedes dar permiso de ubicación para esta página, o díselo a la junta y te apuntan a mano.",
+      "denied": "No nos dejas ver dónde estás. En los ajustes del navegador puedes dar permiso de ubicación para esta página —Ajustes › {{app}} › Ubicación— y volver, o díselo a la junta y te apuntan a mano.",
       "unavailable": "El móvil no sabe dónde está. A menudo se resuelve saliendo un momento fuera o encendiendo el GPS.",
       "timeout": "Ha tardado demasiado. Vuelve a probarlo.",
       "unsupported": "Este navegador no sabe decir dónde estás. Díselo a la junta y te apuntan a mano."
@@ -407,7 +407,7 @@
       "note": "Esta foto no la ve nadie más. Ni la junta, ni el grupo, ni el ranking: se guarda en tu perfil y el díptico te lo miras tú."
     },
     "camera": {
-      "denied": "No podemos abrir la cámara. Dale permiso en los ajustes del navegador, o déjalo: la foto es opcional y ya has fichado.",
+      "denied": "No podemos abrir la cámara. Dale permiso en los ajustes del navegador —Ajustes › {{app}} › Cámara— y vuelve, o déjalo: la foto es opcional y ya has fichado.",
       "missing": "Este aparato no tiene cámara. Ya has fichado igualmente; la foto es lo que te pierdes.",
       "failed": "No se ha podido encender la cámara. Vuelve a probarlo, o déjalo: ya has fichado."
     }

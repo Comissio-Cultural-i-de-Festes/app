@@ -371,7 +371,7 @@
     "takePhoto": "Fes-te la foto d'arribada",
     "photoNote": "Opcional, i només la veus tu i la junta. Si te la fas, tindràs el díptic amb la de sortida.",
     "nofix": {
-      "denied": "No ens deixes veure on ets. Als ajustos del navegador pots donar permís d'ubicació per a aquesta pàgina, o digues-ho a la junta i t'hi apunten a mà.",
+      "denied": "No ens deixes veure on ets. Als ajustos del navegador pots donar permís d'ubicació per a aquesta pàgina —Ajustos › {{app}} › Localització— i tornar-hi, o digues-ho a la junta i t'hi apunten a mà.",
       "unavailable": "El mòbil no sap on és. Sovint es resol sortint un moment a fora o encenent el GPS.",
       "timeout": "Ha trigat massa. Torna-ho a provar.",
       "unsupported": "Aquest navegador no sap dir on ets. Digues-ho a la junta i t'hi apunten a mà."
@@ -407,7 +407,7 @@
       "note": "Aquesta foto no la veu ningú més. Ni la junta, ni el grup, ni el rànquing: es guarda al teu perfil i el díptic te'l mires tu."
     },
     "camera": {
-      "denied": "No podem obrir la càmera. Dona-hi permís als ajustos del navegador, o deixa-ho estar: la foto és opcional i ja has fitxat.",
+      "denied": "No podem obrir la càmera. Dona-hi permís als ajustos del navegador —Ajustos › {{app}} › Càmera— i torna-hi, o deixa-ho estar: la foto és opcional i ja has fitxat.",
       "missing": "Aquest aparell no té càmera. Ja has fitxat igualment; la foto és el que et perds.",
       "failed": "No s'ha pogut engegar la càmera. Torna-ho a provar, o deixa-ho: ja has fitxat."
     }

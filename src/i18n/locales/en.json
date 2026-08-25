@@ -371,7 +371,7 @@
     "takePhoto": "Take your arrival photo",
     "photoNote": "Optional, and only you and the junta see it. Take it and you get the diptych with the one on the way out.",
     "nofix": {
-      "denied": "You are not letting us see where you are. Your browser settings can give this page location permission, or tell the junta and they will add you by hand.",
+      "denied": "You are not letting us see where you are. Your browser settings can give this page location permission — Settings › {{app}} › Location — and then come back, or tell the junta and they will add you by hand.",
       "unavailable": "The phone cannot work out where it is. Stepping outside for a moment or turning the GPS on usually fixes it.",
       "timeout": "That took too long. Try again.",
       "unsupported": "This browser cannot tell where you are. Tell the junta and they will add you by hand."
@@ -407,7 +407,7 @@
       "note": "Nobody else sees this photo. Not the junta, not the group, not the ranking: it goes in your profile and the diptych is yours to look at."
     },
     "camera": {
-      "denied": "We cannot open the camera. Give it permission in your browser settings, or leave it: the photo is optional and you are already checked in.",
+      "denied": "We cannot open the camera. Give it permission in your browser settings — Settings › {{app}} › Camera — and come back, or leave it: the photo is optional and you are already checked in.",
       "missing": "This device has no camera. You are checked in all the same; the photo is what you miss.",
       "failed": "The camera would not start. Try again, or leave it: you are already checked in."
     }

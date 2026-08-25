@@ -189,7 +189,7 @@ function EventForm() {
   }
   if (editing && (existing.isError || existing.data == null)) {
     return (
-      <main className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-app px-12">
+      <main className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-app px-[var(--ds-gutter)]">
         <p role="alert" className="text-center text-lg font-bold text-error [text-wrap:pretty]">
           {existing.isError ? t(errorKey(existing.error)) : t('errors.notFound')}
         </p>

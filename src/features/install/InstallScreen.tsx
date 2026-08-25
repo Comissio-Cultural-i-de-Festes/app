@@ -64,7 +64,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
     return (
       <main
         className={
-          'flex min-h-dvh flex-col justify-center overflow-y-auto bg-app px-12 ' +
+          'flex min-h-dvh flex-col justify-center overflow-y-auto bg-app px-[var(--ds-gutter)] ' +
           'pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+24px)]'
         }
       >
@@ -118,7 +118,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
   return (
     <main
       className={
-        'flex min-h-dvh flex-col overflow-y-auto bg-app px-12 pt-[var(--ds-safe-top)] ' +
+        'flex min-h-dvh flex-col overflow-y-auto bg-app px-[var(--ds-gutter)] pt-[var(--ds-safe-top)] ' +
         'pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+24px)]'
       }
     >

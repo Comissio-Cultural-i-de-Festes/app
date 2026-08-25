@@ -151,7 +151,7 @@ export function ScannerScreen() {
         </div>
       </header>
 
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-12">
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-[var(--ds-gutter)]">
         {camera.error === null ? (
           <>
             <Reticle />

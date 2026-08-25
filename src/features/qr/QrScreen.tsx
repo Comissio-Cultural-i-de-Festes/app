@@ -125,7 +125,7 @@ export function QrScreen() {
 
   if (inactive) {
     return (
-      <main className="with-tabbar flex min-h-dvh flex-col items-center justify-center gap-6 bg-app px-12 pt-[var(--ds-safe-top)]">
+      <main className="with-tabbar flex min-h-dvh flex-col items-center justify-center gap-6 bg-app px-[var(--ds-gutter)] pt-[var(--ds-safe-top)]">
         <h1 className="display text-center text-d-s tracking-[-0.045em] [text-wrap:balance]">
           {t('qr.notYet.title')}
         </h1>

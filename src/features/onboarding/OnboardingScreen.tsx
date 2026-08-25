@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router'
 import { fetchSchools, rankingKeys } from '@/features/ranking/api'
 import { useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
+import { errorKey } from '@/lib/errors'
 import { ESCOLES, type Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { Wordmark } from '@/ui/Logo/Logo'
@@ -291,6 +292,17 @@ export function OnboardingScreen() {
             onChange={(e) => {
               setPhone(e.target.value)
             }}
+            // El telèfon és l'últim camp i el botó de desar és just a sota: a
+            // iOS instal·lat el teclat els tapa tots dos i la pantalla no es
+            // pot saltar. `scrollIntoView` no serveix —el teclat no canvia
+            // l'alçada del viewport de disposició, així que el navegador es
+            // creu que el camp ja es veu— i per això és un desplaçament a mà,
+            // i només si el camp ha quedat a la meitat de sota.
+            onFocus={(e) => {
+              const box = e.currentTarget.getBoundingClientRect()
+              const half = window.innerHeight / 2
+              if (box.top > half) window.scrollBy({ top: box.top - half })
+            }}
             type="tel"
             inputMode="tel"
             autoComplete="tel-national"
@@ -332,7 +344,7 @@ export function OnboardingScreen() {
 
         {save.isError ? (
           <p role="alert" className="mt-4 text-md font-bold text-error [text-wrap:pretty]">
-            {t('errors.generic')}
+            {t(errorKey(save.error))}
           </p>
         ) : null}
 

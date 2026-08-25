@@ -91,7 +91,7 @@ export function OnboardingScreen() {
   const ready = escola !== null && phoneOk
 
   return (
-    <main className="min-h-dvh bg-app pt-[var(--ds-safe-top)] pb-[calc(env(safe-area-inset-bottom,0px)+16px)]">
+    <main className="min-h-dvh bg-app pt-[var(--ds-safe-top)] pb-[calc(var(--ds-safe-bottom)+16px)]">
       <header className={`flex items-center justify-between gap-3 pt-4 pb-2 ${GUTTER}`}>
         <Wordmark size={20} />
       </header>

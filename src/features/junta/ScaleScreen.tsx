@@ -73,8 +73,10 @@ function ScaleBlock() {
                 const typed = edits[id]
                 const shown = typed ?? String(row.punts)
                 const parsed = Number(shown)
-                const valid = shown !== '' && Number.isInteger(parsed) && parsed >= 0 && parsed <= 500
-                const busy = save.isPending && save.variables !== undefined && keyOf(save.variables) === id
+                const valid =
+                  shown !== '' && Number.isInteger(parsed) && parsed >= 0 && parsed <= 500
+                const busy =
+                  save.isPending && save.variables !== undefined && keyOf(save.variables) === id
 
                 return (
                   <li
@@ -142,7 +144,7 @@ const GUTTER = 'px-[var(--ds-gutter)]'
 export function ScaleScreen() {
   const { t } = useTranslation()
   return (
-    <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+32px)]">
+    <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
       <JuntaHeader
         to="/junta"
         label={t('junta.back')}

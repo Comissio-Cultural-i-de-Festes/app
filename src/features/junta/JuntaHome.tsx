@@ -74,7 +74,7 @@ export function JuntaHome() {
   const dayWord = porta === null ? '' : formatWeekdayLong(new Date(porta.starts_at), locale)
 
   return (
-    <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">
+    <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+24px)]">
       <JuntaHeader to="/perfil" label={t('nav.profile')} title={t('junta.title')} />
 
       {home.isPending ? (

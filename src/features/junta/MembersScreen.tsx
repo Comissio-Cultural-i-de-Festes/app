@@ -53,7 +53,7 @@ export function MembersScreen() {
   const actius = rows.filter((r) => r.estat === 'actiu').length
 
   return (
-    <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+32px)]">
+    <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
       <JuntaHeader
         to="/junta"
         label={t('junta.back')}

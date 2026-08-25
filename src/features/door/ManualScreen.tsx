@@ -193,7 +193,7 @@ export function ManualScreen() {
           {needle === '' ? t('door.nobodyExpected') : t('door.noMatch')}
         </p>
       ) : (
-        <ul className="pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">
+        <ul className="pb-[calc(var(--ds-safe-bottom)+24px)]">
           {shown.map((row) => {
             const outcome = done[row.user_id]
             // Queued counts as in. The person is past the door; only the row

@@ -183,7 +183,7 @@ export function ScannerScreen() {
 
       {outcome === null ? null : <Verdict outcome={outcome} undo={undoLast} />}
 
-      <footer className="relative z-10 border-t border-surface-5 bg-[var(--ds-scrim-bar)] px-8 pt-7 pb-[calc(env(safe-area-inset-bottom,0px)+16px)] backdrop-blur-[14px]">
+      <footer className="relative z-10 border-t border-surface-5 bg-[var(--ds-scrim-bar)] px-8 pt-7 pb-[calc(var(--ds-safe-bottom)+16px)] backdrop-blur-[14px]">
         <Link
           to={`/junta/alta/${id}`}
           className="flex min-h-[58px] w-full items-center justify-center bg-brand-cta px-9 py-8 text-xl font-bold text-on-brand no-underline [text-wrap:balance]"

@@ -182,7 +182,7 @@ export function DoorPhotoScreen() {
         </p>
       ) : null}
 
-      <footer className="relative z-10 bg-[oklch(0.11_0.008_25/0.9)] px-8 py-9 pb-[calc(env(safe-area-inset-bottom,0px)+22px)]">
+      <footer className="relative z-10 bg-[oklch(0.11_0.008_25/0.9)] px-8 py-9 pb-[calc(var(--ds-safe-bottom)+22px)]">
         <div className="flex items-center justify-between gap-8">
           <button
             type="button"

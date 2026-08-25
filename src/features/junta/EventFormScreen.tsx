@@ -214,7 +214,7 @@ function EventForm() {
   }
 
   return (
-    <main className="min-h-dvh bg-app pb-[calc(env(safe-area-inset-bottom,0px)+24px)]">
+    <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+24px)]">
       {previewing ? (
         <EventPreview
           data={previewFrom(form, coverPreview)}

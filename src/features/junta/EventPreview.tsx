@@ -148,7 +148,7 @@ export function EventPreview({
         </>
       )}
 
-      <div className={`pb-[calc(env(safe-area-inset-bottom,0px)+24px)] ${GUTTER}`}>
+      <div className={`pb-[calc(var(--ds-safe-bottom)+24px)] ${GUTTER}`}>
         <button
           type="button"
           onClick={onClose}

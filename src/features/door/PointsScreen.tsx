@@ -172,7 +172,7 @@ export function PointsScreen() {
       {/* Sits above the list rather than at the end of it: with twenty-six
           people checked in, a bar at the bottom of the document is a scroll
           away from the person you just ticked. */}
-      <div className="sticky bottom-0 z-10 mt-auto border-t border-surface-6 bg-[var(--ds-scrim-bar)] px-8 pt-7 pb-[calc(env(safe-area-inset-bottom,0px)+10px)] backdrop-blur-[14px]">
+      <div className="sticky bottom-0 z-10 mt-auto border-t border-surface-6 bg-[var(--ds-scrim-bar)] px-8 pt-7 pb-[calc(var(--ds-safe-bottom)+10px)] backdrop-blur-[14px]">
         <div className="flex items-baseline justify-between gap-6">
           <p className="text-lg font-bold">
             {given !== null && picked.size === 0

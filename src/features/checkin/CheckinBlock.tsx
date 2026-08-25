@@ -101,7 +101,8 @@ export function CheckinBlock({
   const busy = state.kind === 'locating' || state.kind === 'sending'
 
   return (
-    <section className={`pt-12 ${GUTTER}`}>
+    // L'ancoratge que l'Inici fa servir per portar aquí en un toc.
+    <section id="soc-aqui" className={`pt-12 ${GUTTER}`}>
       <h2 className="display text-[27px] leading-[0.98] tracking-[-0.042em] [text-wrap:balance]">
         {t('checkin.title')}
       </h2>

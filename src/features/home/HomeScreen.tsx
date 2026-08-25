@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { FailedNotice } from '@/features/checkin/FailedNotice'
+import { checkinWindow, isOpen } from '@/features/checkin/window'
 import { firstName } from '@/features/session/profile'
 
 import { movementLine } from './movementLine'
@@ -308,7 +310,18 @@ function CallToAction({
   const mine = myAnswer(attendances, event.id, userId)
   const going = mine === 'si' || mine === 'asistio'
 
-  const names = signedUpToday(attendances, event.id, userId, new Date())
+  // Un sol instant per a tot el render: llegir l'hora dues vegades pot posar
+  // «encara s'hi pot fitxar» i «s'hi han apuntat avui» en desacord.
+  const [now] = useState(() => new Date())
+  const names = signedUpToday(attendances, event.id, userId, now)
+
+  // Fitxar era el flux més car de l'app: obrir, tocar el hero, recórrer avall
+  // per cares, fets i places, i llavors «Sóc aquí». Mentre la finestra és
+  // oberta i encara no consto dins, el CTA porta directe a l'àncora del bloc:
+  // un toc, zero scroll. La finestra la decideix `checkin/window.ts`, la
+  // mateixa regla que fa aparèixer el bloc a l'altra banda.
+  const canCheckIn =
+    mine !== 'asistio' && isOpen(checkinWindow(event.starts_at, event.ends_at), now.getTime())
 
   const base =
     'flex w-full min-h-[56px] items-center justify-center px-[18px] py-[15px] ' +
@@ -323,6 +336,13 @@ function CallToAction({
         <button type="button" disabled className={`${base} bg-surface-2 text-fg-muted opacity-70`}>
           {t('home.cta.join')}
         </button>
+      ) : canCheckIn ? (
+        <Link
+          to={`/esdeveniment/${event.id}#soc-aqui`}
+          className={`${base} bg-brand-cta text-on-brand no-underline`}
+        >
+          {t('checkin.here')}
+        </Link>
       ) : going ? (
         // Qui ja ha dit que sí és el públic que volem retenir, i aquest és
         // l'únic CTA que veu. Porta a l'esdeveniment, que és on hi ha el

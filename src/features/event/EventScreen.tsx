@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useParams } from 'react-router'
+import { Link, useLocation, useParams } from 'react-router'
 
 import {
   type AttendanceRow,
@@ -75,6 +75,7 @@ export function EventScreen() {
   const userId = useUserId()
   const client = useQueryClient()
   const { id = '' } = useParams()
+  const { hash: locationHash } = useLocation()
 
   // One reading of the clock for the whole screen, taken once. Calling
   // Date.now() twice during a render can put "already happened" and "signed up
@@ -100,6 +101,15 @@ export function EventScreen() {
       await client.invalidateQueries({ queryKey: eventKeys.waitlist(id) })
     },
   })
+
+  // L'Inici hi envia amb `#soc-aqui` quan la finestra és oberta: un toc i cap
+  // scroll, que és el que demana algú a la porta amb una mà lliure. L'àncora
+  // no existeix fins que hi ha dades, i el bloc de fitxatge depèn també de la
+  // meva resposta, així que espera les dues consultes en lloc del muntatge.
+  useEffect(() => {
+    if (locationHash !== '#soc-aqui') return
+    document.getElementById('soc-aqui')?.scrollIntoView({ block: 'center' })
+  }, [locationHash, event.isSuccess, attendances.isSuccess])
 
   if (event.isPending) {
     return (

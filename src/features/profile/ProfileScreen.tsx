@@ -116,8 +116,10 @@ export function ProfileScreen() {
   }
 
   return (
-    <main className="with-tabbar min-h-dvh bg-app pt-[var(--ds-safe-top)]">
-      <header className={`flex items-center gap-8 pt-[6px] ${GUTTER}`}>
+    <main className="with-tabbar min-h-dvh bg-app pt-[max(var(--ds-safe-top),12px)]">
+      {/* El títol més gran de l'app i el que està més amunt de tot: sis
+          píxels no eren coixí, eren una coincidència. */}
+      <header className={`flex items-center gap-8 pt-6 ${GUTTER}`}>
         <Avatar src={profile?.avatar_url ?? null} size={72} />
         <div className="min-w-0 flex-1">
           <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">

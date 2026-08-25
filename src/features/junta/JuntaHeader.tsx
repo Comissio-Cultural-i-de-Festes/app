@@ -24,7 +24,7 @@ export function JuntaHeader({
 }) {
   return (
     <header
-      className={`sticky top-0 z-20 border-b border-surface-5 bg-app px-[var(--ds-gutter)] pt-[calc(var(--ds-safe-top)+4px)] pb-4 ${className}`}
+      className={`sticky top-0 z-20 border-b border-surface-5 bg-app px-[var(--ds-gutter)] pt-[max(calc(var(--ds-safe-top)+4px),12px)] pb-4 ${className}`}
     >
       <div className="flex items-center justify-between gap-3">
         <Link

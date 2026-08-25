@@ -72,7 +72,7 @@ export function IdeasScreen() {
   return (
     <main className="with-tabbar min-h-dvh bg-app">
       <header
-        className={`flex items-start justify-between gap-6 pt-[calc(var(--ds-safe-top)+16px)] pb-6 ${GUTTER}`}
+        className={`flex items-start justify-between gap-6 pt-[max(calc(var(--ds-safe-top)+16px),12px)] pb-6 ${GUTTER}`}
       >
         <div className="min-w-0 flex-1">
           <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">

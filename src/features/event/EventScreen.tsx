@@ -118,7 +118,7 @@ export function EventScreen() {
 
   if (event.isError) {
     return (
-      <main className={`with-tabbar min-h-dvh bg-app pt-[calc(var(--ds-safe-top)+32px)] ${GUTTER}`}>
+      <main className={`with-tabbar min-h-dvh bg-app pt-[max(calc(var(--ds-safe-top)+32px),12px)] ${GUTTER}`}>
         <p role="alert" className="text-lg font-bold text-error [text-wrap:pretty]">
           {t(errorKey(event.error))}
         </p>
@@ -135,7 +135,7 @@ export function EventScreen() {
 
   if (event.data == null) {
     return (
-      <main className={`with-tabbar min-h-dvh bg-app pt-[calc(var(--ds-safe-top)+32px)] ${GUTTER}`}>
+      <main className={`with-tabbar min-h-dvh bg-app pt-[max(calc(var(--ds-safe-top)+32px),12px)] ${GUTTER}`}>
         <p className="display text-d-sm [text-wrap:balance]">{t('event.gone.title')}</p>
         <p className="mt-6 text-fg-muted [text-wrap:pretty]">{t('event.gone.body')}</p>
         <Link

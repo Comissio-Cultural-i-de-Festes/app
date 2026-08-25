@@ -147,7 +147,7 @@ function Header({ home }: { readonly home: Home }) {
 
   return (
     <header
-      className={`sticky top-0 z-20 flex items-center justify-between gap-3 bg-app pt-[calc(var(--ds-safe-top)+4px)] pb-6 ${GUTTER}`}
+      className={`sticky top-0 z-20 flex items-center justify-between gap-3 bg-app pt-[max(calc(var(--ds-safe-top)+4px),12px)] pb-6 ${GUTTER}`}
     >
       <div className="flex min-w-0 items-center gap-[10px]">
         <LogoMark size={36} />

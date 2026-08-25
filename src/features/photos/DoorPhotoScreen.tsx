@@ -103,7 +103,7 @@ export function DoorPhotoScreen() {
       />
       <div aria-hidden="true" className="door-scrim absolute inset-0" />
 
-      <header className="relative z-10 pt-[calc(var(--ds-safe-top)+8px)]">
+      <header className="relative z-10 pt-[max(calc(var(--ds-safe-top)+8px),12px)]">
         <div className="flex items-center justify-between gap-5 px-8">
           <button
             type="button"

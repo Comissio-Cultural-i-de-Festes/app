@@ -101,7 +101,7 @@ export function EntryScreen() {
   const expiry = invite.status === 'valid' ? expiryLabel(invite.expiresAt, t) : null
 
   return (
-    <main className="flex min-h-dvh flex-col bg-app px-[var(--ds-gutter)] pt-[var(--ds-safe-top)] pb-[calc(var(--ds-safe-bottom)+24px)]">
+    <main className="flex min-h-dvh flex-col bg-app px-[var(--ds-gutter)] pt-[max(var(--ds-safe-top),12px)] pb-[calc(var(--ds-safe-bottom)+24px)]">
       <header className="mt-[26px] flex items-center gap-6">
         <LogoMark size={44} />
         <div>
@@ -305,7 +305,7 @@ function SentPanel({ email, onBack }: SentPanelProps) {
   )
 
   return (
-    <main className="flex min-h-dvh flex-col bg-app px-[var(--ds-gutter)] pt-[var(--ds-safe-top)] pb-[calc(var(--ds-safe-bottom)+24px)]">
+    <main className="flex min-h-dvh flex-col bg-app px-[var(--ds-gutter)] pt-[max(var(--ds-safe-top),12px)] pb-[calc(var(--ds-safe-bottom)+24px)]">
       <div className="mt-auto">
         <h1 className="font-display text-d-lg leading-[0.87] tracking-[-0.05em] uppercase">
           {t('entry.sent.title')}

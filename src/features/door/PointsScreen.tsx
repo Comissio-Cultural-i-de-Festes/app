@@ -72,7 +72,7 @@ export function PointsScreen() {
 
   return (
     <main className="flex min-h-dvh flex-col bg-app">
-      <header className="sticky top-0 z-20 border-b border-surface-5 bg-app px-[var(--ds-gutter)] pt-[calc(var(--ds-safe-top)+8px)] pb-7">
+      <header className="sticky top-0 z-20 border-b border-surface-5 bg-app px-[var(--ds-gutter)] pt-[max(calc(var(--ds-safe-top)+8px),12px)] pb-7">
         <div className="flex items-center justify-between gap-6">
           <Link
             to="/junta"

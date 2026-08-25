@@ -268,6 +268,11 @@
    * a modern phone uses its whole screen, and narrow enough that a line of
    * text stays a line of text. */
   --ds-shell-max-w: 430px;
+  /* Compte: amb `apple-mobile-web-app-status-bar-style: black` —el que tria
+   * l'index.html, i hi diu per què— iOS reserva la barra d'estat i aquest
+   * valor és 0 a l'app instal·lada. Només treballa al Safari. Per això cada
+   * consumidor l'embolcalla en `max(…, 12px)`: el coixí de dalt no ha de
+   * dependre de si el sistema pinta la banda o no. */
   --ds-safe-top: env(safe-area-inset-top, 0px);
   --ds-safe-bottom: env(safe-area-inset-bottom, 0px);
   --ds-safe-left: env(safe-area-inset-left, 0px);

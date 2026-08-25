@@ -119,7 +119,7 @@ export function ManualScreen() {
 
   return (
     <main className="flex min-h-dvh flex-col bg-[var(--ds-bg-door)]">
-      <header className="sticky top-0 z-20 border-b border-surface-5 bg-[var(--ds-bg-door)] px-[var(--ds-gutter)] pt-[calc(var(--ds-safe-top)+8px)] pb-6">
+      <header className="sticky top-0 z-20 border-b border-surface-5 bg-[var(--ds-bg-door)] px-[var(--ds-gutter)] pt-[max(calc(var(--ds-safe-top)+8px),12px)] pb-6">
         <div className="flex items-center justify-between gap-6">
           <Link
             to={`/junta/escaner/${id}`}

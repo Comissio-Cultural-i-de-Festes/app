@@ -30,7 +30,7 @@ export function JuntaNav() {
   return (
     <nav
       aria-label={t('junta.title')}
-      className="sticky top-0 z-30 hidden min-h-[62px] items-center gap-[34px] border-b border-surface-5 bg-surface-1 px-14 pt-[var(--ds-safe-top)] lg:flex"
+      className="sticky top-0 z-30 hidden min-h-[62px] items-center gap-[34px] border-b border-surface-5 bg-surface-1 px-14 pt-[max(var(--ds-safe-top),12px)] lg:flex"
     >
       <NavLink
         to="/"

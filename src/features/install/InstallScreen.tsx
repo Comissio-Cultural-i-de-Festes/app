@@ -65,7 +65,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
       <main
         className={
           'flex min-h-dvh flex-col justify-center overflow-y-auto bg-app px-[var(--ds-gutter)] ' +
-          'pt-[calc(var(--ds-safe-top)+8px)] pb-[calc(var(--ds-safe-bottom)+24px)]'
+          'pt-[max(calc(var(--ds-safe-top)+8px),12px)] pb-[calc(var(--ds-safe-bottom)+24px)]'
         }
       >
         <h1 className="font-display text-d-md leading-[0.88] tracking-[-0.05em] uppercase">
@@ -124,7 +124,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
         // titular quedava enganxat a la barra d'estat sense cap coixí, i la
         // branca nativa no tenia ni safe-area.
         'flex min-h-dvh flex-col overflow-y-auto bg-app px-[var(--ds-gutter)] ' +
-        'pt-[calc(var(--ds-safe-top)+8px)] pb-[calc(var(--ds-safe-bottom)+24px)]'
+        'pt-[max(calc(var(--ds-safe-top)+8px),12px)] pb-[calc(var(--ds-safe-bottom)+24px)]'
       }
     >
       <h1 className="font-display text-d-md leading-[0.88] tracking-[-0.05em] uppercase">

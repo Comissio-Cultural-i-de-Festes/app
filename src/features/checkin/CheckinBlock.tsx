@@ -15,6 +15,7 @@ import type { EventRow } from '@/lib/schema'
 import { Notice } from '@/ui/Notice/Notice'
 
 import { type Verdict, PositionFailure, checkInHere, getFix } from './api'
+import { checkinQueueKeys } from './useCheckinPending'
 
 /**
  * «Sóc aquí».
@@ -96,6 +97,18 @@ export function CheckinBlock({
       // Qualsevol altra cosa vol dir que no hi ha arribat: el fitxatge ja és a
       // la cua i sortirà sol quan torni la xarxa.
       setState({ kind: 'queued' })
+    },
+    // Els tres camins mouen el comptador de la cua: `checkInHere` hi escriu
+    // sempre i n'esborra la fila només si el servidor contesta. Fitxar bé el
+    // baixa, quedar-se sense cobertura el puja, i un «lluny» el baixa deixant
+    // un refús. Per això va a `onSettled` i no repartit entre les dues
+    // branques — el rètol de l'Inici es quedava congelat fins que el drenatge
+    // de l'arrel enviava alguna cosa.
+    onSettled: async () => {
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: checkinQueueKeys.pending() }),
+        queryClient.invalidateQueries({ queryKey: checkinQueueKeys.failed() }),
+      ])
     },
   })
 

@@ -177,12 +177,9 @@ function Done({ event, punts }: { readonly event: EventRow; readonly punts: numb
   const { t } = useTranslation()
   return (
     <>
-      <p
-        role="status"
-        className="mt-8 border-l-[3px] border-success bg-surface-2 px-7 py-6 text-md font-bold text-fg [text-wrap:pretty]"
-      >
+      <Notice tone="ok" size="tight" live className="mt-8 font-bold">
         {punts > 0 ? t('checkin.done', { count: punts }) : t('checkin.doneNoPoints')}
-      </p>
+      </Notice>
       <NewBadgeCard />
       <Link
         to={`/perfil/nits/${event.id}/camera?half=entrada`}

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
@@ -14,7 +15,7 @@ import { formatDayMonth, formatOrdinal } from '@/i18n/format'
 import { SUPPORTED_LOCALES, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
-import { clearAllQueues } from '@/lib/queue'
+import { HERE, IDEAS, PROVES, SCANS, clearAllQueues, count } from '@/lib/queue'
 import { supabase } from '@/lib/supabase'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
@@ -82,6 +83,23 @@ export function ProfileScreen() {
   ]
     .filter((part): part is string => part !== null)
     .join(' · ')
+
+  // Quantes coses esperen xarxa, o `null` mentre no s'ha preguntat.
+  const [pending, setPending] = useState<number | null>(null)
+
+  // `signOut()` buida les quatre cues a posta —el telèfon es comparteix— però
+  // fer-ho sense dir-ho vol dir que els punts d'aquella nit s'evaporen amb un
+  // toc. Es compta abans, i només si hi ha res es demana confirmació: el cas
+  // normal és cua buida i un sol toc, com fins ara.
+  async function askSignOut(): Promise<void> {
+    const counts = await Promise.all([SCANS, IDEAS, HERE, PROVES].map((store) => count(store)))
+    const total = counts.reduce((sum, n) => sum + n, 0)
+    if (total === 0) {
+      await signOut()
+      return
+    }
+    setPending(total)
+  }
 
   async function signOut(): Promise<void> {
     // Before the session goes, not after: once it is gone this component is
@@ -283,13 +301,39 @@ export function ProfileScreen() {
           </Link>
         ) : null}
 
-        <button
-          type="button"
-          onClick={() => void signOut()}
-          className="cursor-pointer border-0 bg-transparent p-0 pt-9 pb-4 text-base font-bold text-warning"
-        >
-          {t('actions.signOut')}
-        </button>
+        {pending === null ? (
+          <button
+            type="button"
+            onClick={() => void askSignOut()}
+            className="cursor-pointer border-0 bg-transparent p-0 pt-9 pb-4 text-base font-bold text-warning"
+          >
+            {t('actions.signOut')}
+          </button>
+        ) : (
+          <div className="pt-9 pb-4">
+            <p className="text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+              {t('profile.signOutPending.warn', { count: pending })}
+            </p>
+            <div className="mt-5 flex gap-4">
+              <button
+                type="button"
+                onClick={() => void signOut()}
+                className="min-h-[46px] flex-1 border-[1.5px] border-warning px-5 text-md font-bold text-warning"
+              >
+                {t('profile.signOutPending.anyway')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPending(null)
+                }}
+                className="min-h-[46px] flex-none px-5 text-md font-bold text-fg-muted"
+              >
+                {t('profile.signOutPending.wait')}
+              </button>
+            </div>
+          </div>
+        )}
 
         <p className="pb-6 text-[12.5px] text-fg-faint [text-wrap:pretty]">{t('profile.footer')}</p>
       </section>

@@ -1174,7 +1174,13 @@
       "nights": "Tus noches",
       "nightsSub": "El díptico de entrada y salida de cada fiesta"
     },
-    "footer": "Hecho entre clase y clase."
+    "footer": "Hecho entre clase y clase.",
+    "signOutPending": {
+      "warn_one": "Tienes {{count}} cosa pendiente de enviar. Si sales ahora se perderá.",
+      "warn_other": "Tienes {{count}} cosas pendientes de enviar. Si sales ahora se perderán.",
+      "anyway": "Sal igualmente",
+      "wait": "Espera"
+    }
   },
   "streak": {
     "title": "La racha",

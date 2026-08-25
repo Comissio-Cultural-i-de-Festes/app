@@ -1174,7 +1174,13 @@
       "nights": "Les teves nits",
       "nightsSub": "El díptic d'entrada i sortida de cada festa"
     },
-    "footer": "Fet entre classe i classe."
+    "footer": "Fet entre classe i classe.",
+    "signOutPending": {
+      "warn_one": "Tens {{count}} cosa pendent d'enviar. Si surts ara es perdrà.",
+      "warn_other": "Tens {{count}} coses pendents d'enviar. Si surts ara es perdran.",
+      "anyway": "Surt igualment",
+      "wait": "Espera"
+    }
   },
   "streak": {
     "title": "La ratxa",

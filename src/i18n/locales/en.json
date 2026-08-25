@@ -1174,7 +1174,13 @@
       "nights": "Your nights",
       "nightsSub": "The in-and-out diptych from every party"
     },
-    "footer": "Made between lectures."
+    "footer": "Made between lectures.",
+    "signOutPending": {
+      "warn_one": "You have {{count}} thing still to send. Leaving now loses it.",
+      "warn_other": "You have {{count}} things still to send. Leaving now loses them.",
+      "anyway": "Leave anyway",
+      "wait": "Wait"
+    }
   },
   "streak": {
     "title": "Your streak",

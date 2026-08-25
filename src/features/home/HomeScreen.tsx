@@ -319,17 +319,19 @@ function CallToAction({
           {t('home.cta.join')}
         </button>
       ) : going ? (
-        // "Ja hi vas · canvia-ho" opens the event, and the event screen is a
-        // later batch. Disabled rather than silently doing nothing, so it
-        // announces itself instead of feeling broken.
-        <button
-          type="button"
-          disabled
-          aria-label={`${t('home.cta.going')}, ${t('a11y.comingSoon')}`}
-          className={`${base} border-[1.5px] border-surface-9 bg-surface-2 text-fg-secondary opacity-70`}
+        // Qui ja ha dit que sí és el públic que volem retenir, i aquest és
+        // l'únic CTA que veu. Porta a l'esdeveniment, que és on hi ha el
+        // sí/potser/no: secundari perquè la decisió ja està presa, però viu,
+        // amb el xevró que diu que aquí es va a algun lloc.
+        <Link
+          to={`/esdeveniment/${event.id}`}
+          className={`${base} gap-3 border-[1.5px] border-surface-9 bg-surface-2 text-fg-secondary no-underline`}
         >
           {t('home.cta.going')}
-        </button>
+          <span aria-hidden="true" className="flex-none text-[20px]">
+            ›
+          </span>
+        </Link>
       ) : (
         <button
           type="button"

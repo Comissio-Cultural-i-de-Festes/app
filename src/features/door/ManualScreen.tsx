@@ -157,6 +157,11 @@ export function ManualScreen() {
           // Bigger than anywhere else in the app on purpose: this is typed
           // with one thumb, standing up, with people waiting.
           className="mt-6 min-h-[54px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-7 py-6 text-xl font-semibold text-fg outline-none placeholder:font-medium placeholder:text-fg-dim"
+          type="search"
+          enterKeyHint="search"
+          // El placeholder desapareix en escriure: per a un lector de pantalla
+          // el camp es quedava sense nom just quan s'està fent servir.
+          aria-label={t('door.searchName')}
           placeholder={t('door.searchName')}
           autoComplete="off"
           autoCapitalize="off"

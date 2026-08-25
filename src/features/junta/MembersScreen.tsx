@@ -93,6 +93,9 @@ export function MembersScreen() {
           onChange={(e) => {
             setQuery(e.target.value)
           }}
+          type="search"
+          enterKeyHint="search"
+          aria-label={t('junta.members.search')}
           placeholder={t('junta.members.search')}
           autoComplete="off"
           autoCapitalize="off"

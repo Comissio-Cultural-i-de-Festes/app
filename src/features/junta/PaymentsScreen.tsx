@@ -166,7 +166,10 @@ function Requests({ eventId }: { readonly eventId: string }) {
 
       <ul className="mt-7">
         {rows.map((r) => (
-          <li key={r.id} className="flex flex-wrap items-center gap-4 border-b border-surface-4 py-6">
+          <li
+            key={r.id}
+            className="flex flex-wrap items-center gap-4 border-b border-surface-4 py-6"
+          >
             <Avatar src={r.profiles?.avatar_url ?? null} size={36} />
             <span className="min-w-0 flex-1 truncate text-base font-semibold">
               {r.profiles?.nombre ?? '—'}
@@ -200,7 +203,10 @@ function Requests({ eventId }: { readonly eventId: string }) {
       </ul>
 
       {note === null ? null : (
-        <p role="alert" className="pt-6 text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]">
+        <p
+          role="alert"
+          className="pt-6 text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]"
+        >
           {t(note === 'sense_places' ? 'junta.payments.noRoomLeft' : 'junta.payments.gone')}
         </p>
       )}
@@ -620,6 +626,9 @@ function MemberPicker({
           onChange={(e) => {
             setQuery(e.target.value)
           }}
+          type="search"
+          enterKeyHint="search"
+          aria-label={t('junta.payments.searchMember')}
           placeholder={t('junta.payments.searchMember')}
           className="min-h-[44px] min-w-0 flex-1 bg-transparent text-lg font-semibold text-fg outline-none placeholder:font-medium placeholder:text-fg-faint"
         />

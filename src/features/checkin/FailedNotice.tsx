@@ -48,7 +48,9 @@ export function FailedNotice() {
   const dia = ago <= WEEK_DAYS ? formatWeekdayLong(when, locale) : formatDayMonth(when, locale)
 
   return (
-    <Notice className="mx-[var(--ds-gutter)] mt-1">
+    // `live` perquè aquest avís entra sol: el drenatge de la cua rep el
+    // veredicte després que la pantalla estigui muntada, i llavors apareix.
+    <Notice live className="mx-[var(--ds-gutter)] mt-1">
       {t(`checkin.failed.${KEYS[oldest.estat]}`, {
         dia,
         ...(oldest.metres === null ? {} : { metres: oldest.metres }),

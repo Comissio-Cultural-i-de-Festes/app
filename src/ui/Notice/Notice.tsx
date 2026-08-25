@@ -35,6 +35,11 @@ export function Notice({
    * podien coincidir quatre regions live i que obrir l'app eren tres anuncis
    * seguits abans de saber quin esdeveniment ve. El que ja hi és en carregar
    * no s'ha d'anunciar: només s'ha de poder llegir en ordre.
+   *
+   * El criteri és «entra sol o ja hi era», no «és important o no». L'avís d'un
+   * fitxatge refusat és el cas que ho aclareix: no és el més greu de la
+   * pantalla, però és l'únic que apareix mentre algú mira —el drenatge de la
+   * cua li porta el veredicte— i per això sí que en porta.
    */
   readonly live?: boolean
   /** Només per al marge i la posició. */

@@ -1287,6 +1287,8 @@
     "from": "Where from",
     "fromPlaceholder": "Mataró Nord",
     "at": "What time",
+    "timeOdd": "That is after the party starts. Sure?",
+    "timePast": "That time has already gone. Sure?",
     "howMany": "How many seats",
     "notes": "Anything else",
     "notesPlaceholder": "If you smoke in the car, if the boot is full, if you are coming back Sunday afternoon… a few words.",

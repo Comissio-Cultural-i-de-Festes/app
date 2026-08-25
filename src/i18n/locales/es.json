@@ -1287,6 +1287,8 @@
     "from": "De dónde sales",
     "fromPlaceholder": "Mataró Norte",
     "at": "A qué hora",
+    "timeOdd": "Esta hora es después de que empiece la fiesta. ¿Seguro?",
+    "timePast": "Esta hora ya ha pasado. ¿Seguro?",
     "howMany": "Cuántas plazas ofreces",
     "notes": "Algo más",
     "notesPlaceholder": "Si fumas en el coche, si el maletero va lleno, si vuelves el domingo por la tarde… cuatro palabras.",

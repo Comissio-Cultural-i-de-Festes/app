@@ -52,6 +52,8 @@ export function OfferRideScreen() {
   const [origen, setOrigen] = useState('')
   const [notes, setNotes] = useState('')
   const [hora, setHora] = useState<string | null>(null)
+  // Un sol instant per a tot el render, com a la resta de pantalles.
+  const [now] = useState(() => Date.now())
 
   // Derived until somebody types, so the field is not empty on a screen that
   // has an obvious answer. The same `edits ?? derived` shape as the event form.
@@ -81,6 +83,21 @@ export function OfferRideScreen() {
   })
 
   const valid = origen.trim().length >= 2
+
+  // Consell, no mur: el camp accepta qualsevol data i el formulari publica
+  // igualment, però una sortida de després que la festa comenci —o d'ahir— és
+  // gairebé sempre un dit que ha rellliscat al selector.
+  const chosen = shown === '' ? null : fromLocalInput(shown, APP_TIME_ZONE)
+  const chosenMs = chosen === null ? null : new Date(chosen).getTime()
+  const timeOdd =
+    chosenMs === null
+      ? null
+      : chosenMs < now
+        ? 'past'
+        : // Només l'anada: qui torna hi va després que comenci, evidentment.
+          sentit !== 'tornada' && starts !== null && chosenMs > starts.getTime()
+          ? 'late'
+          : null
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
@@ -160,6 +177,11 @@ export function OfferRideScreen() {
             }}
             className={INPUT}
           />
+          {timeOdd === null ? null : (
+            <p role="status" className="mt-3 text-sm font-semibold text-warning [text-wrap:pretty]">
+              {timeOdd === 'past' ? t('rides.timePast') : t('rides.timeOdd')}
+            </p>
+          )}
         </Field>
 
         <Field label={t('rides.notes')}>

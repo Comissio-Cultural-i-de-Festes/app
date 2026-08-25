@@ -1287,6 +1287,8 @@
     "from": "D'on surts",
     "fromPlaceholder": "Mataró Nord",
     "at": "A quina hora",
+    "timeOdd": "Aquesta hora és després que comenci la festa. Segur?",
+    "timePast": "Aquesta hora ja ha passat. Segur?",
     "howMany": "Quantes places ofereixes",
     "notes": "Alguna cosa més",
     "notesPlaceholder": "Si fumes al cotxe, si el maleter va ple, si tornes diumenge a la tarda… quatre paraules.",

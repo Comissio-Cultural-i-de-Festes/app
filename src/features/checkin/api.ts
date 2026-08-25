@@ -2,6 +2,8 @@ import { DbError } from '@/lib/db'
 import { HERE, type Queued, drop, put, waiting } from '@/lib/queue'
 import { supabase } from '@/lib/supabase'
 
+import { rememberFailed } from './failed'
+
 /**
  * Fitxar des d'on ets.
  *
@@ -16,7 +18,12 @@ import { supabase } from '@/lib/supabase'
 export type PositionError = 'denied' | 'unavailable' | 'timeout' | 'unsupported'
 
 export type Verdict =
-  | { readonly estat: 'fet'; readonly punts: number; readonly metres: number; readonly walkin: boolean }
+  | {
+      readonly estat: 'fet'
+      readonly punts: number
+      readonly metres: number
+      readonly walkin: boolean
+    }
   | { readonly estat: 'ja_hi_ets'; readonly quan: string }
   | { readonly estat: 'lluny'; readonly metres: number; readonly radi: number }
   | { readonly estat: 'tancat'; readonly obre: string | null; readonly tanca: string | null }
@@ -155,7 +162,21 @@ export async function flushCheckins(): Promise<number> {
   let sent = 0
   for (const item of await queuedCheckins()) {
     try {
-      await send(item)
+      const verdict = await send(item)
+      // Enviat no vol dir fitxat. El servidor pot contestar «lluny», «tancat»,
+      // «sense lloc» o «no hi és», i aleshores la cua ja no hi té res a fer
+      // però la persona sí que ha de saber-ho: sense això, esborràvem la
+      // prova que havia premut el botó i mai no s'assabentava que no tenia els
+      // punts.
+      if (verdict.estat !== 'fet' && verdict.estat !== 'ja_hi_ets') {
+        rememberFailed({
+          id: item.id,
+          eventId: item.eventId,
+          estat: verdict.estat,
+          metres: verdict.estat === 'lluny' ? verdict.metres : null,
+          takenAt: item.takenAt,
+        })
+      }
       await drop(HERE, item.id)
       sent += 1
     } catch {

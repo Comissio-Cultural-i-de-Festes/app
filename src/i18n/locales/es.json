@@ -369,6 +369,13 @@
       "unavailable": "El móvil no sabe dónde está. A menudo se resuelve saliendo un momento fuera o encendiendo el GPS.",
       "timeout": "Ha tardado demasiado. Vuelve a probarlo.",
       "unsupported": "Este navegador no sabe decir dónde estás. Díselo a la junta y te apuntan a mano."
+    },
+    "failed": {
+      "lluny": "El fichaje de {{dia}} no se pudo validar: estabas a {{metres}} m del sitio. No se han sumado puntos.",
+      "tancat": "El fichaje de {{dia}} no se pudo validar: llegó fuera de hora. No se han sumado puntos.",
+      "noHiEs": "El fichaje de {{dia}} no se pudo validar: no constabas en la lista. No se han sumado puntos.",
+      "senseLloc": "El fichaje de {{dia}} no se pudo validar: el evento no tenía el sitio puesto. No se han sumado puntos.",
+      "ok": "Entendido"
     }
   },
   "exitPhoto": {

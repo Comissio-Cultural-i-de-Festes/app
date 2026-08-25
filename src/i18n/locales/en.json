@@ -369,6 +369,13 @@
       "unavailable": "The phone cannot work out where it is. Stepping outside for a moment or turning the GPS on usually fixes it.",
       "timeout": "That took too long. Try again.",
       "unsupported": "This browser cannot tell where you are. Tell the junta and they will add you by hand."
+    },
+    "failed": {
+      "lluny": "The check-in from {{dia}} could not be validated: you were {{metres}} m from the place. No points were added.",
+      "tancat": "The check-in from {{dia}} could not be validated: it arrived outside the window. No points were added.",
+      "noHiEs": "The check-in from {{dia}} could not be validated: you were not on the list. No points were added.",
+      "senseLloc": "The check-in from {{dia}} could not be validated: the event had no place set. No points were added.",
+      "ok": "Got it"
     }
   },
   "exitPhoto": {

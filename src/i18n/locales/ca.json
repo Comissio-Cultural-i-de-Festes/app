@@ -369,6 +369,13 @@
       "unavailable": "El mòbil no sap on és. Sovint es resol sortint un moment a fora o encenent el GPS.",
       "timeout": "Ha trigat massa. Torna-ho a provar.",
       "unsupported": "Aquest navegador no sap dir on ets. Digues-ho a la junta i t'hi apunten a mà."
+    },
+    "failed": {
+      "lluny": "El fitxatge de {{dia}} no es va poder validar: eres a {{metres}} m del lloc. No s'han sumat punts.",
+      "tancat": "El fitxatge de {{dia}} no es va poder validar: va arribar fora d'hora. No s'han sumat punts.",
+      "noHiEs": "El fitxatge de {{dia}} no es va poder validar: no constaves a la llista. No s'han sumat punts.",
+      "senseLloc": "El fitxatge de {{dia}} no es va poder validar: l'esdeveniment no tenia el lloc posat. No s'han sumat punts.",
+      "ok": "Entesos"
     }
   },
   "exitPhoto": {

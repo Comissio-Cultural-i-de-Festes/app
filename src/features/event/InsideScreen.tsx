@@ -161,14 +161,14 @@ export function InsideScreen() {
                 {rows.length}
               </span>
               {e?.ubicacion == null ? null : (
-                <span className="eyebrow mt-5 max-w-full truncate px-4 text-[11.5px] tracking-[0.18em] text-fg-muted">
+                <span className="eyebrow mt-5 max-w-full truncate px-4 text-xs-lo tracking-[0.18em] text-fg-muted">
                   {e.ubicacion}
                 </span>
               )}
               {/* Only where there is a cap to be under. Without one, "of 24
                   signed up" next to 24 inside says nothing. */}
               {e?.plazas == null ? null : (
-                <span className="mt-2 text-[12.5px] text-[var(--ds-text-muted-lo)]">
+                <span className="mt-2 text-sm-lo text-[var(--ds-text-muted-lo)]">
                   {t('inside.ofExpected', { count: e.plazas })}
                 </span>
               )}
@@ -201,7 +201,7 @@ export function InsideScreen() {
             ) : null}
           </div>
 
-          <p className="pt-8 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+          <p className="pt-8 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
             {t('inside.note')}
           </p>
         </div>

@@ -66,7 +66,7 @@ export function ExitPhotoCard({ event: candidate }: { readonly event: EventRow |
         >
           {t('exitPhoto.notNow')}
         </button>
-        <span className="text-[12.5px] text-fg-muted [text-wrap:pretty]">
+        <span className="text-sm-lo text-fg-muted [text-wrap:pretty]">
           {t('exitCard.closesTonight')}
         </span>
       </div>

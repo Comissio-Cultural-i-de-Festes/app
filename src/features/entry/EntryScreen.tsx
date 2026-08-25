@@ -146,7 +146,7 @@ export function EntryScreen() {
               label={t('entry.invite.label')}
               aside={
                 expiry ? (
-                  <span className="max-w-[96px] text-right text-[12.5px] font-bold text-warning [text-wrap:pretty]">
+                  <span className="max-w-[96px] text-right text-sm-lo font-bold text-warning [text-wrap:pretty]">
                     {expiry}
                   </span>
                 ) : null
@@ -159,7 +159,7 @@ export function EntryScreen() {
               variant="dashed"
               label={t('entry.open.noCodeLabel')}
               aside={
-                <span className="max-w-[104px] text-right text-[12.5px] font-bold text-fg-muted [text-wrap:pretty]">
+                <span className="max-w-[104px] text-right text-sm-lo font-bold text-fg-muted [text-wrap:pretty]">
                   {t('entry.open.noCodeAside')}
                 </span>
               }

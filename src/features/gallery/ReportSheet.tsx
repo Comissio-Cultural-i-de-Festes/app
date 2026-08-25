@@ -78,7 +78,7 @@ export function ReportSheet({
         </p>
       ) : null}
 
-      <p className="mt-6 text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+      <p className="mt-6 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
         {t('gallery.report.note')}
       </p>
     </Sheet>

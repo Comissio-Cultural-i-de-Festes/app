@@ -107,12 +107,12 @@ export function IdeasScreen() {
 
       {list.isPending ? (
         <>
-          <p className={`pb-6 text-[12.5px] font-semibold text-fg-muted ${GUTTER}`}>
+          <p className={`pb-6 text-sm-lo font-semibold text-fg-muted ${GUTTER}`}>
             {t('ideas.loading')}
           </p>
           <IdeasSkeleton />
           <p
-            className={`pt-8 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
+            className={`pt-8 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
           >
             {t('ideas.loadingNote')}
           </p>
@@ -123,9 +123,7 @@ export function IdeasScreen() {
         <Empty points={points} />
       ) : (
         <>
-          <p
-            className={`pb-4 text-[12.5px] font-semibold text-[var(--ds-text-muted-lo)] ${GUTTER}`}
-          >
+          <p className={`pb-4 text-sm-lo font-semibold text-[var(--ds-text-muted-lo)] ${GUTTER}`}>
             {t('ideas.count', { open: open.length })}
           </p>
 
@@ -216,12 +214,12 @@ function OpenRow({
         <span className="block text-base font-bold [text-wrap:pretty]">{proposal.titol}</span>
         <span className="mt-2 flex items-center gap-3">
           <Avatar src={proposal.autor?.avatar_url ?? null} size={20} />
-          <span className="min-w-0 truncate text-[12.5px] text-[var(--ds-text-muted-lo)]">
+          <span className="min-w-0 truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
             {proposal.autor?.nombre ?? ''}
           </span>
         </span>
         {proposal.descripcio === null ? null : (
-          <span className="mt-2 block text-[12.5px] text-fg-muted [text-wrap:pretty]">
+          <span className="mt-2 block text-sm-lo text-fg-muted [text-wrap:pretty]">
             {proposal.descripcio}
           </span>
         )}
@@ -238,7 +236,7 @@ function OpenRow({
             type="button"
             disabled={busy}
             onClick={onWithdraw}
-            className="mt-5 min-h-[36px] text-[12.5px] font-bold text-fg-muted"
+            className="mt-5 min-h-[36px] text-sm-lo font-bold text-fg-muted"
           >
             {t('ideas.withdraw')}
           </button>
@@ -289,7 +287,7 @@ function AcceptedRow({
       <span className="min-w-0 flex-1">
         <span className="eyebrow block text-success">{t('ideas.accepted')}</span>
         <span className="mt-2 block text-base font-bold [text-wrap:pretty]">{proposal.titol}</span>
-        <span className="mt-2 block text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        <span className="mt-2 block text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
           {when === null
             ? (proposal.autor?.nombre ?? '')
             : t('ideas.hasDate', {
@@ -350,7 +348,7 @@ function Mine({
               <span className="mt-2 block text-base font-bold [text-wrap:pretty]">{p.titol}</span>
 
               {p.estat === 'acceptada' && points !== '' ? (
-                <span className="mt-3 block text-[12.5px] text-success">
+                <span className="mt-3 block text-sm-lo text-success">
                   <span className="font-bold">{`+${points}`}</span>
                   {` ${t('ideas.minePaid')}`}
                 </span>
@@ -381,9 +379,7 @@ function Mine({
         ))}
       </div>
 
-      <p
-        className={`pt-8 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
-      >
+      <p className={`pt-8 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}>
         {t('ideas.privateNote')}
       </p>
     </section>
@@ -420,7 +416,7 @@ function Empty({ points }: { readonly points: string }) {
           </li>
         ))}
       </ul>
-      <p className="mt-5 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+      <p className="mt-5 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
         {t('ideas.emptyPickNote')}
       </p>
 

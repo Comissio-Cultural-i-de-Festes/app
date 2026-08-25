@@ -32,7 +32,7 @@ export function GimcanaLink({ eventId }: { readonly eventId: string }) {
       >
         <span className="min-w-0">
           <span className="block text-md font-bold">{t('gimcana.title')}</span>
-          <span className="tabular mt-1 block text-[12.5px] text-brand-banner-fg">
+          <span className="tabular mt-1 block text-sm-lo text-brand-banner-fg">
             {t('gimcana.linkSub', { done, total: proves.length })}
             {a_la_cua > 0 ? ` · ${t('gimcana.inQueue', { count: a_la_cua })}` : ''}
           </span>

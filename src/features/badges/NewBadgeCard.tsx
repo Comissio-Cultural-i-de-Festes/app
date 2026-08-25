@@ -50,7 +50,7 @@ export function NewBadgeCard() {
         <p className="mt-2 text-base font-bold [text-wrap:pretty]">
           {t(`badges.${card.key}.title`)}
         </p>
-        <p className="mt-[3px] text-[12.5px] text-fg-muted [text-wrap:pretty]">
+        <p className="mt-[3px] text-sm-lo text-fg-muted [text-wrap:pretty]">
           {t(`badges.${card.key}.won`)}
         </p>
       </div>

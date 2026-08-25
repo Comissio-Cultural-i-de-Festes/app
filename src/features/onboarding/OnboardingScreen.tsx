@@ -117,7 +117,7 @@ export function OnboardingScreen() {
       <section className={`mt-[26px] ${GUTTER}`}>
         <div className="flex items-baseline justify-between gap-3">
           <h2 className="eyebrow text-fg-muted">{t('onboarding.school.label')}</h2>
-          <span className="text-[11.5px] font-bold tracking-[0.1em] text-brand-label uppercase">
+          <span className="text-xs-lo font-bold tracking-[0.1em] text-brand-label uppercase">
             {t('onboarding.school.required')}
           </span>
         </div>
@@ -154,7 +154,7 @@ export function OnboardingScreen() {
                   </span>
                   <span
                     className={
-                      'mt-[5px] block text-[12.5px] font-semibold ' +
+                      'mt-[5px] block text-sm-lo font-semibold ' +
                       (on ? 'text-on-brand' : 'text-[var(--ds-text-muted-lo)]')
                     }
                   >
@@ -315,7 +315,7 @@ export function OnboardingScreen() {
             }
           />
         </div>
-        <p className="mt-4 text-[12.5px] font-medium text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        <p className="mt-4 text-sm-lo font-medium text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
           {phoneOk ? t('onboarding.phone.why') : t('onboarding.phone.invalid')}
         </p>
       </section>

@@ -226,7 +226,7 @@ export function EventScreen() {
             {t('event.onlyYeses')}
           </p>
           {movement.length > 0 ? (
-            <p className="mt-6 flex items-center gap-[9px] text-[13.5px] text-fg-muted">
+            <p className="mt-6 flex items-center gap-[9px] text-md-lo text-fg-muted">
               <span
                 aria-hidden="true"
                 className="size-[9px] flex-none rounded-full bg-brand [animation:comi-pulse_var(--ds-pulse-dur)_ease-in-out_infinite]"

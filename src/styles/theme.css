@@ -75,8 +75,11 @@
   /* font sizes */
   --text-3xs: var(--ds-fs-3xs);
   --text-2xs: var(--ds-fs-2xs);
+  --text-xs-lo: var(--ds-fs-xs-lo);
   --text-xs: var(--ds-fs-xs);
+  --text-sm-lo: var(--ds-fs-sm-lo);
   --text-sm: var(--ds-fs-sm);
+  --text-md-lo: var(--ds-fs-md-lo);
   --text-md: var(--ds-fs-md);
   --text-base: var(--ds-fs-base);
   --text-lg: var(--ds-fs-lg);

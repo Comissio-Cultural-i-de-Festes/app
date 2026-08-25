@@ -372,7 +372,7 @@ function Door({ porta, locale }: { readonly porta: DoorNow; readonly locale: Loc
         </Link>
       </div>
 
-      <p className="mt-5 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+      <p className="mt-5 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
         {t('junta.home.doorHint')}
       </p>
     </section>
@@ -438,7 +438,7 @@ function DoorFailed({ onRetry }: { readonly onRetry: () => void }) {
           {t('junta.home.openScanner')}
         </Link>
       </div>
-      <p className="mt-5 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+      <p className="mt-5 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
         {t('junta.home.doorFailedNote')}
       </p>
     </section>
@@ -535,7 +535,7 @@ function Heading({
           {title}
         </h2>
         {aside === undefined ? null : (
-          <span className="flex-none text-[12.5px] font-bold text-[var(--ds-text-muted-lo)]">
+          <span className="flex-none text-sm-lo font-bold text-[var(--ds-text-muted-lo)]">
             {aside}
           </span>
         )}
@@ -566,7 +566,7 @@ function Count({
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-base font-bold text-fg [text-wrap:pretty]">{title}</span>
-        <span className="mt-[3px] block text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
           {sub}
         </span>
       </span>
@@ -594,7 +594,7 @@ function Row({
         <span className="block text-base font-bold text-fg [text-wrap:pretty]">{title}</span>
         <span
           className={
-            'mt-[3px] block text-[12.5px] [text-wrap:pretty] ' +
+            'mt-[3px] block text-sm-lo [text-wrap:pretty] ' +
             (warn ? 'text-[var(--ds-warning)]' : 'text-[var(--ds-text-muted-lo)]')
           }
         >

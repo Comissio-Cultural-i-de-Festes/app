@@ -96,7 +96,7 @@ export function ScoreboardScreen() {
                     </span>
                   ) : null}
                 </div>
-                <p className="mt-[3px] text-[12.5px] text-fg-muted-lo">
+                <p className="mt-[3px] text-sm-lo text-fg-muted-lo">
                   {t('gimcana.doneCount', { count: r.proves })}
                 </p>
               </div>
@@ -108,7 +108,7 @@ export function ScoreboardScreen() {
         </ul>
       )}
 
-      <p className={`pt-7 pb-10 text-[12.5px] text-fg-muted-lo ${GUTTER} [text-wrap:pretty]`}>
+      <p className={`pt-7 pb-10 text-sm-lo text-fg-muted-lo ${GUTTER} [text-wrap:pretty]`}>
         {t('gimcana.boardNote')}
       </p>
     </main>

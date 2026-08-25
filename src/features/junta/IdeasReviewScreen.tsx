@@ -145,12 +145,12 @@ function Row({ proposal }: { readonly proposal: Proposal }) {
         <span className="block text-base font-bold [text-wrap:pretty]">{proposal.titol}</span>
         <span className="mt-2 flex items-center gap-3">
           <Avatar src={proposal.autor?.avatar_url ?? null} size={20} />
-          <span className="min-w-0 truncate text-[12.5px] text-[var(--ds-text-muted-lo)]">
+          <span className="min-w-0 truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
             {proposal.autor?.nombre ?? ''}
           </span>
         </span>
         {proposal.descripcio === null ? null : (
-          <span className="mt-3 block text-[12.5px] text-fg-muted [text-wrap:pretty]">
+          <span className="mt-3 block text-sm-lo text-fg-muted [text-wrap:pretty]">
             {proposal.descripcio}
           </span>
         )}
@@ -239,7 +239,7 @@ function Panel({
           down should know the sentence they are writing is the whole of what
           the other person gets. */}
       {accepta ? null : (
-        <p className="mt-4 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        <p className="mt-4 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
           {t('ideas.whyNotNote')}
         </p>
       )}

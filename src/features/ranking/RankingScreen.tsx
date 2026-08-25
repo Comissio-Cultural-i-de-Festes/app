@@ -110,7 +110,7 @@ export function RankingScreen() {
                   total: board.rows.length,
                 })}
               </p>
-              <p className="text-[12.5px] text-brand-banner-fg">{t('ranking.youSub')}</p>
+              <p className="text-sm-lo text-brand-banner-fg">{t('ranking.youSub')}</p>
             </div>
             <p className="tabular display flex-none text-d-sm tracking-[-0.04em]">{me.punts}</p>
           </div>
@@ -250,7 +250,7 @@ function PeriodChip({
       onClick={onSelect}
       aria-pressed={active}
       className={
-        'flex min-h-[44px] items-center rounded-[22px] px-6 text-[12.5px] whitespace-nowrap ' +
+        'flex min-h-[44px] items-center rounded-[22px] px-6 text-sm-lo whitespace-nowrap ' +
         (active
           ? 'bg-brand-cta font-bold text-on-brand'
           : 'border border-border-strong font-semibold text-fg-secondary')
@@ -301,7 +301,7 @@ function SchoolLine({
             </span>
           ) : null}
         </div>
-        <p className="mt-[3px] text-[12.5px] text-[var(--ds-text-muted-lo)]">
+        <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)]">
           {t('ranking.schoolFoot', {
             members: school.membres,
             count: school.esdeveniments,
@@ -312,7 +312,7 @@ function SchoolLine({
       <div className="flex-none text-right">
         <p className="tabular display text-d-xs tracking-[-0.035em]">{school.punts_totals}</p>
         {weekly !== null && weekly > 0 ? (
-          <p className="mt-[2px] text-[11.5px] font-bold text-success">
+          <p className="mt-[2px] text-xs-lo font-bold text-success">
             {t('ranking.thisWeek', { count: weekly })}
           </p>
         ) : null}
@@ -370,7 +370,7 @@ function MemberLine({
           {mine ? t('ranking.mine', { name: row.nombre }) : row.nombre}
         </p>
         {row.escola === null ? null : (
-          <p className="mt-[2px] text-[11.5px] font-semibold tracking-[0.05em] text-fg-dim uppercase">
+          <p className="mt-[2px] text-xs-lo font-semibold tracking-[0.05em] text-fg-dim uppercase">
             {t(`escolaShort.${row.escola satisfies Escola}`)}
           </p>
         )}
@@ -414,7 +414,7 @@ function Movement({ delta }: { readonly delta: number | null }) {
       title={label}
       aria-label={label}
       className={
-        'tabular w-[30px] flex-none text-center text-[11.5px] font-bold ' +
+        'tabular w-[30px] flex-none text-center text-xs-lo font-bold ' +
         (delta > 0 ? 'text-success' : delta < 0 ? 'text-fg-muted' : 'text-fg-faint')
       }
     >

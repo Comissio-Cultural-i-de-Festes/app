@@ -84,7 +84,7 @@ export function CheckinsScreen() {
               <Avatar src={r.avatar_url} size={36} />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-base font-semibold text-fg">{r.nombre}</span>
-                <span className="mt-2 block text-[12.5px] text-fg-muted">
+                <span className="mt-2 block text-sm-lo text-fg-muted">
                   {facts(r, locale, t)}
                 </span>
               </span>

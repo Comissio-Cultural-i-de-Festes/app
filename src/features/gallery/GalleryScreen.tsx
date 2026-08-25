@@ -110,7 +110,7 @@ export function GalleryScreen() {
       <div className={`pt-2 ${GUTTER}`}>
         <div className="flex items-baseline justify-between gap-5">
           <h1 className="display text-d-s tracking-[-0.045em]">{t('gallery.title')}</h1>
-          <span className="tabular text-[12.5px] font-bold text-fg-muted-lo">
+          <span className="tabular text-sm-lo font-bold text-fg-muted-lo">
             {t('gallery.countShort', {
               n: photos.data?.length ?? 0,
               people: t('gallery.people', {
@@ -146,7 +146,7 @@ export function GalleryScreen() {
             >
               {t('gallery.upload')}
             </button>
-            <p className="mt-4 text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+            <p className="mt-4 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
               {t('gallery.whoCanUpload')}
             </p>
           </>
@@ -195,7 +195,7 @@ export function GalleryScreen() {
               </button>
             ))}
           </div>
-          <p className={`mt-6 pb-10 text-[12.5px] text-fg-muted-lo [text-wrap:pretty] ${GUTTER}`}>
+          <p className={`mt-6 pb-10 text-sm-lo text-fg-muted-lo [text-wrap:pretty] ${GUTTER}`}>
             {t('gallery.thumbsNote')}
           </p>
         </>
@@ -240,7 +240,7 @@ function Progress({
     <section className="mt-7 border border-surface-5 bg-surface-1 px-9 py-8">
       <div className="flex items-baseline justify-between gap-5">
         <h2 className="display text-d-sm tracking-[-0.045em]">{t('gallery.uploading')}</h2>
-        <span className="tabular text-[12.5px] font-bold text-fg-muted-lo">
+        <span className="tabular text-sm-lo font-bold text-fg-muted-lo">
           {t('gallery.uploadCount', { n: done, total: queue.length })}
         </span>
       </div>
@@ -278,7 +278,7 @@ function Progress({
         </button>
       ) : null}
 
-      <p className="mt-6 text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+      <p className="mt-6 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
         {t('gallery.uploadNote')}
       </p>
     </section>

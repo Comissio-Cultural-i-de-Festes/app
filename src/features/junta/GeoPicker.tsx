@@ -152,7 +152,7 @@ export function GeoPicker({
                   >
                     <span className="text-md font-bold text-fg">{place.label}</span>
                     {place.detail === '' ? null : (
-                      <span className="text-[12.5px] text-fg-muted">{place.detail}</span>
+                      <span className="text-sm-lo text-fg-muted">{place.detail}</span>
                     )}
                   </button>
                 </li>
@@ -199,7 +199,7 @@ export function GeoPicker({
         </button>
         {value === null ? null : (
           <>
-            <span className="text-[12.5px] text-fg-muted tabular-nums">
+            <span className="text-sm-lo text-fg-muted tabular-nums">
               {value.lat.toFixed(5)}, {value.lng.toFixed(5)}
             </span>
             <button
@@ -246,7 +246,7 @@ export function GeoPicker({
           }}
           className="radius-slider mt-5 w-full disabled:opacity-40"
         />
-        <p className="mt-4 text-[12.5px] text-fg-muted [text-wrap:pretty]">
+        <p className="mt-4 text-sm-lo text-fg-muted [text-wrap:pretty]">
           {t('junta.geo.radiusNote')}
         </p>
       </div>

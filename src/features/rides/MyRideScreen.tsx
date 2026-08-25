@@ -157,7 +157,7 @@ export function MyRideScreen() {
                   <Avatar src={null} size={40} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-base font-bold">{r.nombre}</span>
-                    <span className="tabular mt-[2px] block text-[12.5px] text-[var(--ds-text-muted-lo)]">
+                    <span className="tabular mt-[2px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
                       {r.telefon ?? '—'}
                     </span>
                   </span>
@@ -175,7 +175,7 @@ export function MyRideScreen() {
           )}
 
           <div className={`pt-8 ${GUTTER}`}>
-            <p className="text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+            <p className="text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
               {t('rides.driverPhones')}
             </p>
 
@@ -185,7 +185,7 @@ export function MyRideScreen() {
             {mine.seats.length >= mine.places ? null : inviting ? (
               <div className="mt-8 border-l-[3px] border-brand bg-surface-1 px-6 pt-6 pb-7">
                 <p className="eyebrow text-fg-muted">{t('rides.holdFor')}</p>
-                <p className="mt-3 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+                <p className="mt-3 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
                   {t('rides.holdNote')}
                 </p>
                 <input

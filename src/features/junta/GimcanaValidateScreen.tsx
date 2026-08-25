@@ -81,7 +81,7 @@ export function GimcanaValidateScreen() {
         title={t('junta.gimcana.validateTitle')}
         aside={
           rows.length > 0 ? (
-            <span className="tabular text-[12.5px] font-bold text-[var(--ds-warning)]">
+            <span className="tabular text-sm-lo font-bold text-[var(--ds-warning)]">
               {t('junta.gimcana.inQueue', { count: rows[0]?.a_la_cua ?? rows.length })}
             </span>
           ) : null
@@ -118,7 +118,7 @@ export function GimcanaValidateScreen() {
                 +{current.punts}
               </p>
             </div>
-            <p className="mt-2 text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+            <p className="mt-2 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
               {current.qui} · {teamName(current, 0, t)}
             </p>
 
@@ -196,7 +196,7 @@ export function GimcanaValidateScreen() {
           </p>
         )}
 
-        <p className="mt-7 text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+        <p className="mt-7 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
           {t('junta.gimcana.pace')}
         </p>
       </div>

@@ -205,11 +205,24 @@
   --ds-display-leading-loose: 0.95;
 
   /* Body. The prototype's 18 distinct sizes (9.5 to 22, with half steps) are
-   * drift; ten steps here, half sizes dropped except the 9.5px tab label. */
+   * drift; ten steps here, half sizes dropped except the 9.5px tab label.
+   *
+   * Tres van tornar. Es van escriure a mà 130 vegades a 43 fitxers —el codi
+   * nou inclòs— i a aquestes altures negar-ho no és tenir una escala de deu
+   * graons, és tenir-ne tretze amb tres d'anònims. Tenen nom `-lo` perquè són
+   * el mig graó de sota del seu.
+   *
+   * Amb 14.5 i 10.5 no s'ha fet: set usos cadascun, prou pocs per corregir-los
+   * cap al graó del costat el dia que algú els miri. La llista no ha de créixer
+   * cada cop que una pantalla vulgui mig píxel; aquests tres hi són perquè ja
+   * eren a tot arreu, no perquè calguessin. */
   --ds-fs-3xs: 9.5px; /* tab label — the only size below 11px allowed */
   --ds-fs-2xs: 11px;
+  --ds-fs-xs-lo: 11.5px;
   --ds-fs-xs: 12px;
+  --ds-fs-sm-lo: 12.5px;
   --ds-fs-sm: 13px;
+  --ds-fs-md-lo: 13.5px;
   --ds-fs-md: 14px;
   --ds-fs-base: 15px;
   --ds-fs-lg: 16px;

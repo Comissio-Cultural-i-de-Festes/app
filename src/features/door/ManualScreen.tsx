@@ -216,7 +216,7 @@ export function ManualScreen() {
                   <Avatar src={null} size={40} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-lg font-semibold">{row.nombre}</span>
-                    <span className="mt-[2px] block text-[12.5px] text-[var(--ds-text-muted-lo)]">
+                    <span className="mt-[2px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
                       {[
                         row.escola === null ? null : t(`escolaShort.${row.escola}`),
                         row.curs === null ? null : t(`onboarding.year.${row.curs}`),

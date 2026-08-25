@@ -59,7 +59,7 @@ export function BadgesScreen() {
       <div className={`pt-2 pb-8 ${GUTTER}`}>
         <div className="flex items-baseline justify-between gap-5">
           <h1 className="display text-d-s tracking-[-0.045em]">{t('badges.title')}</h1>
-          <span className="tabular text-[12.5px] font-bold text-fg-muted-lo">
+          <span className="tabular text-sm-lo font-bold text-fg-muted-lo">
             {t('badges.count', { n: quantes, total: TOTAL_CARDS })}
           </span>
         </div>
@@ -89,7 +89,7 @@ export function BadgesScreen() {
                 />
               ))}
             </div>
-            <p className="mt-8 text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+            <p className="mt-8 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
               {t('badges.footerGrid')}
             </p>
           </>

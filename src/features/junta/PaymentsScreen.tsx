@@ -442,7 +442,7 @@ function PaidList({
                   </span>
                   <span
                     className={
-                      'mt-[2px] block text-[12.5px] font-bold tracking-[0.06em] uppercase ' +
+                      'mt-[2px] block text-sm-lo font-bold tracking-[0.06em] uppercase ' +
                       (r.pagado ? 'text-success' : 'text-[var(--ds-warning-deep)]')
                     }
                   >
@@ -463,9 +463,7 @@ function PaidList({
         </ul>
       )}
 
-      <p
-        className={`pt-7 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
-      >
+      <p className={`pt-7 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}>
         {t('junta.payments.chaseThem')}
       </p>
 
@@ -537,7 +535,7 @@ function Admins() {
             <Avatar src={a.avatar_url} size={38} ring={a.id === me?.id} />
             <span className="min-w-0 flex-1">
               <span className="block truncate text-base font-bold">{a.nombre}</span>
-              <span className="mt-[2px] block text-[12.5px] font-medium text-fg-muted">
+              <span className="mt-[2px] block text-sm-lo font-medium text-fg-muted">
                 {a.id === me?.id ? `${t('junta.payments.you')} · ` : ''}
                 {a.escola === null ? t('junta.invites.noSchool') : t(`escola.${a.escola}`)}
               </span>
@@ -571,7 +569,7 @@ function Admins() {
             {t('junta.payments.nameAdmin')}
           </button>
         )}
-        <p className="mt-5 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        <p className="mt-5 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
           {t('junta.payments.adminCan')}
         </p>
         {name.isError ? (

@@ -170,7 +170,7 @@ export function InvitesScreen() {
               toc, com abans. */}
           {confirming ? (
             <div className="mt-9">
-              <p className="text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+              <p className="text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
                 {t('junta.invites.killSure')}
               </p>
               <div className="mt-5 flex gap-4">
@@ -265,7 +265,7 @@ export function InvitesScreen() {
                 >
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-base font-bold">{p.nombre}</p>
-                    <p className="mt-[3px] text-[12.5px] text-[var(--ds-text-muted-lo)]">
+                    <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)]">
                       {p.escola === null
                         ? t('junta.invites.noSchool')
                         : t(`escolaShort.${p.escola satisfies Escola}`)}

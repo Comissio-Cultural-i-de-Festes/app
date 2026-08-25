@@ -51,7 +51,7 @@ export function PhotoReportsScreen() {
       <div className={`pt-2 ${GUTTER}`}>
         <div className="flex items-baseline justify-between gap-5">
           <h1 className="display text-d-s tracking-[-0.045em]">{t('junta.photos.title')}</h1>
-          <span className="tabular text-[12.5px] font-bold text-[var(--ds-warning)]">
+          <span className="tabular text-sm-lo font-bold text-[var(--ds-warning)]">
             {rows.length > 0 ? String(rows.length) : ''}
           </span>
         </div>
@@ -83,11 +83,11 @@ export function PhotoReportsScreen() {
                     <p className="text-md font-bold [text-wrap:pretty]">
                       «{t(`gallery.report.${r.motiu}`)}»
                     </p>
-                    <p className="mt-[3px] text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+                    <p className="mt-[3px] text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
                       {t('junta.photos.by', { event: r.titol, name: r.pujada_per })}
                     </p>
                     {r.quantes > 1 ? (
-                      <p className="tabular mt-[3px] text-[12.5px] font-bold text-[var(--ds-warning)]">
+                      <p className="tabular mt-[3px] text-sm-lo font-bold text-[var(--ds-warning)]">
                         {t('junta.photos.times', { count: r.quantes })}
                       </p>
                     ) : null}
@@ -121,7 +121,7 @@ export function PhotoReportsScreen() {
           </ul>
         )}
 
-        <p className="mt-7 text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+        <p className="mt-7 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
           {t('junta.photos.note')}
         </p>
       </div>

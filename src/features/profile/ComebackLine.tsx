@@ -33,7 +33,7 @@ export function ComebackLine() {
   if (streak.data?.actual !== 0 || best === 0) return null
 
   return (
-    <p className="mt-4 text-[13.5px] text-fg-muted [text-wrap:pretty]">
+    <p className="mt-4 text-md-lo text-fg-muted [text-wrap:pretty]">
       {t('home.rank.comeback', { best })}
     </p>
   )

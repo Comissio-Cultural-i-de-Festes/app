@@ -78,7 +78,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
         <section className="mt-[26px] flex items-center gap-8 border border-surface-7 bg-surface-2 px-[18px] py-8">
           <div className="flex flex-none flex-col items-center gap-4">
             <LogoMark size={62} />
-            <span className="text-[11.5px] font-medium text-fg-secondary">{brand.shortName}</span>
+            <span className="text-xs-lo font-medium text-fg-secondary">{brand.shortName}</span>
           </div>
           <p className="flex-1 text-md text-fg-secondary [text-wrap:pretty]">
             {t('install.iconPreview')}
@@ -106,7 +106,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
           onClick={onLater}
           className={
             'mt-5 min-h-[44px] w-full cursor-pointer border-0 bg-transparent text-center ' +
-            'text-[13.5px] font-semibold text-fg-muted [text-wrap:balance]'
+            'text-md-lo font-semibold text-fg-muted [text-wrap:balance]'
           }
         >
           {t('install.later')}
@@ -152,7 +152,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
       <section className="mt-[26px] flex items-center gap-8 border border-surface-7 bg-surface-2 px-[18px] py-8">
         <div className="flex flex-none flex-col items-center gap-4">
           <LogoMark size={62} />
-          <span className="text-[11.5px] font-medium text-fg-secondary">{brand.shortName}</span>
+          <span className="text-xs-lo font-medium text-fg-secondary">{brand.shortName}</span>
         </div>
         <p className="flex-1 text-md text-fg-secondary [text-wrap:pretty]">
           {t('install.iconPreview')}
@@ -177,7 +177,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
         onClick={onLater}
         className={
           'mt-5 min-h-[44px] w-full cursor-pointer border-0 bg-transparent text-center ' +
-          'text-[13.5px] font-semibold text-fg-muted [text-wrap:balance]'
+          'text-md-lo font-semibold text-fg-muted [text-wrap:balance]'
         }
       >
         {t('install.later')}

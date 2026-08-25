@@ -139,7 +139,7 @@ export function GimcanaFormScreen() {
               }
             >
               <span className="block text-base font-bold">{t(`junta.gimcana.mena.${m}`)}</span>
-              <span className="mt-1 block text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+              <span className="mt-1 block text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
                 {t(`junta.gimcana.menaSub.${m}`)}
               </span>
             </button>
@@ -178,7 +178,7 @@ export function GimcanaFormScreen() {
                 {t('junta.gimcana.alreadyPlayed')}
               </p>
             ) : null}
-            <p className="mt-5 text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+            <p className="mt-5 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
               {t('junta.gimcana.shuffleNote')}
             </p>
           </div>
@@ -271,7 +271,7 @@ export function GimcanaFormScreen() {
             {t('junta.gimcana.addProva')}
           </button>
         </div>
-        <p className="mt-5 text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+        <p className="mt-5 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
           {t('junta.gimcana.provesNote')}
         </p>
 

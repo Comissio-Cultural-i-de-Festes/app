@@ -177,7 +177,7 @@ export function Viewer({
       </div>
 
       <div className="px-10 pt-7 pb-[calc(var(--ds-safe-bottom)+22px)]">
-        <p className="text-[13.5px] font-semibold text-fg-secondary [text-wrap:pretty]">
+        <p className="text-md-lo font-semibold text-fg-secondary [text-wrap:pretty]">
           {t('gallery.viewer.by', {
             name: photo.nom,
             when: formatDateTime(new Date(photo.created_at), locale),

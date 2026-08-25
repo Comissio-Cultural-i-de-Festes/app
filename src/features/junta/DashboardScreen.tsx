@@ -64,7 +64,7 @@ export function DashboardScreen() {
             <h1 className="display text-d-s tracking-[-0.045em] lg:text-d-md">
               {t('junta.dashboard.title')}
             </h1>
-            <p className="mt-4 text-[13.5px] text-fg-muted [text-wrap:pretty]">
+            <p className="mt-4 text-md-lo text-fg-muted [text-wrap:pretty]">
               {t('junta.dashboard.lead')}
             </p>
           </div>
@@ -182,7 +182,7 @@ function Cards({
           <div className="mt-8 grid gap-7">
             {data.per_tipus.map((r) => (
               <div key={r.tipo}>
-                <div className="flex justify-between text-[13.5px] font-bold">
+                <div className="flex justify-between text-md-lo font-bold">
                   <span>{t(`eventType.${r.tipo}`)}</span>
                   <span className="tabular">
                     {t('junta.dashboard.types.avg', { n: r.mitjana })}
@@ -248,7 +248,7 @@ function Cards({
               const pct = Math.round((r.punts / totalPoints) * 100)
               return (
                 <div key={r.motivo} className="grid grid-cols-[110px_1fr_60px] items-center gap-6">
-                  <span className="text-[13.5px] font-bold">{t(`motive.${r.motivo}`)}</span>
+                  <span className="text-md-lo font-bold">{t(`motive.${r.motivo}`)}</span>
                   <div className="h-[10px] bg-surface-3">
                     <div className="h-[10px] bg-surface-9" style={{ width: `${String(pct)}%` }} />
                   </div>
@@ -345,7 +345,7 @@ function Chip({
       aria-pressed={on}
       onClick={onClick}
       className={
-        'flex min-h-[40px] items-center rounded-round px-8 text-[12.5px] ' +
+        'flex min-h-[40px] items-center rounded-round px-8 text-sm-lo ' +
         (on
           ? 'bg-brand-cta font-bold text-on-brand'
           : 'border border-border-strong font-semibold text-fg-secondary')

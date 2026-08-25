@@ -146,7 +146,7 @@ export function MembersScreen() {
                       </span>
                     )}
                   </span>
-                  <span className="mt-[2px] block truncate text-[12.5px] text-[var(--ds-text-muted-lo)]">
+                  <span className="mt-[2px] block truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
                     {[
                       row.escola === null ? null : t(`escolaShort.${row.escola}`),
                       row.curs === null ? null : t(`onboarding.year.${row.curs}`),
@@ -182,7 +182,7 @@ export function MembersScreen() {
                   wrong: this is not a delete. */}
               {confirming === row.id ? (
                 <div className={`pb-7 ${GUTTER}`}>
-                  <p className="text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+                  <p className="text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
                     {t('junta.members.signOutSure')}
                   </p>
                   <div className="mt-5 flex gap-4">

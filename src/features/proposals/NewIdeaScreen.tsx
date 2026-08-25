@@ -136,7 +136,7 @@ export function NewIdeaScreen() {
           {save.isPending ? t('state.updating') : t('ideas.publish')}
         </button>
 
-        <p className="mt-5 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        <p className="mt-5 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
           {t('ideas.withdrawNote')}
         </p>
       </div>

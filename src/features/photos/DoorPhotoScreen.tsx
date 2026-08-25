@@ -200,7 +200,7 @@ export function DoorPhotoScreen() {
             aria-label={t('exitPhoto.shutter')}
             className="size-[78px] flex-none rounded-full border-4 border-fg bg-brand-cta shadow-[0_0_0_6px_var(--ds-bg-door)] disabled:opacity-40"
           />
-          <span className="min-w-[64px] text-right text-[12.5px] font-semibold text-fg-muted [text-wrap:pretty]">
+          <span className="min-w-[64px] text-right text-sm-lo font-semibold text-fg-muted [text-wrap:pretty]">
             {save.isPending
               ? t('exitPhoto.saving')
               : ready

@@ -184,7 +184,7 @@ function Header({ home }: { readonly home: Home }) {
 
       <div className="flex flex-none items-center gap-[10px]">
         {home.me ? (
-          <p className="tabular flex h-[34px] items-center rounded-chip border border-border-strong px-[13px] text-[13.5px] font-bold">
+          <p className="tabular flex h-[34px] items-center rounded-chip border border-border-strong px-[13px] text-md-lo font-bold">
             {t('units.points', { count: home.me.punts })}
           </p>
         ) : null}
@@ -425,13 +425,13 @@ function CallToAction({
       )}
 
       {answer.isError ? (
-        <p role="alert" className="mt-[10px] text-[13.5px] text-error">
+        <p role="alert" className="mt-[10px] text-md-lo text-error">
           {t(errorKey(answer.error))}
         </p>
       ) : null}
 
       {names.length > 0 ? (
-        <p className="mt-[10px] flex items-center gap-[9px] text-[13.5px] text-fg-muted">
+        <p className="mt-[10px] flex items-center gap-[9px] text-md-lo text-fg-muted">
           <span
             aria-hidden="true"
             className="size-[9px] flex-none rounded-full bg-brand [animation:comi-pulse_var(--ds-pulse-dur)_ease-in-out_infinite]"
@@ -493,7 +493,7 @@ function RankingTeaser({ home }: { readonly home: Home }) {
               })}
             </p>
             {gap !== null && above ? (
-              <p className="mt-[3px] text-[12.5px] text-[var(--ds-text-muted-lo)]">
+              <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)]">
                 {/* And the genitive: "a 340 punts d'Empresa", not "de
                     Empresa". */}
                 {t('home.rank.behind', {
@@ -506,7 +506,7 @@ function RankingTeaser({ home }: { readonly home: Home }) {
         ) : null}
       </div>
 
-      <p className="mt-6 text-[13.5px] text-fg-muted [text-wrap:pretty]">
+      <p className="mt-6 text-md-lo text-fg-muted [text-wrap:pretty]">
         {t('home.rank.nudge')}{' '}
         <Link to="/ranquing" className="font-bold">
           {t('home.rank.link')}
@@ -557,7 +557,7 @@ function Recap({
           <div>
             <p className="text-xl leading-[1.15] font-bold [text-wrap:pretty]">{event.titulo}</p>
             {attended > 0 ? (
-              <p className="mt-[6px] text-[13.5px] text-fg-muted">
+              <p className="mt-[6px] text-md-lo text-fg-muted">
                 {t('home.recap.were', { count: attended })}
               </p>
             ) : null}

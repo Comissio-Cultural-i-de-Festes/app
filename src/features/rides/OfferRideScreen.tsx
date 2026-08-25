@@ -219,7 +219,7 @@ export function OfferRideScreen() {
         </button>
 
         {reward === null ? null : (
-          <p className="mt-5 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+          <p className="mt-5 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
             {t('rides.pointsLater', { points: t('units.points', { count: reward }) })}
           </p>
         )}

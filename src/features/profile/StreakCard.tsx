@@ -20,7 +20,7 @@ import { ackStreakBreak, streakShape } from './streak'
  * ni cap feina pendent — i un botó que el fa marxar per sempre.
  */
 
-const NOTE = 'mt-4 text-[12.5px] text-fg-muted-lo [text-wrap:pretty]'
+const NOTE = 'mt-4 text-sm-lo text-fg-muted-lo [text-wrap:pretty]'
 
 export function StreakCard() {
   const { t } = useTranslation()
@@ -90,7 +90,7 @@ export function StreakCard() {
           <p className="text-base font-bold [text-wrap:pretty]">
             {actual === 0 ? t('streak.none.label') : t('streak.label', { count: actual })}
           </p>
-          <p className="mt-[3px] text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">{sub}</p>
+          <p className="mt-[3px] text-sm-lo text-fg-muted-lo [text-wrap:pretty]">{sub}</p>
         </div>
       </div>
 

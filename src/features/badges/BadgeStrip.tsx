@@ -33,7 +33,7 @@ export function BadgeStrip() {
     <section className="pt-12 px-[var(--ds-gutter)]">
       <div className="flex items-baseline justify-between gap-5">
         <h2 className="eyebrow text-fg-muted">{t('badges.title')}</h2>
-        <span className="tabular text-[12.5px] font-bold text-fg-muted-lo">
+        <span className="tabular text-sm-lo font-bold text-fg-muted-lo">
           {t('badges.count', { n: mine.length, total: TOTAL_CARDS })}
         </span>
       </div>

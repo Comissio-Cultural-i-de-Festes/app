@@ -161,7 +161,7 @@ function GrausBlock() {
             {/* Says what it does before it is pressed, and what it will affect:
                 the confirmation above is about a list, not about a person. */}
             {confirming !== null && mine.some((g) => g.id === confirming) ? (
-              <p className="mt-4 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+              <p className="mt-4 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
                 {t('junta.config.graus.removeSure')}
               </p>
             ) : null}

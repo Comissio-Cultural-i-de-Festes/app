@@ -113,7 +113,7 @@ export function ShareCard({
         <UpArrow down={!canShare} />
         {label}
       </button>
-      <p className="mt-5 text-[12.5px] text-fg-muted [text-wrap:pretty]">
+      <p className="mt-5 text-sm-lo text-fg-muted [text-wrap:pretty]">
         {canShare ? t('share.nothingAuto') : t('share.downloadNote')}
       </p>
     </>

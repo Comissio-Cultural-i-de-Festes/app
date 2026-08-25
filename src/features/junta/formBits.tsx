@@ -37,9 +37,7 @@ export function Field({
         {children}
       </div>
       {hint === undefined ? null : (
-        <p className="mt-4 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-          {hint}
-        </p>
+        <p className="mt-4 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">{hint}</p>
       )}
     </div>
   )

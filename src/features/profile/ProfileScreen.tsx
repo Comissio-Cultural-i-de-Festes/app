@@ -124,10 +124,10 @@ export function ProfileScreen() {
             {profile?.nombre ?? ''}
           </h1>
           {subtitle === '' ? null : (
-            <p className="mt-[3px] text-[13.5px] font-semibold text-fg-muted">{subtitle}</p>
+            <p className="mt-[3px] text-md-lo font-semibold text-fg-muted">{subtitle}</p>
           )}
           {isJunta(profile) ? (
-            <p className="mt-[6px] text-[12.5px] font-bold text-brand-label">
+            <p className="mt-[6px] text-sm-lo font-bold text-brand-label">
               {t('profile.youAreJunta')}
             </p>
           ) : null}
@@ -179,7 +179,7 @@ export function ProfileScreen() {
               <li key={row.motivo} className={ROW}>
                 <div className="min-w-0 flex-1">
                   <p className="text-base font-semibold">{t(`motive.${row.motivo}`)}</p>
-                  <p className="mt-[3px] text-[12.5px] text-[var(--ds-text-muted-lo)]">
+                  <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)]">
                     {t('profile.breakdown.times', { count: row.vegades })}
                   </p>
                 </div>
@@ -199,7 +199,7 @@ export function ProfileScreen() {
           <ul className="mt-2">
             {points.data.slice(0, 6).map((row) => (
               <li key={row.id} className={ROW}>
-                <p className="w-[52px] flex-none text-[12.5px] font-semibold text-fg-dim">
+                <p className="w-[52px] flex-none text-sm-lo font-semibold text-fg-dim">
                   {formatDayMonth(new Date(row.created_at), locale)}
                 </p>
                 <p className="min-w-0 flex-1 text-base [text-wrap:pretty]">
@@ -230,7 +230,7 @@ export function ProfileScreen() {
         >
           <span className="min-w-0 flex-1">
             <span className="block text-base font-semibold">{t('profile.settings.public')}</span>
-            <span className="mt-[3px] block text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+            <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
               {hidden ? t('profile.settings.publicOff') : t('profile.settings.publicOn')}
             </span>
           </span>
@@ -288,7 +288,7 @@ export function ProfileScreen() {
             <span className="block text-base font-semibold text-fg">
               {t('profile.settings.nights')}
             </span>
-            <span className="mt-[3px] block text-[12.5px] text-[var(--ds-text-muted-lo)]">
+            <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
               {t('profile.settings.nightsSub')}
             </span>
           </span>
@@ -303,7 +303,7 @@ export function ProfileScreen() {
               <span className="block text-base font-semibold text-fg">
                 {t('profile.settings.junta')}
               </span>
-              <span className="mt-[3px] block text-[12.5px] text-[var(--ds-text-muted-lo)]">
+              <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
                 {t('profile.settings.juntaSub')}
               </span>
             </span>
@@ -323,7 +323,7 @@ export function ProfileScreen() {
           </button>
         ) : (
           <div className="pt-9 pb-4">
-            <p className="text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+            <p className="text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
               {t('profile.signOutPending.warn', { count: pending })}
             </p>
             <div className="mt-5 flex gap-4">
@@ -347,9 +347,7 @@ export function ProfileScreen() {
           </div>
         )}
 
-        <p className="pb-6 text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
-          {t('profile.footer')}
-        </p>
+        <p className="pb-6 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">{t('profile.footer')}</p>
       </section>
     </main>
   )

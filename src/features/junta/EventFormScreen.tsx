@@ -273,7 +273,7 @@ function EventForm() {
                   >
                     <span className="min-w-0 flex-1">
                       <span className="block truncate text-base font-bold">{e.titulo}</span>
-                      <span className="mt-[3px] block text-[12.5px] text-[var(--ds-text-muted-lo)]">
+                      <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
                         {formatDateTime(new Date(e.starts_at), locale)}
                       </span>
                     </span>
@@ -968,7 +968,7 @@ function CoverPicker({
           if (picked) onPick(picked)
         }}
       />
-      <p className="mt-4 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+      <p className="mt-4 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
         {t('junta.form.coverHint')}
       </p>
     </div>
@@ -1007,7 +1007,7 @@ function RevealBlock({
       >
         <span className="min-w-0 flex-1">
           <span className="block text-base font-bold">{t('junta.form.reveal')}</span>
-          <span className="mt-[3px] block text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+          <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
             {t('junta.form.revealSub')}
           </span>
         </span>
@@ -1085,7 +1085,7 @@ function RevealBlock({
                     when: formatDateTime(new Date(when), locale),
                   })}
             </p>
-            <p className="mt-4 text-[12.5px] text-[var(--ds-text-muted-lo)]">
+            <p className="mt-4 text-sm-lo text-[var(--ds-text-muted-lo)]">
               {t('junta.form.previewHiddenFields')}
             </p>
           </div>

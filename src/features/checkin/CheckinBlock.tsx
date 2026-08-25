@@ -187,9 +187,7 @@ function Done({ event, punts }: { readonly event: EventRow; readonly punts: numb
       >
         {t('checkin.takePhoto')}
       </Link>
-      <p className="mt-5 text-[12.5px] text-fg-muted [text-wrap:pretty]">
-        {t('checkin.photoNote')}
-      </p>
+      <p className="mt-5 text-sm-lo text-fg-muted [text-wrap:pretty]">{t('checkin.photoNote')}</p>
     </>
   )
 }

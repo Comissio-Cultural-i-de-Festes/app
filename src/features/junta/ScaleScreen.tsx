@@ -130,7 +130,7 @@ function ScaleBlock() {
         </p>
       ) : null}
 
-      <p className="text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+      <p className="text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
         {t('junta.config.scale.cantAdd')}
       </p>
     </>

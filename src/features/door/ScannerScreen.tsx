@@ -191,7 +191,7 @@ export function ScannerScreen() {
           {t('door.manual')}
         </Link>
         {typeof navigator.vibrate === 'function' ? (
-          <p className="mt-5 text-right text-[12.5px] font-bold text-fg-secondary">
+          <p className="mt-5 text-right text-sm-lo font-bold text-fg-secondary">
             {t('door.buzzes')}
           </p>
         ) : null}

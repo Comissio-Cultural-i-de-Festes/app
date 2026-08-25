@@ -64,7 +64,7 @@ export function BadgeSheet({
       <h2 className="display mt-7 text-d-sm tracking-[-0.045em] [text-wrap:balance]">
         {t(`badges.${card.key}.title`)}
       </h2>
-      <p className="mt-4 text-[13.5px] text-fg-secondary [text-wrap:pretty]">
+      <p className="mt-4 text-md-lo text-fg-secondary [text-wrap:pretty]">
         {t(`badges.${card.key}.about`)}
       </p>
 
@@ -138,7 +138,7 @@ export function BadgeSheet({
         </div>
       )}
 
-      <p className="mt-6 text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">{t('badges.footer')}</p>
+      <p className="mt-6 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">{t('badges.footer')}</p>
     </Sheet>
   )
 }

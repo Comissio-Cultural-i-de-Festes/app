@@ -92,7 +92,7 @@ export function ProvesScreen() {
               <p className="text-[14.5px] font-bold [text-wrap:pretty]">
                 {t('gimcana.playingWith', { team: teamName(open.equip, 0, t) })}
               </p>
-              <p className="mt-1 text-[12.5px] text-brand-banner-fg [text-wrap:pretty]">
+              <p className="mt-1 text-sm-lo text-brand-banner-fg [text-wrap:pretty]">
                 {t('gimcana.doneTonight', {
                   count: open.proves.filter((p) => p.estat === 'validada').length,
                 })}
@@ -110,7 +110,7 @@ export function ProvesScreen() {
                   <div className={ROW}>
                     <div className="min-w-0 flex-1">
                       <p className="text-base font-semibold [text-wrap:pretty]">{p.titol}</p>
-                      <p className="mt-[3px] text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+                      <p className="mt-[3px] text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
                         {p.estat === 'validada' && p.qui !== null
                           ? t('gimcana.sentBy', { name: p.qui })
                           : t('gimcana.juntaLooking')}
@@ -120,12 +120,12 @@ export function ProvesScreen() {
                       {p.estat === 'validada' ? (
                         <>
                           <p className="tabular text-lg font-extrabold text-success">+{p.punts}</p>
-                          <p className="mt-[2px] text-[11.5px] font-bold text-success">
+                          <p className="mt-[2px] text-xs-lo font-bold text-success">
                             {t('gimcana.state.validada')}
                           </p>
                         </>
                       ) : (
-                        <p className="text-[12.5px] font-bold text-[var(--ds-warning-deep)]">
+                        <p className="text-sm-lo font-bold text-[var(--ds-warning-deep)]">
                           {t('gimcana.state.pendent')}
                         </p>
                       )}
@@ -140,7 +140,7 @@ export function ProvesScreen() {
                       <p className="text-base font-semibold text-fg [text-wrap:pretty]">
                         {p.titol}
                       </p>
-                      <p className="mt-[3px] text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+                      <p className="mt-[3px] text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
                         {p.estat === 'rebutjada'
                           ? t('gimcana.tryAgain')
                           : t('gimcana.worth', { n: p.punts })}
@@ -162,7 +162,7 @@ export function ProvesScreen() {
             >
               <span className="min-w-0">
                 <span className="block text-md font-bold">{t('gimcana.boardLink')}</span>
-                <span className="tabular mt-1 block text-[12.5px] text-fg-muted-lo">
+                <span className="tabular mt-1 block text-sm-lo text-fg-muted-lo">
                   {(board.data ?? [])
                     .slice(0, 3)
                     .map((r, i) => `${teamName(r, i, t)} ${String(r.punts)}`)
@@ -173,11 +173,11 @@ export function ProvesScreen() {
                 ›
               </span>
             </Link>
-            <p className="mt-6 text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+            <p className="mt-6 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
               {t('gimcana.rule')}
             </p>
             {open.a_la_cua > 0 ? (
-              <p className="tabular mt-3 text-[12.5px] font-bold text-[var(--ds-warning-deep)]">
+              <p className="tabular mt-3 text-sm-lo font-bold text-[var(--ds-warning-deep)]">
                 {t('gimcana.inQueue', { count: open.a_la_cua })}
               </p>
             ) : null}
@@ -231,7 +231,7 @@ function TeamPicker({
             className="flex min-h-[56px] items-center justify-between gap-5 border-[1.5px] border-surface-7 bg-surface-1 px-8 py-6 text-left disabled:opacity-60"
           >
             <span className="text-base font-bold [text-wrap:pretty]">{teamName(team, i, t)}</span>
-            <span className="tabular flex-none text-[12.5px] font-bold text-fg-muted-lo">
+            <span className="tabular flex-none text-sm-lo font-bold text-fg-muted-lo">
               {t('gimcana.pick.people', { count: team.quants })}
             </span>
           </button>

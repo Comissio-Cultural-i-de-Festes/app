@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { FailedNotice } from '@/features/checkin/FailedNotice'
+import { PendingLine } from '@/features/checkin/PendingLine'
 import { checkinWindow, isOpen } from '@/features/checkin/window'
 import { firstName } from '@/features/session/profile'
 
@@ -63,6 +64,10 @@ export function HomeScreen() {
       {/* L'endemà d'una nit que no va comptar. Sobre de tot perquè és l'única
           cosa d'aquesta pantalla que ja ha passat. */}
       <FailedNotice />
+
+      <div className={GUTTER}>
+        <PendingLine />
+      </div>
 
       {/* The morning after, above everything else: it is about last night and
           it is gone by tonight, so burying it under the next event would be

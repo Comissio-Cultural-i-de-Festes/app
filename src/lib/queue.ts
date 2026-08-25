@@ -147,8 +147,17 @@ export async function pending(): Promise<QueuedScan[]> {
   return (rows ?? []).sort((a, b) => a.at - b.at)
 }
 
-export async function count(): Promise<number> {
-  return (await run<number>(SCANS, 'readonly', (store) => store.count())) ?? 0
+/**
+ * Quantes files esperen en una cua.
+ *
+ * Per defecte la de l'escàner, que és qui la va demanar primer. El paràmetre hi
+ * és perquè la de fitxatges també s'ha de poder comptar sense llegir-ne les
+ * files senceres, i comptar és l'única cosa que en volem: `waiting()` porta la
+ * posició i l'hora de cadascuna, que per a un rètol de «n pendents» és pes que
+ * no fa cap feina.
+ */
+export async function count(storeName: string = SCANS): Promise<number> {
+  return (await run<number>(storeName, 'readonly', (store) => store.count())) ?? 0
 }
 
 export async function bumpTries(scan: QueuedScan): Promise<void> {
@@ -178,9 +187,7 @@ export async function clearQueue(): Promise<void> {
  */
 export async function clearAllQueues(): Promise<void> {
   await Promise.all(
-    [SCANS, IDEAS, HERE, PROVES].map((name) =>
-      run(name, 'readwrite', (store) => store.clear()),
-    ),
+    [SCANS, IDEAS, HERE, PROVES].map((name) => run(name, 'readwrite', (store) => store.clear())),
   )
 }
 
@@ -195,10 +202,6 @@ export async function drop(storeName: string, key: string): Promise<void> {
 }
 
 export async function waiting<T extends Queued>(storeName: string): Promise<T[]> {
-  const rows = await run<T[]>(
-    storeName,
-    'readonly',
-    (store) => store.getAll() as IDBRequest<T[]>,
-  )
+  const rows = await run<T[]>(storeName, 'readonly', (store) => store.getAll() as IDBRequest<T[]>)
   return (rows ?? []).sort((a, b) => a.at - b.at)
 }

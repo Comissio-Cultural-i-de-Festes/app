@@ -5,6 +5,7 @@ import { Link } from 'react-router'
 import { FailedNotice } from '@/features/checkin/FailedNotice'
 import { PendingLine } from '@/features/checkin/PendingLine'
 import { checkinWindow, isOpen } from '@/features/checkin/window'
+import { ComebackLine } from '@/features/profile/ComebackLine'
 import { firstName } from '@/features/session/profile'
 
 import { movementLine } from './movementLine'
@@ -487,6 +488,9 @@ function RankingTeaser({ home }: { readonly home: Home }) {
           {t('home.rank.link')}
         </Link>
       </p>
+
+      {/* Sota el ganxo col·lectiu, el personal: qui fa un mes que no ve. */}
+      <ComebackLine />
     </section>
   )
 }

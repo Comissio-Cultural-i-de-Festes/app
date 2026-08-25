@@ -312,7 +312,8 @@
       "behind_one": "a {{count}} punto {{school}}",
       "behind_other": "a {{count}} puntos {{school}}",
       "nudge": "Los de arriba no duermen.",
-      "link": "Mira el ranking"
+      "link": "Mira el ranking",
+      "comeback": "Tu mejor racha es de {{best}}. La primera que vengas, empiezas otra."
     },
     "recap": {
       "title": "La última vez",

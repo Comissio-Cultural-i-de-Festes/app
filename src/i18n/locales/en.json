@@ -312,7 +312,8 @@
       "behind_one": "{{count}} point behind {{school}}",
       "behind_other": "{{count}} points behind {{school}}",
       "nudge": "Nobody above you is slowing down.",
-      "link": "See the ranking"
+      "link": "See the ranking",
+      "comeback": "Your best streak is {{best}}. The first one you come to starts another."
     },
     "recap": {
       "title": "Last time",

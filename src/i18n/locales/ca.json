@@ -312,7 +312,8 @@
       "behind_one": "a {{count}} punt {{school}}",
       "behind_other": "a {{count}} punts {{school}}",
       "nudge": "Els de dalt no dormen.",
-      "link": "Mira el rànquing"
+      "link": "Mira el rànquing",
+      "comeback": "La teva millor ratxa és de {{best}}. La primera que vinguis, en comences una altra."
     },
     "recap": {
       "title": "L'última vegada",

@@ -959,6 +959,7 @@
       "queueEmpty": "Ninguna foto esperando. Volved dentro de un rato.",
       "yes": "Vale: +{{n}}",
       "no": "No vale",
+      "confirmNo": "Confirma el no",
       "whyPlaceholder": "Si no vale, di por qué. Lo leerá quien la ha enviado.",
       "justDid": "Acabas de decidir «{{prova}}».",
       "pace": "Vale o no vale y sale la siguiente sola. A dos por minuto, la cola de la noche son cinco minutos entre todos."

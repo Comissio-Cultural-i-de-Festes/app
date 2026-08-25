@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
@@ -29,6 +29,12 @@ export function GimcanaValidateScreen() {
   const { eventId = '' } = useParams()
   const client = useQueryClient()
   const [motiu, setMotiu] = useState('')
+  // El «no val» en dos temps. El camp del motiu era sota els botons, o sigui
+  // que en l'ordre de lectura ningú l'omplia: el codi mateix deia que era
+  // «opcional al camp i obligatori a l'esperit». Ara el primer toc l'ensenya i
+  // el segon confirma. Pot quedar buit, però s'ha vist.
+  const [refusing, setRefusing] = useState(false)
+  const why = useRef<HTMLInputElement>(null)
   const [last, setLast] = useState<{ id: string; prova: string } | null>(null)
 
   const queue = useQuery({
@@ -52,6 +58,7 @@ export function GimcanaValidateScreen() {
     onSuccess: async (_estat, vars) => {
       setLast({ id: vars.id, prova: current?.prova ?? '' })
       setMotiu('')
+      setRefusing(false)
       await client.invalidateQueries({ queryKey: gimcanaKeys.all() })
       await client.invalidateQueries({ queryKey: gimcanaKeys.queue(eventId) })
     },
@@ -130,26 +137,40 @@ export function GimcanaValidateScreen() {
                 type="button"
                 disabled={decide.isPending}
                 onClick={() => {
-                  decide.mutate({ id: current.id, val: false })
+                  if (refusing) {
+                    decide.mutate({ id: current.id, val: false })
+                  } else {
+                    setRefusing(true)
+                    // Al camp directament: el segon toc és per confirmar, no
+                    // per anar-hi.
+                    requestAnimationFrame(() => why.current?.focus())
+                  }
                 }}
-                className="flex min-h-[62px] items-center justify-center border-[1.5px] border-surface-7 px-6 py-6 text-xl font-bold text-fg-secondary [text-wrap:balance] disabled:opacity-60"
+                className={
+                  'flex min-h-[62px] items-center justify-center border-[1.5px] px-6 py-6 text-xl font-bold [text-wrap:balance] disabled:opacity-60 ' +
+                  (refusing ? 'border-warning text-warning' : 'border-surface-7 text-fg-secondary')
+                }
               >
-                {t('junta.gimcana.no')}
+                {refusing ? t('junta.gimcana.confirmNo') : t('junta.gimcana.no')}
               </button>
             </div>
 
             {/* El perquè és opcional al camp i obligatori a l'esperit: sense
                 ell, «no val» és una porta tancada sense explicació. */}
-            <input
-              type="text"
-              value={motiu}
-              maxLength={140}
-              onChange={(e) => {
-                setMotiu(e.target.value)
-              }}
-              placeholder={t('junta.gimcana.whyPlaceholder')}
-              className="mt-5 w-full border border-[var(--ds-border-input)] bg-transparent px-7 py-6 text-md text-fg placeholder:text-fg-faint"
-            />
+            {refusing ? (
+              <input
+                ref={why}
+                type="text"
+                value={motiu}
+                maxLength={140}
+                onChange={(e) => {
+                  setMotiu(e.target.value)
+                }}
+                aria-label={t('junta.gimcana.whyPlaceholder')}
+                placeholder={t('junta.gimcana.whyPlaceholder')}
+                className="mt-5 w-full border border-[var(--ds-border-input)] bg-transparent px-7 py-6 text-md text-fg placeholder:text-fg-faint"
+              />
+            ) : null}
 
             {decide.isError ? (
               <p role="alert" className="mt-5 text-md font-bold text-error [text-wrap:pretty]">

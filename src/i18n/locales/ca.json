@@ -959,6 +959,7 @@
       "queueEmpty": "Cap foto esperant. Torneu-hi d’aquí a una estona.",
       "yes": "Val: +{{n}}",
       "no": "No val",
+      "confirmNo": "Confirma el no",
       "whyPlaceholder": "Si no val, digues per què. Ho llegirà qui l’ha enviada.",
       "justDid": "Acabes de decidir «{{prova}}».",
       "pace": "Val o no val i surt la següent sola. A dues per minut, la cua de la nit són cinc minuts entre tots."

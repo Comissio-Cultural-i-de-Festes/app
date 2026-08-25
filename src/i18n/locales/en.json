@@ -959,6 +959,7 @@
       "queueEmpty": "No photos waiting. Come back in a while.",
       "yes": "It counts: +{{n}}",
       "no": "Does not count",
+      "confirmNo": "Confirm the no",
       "whyPlaceholder": "If it does not count, say why. Whoever sent it will read this.",
       "justDid": "You have just decided on “{{prova}}”.",
       "pace": "Counts or does not, and the next one comes up by itself. At two a minute, a night’s queue is five minutes between you."

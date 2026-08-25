@@ -65,7 +65,12 @@ export function Viewer({
   const panel = useRef<HTMLDivElement>(null)
   useModalFocus(panel, onClose)
 
+  // La pila de `useModalFocus` governa Escape i el tabulador, però les fletxes
+  // se les posa qui les vulgui —i per tant no hi passen. Amb el full de
+  // denúncia obert, ArrowRight canviava la foto de sota mentre el full seguia
+  // apuntant a la que hi havia: es denunciava una i se'n mirava una altra.
   useEffect(() => {
+    if (reporting) return
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'ArrowRight') setAt((i) => Math.min(photos.length - 1, i + 1))
       if (e.key === 'ArrowLeft') setAt((i) => Math.max(0, i - 1))
@@ -74,7 +79,7 @@ export function Viewer({
     return () => {
       window.removeEventListener('keydown', onKey)
     }
-  }, [photos.length])
+  }, [photos.length, reporting])
 
   // El comptador «3 de 42» promet una navegació que amb fletxes de teclat no
   // existeix en un mòbil, que és el 100% del públic: mirar les quaranta fotos
@@ -93,7 +98,8 @@ export function Viewer({
     const from = swipe.current
     const to = e.changedTouches[0]
     swipe.current = null
-    if (from === undefined || from === null || to === undefined) return
+    // El full tapa la imatge, però no tota l'alçada del contenidor que escolta.
+    if (reporting || from === undefined || from === null || to === undefined) return
     const dx = to.clientX - from.x
     if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < Math.abs(to.clientY - from.y)) return
     go(dx < 0 ? 1 : -1)
@@ -130,7 +136,7 @@ export function Viewer({
       <div
         onTouchStart={(e) => {
           const t0 = e.touches[0]
-          swipe.current = t0 === undefined ? null : { x: t0.clientX, y: t0.clientY }
+          swipe.current = reporting || t0 === undefined ? null : { x: t0.clientX, y: t0.clientY }
         }}
         onTouchEnd={onTouchEnd}
         className="relative flex min-h-0 flex-1 items-center justify-center"

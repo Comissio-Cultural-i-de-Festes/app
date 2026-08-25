@@ -138,7 +138,7 @@ export function IdeasReviewScreen() {
 function Row({ proposal }: { readonly proposal: Proposal }) {
   return (
     <div className={`flex items-start gap-6 pt-6 pb-5 ${GUTTER}`}>
-      <span className="display tabular w-[44px] flex-none text-center text-[27px] leading-[0.88] tracking-[-0.05em] text-brand-label">
+      <span className="display tabular w-[44px] flex-none text-center text-d-sm leading-[0.88] tracking-[-0.05em] text-brand-label">
         {proposal.vots}
       </span>
       <span className="min-w-0 flex-1">

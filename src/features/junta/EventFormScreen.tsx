@@ -854,7 +854,7 @@ function PublishedStrip({
           {published ? '◉' : '◌'}
         </span>
         <span className="min-w-0 flex-1">
-          <span className="display block text-[22px] leading-none tracking-[-0.04em]">
+          <span className="display block text-d-xs leading-none tracking-[-0.04em]">
             {published ? t('junta.form.live') : t('junta.form.draft')}
           </span>
           <span className="mt-[5px] block text-sm font-semibold [text-wrap:pretty]">

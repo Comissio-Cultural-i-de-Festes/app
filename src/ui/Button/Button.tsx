@@ -39,7 +39,7 @@ const SIZES: Record<ButtonSize, string> = {
   // The one-decision-on-the-screen button: ENTRA on the invitation screen is
   // the display face, shouted. Still min-height and still balanced, so a
   // longer word in Spanish grows the button instead of clipping.
-  hero: 'min-h-[60px] font-display text-[24px] tracking-[-0.035em] uppercase',
+  hero: 'min-h-[60px] font-display text-d-sm tracking-[-0.035em] uppercase',
 }
 
 const VARIANTS: Record<ButtonVariant, string> = {

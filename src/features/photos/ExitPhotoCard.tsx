@@ -49,7 +49,7 @@ export function ExitPhotoCard({ event }: { readonly event: EventRow | null }) {
   return (
     <section className="mt-9 border border-surface-8 bg-surface-2 px-8 py-9">
       <p className="eyebrow text-brand-accent">{t('exitCard.eyebrow')}</p>
-      <h2 className="display mt-5 text-[27px] leading-[0.98] tracking-[-0.042em] [text-wrap:balance]">
+      <h2 className="display mt-5 text-d-sm leading-[0.98] tracking-[-0.042em] [text-wrap:balance]">
         {t('exitCard.title')}
       </h2>
       <p className="mt-5 text-base text-fg-secondary [text-wrap:pretty]">

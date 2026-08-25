@@ -201,7 +201,7 @@ function OpenRow({
         className={
           'display tabular w-[44px] flex-none pt-[2px] text-center leading-[0.88] ' +
           'tracking-[-0.05em] ' +
-          (first ? 'text-[33px] text-brand-label' : 'text-[27px] text-fg-secondary')
+          (first ? 'text-d-s text-brand-label' : 'text-d-sm text-fg-secondary')
         }
       >
         {proposal.vots}
@@ -283,7 +283,7 @@ function AcceptedRow({
 
   return (
     <div className="flex items-center gap-6 border-b border-surface-4 bg-[var(--ds-bg-live)] px-[var(--ds-gutter)] py-6">
-      <span className="tabular w-[44px] flex-none display text-center text-[27px] leading-[0.88] tracking-[-0.05em] text-success">
+      <span className="tabular w-[44px] flex-none display text-center text-d-sm leading-[0.88] tracking-[-0.05em] text-success">
         {proposal.vots}
       </span>
       <span className="min-w-0 flex-1">
@@ -338,7 +338,7 @@ function Mine({
             key={p.id}
             className={`flex items-start gap-6 border-t border-surface-4 py-6 ${GUTTER}`}
           >
-            <span className="tabular w-[44px] flex-none display text-center text-[27px] leading-[0.88] tracking-[-0.05em] text-fg-muted">
+            <span className="tabular w-[44px] flex-none display text-center text-d-sm leading-[0.88] tracking-[-0.05em] text-fg-muted">
               {p.vots}
             </span>
             <span className="min-w-0 flex-1">
@@ -473,7 +473,7 @@ function Failed({ error, onRetry }: { readonly error: unknown; readonly onRetry:
 
       <div className="mt-10 border-t border-surface-4 pt-8">
         <p className="eyebrow text-fg-muted">{t('ideas.failedVotes')}</p>
-        <p className="display mt-3 text-[27px] leading-none text-fg-muted">—</p>
+        <p className="display mt-3 text-d-sm leading-none text-fg-muted">—</p>
         <p className="mt-3 text-sm text-fg-muted [text-wrap:pretty]">{t('ideas.failedVotesSub')}</p>
       </div>
     </section>

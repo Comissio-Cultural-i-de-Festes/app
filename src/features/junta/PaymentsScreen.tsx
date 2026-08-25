@@ -157,7 +157,7 @@ function Requests({ eventId }: { readonly eventId: string }) {
 
   return (
     <section className={`pt-14 ${GUTTER}`}>
-      <h2 className="display text-[26px] leading-none tracking-[-0.045em]">
+      <h2 className="display text-d-sm leading-none tracking-[-0.045em]">
         {t('junta.payments.requests', { count: rows.length })}
       </h2>
       <p className="mt-4 text-sm text-fg-muted [text-wrap:pretty]">
@@ -251,7 +251,7 @@ function Queue({ eventId }: { readonly eventId: string }) {
 
   return (
     <section className={`pt-14 ${GUTTER}`}>
-      <h2 className="display text-[26px] leading-none tracking-[-0.045em]">
+      <h2 className="display text-d-sm leading-none tracking-[-0.045em]">
         {t('junta.payments.queue', { count: queue.data?.length ?? 0 })}
       </h2>
       <p className="mt-4 text-sm text-fg-muted [text-wrap:pretty]">
@@ -512,7 +512,7 @@ function Admins() {
   return (
     <section className="mt-14 border-t border-surface-5 pt-9 lg:mt-0 lg:border-t-0">
       <div className={GUTTER}>
-        <h2 className="display text-[26px] leading-none tracking-[-0.045em]">
+        <h2 className="display text-d-sm leading-none tracking-[-0.045em]">
           {t('junta.payments.whoRuns')}
         </h2>
         <p className="mt-5 text-md font-medium text-fg-secondary [text-wrap:pretty]">

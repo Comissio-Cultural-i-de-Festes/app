@@ -63,7 +63,9 @@ function PeriodsBlock() {
     )
   }
   if (trams.length === 0) {
-    return <p className="text-md text-fg-muted [text-wrap:pretty]">{t('junta.config.periods.none')}</p>
+    return (
+      <p className="text-md text-fg-muted [text-wrap:pretty]">{t('junta.config.periods.none')}</p>
+    )
   }
 
   return (
@@ -100,7 +102,10 @@ function PeriodsBlock() {
       })}
 
       {ordered ? null : (
-        <p role="alert" className="pb-6 text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]">
+        <p
+          role="alert"
+          className="pb-6 text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]"
+        >
           {t('junta.config.periods.outOfOrder')}
         </p>
       )}

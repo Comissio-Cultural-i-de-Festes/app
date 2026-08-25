@@ -36,8 +36,7 @@ export function RidesBlock({ eventId }: { readonly eventId: string }) {
   const seats = rows.flatMap((r) => r.seats)
   const riding = rows.length + seats.length
   const free = rows.reduce((n, r) => n + Math.max(0, r.places - r.seats.length), 0)
-  const iAmIn =
-    rows.some((r) => r.driver_id === meId) || seats.some((s) => s.user_id === meId)
+  const iAmIn = rows.some((r) => r.driver_id === meId) || seats.some((s) => s.user_id === meId)
 
   const faces = [
     ...rows.map((r) => ({ id: r.driver_id, url: r.driver?.avatar_url ?? null })),

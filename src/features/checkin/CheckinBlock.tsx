@@ -103,7 +103,7 @@ export function CheckinBlock({
   return (
     // L'ancoratge que l'Inici fa servir per portar aquí en un toc.
     <section id="soc-aqui" className={`pt-12 ${GUTTER}`}>
-      <h2 className="display text-[27px] leading-[0.98] tracking-[-0.042em] [text-wrap:balance]">
+      <h2 className="display text-d-sm leading-[0.98] tracking-[-0.042em] [text-wrap:balance]">
         {t('checkin.title')}
       </h2>
       <p className="mt-5 text-base text-fg-secondary [text-wrap:pretty]">{t('checkin.lede')}</p>

@@ -224,7 +224,7 @@ function Cards({
                     {t('junta.dashboard.schools.active', { n: s.actius, total: s.socis })}
                   </span>
                 </span>
-                <span className="tabular display flex-none text-[21px] tracking-[-0.035em]">
+                <span className="tabular display flex-none text-d-xs tracking-[-0.035em]">
                   {String(s.punts)}
                 </span>
               </li>

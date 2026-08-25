@@ -55,9 +55,12 @@ export function OfferRideScreen() {
 
   // Derived until somebody types, so the field is not empty on a screen that
   // has an obvious answer. The same `edits ?? derived` shape as the event form.
-  const starts = event.data === undefined || event.data === null ? null : new Date(event.data.starts_at)
+  const starts =
+    event.data === undefined || event.data === null ? null : new Date(event.data.starts_at)
   const suggested =
-    starts === null ? '' : toLocalInput(new Date(starts.getTime() - LEAD_MS).toISOString(), APP_TIME_ZONE)
+    starts === null
+      ? ''
+      : toLocalInput(new Date(starts.getTime() - LEAD_MS).toISOString(), APP_TIME_ZONE)
   const shown = hora ?? suggested
 
   const save = useMutation({

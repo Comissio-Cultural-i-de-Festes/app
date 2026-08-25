@@ -152,9 +152,7 @@ export function EntryScreen() {
                 ) : null
               }
             >
-              <div className="mt-[5px] font-display text-[25px] tracking-[0.02em]">
-                {invite.code}
-              </div>
+              <div className="mt-[5px] font-display text-d-sm tracking-[0.02em]">{invite.code}</div>
             </FieldShell>
           ) : (
             <FieldShell
@@ -166,7 +164,7 @@ export function EntryScreen() {
                 </span>
               }
             >
-              <div className="mt-[5px] font-display text-[25px] tracking-[-0.02em] text-fg-faint">
+              <div className="mt-[5px] font-display text-d-sm tracking-[-0.02em] text-fg-faint">
                 {t('entry.open.noCodeValue')}
               </div>
             </FieldShell>

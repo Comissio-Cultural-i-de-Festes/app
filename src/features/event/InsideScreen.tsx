@@ -126,7 +126,7 @@ export function InsideScreen() {
         </p>
         {/* Not a heading: the header above already carries the h1. And with
             nobody in yet the number is not the news — the emptiness is. */}
-        <p className="display mt-6 text-[40px] leading-[0.88] tracking-[-0.05em] [text-wrap:balance]">
+        <p className="display mt-6 text-d-md leading-[0.88] tracking-[-0.05em] [text-wrap:balance]">
           {rows.length === 0
             ? t('inside.nobody')
             : t(live ? 'inside.count' : 'inside.countPast', {
@@ -142,7 +142,10 @@ export function InsideScreen() {
       {inside.isPending ? (
         <p className={`pt-8 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
       ) : inside.isError ? (
-        <p role="alert" className={`pt-8 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}>
+        <p
+          role="alert"
+          className={`pt-8 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}
+        >
           {t(errorKey(inside.error))}
         </p>
       ) : rows.length === 0 ? null : (

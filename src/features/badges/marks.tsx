@@ -25,7 +25,16 @@ function Svg({ size, children }: { readonly size: number; readonly children: Rea
 /** Una porta. El primer fitxatge és haver entrat per una. */
 export const PortaMark: Mark = ({ size }) => (
   <Svg size={size}>
-    <rect x="5.5" y="3" width="13" height="18" rx="1.5" fill="none" stroke="currentColor" strokeWidth="2" />
+    <rect
+      x="5.5"
+      y="3"
+      width="13"
+      height="18"
+      rx="1.5"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
     <circle cx="15" cy="12.5" r="1.7" />
   </Svg>
 )
@@ -62,7 +71,12 @@ export const VolantMark: Mark = ({ size }) => (
   <Svg size={size}>
     <circle cx="12" cy="12" r="8.4" fill="none" stroke="currentColor" strokeWidth="2" />
     <circle cx="12" cy="12" r="2.7" />
-    <path d="M12 14.5V20M4.2 10.5l5.4 1M19.8 10.5l-5.4 1" stroke="currentColor" strokeWidth="2" fill="none" />
+    <path
+      d="M12 14.5V20M4.2 10.5l5.4 1M19.8 10.5l-5.4 1"
+      stroke="currentColor"
+      strokeWidth="2"
+      fill="none"
+    />
   </Svg>
 )
 
@@ -93,7 +107,16 @@ export const IdeaMark: Mark = ({ size }) => (
 export const DiptricMark: Mark = ({ size }) => (
   <Svg size={size}>
     <rect x="3" y="5" width="8.2" height="14" rx="1" />
-    <rect x="14.2" y="6" width="6.8" height="12" rx="1" fill="none" stroke="currentColor" strokeWidth="2" />
+    <rect
+      x="14.2"
+      y="6"
+      width="6.8"
+      height="12"
+      rx="1"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    />
   </Svg>
 )
 

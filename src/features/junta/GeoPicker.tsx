@@ -217,7 +217,10 @@ export function GeoPicker({
       </div>
 
       {failed ? (
-        <p role="alert" className="mt-5 text-sm font-bold text-[var(--ds-warning)] [text-wrap:pretty]">
+        <p
+          role="alert"
+          className="mt-5 text-sm font-bold text-[var(--ds-warning)] [text-wrap:pretty]"
+        >
           {t('junta.geo.noFix')}
         </p>
       ) : null}

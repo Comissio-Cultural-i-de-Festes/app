@@ -207,7 +207,7 @@ function Hero({
 
       <div className="absolute right-4 bottom-4 left-[var(--ds-gutter)]">
         <p className="eyebrow text-brand-accent">{whenLabel(start, locale, t)}</p>
-        <h1 className="display mt-4 text-[40px] leading-[0.85] tracking-[-0.048em] [overflow-wrap:break-word] [text-wrap:balance]">
+        <h1 className="display mt-4 text-d-md leading-[0.85] tracking-[-0.048em] [overflow-wrap:break-word] [text-wrap:balance]">
           {event.titulo}
         </h1>
       </div>
@@ -266,7 +266,7 @@ function Places({
             inventing a word for it would be the loudest thing on the screen
             saying nothing at all. */}
         {left === null ? null : (
-          <p className="tabular display text-[40px] leading-[0.85] tracking-[-0.05em]">
+          <p className="tabular display text-d-md leading-[0.85] tracking-[-0.05em]">
             {left === 0 ? t('home.places.full') : t('home.places.left', { count: left })}
           </p>
         )}
@@ -428,7 +428,7 @@ function RankingTeaser({ home }: { readonly home: Home }) {
               total: home.total,
             })}
           </p>
-          <p className="tabular display mt-[7px] text-[46px] leading-[0.85] tracking-[-0.05em]">
+          <p className="tabular display mt-[7px] text-d-lg leading-[0.85] tracking-[-0.05em]">
             {home.me.punts}{' '}
             <span className="font-body text-xl font-bold tracking-normal text-fg-muted normal-case">
               {t('home.rank.pointsWord')}
@@ -561,7 +561,7 @@ function Upcoming({
                   <p className="text-2xs font-extrabold tracking-[0.1em] uppercase text-brand-accent">
                     {formatMonthShort(start, locale)}
                   </p>
-                  <p className="tabular display text-[27px] leading-[0.9] tracking-[-0.04em]">
+                  <p className="tabular display text-d-sm leading-[0.9] tracking-[-0.04em]">
                     {formatDayNumber(start, locale)}
                   </p>
                 </div>

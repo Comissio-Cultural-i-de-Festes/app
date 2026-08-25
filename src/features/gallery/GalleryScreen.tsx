@@ -290,7 +290,10 @@ function Empty({ wasThere }: { readonly wasThere: boolean }) {
   const { t } = useTranslation()
   return (
     <div className={`pt-10 pb-10 ${GUTTER}`}>
-      <p className="display text-[22px] tracking-[-0.04em] [text-wrap:balance]">
+      {/* d-s i no el graó més proper als 22 px que hi havia: la resta
+          d'estats buits de l'app fan d-s, i ser l'excepció es notaria més que
+          els tres píxels. */}
+      <p className="display text-d-s tracking-[-0.04em] [text-wrap:balance]">
         {t('gallery.empty.title')}
       </p>
       <p className="mt-4 text-sm text-fg-muted [text-wrap:pretty]">

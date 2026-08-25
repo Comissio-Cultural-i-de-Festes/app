@@ -123,7 +123,14 @@ export function ShareCard({
 /** The drawings' own glyph: out of the phone, or down into it. */
 function UpArrow({ down }: { readonly down: boolean }) {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true" className="flex-none">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      aria-hidden="true"
+      className="flex-none"
+    >
       <path d="M10 2.5v11" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
       <path
         d={down ? 'M5.5 9 10 13.5 14.5 9' : 'M5.5 7 10 2.5 14.5 7'}

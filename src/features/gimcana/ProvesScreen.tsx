@@ -98,7 +98,7 @@ export function ProvesScreen() {
                 })}
               </p>
             </div>
-            <p className="tabular display flex-none text-[24px] tracking-[-0.04em]">
+            <p className="tabular display flex-none text-d-sm tracking-[-0.04em]">
               {String(board.data?.find((r) => r.meu)?.punts ?? 0)}
             </p>
           </div>
@@ -132,7 +132,10 @@ export function ProvesScreen() {
                     </div>
                   </div>
                 ) : (
-                  <Link to={`/esdeveniment/${id}/gimcana/${p.id}`} className={`${ROW} no-underline`}>
+                  <Link
+                    to={`/esdeveniment/${id}/gimcana/${p.id}`}
+                    className={`${ROW} no-underline`}
+                  >
                     <div className="min-w-0 flex-1">
                       <p className="text-base font-semibold text-fg [text-wrap:pretty]">
                         {p.titol}
@@ -227,9 +230,7 @@ function TeamPicker({
             }}
             className="flex min-h-[56px] items-center justify-between gap-5 border-[1.5px] border-surface-7 bg-surface-1 px-8 py-6 text-left disabled:opacity-60"
           >
-            <span className="text-base font-bold [text-wrap:pretty]">
-              {teamName(team, i, t)}
-            </span>
+            <span className="text-base font-bold [text-wrap:pretty]">{teamName(team, i, t)}</span>
             <span className="tabular flex-none text-[12.5px] font-bold text-fg-muted-lo">
               {t('gimcana.pick.people', { count: team.quants })}
             </span>

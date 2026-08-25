@@ -57,7 +57,7 @@ export function DiptychScreen() {
     queryFn: () => fetchPhotoUrls(paths),
     enabled: paths.length > 0,
   })
-  const url = (path: string | null) => (path === null ? null : urls.data?.get(path) ?? null)
+  const url = (path: string | null) => (path === null ? null : (urls.data?.get(path) ?? null))
 
   const forget = useMutation({
     mutationFn: (id: string) => removeExitPhoto(id),
@@ -77,7 +77,10 @@ export function DiptychScreen() {
   if (nights.isError) {
     return (
       <Shell>
-        <p role="alert" className={`pt-10 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}>
+        <p
+          role="alert"
+          className={`pt-10 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}
+        >
           {t(errorKey(nights.error))}
         </p>
       </Shell>
@@ -114,7 +117,7 @@ export function DiptychScreen() {
 
       {shape === 'neither' ? (
         <section className={`pt-9 pb-4 ${GUTTER}`}>
-          <h2 className="display text-[27px] leading-[0.98] tracking-[-0.042em] [text-wrap:balance]">
+          <h2 className="display text-d-sm leading-[0.98] tracking-[-0.042em] [text-wrap:balance]">
             {t('diptych.neither.title')}
           </h2>
           <p className="mt-5 text-base text-fg-secondary [text-wrap:pretty]">
@@ -221,7 +224,9 @@ export function DiptychScreen() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-base font-bold">{other.titulo}</span>
-                    <span className="mt-2 block text-sm text-fg-muted">{summary(other, locale, t)}</span>
+                    <span className="mt-2 block text-sm text-fg-muted">
+                      {summary(other, locale, t)}
+                    </span>
                   </span>
                   <span aria-hidden="true" className="flex-none text-lg text-fg-muted">
                     ›
@@ -330,7 +335,9 @@ function summary(night: Night, locale: ReturnType<typeof toLocale>, t: T): strin
   if (shape === 'neither') return `${day} · ${t('diptych.noPhotos')}`
   if (shape === 'entryOnly') return `${day} · ${t('diptych.entryOnly')}`
 
-  const inAt = night.checked_in_at === null ? null : formatTime(new Date(night.checked_in_at), locale)
-  const outAt = night.exit_photo_at === null ? null : formatTime(new Date(night.exit_photo_at), locale)
+  const inAt =
+    night.checked_in_at === null ? null : formatTime(new Date(night.checked_in_at), locale)
+  const outAt =
+    night.exit_photo_at === null ? null : formatTime(new Date(night.exit_photo_at), locale)
   return inAt === null || outAt === null ? day : `${day} · ${inAt} → ${outAt}`
 }

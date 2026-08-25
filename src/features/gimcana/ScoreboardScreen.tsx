@@ -79,7 +79,7 @@ export function ScoreboardScreen() {
             >
               <p
                 className={
-                  'tabular display w-[26px] flex-none text-[26px] tracking-[-0.05em] ' +
+                  'tabular display w-[26px] flex-none text-d-sm tracking-[-0.05em] ' +
                   (i === 0 ? 'text-brand-accent' : 'text-fg-faint')
                 }
               >
@@ -100,7 +100,7 @@ export function ScoreboardScreen() {
                   {t('gimcana.doneCount', { count: r.proves })}
                 </p>
               </div>
-              <p className="tabular display flex-none text-[24px] tracking-[-0.035em]">
+              <p className="tabular display flex-none text-d-sm tracking-[-0.035em]">
                 {String(r.punts)}
               </p>
             </li>

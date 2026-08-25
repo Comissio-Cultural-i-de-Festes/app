@@ -98,9 +98,7 @@ export function BadgeSheet({
                 }
               >
                 <p
-                  className={
-                    'display tabular text-[19px] ' + (row === null ? 'text-fg-faint' : '')
-                  }
+                  className={'display tabular text-[19px] ' + (row === null ? 'text-fg-faint' : '')}
                 >
                   {String(level)}
                 </p>

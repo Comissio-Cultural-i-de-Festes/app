@@ -185,7 +185,7 @@ export function QrScreen() {
               />
             )}
 
-            <p className="display mt-9 text-center text-[28px] tracking-[-0.04em] text-[oklch(0.18_0.012_25)]">
+            <p className="display mt-9 text-center text-d-sm tracking-[-0.04em] text-[oklch(0.18_0.012_25)]">
               {profile?.nombre ?? ''}
             </p>
             {subtitle === '' ? null : (

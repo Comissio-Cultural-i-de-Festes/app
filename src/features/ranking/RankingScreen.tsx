@@ -81,7 +81,7 @@ export function RankingScreen() {
               </p>
               <p className="text-[12.5px] text-brand-banner-fg">{t('ranking.youSub')}</p>
             </div>
-            <p className="tabular display flex-none text-[24px] tracking-[-0.04em]">{me.punts}</p>
+            <p className="tabular display flex-none text-d-sm tracking-[-0.04em]">{me.punts}</p>
           </div>
         ) : null}
       </div>
@@ -252,7 +252,7 @@ function SchoolLine({
     >
       <p
         className={
-          'tabular display w-[26px] flex-none text-[26px] tracking-[-0.05em] ' +
+          'tabular display w-[26px] flex-none text-d-sm tracking-[-0.05em] ' +
           (school.posicio === 1 ? 'text-brand-accent' : 'text-fg-faint')
         }
       >
@@ -279,7 +279,7 @@ function SchoolLine({
       </div>
 
       <div className="flex-none text-right">
-        <p className="tabular display text-[21px] tracking-[-0.035em]">{school.punts_totals}</p>
+        <p className="tabular display text-d-xs tracking-[-0.035em]">{school.punts_totals}</p>
         {weekly !== null && weekly > 0 ? (
           <p className="mt-[2px] text-[11.5px] font-bold text-success">
             {t('ranking.thisWeek', { count: weekly })}

@@ -254,7 +254,7 @@ function Verdict({ outcome, undo }: { readonly outcome: DoorOutcome; readonly un
     >
       <ScanGlyph icon={shown.icon} />
       <div className="min-w-0 flex-1">
-        <p className="display text-[27px] leading-none tracking-[-0.04em] [text-wrap:balance]">
+        <p className="display text-d-sm leading-none tracking-[-0.04em] [text-wrap:balance]">
           {nombre}
         </p>
         <p className="mt-4 text-lg font-bold">{headline}</p>

@@ -202,7 +202,7 @@ export function PointsScreen() {
                     : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg')
                 }
               >
-                <span className="display text-[22px] tracking-[-0.04em]">
+                <span className="display text-d-xs tracking-[-0.04em]">
                   {punts === null ? '·' : `+${String(punts)}`}
                 </span>
                 <span className="text-sm font-bold">{t(`motive.${clau}`)}</span>

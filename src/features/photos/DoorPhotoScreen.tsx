@@ -150,7 +150,7 @@ export function DoorPhotoScreen() {
 
       {cameraError === null ? (
         <div className="relative z-10 bg-[oklch(0.11_0.008_25/0.9)] px-8 pt-8">
-          <h1 className="display text-[27px] leading-[0.98] tracking-[-0.042em] [text-wrap:balance]">
+          <h1 className="display text-d-sm leading-[0.98] tracking-[-0.042em] [text-wrap:balance]">
             {t(`doorPhoto.${half}.title`)}
           </h1>
           <p className="mt-5 text-sm text-fg-secondary [text-wrap:pretty]">
@@ -159,10 +159,7 @@ export function DoorPhotoScreen() {
         </div>
       ) : (
         <div className="relative z-10 bg-[oklch(0.11_0.008_25/0.9)] px-8 pt-8">
-          <p
-            role="alert"
-            className="text-lg font-bold text-[var(--ds-warning)] [text-wrap:pretty]"
-          >
+          <p role="alert" className="text-lg font-bold text-[var(--ds-warning)] [text-wrap:pretty]">
             {/* Les d'aquesta pantalla i no les de l'escàner: aquelles diuen
                 «fes l'alta pel nom», que és una acció de la junta i no de qui
                 s'està fent la foto. */}

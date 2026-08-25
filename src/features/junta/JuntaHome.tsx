@@ -237,7 +237,7 @@ export function JuntaHome() {
                 <span className="eyebrow block text-[var(--ds-text-muted-lo)]">
                   {formatMonthShort(new Date(e.starts_at), locale).replace('.', '')}
                 </span>
-                <span className="display mt-[1px] block text-[24px] leading-none tracking-[-0.05em] text-fg">
+                <span className="display mt-[1px] block text-d-sm leading-none tracking-[-0.05em] text-fg">
                   {formatDayNumber(new Date(e.starts_at), locale)}
                 </span>
               </span>
@@ -335,7 +335,7 @@ function Door({ porta, locale }: { readonly porta: DoorNow; readonly locale: Loc
         <span className="eyebrow text-brand-accent">{t('junta.home.doorNow')}</span>
       </p>
 
-      <h2 className="display mt-6 text-[33px] leading-[0.87] tracking-[-0.048em] [text-wrap:balance]">
+      <h2 className="display mt-6 text-d-s leading-[0.87] tracking-[-0.048em] [text-wrap:balance]">
         {porta.titulo}
       </h2>
       <p className="mt-5 text-base font-semibold text-fg-secondary [text-wrap:pretty]">
@@ -375,7 +375,7 @@ function Door({ porta, locale }: { readonly porta: DoorNow; readonly locale: Loc
 function Stat({ n, label }: { readonly n: number | null; readonly label: string }) {
   return (
     <div className="bg-[var(--ds-bg-door-panel)] px-6 py-6">
-      <p className="display tabular text-[29px] leading-[0.9] tracking-[-0.05em]">{n ?? '—'}</p>
+      <p className="display tabular text-d-s leading-[0.9] tracking-[-0.05em]">{n ?? '—'}</p>
       <p className="eyebrow mt-3 text-[var(--ds-text-muted-lo)]">{label}</p>
     </div>
   )
@@ -521,7 +521,7 @@ function Heading({
         <h2
           className={
             display
-              ? 'display text-[25px] leading-none tracking-[-0.045em]'
+              ? 'display text-d-sm leading-none tracking-[-0.045em]'
               : `eyebrow ${amber ? 'text-[var(--ds-warning)]' : 'text-fg-muted'}`
           }
         >

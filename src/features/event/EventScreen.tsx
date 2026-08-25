@@ -557,20 +557,30 @@ function AnswerBlock({
         {ANSWERS.map((a) => {
           // A request lights the yes button: it is what was asked for, and
           // a refusal does not, because nothing is selected any more.
-          const on = mine === a || (a === 'si' && (waiting || requested))
+          const selected = mine === a || (a === 'si' && (waiting || requested))
+          // Abans de contestar, els tres botons eren tres contorns idèntics:
+          // cap jerarquia en els dos segons que dura la decisió. El «sí» és
+          // l'acció que omple la sala i la que l'Inici ja tracta com a
+          // primària, així que aquí també es pinta com a tal.
+          //
+          // Pintat, no premut: `aria-pressed` segueix la resposta de debò, que
+          // encara no existeix. Dir a un lector de pantalla que el «sí» està
+          // seleccionat quan no ho està seria mentir-li sobre l'única cosa que
+          // aquesta pantalla li ha de dir.
+          const lit = selected || (a === 'si' && mine === null)
           return (
             <button
               key={a}
               type="button"
               disabled={pending}
-              aria-pressed={on}
+              aria-pressed={selected}
               onClick={() => {
                 onAnswer(a)
               }}
               className={
                 'flex min-h-[56px] items-center justify-center px-4 py-4 text-lg font-bold ' +
                 '[text-wrap:balance] disabled:opacity-70 ' +
-                (on
+                (lit
                   ? 'bg-brand-cta text-on-brand'
                   : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-secondary')
               }

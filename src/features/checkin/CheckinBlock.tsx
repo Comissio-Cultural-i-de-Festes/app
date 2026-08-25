@@ -11,6 +11,7 @@ import { photoKeys } from '@/features/photos/api'
 import { formatTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import type { EventRow } from '@/lib/schema'
+import { Notice } from '@/ui/Notice/Notice'
 
 import { type Verdict, PositionFailure, checkInHere, getFix } from './api'
 
@@ -189,16 +190,8 @@ function Note({
   readonly children: React.ReactNode
 }) {
   return (
-    <p
-      role="status"
-      className={
-        'mt-6 border-l-[3px] px-7 py-6 text-md [text-wrap:pretty] ' +
-        (tone === 'ok'
-          ? 'border-success bg-surface-2 text-fg'
-          : 'border-warning bg-surface-1 text-fg-secondary')
-      }
-    >
+    <Notice tone={tone} size="tight" className="mt-6">
       {children}
-    </p>
+    </Notice>
   )
 }

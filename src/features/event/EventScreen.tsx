@@ -31,6 +31,7 @@ import { ANSWERS, type Answer } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { useCovers } from '@/ui/Cover/useCovers'
+import { Notice } from '@/ui/Notice/Notice'
 
 import { CheckinBlock } from '@/features/checkin/CheckinBlock'
 import { checkinWindow, isOpen } from '@/features/checkin/window'
@@ -398,9 +399,7 @@ function CheckinShare({
         kind: 'checkin',
         // Your own door photograph if there is one, and the poster if not:
         // both are pictures of that night, and one of them always exists.
-        photo: await loadCardImage(
-          entry === null ? cover : (urls.data?.get(entry) ?? cover),
-        ),
+        photo: await loadCardImage(entry === null ? cover : (urls.data?.get(entry) ?? cover)),
         // The day and the time you walked in, not the day and the time it
         // started: `formatDateLong` already ends in "a les 22:00", so using it
         // here printed two different times next to each other.
@@ -411,9 +410,7 @@ function CheckinShare({
         headline: t('share.checkin'),
         what: event.ubicacion === null ? event.titulo : `${event.titulo} · ${event.ubicacion}`,
         count:
-          event.plazas === null
-            ? null
-            : t('share.weAre', { dins: going, total: event.plazas }),
+          event.plazas === null ? null : t('share.weAre', { dins: going, total: event.plazas }),
       })}
       name={[event.titulo, 'dins']}
     />
@@ -505,11 +502,7 @@ function AnswerBlock({
   return (
     <section className={`pt-12 pb-8 ${GUTTER}`}>
       <h2 className="text-lg font-bold [text-wrap:pretty]">
-        {confirm
-          ? t('event.ask.confirmTitle')
-          : full
-            ? t('event.ask.full')
-            : t('event.ask.title')}
+        {confirm ? t('event.ask.confirmTitle') : full ? t('event.ask.full') : t('event.ask.title')}
       </h2>
 
       <StreakLine />
@@ -611,9 +604,9 @@ function AnswerBlock({
       </p>
 
       {waiting ? (
-        <p className="mt-8 border-l-[3px] border-warning bg-surface-1 px-[18px] py-[15px] text-md text-fg-secondary [text-wrap:pretty]">
+        <Notice className="mt-8">
           {position === null ? t('event.queue.onList') : t('event.queue.position', { position })}
-        </p>
+        </Notice>
       ) : null}
     </section>
   )

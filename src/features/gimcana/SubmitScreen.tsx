@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { isPermanent } from '@/lib/db'
 import { errorKey } from '@/lib/errors'
+import { Notice } from '@/ui/Notice/Notice'
 
 import { fetchGimcana, gimcanaKeys, submitProva } from './api'
 
@@ -138,12 +139,7 @@ export function SubmitScreen() {
                   {t(errorKey(send.error))}
                 </p>
               ) : (
-                <p
-                  role="status"
-                  className="mt-5 border-l-[3px] border-warning bg-surface-1 px-9 py-[15px] text-md [text-wrap:pretty]"
-                >
-                  {t('gimcana.queued')}
-                </p>
+                <Notice className="mt-5">{t('gimcana.queued')}</Notice>
               )
             ) : null}
 

@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase'
 import { Button } from '@/ui/Button/Button'
 import { FieldShell, TextField } from '@/ui/Field/Field'
 import { LogoMark, Wordmark } from '@/ui/Logo/Logo'
+import { Notice } from '@/ui/Notice/Notice'
 
 import { GoogleButton } from './GoogleButton'
 import { looksStranded, signInWithGoogle } from './useGoogleSignIn'
@@ -124,14 +125,7 @@ export function EntryScreen() {
 
         {/* Back in an installed app with no session: the round trip ended
             somewhere else. Amber, never the brand red. */}
-        {stranded && (
-          <p
-            role="status"
-            className="mt-[26px] border-l-[3px] border-warning bg-surface-1 px-[18px] py-[15px] text-md text-fg-secondary [text-wrap:pretty]"
-          >
-            {t('entry.stranded')}
-          </p>
-        )}
+        {stranded && <Notice className="mt-[26px]">{t('entry.stranded')}</Notice>}
 
         {/* The same block in both states, so the door has one shape. With a
             code it holds the code; without one it holds the absence of one,

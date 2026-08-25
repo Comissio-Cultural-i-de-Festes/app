@@ -20,6 +20,7 @@ import type { Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { useCovers } from '@/ui/Cover/useCovers'
 import { LogoMark, Wordmark } from '@/ui/Logo/Logo'
+import { Notice } from '@/ui/Notice/Notice'
 
 import {
   type AttendanceRow,
@@ -53,15 +54,7 @@ export function HomeScreen() {
       <Header home={home} />
 
       {waiting ? (
-        <p
-          role="status"
-          className={
-            'mx-[var(--ds-gutter)] mt-1 border-l-[3px] border-warning bg-surface-1 ' +
-            'px-[18px] py-[15px] text-md text-fg-secondary [text-wrap:pretty]'
-          }
-        >
-          {t('home.waiting.banner')}
-        </p>
+        <Notice className="mx-[var(--ds-gutter)] mt-1">{t('home.waiting.banner')}</Notice>
       ) : null}
 
       {/* The morning after, above everything else: it is about last night and

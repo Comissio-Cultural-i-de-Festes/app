@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
 
@@ -32,7 +32,23 @@ export function SubmitScreen() {
   const navigate = useNavigate()
   const client = useQueryClient()
   const picker = useRef<HTMLInputElement>(null)
-  const [photo, setPhoto] = useState<File | null>(null)
+  // Els dos van junts, i el blob-URL es crea al gestor que ha triat la foto —
+  // mai durant un render. Al cos del render, cada repintada mentre s'envia en
+  // creava un de nou sense alliberar l'anterior: amb fotos de 12 MP són megues
+  // que no tornen fins que es tanca la pestanya. Mateix patró que el
+  // `CoverPicker` del formulari d'esdeveniment.
+  const [photo, setPhoto] = useState<{ readonly file: File; readonly url: string } | null>(null)
+  // El darrer URL viu en un ref i no a les dependències d'un efecte: amb
+  // `[photo]`, el doble muntatge de StrictMode revocaria l'URL just després de
+  // crear-lo i la previsualització sortiria trencada en desenvolupament. Aquí
+  // el revoca qui el substitueix, i el desmuntatge s'emporta el que quedi.
+  const lastUrl = useRef<string | null>(null)
+  useEffect(
+    () => () => {
+      if (lastUrl.current !== null) URL.revokeObjectURL(lastUrl.current)
+    },
+    [],
+  )
 
   const gimcana = useQuery({
     queryKey: gimcanaKeys.one(id),
@@ -47,7 +63,7 @@ export function SubmitScreen() {
     networkMode: 'always',
     mutationFn: () => {
       if (photo === null) throw new Error('cap foto')
-      return submitProva(provaId, photo)
+      return submitProva(provaId, photo.file)
     },
     onSuccess: async (estat) => {
       await client.invalidateQueries({ queryKey: gimcanaKeys.all() })
@@ -56,8 +72,6 @@ export function SubmitScreen() {
       }
     },
   })
-
-  const url = photo === null ? null : URL.createObjectURL(photo)
 
   return (
     <main className="min-h-dvh bg-app pb-10">
@@ -100,7 +114,12 @@ export function SubmitScreen() {
               capture="environment"
               className="hidden"
               onChange={(e) => {
-                setPhoto(e.target.files?.[0] ?? null)
+                const file = e.target.files?.[0] ?? null
+                if (lastUrl.current !== null) URL.revokeObjectURL(lastUrl.current)
+                lastUrl.current = file === null ? null : URL.createObjectURL(file)
+                setPhoto(
+                  file === null || lastUrl.current === null ? null : { file, url: lastUrl.current },
+                )
                 e.target.value = ''
               }}
             />
@@ -112,10 +131,10 @@ export function SubmitScreen() {
               }}
               className="mt-7 flex h-[250px] w-full items-center justify-center border border-dashed border-surface-7 bg-surface-1 text-md font-bold text-fg-muted"
             >
-              {url === null ? (
+              {photo === null ? (
                 t('gimcana.takePhoto')
               ) : (
-                <img src={url} alt="" className="size-full object-cover" />
+                <img src={photo.url} alt="" className="size-full object-cover" />
               )}
             </button>
 

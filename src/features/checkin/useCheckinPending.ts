@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
 
 import { HERE, count } from '@/lib/queue'
+import { useOnline } from '@/lib/useOnline'
 
 /**
  * Quants fitxatges esperen encara sortir.
@@ -29,27 +29,12 @@ export interface CheckinPending {
 }
 
 export function useCheckinPending(): CheckinPending {
-  const [online, setOnline] = useState(() => navigator.onLine)
+  const online = useOnline()
 
   const queued = useQuery({
     queryKey: checkinQueueKeys.pending(),
     queryFn: () => count(HERE),
   })
-
-  useEffect(() => {
-    const up = () => {
-      setOnline(true)
-    }
-    const down = () => {
-      setOnline(false)
-    }
-    window.addEventListener('online', up)
-    window.addEventListener('offline', down)
-    return () => {
-      window.removeEventListener('online', up)
-      window.removeEventListener('offline', down)
-    }
-  }, [])
 
   return { queued: queued.data ?? 0, online }
 }

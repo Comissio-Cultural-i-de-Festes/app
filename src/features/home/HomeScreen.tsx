@@ -21,6 +21,7 @@ import { type Locale, toLocale } from '@/i18n/locales'
 import { ExitPhotoCard } from '@/features/photos/ExitPhotoCard'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
+import { useOnline } from '@/lib/useOnline'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { useCovers } from '@/ui/Cover/useCovers'
 import { LogoMark, Wordmark } from '@/ui/Logo/Logo'
@@ -120,6 +121,7 @@ export function HomeScreen() {
 
 function Header({ home }: { readonly home: Home }) {
   const { t } = useTranslation()
+  const online = useOnline()
   const name = home.profile ? firstName(home.profile.nombre) : ''
 
   return (
@@ -130,9 +132,26 @@ function Header({ home }: { readonly home: Home }) {
         <LogoMark size={36} />
         <div className="min-w-0">
           <Wordmark size={22} />
-          {name === '' ? null : (
-            <p className="mt-2 truncate text-xs font-semibold tracking-[0.03em] text-fg-dim">
-              {t(`home.greeting.${greetingKey(new Date())}`, { name })}
+          {/* Al lloc de la salutació i no a sobre: sense cobertura, «bona
+              tarda» no és la cosa més útil que aquesta línia pot dir, i un
+              rètol nou empenyeria tota la pantalla avall. Ambre, mai el
+              vermell de marca, i sense cap toast. */}
+          {online ? (
+            name === '' ? null : (
+              <p className="mt-2 truncate text-xs font-semibold tracking-[0.03em] text-fg-dim">
+                {t(`home.greeting.${greetingKey(new Date())}`, { name })}
+              </p>
+            )
+          ) : (
+            <p
+              role="status"
+              className="mt-2 flex items-center gap-3 text-xs font-bold text-[var(--ds-warning-deep)]"
+            >
+              <span
+                aria-hidden="true"
+                className="size-[7px] flex-none rounded-full bg-[var(--ds-warning-deep)]"
+              />
+              {t('state.offline')}
             </p>
           )}
         </div>

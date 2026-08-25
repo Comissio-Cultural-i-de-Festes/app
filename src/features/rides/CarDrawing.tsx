@@ -36,7 +36,13 @@ const SEATS = [
   { left: 216, top: 152 },
 ] as const
 
-export function CarDrawing({ ride, meId }: { readonly ride: Ride; readonly meId: string }) {
+export function CarDrawing({
+  ride,
+  meId,
+}: {
+  readonly ride: Ride
+  readonly meId: string
+}) {
   const { t } = useTranslation()
   // Oldest first, so somebody's bubble does not move when the next person gets
   // in. Where you sit is not information, but a face that jumps is noise.
@@ -121,7 +127,8 @@ function Bubble({
     <div className={`absolute ${faded ? 'opacity-55' : ''}`} style={{ left, top, width: size }}>
       <span
         className={
-          'block rounded-full ' + (ringed ? 'outline-2 outline-offset-2 outline-brand' : '')
+          'block rounded-full ' +
+          (ringed ? 'outline-2 outline-offset-2 outline-brand' : '')
         }
       >
         <Avatar src={src} size={size} />

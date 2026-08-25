@@ -67,10 +67,7 @@ export function CheckinsScreen() {
       {rows.isPending ? (
         <p className={`pt-10 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
       ) : rows.isError ? (
-        <p
-          role="alert"
-          className={`pt-10 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}
-        >
+        <p role="alert" className={`pt-10 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}>
           {t(errorKey(rows.error))}
         </p>
       ) : list.length === 0 ? (
@@ -107,10 +104,7 @@ export function CheckinsScreen() {
       )}
 
       {undo.isError ? (
-        <p
-          role="alert"
-          className={`pt-7 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}
-        >
+        <p role="alert" className={`pt-7 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}>
           {t(errorKey(undo.error))}
         </p>
       ) : null}

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { BadgeStrip } from '@/features/badges/BadgeStrip'
+import { clearFailedCheckins } from '@/features/checkin/failed'
 import { forgetCachedTokens } from '@/features/qr/api'
 import { periodBounds, rankingKeys } from '@/features/ranking/api'
 import { fetchRanking } from '@/features/ranking/api'
@@ -90,6 +91,8 @@ export function ProfileScreen() {
     // s'atribueixen a qui hi hagi la sessió quan surtin, no a qui les va fer:
     // en un telèfon compartit això vol dir fitxar algú altre a nom teu.
     await clearAllQueues()
+    // I l'avís d'un fitxatge refusat, pel mateix motiu: diu on eres i quin dia.
+    clearFailedCheckins()
     await supabase.auth.signOut()
   }
 

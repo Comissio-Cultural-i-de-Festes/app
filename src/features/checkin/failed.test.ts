@@ -1,6 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest'
 
-import { type FailedCheckin, failedCheckins, forgetFailed, rememberFailed } from './failed'
+import {
+  type FailedCheckin,
+  clearFailedCheckins,
+  failedCheckins,
+  forgetFailed,
+  rememberFailed,
+} from './failed'
 
 const KEY = 'comi.checkin.failed'
 
@@ -40,6 +46,13 @@ describe('els fitxatges refusats', () => {
     rememberFailed(entry({ id: 'b', takenAt: 2000 }))
     forgetFailed('a')
     expect(failedCheckins().map((row) => row.id)).toEqual(['b'])
+  })
+
+  // El telèfon es comparteix, i això diu on eres i quin dia.
+  it('se buida en tancar sessió', () => {
+    rememberFailed(entry())
+    clearFailedCheckins()
+    expect(failedCheckins()).toEqual([])
   })
 
   // Algú amb la consola oberta, o una versió antiga que hi desava una altra

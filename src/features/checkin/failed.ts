@@ -65,3 +65,18 @@ export function rememberFailed(entry: FailedCheckin): void {
 export function forgetFailed(id: string): void {
   write(read().filter((row) => row.id !== id))
 }
+
+/**
+ * En tancar sessió, com les cues.
+ *
+ * Diu on eres i quin dia, i el telèfon es comparteix: el motiu pel qual
+ * `clearAllQueues()` existeix val igual aquí. Qui entra després no ha de
+ * llegir la nit de qui va sortir.
+ */
+export function clearFailedCheckins(): void {
+  try {
+    localStorage.removeItem(KEY)
+  } catch {
+    // Res a fer, i tampoc no hi havia res a esborrar.
+  }
+}

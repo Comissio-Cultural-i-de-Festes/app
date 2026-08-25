@@ -118,7 +118,9 @@ export function EventScreen() {
 
   if (event.isError) {
     return (
-      <main className={`with-tabbar min-h-dvh bg-app pt-[max(calc(var(--ds-safe-top)+32px),12px)] ${GUTTER}`}>
+      <main
+        className={`with-tabbar min-h-dvh bg-app pt-[max(calc(var(--ds-safe-top)+32px),12px)] ${GUTTER}`}
+      >
         <p role="alert" className="text-lg font-bold text-error [text-wrap:pretty]">
           {t(errorKey(event.error))}
         </p>
@@ -135,7 +137,9 @@ export function EventScreen() {
 
   if (event.data == null) {
     return (
-      <main className={`with-tabbar min-h-dvh bg-app pt-[max(calc(var(--ds-safe-top)+32px),12px)] ${GUTTER}`}>
+      <main
+        className={`with-tabbar min-h-dvh bg-app pt-[max(calc(var(--ds-safe-top)+32px),12px)] ${GUTTER}`}
+      >
         <p className="display text-d-sm [text-wrap:balance]">{t('event.gone.title')}</p>
         <p className="mt-6 text-fg-muted [text-wrap:pretty]">{t('event.gone.body')}</p>
         <Link
@@ -286,7 +290,13 @@ export function EventScreen() {
         />
       ) : null}
 
-      {isPast || canCheckIn ? null : (
+      {/* Que s'obri la finestra no tanca la pregunta; fitxar sí. Anaven
+          lligades a `canCheckIn`, i com que la finestra obre una hora abans
+          que comenci la festa, durant aquella hora el sí/potser/no desapareixia
+          per a tothom que no constés dins —inclòs qui no havia contestat mai i
+          qui havia dit que no. Se n'anaven set coses més amb ell, entre elles
+          la posició a la llista d'espera, que no es veu enlloc més. */}
+      {isPast || mine === 'asistio' || justCheckedIn ? null : (
         <AnswerBlock
           mine={mine}
           confirm={e.cal_confirmacio}

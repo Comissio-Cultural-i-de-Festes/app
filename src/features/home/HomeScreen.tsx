@@ -370,8 +370,12 @@ function CallToAction({
   // oberta i encara no consto dins, el CTA porta directe a l'àncora del bloc:
   // un toc, zero scroll. La finestra la decideix `checkin/window.ts`, la
   // mateixa regla que fa aparèixer el bloc a l'altra banda.
+  // Només per a qui hi anava. Amb `mine !== 'asistio'` a seques, qui havia dit
+  // que no —o no havia contestat— rebia com a acció principal de la nit un
+  // botó per fitxar en un lloc on no pensava anar, i perdia el d'apuntar-s'hi.
   const canCheckIn =
-    mine !== 'asistio' && isOpen(checkinWindow(event.starts_at, event.ends_at), now.getTime())
+    (mine === 'si' || mine === 'potser') &&
+    isOpen(checkinWindow(event.starts_at, event.ends_at), now.getTime())
 
   const base =
     'flex w-full min-h-[56px] items-center justify-center px-[18px] py-[15px] ' +

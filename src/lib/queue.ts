@@ -155,9 +155,33 @@ export async function bumpTries(scan: QueuedScan): Promise<void> {
   await enqueue({ ...scan, tries: scan.tries + 1 })
 }
 
-/** For the tests, and for signing out on a shared phone. */
+/** For the tests. Signing out uses clearAllQueues(), which includes this one. */
 export async function clearQueue(): Promise<void> {
   await run(SCANS, 'readwrite', (store) => store.clear())
+}
+
+/**
+ * Buida les quatre cues. Es crida en tancar la sessió, i no és neteja.
+ *
+ * TRES DE LES QUATRE NO PORTEN A DINS DE QUI SÓN. Un fitxatge per ubicació, una
+ * idea i una prova de gimcana s'atribueixen amb `auth.uid()` en arribar al
+ * servidor, no amb res que hi hagi a la fila. O sigui que en un telèfon
+ * compartit —el de la porta, el d'algú que el deixa— una fila que sobreviu a un
+ * canvi de sessió s'envia a nom de qui hi hagi ara: un fitxatge d'algú altre
+ * atribuït a tu, en una activitat on potser no eres. És exactament el frau que
+ * tot el disseny de la porta intenta evitar.
+ *
+ * La del l'escàner sí que porta a qui es fitxa, però es buida igualment: una
+ * sola regla —una cua és de la sessió que la va fer— s'entén i es pot
+ * comprovar, i quatre excepcions no. El preu és perdre escanejos si algú tanca
+ * la sessió sense cobertura enmig d'una porta, que és una cosa que no fa ningú.
+ */
+export async function clearAllQueues(): Promise<void> {
+  await Promise.all(
+    [SCANS, IDEAS, HERE, PROVES].map((name) =>
+      run(name, 'readwrite', (store) => store.clear()),
+    ),
+  )
 }
 
 // ── the same three verbs, for any other store ───────────────────────────────

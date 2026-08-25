@@ -13,6 +13,7 @@ import { formatDayMonth, formatOrdinal } from '@/i18n/format'
 import { SUPPORTED_LOCALES, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
+import { clearAllQueues } from '@/lib/queue'
 import { supabase } from '@/lib/supabase'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
@@ -85,6 +86,10 @@ export function ProfileScreen() {
     // Before the session goes, not after: once it is gone this component is
     // unmounted and nothing is left to run the cleanup.
     forgetCachedTokens()
+    // I les cues. Un fitxatge, una idea o una prova de gimcana que esperen
+    // s'atribueixen a qui hi hagi la sessió quan surtin, no a qui les va fer:
+    // en un telèfon compartit això vol dir fitxar algú altre a nom teu.
+    await clearAllQueues()
     await supabase.auth.signOut()
   }
 

@@ -185,7 +185,6 @@ export function JuntaHome() {
         <Row to="/junta/idees" title={t('ideas.juntaTitle')} sub={t('junta.home.proposalsSub')} />
         <Row to="/junta/tauler" title={t('junta.dashboard.title')} sub={t('junta.dashboard.rowSub')} />
         <Row to="/junta/fotos" title={t('junta.photos.title')} sub={t('junta.photos.rowSub')} />
-        <Later title={t('junta.home.push')} sub={t('junta.home.pushSub')} phase={3} />
       </div>
 
       {/* ── Els que venen ── */}
@@ -606,32 +605,6 @@ function Row({
       )}
       <Chevron />
     </Link>
-  )
-}
-
-/** Drawn, named, and honest about not being here yet. */
-function Later({
-  title,
-  sub,
-  phase,
-}: {
-  readonly title: string
-  readonly sub: string
-  readonly phase: 2 | 3
-}) {
-  const { t } = useTranslation()
-  return (
-    <div className={`${ROW} opacity-55`}>
-      <span className="min-w-0 flex-1">
-        <span className="block text-base font-bold text-fg [text-wrap:pretty]">{title}</span>
-        <span className="mt-[3px] block text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-          {sub}
-        </span>
-      </span>
-      <span className="eyebrow flex-none text-[var(--ds-text-muted-lo)]">
-        {t(phase === 2 ? 'junta.home.phase2' : 'junta.home.phase3')}
-      </span>
-    </div>
   )
 }
 

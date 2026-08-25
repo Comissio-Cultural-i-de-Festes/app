@@ -856,12 +856,8 @@
       "soonFailedSub": "There may be events we cannot see. Do not create anything new until it loads.",
       "how": "How the committee works",
       "howSub": "Touched once a year, and today only with SQL.",
-      "phase2": "Phase 2",
-      "phase3": "Phase 3",
       "proposals": "Proposals and lifts",
       "proposalsSub": "Proposals will carry a number, like the approvals",
-      "push": "Send a nudge",
-      "pushSub": "A push to everybody's phone",
       "periodsStale": "The terms do not cover today",
       "periodsOk": "When each term starts and ends"
     },

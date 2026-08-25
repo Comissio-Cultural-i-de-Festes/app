@@ -856,12 +856,8 @@
       "soonFailedSub": "Pot ser que n'hi hagi i no els veiem. No creïs res nou fins que carregui.",
       "how": "Com funciona la comi",
       "howSub": "Es toca un cop l’any i avui només es toca amb SQL.",
-      "phase2": "Fase 2",
-      "phase3": "Fase 3",
       "proposals": "Propostes i cotxes",
       "proposalsSub": "Les propostes portaran número, com les aprovacions",
-      "push": "Enviar un avís",
-      "pushSub": "Una empenta al mòbil de tothom",
       "periodsStale": "Els trimestres no cobreixen el dia d'avui",
       "periodsOk": "Quan comença i acaba cada trimestre"
     },

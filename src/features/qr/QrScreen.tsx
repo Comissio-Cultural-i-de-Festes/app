@@ -121,9 +121,29 @@ export function QrScreen() {
   return (
     <main className="with-tabbar flex min-h-dvh flex-col items-center justify-center bg-app px-10 pt-[var(--ds-safe-top)]">
       {token.data === undefined ? (
-        <p className="text-center text-fg-muted [text-wrap:pretty]">
-          {token.isError ? t('qr.unavailable') : t('state.loading')}
-        </p>
+        token.isError ? (
+          // Darrere hi ha cua física. Un carreró sense sortida aquí és
+          // l'única pantalla de l'app on quedar-se encallat té gent esperant,
+          // així que diu les dues sortides que hi ha: tornar-ho a provar, i
+          // que l'alta manual existeix precisament per això.
+          <div className="flex flex-col items-center">
+            <p role="alert" className="text-center text-fg-muted [text-wrap:pretty]">
+              {t('qr.unavailable')}
+            </p>
+            <button
+              type="button"
+              onClick={() => void token.refetch()}
+              className="mt-6 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-brand-label"
+            >
+              {t('actions.retry')}
+            </button>
+            <p className="mt-2 max-w-[300px] text-center text-md text-fg-muted [text-wrap:pretty]">
+              {t('qr.fallback')}
+            </p>
+          </div>
+        ) : (
+          <p className="text-center text-fg-muted [text-wrap:pretty]">{t('state.loading')}</p>
+        )
       ) : (
         <>
           <div

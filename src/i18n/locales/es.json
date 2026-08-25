@@ -1198,8 +1198,9 @@
   "qr": {
     "codeLabel": "Tu código QR",
     "offlineOk": "Brillo al máximo · va sin cobertura",
-    "howTo": "El de recambio: si no puedes fichar desde el móvil, enséñalo en la puerta y espera el «fichado».",
+    "howTo": "El de recambio: si no puedes fichar desde el móvil, enséñalo en la puerta y espera el «fichado». Abre esta pantalla una vez con conexión y el código queda guardado en el móvil.",
     "unavailable": "Ahora mismo no podemos mostrar tu código. Pruébalo con conexión y quedará guardado para la próxima.",
+    "fallback": "El de la puerta te puede buscar por el nombre.",
     "notYet": {
       "title": "Todavía no tienes código",
       "pending": "El QR sale cuando la junta te da el alta. Mientras tanto puedes mirar qué viene, pero en la puerta aún no te pueden fichar.",

@@ -52,6 +52,13 @@ export function JuntaHome() {
     queryFn: () => fetchJuntaEvents(horizon),
   })
 
+  // La fila d'esborranys portava a /junta, que és aquesta mateixa pantalla:
+  // tocar-la no feia res. La llista que ja tenim porta el flag, així que no cal
+  // cap consulta nova. Amb reserva a /junta perquè aquesta llista està limitada
+  // a l'horitzó i a vint files mentre que el recompte els compta tots: no
+  // sempre hi ha d'haver-hi el primer esborrany.
+  const firstDraft = events.data?.find((e) => !e.published)
+
   // Cached for half an hour and shared with the ranking, so this costs nothing
   // most of the time. It is here for one line: whether the terms still cover
   // today, which is the one configuration mistake nobody notices.
@@ -142,7 +149,7 @@ export function JuntaHome() {
           )}
           {home.data.esborranys === 0 ? null : (
             <Count
-              to="/junta"
+              to={firstDraft === undefined ? '/junta' : `/junta/esdeveniment/${firstDraft.id}`}
               n={home.data.esborranys}
               title={t('junta.home.drafts', { count: home.data.esborranys })}
               sub={t('junta.home.draftsSub')}

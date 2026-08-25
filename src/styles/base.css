@@ -132,11 +132,6 @@
   a:hover {
     color: var(--ds-link-hover);
   }
-
-  :focus-visible {
-    outline: 2px solid var(--ds-brand-label);
-    outline-offset: 2px;
-  }
 }
 
 @layer components {

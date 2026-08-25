@@ -755,7 +755,9 @@
       "carsHint": "Marca-ho i sortirà el bloc de cotxes compartits al detall. Es marca sol a les cases rurals; desmarca'l si s'hi arriba a peu.",
       "carsOn": "Hi ha cotxes compartits",
       "carsOff": "Sense cotxes compartits",
-      "coverFailed": "La portada no s'ha pogut pujar; l'esdeveniment s'ha desat sense. Torna-hi quan vulguis."
+      "coverFailed": "La portada no s'ha pogut pujar; l'esdeveniment s'ha desat sense. Torna-hi quan vulguis.",
+      "endsBeforeStarts": "El final és abans de l'inici.",
+      "revealAfterStarts": "El reveal és després que comenci: no destaparia res."
     },
     "config": {
       "saved": "Desat.",

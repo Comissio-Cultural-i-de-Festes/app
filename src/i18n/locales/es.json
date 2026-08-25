@@ -755,7 +755,9 @@
       "carsHint": "Márcalo y saldrá el bloque de coches compartidos en el detalle. Se marca solo en las casas rurales; desmárcalo si se llega a pie.",
       "carsOn": "Hay coches compartidos",
       "carsOff": "Sin coches compartidos",
-      "coverFailed": "La portada no se ha podido subir; el evento se ha guardado sin ella. Vuelve a probarlo cuando quieras."
+      "coverFailed": "La portada no se ha podido subir; el evento se ha guardado sin ella. Vuelve a probarlo cuando quieras.",
+      "endsBeforeStarts": "El final es antes del inicio.",
+      "revealAfterStarts": "El reveal es después de que empiece: no destaparía nada."
     },
     "config": {
       "saved": "Guardado.",

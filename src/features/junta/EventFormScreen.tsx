@@ -161,7 +161,16 @@ function EventForm() {
     },
   })
 
-  const ready = form.titulo.trim() !== '' && form.starts_at !== ''
+  // Les tres dates són cadenes `datetime-local` amb el mateix format fix i la
+  // mateixa zona, així que comparar-les com a text és exacte i no depèn de cap
+  // parseig. Un final abans de l'inici no es descobreix fins la nit de
+  // l'esdeveniment: la finestra de fitxatge no obre mai i «qui hi ha dins» diu
+  // que la festa s'ha acabat abans de començar.
+  const endsBad = form.ends_at !== '' && form.starts_at !== '' && form.ends_at <= form.starts_at
+  const revealBad =
+    form.reveal_at !== '' && form.starts_at !== '' && form.reveal_at >= form.starts_at
+
+  const ready = form.titulo.trim() !== '' && form.starts_at !== '' && !endsBad && !revealBad
   const showTemplates = !editing && (templates.data?.length ?? 0) > 0
   // Without templates there is nothing above the fields, so they take both
   // rows rather than leaving a hole where the list would have been.
@@ -353,6 +362,11 @@ function EventForm() {
               }}
               className={INPUT}
             />
+            {endsBad ? (
+              <p role="alert" className="mt-3 text-sm font-semibold text-warning">
+                {t('junta.form.endsBeforeStarts')}
+              </p>
+            ) : null}
           </Field>
 
           <GeoPicker
@@ -1024,6 +1038,11 @@ function RevealBlock({
               }}
               className={INPUT}
             />
+            {form.starts_at !== '' && form.reveal_at >= form.starts_at ? (
+              <p role="alert" className="mt-3 text-sm font-semibold text-warning">
+                {t('junta.form.revealAfterStarts')}
+              </p>
+            ) : null}
           </Field>
 
           {/* Half the promise of a scheduled reveal is the countdown the

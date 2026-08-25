@@ -21,6 +21,8 @@ import { useOnline } from '@/lib/useOnline'
 
 export const checkinQueueKeys = {
   pending: () => ['checkin', 'pending'] as const,
+  /** Els refusats. Mateix motiu que `pending`: qui els mou no és qui els mira. */
+  failed: () => ['checkin', 'failed'] as const,
 }
 
 export interface CheckinPending {

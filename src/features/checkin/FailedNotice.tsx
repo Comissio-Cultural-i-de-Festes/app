@@ -1,11 +1,13 @@
-import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
 import { daysUntil, formatDayMonth, formatWeekdayLong } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { Notice } from '@/ui/Notice/Notice'
 
-import { type FailedState, failedCheckins, forgetFailed } from './failed'
+import { type FailedState, forgetFailed } from './failed'
+import { checkinQueueKeys } from './useCheckinPending'
+import { useFailedCheckin } from './useFailedCheckin'
 
 /**
  * «El fitxatge de dijous no es va poder validar.»
@@ -36,9 +38,9 @@ const WEEK_DAYS = 6
 export function FailedNotice() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
-  const [rows, setRows] = useState(() => failedCheckins())
+  const client = useQueryClient()
+  const oldest = useFailedCheckin()
 
-  const oldest = rows[0]
   if (oldest === undefined) return null
 
   const when = new Date(oldest.takenAt)
@@ -55,7 +57,7 @@ export function FailedNotice() {
         type="button"
         onClick={() => {
           forgetFailed(oldest.id)
-          setRows(failedCheckins())
+          void client.invalidateQueries({ queryKey: checkinQueueKeys.failed() })
         }}
         className="mt-5 block min-h-[44px] text-md font-bold text-warning"
       >

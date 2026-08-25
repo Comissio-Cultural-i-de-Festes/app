@@ -582,7 +582,7 @@
   },
   "install": {
     "title": "Ponla en la pantalla",
-    "lede": "Dos toques y la tienes como una app de verdad. Sin esto no hay avisos cuando abrimos plazas, y te las van a quitar.",
+    "lede": "Dos toques y la tienes como una app de verdad: se abre al instante, el QR va sin cobertura y no tienes que entrar otra vez cada día.",
     "step1": {
       "title": "Toca Compartir, abajo",
       "body": "Es el cuadradito con la flecha hacia arriba, en medio de la barra de Safari."
@@ -596,7 +596,7 @@
     },
     "payoff": {
       "title": "Qué ganas",
-      "body": "Aviso cuando abrimos plazas, el QR sin buscar nada y pantalla completa. Con el navegador normal no llegan los avisos: es Apple, no somos nosotros."
+      "body": "El QR a la primera, sin buscar nada y aunque no haya cobertura. Pantalla completa, sin la barra del navegador. Y la sesión se queda puesta."
     },
     "done": "Ya lo he hecho",
     "later": "Ahora no, ya me apañaré",

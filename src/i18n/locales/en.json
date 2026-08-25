@@ -582,7 +582,7 @@
   },
   "install": {
     "title": "Put it on your screen",
-    "lede": "Two taps and it behaves like a real app. Without it there are no alerts when places open, and they will go to someone else.",
+    "lede": "Two taps and it behaves like a real app: it opens instantly, the QR works with no signal, and you do not sign in again every time.",
     "step1": {
       "title": "Tap Share, at the bottom",
       "body": "It's the little square with the arrow pointing up, in the middle of the Safari bar."
@@ -596,7 +596,7 @@
     },
     "payoff": {
       "title": "What you get",
-      "body": "Alerts when places open, your QR without hunting for it, and full screen. In a normal browser tab the alerts never arrive: that's Apple, not us."
+      "body": "Your QR first try, without hunting for it and even with no signal. Full screen, no browser bar. And the session stays put."
     },
     "done": "I've done it",
     "later": "Not now, I'll manage",

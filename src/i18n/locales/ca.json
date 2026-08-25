@@ -582,7 +582,7 @@
   },
   "install": {
     "title": "Posa-la a la pantalla",
-    "lede": "Dos tocs i la tens com una app de veritat. Sense això no hi ha avisos quan obrim places, i te les prendran.",
+    "lede": "Dos tocs i la tens com una app de veritat: s'obre a l'instant, el QR va sense cobertura i no has de tornar a entrar cada vegada.",
     "step1": {
       "title": "Toca Comparteix, a baix",
       "body": "És el quadradet amb la fletxa cap amunt, al mig de la barra del Safari."
@@ -596,7 +596,7 @@
     },
     "payoff": {
       "title": "Què guanyes",
-      "body": "Avís quan obrim places, el QR sense buscar res i pantalla completa. Amb el navegador normal no arriben els avisos: és l'Apple, no som nosaltres."
+      "body": "El QR a la primera, sense buscar res i encara que no hi hagi cobertura. Pantalla completa, sense la barra del navegador. I la sessió es queda posada."
     },
     "done": "Ja ho tinc fet",
     "later": "Ara no, ja m'espavilaré",

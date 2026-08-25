@@ -180,7 +180,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
 
       {/* The reason skipping is allowed at all, said out loud rather than
           discovered later at the icon. */}
-      <p className="mt-6 text-center text-sm text-[var(--ds-text-faint)] [text-wrap:pretty]">
+      <p className="mt-6 text-center text-sm text-fg-muted-lo [text-wrap:pretty]">
         {t('install.laterWarning')}
       </p>
     </main>

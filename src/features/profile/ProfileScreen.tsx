@@ -347,7 +347,9 @@ export function ProfileScreen() {
           </div>
         )}
 
-        <p className="pb-6 text-[12.5px] text-fg-faint [text-wrap:pretty]">{t('profile.footer')}</p>
+        <p className="pb-6 text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+          {t('profile.footer')}
+        </p>
       </section>
     </main>
   )

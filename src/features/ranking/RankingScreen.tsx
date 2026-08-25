@@ -317,7 +317,7 @@ function MemberLine({
           'tabular w-[30px] flex-none text-right tracking-[-0.02em] ' +
           (top
             ? 'display text-2xl text-brand-accent'
-            : `text-md font-bold ${mine ? 'text-fg-selected' : 'text-fg-faint'}`)
+            : `text-md font-bold ${mine ? 'text-fg-selected' : 'text-fg-muted-lo'}`)
         }
       >
         {row.posicio}.

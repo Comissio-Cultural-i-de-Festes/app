@@ -108,7 +108,10 @@ function Cards({
   const { t } = useTranslation()
   const maxAttendance = Math.max(1, ...data.assistencia.map((a) => a.quants))
   const maxType = Math.max(1, ...data.per_tipus.map((r) => r.mitjana))
-  const totalPoints = Math.max(1, data.punts_per_motiu.reduce((n, r) => n + r.punts, 0))
+  const totalPoints = Math.max(
+    1,
+    data.punts_per_motiu.reduce((n, r) => n + r.punts, 0),
+  )
 
   return (
     <>
@@ -240,10 +243,7 @@ function Cards({
             {data.punts_per_motiu.map((r) => {
               const pct = Math.round((r.punts / totalPoints) * 100)
               return (
-                <div
-                  key={r.motivo}
-                  className="grid grid-cols-[110px_1fr_60px] items-center gap-6"
-                >
+                <div key={r.motivo} className="grid grid-cols-[110px_1fr_60px] items-center gap-6">
                   <span className="text-[13.5px] font-bold">{t(`motive.${r.motivo}`)}</span>
                   <div className="h-[10px] bg-surface-3">
                     <div className="h-[10px] bg-surface-9" style={{ width: `${String(pct)}%` }} />
@@ -309,7 +309,7 @@ function Person({
             })}
       </span>
       {href === null ? (
-        <span className="text-sm text-fg-faint lg:flex-none">
+        <span className="text-sm text-fg-muted-lo lg:flex-none">
           {t('junta.dashboard.drifting.noPhone')}
         </span>
       ) : (

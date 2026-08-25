@@ -127,6 +127,15 @@ export function EntryScreen() {
             somewhere else. Amber, never the brand red. */}
         {stranded && <Notice className="mt-[26px]">{t('entry.stranded')}</Notice>}
 
+        {/* Portava un codi i no val. La pantalla és la de «demana accés» —el
+            camí de sortida és el mateix— però dient-ho, que és el que faltava:
+            sense aquesta línia, qui arriba amb l'enllaç de la setmana passada
+            entra, queda pendent, i no sap que el seu codi ha fallat. El motiu
+            no es diu perquè el servidor no el diu. */}
+        {invite.status === 'invalid' && (
+          <Notice className="mt-[26px]">{t('entry.invite.stale')}</Notice>
+        )}
+
         {/* The same block in both states, so the door has one shape. With a
             code it holds the code; without one it holds the absence of one,
             dashed, and says who resolves it. An empty space there would just

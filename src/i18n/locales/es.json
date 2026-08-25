@@ -85,7 +85,8 @@
       "expiresHours_one": "Caduca en {{count}} h",
       "expiresHours_other": "Caduca en {{count}} h",
       "expiresDays_one": "Caduca en {{count}} día",
-      "expiresDays_other": "Caduca en {{count}} días"
+      "expiresDays_other": "Caduca en {{count}} días",
+      "stale": "Este enlace de invitación ya no es válido. Pide uno nuevo en el grupo, o entra igualmente y espera a que la junta te apruebe."
     },
     "email": {
       "label": "Tu correo",

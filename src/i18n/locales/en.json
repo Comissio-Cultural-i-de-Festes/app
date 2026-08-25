@@ -85,7 +85,8 @@
       "expiresHours_one": "Expires in {{count}} h",
       "expiresHours_other": "Expires in {{count}} h",
       "expiresDays_one": "Expires in {{count}} day",
-      "expiresDays_other": "Expires in {{count}} days"
+      "expiresDays_other": "Expires in {{count}} days",
+      "stale": "This invitation link is no longer valid. Ask for a new one in the group, or come in anyway and wait for the junta to approve you."
     },
     "email": {
       "label": "Your email",

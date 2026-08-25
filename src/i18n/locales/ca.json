@@ -85,7 +85,8 @@
       "expiresHours_one": "Caduca en {{count}} h",
       "expiresHours_other": "Caduca en {{count}} h",
       "expiresDays_one": "Caduca en {{count}} dia",
-      "expiresDays_other": "Caduca en {{count}} dies"
+      "expiresDays_other": "Caduca en {{count}} dies",
+      "stale": "Aquest enllaç d'invitació ja no és vàlid. Demana'n un de nou al grup, o entra igualment i espera que la junta t'aprovi."
     },
     "email": {
       "label": "El teu correu",

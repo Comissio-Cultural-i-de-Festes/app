@@ -16,11 +16,19 @@ export const INVITE_PARAM = 'codi'
 
 export type InviteState =
   | { status: 'checking' }
-  /** No code in the URL, or one the server rejected. Both land here on
-   *  purpose: the server answers identically for a code that never existed,
-   *  one that was revoked and one that is used up, so a code cannot be probed
-   *  for having once been real. */
+  /** No code in the URL at all. */
   | { status: 'none' }
+  /** There was a code and the server would not take it.
+   *
+   *  Which of the four reasons —never existed, revoked, used up, expired— is
+   *  not knowable, and that is deliberate: `invite_preview` answers
+   *  identically to all four so a code cannot be probed for having once been
+   *  real. But *that* it failed is knowable right here, from the URL, and
+   *  saying so leaks nothing the screen does not already leak by showing the
+   *  invited variant when a code is good. Collapsing this into `none` was the
+   *  bug: somebody arriving with last week's WhatsApp link got the "ask for
+   *  access" screen with no hint that the link they used had failed. */
+  | { status: 'invalid' }
   | { status: 'valid'; code: string; expiresAt: Date | null }
 
 interface PreviewResult {
@@ -50,7 +58,7 @@ export function useInvite(): InviteState {
       if (cancelled) return
 
       if (error || !data?.valid) {
-        setState({ status: 'none' })
+        setState({ status: 'invalid' })
         return
       }
 

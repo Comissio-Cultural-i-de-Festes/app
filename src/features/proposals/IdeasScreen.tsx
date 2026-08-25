@@ -10,6 +10,7 @@ import { formatDateLong } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { type Proposal, fetchMyVotes, fetchProposals, proposalKeys, vote, withdraw } from './api'
 import { useIdeaQueue } from './useIdeaQueue'
@@ -70,7 +71,9 @@ export function IdeasScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <header className={`flex items-start justify-between gap-6 pt-[calc(var(--ds-safe-top)+16px)] pb-6 ${GUTTER}`}>
+      <header
+        className={`flex items-start justify-between gap-6 pt-[calc(var(--ds-safe-top)+16px)] pb-6 ${GUTTER}`}
+      >
         <div className="min-w-0 flex-1">
           <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">
             {t('ideas.title')}
@@ -107,8 +110,10 @@ export function IdeasScreen() {
           <p className={`pb-6 text-[12.5px] font-semibold text-fg-muted ${GUTTER}`}>
             {t('ideas.loading')}
           </p>
-          <Skeleton />
-          <p className={`pt-8 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}>
+          <IdeasSkeleton />
+          <p
+            className={`pt-8 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
+          >
             {t('ideas.loadingNote')}
           </p>
         </>
@@ -118,7 +123,9 @@ export function IdeasScreen() {
         <Empty points={points} />
       ) : (
         <>
-          <p className={`pb-4 text-[12.5px] font-semibold text-[var(--ds-text-muted-lo)] ${GUTTER}`}>
+          <p
+            className={`pb-4 text-[12.5px] font-semibold text-[var(--ds-text-muted-lo)] ${GUTTER}`}
+          >
             {t('ideas.count', { open: open.length })}
           </p>
 
@@ -149,7 +156,10 @@ export function IdeasScreen() {
       )}
 
       {toggle.isError || remove.isError ? (
-        <p role="alert" className={`pt-8 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}>
+        <p
+          role="alert"
+          className={`pt-8 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}
+        >
           {t(errorKey(toggle.error ?? remove.error))}
         </p>
       ) : null}
@@ -324,7 +334,10 @@ function Mine({
 
       <div className="mt-6">
         {rows.map((p) => (
-          <div key={p.id} className={`flex items-start gap-6 border-t border-surface-4 py-6 ${GUTTER}`}>
+          <div
+            key={p.id}
+            className={`flex items-start gap-6 border-t border-surface-4 py-6 ${GUTTER}`}
+          >
             <span className="tabular w-[44px] flex-none display text-center text-[27px] leading-[0.88] tracking-[-0.05em] text-fg-muted">
               {p.vots}
             </span>
@@ -368,7 +381,9 @@ function Mine({
         ))}
       </div>
 
-      <p className={`pt-8 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}>
+      <p
+        className={`pt-8 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
+      >
         {t('ideas.privateNote')}
       </p>
     </section>
@@ -465,19 +480,19 @@ function Failed({ error, onRetry }: { readonly error: unknown; readonly onRetry:
   )
 }
 
-function Skeleton() {
+function IdeasSkeleton() {
   return (
-    <div aria-busy="true">
+    <Skeleton>
       {[0, 1, 2].map((i) => (
         <div key={i} className={`flex items-start gap-6 border-b border-surface-4 py-6 ${GUTTER}`}>
-          <span aria-hidden="true" className="block h-[26px] w-[34px] flex-none animate-pulse bg-surface-4" />
+          <SkeletonBar w="w-[34px]" h="h-[26px]" className="flex-none" />
           <span className="min-w-0 flex-1">
-            <span aria-hidden="true" className="block h-[13px] w-[75%] animate-pulse bg-surface-4" />
-            <span aria-hidden="true" className="mt-4 block h-[11px] w-[45%] animate-pulse bg-surface-4" />
+            <SkeletonBar w="w-[75%]" h="h-[13px]" />
+            <SkeletonBar w="w-[45%]" h="h-[11px]" className="mt-4" />
           </span>
-          <span aria-hidden="true" className="block h-[44px] w-[88px] flex-none animate-pulse bg-surface-4" />
+          <SkeletonBar w="w-[88px]" h="h-[44px]" className="flex-none" />
         </div>
       ))}
-    </div>
+    </Skeleton>
   )
 }

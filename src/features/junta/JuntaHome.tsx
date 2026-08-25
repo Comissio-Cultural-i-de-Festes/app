@@ -7,13 +7,9 @@ import { warmDecoder } from '@/features/door/decoder'
 import { horizonIso } from '@/features/home/api'
 import { fetchPeriods, rankingKeys } from '@/features/ranking/api'
 import { useMyProfile } from '@/features/session/useMyProfile'
-import {
-  formatDateLong,
-  formatDayNumber,
-  formatMonthShort,
-  formatWeekdayLong,
-} from '@/i18n/format'
+import { formatDateLong, formatDayNumber, formatMonthShort, formatWeekdayLong } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
@@ -158,7 +154,11 @@ export function JuntaHome() {
       {/* ── El que passa ara ── */}
       <Heading title={t('junta.home.now')} />
       <div className="mt-6">
-        <Row to="/junta/esdeveniment/nou" title={t('junta.newEvent')} sub={t('junta.newEventSub')} />
+        <Row
+          to="/junta/esdeveniment/nou"
+          title={t('junta.newEvent')}
+          sub={t('junta.newEventSub')}
+        />
         <Row
           to="/junta/invitacions"
           title={t('junta.invites.title')}
@@ -183,7 +183,11 @@ export function JuntaHome() {
           }
         />
         <Row to="/junta/idees" title={t('ideas.juntaTitle')} sub={t('junta.home.proposalsSub')} />
-        <Row to="/junta/tauler" title={t('junta.dashboard.title')} sub={t('junta.dashboard.rowSub')} />
+        <Row
+          to="/junta/tauler"
+          title={t('junta.dashboard.title')}
+          sub={t('junta.dashboard.rowSub')}
+        />
         <Row to="/junta/fotos" title={t('junta.photos.title')} sub={t('junta.photos.rowSub')} />
       </div>
 
@@ -275,11 +279,7 @@ export function JuntaHome() {
           title={t('junta.config.graus.title')}
           sub={t('junta.config.graus.rowSub')}
         />
-        <Row
-          to="/junta/registre"
-          title={t('junta.audit.title')}
-          sub={t('junta.audit.rowSub')}
-        />
+        <Row to="/junta/registre" title={t('junta.audit.title')} sub={t('junta.audit.rowSub')} />
       </div>
 
       <p className={`pt-12 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}>
@@ -294,9 +294,7 @@ function workCount(
   data: { readonly pendents: number; readonly esborranys: number },
   porta: DoorNow | null,
 ): number {
-  return (
-    data.pendents + data.esborranys + (porta?.esperen ?? 0) + (porta?.no_pagats ?? 0)
-  )
+  return data.pendents + data.esborranys + (porta?.esperen ?? 0) + (porta?.no_pagats ?? 0)
 }
 
 /**
@@ -306,7 +304,9 @@ function workCount(
  * are last year's, the chips still draw, and every score under them is zero
  * for a reason nobody connects to a date.
  */
-function periodsCoverToday(periods: readonly { mena: string; starts_at: string | null; ends_at: string | null }[]): boolean {
+function periodsCoverToday(
+  periods: readonly { mena: string; starts_at: string | null; ends_at: string | null }[],
+): boolean {
   const now = Date.now()
   return periods.some(
     (p) =>
@@ -445,20 +445,20 @@ function DoorLoading() {
       aria-busy="true"
       className="border-b border-surface-5 bg-surface-1 px-[var(--ds-gutter)] py-9"
     >
-      <Bar w="w-[45%]" h="h-[11px]" />
-      <Bar w="w-[85%]" h="h-[26px]" className="mt-6" />
-      <Bar w="w-[60%]" h="h-[13px]" className="mt-5" />
+      <SkeletonBar w="w-[45%]" h="h-[11px]" />
+      <SkeletonBar w="w-[85%]" h="h-[26px]" className="mt-6" />
+      <SkeletonBar w="w-[60%]" h="h-[13px]" className="mt-5" />
       <div className="mt-8 grid grid-cols-3 gap-[1px]">
         {[0, 1, 2].map((i) => (
           <div key={i} className="px-2">
-            <Bar w="w-[60%]" h="h-[24px]" />
-            <Bar w="w-[85%]" h="h-[9px]" className="mt-3" />
+            <SkeletonBar w="w-[60%]" h="h-[24px]" />
+            <SkeletonBar w="w-[85%]" h="h-[9px]" className="mt-3" />
           </div>
         ))}
       </div>
       <div className="mt-8 grid grid-cols-2 gap-5">
-        <Bar w="w-full" h="h-[78px]" />
-        <Bar w="w-full" h="h-[78px]" />
+        <SkeletonBar w="w-full" h="h-[78px]" />
+        <SkeletonBar w="w-full" h="h-[78px]" />
       </div>
       <p className="mt-6 text-sm text-fg-muted">{t('junta.home.doorLoading')}</p>
     </section>
@@ -467,43 +467,37 @@ function DoorLoading() {
 
 function WorkSkeleton() {
   return (
-    <div aria-busy="true" className="mt-6">
+    <Skeleton className="mt-6">
       {[0, 1, 2].map((i) => (
-        <div key={i} className={`flex min-h-[64px] items-center gap-6 border-t border-surface-4 py-6 ${GUTTER}`}>
-          <Bar w="w-[38px]" h="h-[28px]" />
+        <div
+          key={i}
+          className={`flex min-h-[64px] items-center gap-6 border-t border-surface-4 py-6 ${GUTTER}`}
+        >
+          <SkeletonBar w="w-[38px]" h="h-[28px]" />
           <div className="flex-1">
-            <Bar w="w-[70%]" h="h-[13px]" />
-            <Bar w="w-[45%]" h="h-[10px]" className="mt-3" />
+            <SkeletonBar w="w-[70%]" h="h-[13px]" />
+            <SkeletonBar w="w-[45%]" h="h-[10px]" className="mt-3" />
           </div>
         </div>
       ))}
-    </div>
+    </Skeleton>
   )
 }
 
 function CalendarSkeleton() {
   return (
-    <div aria-busy="true" className="mt-6">
+    <Skeleton className="mt-6">
       {[0, 1].map((i) => (
-        <div key={i} className={`flex min-h-[58px] items-center gap-6 border-t border-surface-4 py-6 ${GUTTER}`}>
-          <Bar w="w-[36px]" h="h-[30px]" />
-          <Bar w="w-[55%]" h="h-[13px]" />
+        <div
+          key={i}
+          className={`flex min-h-[58px] items-center gap-6 border-t border-surface-4 py-6 ${GUTTER}`}
+        >
+          <SkeletonBar w="w-[36px]" h="h-[30px]" />
+          <SkeletonBar w="w-[55%]" h="h-[13px]" />
         </div>
       ))}
-    </div>
+    </Skeleton>
   )
-}
-
-function Bar({
-  w,
-  h,
-  className = '',
-}: {
-  readonly w: string
-  readonly h: string
-  readonly className?: string
-}) {
-  return <span aria-hidden="true" className={`block animate-pulse bg-surface-4 ${w} ${h} ${className}`} />
 }
 
 // ── the pieces the sections are made of ─────────────────────────────────────
@@ -601,7 +595,9 @@ function Row({
         </span>
       </span>
       {badge === undefined || badge === 0 ? null : (
-        <span className="tabular flex-none text-md font-bold text-[var(--ds-warning)]">{badge}</span>
+        <span className="tabular flex-none text-md font-bold text-[var(--ds-warning)]">
+          {badge}
+        </span>
       )}
       <Chevron />
     </Link>

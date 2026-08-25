@@ -12,6 +12,7 @@ import { useUserId } from '@/features/session/useUserId'
 import { formatTime, formatWeekdayLong } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { type JoinResult, type Ride, fetchRides, joinRide, leaveRide, rideKeys } from './api'
 import { CarDrawing } from './CarDrawing'
@@ -100,7 +101,10 @@ export function RidesScreen() {
         </Link>
 
         {note === null ? null : (
-          <p role="status" className="pt-7 text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]">
+          <p
+            role="status"
+            className="pt-7 text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]"
+          >
             {t(`rides.${noteKey(note)}`)}
           </p>
         )}
@@ -114,8 +118,10 @@ export function RidesScreen() {
       {rides.isPending ? (
         <>
           <p className={`pt-9 text-sm text-fg-muted ${GUTTER}`}>{t('rides.loading')}</p>
-          <Skeleton />
-          <p className={`pt-6 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}>
+          <RidesSkeleton />
+          <p
+            className={`pt-6 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
+          >
             {t('rides.loadingNote')}
           </p>
         </>
@@ -149,7 +155,9 @@ export function RidesScreen() {
           ))}
 
           {rows.length === 1 && rows[0]?.seats.length === 0 ? (
-            <p className={`pt-6 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}>
+            <p
+              className={`pt-6 text-[12.5px] text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
+            >
               {t('rides.beFirst')}
             </p>
           ) : null}
@@ -206,9 +214,12 @@ function Card({
 
       <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-4">
         <Fact label={t('rides.from')} value={ride.origen} />
-        <Fact label={t(`rides.sentit.${ride.sentit}`)} value={
-          when === null ? '—' : `${formatWeekdayLong(when, locale)} ${formatTime(when, locale)}`
-        } />
+        <Fact
+          label={t(`rides.sentit.${ride.sentit}`)}
+          value={
+            when === null ? '—' : `${formatWeekdayLong(when, locale)} ${formatTime(when, locale)}`
+          }
+        />
       </dl>
 
       {ride.notes === null ? null : (
@@ -357,12 +368,12 @@ function Failed({ error, onRetry }: { readonly error: unknown; readonly onRetry:
   )
 }
 
-function Skeleton() {
+function RidesSkeleton() {
   return (
-    <div aria-busy="true" className={`pt-4 ${GUTTER}`}>
-      <span aria-hidden="true" className="block h-[16px] w-[55%] animate-pulse bg-surface-4" />
-      <span aria-hidden="true" className="mt-8 block h-[110px] w-full animate-pulse bg-surface-4" />
-      <span aria-hidden="true" className="mt-8 block h-[54px] w-full animate-pulse bg-surface-4" />
-    </div>
+    <Skeleton className={`pt-4 ${GUTTER}`}>
+      <SkeletonBar w="w-[55%]" h="h-[16px]" />
+      <SkeletonBar w="w-full" h="h-[110px]" className="mt-8" />
+      <SkeletonBar w="w-full" h="h-[54px]" className="mt-8" />
+    </Skeleton>
   )
 }

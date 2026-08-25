@@ -1,5 +1,5 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { formatDateTime } from '@/i18n/format'
@@ -19,6 +19,16 @@ import { ReportSheet } from './ReportSheet'
  * «Esborra-la» només surt a qui la va pujar i a la junta, i la base ho torna a
  * dir: la política d'esborrat no es fia d'aquest botó.
  */
+
+/** El dit no va recte: menys que això és un scroll, no un gest. */
+const SWIPE_PX = 40
+
+// El vidre fosc és el mateix que la fletxa de tornar de l'esdeveniment: una
+// glifa sola sobre una foto clara no es veu.
+const ARROW =
+  'absolute top-1/2 grid size-[44px] -translate-y-1/2 place-items-center rounded-full ' +
+  'bg-[oklch(0.15_0.012_25/0.7)] text-2xl text-fg backdrop-blur-[6px] ' +
+  'disabled:text-fg-faint-lo disabled:backdrop-blur-none'
 
 export function Viewer({
   photos,
@@ -61,6 +71,29 @@ export function Viewer({
     }
   }, [onClose, photos.length])
 
+  // El comptador «3 de 42» promet una navegació que amb fletxes de teclat no
+  // existeix en un mòbil, que és el 100% del públic: mirar les quaranta fotos
+  // de la nit eren vuitanta tocs, tancant i reobrint des de la graella.
+  //
+  // Dues maneres, perquè cap de les dues es descobreix sola: els botons es
+  // veuen i el dit ja ho prova.
+  const go = (delta: number) => {
+    setAt((i) => Math.min(photos.length - 1, Math.max(0, i + delta)))
+  }
+
+  // Només l'horitzontal. Sense comparar-lo amb el vertical, un scroll amb el
+  // dit una mica tort canviaria de foto.
+  const swipe = useRef<{ x: number; y: number } | null>(null)
+  const onTouchEnd = (e: React.TouchEvent) => {
+    const from = swipe.current
+    const to = e.changedTouches[0]
+    swipe.current = null
+    if (from === undefined || from === null || to === undefined) return
+    const dx = to.clientX - from.x
+    if (Math.abs(dx) < SWIPE_PX || Math.abs(dx) < Math.abs(to.clientY - from.y)) return
+    go(dx < 0 ? 1 : -1)
+  }
+
   if (photo === null) return null
   const url = urls.get(photo.path) ?? null
 
@@ -86,7 +119,14 @@ export function Viewer({
         <span className="size-[44px]" />
       </div>
 
-      <div className="flex min-h-0 flex-1 items-center justify-center">
+      <div
+        onTouchStart={(e) => {
+          const t0 = e.touches[0]
+          swipe.current = t0 === undefined ? null : { x: t0.clientX, y: t0.clientY }
+        }}
+        onTouchEnd={onTouchEnd}
+        className="relative flex min-h-0 flex-1 items-center justify-center"
+      >
         {url === null ? (
           <p className="text-fg-muted">{t('state.loading')}</p>
         ) : (
@@ -97,6 +137,29 @@ export function Viewer({
             className="max-h-full max-w-full object-contain"
           />
         )}
+
+        <button
+          type="button"
+          disabled={at === 0}
+          onClick={() => {
+            go(-1)
+          }}
+          aria-label={t('gallery.viewer.prev')}
+          className={ARROW + ' left-3'}
+        >
+          <span aria-hidden="true">‹</span>
+        </button>
+        <button
+          type="button"
+          disabled={at === photos.length - 1}
+          onClick={() => {
+            go(1)
+          }}
+          aria-label={t('gallery.viewer.next')}
+          className={ARROW + ' right-3'}
+        >
+          <span aria-hidden="true">›</span>
+        </button>
       </div>
 
       <div className="px-10 pt-7 pb-[calc(var(--ds-safe-bottom)+22px)]">

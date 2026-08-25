@@ -500,6 +500,8 @@
     },
     "viewer": {
       "label": "La foto, a mida completa",
+      "prev": "Foto anterior",
+      "next": "Foto següent",
       "position": "{{n}} de {{total}}",
       "by": "La va pujar {{name}} · {{when}}"
     },

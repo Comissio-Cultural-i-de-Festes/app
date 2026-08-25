@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useUserId } from '@/features/session/useUserId'
@@ -28,10 +28,27 @@ const LIST_LIMIT = 100
 
 export function RankingScreen() {
   const { t, i18n } = useTranslation()
+
+  // Queda fila a la dreta?
+  const chips = useRef<HTMLDivElement>(null)
+  const [moreChips, setMoreChips] = useState(false)
+  const measureChips = useCallback(() => {
+    const el = chips.current
+    if (el === null) return
+    setMoreChips(el.scrollWidth - el.scrollLeft - el.clientWidth > 4)
+  }, [])
   const locale = toLocale(i18n.resolvedLanguage)
   const userId = useUserId()
 
   const periods = usePeriods()
+
+  useEffect(() => {
+    measureChips()
+    window.addEventListener('resize', measureChips)
+    return () => {
+      window.removeEventListener('resize', measureChips)
+    }
+  }, [measureChips, periods.data])
   const [chosen, setChosen] = useState<string | null>(null)
   const fallback = defaultPeriod(periods.data)
   const period = periods.data?.find((p) => p.codi === chosen) ?? fallback
@@ -50,21 +67,35 @@ export function RankingScreen() {
         <div className={`flex items-end justify-between gap-6 pt-[2px] pb-6 ${GUTTER}`}>
           <h1 className="display text-d-s tracking-[-0.045em]">{t('nav.ranking')}</h1>
           {periods.data && periods.data.length > 1 ? (
-            <div
-              className="flex min-w-0 gap-[6px] overflow-x-auto pb-2 [scrollbar-width:none]"
-              role="group"
-              aria-label={t('ranking.periodLabel')}
-            >
-              {periods.data.map((p) => (
-                <PeriodChip
-                  key={p.codi}
-                  period={p}
-                  active={p.codi === period?.codi}
-                  onSelect={() => {
-                    setChosen(p.codi)
-                  }}
+            // La fila fa scroll amb la barra amagada: en un mòbil estret el
+            // darrer trimestre queda tallat fora i res no deia que s'hi
+            // pogués arribar. El degradat només hi és mentre queda fila per
+            // veure, així que no menteix quan ja s'ha arribat al final.
+            <div className="relative min-w-0">
+              <div
+                ref={chips}
+                onScroll={measureChips}
+                className="flex min-w-0 gap-[6px] overflow-x-auto pb-2 [scrollbar-width:none]"
+                role="group"
+                aria-label={t('ranking.periodLabel')}
+              >
+                {periods.data.map((p) => (
+                  <PeriodChip
+                    key={p.codi}
+                    period={p}
+                    active={p.codi === period?.codi}
+                    onSelect={() => {
+                      setChosen(p.codi)
+                    }}
+                  />
+                ))}
+              </div>
+              {moreChips ? (
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute top-0 right-0 bottom-2 w-9 bg-[linear-gradient(to_right,transparent,var(--ds-bg-app))]"
                 />
-              ))}
+              ) : null}
             </div>
           ) : null}
         </div>

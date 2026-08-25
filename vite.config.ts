@@ -11,7 +11,14 @@ const REQUIRED_ENV = [
   'VITE_APP_SHORT_NAME',
   'VITE_SUPABASE_URL',
   'VITE_SUPABASE_ANON_KEY',
+  // Sense ell, l'HTML enviava el marcador literal i el color era invàlid. Amb
+  // `display: standalone` la banda de dalt es pinta a partir d'aquest valor,
+  // o sigui que un color invàlid és una banda que no és la que toca.
+  'VITE_THEME_COLOR',
 ] as const
+
+/** El de `--ds-bg-app`. També el del manifest, i el mateix a tots dos llocs. */
+const FALLBACK_COLOR = '#100909'
 
 export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
@@ -42,6 +49,16 @@ export default defineConfig(({ mode, command }) => {
     plugins: [
       react(),
       tailwindcss(),
+      {
+        // La substitució de `%VITE_*%` que fa Vite deixa el marcador tal qual
+        // quan la variable no hi és, i aleshores `content="%VITE_THEME_COLOR%"`
+        // és un color invàlid. El manifest ja tenia xarxa de seguretat i l'HTML
+        // no; ara la comparteixen.
+        name: 'app-comi:theme-color',
+        transformIndexHtml(html: string) {
+          return html.replaceAll('%VITE_THEME_COLOR%', env.VITE_THEME_COLOR || FALLBACK_COLOR)
+        },
+      },
       VitePWA({
         registerType: 'autoUpdate',
         injectRegister: null, // registered explicitly in src/lib/pwa.ts
@@ -58,8 +75,11 @@ export default defineConfig(({ mode, command }) => {
           scope: '/',
           display: 'standalone',
           orientation: 'portrait',
-          theme_color: env.VITE_THEME_COLOR ?? '#100909',
-          background_color: env.VITE_BACKGROUND_COLOR ?? '#100909',
+          // `||` i no `??`: dotenv torna una cadena BUIDA per a un valor sense
+          // cometes que comenci per `#` —ho avisa el propi .env.example— i `??`
+          // només atrapa null i undefined.
+          theme_color: env.VITE_THEME_COLOR || FALLBACK_COLOR,
+          background_color: env.VITE_BACKGROUND_COLOR || FALLBACK_COLOR,
           icons: [
             { src: 'pwa-192x192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
             { src: 'pwa-512x512.png', sizes: '512x512', type: 'image/png', purpose: 'any' },

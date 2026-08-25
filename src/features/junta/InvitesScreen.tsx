@@ -39,6 +39,7 @@ export function InvitesScreen() {
   const locale = toLocale(i18n.resolvedLanguage)
   const client = useQueryClient()
   const [copied, setCopied] = useState(false)
+  const [confirming, setConfirming] = useState(false)
 
   const invites = useQuery({ queryKey: juntaKeys.invites(), queryFn: fetchInvites })
   const pending = useQuery({ queryKey: juntaKeys.pending(), queryFn: fetchPending })
@@ -50,6 +51,7 @@ export function InvitesScreen() {
       await createInvite(expires, CODE_USES)
     },
     onSuccess: async () => {
+      setConfirming(false)
       await client.invalidateQueries({ queryKey: juntaKeys.invites() })
     },
   })
@@ -161,26 +163,66 @@ export function InvitesScreen() {
             </>
           )}
 
-          <button
-            type="button"
-            disabled={rotate.isPending}
-            onClick={() => {
-              rotate.mutate(live)
-            }}
-            className="mt-9 min-h-[44px] cursor-pointer border-0 bg-transparent p-0 text-left text-md font-bold text-warning disabled:opacity-70"
-          >
-            {rotate.isPending
-              ? t('state.updating')
-              : live === null
-                ? t('junta.invites.makeFirst')
-                : t('junta.invites.killAndRemake')}
-          </button>
-          <p className="mt-2 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-            {t('junta.invites.killExplains')}
-          </p>
+          {/* Amb codi viu, dos temps. Aquest botó revoca a l'instant l'enllaç
+              que hi ha enganxat al grup de WhatsApp: un toc per error i deixa
+              de funcionar per a cent persones que no se n'assabenten fins que
+              algú es queixa. Sense codi viu no hi ha res a perdre i queda d'un
+              toc, com abans. */}
+          {confirming ? (
+            <div className="mt-9">
+              <p className="text-[12.5px] text-fg-muted-lo [text-wrap:pretty]">
+                {t('junta.invites.killSure')}
+              </p>
+              <div className="mt-5 flex gap-4">
+                <button
+                  type="button"
+                  disabled={rotate.isPending}
+                  onClick={() => {
+                    rotate.mutate(live)
+                  }}
+                  className="min-h-[46px] flex-1 border-[1.5px] border-warning px-5 text-md font-bold text-warning disabled:opacity-60"
+                >
+                  {rotate.isPending ? t('state.updating') : t('junta.invites.killAndRemake')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setConfirming(false)
+                  }}
+                  className="min-h-[46px] flex-none px-5 text-md font-bold text-fg-muted"
+                >
+                  {t('actions.cancel')}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <>
+              <button
+                type="button"
+                disabled={rotate.isPending}
+                onClick={() => {
+                  if (live === null) {
+                    rotate.mutate(live)
+                  } else {
+                    setConfirming(true)
+                  }
+                }}
+                className="mt-9 min-h-[44px] cursor-pointer border-0 bg-transparent p-0 text-left text-md font-bold text-warning disabled:opacity-70"
+              >
+                {rotate.isPending
+                  ? t('state.updating')
+                  : live === null
+                    ? t('junta.invites.makeFirst')
+                    : t('junta.invites.killAndRemake')}
+              </button>
+              <p className="mt-2 text-sm text-fg-muted-lo [text-wrap:pretty]">
+                {t('junta.invites.killExplains')}
+              </p>
+            </>
+          )}
           {rotate.isError ? (
             <p role="alert" className="mt-4 text-md font-bold text-error">
-              {t('errors.generic')}
+              {t(errorKey(rotate.error))}
             </p>
           ) : null}
         </section>

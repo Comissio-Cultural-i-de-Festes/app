@@ -638,6 +638,7 @@
       "killAndRemake": "Matar aquest codi i fer-ne un altre",
       "makeFirst": "Fer el primer codi",
       "killExplains": "Qui ja ha entrat es queda dins. Només deixa de funcionar per als nous.",
+      "killSure": "El codi que està enganxat al grup deixarà de funcionar a l'instant. Els que ja han entrat no es toquen.",
       "none": "Ara mateix no hi ha cap codi actiu. Ningú pot entrar amb invitació.",
       "wantIn": "Volen entrar",
       "nobodyWaiting": "Ja no en queda cap. Torna-hi demà.",

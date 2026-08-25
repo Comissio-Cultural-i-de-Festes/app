@@ -638,6 +638,7 @@
       "killAndRemake": "Kill this code and make another",
       "makeFirst": "Make the first code",
       "killExplains": "Anybody already in stays in. It only stops working for new people.",
+      "killSure": "The code pasted in the group stops working immediately. Whoever is already in stays in.",
       "none": "There is no active code right now. Nobody can get in by invitation.",
       "wantIn": "Waiting to get in",
       "nobodyWaiting": "None left. Come back tomorrow.",

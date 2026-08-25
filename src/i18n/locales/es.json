@@ -638,6 +638,7 @@
       "killAndRemake": "Matar este código y hacer otro",
       "makeFirst": "Hacer el primer código",
       "killExplains": "Quien ya ha entrado se queda dentro. Solo deja de funcionar para los nuevos.",
+      "killSure": "El código que está pegado en el grupo dejará de funcionar al instante. Los que ya han entrado no se tocan.",
       "none": "Ahora mismo no hay ningún código activo. Nadie puede entrar con invitación.",
       "wantIn": "Quieren entrar",
       "nobodyWaiting": "Ya no queda ninguno. Vuelve mañana.",

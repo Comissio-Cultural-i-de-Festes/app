@@ -12,15 +12,6 @@ import { INTL_LOCALE, type Locale } from './locales'
  */
 export const APP_TIME_ZONE = env.timeZone
 
-/**
- * Monday. Hardcoded on purpose.
- *
- * Do not derive this from the locale: `en-GB` says Monday but `en-US` says
- * Sunday, and an Erasmus student who picked English still lives in the same
- * week as everyone else. The locale decides the words, not the calendar.
- */
-export const WEEK_STARTS_ON = 1 as const
-
 const dtfCache = new Map<string, Intl.DateTimeFormat>()
 
 function dtf(locale: Locale, options: Intl.DateTimeFormatOptions): Intl.DateTimeFormat {
@@ -37,9 +28,6 @@ function dtf(locale: Locale, options: Intl.DateTimeFormatOptions): Intl.DateTime
 
 export const formatDayMonth = (d: Date, l: Locale): string =>
   dtf(l, { day: 'numeric', month: 'short' }).format(d)
-
-export const formatWeekdayShort = (d: Date, l: Locale): string =>
-  dtf(l, { weekday: 'short' }).format(d)
 
 export const formatTime = (d: Date, l: Locale): string =>
   dtf(l, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(d)
@@ -83,9 +71,6 @@ export function formatOrdinal(n: number, l: Locale, gender: 'm' | 'f' = 'm'): st
   const special: Record<number, string> = { 1: 'r', 2: 'n', 3: 'r', 4: 't' }
   return `${String(n)}${special[n] ?? 'è'}`
 }
-
-export const formatNumber = (n: number, l: Locale): string =>
-  new Intl.NumberFormat(INTL_LOCALE[l]).format(n)
 
 /**
  * The long form, for the one place on a screen that spells the date out.
@@ -144,32 +129,4 @@ const DAY_MS = 86_400_000
 /** Whole days from today to `date`, in the association's time zone. */
 export function daysUntil(date: Date, now: Date = new Date()): number {
   return Math.round((zonedDayStart(date) - zonedDayStart(now)) / DAY_MS)
-}
-
-/**
- * Start of the week containing `date`, in the association's time zone.
- *
- * Catalan and Spanish short month names are lowercase (`de gen.`, `d'abr.`).
- * Never `text-transform: capitalize` a formatted date.
- */
-export function startOfWeek(date: Date): Date {
-  const parts = dtf('en', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    weekday: 'short',
-  }).formatToParts(date)
-
-  const get = (type: Intl.DateTimeFormatPartTypes): string =>
-    parts.find((p) => p.type === type)?.value ?? ''
-
-  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-  const dow = weekdays.indexOf(get('weekday'))
-  const offset = (dow - WEEK_STARTS_ON + 7) % 7
-
-  // Midnight UTC on the local calendar date, then step back to Monday. Working
-  // from the zone-formatted date rather than the Date's own getters is what
-  // keeps this correct for a member using the app from abroad.
-  const local = Date.UTC(Number(get('year')), Number(get('month')) - 1, Number(get('day')))
-  return new Date(local - offset * 86_400_000)
 }

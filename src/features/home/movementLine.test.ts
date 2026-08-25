@@ -3,7 +3,7 @@ import { beforeAll, describe, expect, it } from 'vitest'
 import i18n from '@/i18n'
 import type { Locale } from '@/i18n/locales'
 
-import { movementLine } from './HomeScreen'
+import { movementLine } from './movementLine'
 
 /**
  * The pulsing line under the sign-up button.

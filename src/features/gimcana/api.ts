@@ -175,11 +175,6 @@ function alreadyThere(error: unknown): boolean {
   return e?.statusCode === '409' || (e?.message ?? '').includes('already exists')
 }
 
-/** Quantes n'esperen, per poder-ho dir a la pantalla. */
-export async function pendingProves(): Promise<number> {
-  return (await waiting<QueuedProva>(PROVES)).length
-}
-
 /**
  * Buida la cua i diu quantes n'han entrat.
  *

@@ -25,7 +25,3 @@ export type MemberRole = 'member' | 'admin' | 'owner'
 /** The three answers a member can give. The rest are set by the door or the junta. */
 export const ANSWERS = ['si', 'potser', 'no'] as const
 export type Answer = (typeof ANSWERS)[number]
-
-export function isEscola(value: string | null): value is Escola {
-  return value !== null && (ESCOLES as readonly string[]).includes(value)
-}

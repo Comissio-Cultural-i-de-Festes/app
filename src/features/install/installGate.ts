@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react'
+
 import { isIos, isStandalone } from '@/lib/platform'
 
 /**
@@ -96,6 +98,33 @@ export function onNativeInstallPrompt(cb: () => void): () => void {
   return () => {
     listeners.delete(cb)
   }
+}
+
+/**
+ * El mateix, per a una pantalla que ha de canviar de branca a mig camí.
+ *
+ * Chrome dispara `beforeinstallprompt` quan li va bé —poc després de la
+ * càrrega, i més tard encara amb connexió lenta, que és el supòsit de tota
+ * aquesta app. Llegint-ho un sol cop al muntatge, un Android que arribi un
+ * instant abans que l'esdeveniment es quedava mirant dos passos de la barra
+ * del Safari i un avís de tornar a entrar, cap dels dos cert al seu mòbil,
+ * amb el botó bo desat a la memòria.
+ *
+ * Mateix patró que `useOnline`: primera lectura a l'inicialitzador i la
+ * subscripció a un efecte que es dona de baixa.
+ */
+export function useNativeInstallPrompt(): boolean {
+  const [has, setHas] = useState(hasNativeInstallPrompt)
+
+  useEffect(
+    () =>
+      onNativeInstallPrompt(() => {
+        setHas(hasNativeInstallPrompt())
+      }),
+    [],
+  )
+
+  return has
 }
 
 /** `true` si l'ha acceptat. El diàleg només es pot obrir un cop. */

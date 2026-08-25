@@ -1,4 +1,4 @@
-import { type ReactNode, useState } from 'react'
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { brand } from '@/config/brand'
@@ -6,7 +6,7 @@ import { Button } from '@/ui/Button/Button'
 import { LogoMark } from '@/ui/Logo/Logo'
 
 import { SafariShareSheetMock, SafariToolbarMock } from './IosMocks'
-import { hasNativeInstallPrompt, promptNativeInstall } from './installGate'
+import { promptNativeInstall, useNativeInstallPrompt } from './installGate'
 
 /**
  * Adding the app to the home screen.
@@ -52,7 +52,7 @@ export interface InstallScreenProps {
 
 export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
   const { t } = useTranslation()
-  const [native] = useState(() => hasNativeInstallPrompt())
+  const native = useNativeInstallPrompt()
 
   // Amb diàleg natiu no hi ha res a explicar: els dos passos d'aquesta
   // pantalla són del Safari, i ensenyar-los a algú que té un botó que instal·la

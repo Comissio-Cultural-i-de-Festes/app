@@ -382,7 +382,7 @@ function CallToAction({
 
       {answer.isError ? (
         <p role="alert" className="mt-[10px] text-[13.5px] text-error">
-          {t('errors.generic')}
+          {t(errorKey(answer.error))}
         </p>
       ) : null}
 

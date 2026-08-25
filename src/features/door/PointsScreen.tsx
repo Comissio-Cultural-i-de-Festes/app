@@ -219,7 +219,7 @@ export function PointsScreen() {
 
         {award.isError ? (
           <p role="alert" className="mt-4 text-md font-bold text-error">
-            {t('errors.generic')}
+            {t(errorKey(award.error))}
           </p>
         ) : null}
       </div>

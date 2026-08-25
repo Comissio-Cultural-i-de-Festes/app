@@ -105,7 +105,7 @@ export function PaymentsScreen() {
               priceCents={event.precio_cents ?? 0}
               rows={attendees.data ?? []}
               loading={attendees.isPending}
-              failed={attendees.isError}
+              error={attendees.error}
             />
           )}
           {event === null ? null : <Requests eventId={event.id} />}
@@ -341,13 +341,13 @@ function PaidList({
   priceCents,
   rows,
   loading,
-  failed,
+  error,
 }: {
   readonly eventId: string
   readonly priceCents: number
   readonly rows: readonly AttendeeRow[]
   readonly loading: boolean
-  readonly failed: boolean
+  readonly error: Error | null
 }) {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
@@ -399,9 +399,9 @@ function PaidList({
 
       {loading ? (
         <p className={`pt-10 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
-      ) : failed ? (
+      ) : error !== null ? (
         <p role="alert" className={`pt-10 text-md font-bold text-error ${GUTTER}`}>
-          {t('errors.generic')}
+          {t(errorKey(error))}
         </p>
       ) : rows.length === 0 ? (
         <p className={`pt-10 text-md text-fg-muted [text-wrap:pretty] ${GUTTER}`}>
@@ -471,7 +471,7 @@ function PaidList({
 
       {toggle.isError ? (
         <p role="alert" className={`pt-4 text-md font-bold text-error ${GUTTER}`}>
-          {t('errors.generic')}
+          {t(errorKey(toggle.error))}
         </p>
       ) : null}
     </>
@@ -576,7 +576,7 @@ function Admins() {
         </p>
         {name.isError ? (
           <p role="alert" className="mt-4 text-md font-bold text-error">
-            {t('errors.generic')}
+            {t(errorKey(name.error))}
           </p>
         ) : null}
       </div>

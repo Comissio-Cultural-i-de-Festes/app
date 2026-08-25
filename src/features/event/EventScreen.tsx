@@ -295,7 +295,7 @@ export function EventScreen() {
             waitlist.data?.posicio == null ? null : formatOrdinal(waitlist.data.posicio, locale)
           }
           pending={answer.isPending}
-          failed={answer.isError}
+          error={answer.error}
           onAnswer={(a) => {
             answer.mutate(a)
           }}
@@ -510,7 +510,7 @@ function AnswerBlock({
   left,
   position,
   pending,
-  failed,
+  error,
   onAnswer,
   when,
   where,
@@ -521,7 +521,7 @@ function AnswerBlock({
   readonly left: number | null
   readonly position: string | null
   readonly pending: boolean
-  readonly failed: boolean
+  readonly error: Error | null
   readonly onAnswer: (a: Answer) => void
   /** Weekday, date and start time in one — formatDateLong already joins them. */
   readonly when: string
@@ -624,11 +624,11 @@ function AnswerBlock({
         })}
       </div>
 
-      {failed ? (
+      {error === null ? null : (
         <p role="alert" className="mt-6 text-md font-bold text-error [text-wrap:pretty]">
-          {t('errors.generic')}
+          {t(errorKey(error))}
         </p>
-      ) : null}
+      )}
 
       {/* Next to the button that causes it, not in a footnote at the bottom.
           On a full event the yes button joins a queue instead, and a queue is

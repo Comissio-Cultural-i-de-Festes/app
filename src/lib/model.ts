@@ -13,7 +13,17 @@ export type Escola = (typeof ESCOLES)[number]
 
 export type EventType = 'fiesta' | 'casa_rural' | 'actividad'
 
-export type AttendanceState = 'si' | 'potser' | 'no' | 'espera' | 'asistio' | 'cancelado'
+/**
+ * Els vuit estats que `attendances.estado` pot tenir de debò.
+ *
+ * `sollicitat` i `rebutjat` van arribar amb la migració 27 —els esdeveniments
+ * que la junta ha d'aprovar— i aquest tipus es va quedar amb sis. La pantalla
+ * de l'esdeveniment els comparava igualment, i només compilava perquè allà el
+ * camp estava declarat `string`: el compilador no podia dir que faltaven.
+ * L'ordre és el del CHECK de la base.
+ */
+export type AttendanceState =
+  'si' | 'potser' | 'no' | 'espera' | 'asistio' | 'cancelado' | 'sollicitat' | 'rebutjat'
 
 /**
  * Who can do what. `owner` is infrastructure and nothing else: an admin can

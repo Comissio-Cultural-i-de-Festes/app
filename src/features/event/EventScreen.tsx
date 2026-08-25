@@ -27,7 +27,7 @@ import {
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
 import { type Card, loadCardImage } from '@/lib/cards'
 import { errorKey } from '@/lib/errors'
-import { ANSWERS, type Answer } from '@/lib/model'
+import { ANSWERS, type Answer, type AttendanceState } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { useCovers } from '@/ui/Cover/useCovers'
@@ -515,7 +515,7 @@ function AnswerBlock({
   when,
   where,
 }: {
-  readonly mine: string | null
+  readonly mine: AttendanceState | null
   /** Whether a yes on this event is a request the junta has to decide. */
   readonly confirm: boolean
   readonly left: number | null

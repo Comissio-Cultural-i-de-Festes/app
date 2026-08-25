@@ -32,6 +32,7 @@ import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { useCovers } from '@/ui/Cover/useCovers'
 import { Notice } from '@/ui/Notice/Notice'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { CheckinBlock } from '@/features/checkin/CheckinBlock'
 import { checkinWindow, isOpen } from '@/features/checkin/window'
@@ -112,11 +113,7 @@ export function EventScreen() {
   }, [locationHash, event.isSuccess, attendances.isSuccess])
 
   if (event.isPending) {
-    return (
-      <main className="with-tabbar flex min-h-dvh items-center justify-center bg-app pt-[var(--ds-safe-top)]">
-        <p className="text-fg-muted">{t('state.loading')}</p>
-      </main>
-    )
+    return <EventSkeleton />
   }
 
   if (event.isError) {
@@ -474,6 +471,36 @@ function Share({ event }: { readonly event: EventRow }) {
     >
       {copied ? t('event.shared') : t('actions.share')}
     </button>
+  )
+}
+
+/**
+ * La silueta de la pantalla, no una paraula al mig.
+ *
+ * Aquesta era la pitjor de les cinc: tota la pàgina es reduïa a «Un segon…»
+ * centrat verticalment, així que amb cobertura dolenta l'esdeveniment que
+ * algú acaba de tocar des de l'Inici no ensenyava res del que ja se sabia
+ * —que hi ha una foto, un títol i tres botons.
+ */
+function EventSkeleton() {
+  return (
+    <Skeleton className="with-tabbar min-h-dvh bg-app">
+      <SkeletonBar w="w-full" h="h-[240px]" />
+      <div className={`pt-8 ${GUTTER}`}>
+        <SkeletonBar w="w-[42%]" h="h-[11px]" />
+        <SkeletonBar w="w-[85%]" h="h-[32px]" className="mt-4" />
+        <SkeletonBar w="w-[60%]" h="h-[15px]" className="mt-6" />
+      </div>
+      <div className={`flex items-center gap-4 pt-9 ${GUTTER}`}>
+        <SkeletonBar w="w-[90px]" h="h-[34px]" className="flex-none rounded-full" />
+        <SkeletonBar w="w-[45%]" h="h-[13px]" />
+      </div>
+      <div className={`grid auto-cols-fr grid-flow-col gap-[6px] pt-9 ${GUTTER}`}>
+        <SkeletonBar w="w-full" h="h-[56px]" />
+        <SkeletonBar w="w-full" h="h-[56px]" />
+        <SkeletonBar w="w-full" h="h-[56px]" />
+      </div>
+    </Skeleton>
   )
 }
 

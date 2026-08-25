@@ -25,6 +25,7 @@ import { Avatar } from '@/ui/Avatar/Avatar'
 import { useCovers } from '@/ui/Cover/useCovers'
 import { LogoMark, Wordmark } from '@/ui/Logo/Logo'
 import { Notice } from '@/ui/Notice/Notice'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import {
   type AttendanceRow,
@@ -97,7 +98,7 @@ export function HomeScreen() {
           <CallToAction event={home.hero} attendances={home.attendances} waiting={waiting} />
         </>
       ) : home.isPending ? (
-        <p className={`${GUTTER} py-16 text-center text-fg-muted`}>{t('state.loading')}</p>
+        <HeroSkeleton />
       ) : (
         <NothingNext />
       )}
@@ -591,6 +592,38 @@ function Upcoming({
  * No events at all. Since a pending profile can now read the calendar, this
  * means what it says rather than "you are not allowed to see any of this".
  */
+/**
+ * La silueta del hero i de les places.
+ *
+ * Amb cobertura dolenta —el cas d'ús real— la primera impressió de cada nit
+ * era una pantalla buida amb una paraula al mig. La silueta no és decoració:
+ * diu que arriba una foto gran amb un títol a sota i unes places, i quan les
+ * dades entren res no salta de lloc.
+ */
+function HeroSkeleton() {
+  return (
+    <Skeleton>
+      <div className="relative h-[260px]">
+        <SkeletonBar w="w-full" h="h-full" />
+        <div className="absolute right-4 bottom-4 left-[var(--ds-gutter)]">
+          <SkeletonBar w="w-[38%]" h="h-[11px]" className="bg-surface-6" />
+          <SkeletonBar w="w-[80%]" h="h-[34px]" className="mt-4 bg-surface-6" />
+        </div>
+      </div>
+      <div className={`flex items-end justify-between gap-[14px] pt-8 ${GUTTER}`}>
+        <div className="min-w-0 flex-1">
+          <SkeletonBar w="w-[55%]" h="h-[34px]" />
+          <SkeletonBar w="w-[40%]" h="h-[11px]" className="mt-[5px]" />
+        </div>
+        <SkeletonBar w="w-[86px]" h="h-[30px]" className="flex-none rounded-full" />
+      </div>
+      <div className={`pt-8 ${GUTTER}`}>
+        <SkeletonBar w="w-full" h="h-[56px]" />
+      </div>
+    </Skeleton>
+  )
+}
+
 function NothingNext() {
   const { t } = useTranslation()
   return (

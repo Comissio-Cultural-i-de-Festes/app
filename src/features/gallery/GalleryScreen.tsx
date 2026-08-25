@@ -9,6 +9,7 @@ import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { isJunta, useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
 import { errorKey } from '@/lib/errors'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { fetchPhotos, fetchUrls, galleryKeys, uploadPhoto } from './api'
 import { Viewer } from './Viewer'
@@ -101,7 +102,10 @@ export function GalleryScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <JuntaHeader to={`/esdeveniment/${id}`} label={event.data?.titulo ?? t('gallery.backToEvent')} />
+      <JuntaHeader
+        to={`/esdeveniment/${id}`}
+        label={event.data?.titulo ?? t('gallery.backToEvent')}
+      />
 
       <div className={`pt-2 ${GUTTER}`}>
         <div className="flex items-baseline justify-between gap-5">
@@ -154,7 +158,13 @@ export function GalleryScreen() {
       </div>
 
       {photos.isPending ? (
-        <p className={`py-8 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
+        // La graella, amb la mateixa rajola buida que ja fa servir cada foto
+        // que encara no ha arribat.
+        <Skeleton className="mt-7 grid grid-cols-3 gap-[2px]">
+          {Array.from({ length: 9 }, (_, i) => (
+            <SkeletonBar key={i} w="w-full" h="h-auto" className="aspect-square" />
+          ))}
+        </Skeleton>
       ) : photos.isError ? (
         <p role="alert" className={`py-8 text-md font-bold text-error ${GUTTER}`}>
           {t(errorKey(photos.error))}

@@ -16,6 +16,7 @@ import { SUPPORTED_LOCALES, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { HERE, IDEAS, PROVES, SCANS, clearAllQueues, count } from '@/lib/queue'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { supabase } from '@/lib/supabase'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
@@ -156,7 +157,18 @@ export function ProfileScreen() {
         <h2 className="eyebrow text-fg-muted">{t('profile.breakdown.title')}</h2>
 
         {points.isPending ? (
-          <p className="py-8 text-fg-muted">{t('state.loading')}</p>
+          // La forma real: tres motius amb la seva xifra a la dreta.
+          <Skeleton className="mt-2">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className={ROW}>
+                <div className="min-w-0 flex-1">
+                  <SkeletonBar w="w-[55%]" h="h-[14px]" />
+                  <SkeletonBar w="w-[30%]" h="h-[11px]" className="mt-[5px]" />
+                </div>
+                <SkeletonBar w="w-[34px]" h="h-[17px]" className="flex-none" />
+              </div>
+            ))}
+          </Skeleton>
         ) : totals.length === 0 ? (
           <p className="py-8 text-md text-fg-muted [text-wrap:pretty]">
             {t('profile.breakdown.empty')}

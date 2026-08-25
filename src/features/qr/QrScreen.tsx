@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
 import type { Escola } from '@/lib/model'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { fetchQrToken, qrKeys, readCachedToken } from './api'
 
@@ -23,6 +24,23 @@ import { fetchQrToken, qrKeys, readCachedToken } from './api'
 
 const CARD = 340
 const CODE = 300
+
+/** La targeta blanca, la mateixa mida, mentre el codi arriba. */
+function QrSkeleton() {
+  return (
+    <Skeleton className="flex flex-col items-center">
+      <div
+        className="flex flex-col items-center rounded-lg bg-surface-2 p-10"
+        style={{ width: CARD }}
+      >
+        <SkeletonBar w="w-[300px]" h="h-[300px]" />
+        <SkeletonBar w="w-[55%]" h="h-[24px]" className="mt-9" />
+        <SkeletonBar w="w-[38%]" h="h-[12px]" className="mt-3" />
+      </div>
+      <SkeletonBar w="w-[180px]" h="h-[30px]" className="mt-[22px] rounded-md" />
+    </Skeleton>
+  )
+}
 
 export function QrScreen() {
   const { t } = useTranslation()
@@ -142,7 +160,7 @@ export function QrScreen() {
             </p>
           </div>
         ) : (
-          <p className="text-center text-fg-muted [text-wrap:pretty]">{t('state.loading')}</p>
+          <QrSkeleton />
         )
       ) : (
         <>

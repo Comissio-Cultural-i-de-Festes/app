@@ -65,7 +65,7 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
       <main
         className={
           'flex min-h-dvh flex-col justify-center overflow-y-auto bg-app px-[var(--ds-gutter)] ' +
-          'pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+24px)]'
+          'pt-[calc(var(--ds-safe-top)+8px)] pb-[calc(var(--ds-safe-bottom)+24px)]'
         }
       >
         <h1 className="font-display text-d-md leading-[0.88] tracking-[-0.05em] uppercase">
@@ -118,8 +118,13 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
   return (
     <main
       className={
-        'flex min-h-dvh flex-col overflow-y-auto bg-app px-[var(--ds-gutter)] pt-[var(--ds-safe-top)] ' +
-        'pt-2 pb-[calc(env(safe-area-inset-bottom,0px)+24px)]'
+        // Vuit píxels per damunt del safe-area, com HomeScreen i ScannerScreen.
+        // Hi havia `pt-[var(--ds-safe-top)]` i, concatenat, un `pt-2`: guanyava
+        // el primer —surt més tard al CSS generat— i el segon era codi mort. El
+        // titular quedava enganxat a la barra d'estat sense cap coixí, i la
+        // branca nativa no tenia ni safe-area.
+        'flex min-h-dvh flex-col overflow-y-auto bg-app px-[var(--ds-gutter)] ' +
+        'pt-[calc(var(--ds-safe-top)+8px)] pb-[calc(var(--ds-safe-bottom)+24px)]'
       }
     >
       <h1 className="font-display text-d-md leading-[0.88] tracking-[-0.05em] uppercase">

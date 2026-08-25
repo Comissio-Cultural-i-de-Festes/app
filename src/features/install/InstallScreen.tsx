@@ -62,55 +62,67 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
   // canvia de magatzem. És un fet de l'iPhone, no de totes les instal·lacions.
   if (native) {
     return (
+      // `my-auto` en lloc de `justify-center`, i el motiu és una trampa, no un
+      // símptoma: `justify-center` en un flex que fa scroll retalla per dalt
+      // quan el contingut no hi cap, i el que queda amunt no es pot abastar ni
+      // amb `scrollTop = 0`. Mesurat aquí: −74 px, el titular sencer fora.
+      //
+      // Avui no passa, perquè `min-h-dvh` deixa créixer la caixa i qui fa
+      // scroll acaba sent el document. Però n'hi ha prou que algú fixi
+      // l'alçada —o que un navegador ho faci per ell amb el teclat obert— per
+      // caure-hi, i aquesta és l'única pantalla del camí d'Android. `my-auto`
+      // centra igual quan hi ha espai i no pot amagar res quan no n'hi ha.
       <main
         className={
-          'flex min-h-dvh flex-col justify-center overflow-y-auto bg-app px-[var(--ds-gutter)] ' +
+          'flex min-h-dvh flex-col overflow-y-auto bg-app px-[var(--ds-gutter)] ' +
           'pt-[max(calc(var(--ds-safe-top)+8px),12px)] pb-[calc(var(--ds-safe-bottom)+24px)]'
         }
       >
-        <h1 className="font-display text-d-md leading-[0.88] tracking-[-0.05em] uppercase">
-          {t('install.title')}
-        </h1>
-        <p className="mt-[14px] text-lg text-fg-secondary [text-wrap:pretty]">
-          {t('install.android.lede')}
-        </p>
-
-        <section className="mt-[26px] flex items-center gap-8 border border-surface-7 bg-surface-2 px-[18px] py-8">
-          <div className="flex flex-none flex-col items-center gap-4">
-            <LogoMark size={62} />
-            <span className="text-xs-lo font-medium text-fg-secondary">{brand.shortName}</span>
-          </div>
-          <p className="flex-1 text-md text-fg-secondary [text-wrap:pretty]">
-            {t('install.iconPreview')}
+        <div className="my-auto">
+          <h1 className="font-display text-d-md leading-[0.88] tracking-[-0.05em] uppercase">
+            {t('install.title')}
+          </h1>
+          <p className="mt-[14px] text-lg text-fg-secondary [text-wrap:pretty]">
+            {t('install.android.lede')}
           </p>
-        </section>
 
-        <div className="mt-10">
-          <Button
-            size="lg"
-            onClick={() => {
-              // Acceptar-lo tanca aquesta pantalla; descartar-lo la deixa on
-              // era, perquè el diàleg ja no tornarà i el botó de sota és
-              // l'única sortida que queda.
-              void promptNativeInstall().then((accepted) => {
-                if (accepted) onDone()
-              })
-            }}
+          <section className="mt-[26px] flex items-center gap-8 border border-surface-7 bg-surface-2 px-[18px] py-8">
+            <div className="flex flex-none flex-col items-center gap-4">
+              <LogoMark size={62} />
+              <span className="text-xs-lo font-medium text-fg-secondary">{brand.shortName}</span>
+            </div>
+            <p className="flex-1 text-md text-fg-secondary [text-wrap:pretty]">
+              {t('install.iconPreview')}
+            </p>
+          </section>
+
+          <div className="mt-10">
+            <Button
+              size="lg"
+              onClick={() => {
+                // Acceptar-lo tanca aquesta pantalla; descartar-lo la deixa on
+                // era, perquè el diàleg ja no tornarà i el botó de sota és
+                // l'única sortida que queda.
+                void promptNativeInstall().then((accepted) => {
+                  if (accepted) onDone()
+                })
+              }}
+            >
+              {t('install.android.cta')}
+            </Button>
+          </div>
+
+          <button
+            type="button"
+            onClick={onLater}
+            className={
+              'mt-5 min-h-[44px] w-full cursor-pointer border-0 bg-transparent text-center ' +
+              'text-md-lo font-semibold text-fg-muted [text-wrap:balance]'
+            }
           >
-            {t('install.android.cta')}
-          </Button>
+            {t('install.later')}
+          </button>
         </div>
-
-        <button
-          type="button"
-          onClick={onLater}
-          className={
-            'mt-5 min-h-[44px] w-full cursor-pointer border-0 bg-transparent text-center ' +
-            'text-md-lo font-semibold text-fg-muted [text-wrap:balance]'
-          }
-        >
-          {t('install.later')}
-        </button>
       </main>
     )
   }

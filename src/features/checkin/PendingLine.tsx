@@ -14,7 +14,7 @@ import { useCheckinPending } from './useCheckinPending'
  * hi ha res a dir.
  */
 
-export function PendingLine() {
+export function PendingLine({ className = '' }: { readonly className?: string }) {
   const { t } = useTranslation()
   const { queued, online } = useCheckinPending()
 
@@ -23,7 +23,9 @@ export function PendingLine() {
   return (
     <p
       role="status"
-      className="flex items-center gap-3 text-sm font-bold text-[var(--ds-warning-deep)]"
+      className={
+        'flex items-center gap-3 text-sm font-bold text-[var(--ds-warning-deep)] ' + className
+      }
     >
       <span
         aria-hidden="true"

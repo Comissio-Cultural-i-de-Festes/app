@@ -49,7 +49,7 @@ export function MyNightBlock({ eventId }: { readonly eventId: string }) {
 
       <div className="mt-7 flex gap-6">
         <Pane
-          src={entry === null ? null : urls.data?.get(entry) ?? null}
+          src={entry === null ? null : (urls.data?.get(entry) ?? null)}
           label={
             inAt === null
               ? t('diptych.entry')
@@ -59,7 +59,7 @@ export function MyNightBlock({ eventId }: { readonly eventId: string }) {
           alt={t('diptych.entry')}
         />
         <Pane
-          src={exit === null ? null : urls.data?.get(exit) ?? null}
+          src={exit === null ? null : (urls.data?.get(exit) ?? null)}
           label={
             outAt === null
               ? `${t('diptych.exit')} · ${t('diptych.pending')}`

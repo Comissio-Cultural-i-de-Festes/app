@@ -1,15 +1,14 @@
-import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
-import { IN_PROGRESS_MS } from '@/features/home/api'
 import { formatTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import type { EventRow } from '@/lib/schema'
 
-import { fetchNights, photoKeys } from './api'
-import { dismissExitCard, shouldOfferExitPhoto } from './exitCard'
+import { photoKeys } from './api'
+import { dismissExitCard } from './exitCard'
+import { useExitOffer } from './useExitOffer'
 
 /**
  * The morning after.
@@ -24,26 +23,17 @@ import { dismissExitCard, shouldOfferExitPhoto } from './exitCard'
  * within the window, with no photograph of their own yet.
  */
 
-export function ExitPhotoCard({ event }: { readonly event: EventRow | null }) {
+export function ExitPhotoCard({ event: candidate }: { readonly event: EventRow | null }) {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.language)
-  const [hidden, setHidden] = useState(false)
+  const client = useQueryClient()
 
-  const nights = useQuery({
-    queryKey: photoKeys.nights(),
-    queryFn: fetchNights,
-    enabled: event !== null,
-  })
-  const night = nights.data?.find((n) => n.event_id === event?.id)
+  // La decisió viu a `useExitOffer` perquè l'Inici l'ha de poder consultar
+  // abans de renderitzar res: per damunt del hero només hi cap un avís.
+  const offer = useExitOffer(candidate)
 
-  // The last event the home screen knows about, which is the only one the card
-  // could ever be about: anything older is outside the window.
-  const offer =
-    event !== null &&
-    night !== undefined &&
-    shouldOfferExitPhoto(endOf(event), night.exit_photo_url !== null, event.id)
-
-  if (hidden || !offer || event === null || night === undefined) return null
+  if (offer === null) return null
+  const { event, night } = offer
   const inAt = night.checked_in_at === null ? null : new Date(night.checked_in_at)
 
   return (
@@ -70,7 +60,7 @@ export function ExitPhotoCard({ event }: { readonly event: EventRow | null }) {
           type="button"
           onClick={() => {
             dismissExitCard(event.id)
-            setHidden(true)
+            void client.invalidateQueries({ queryKey: photoKeys.exitDismissed(event.id) })
           }}
           className="min-h-[44px] text-base font-bold text-fg-secondary"
         >
@@ -82,9 +72,4 @@ export function ExitPhotoCard({ event }: { readonly event: EventRow | null }) {
       </div>
     </section>
   )
-}
-
-/** When the party was over, which is not when it started. */
-function endOf(event: EventRow): Date {
-  return new Date(event.ends_at ?? new Date(event.starts_at).getTime() + IN_PROGRESS_MS)
 }

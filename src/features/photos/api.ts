@@ -28,6 +28,8 @@ export interface Night {
 export const photoKeys = {
   nights: () => ['photos', 'nights'] as const,
   urls: (paths: readonly string[]) => ['photos', 'urls', ...paths] as const,
+  /** El «ara no» de la targeta de sortida, que viu a localStorage. */
+  exitDismissed: (eventId: string) => ['photos', 'exitDismissed', eventId] as const,
 }
 
 export async function fetchNights(): Promise<Night[]> {

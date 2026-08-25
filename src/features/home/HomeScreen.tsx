@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { FailedNotice } from '@/features/checkin/FailedNotice'
+import { useFailedCheckin } from '@/features/checkin/useFailedCheckin'
 import { PendingLine } from '@/features/checkin/PendingLine'
 import { checkinWindow, isOpen } from '@/features/checkin/window'
 import { ComebackLine } from '@/features/profile/ComebackLine'
@@ -20,6 +21,7 @@ import {
 } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
 import { ExitPhotoCard } from '@/features/photos/ExitPhotoCard'
+import { useExitOffer } from '@/features/photos/useExitOffer'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { useOnline } from '@/lib/useOnline'
@@ -40,6 +42,9 @@ import {
 import { type Home, useAnswer, useHome } from './useHome'
 
 const GUTTER = 'px-[var(--ds-gutter)]'
+
+/** Els tres candidats a ocupar l'únic lloc que hi ha sobre el hero. */
+type HomeNotice = 'failed' | 'waiting' | 'exit'
 const EYEBROW_TIGHT = 'eyebrow text-fg-muted'
 
 export function HomeScreen() {
@@ -56,28 +61,39 @@ export function HomeScreen() {
   // fails.
   const waiting = home.profile !== null && home.profile.estat !== 'actiu'
 
+  // Cada tasca hi va afegir el seu avís i cadascun és correcte pel seu compte;
+  // junts —soci pendent d'aprovar, l'endemà d'una festa amb mala cobertura—
+  // empenyien la foto de l'esdeveniment i el CTA sota la línia de plegat d'un
+  // iPhone SE. Els dos segons que ha de costar decidir la nit són exactament
+  // el que es trencava.
+  //
+  // Un de sol per damunt del hero, per ordre: una nit que no va comptar pesa
+  // més que un estat que ja se sap, i tots dos més que una foto que encara es
+  // pot fer aquesta nit. Els altres no desapareixen: baixen just sota el CTA.
+  const failed = useFailedCheckin() !== undefined
+  const exitOffer = useExitOffer(home.previous ?? null) !== null
+  const notices = ([failed && 'failed', waiting && 'waiting', exitOffer && 'exit'] as const).filter(
+    (kind): kind is HomeNotice => kind !== false,
+  )
+
+  const notice = (kind: HomeNotice) =>
+    kind === 'failed' ? (
+      <FailedNotice key={kind} />
+    ) : kind === 'waiting' ? (
+      <Notice key={kind} className="mx-[var(--ds-gutter)] mt-1">
+        {t('home.waiting.banner')}
+      </Notice>
+    ) : (
+      <div key={kind} className={GUTTER}>
+        <ExitPhotoCard event={home.previous ?? null} />
+      </div>
+    )
+
   return (
     <div className="with-tabbar min-h-dvh bg-app">
       <Header home={home} />
 
-      {waiting ? (
-        <Notice className="mx-[var(--ds-gutter)] mt-1">{t('home.waiting.banner')}</Notice>
-      ) : null}
-
-      {/* L'endemà d'una nit que no va comptar. Sobre de tot perquè és l'única
-          cosa d'aquesta pantalla que ja ha passat. */}
-      <FailedNotice />
-
-      <div className={GUTTER}>
-        <PendingLine />
-      </div>
-
-      {/* The morning after, above everything else: it is about last night and
-          it is gone by tonight, so burying it under the next event would be
-          burying the one thing on this screen with a deadline. */}
-      <div className={GUTTER}>
-        <ExitPhotoCard event={home.previous ?? null} />
-      </div>
+      {notices.slice(0, 1).map(notice)}
 
       {home.isError ? (
         <ErrorPanel
@@ -104,6 +120,10 @@ export function HomeScreen() {
       ) : (
         <NothingNext />
       )}
+
+      {/* Els que han perdut el torn. Segueixen sent visibles i segueixen sent
+          certs; el que no fan és competir amb la decisió de la nit. */}
+      {notices.slice(1).map(notice)}
 
       <RankingTeaser home={home} />
       {home.previous ? (
@@ -155,6 +175,10 @@ function Header({ home }: { readonly home: Home }) {
               {t('state.offline')}
             </p>
           )}
+          {/* La cua no és un avís sinó un estat, com el «sense connexió» de
+              sobre, amb qui ja comparteix el punt ambre. Sobre el hero només
+              hi cap una cosa i no ha de ser aquesta. */}
+          <PendingLine className="mt-2" />
         </div>
       </div>
 

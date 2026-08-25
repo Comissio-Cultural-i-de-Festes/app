@@ -149,16 +149,20 @@ function Cards({
         {/* Assistència: el que es llegeix és la forma de la corba. */}
         <section className={CARD}>
           <h2 className="eyebrow text-fg-muted">{t('junta.dashboard.attendance.title')}</h2>
-          <div className="mt-8 flex h-[120px] items-end gap-3">
+          {/* `title` nomes parla amb el ratoli: al mobil —on aquest tauler
+              tambe es mira— i a un lector de pantalla, les barres eren
+              decoracio muda. Una llista amb nom per barra es recorrible. */}
+          <ul className="mt-8 flex h-[120px] items-end gap-3">
             {data.assistencia.map((a) => (
-              <div
+              <li
                 key={a.id}
                 title={`${a.titulo}: ${String(a.quants)}`}
+                aria-label={`${a.titulo}: ${String(a.quants)}`}
                 className="flex-1 bg-surface-7"
                 style={{ height: `${String(Math.round((a.quants / maxAttendance) * 100))}%` }}
               />
             ))}
-          </div>
+          </ul>
           <div className="mt-3 flex justify-between text-2xs font-bold tracking-[0.08em] text-fg-dim uppercase">
             {months(data.assistencia, locale).map((m, i) => (
               <span key={`${m}${String(i)}`}>{m}</span>

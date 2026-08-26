@@ -12,6 +12,7 @@ import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
 import { uploadCover } from '@/lib/storage'
 import { useCovers } from '@/ui/Cover/useCovers'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { EventPreview, type PreviewData } from './EventPreview'
 import { GeoPicker } from './GeoPicker'
@@ -190,11 +191,7 @@ function EventForm() {
   // p_id and CREATED A SECOND EVENT — the original untouched, the calendar now
   // holding two, and nothing on screen to say so.
   if (editing && existing.isPending) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center bg-app">
-        <p className="text-fg-muted">{t('state.loading')}</p>
-      </main>
-    )
+    return <FormSkeleton />
   }
   if (editing && (existing.isError || existing.data == null)) {
     return (
@@ -1115,4 +1112,30 @@ function timeLeft(iso: string, t: Translate): string | null {
   if (days > 0) return t('junta.form.leftDaysHours', { days, hours: hours % 24 })
   if (hours > 0) return t('junta.form.leftHoursMinutes', { hours, minutes: minutes % 60 })
   return t('junta.form.leftMinutes', { minutes })
+}
+
+/**
+ * L'esdeveniment que s'està editant, mentre arriba.
+ *
+ * Era l'única pantalla de la junta que centrava la paraula al mig d'un buit: el
+ * formulari sencer queia després, de cop, i el que ja s'estava escrivint amb el
+ * dit a mig camí es movia dos-cents píxels. La silueta és la portada, i després
+ * els camps amb la seva etiqueta a sobre.
+ */
+function FormSkeleton() {
+  return (
+    <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+24px)]">
+      <Skeleton>
+        <SkeletonBar w="w-full" h="h-[188px]" />
+        <div className="px-[var(--ds-gutter)] pt-9">
+          {[0, 1, 2, 3, 4].map((i) => (
+            <div key={i} className="pb-9">
+              <SkeletonBar w="w-[34%]" h="h-[10px]" />
+              <SkeletonBar w="w-full" h="h-[50px]" className="mt-4" />
+            </div>
+          ))}
+        </div>
+      </Skeleton>
+    </main>
+  )
 }

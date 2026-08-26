@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { getFix } from '@/features/checkin/api'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import type { Point } from './GeoMap'
 import { Field, INPUT } from './formBits'
@@ -171,9 +172,10 @@ export function GeoPicker({
       ) : (
         <Suspense
           fallback={
-            <p className="grid h-[220px] place-items-center border border-surface-8 bg-surface-2 text-sm text-fg-muted">
-              {t('state.loading')}
-            </p>
+            <Skeleton className="border border-surface-8 bg-surface-2">
+              {/* El mapa és un rectangle ple: la seva silueta també. */}
+              <SkeletonBar w="w-full" h="h-[220px]" />
+            </Skeleton>
           }
         >
           <GeoMap
@@ -217,7 +219,10 @@ export function GeoPicker({
       </div>
 
       {failed ? (
-        <p role="alert" className="mt-5 text-sm font-bold text-[var(--ds-warning)] [text-wrap:pretty]">
+        <p
+          role="alert"
+          className="mt-5 text-sm font-bold text-[var(--ds-warning)] [text-wrap:pretty]"
+        >
           {t('junta.geo.noFix')}
         </p>
       ) : null}

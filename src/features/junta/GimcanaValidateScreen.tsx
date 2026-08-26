@@ -7,6 +7,7 @@ import { decideProva, fetchQueue, gimcanaKeys, undoProva } from '@/features/gimc
 import { teamName } from '@/features/gimcana/teamName'
 import { errorKey } from '@/lib/errors'
 import { GIMCANA_PHOTOS, signedUrls } from '@/lib/storage'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
 
@@ -90,7 +91,7 @@ export function GimcanaValidateScreen() {
 
       <div className={`pt-7 ${GUTTER}`}>
         {queue.isPending ? (
-          <p className="py-8 text-fg-muted">{t('state.loading')}</p>
+          <QueueSkeleton />
         ) : queue.isError ? (
           <p role="alert" className="py-8 text-md font-bold text-error [text-wrap:pretty]">
             {t(errorKey(queue.error))}
@@ -201,5 +202,29 @@ export function GimcanaValidateScreen() {
         </p>
       </div>
     </main>
+  )
+}
+
+/**
+ * Una sola prova, no una llista: la foto de 250 px, la prova amb els punts, qui
+ * la va enviar i els dos botons grossos.
+ *
+ * Aquesta és la pantalla on el salt costava més car: els botons són de 62 px i
+ * apareixien sota el dit de qui ja estava esperant per validar.
+ */
+function QueueSkeleton() {
+  return (
+    <Skeleton className="py-8">
+      <SkeletonBar w="w-full" h="h-[250px]" />
+      <div className="mt-7 flex items-baseline justify-between gap-5">
+        <SkeletonBar w="w-[58%]" h="h-[18px]" />
+        <SkeletonBar w="w-[46px]" h="h-[18px]" className="flex-none" />
+      </div>
+      <SkeletonBar w="w-[70%]" h="h-[10px]" className="mt-2" />
+      <div className="mt-7 grid grid-cols-2 gap-5">
+        <SkeletonBar w="w-full" h="h-[62px]" />
+        <SkeletonBar w="w-full" h="h-[62px]" />
+      </div>
+    </Skeleton>
   )
 }

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { onboardingKeys } from '@/features/onboarding/api'
 import { errorKey } from '@/lib/errors'
 import { ESCOLES, type Escola } from '@/lib/model'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { type Grau, configKeys, deleteGrau, fetchAllGraus, saveGrau } from './configApi'
 import { INPUT } from './formBits'
@@ -52,7 +53,7 @@ function GrausBlock() {
 
   const remove = useMutation({ mutationFn: deleteGrau, onSuccess: refresh })
 
-  if (graus.isPending) return <p className="text-fg-muted">{t('state.loading')}</p>
+  if (graus.isPending) return <GrausSkeleton />
   if (graus.isError) {
     return (
       <p role="alert" className="text-md font-bold text-error [text-wrap:pretty]">
@@ -282,5 +283,29 @@ export function GrausScreen() {
         <GrausBlock />
       </div>
     </main>
+  )
+}
+
+/** Les tres escoles amb els seus graus a sota, que és com arriba la llista. */
+function GrausSkeleton() {
+  return (
+    <Skeleton>
+      <SkeletonBar w="w-[85%]" h="h-[14px]" className="mb-8" />
+      {[0, 1, 2].map((section) => (
+        <div key={section} className="pb-9">
+          <SkeletonBar w="w-[40%]" h="h-[10px]" />
+          <div className="mt-2">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="flex min-h-[60px] items-center gap-4 border-b border-surface-4 py-4"
+              >
+                <SkeletonBar w="w-[62%]" h="h-[18px]" className="flex-1" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </Skeleton>
   )
 }

@@ -13,6 +13,7 @@ import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { Notice } from '@/ui/Notice/Notice'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
 import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
@@ -91,7 +92,7 @@ export function PaymentsScreen() {
       <div className="lg:grid lg:grid-cols-[1fr_340px] lg:items-start lg:gap-15 lg:px-14 lg:pb-16">
         <div>
           {events.isPending ? (
-            <p className={`pt-10 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
+            <PaidSkeleton head />
           ) : events.isError ? (
             <p role="alert" className={`pt-10 text-md font-bold text-error ${GUTTER}`}>
               {t(errorKey(events.error))}
@@ -399,7 +400,7 @@ function PaidList({
       </section>
 
       {loading ? (
-        <p className={`pt-10 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
+        <PaidSkeleton />
       ) : error !== null ? (
         <p role="alert" className={`pt-10 text-md font-bold text-error ${GUTTER}`}>
           {t(errorKey(error))}
@@ -520,7 +521,7 @@ function Admins() {
       </div>
 
       {admins.isPending ? (
-        <p className={`pt-8 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
+        <AdminsSkeleton />
       ) : admins.isError ? (
         <p role="alert" className={`pt-8 text-md font-bold text-error ${GUTTER}`}>
           {t(errorKey(admins.error))}
@@ -641,7 +642,7 @@ function MemberPicker({
       </div>
 
       {loading ? (
-        <p className="p-7 text-fg-muted">{t('state.loading')}</p>
+        <PickerSkeleton />
       ) : shown.length === 0 ? (
         <p className="p-7 text-md text-fg-muted [text-wrap:pretty]">
           {t('junta.payments.noMembers')}
@@ -669,5 +670,92 @@ function MemberPicker({
         </ul>
       )}
     </div>
+  )
+}
+
+/**
+ * Els qui han pagat, i —amb `head`— també la capçalera que hi va a sobre.
+ *
+ * Són dos estats de càrrega diferents amb la mateixa silueta a sota: el de
+ * fora espera l'esdeveniment i encara no sap ni el títol; el de dins ja el té
+ * i només li falten els assistents. Un sol component amb un interruptor, i no
+ * dos que es poden separar.
+ */
+function PaidSkeleton({ head = false }: { readonly head?: boolean }) {
+  return (
+    <Skeleton>
+      {head ? (
+        <div className={`pt-8 ${GUTTER}`}>
+          <SkeletonBar w="w-[72%]" h="h-[38px]" />
+          <div className="mt-7 flex items-end gap-7">
+            <div>
+              <SkeletonBar w="w-[54px]" h="h-[51px]" />
+              <SkeletonBar w="w-[80px]" h="h-[12px]" className="mt-1" />
+            </div>
+            <div className="flex-1 pb-2">
+              <SkeletonBar w="w-[45%]" h="h-[20px]" />
+              <SkeletonBar w="w-[70%]" h="h-[12px]" className="mt-1" />
+            </div>
+          </div>
+          <SkeletonBar w="w-full" h="h-[62px]" className="mt-8" />
+        </div>
+      ) : null}
+
+      <div className="mt-10">
+        {[0, 1, 2, 3, 4].map((i) => (
+          <div
+            key={i}
+            className="flex min-h-[56px] items-center gap-4 border-b border-surface-4 px-[var(--ds-gutter)] py-[11px]"
+          >
+            <SkeletonBar w="w-[26px]" h="h-[26px]" className="flex-none rounded-full" />
+            <SkeletonBar w="w-[36px]" h="h-[36px]" className="flex-none rounded-round" />
+            <div className="min-w-0 flex-1">
+              <SkeletonBar w="w-[58%]" h="h-[15px]" />
+              <SkeletonBar w="w-[34%]" h="h-[10px]" className="mt-[2px]" />
+            </div>
+            <SkeletonBar w="w-[42px]" h="h-[18px]" className="flex-none" />
+          </div>
+        ))}
+      </div>
+    </Skeleton>
+  )
+}
+
+/** Qui la porta: cara amb anella, nom, escola, i el xip del càrrec. */
+function AdminsSkeleton() {
+  return (
+    <Skeleton className="mt-7">
+      {[0, 1, 2].map((i) => (
+        <div
+          key={i}
+          className="flex min-h-[56px] items-center gap-4 border-b border-surface-4 px-[var(--ds-gutter)] py-6"
+        >
+          <SkeletonBar w="w-[38px]" h="h-[38px]" className="flex-none rounded-round" />
+          <div className="min-w-0 flex-1">
+            <SkeletonBar w="w-[52%]" h="h-[15px]" />
+            <SkeletonBar w="w-[68%]" h="h-[10px]" className="mt-[2px]" />
+          </div>
+          <SkeletonBar w="w-[62px]" h="h-[16px]" className="flex-none" />
+        </div>
+      ))}
+    </Skeleton>
+  )
+}
+
+/** El desplegable de buscar soci, que ja té alçada màxima pròpia. */
+function PickerSkeleton() {
+  return (
+    <Skeleton>
+      {[0, 1, 2, 3].map((i) => (
+        <div
+          key={i}
+          className="flex min-h-[52px] items-center gap-4 border-b border-surface-4 px-6 py-5"
+        >
+          <SkeletonBar w="w-[32px]" h="h-[32px]" className="flex-none rounded-round" />
+          <SkeletonBar w="w-[50%]" h="h-[15px]" className="flex-1" />
+          <SkeletonBar w="w-[76px]" h="h-[13px]" className="flex-none" />
+        </div>
+      ))}
+    </Skeleton>
   )
 }

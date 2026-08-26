@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { fetchPeriods, rankingKeys } from '@/features/ranking/api'
 import { APP_TIME_ZONE } from '@/i18n/format'
 import { errorKey } from '@/lib/errors'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { chainFromPeriods, periodsFromChain, savePeriods } from './configApi'
 import { Field, INPUT } from './formBits'
@@ -54,7 +55,7 @@ function PeriodsBlock() {
     },
   })
 
-  if (periods.isPending) return <p className="text-fg-muted">{t('state.loading')}</p>
+  if (periods.isPending) return <PeriodsSkeleton />
   if (periods.isError) {
     return (
       <p role="alert" className="text-md font-bold text-error [text-wrap:pretty]">
@@ -152,5 +153,20 @@ export function PeriodsScreen() {
         <PeriodsBlock />
       </div>
     </main>
+  )
+}
+
+/** L'etiqueta i el camp de data, un per tram; no és una llista, és un formulari. */
+function PeriodsSkeleton() {
+  return (
+    <Skeleton>
+      <SkeletonBar w="w-[85%]" h="h-[14px]" className="mb-8" />
+      {[0, 1, 2, 3].map((i) => (
+        <div key={i} className="pb-9">
+          <SkeletonBar w="w-[52%]" h="h-[10px]" />
+          <SkeletonBar w="w-full" h="h-[50px]" className="mt-4" />
+        </div>
+      ))}
+    </Skeleton>
   )
 }

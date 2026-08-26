@@ -9,6 +9,7 @@ import { Avatar } from '@/ui/Avatar/Avatar'
 import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
 import { INPUT } from './formBits'
 import { horizonIso } from '@/features/home/api'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { JuntaHeader } from './JuntaHeader'
 
 /**
@@ -57,9 +58,15 @@ export function IdeasReviewScreen() {
 
       <div className={`pt-8 ${GUTTER}`}>
         <p className="text-md text-fg-secondary [text-wrap:pretty]">{t('ideas.juntaLede')}</p>
-        <p className="mt-3 text-sm text-[var(--ds-text-muted-lo)]">
-          {t('ideas.juntaOpen', { count: rows.length })}
-        </p>
+        {/* Mentre carrega, `rows` és una llista buida i això deia «0
+            obertes» amb la mateixa cara amb què després en dirà set. Un número
+            inventat es llegeix com un número, i el rebedor de la junta ja
+            s'estalvia el seu pel mateix motiu. */}
+        {list.isPending ? null : (
+          <p className="mt-3 text-sm text-[var(--ds-text-muted-lo)]">
+            {t('ideas.juntaOpen', { count: rows.length })}
+          </p>
+        )}
         {note === null ? null : (
           <p role="status" className="pt-6 text-md font-bold text-[var(--ds-warning)]">
             {note}
@@ -73,7 +80,7 @@ export function IdeasReviewScreen() {
       </div>
 
       {list.isPending ? (
-        <p className={`pt-10 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
+        <IdeasSkeleton />
       ) : list.isError ? (
         <p role="alert" className={`pt-10 text-md font-bold text-error ${GUTTER}`}>
           {t(errorKey(list.error))}
@@ -267,5 +274,31 @@ function Panel({
         </button>
       </div>
     </div>
+  )
+}
+
+/** Els vots a l'esquerra, el títol i qui la va dir, i la parella de botons. */
+function IdeasSkeleton() {
+  return (
+    <Skeleton className="mt-8">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="border-t border-surface-4">
+          <div className={`flex items-start gap-6 pt-6 pb-5 ${GUTTER}`}>
+            <SkeletonBar w="w-[44px]" h="h-[28px]" className="flex-none" />
+            <div className="min-w-0 flex-1">
+              <SkeletonBar w="w-[80%]" h="h-[15px]" />
+              <div className="mt-2 flex items-center gap-3">
+                <SkeletonBar w="w-[20px]" h="h-[20px]" className="flex-none rounded-round" />
+                <SkeletonBar w="w-[38%]" h="h-[10px]" />
+              </div>
+            </div>
+          </div>
+          <div className={`flex gap-4 pb-7 ${GUTTER}`}>
+            <SkeletonBar w="w-full" h="h-[46px]" className="flex-1" />
+            <SkeletonBar w="w-[92px]" h="h-[46px]" className="flex-none" />
+          </div>
+        </div>
+      ))}
+    </Skeleton>
   )
 }

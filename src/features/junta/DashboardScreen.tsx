@@ -9,6 +9,7 @@ import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import {
   type Dashboard,
@@ -85,7 +86,7 @@ export function DashboardScreen() {
         </div>
 
         {board.isPending ? (
-          <p className="py-10 text-fg-muted">{t('state.loading')}</p>
+          <CardsSkeleton />
         ) : board.isError ? (
           <p role="alert" className="py-10 text-md font-bold text-error [text-wrap:pretty]">
             {t(errorKey(board.error))}
@@ -390,4 +391,58 @@ function months(
 function average(points: readonly { readonly quants: number }[]): number {
   if (points.length === 0) return 0
   return Math.round(points.reduce((n, p) => n + p.quants, 0) / points.length)
+}
+
+/**
+ * El tauler no és una llista: és una targeta ampla i després dues graelles.
+ *
+ * Per això la silueta no repeteix una fila. Repetir-ne una hauria promès una
+ * llista i hauria hagut de desfer-la sencera en arribar les dades.
+ */
+function CardsSkeleton() {
+  return (
+    <Skeleton>
+      <div className={`mt-9 ${CARD}`}>
+        <div className="flex items-center gap-8">
+          <SkeletonBar w="w-[62px]" h="h-[44px]" className="flex-none" />
+          <div className="min-w-0 flex-1">
+            <SkeletonBar w="w-[55%]" h="h-[18px]" />
+            <SkeletonBar w="w-[80%]" h="h-[12px]" className="mt-[3px]" />
+          </div>
+        </div>
+      </div>
+
+      <div className="mt-9 grid gap-9 lg:grid-cols-3">
+        {[0, 1, 2].map((i) => (
+          <div key={i} className={CARD}>
+            <SkeletonBar w="w-[45%]" h="h-[10px]" />
+            <SkeletonBar w="w-full" h="h-[120px]" className="mt-8" />
+          </div>
+        ))}
+      </div>
+
+      <div className="mt-9 grid items-start gap-9 lg:grid-cols-[2fr_1fr]">
+        <div className={CARD}>
+          <SkeletonBar w="w-[38%]" h="h-[10px]" />
+          <div className="mt-8 grid gap-6">
+            {[0, 1, 2, 3].map((i) => (
+              <div key={i} className="grid grid-cols-[110px_1fr_60px] items-center gap-6">
+                <SkeletonBar w="w-full" h="h-[12px]" />
+                <SkeletonBar w="w-full" h="h-[12px]" />
+                <SkeletonBar w="w-full" h="h-[12px]" />
+              </div>
+            ))}
+          </div>
+        </div>
+        <div className="border border-surface-5 px-10 py-10">
+          <SkeletonBar w="w-[52%]" h="h-[10px]" />
+          <div className="mt-5 grid gap-4">
+            {[0, 1, 2].map((i) => (
+              <SkeletonBar key={i} w="w-full" h="h-[12px]" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </Skeleton>
+  )
 }

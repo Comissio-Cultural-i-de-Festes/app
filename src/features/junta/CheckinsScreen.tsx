@@ -7,6 +7,7 @@ import { formatTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
 import { type CheckinRow, checkinKeys, fetchCheckins, undoCheckin } from './checkinsApi'
@@ -65,9 +66,12 @@ export function CheckinsScreen() {
       </p>
 
       {rows.isPending ? (
-        <p className={`pt-10 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
+        <CheckinsSkeleton />
       ) : rows.isError ? (
-        <p role="alert" className={`pt-10 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}>
+        <p
+          role="alert"
+          className={`pt-10 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}
+        >
           {t(errorKey(rows.error))}
         </p>
       ) : list.length === 0 ? (
@@ -84,9 +88,7 @@ export function CheckinsScreen() {
               <Avatar src={r.avatar_url} size={36} />
               <span className="min-w-0 flex-1">
                 <span className="block truncate text-base font-semibold text-fg">{r.nombre}</span>
-                <span className="mt-2 block text-sm-lo text-fg-muted">
-                  {facts(r, locale, t)}
-                </span>
+                <span className="mt-2 block text-sm-lo text-fg-muted">{facts(r, locale, t)}</span>
               </span>
               <button
                 type="button"
@@ -104,7 +106,10 @@ export function CheckinsScreen() {
       )}
 
       {undo.isError ? (
-        <p role="alert" className={`pt-7 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}>
+        <p
+          role="alert"
+          className={`pt-7 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}
+        >
           {t(errorKey(undo.error))}
         </p>
       ) : null}
@@ -131,4 +136,22 @@ function facts(r: CheckinRow, locale: ReturnType<typeof toLocale>, t: T): string
     r.was_registered === false ? t('junta.checkins.walkin') : null,
   ]
   return parts.filter((p): p is string => p !== null).join(' · ')
+}
+
+/** Cara, nom, i la línia de l'hora i la porta; i el «desfés» a la dreta. */
+function CheckinsSkeleton() {
+  return (
+    <Skeleton className="pt-7">
+      {[0, 1, 2, 3, 4].map((i) => (
+        <div key={i} className={`flex items-center gap-5 border-b border-surface-4 py-6 ${GUTTER}`}>
+          <SkeletonBar w="w-[36px]" h="h-[36px]" className="flex-none rounded-round" />
+          <div className="min-w-0 flex-1">
+            <SkeletonBar w="w-[55%]" h="h-[14px]" />
+            <SkeletonBar w="w-[75%]" h="h-[10px]" className="mt-3" />
+          </div>
+          <SkeletonBar w="w-[46px]" h="h-[13px]" className="flex-none" />
+        </div>
+      ))}
+    </Skeleton>
+  )
 }

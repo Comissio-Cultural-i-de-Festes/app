@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { doorKeys } from '@/features/door/api'
 import { errorKey } from '@/lib/errors'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { setPointValue } from './configApi'
 import { JuntaHeader } from './JuntaHeader'
@@ -41,7 +42,7 @@ function ScaleBlock() {
     },
   })
 
-  if (values.isPending) return <p className="text-fg-muted">{t('state.loading')}</p>
+  if (values.isPending) return <ScaleSkeleton />
   if (values.isError) {
     return (
       <p role="alert" className="text-md font-bold text-error [text-wrap:pretty]">
@@ -155,5 +156,30 @@ export function ScaleScreen() {
         <ScaleBlock />
       </div>
     </main>
+  )
+}
+
+/** Els dos grups del barem: el nom del motiu i la caixeta dels punts. */
+function ScaleSkeleton() {
+  return (
+    <Skeleton>
+      <SkeletonBar w="w-[85%]" h="h-[14px]" className="mb-8" />
+      {[0, 1].map((group) => (
+        <div key={group} className="pb-9">
+          <SkeletonBar w="w-[36%]" h="h-[10px]" />
+          <div className="mt-2">
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                className="flex min-h-[60px] items-center gap-5 border-b border-surface-4 py-4"
+              >
+                <SkeletonBar w="w-[55%]" h="h-[18px]" className="flex-1" />
+                <SkeletonBar w="w-[74px]" h="h-[44px]" className="flex-none" />
+              </div>
+            ))}
+          </div>
+        </div>
+      ))}
+    </Skeleton>
   )
 }

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { formatDateTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { type AuditRow, PAGE, auditKeys, fetchAudit } from './auditApi'
 import { JuntaHeader } from './JuntaHeader'
@@ -80,7 +81,7 @@ function Page({
   const rows = useQuery({ queryKey: auditKeys.page(index), queryFn: () => fetchAudit(index) })
 
   if (rows.isPending) {
-    return <p className={`pt-8 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
+    return <AuditSkeleton />
   }
   if (rows.isError) {
     return (
@@ -157,5 +158,19 @@ function Entry({
         </details>
       )}
     </li>
+  )
+}
+
+/** La data en petit i la frase a sota, sis vegades: el registre és això. */
+function AuditSkeleton() {
+  return (
+    <Skeleton>
+      {[0, 1, 2, 3, 4, 5].map((i) => (
+        <div key={i} className={`border-b border-surface-4 py-6 ${GUTTER}`}>
+          <SkeletonBar w="w-[42%]" h="h-[10px]" />
+          <SkeletonBar w="w-[85%]" h="h-[14px]" className="mt-2" />
+        </div>
+      ))}
+    </Skeleton>
   )
 }

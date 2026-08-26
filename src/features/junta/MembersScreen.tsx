@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
 import { type MemberRow, fetchAllMembers, memberKeys, setMemberEstat } from './membersApi'
@@ -118,7 +119,7 @@ export function MembersScreen() {
       </div>
 
       {members.isPending ? (
-        <p className={`pt-10 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
+        <MembersSkeleton />
       ) : members.isError ? (
         <p role="alert" className={`pt-10 text-md font-bold text-error ${GUTTER}`}>
           {t(errorKey(members.error))}
@@ -213,5 +214,32 @@ export function MembersScreen() {
         </ul>
       )}
     </main>
+  )
+}
+
+/**
+ * Cinc files de soci: rodona, nom, la línia d'escola i curs, i el botó.
+ *
+ * Les classes de la fila són les de la fila de debò, copiades. Una silueta que
+ * s'assembla de lluny torna a moure-ho tot quan arriben les dades, i el que es
+ * volia evitar era exactament aquest salt.
+ */
+function MembersSkeleton() {
+  return (
+    <Skeleton className="mt-8">
+      {[0, 1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          className={`flex min-h-[64px] items-center gap-5 border-b border-surface-4 py-6 ${GUTTER}`}
+        >
+          <SkeletonBar w="w-[40px]" h="h-[40px]" className="flex-none rounded-round" />
+          <div className="min-w-0 flex-1">
+            <SkeletonBar w="w-[62%]" h="h-[15px]" />
+            <SkeletonBar w="w-[45%]" h="h-[10px]" className="mt-3" />
+          </div>
+          <SkeletonBar w="w-[52px]" h="h-[13px]" className="flex-none" />
+        </div>
+      ))}
+    </Skeleton>
   )
 }

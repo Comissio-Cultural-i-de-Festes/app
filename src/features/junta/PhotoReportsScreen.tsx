@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { decidePhoto, fetchReported, fetchUrls, galleryKeys } from '@/features/gallery/api'
 import { errorKey } from '@/lib/errors'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
 
@@ -57,7 +58,7 @@ export function PhotoReportsScreen() {
         </div>
 
         {reports.isPending ? (
-          <p className="py-8 text-fg-muted">{t('state.loading')}</p>
+          <ReportsSkeleton />
         ) : reports.isError ? (
           <p role="alert" className="py-8 text-md font-bold text-error [text-wrap:pretty]">
             {t(errorKey(reports.error))}
@@ -126,5 +127,28 @@ export function PhotoReportsScreen() {
         </p>
       </div>
     </main>
+  )
+}
+
+/** La miniatura, el motiu i qui la va pujar, i els dos botons de decidir. */
+function ReportsSkeleton() {
+  return (
+    <Skeleton className="mt-7 grid gap-7">
+      {[0, 1].map((i) => (
+        <div key={i} className="border border-surface-5 p-7">
+          <div className="flex gap-6">
+            <SkeletonBar w="w-[64px]" h="h-[64px]" className="flex-none" />
+            <div className="min-w-0 flex-1">
+              <SkeletonBar w="w-[52%]" h="h-[14px]" />
+              <SkeletonBar w="w-[80%]" h="h-[10px]" className="mt-[3px]" />
+            </div>
+          </div>
+          <div className="mt-6 grid grid-cols-2 gap-4">
+            <SkeletonBar w="w-full" h="h-[46px]" />
+            <SkeletonBar w="w-full" h="h-[46px]" />
+          </div>
+        </div>
+      ))}
+    </Skeleton>
   )
 }

@@ -7,6 +7,7 @@ import { errorKey } from '@/lib/errors'
 import { toLocale } from '@/i18n/locales'
 import type { Escola } from '@/lib/model'
 import { Notice } from '@/ui/Notice/Notice'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
 import {
@@ -123,7 +124,7 @@ export function InvitesScreen() {
           </p>
 
           {invites.isPending ? (
-            <p className="py-8 text-fg-muted">{t('state.loading')}</p>
+            <CodeSkeleton />
           ) : live === null ? (
             <div className="mt-8 border-[1.5px] border-dashed border-[var(--ds-border-input)] bg-surface-1 px-9 py-8">
               <p className="text-md text-fg-secondary [text-wrap:pretty]">
@@ -252,7 +253,7 @@ export function InvitesScreen() {
           )}
 
           {pending.isPending ? (
-            <p className="py-8 text-fg-muted">{t('state.loading')}</p>
+            <PendingSkeleton />
           ) : (pending.data?.length ?? 0) === 0 ? (
             <p className="py-8 text-md text-fg-muted [text-wrap:pretty]">
               {t('junta.invites.nobodyWaiting')}
@@ -307,5 +308,46 @@ export function InvitesScreen() {
         </section>
       </div>
     </main>
+  )
+}
+
+/**
+ * El plafó del codi viu: la caixa, el codi en gran, les dues línies de sota, el
+ * text per enganxar i el botó de copiar.
+ *
+ * És la meitat de la pantalla que decideix l'alçada de tot. Amb un «Carregant…»
+ * de vuit píxels, el botó de copiar apareixia de cop dos-cents més avall.
+ */
+function CodeSkeleton() {
+  return (
+    <Skeleton>
+      <div className="mt-8 border border-border-strong bg-surface-1 px-9 py-8">
+        <SkeletonBar w="w-[38%]" h="h-[10px]" />
+        <SkeletonBar w="w-[62%]" h="h-[30px]" className="mt-4" />
+        <SkeletonBar w="w-[70%]" h="h-[12px]" className="mt-4" />
+        <SkeletonBar w="w-[45%]" h="h-[12px]" className="mt-2" />
+      </div>
+      <SkeletonBar w="w-[42%]" h="h-[10px]" className="mt-9" />
+      <SkeletonBar w="w-full" h="h-[62px]" className="mt-4" />
+      <SkeletonBar w="w-full" h="h-[56px]" className="mt-6" />
+    </Skeleton>
+  )
+}
+
+/** Qui espera a la porta: nom, escola i data, i els dos botons de decidir. */
+function PendingSkeleton() {
+  return (
+    <Skeleton className="mt-2">
+      {[0, 1, 2].map((i) => (
+        <div key={i} className="flex items-center gap-4 border-b border-surface-4 py-[15px]">
+          <div className="min-w-0 flex-1">
+            <SkeletonBar w="w-[58%]" h="h-[15px]" />
+            <SkeletonBar w="w-[80%]" h="h-[10px]" className="mt-[3px]" />
+          </div>
+          <SkeletonBar w="w-[72px]" h="h-[44px]" className="flex-none" />
+          <SkeletonBar w="w-[78px]" h="h-[44px]" className="flex-none" />
+        </div>
+      ))}
+    </Skeleton>
   )
 }

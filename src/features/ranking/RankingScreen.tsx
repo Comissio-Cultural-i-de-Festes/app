@@ -63,7 +63,7 @@ export function RankingScreen() {
 
   return (
     <div className="with-tabbar min-h-dvh bg-app">
-      <div className="sticky top-0 z-20 border-b border-surface-5 bg-app pt-[max(var(--ds-safe-top),12px)]">
+      <div className="sticky top-0 z-20 border-b border-surface-5 bg-app pt-[var(--ds-safe-top-min)]">
         <div className={`flex items-end justify-between gap-6 pt-[2px] pb-6 ${GUTTER}`}>
           <h1 className="display text-d-s tracking-[-0.045em]">{t('nav.ranking')}</h1>
           {periods.data && periods.data.length > 1 ? (

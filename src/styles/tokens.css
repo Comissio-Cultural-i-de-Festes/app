@@ -121,7 +121,7 @@
    * HARD RULE: no state colour may use the brand hue. Red belongs to the
    * association, not to failure. The scanner especially must never show brand
    * red for a rejected QR — you get half a second to read it, at night, with a
-   * queue behind you. Enforced by tests/design-tokens.test.ts. */
+   * queue behind you. Enforced by src/design/states.test.ts. */
   /* Lifted from L 0.78, where it had exactly the same lightness as
    * --ds-brand-label — a green delta and a red link, side by side on the home
    * screen, identical in greyscale and to anyone with a red-green deficiency. */
@@ -270,10 +270,18 @@
   --ds-shell-max-w: 430px;
   /* Compte: amb `apple-mobile-web-app-status-bar-style: black` —el que tria
    * l'index.html, i hi diu per què— iOS reserva la barra d'estat i aquest
-   * valor és 0 a l'app instal·lada. Només treballa al Safari. Per això cada
-   * consumidor l'embolcalla en `max(…, 12px)`: el coixí de dalt no ha de
-   * dependre de si el sistema pinta la banda o no. */
+   * valor és 0 a l'app instal·lada. Només treballa al Safari.
+   *
+   * Per això cap capçalera no ha de fer servir `--ds-safe-top` a pèl: el coixí
+   * de dalt no pot dependre de si el sistema pinta la banda o no. Fes servir
+   * `--ds-safe-top-min`, que ja hi porta el terra. Això no és una convenció:
+   * `tests/safe-area.test.ts` falla si algun .tsx toca el cru sense `max()`.
+   *
+   * El cru queda per als pocs casos que vulguin enganxar-se al vidre de debò.
+   * Si n'uses un, digues allà mateix per què. */
   --ds-safe-top: env(safe-area-inset-top, 0px);
+  /* Dotze píxels quan el sistema no reserva res, i el retall real quan sí. */
+  --ds-safe-top-min: max(var(--ds-safe-top), 12px);
   --ds-safe-bottom: env(safe-area-inset-bottom, 0px);
   --ds-safe-left: env(safe-area-inset-left, 0px);
   --ds-safe-right: env(safe-area-inset-right, 0px);

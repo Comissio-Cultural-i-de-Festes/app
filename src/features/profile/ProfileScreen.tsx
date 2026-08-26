@@ -116,7 +116,7 @@ export function ProfileScreen() {
   }
 
   return (
-    <main className="with-tabbar min-h-dvh bg-app pt-[max(var(--ds-safe-top),12px)]">
+    <main className="with-tabbar min-h-dvh bg-app pt-[var(--ds-safe-top-min)]">
       {/* El títol més gran de l'app i el que està més amunt de tot: sis
           píxels no eren coixí, eren una coincidència. */}
       <header className={`flex items-center gap-8 pt-6 ${GUTTER}`}>

@@ -290,9 +290,18 @@ function SchoolLine({
         {school.posicio}
       </p>
 
-      <div className="flex-1">
-        <div className="flex items-center gap-[7px]">
-          <span className="text-lg font-bold tracking-[-0.01em]">
+      {/* `min-w-0`, com totes les altres llistes de l'app. Sense ell la columna
+          del mig no baixa del seu contingut mínim, i la fila sencera se'n va
+          20 px més enllà del gutter: la pàgina agafa scroll horitzontal d'un
+          píxel i el total queda enganxat a la vora. Es veu en català i no en
+          castellà —«aquesta setmana» és quatre caràcters més llarg que «esta
+          semana»— que és la manera més cara de trobar-ho. */}
+      <div className="min-w-0 flex-1">
+        {/* `flex-wrap`: el xip és una etiqueta, no part del nom. Quan no hi cap
+            al costat baixa a la línia de sota en lloc de tapar-lo —que és el
+            que feia quan el nom podia encongir per sota del seu contingut. */}
+        <div className="flex flex-wrap items-center gap-[7px]">
+          <span className="text-lg font-bold [text-wrap:pretty] tracking-[-0.01em]">
             {t(`escola.${school.escola satisfies Escola}`)}
           </span>
           {mine ? (

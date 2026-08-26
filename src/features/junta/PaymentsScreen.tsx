@@ -377,7 +377,7 @@ function PaidList({
 
         <div className="mt-7 flex items-end gap-7">
           <div>
-            <p className="display text-[54px] leading-[0.95] tracking-[-0.055em] tabular-nums">
+            <p className="display text-d-xl leading-[0.95] tracking-[-0.055em] tabular-nums">
               {paid.length}
             </p>
             <p className="mt-1 text-sm font-bold text-fg-muted">

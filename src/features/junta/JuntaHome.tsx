@@ -102,7 +102,7 @@ export function JuntaHome() {
         <WorkSkeleton />
       ) : home.isError ? (
         <div className={`flex items-center gap-6 pt-6 ${GUTTER}`}>
-          <span className="display flex-none text-[34px] leading-none text-fg-muted">—</span>
+          <span className="display flex-none text-d-s leading-none text-fg-muted">—</span>
           <p className="flex-1 text-md text-fg-secondary [text-wrap:pretty]">
             {t('junta.home.workFailed')}
           </p>
@@ -561,7 +561,7 @@ function Count({
 }) {
   return (
     <Link to={to} className={`${ROW} min-h-[64px]`}>
-      <span className="display tabular min-w-[50px] flex-none text-[34px] leading-[0.9] tracking-[-0.05em] text-[var(--ds-warning)]">
+      <span className="display tabular min-w-[50px] flex-none text-d-s leading-[0.9] tracking-[-0.05em] text-[var(--ds-warning)]">
         {n}
       </span>
       <span className="min-w-0 flex-1">

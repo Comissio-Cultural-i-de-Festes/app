@@ -215,7 +215,7 @@ function Cards({
                 className="flex items-center gap-6 border-b border-surface-4 py-5 last:border-0"
               >
                 <span className="min-w-0 flex-1">
-                  <span className="block text-[14.5px] font-bold">
+                  <span className="block text-base font-bold">
                     {t(`escolaShort.${s.escola as Escola}`)}
                   </span>
                   <span
@@ -292,7 +292,7 @@ function Person({
     <li className="flex flex-col gap-4 border-t border-surface-4 py-6 lg:flex-row lg:items-center lg:gap-7">
       <Avatar src={null} size={34} />
       <span className="lg:w-[200px] lg:flex-none">
-        <span className="block text-[14.5px] font-bold">{who.nom}</span>
+        <span className="block text-base font-bold">{who.nom}</span>
         <span className="mt-[2px] block text-xs text-fg-dim">
           {[
             who.escola === null ? null : t(`escolaShort.${who.escola as Escola}`),

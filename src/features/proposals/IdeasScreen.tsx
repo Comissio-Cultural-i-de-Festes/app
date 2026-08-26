@@ -10,6 +10,7 @@ import { formatDateLong } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { Notice } from '@/ui/Notice/Notice'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { type Proposal, fetchMyVotes, fetchProposals, proposalKeys, vote, withdraw } from './api'
@@ -357,7 +358,7 @@ function Mine({
               {/* The reason, and who wrote it. A stamp with no sentence is what
                   this column exists to replace. */}
               {p.nota_junta === null ? null : (
-                <span className="mt-5 block border-l-[3px] border-surface-7 bg-surface-1 px-6 py-5">
+                <Notice as="span" tone="neutral" size="tight" className="mt-5">
                   <span className="eyebrow block text-[var(--ds-text-muted-lo)]">
                     {t('ideas.juntaSays')}
                   </span>
@@ -372,7 +373,7 @@ function Mine({
                       })}
                     </span>
                   )}
-                </span>
+                </Notice>
               )}
             </span>
           </div>

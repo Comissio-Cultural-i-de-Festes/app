@@ -12,6 +12,7 @@ import type { MemberRole } from '@/lib/model'
 import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { Notice } from '@/ui/Notice/Notice'
 
 import { JuntaHeader } from './JuntaHeader'
 import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
@@ -392,9 +393,9 @@ function PaidList({
           )}
         </div>
 
-        <p className="mt-8 border-l-[3px] border-surface-7 bg-surface-1 px-7 py-6 text-md font-medium text-fg-secondary [text-wrap:pretty]">
+        <Notice tone="neutral" size="tight" className="mt-8 font-medium">
           {t('junta.payments.bizum')}
-        </p>
+        </Notice>
       </section>
 
       {loading ? (

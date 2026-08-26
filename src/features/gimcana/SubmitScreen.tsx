@@ -95,7 +95,7 @@ export function SubmitScreen() {
             {/* El «no val» de l'última vegada, amb el perquè. Sense ell, tornar
                 a provar-ho és endevinar. */}
             {prova.estat === 'rebutjada' ? (
-              <div className="mt-7 border-l-[3px] border-surface-7 bg-surface-1 px-9 py-[15px]">
+              <Notice as="div" tone="neutral" className="mt-7">
                 <p className="text-base font-bold [text-wrap:pretty]">
                   {t('gimcana.rejected.title')}
                 </p>
@@ -104,7 +104,7 @@ export function SubmitScreen() {
                     ? t('gimcana.rejected.noReason')
                     : `«${prova.motiu}»`}
                 </p>
-              </div>
+              </Notice>
             ) : null}
 
             <input

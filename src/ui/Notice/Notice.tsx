@@ -10,7 +10,16 @@
  *
  * L'ambre és perill i el vermell és marca —mai un estat— i per això el to de
  * l'avís no arriba mai a `--ds-brand`. El verd és per a «fet», que és l'altra
- * meitat del bloc de fitxatge i el motiu que aquí hi hagi dos tons i no un.
+ * meitat del bloc de fitxatge.
+ *
+ * El neutre va arribar més tard, i la prova que faltava és que `EventScreen` i
+ * `SubmitScreen` feien servir aquest component en un lloc i escrivien el neutre
+ * a mà vint línies més avall: no era mandra, era un to que no hi era.
+ *
+ * NO ÉS PER A UNA LÍNIA DE TEXT. La junta té quatre confirmacions que són text
+ * de color i prou —«Fet: 3 persones», «Desat»— amb `role="status"` escrit a mà.
+ * Passar-les per aquí els posaria una caixa que no demanaven. Això és l'avís
+ * amb filet; una línia que confirma no ho és.
  *
  * El marge queda fora: cada pantalla el vol diferent (el de l'Inici va a sang
  * amb el gutter propi, el de l'entrada respira 26 px) i posar-lo aquí seria
@@ -18,16 +27,35 @@
  * que fa que l'avís es reconegui d'una pantalla a l'altra.
  */
 
+const TONES = {
+  ok: { box: 'border-success bg-surface-2 ', text: 'text-fg ' },
+  warn: { box: 'border-warning bg-surface-1 ', text: 'text-fg-secondary ' },
+  neutral: { box: 'border-surface-7 bg-surface-1 ', text: 'text-fg-secondary ' },
+} as const
+
 export function Notice({
   tone = 'warn',
   size = 'default',
+  as: As = 'p',
   live = false,
   className = '',
   children,
 }: {
-  readonly tone?: 'ok' | 'warn'
+  readonly tone?: keyof typeof TONES
   /** `tight` per als avisos que ja viuen dins d'un bloc amb coixí propi. */
   readonly size?: 'default' | 'tight'
+  /**
+   * Un paràgraf, o una caixa amb coses a dins.
+   *
+   * I la diferència no és només l'etiqueta: **un avís que és un paràgraf porta
+   * la seva pròpia tipografia; un que és una caixa la deixa als seus fills**,
+   * que ja la porten. Posar-hi `text-md` i un color a la caixa canviaria el que
+   * hereten un títol i un cos que ja s'havien decidit.
+   *
+   * `span` hi és perquè un dels avisos viu dins d'una cadena de `<span>` i un
+   * `<div>` allà seria HTML invàlid.
+   */
+  readonly as?: 'p' | 'div' | 'span'
   /**
    * Si apareix mentre algú mira la pantalla, i per tant s'ha d'anunciar.
    *
@@ -46,19 +74,21 @@ export function Notice({
   readonly className?: string
   readonly children: React.ReactNode
 }) {
+  const paragraph = As === 'p'
+
   return (
-    <p
+    <As
       {...(live ? { role: 'status' as const } : {})}
       className={
-        'border-l-[3px] text-md [text-wrap:pretty] ' +
+        'border-l-[3px] ' +
         (size === 'tight' ? 'px-7 py-6 ' : 'px-[18px] py-[15px] ') +
-        (tone === 'ok'
-          ? 'border-success bg-surface-2 text-fg '
-          : 'border-warning bg-surface-1 text-fg-secondary ') +
+        TONES[tone].box +
+        (paragraph ? `text-md [text-wrap:pretty] ${TONES[tone].text}` : '') +
+        (As === 'span' ? 'block ' : '') +
         className
       }
     >
       {children}
-    </p>
+    </As>
   )
 }

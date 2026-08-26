@@ -6,6 +6,7 @@ import { formatDateTime } from '@/i18n/format'
 import { errorKey } from '@/lib/errors'
 import { toLocale } from '@/i18n/locales'
 import type { Escola } from '@/lib/model'
+import { Notice } from '@/ui/Notice/Notice'
 
 import { JuntaHeader } from './JuntaHeader'
 import {
@@ -149,9 +150,9 @@ export function InvitesScreen() {
               </div>
 
               <p className="eyebrow-sm mt-9 text-fg-muted">{t('junta.invites.willPaste')}</p>
-              <p className="mt-4 border-l-[3px] border-surface-7 bg-surface-1 px-8 py-6 text-md text-fg-secondary [text-wrap:pretty]">
+              <Notice tone="neutral" size="tight" className="mt-4">
                 {shareText}
-              </p>
+              </Notice>
 
               <button
                 type="button"

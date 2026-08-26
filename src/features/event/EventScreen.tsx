@@ -558,7 +558,7 @@ function AnswerBlock({
           tap, a colour changes, and you are not sure it saved — and this is
           also where the two things you need on the way there get repeated. */}
       {waiting ? null : (
-        <div className="mt-6 border-l-[3px] border-surface-7 bg-surface-1 px-[18px] py-[15px]">
+        <Notice as="div" tone="neutral" className="mt-6">
           <p className="text-base font-bold [text-wrap:pretty]">
             {requested
               ? t('event.said.requested')
@@ -587,7 +587,7 @@ function AnswerBlock({
                       ? t('event.said.noSub')
                       : t('event.said.nothingSub')}
           </p>
-        </div>
+        </Notice>
       )}
 
       <div className="mt-6 grid auto-cols-fr grid-flow-col items-stretch gap-[6px]">

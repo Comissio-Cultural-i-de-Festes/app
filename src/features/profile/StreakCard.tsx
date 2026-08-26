@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { useUserId } from '@/features/session/useUserId'
+import { Notice } from '@/ui/Notice/Notice'
 
 import { fetchStreak, profileScreenKeys } from './api'
 import { ackStreakBreak, streakShape } from './streak'
@@ -57,7 +58,7 @@ export function StreakCard() {
       <h2 className="eyebrow text-fg-muted">{t('streak.title')}</h2>
 
       {shape === 'trencada' && trencada_el !== null ? (
-        <div className="mt-6 border-l-[3px] border-surface-7 bg-surface-1 px-9 py-[15px]">
+        <Notice as="div" tone="neutral" className="mt-6">
           <p className="text-base font-bold [text-wrap:pretty]">
             {t('streak.broken.title', { n: perduda })}
           </p>
@@ -74,7 +75,7 @@ export function StreakCard() {
           >
             {t('streak.broken.ok')}
           </button>
-        </div>
+        </Notice>
       ) : null}
 
       <div className="flex items-center gap-7 border-b border-surface-4 pt-6 pb-7">

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { type ReactNode, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { brand } from '@/config/brand'
@@ -53,6 +53,10 @@ export interface InstallScreenProps {
 export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
   const { t } = useTranslation()
   const native = useNativeInstallPrompt()
+  // La branca la tria el navegador; el botó, si queda diàleg per obrir. Amb el
+  // diàleg gastat —l'ha descartat— la pantalla no ha de tornar als passos del
+  // Safari: el que li queda és dir que ja ho té fet.
+  const [spent, setSpent] = useState(false)
 
   // Amb diàleg natiu no hi ha res a explicar: els dos passos d'aquesta
   // pantalla són del Safari, i ensenyar-los a algú que té un botó que instal·la
@@ -97,19 +101,26 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
           </section>
 
           <div className="mt-10">
-            <Button
-              size="lg"
-              onClick={() => {
-                // Acceptar-lo tanca aquesta pantalla; descartar-lo la deixa on
-                // era, perquè el diàleg ja no tornarà i el botó de sota és
-                // l'única sortida que queda.
-                void promptNativeInstall().then((accepted) => {
-                  if (accepted) onDone()
-                })
-              }}
-            >
-              {t('install.android.cta')}
-            </Button>
+            {spent ? (
+              <Button size="lg" onClick={onDone}>
+                {t('install.done')}
+              </Button>
+            ) : (
+              <Button
+                size="lg"
+                onClick={() => {
+                  // Acceptar-lo tanca la pantalla. Descartar-lo la deixa on
+                  // era, però el diàleg ja no tornarà: el botó passa a ser el
+                  // «ja ho tinc fet», que és l'única sortida que queda.
+                  void promptNativeInstall().then((accepted) => {
+                    if (accepted) onDone()
+                    else setSpent(true)
+                  })
+                }}
+              >
+                {t('install.android.cta')}
+              </Button>
+            )}
           </div>
 
           <button

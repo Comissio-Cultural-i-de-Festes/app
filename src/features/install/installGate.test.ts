@@ -4,6 +4,9 @@ import {
   SNOOZE_DONE_MS,
   SNOOZE_LATER_MS,
   clearInstallSnooze,
+  hasNativeInstallPrompt,
+  offersNativeInstall,
+  promptNativeInstall,
   shouldPromptInstall,
   snoozeInstall,
 } from './installGate'
@@ -96,5 +99,38 @@ describe('when the install screen appears', () => {
   it('ignores a snooze value that is not a number', () => {
     localStorage.setItem('comi.install.snoozedUntil', 'whenever')
     expect(shouldPromptInstall(NOW)).toBe(true)
+  })
+})
+
+describe('the native install dialog', () => {
+  /** El que Chrome dispara, retallat al que el mòdul en fa servir. */
+  function offerOne(outcome: 'accepted' | 'dismissed'): void {
+    const e = new Event('beforeinstallprompt', { cancelable: true }) as Event & {
+      prompt: () => Promise<void>
+      userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+    }
+    e.prompt = () => Promise.resolve()
+    e.userChoice = Promise.resolve({ outcome })
+    window.dispatchEvent(e)
+  }
+
+  it('separates having a dialog in hand from being a browser that offers one', async () => {
+    // Aquesta és la distinció sencera. `deferred` es gasta en obrir-lo; el fet
+    // que aquest navegador instal·li apps, no. Amb la branca de la pantalla
+    // penjada del primer, descartar el diàleg i tornar a muntar li ensenyava a
+    // un Android els dos passos del Safari i l'avís de tornar a entrar, cap
+    // dels dos cert al seu mòbil.
+    offerOne('dismissed')
+    expect(hasNativeInstallPrompt()).toBe(true)
+    expect(offersNativeInstall()).toBe(true)
+
+    await promptNativeInstall()
+
+    expect(hasNativeInstallPrompt(), 'el diàleg es gasta').toBe(false)
+    expect(offersNativeInstall(), 'el navegador no deixa de ser qui és').toBe(true)
+  })
+
+  it('will not open a dialog it no longer has', async () => {
+    expect(await promptNativeInstall()).toBe(false)
   })
 })

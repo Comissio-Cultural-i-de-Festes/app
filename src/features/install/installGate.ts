@@ -73,20 +73,38 @@ interface InstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
 }
 
+/**
+ * El diàleg concret que encara es pot obrir. Es gasta en obrir-lo.
+ *
+ * Va separat d'`everOffered` a posta: si la branca de la pantalla es tria amb
+ * això, descartar el diàleg i tornar-hi ensenya a un Android els dos passos del
+ * Safari i l'avís de tornar a entrar, cap dels dos cert al seu mòbil. Una cosa
+ * que es consumeix no pot decidir qui ets.
+ */
 let deferred: InstallPromptEvent | null = null
+
+/** Que aquest navegador n'ha ofert un. No l'esborra ningú. */
+let everOffered = false
+
 const listeners = new Set<() => void>()
 
 if (typeof window !== 'undefined') {
   window.addEventListener('beforeinstallprompt', (e) => {
     e.preventDefault()
     deferred = e as InstallPromptEvent
+    everOffered = true
     for (const notify of listeners) notify()
   })
 }
 
-/** Que el navegador ens ha donat un diàleg per oferir. */
+/** Que el navegador ens ha donat un diàleg, i que encara no s'ha obert. */
 export function hasNativeInstallPrompt(): boolean {
   return deferred !== null
+}
+
+/** Que aquest navegador instal·la apps, encara que el diàleg ja s'hagi gastat. */
+export function offersNativeInstall(): boolean {
+  return everOffered
 }
 
 /**
@@ -112,19 +130,22 @@ export function onNativeInstallPrompt(cb: () => void): () => void {
  *
  * Mateix patró que `useOnline`: primera lectura a l'inicialitzador i la
  * subscripció a un efecte que es dona de baixa.
+ *
+ * Llegeix `offersNativeInstall()` i no `hasNativeInstallPrompt()`: la branca ha
+ * de dir quin navegador és, no si en aquest instant queda diàleg per obrir.
  */
 export function useNativeInstallPrompt(): boolean {
-  const [has, setHas] = useState(hasNativeInstallPrompt)
+  const [offers, setOffers] = useState(offersNativeInstall)
 
   useEffect(
     () =>
       onNativeInstallPrompt(() => {
-        setHas(hasNativeInstallPrompt())
+        setOffers(offersNativeInstall())
       }),
     [],
   )
 
-  return has
+  return offers
 }
 
 /** `true` si l'ha acceptat. El diàleg només es pot obrir un cop. */

@@ -21,8 +21,12 @@ export function PendingLine({ className = '' }: { readonly className?: string })
   if (queued === 0) return null
 
   return (
+    // Sense `role="status"`, i el criteri és el que el `Notice` deixa escrit:
+    // s'anuncia el que entra sol, no el que ja hi era. A l'Inici això viu dins
+    // la capçalera i hi és des que la pantalla carrega; qui apareix sol quan
+    // cau la connexió és el rètol de sobre, i és el que parla. Amb tots dos
+    // dient-ho, obrir l'app sense cobertura eren dos anuncis veïns.
     <p
-      role="status"
       className={
         'flex items-center gap-3 text-sm font-bold text-[var(--ds-warning-deep)] ' + className
       }

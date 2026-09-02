@@ -1442,6 +1442,7 @@ export type Database = {
         Args: { p_gimcana_id: string; p_quants: number }
         Returns: Json
       }
+      admin_transfer_owner: { Args: { p_user_id: string }; Returns: undefined }
       admin_undo_checkin: {
         Args: { p_event_id: string; p_user_id: string }
         Returns: undefined

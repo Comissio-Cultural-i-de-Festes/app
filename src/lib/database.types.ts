@@ -294,6 +294,46 @@ export type Database = {
           },
         ]
       }
+      event_interest: {
+        Row: {
+          created_at: string
+          event_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_interest_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_interest_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_interest_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_photos: {
         Row: {
           created_at: string
@@ -1530,6 +1570,7 @@ export type Database = {
       }
       claim_first_owner: { Args: never; Returns: undefined }
       clear_exit_photo: { Args: { p_event_id: string }; Returns: Json }
+      event_interest_size: { Args: { p_event_id: string }; Returns: number }
       event_photo_count: {
         Args: { p_event_id: string }
         Returns: {
@@ -1591,6 +1632,7 @@ export type Database = {
           titol: string
         }[]
       }
+      my_event_interest: { Args: { p_event_id: string }; Returns: boolean }
       my_photos: {
         Args: never
         Returns: {
@@ -1656,6 +1698,10 @@ export type Database = {
       }
       set_entry_photo: {
         Args: { p_event_id: string; p_path: string }
+        Returns: Json
+      }
+      set_event_interest: {
+        Args: { p_event_id: string; p_vol: boolean }
         Returns: Json
       }
       set_exit_photo: {

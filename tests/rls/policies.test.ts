@@ -785,3 +785,57 @@ describe('an avatar is yours to change and everybody else to look at', () => {
     expect(gone.error).not.toBeNull()
   })
 })
+
+describe('who is waiting for a reveal is a number, not a list', () => {
+  // Les dues meitats van juntes: el nombre és públic —és el que fa que la
+  // pantalla del teaser funcioni— i qui són no ho és. pgTAP ja asserta el
+  // grant; això comprova que PostgREST no obri una porta que el SQL tanca,
+  // que és exactament el que aquesta capa hi és per veure.
+  const EVENT = F.e2
+
+  it('lets you press it and see the count, and nobody see the names', async () => {
+    const member = await as('alfa')
+
+    const pressed = await rpc<{ vol: boolean; quants: number }>(
+      member,
+      'set_event_interest',
+      { p_event_id: EVENT, p_vol: true },
+    )
+    expect(pressed.error).toBeNull()
+    expect(pressed.data?.vol).toBe(true)
+    expect(pressed.data?.quants).toBeGreaterThan(0)
+
+    // Un altre soci veu la xifra i no la llista.
+    const other = await as('bravo')
+    const size = await rpc<number>(other, 'event_interest_size', { p_event_id: EVENT })
+    expect(size.error).toBeNull()
+    expect(size.data).toBeGreaterThan(0)
+
+    const names = await other.from('event_interest').select('user_id')
+    expect(names.error?.code).toBe('42501')
+
+    // I el seu propi estat és el seu.
+    const theirs = await rpc<boolean>(other, 'my_event_interest', { p_event_id: EVENT })
+    expect(theirs.data).toBe(false)
+
+    // Es desa el que s'ha tocat: la suite escriu a la mateixa base i no fa
+    // rollback, i deixar-ho premut faria que la propera passada comencés amb
+    // un estat que no ha triat.
+    const undone = await rpc<{ vol: boolean }>(member, 'set_event_interest', {
+      p_event_id: EVENT,
+      p_vol: false,
+    })
+    expect(undone.error).toBeNull()
+  })
+
+  it('and refuses somebody still waiting for approval', async () => {
+    // `is_active_member`, no `is_member_or_pending`: qui espera l'alta no pot
+    // apuntar-se a res, i «avisa'm» és el primer graó d'apuntar-se.
+    const pending = await as('pendent_alfa')
+    const { error } = await rpc(pending, 'set_event_interest', {
+      p_event_id: EVENT,
+      p_vol: true,
+    })
+    expect(error?.code).toBe('42501')
+  })
+})

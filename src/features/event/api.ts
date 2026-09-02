@@ -18,6 +18,7 @@ const EVENT_COLUMNS =
 export const eventKeys = {
   one: (id: string) => ['event', id] as const,
   waitlist: (id: string) => ['event', id, 'waitlist'] as const,
+  interest: (id: string) => ['event', id, 'interest'] as const,
 }
 
 export async function fetchEvent(id: string): Promise<EventRow | null> {
@@ -76,4 +77,50 @@ export function formatMoney(cents: number, locale: string): string {
     currency: 'EUR',
     minimumFractionDigits: cents % 100 === 0 ? 0 : 2,
   }).format(cents / 100)
+}
+
+export interface Interest {
+  /** Si aquesta persona ja ha premut «Avisa'm». */
+  readonly vol: boolean
+  readonly quants: number
+}
+
+/**
+ * Qui està pendent de la revelació, en dues xifres i cap nom.
+ *
+ * Dues funcions definer i no una lectura de `event_interest`: el nombre és
+ * públic —és el que fa que la pantalla del teaser funcioni— i qui són no ho és.
+ * `authenticated` no té SELECT sobre la taula, i per tant «no hi ha ningú» i
+ * «no ho puc saber» no es poden confondre: si la petició falla, falla.
+ */
+export async function fetchInterest(eventId: string): Promise<Interest> {
+  const [mine, size] = await Promise.all([
+    supabase.rpc('my_event_interest', { p_event_id: eventId }),
+    supabase.rpc('event_interest_size', { p_event_id: eventId }),
+  ])
+
+  // Ni `?? false` ni `?? 0`: convertirien una petició fallida en un fet —«no
+  // l'has premut» i «no hi ha ningú esperant»— i el botó es dibuixaria com si
+  // no s'hagués premut mai.
+  if (mine.error) throw new DbError(mine.error)
+  if (size.error) throw new DbError(size.error)
+
+  return { vol: mine.data ?? false, quants: size.data ?? 0 }
+}
+
+/**
+ * Prem o desprem el botó.
+ *
+ * Una RPC i no un insert/delete segons l'estat: el client no ha de saber en
+ * quin dels dos està per decidir quina operació fa, i la resposta ja porta el
+ * recompte nou —demanar-lo després seria una segona petició que pot arribar
+ * abans.
+ */
+export async function setInterest(eventId: string, vol: boolean): Promise<Interest> {
+  const { data, error } = await supabase.rpc('set_event_interest', {
+    p_event_id: eventId,
+    p_vol: vol,
+  })
+  if (error) throw new DbError(error)
+  return data as unknown as Interest
 }

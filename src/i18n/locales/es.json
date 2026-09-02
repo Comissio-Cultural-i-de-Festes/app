@@ -155,6 +155,18 @@
     "revealed": {
       "now": "Ya se puede decir"
     },
+    "calendar": {
+      "offerTitle": "¿Lo quieres en el calendario del móvil?",
+      "offerBody": "Con la hora, el sitio y un enlace para volver aquí. Si cambiamos la hora, se actualiza.",
+      "addShort": "Añádelo",
+      "add": "Añádelo al calendario",
+      "noThanks": "No, gracias",
+      "isThere": "Está en tu calendario",
+      "again": "Vuelve a hacerlo",
+      "fromTo": "{{day}}, {{from}} – {{to}}",
+      "cannotRead": "«Vuelve a hacerlo» está porque la app no puede leer el calendario del teléfono: no sabe si la entrada sigue ahí. Dice lo que sabe y te deja hacerlo otra vez, que es inofensivo porque no se duplica.",
+      "failed": "No hemos podido preparar el archivo. Pruébalo otra vez."
+    },
     "teaser": {
       "pushEyebrow": "Para que no te enteres al día siguiente",
       "pushTitle": "¿Quieres que el móvil te avise?",
@@ -1291,7 +1303,10 @@
       "junta": "Zona junta",
       "juntaSub": "Escáner, puntos, invitaciones",
       "nights": "Tus noches",
-      "nightsSub": "El díptico de entrada y salida de cada fiesta"
+      "nightsSub": "El díptico de entrada y salida de cada fiesta",
+      "calendar": "Las mías al calendario",
+      "calendarSub_one": "La que has dicho que sí, de una tirada",
+      "calendarSub_other": "Las {{count}} a las que has dicho que sí, de una tirada"
     },
     "footer": "Hecho entre clase y clase.",
     "signOutPending": {

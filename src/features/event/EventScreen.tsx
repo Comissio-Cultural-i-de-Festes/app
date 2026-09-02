@@ -45,6 +45,7 @@ import { RidesBlock } from '@/features/rides/RidesBlock'
 
 import { eventKeys, fetchEvent, fetchWaitlist, formatPrice } from './api'
 import { Cover, Fact, Places } from './detail'
+import { CalendarOffer, CalendarRow } from './Calendar'
 import { BigCountdown, HiddenChip, InterestBlock } from './Teaser'
 import { eventTitle, titleIsHidden } from './title'
 
@@ -293,6 +294,11 @@ export function EventScreen() {
         />
       </section>
 
+      {/* La fila del calendari, just sota els fets: és on hi ha l'hora i el
+          lloc, que és el que se'n va al calendari. Es filtra ella sola per a un
+          esdeveniment no revelat. */}
+      {isPast ? null : <CalendarRow event={e} />}
+
       {/* Places, cotxes, gimcana i el sí/potser/no no hi són: no se sap ni què
           és. L'única cosa que es pot fer és dir «avisa'm». */}
       {hidden ? (
@@ -364,6 +370,7 @@ export function EventScreen() {
           }}
           when={formatDateLong(starts, locale)}
           where={e.ubicacion}
+          offer={e}
         />
       )}
 
@@ -582,6 +589,7 @@ function AnswerBlock({
   onAnswer,
   when,
   where,
+  offer,
 }: {
   readonly mine: AttendanceState | null
   /** Whether a yes on this event is a request the junta has to decide. */
@@ -594,6 +602,15 @@ function AnswerBlock({
   /** Weekday, date and start time in one — formatDateLong already joins them. */
   readonly when: string
   readonly where: string | null
+  /**
+   * L'esdeveniment, només per a la proposta del calendari.
+   *
+   * Entra sencer i no per camps solts perquè el fitxer en vol sis —títol,
+   * inici, final, lloc, descripció i id— i passar-los un per un seria sis
+   * paràmetres més en una signatura que ja en té nou. `null` quan no hi ha
+   * res a proposar.
+   */
+  readonly offer: EventRow | null
 }) {
   const { t } = useTranslation()
   const full = left === 0
@@ -645,6 +662,11 @@ function AnswerBlock({
                       ? t('event.said.noSub')
                       : t('event.said.nothingSub')}
           </p>
+
+          {/* Dins de l'avís i no com una capa a sobre: la decisió acabada de
+              prendre i la proposta són la mateixa frase. Es filtra ella sola
+              quan no s'ha dit que sí. */}
+          {mine === 'si' && offer !== null ? <CalendarOffer event={offer} /> : null}
         </Notice>
       )}
 

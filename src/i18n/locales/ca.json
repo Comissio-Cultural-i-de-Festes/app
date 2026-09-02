@@ -155,6 +155,18 @@
     "revealed": {
       "now": "Ja es pot dir"
     },
+    "calendar": {
+      "offerTitle": "Ho vols al calendari del mòbil?",
+      "offerBody": "Amb l'hora, el lloc i un enllaç per tornar aquí. Si canviem l'hora, s'actualitza.",
+      "addShort": "Afegeix-ho",
+      "add": "Afegeix-ho al calendari",
+      "noThanks": "No, gràcies",
+      "isThere": "És al teu calendari",
+      "again": "Torna-hi",
+      "fromTo": "{{day}}, {{from}} – {{to}}",
+      "cannotRead": "«Torna-hi» hi és perquè l'app no pot llegir el calendari del telèfon: no sap si l'entrada encara existeix. Diu el que sap i et deixa fer-ho un altre cop, que és inofensiu perquè no es duplica.",
+      "failed": "No hem pogut preparar el fitxer. Prova-ho un altre cop."
+    },
     "teaser": {
       "pushEyebrow": "Perquè no te n'assabentis l'endemà",
       "pushTitle": "Vols que el mòbil t'avisi?",
@@ -1291,7 +1303,10 @@
       "junta": "Zona junta",
       "juntaSub": "Escàner, punts, invitacions",
       "nights": "Les teves nits",
-      "nightsSub": "El díptic d'entrada i sortida de cada festa"
+      "nightsSub": "El díptic d'entrada i sortida de cada festa",
+      "calendar": "Les meves al calendari",
+      "calendarSub_one": "La que has dit que sí, d'una tirada",
+      "calendarSub_other": "Les {{count}} a què has dit que sí, d'una tirada"
     },
     "footer": "Fet entre classe i classe.",
     "signOutPending": {

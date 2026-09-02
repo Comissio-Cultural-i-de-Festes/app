@@ -21,6 +21,7 @@ import { supabase } from '@/lib/supabase'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
 import { CameraIcon } from './icons'
+import { MyCalendarRow } from './MyCalendarRow'
 import { StreakCard } from './StreakCard'
 import {
   byMotive,
@@ -330,6 +331,9 @@ export function ProfileScreen() {
             ))}
           </div>
         </div>
+
+        {/* Es filtra ella sola: sense res a què hagis dit que sí, no hi surt. */}
+        <MyCalendarRow />
 
         <Link to="/perfil/nits" className={`${ROW} no-underline`}>
           <span className="min-w-0 flex-1">

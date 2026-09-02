@@ -155,6 +155,18 @@
     "revealed": {
       "now": "It can be said now"
     },
+    "calendar": {
+      "offerTitle": "Want it in your phone's calendar?",
+      "offerBody": "With the time, the place and a link back here. If we change the time, it updates.",
+      "addShort": "Add it",
+      "add": "Add it to the calendar",
+      "noThanks": "No thanks",
+      "isThere": "It is in your calendar",
+      "again": "Do it again",
+      "fromTo": "{{day}}, {{from}} – {{to}}",
+      "cannotRead": "\"Do it again\" is there because the app cannot read your phone's calendar: it does not know whether the entry is still there. It says what it knows and lets you do it again, which is harmless because it does not duplicate.",
+      "failed": "We could not prepare the file. Try again."
+    },
     "teaser": {
       "pushEyebrow": "So you do not find out the next day",
       "pushTitle": "Want your phone to tell you?",
@@ -1291,7 +1303,10 @@
       "junta": "Committee area",
       "juntaSub": "Scanner, points, invitations",
       "nights": "Your nights",
-      "nightsSub": "The in-and-out diptych from every party"
+      "nightsSub": "The in-and-out diptych from every party",
+      "calendar": "Mine, into the calendar",
+      "calendarSub_one": "The one you said yes to, in one go",
+      "calendarSub_other": "The {{count}} you said yes to, in one go"
     },
     "footer": "Made between lectures.",
     "signOutPending": {

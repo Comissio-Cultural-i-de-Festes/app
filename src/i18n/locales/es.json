@@ -152,6 +152,9 @@
     "salut": "La Salud"
   },
   "event": {
+    "revealed": {
+      "now": "Ya se puede decir"
+    },
     "teaser": {
       "chip": "Todavía oculto",
       "willBeKnown": "Se sabrá dentro de",

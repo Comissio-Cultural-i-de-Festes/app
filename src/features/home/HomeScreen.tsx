@@ -21,6 +21,7 @@ import {
 } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
 import { countdown, countdownLabel, countdownShape } from '@/features/event/countdown'
+import { RevealedCard } from '@/features/event/RevealedCard'
 import { InterestBlock, InterestCount } from '@/features/event/Teaser'
 import { eventTitle, titleIsHidden } from '@/features/event/title'
 import { ExitPhotoCard } from '@/features/photos/ExitPhotoCard'
@@ -95,6 +96,12 @@ export function HomeScreen() {
   return (
     <div className="with-tabbar min-h-dvh bg-app">
       <Header home={home} />
+
+      {/* Abans del hero i no entre els avisos. Els tres candidats de `notices`
+          es barallen per l'únic lloc que hi ha *sobre* el hero; això és la
+          resposta a una cosa que aquesta persona va demanar explícitament, i
+          per això té el seu propi lloc i no cap regla de prioritat. */}
+      <RevealedCard />
 
       {notices.slice(0, 1).map(notice)}
 

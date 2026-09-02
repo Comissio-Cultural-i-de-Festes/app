@@ -152,6 +152,9 @@
     "salut": "Health Sciences"
   },
   "event": {
+    "revealed": {
+      "now": "It can be said now"
+    },
     "teaser": {
       "chip": "Still hidden",
       "willBeKnown": "Known in",

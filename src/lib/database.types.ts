@@ -1646,6 +1646,7 @@ export type Database = {
         }[]
       }
       my_qr: { Args: never; Returns: string }
+      my_revealed_interests: { Args: never; Returns: string[] }
       my_streak: { Args: never; Returns: Json }
       pick_team: { Args: { p_equip_id: string }; Returns: Json }
       ranking_escoles_period: {

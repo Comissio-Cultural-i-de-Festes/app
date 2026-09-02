@@ -152,6 +152,9 @@
     "salut": "La Salut"
   },
   "event": {
+    "revealed": {
+      "now": "Ja es pot dir"
+    },
     "teaser": {
       "chip": "Encara amagat",
       "willBeKnown": "Es sabrà d'aquí",

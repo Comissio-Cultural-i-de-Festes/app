@@ -16,7 +16,7 @@
 -- Persones i esdeveniments inventats, com a tot el repo.
 
 begin;
-select plan(13);
+select plan(16);
 
 reset role;
 
@@ -111,6 +111,38 @@ select is(
   (select public.event_interest_size('00000000-0000-4000-8000-0000000000e2')),
   0,
   'i llavors el nombre baixa'
+);
+
+-- ── la xarxa de seguretat ───────────────────────────────────────────────────
+-- «Ja es pot dir»: què es va revelar mentre no miraves. Sense estat nou —surt
+-- de l'interès, la revelació i el fet de no haver contestat— i per tant el que
+-- s'ha de provar és que les tres condicions es respecten.
+reset role;
+select tests.authenticate_as('alfa');
+select public.set_event_interest('00000000-0000-4000-8000-0000000000e2', true);
+
+select is_empty(
+  $$ select public.my_revealed_interests() $$,
+  'un esdeveniment que encara no s''ha revelat no hi surt'
+);
+
+reset role;
+update public.events set reveal_at = now() - interval '1 hour'
+ where id = '00000000-0000-4000-8000-0000000000e2';
+
+select tests.authenticate_as('alfa');
+select results_eq(
+  $$ select public.my_revealed_interests() $$,
+  $$ values ('00000000-0000-4000-8000-0000000000e2'::uuid) $$,
+  'i un que sí, sí'
+);
+
+-- Contestar el treu, i és així com la targeta es descarta sola. Qualsevol
+-- resposta compta, el «no» inclòs: qui ha dit que no ja ha vist de què anava.
+select public.set_attendance('00000000-0000-4000-8000-0000000000e2', 'no');
+select is_empty(
+  $$ select public.my_revealed_interests() $$,
+  'i contestar-lo el treu, que és com la targeta desapareix sense cap columna de «vist»'
 );
 
 reset role;

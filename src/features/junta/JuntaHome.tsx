@@ -10,6 +10,7 @@ import { useMyProfile } from '@/features/session/useMyProfile'
 import { formatDateLong, formatDayNumber, formatMonthShort, formatWeekdayLong } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
+import { eventTitle } from '@/features/event/title'
 
 import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
@@ -254,7 +255,7 @@ export function JuntaHome() {
                 </span>
               </span>
               <span className="min-w-0 flex-1 text-base font-bold text-fg [text-wrap:pretty]">
-                {e.titulo}
+                {eventTitle(e.titulo)}
                 {e.published ? null : (
                   <span className="font-semibold text-[var(--ds-text-muted-lo)]">
                     {' · '}
@@ -348,7 +349,7 @@ function Door({ porta, locale }: { readonly porta: DoorNow; readonly locale: Loc
       </p>
 
       <h2 className="display mt-6 text-d-s leading-[0.87] tracking-[-0.048em] [text-wrap:balance]">
-        {porta.titulo}
+        {eventTitle(porta.titulo)}
       </h2>
       <p className="mt-5 text-base font-semibold text-fg-secondary [text-wrap:pretty]">
         {[formatDateLong(starts, locale), porta.ubicacion]

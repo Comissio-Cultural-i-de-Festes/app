@@ -635,7 +635,11 @@ function emptyForm(): FormState {
 function formFrom(e: EventRow): FormState {
   return {
     id: e.id,
-    titulo: e.titulo,
+    // La junta sempre veu el títol —`etitle_select_admin`— o sigui que això
+    // no hauria de ser null mai. El `?? ''` hi és perquè el camp és
+    // controlat: un null el faria no controlat a mig formulari i React perdria
+    // el que s'hi hagués escrit.
+    titulo: e.titulo ?? '',
     tipo: e.tipo as EventType,
     starts_at: toLocalInput(e.starts_at, APP_TIME_ZONE),
     ends_at: toLocalInput(e.ends_at, APP_TIME_ZONE),

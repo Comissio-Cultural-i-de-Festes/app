@@ -20,6 +20,7 @@ import {
   formatWeekdayLong,
 } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
+import { eventTitle } from '@/features/event/title'
 import { ExitPhotoCard } from '@/features/photos/ExitPhotoCard'
 import { useExitOffer } from '@/features/photos/useExitOffer'
 import { errorKey } from '@/lib/errors'
@@ -252,7 +253,7 @@ function Hero({
       <div className="absolute right-4 bottom-4 left-[var(--ds-gutter)]">
         <p className="eyebrow text-brand-accent">{whenLabel(start, locale, t)}</p>
         <h1 className="display mt-4 text-d-md leading-[0.85] tracking-[-0.048em] [overflow-wrap:break-word] [text-wrap:balance]">
-          {event.titulo}
+          {eventTitle(event.titulo)}
         </h1>
       </div>
     </Link>
@@ -559,7 +560,9 @@ function Recap({
 
         <div className="flex flex-1 flex-col justify-between">
           <div>
-            <p className="text-xl leading-[1.15] font-bold [text-wrap:pretty]">{event.titulo}</p>
+            <p className="text-xl leading-[1.15] font-bold [text-wrap:pretty]">
+              {eventTitle(event.titulo)}
+            </p>
             {attended > 0 ? (
               <p className="mt-[6px] text-md-lo text-fg-muted">
                 {t('home.recap.were', { count: attended })}
@@ -618,7 +621,7 @@ function Upcoming({
                 </div>
                 <div className="flex-1">
                   <p className="text-lg leading-[1.15] font-bold [text-wrap:pretty]">
-                    {event.titulo}
+                    {eventTitle(event.titulo)}
                   </p>
                   {sub === '' ? null : (
                     <p className="mt-2 text-sm text-fg-muted [text-wrap:pretty]">{sub}</p>

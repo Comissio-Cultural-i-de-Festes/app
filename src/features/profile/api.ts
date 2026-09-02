@@ -22,7 +22,14 @@ export interface PointRow {
   readonly puntos: number
   readonly created_at: string
   readonly nota: string | null
-  readonly events: { readonly titulo: string } | null
+  /**
+   * Des de la migració 44 el títol viu a `event_title` i s'hi arriba amb un
+   * salt més, perquè `points_log` no hi té clau forana: hi arriba per
+   * `events`. Si l'esdeveniment encara no està revelat, la política deixa la
+   * fila fora i això és null —el registre de punts d'una festa que encara no
+   * es pot dir surt amb el motiu i no amb el nom.
+   */
+  readonly events: { readonly event_title: { readonly titulo: string } | null } | null
 }
 
 export const profileScreenKeys = {
@@ -59,7 +66,7 @@ export async function fetchMyPoints(userId: string): Promise<PointRow[]> {
   return unwrapAs<PointRow[]>(
     supabase
       .from('points_log')
-      .select('id, motivo, puntos, created_at, nota, events(titulo)')
+      .select('id, motivo, puntos, created_at, nota, events(event_title(titulo))')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
       .limit(200),

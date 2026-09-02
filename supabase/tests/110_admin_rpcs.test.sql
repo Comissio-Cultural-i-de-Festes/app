@@ -7,7 +7,7 @@
 -- it gets the coverage that implies.
 
 begin;
-select plan(28);
+select plan(29);
 
 reset role;
 delete from public.audit_log;
@@ -181,14 +181,24 @@ select lives_ok(
 -- location would be gone.
 select is(
   (select count(*)::int from public.event_details d
-     join public.events e on e.id = d.event_id
-    where e.titulo = 'Prova Alfa'),
+     join public.event_title t on t.event_id = d.event_id
+    where t.titulo = 'Prova Alfa'),
   1,
   'and the detail row lands in the same transaction'
 );
 
+-- I la del titol tambe: son dues sentencies de la mateixa funcio, i una a
+-- mitges deixaria un esdeveniment publicat sense titol.
 select is(
-  (select puntos from public.events where titulo = 'Prova Alfa'),
+  (select count(*)::int from public.event_title where titulo = 'Prova Alfa'),
+  1,
+  'and so does the title row'
+);
+
+select is(
+  (select e.puntos from public.events e
+     join public.event_title t on t.event_id = e.id
+    where t.titulo = 'Prova Alfa'),
   30,
   'points are pre-filled from the scale for that kind of event'
 );

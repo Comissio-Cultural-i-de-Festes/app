@@ -26,10 +26,19 @@ grant select on who to authenticated;
 update public.events set starts_at = now() + interval '90 days'
  where starts_at between now() - interval '8 hours' and now() + interval '30 hours';
 
-insert into public.events (id, titulo, tipo, starts_at, plazas, precio_cents, puntos, published, cal_confirmacio)
-values ((select avui from who), 'Sopar de prova', 'fiesta', now() + interval '3 hours', 10, 1500, 10, true, false);
+insert into public.events (id, tipo, starts_at, plazas, precio_cents, puntos, published, cal_confirmacio)
+values
+  ((select avui from who),'fiesta',now() + interval '3 hours',10,1500,10,true,false);
 
-insert into public.event_details (event_id, ubicacion) values ((select avui from who), 'Nau 3');
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ((select avui from who), 'Sopar de prova')
+on conflict (event_id) do update set titulo = excluded.titulo;
+
+insert into public.event_details (event_id, ubicacion) values ((select avui from who), 'Nau 3')
+on conflict (event_id) do update set
+  ubicacion = excluded.ubicacion;
 
 insert into public.attendances (user_id, event_id, estado, pagado, checked_in_at) values
   ((select alfa from who),    (select avui from who), 'asistio', true,  now()),

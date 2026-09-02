@@ -76,6 +76,7 @@ describe('the home screen queries', () => {
     // rather than blanked by a CASE. Both halves have to hold.
     const hidden = data?.find((e) => e.revelat === false)
     expect(hidden).toBeDefined()
+    expect(hidden?.titulo).toBeNull()
     expect(hidden?.descripcion).toBeNull()
     expect(hidden?.ubicacion).toBeNull()
 

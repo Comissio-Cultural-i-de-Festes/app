@@ -16,12 +16,17 @@ reset role;
 delete from public.points_log;
 
 -- An event that happened last term, and one that happened this week.
-insert into public.events (id, titulo, tipo, starts_at, puntos, published, created_by)
+insert into public.events (id, tipo, starts_at, puntos, published, created_by)
 values
-  ('00000000-0000-4000-8000-0000000000f1', 'Esdeveniment Eco', 'fiesta',
-   now() - interval '100 days', 10, true, '00000000-0000-4000-8000-0000000000a1'),
-  ('00000000-0000-4000-8000-0000000000f2', 'Esdeveniment Fox', 'fiesta',
-   now() - interval '2 days', 10, true, '00000000-0000-4000-8000-0000000000a1');
+  ('00000000-0000-4000-8000-0000000000f1','fiesta',now() - interval '100 days',10,true,'00000000-0000-4000-8000-0000000000a1'),
+  ('00000000-0000-4000-8000-0000000000f2','fiesta',now() - interval '2 days',10,true,'00000000-0000-4000-8000-0000000000a1');
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ('00000000-0000-4000-8000-0000000000f1', 'Esdeveniment Eco'),
+  ('00000000-0000-4000-8000-0000000000f2', 'Esdeveniment Fox')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 -- THE CASE THE WHOLE DESIGN TURNS ON. Delta helped set up an event a hundred
 -- days ago and the junta entered the points today, which is what actually

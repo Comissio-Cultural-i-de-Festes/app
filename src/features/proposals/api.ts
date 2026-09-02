@@ -29,7 +29,12 @@ export interface Proposal {
   readonly created_at: string
   readonly autor: { readonly nombre: string; readonly avatar_url: string | null } | null
   readonly decisor: { readonly nombre: string } | null
-  readonly esdeveniment: { readonly titulo: string; readonly starts_at: string } | null
+  /** El títol ve d'`event_title` des de la migració 44: un salt més, i null
+   *  mentre la revelació el tapi. */
+  readonly esdeveniment: {
+    readonly event_title: { readonly titulo: string } | null
+    readonly starts_at: string
+  } | null
 }
 
 export const proposalKeys = {
@@ -41,7 +46,7 @@ const COLUMNS =
   'id, titol, descripcio, estat, event_id, nota_junta, decided_at, vots, user_id, created_at, ' +
   'autor:profiles!proposals_user_id_fkey(nombre, avatar_url), ' +
   'decisor:profiles!proposals_decided_by_fkey(nombre), ' +
-  'esdeveniment:events!proposals_event_id_fkey(titulo, starts_at)'
+  'esdeveniment:events!proposals_event_id_fkey(starts_at, event_title(titulo))'
 
 export async function fetchProposals(): Promise<Proposal[]> {
   return unwrapAs<Proposal[]>(

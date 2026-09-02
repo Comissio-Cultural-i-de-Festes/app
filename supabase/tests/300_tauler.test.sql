@@ -34,10 +34,9 @@ update public.profiles set created_at = now() - interval '10 days'
  where id = (select nou from qui);
 
 -- Vuit activitats, una cada set dies.
-insert into public.events (id, titulo, tipo, starts_at, plazas, puntos, published)
+insert into public.events (id, tipo, starts_at, plazas, puntos, published)
 select
   ('00000000-0000-4000-8000-0000000091' || lpad(g::text, 2, '0'))::uuid,
-  'Activitat Inventada ' || g,
   case when g = 4 then 'casa_rural' else 'fiesta' end,
   now() - ((9 - g) * interval '7 days'),
   case when g = 4 then 2 else null end,
@@ -45,7 +44,18 @@ select
   true
 from generate_series(1, 8) g;
 
-create temporary table que as select id, titulo from public.events;
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+select
+  ('00000000-0000-4000-8000-0000000091' || lpad(g::text, 2, '0'))::uuid,
+  'Activitat Inventada ' || g
+from generate_series(1, 8) g
+on conflict (event_id) do update set titulo = excluded.titulo;
+
+create temporary table que as
+select e.id, t.titulo
+  from public.events e
+  join public.event_title t on t.event_id = e.id;
 grant select on que to authenticated;
 
 -- El fidel hi va a totes vuit.

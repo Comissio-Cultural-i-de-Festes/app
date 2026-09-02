@@ -31,8 +31,15 @@ create temporary table que as
 select '00000000-0000-4000-8000-00000000fa01'::uuid as festa;
 grant select on que to authenticated;
 
-insert into public.events (id, titulo, tipo, starts_at, puntos, published) values
-  ((select festa from que), 'Festa Inventada', 'fiesta', now() - interval '2 days', 10, true);
+insert into public.events (id, tipo, starts_at, puntos, published)
+values
+  ((select festa from que),'fiesta',now() - interval '2 days',10,true);
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ((select festa from que), 'Festa Inventada')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 -- L'alfa i el bravo hi van ser. El charlie va dir que sí i no hi va anar.
 insert into public.attendances (user_id, event_id, estado) values

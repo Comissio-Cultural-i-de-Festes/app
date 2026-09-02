@@ -31,32 +31,57 @@ select tests.create_user('tango',    '00000000-0000-4000-8000-0000000000dc', 'me
 -- e5 already happened, which is what the home screen's "l'última vegada" block
 -- reads. Without one, that whole block is invisible in development and nobody
 -- notices it is broken until the second event of the year.
-insert into public.events (id, titulo, tipo, starts_at, plazas, precio_cents, puntos, teaser, reveal_at, published, created_by)
-values ('00000000-0000-4000-8000-0000000000e5', 'Cloenda Alfa', 'fiesta',
-        now() - interval '45 days', null, 0, 15, 'Es va acabar be',
-        now() - interval '55 days', true, '00000000-0000-4000-8000-0000000000a1');
+insert into public.events (id, tipo, starts_at, plazas, precio_cents, puntos, teaser, reveal_at, published, created_by)
+values
+  ('00000000-0000-4000-8000-0000000000e5','fiesta',now() - interval '45 days',null,0,15,'Es va acabar be',now() - interval '55 days',true,'00000000-0000-4000-8000-0000000000a1');
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ('00000000-0000-4000-8000-0000000000e5', 'Cloenda Alfa')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 insert into public.event_details (event_id, descripcion, ubicacion)
-values ('00000000-0000-4000-8000-0000000000e5', 'Descripcio Cloenda', 'Sala Alfa');
+values ('00000000-0000-4000-8000-0000000000e5', 'Descripcio Cloenda', 'Sala Alfa')
+on conflict (event_id) do update set
+  descripcion = excluded.descripcion,
+  ubicacion = excluded.ubicacion;
 
 -- e6 is the one with places filling up, so the "queden N places" number has
 -- something to say.
-insert into public.events (id, titulo, tipo, starts_at, plazas, precio_cents, puntos, teaser, reveal_at, published, created_by)
-values ('00000000-0000-4000-8000-0000000000e6', 'Quiz Bravo', 'actividad',
-        now() + interval '9 days', 24, 0, 10, 'Per equips de quatre',
-        now() - interval '2 days', true, '00000000-0000-4000-8000-0000000000a2');
+insert into public.events (id, tipo, starts_at, plazas, precio_cents, puntos, teaser, reveal_at, published, created_by)
+values
+  ('00000000-0000-4000-8000-0000000000e6','actividad',now() + interval '9 days',24,0,10,'Per equips de quatre',now() - interval '2 days',true,'00000000-0000-4000-8000-0000000000a2');
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ('00000000-0000-4000-8000-0000000000e6', 'Quiz Bravo')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 insert into public.event_details (event_id, descripcion, ubicacion)
-values ('00000000-0000-4000-8000-0000000000e6', 'Descripcio Quiz', 'Bar Bravo');
+values ('00000000-0000-4000-8000-0000000000e6', 'Descripcio Quiz', 'Bar Bravo')
+on conflict (event_id) do update set
+  descripcion = excluded.descripcion,
+  ubicacion = excluded.ubicacion;
 
 -- e7 has not been revealed, so the list row shows a teaser and nothing else.
-insert into public.events (id, titulo, tipo, starts_at, plazas, precio_cents, puntos, teaser, reveal_at, published, created_by)
-values ('00000000-0000-4000-8000-0000000000e7', 'Alguna cosa el mes que ve', 'casa_rural',
-        now() + interval '22 days', 16, 5500, 30, 'Ja ho sabras',
-        now() + interval '15 days', true, '00000000-0000-4000-8000-0000000000a1');
+insert into public.events (id, tipo, starts_at, plazas, precio_cents, puntos, teaser, reveal_at, published, created_by)
+values
+  ('00000000-0000-4000-8000-0000000000e7','casa_rural',now() + interval '22 days',16,5500,30,'Ja ho sabras',now() + interval '15 days',true,'00000000-0000-4000-8000-0000000000a1');
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ('00000000-0000-4000-8000-0000000000e7', 'Alguna cosa el mes que ve')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 insert into public.event_details (event_id, descripcion, ubicacion, transport_info)
-values ('00000000-0000-4000-8000-0000000000e7', 'Descripcio secreta', 'Casa Charlie', 'Cotxe compartit');
+values ('00000000-0000-4000-8000-0000000000e7', 'Descripcio secreta', 'Casa Charlie', 'Cotxe compartit')
+on conflict (event_id) do update set
+  descripcion = excluded.descripcion,
+  ubicacion = excluded.ubicacion,
+  transport_info = excluded.transport_info;
 
 -- ── who came to the one that already happened ───────────────────────────────
 insert into public.attendances (user_id, event_id, estado, checked_in_at, checked_in_by, was_registered)

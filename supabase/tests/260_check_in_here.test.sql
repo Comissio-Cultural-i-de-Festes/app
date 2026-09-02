@@ -28,13 +28,24 @@ select
   '00000000-0000-4000-8000-0000000000c3'::uuid as demà;
 grant select on what to authenticated;
 
-insert into public.events (id, titulo, tipo, starts_at, puntos, published) values
-  ((select ara from what),        'Festa Inventada',  'fiesta', now() - interval '1 hour', 10, true),
-  ((select sense_lloc from what), 'Festa Sense Punt', 'fiesta', now() - interval '1 hour', 10, true),
-  ((select demà from what),       'Festa d''Aqui a Una Setmana', 'fiesta', now() + interval '7 days', 10, true);
+insert into public.events (id, tipo, starts_at, puntos, published)
+values
+  ((select ara from what),'fiesta',now() - interval '1 hour',10,true),
+  ((select sense_lloc from what),'fiesta',now() - interval '1 hour',10,true),
+  ((select demà from what),'fiesta',now() + interval '7 days',10,true);
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ((select ara from what), 'Festa Inventada'),
+  ((select sense_lloc from what), 'Festa Sense Punt'),
+  ((select demà from what), 'Festa d''Aqui a Una Setmana')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 insert into public.event_details (event_id, ends_at) values
-  ((select ara from what), now() + interval '3 hours');
+  ((select ara from what), now() + interval '3 hours')
+on conflict (event_id) do update set
+  ends_at = excluded.ends_at;
 
 -- 40 N, 1 E: mar obert. Un grau de latitud són 111,32 km, o sigui que els
 -- desplaçaments de sota són metres comptats i no aproximacions maques.

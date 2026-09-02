@@ -34,12 +34,22 @@ select
   '00000000-0000-4000-8000-000000009a02'::uuid as dema;
 grant select on que to authenticated;
 
-insert into public.events (id, titulo, tipo, starts_at, puntos, published) values
-  ((select ara from que),  'Festa Inventada d''Ara', 'fiesta', now() - interval '1 hour', 10, true),
-  ((select dema from que), 'Festa Inventada de Demà', 'fiesta', now() + interval '7 days', 10, true);
+insert into public.events (id, tipo, starts_at, puntos, published)
+values
+  ((select ara from que),'fiesta',now() - interval '1 hour',10,true),
+  ((select dema from que),'fiesta',now() + interval '7 days',10,true);
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ((select ara from que), 'Festa Inventada d''Ara'),
+  ((select dema from que), 'Festa Inventada de Demà')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 insert into public.event_details (event_id, ends_at) values
-  ((select ara from que), now() + interval '4 hours');
+  ((select ara from que), now() + interval '4 hours')
+on conflict (event_id) do update set
+  ends_at = excluded.ends_at;
 
 insert into public.attendances (user_id, event_id, estado) values
   ((select alfa from qui),    (select ara from que), 'asistio'),

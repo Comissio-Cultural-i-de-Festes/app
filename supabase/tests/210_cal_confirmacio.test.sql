@@ -19,11 +19,15 @@ select
 grant select on who to authenticated;
 
 -- One place, and it has to be given rather than taken.
-insert into public.events (id, titulo, tipo, starts_at, plazas, precio_cents, puntos, published, cal_confirmacio)
-values (
-  (select casa from who), 'Casa rural de prova', 'casa_rural',
-  now() + interval '30 days', 1, 3000, 30, true, true
-);
+insert into public.events (id, tipo, starts_at, plazas, precio_cents, puntos, published, cal_confirmacio)
+values
+  ((select casa from who),'casa_rural',now() + interval '30 days',1,3000,30,true,true);
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ((select casa from who), 'Casa rural de prova')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 -- ── asking ──────────────────────────────────────────────────────────────────
 select tests.authenticate_as('alfa');

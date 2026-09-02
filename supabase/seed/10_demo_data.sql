@@ -40,37 +40,68 @@ update public.profiles
 -- correct whenever the suite runs.
 
 -- e1: published, revealed, free and unlimited -> a walk-in here is just in
-insert into public.events (id, titulo, tipo, starts_at, plazas, precio_cents, puntos, teaser, reveal_at, published, created_by)
-values ('00000000-0000-4000-8000-0000000000e1', 'Esdeveniment Alfa', 'fiesta',
-        now() + interval '2 days', null, 0, 10, 'Alguna cosa', now() - interval '1 day', true,
-        '00000000-0000-4000-8000-0000000000a1');
+insert into public.events (id, tipo, starts_at, plazas, precio_cents, puntos, teaser, reveal_at, published, created_by)
+values
+  ('00000000-0000-4000-8000-0000000000e1','fiesta',now() + interval '2 days',null,0,10,'Alguna cosa',now() - interval '1 day',true,'00000000-0000-4000-8000-0000000000a1');
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ('00000000-0000-4000-8000-0000000000e1', 'Esdeveniment Alfa')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 insert into public.event_details (event_id, descripcion, ubicacion, transport_info)
-values ('00000000-0000-4000-8000-0000000000e1', 'Descripcio Alfa', 'Sala Alfa', 'Ultim tren a la 01:12');
+values ('00000000-0000-4000-8000-0000000000e1', 'Descripcio Alfa', 'Sala Alfa', 'Ultim tren a la 01:12')
+on conflict (event_id) do update set
+  descripcion = excluded.descripcion,
+  ubicacion = excluded.ubicacion,
+  transport_info = excluded.transport_info;
 
 -- e2: published, NOT yet revealed -> teaser only for a member
-insert into public.events (id, titulo, tipo, starts_at, plazas, precio_cents, puntos, teaser, reveal_at, published, created_by)
-values ('00000000-0000-4000-8000-0000000000e2', 'Esdeveniment Bravo', 'casa_rural',
-        now() + interval '30 days', 30, 4500, 30, 'Ja ho sabras', now() + interval '10 days', true,
-        '00000000-0000-4000-8000-0000000000a1');
+insert into public.events (id, tipo, starts_at, plazas, precio_cents, puntos, teaser, reveal_at, published, created_by)
+values
+  ('00000000-0000-4000-8000-0000000000e2','casa_rural',now() + interval '30 days',30,4500,30,'Ja ho sabras',now() + interval '10 days',true,'00000000-0000-4000-8000-0000000000a1');
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ('00000000-0000-4000-8000-0000000000e2', 'Esdeveniment Bravo')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 insert into public.event_details (event_id, descripcion, ubicacion, transport_info)
-values ('00000000-0000-4000-8000-0000000000e2', 'Descripcio Bravo secreta', 'Espai Bravo', 'Cotxe compartit');
+values ('00000000-0000-4000-8000-0000000000e2', 'Descripcio Bravo secreta', 'Espai Bravo', 'Cotxe compartit')
+on conflict (event_id) do update set
+  descripcion = excluded.descripcion,
+  ubicacion = excluded.ubicacion,
+  transport_info = excluded.transport_info;
 
 -- e3: unpublished -> invisible to a member entirely
-insert into public.events (id, titulo, tipo, starts_at, plazas, precio_cents, puntos, published, created_by)
-values ('00000000-0000-4000-8000-0000000000e3', 'Esdeveniment Charlie', 'actividad',
-        now() + interval '60 days', 20, 0, 10, false,
-        '00000000-0000-4000-8000-0000000000a1');
+insert into public.events (id, tipo, starts_at, plazas, precio_cents, puntos, published, created_by)
+values
+  ('00000000-0000-4000-8000-0000000000e3','actividad',now() + interval '60 days',20,0,10,false,'00000000-0000-4000-8000-0000000000a1');
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ('00000000-0000-4000-8000-0000000000e3', 'Esdeveniment Charlie')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 -- e4: published, revealed, HAS places and a price -> a walk-in here is amber
-insert into public.events (id, titulo, tipo, starts_at, plazas, precio_cents, puntos, teaser, reveal_at, published, created_by)
-values ('00000000-0000-4000-8000-0000000000e4', 'Esdeveniment Delta', 'casa_rural',
-        now() + interval '5 days', 30, 3000, 30, 'Cap de setmana', now() - interval '1 day', true,
-        '00000000-0000-4000-8000-0000000000a2');
+insert into public.events (id, tipo, starts_at, plazas, precio_cents, puntos, teaser, reveal_at, published, created_by)
+values
+  ('00000000-0000-4000-8000-0000000000e4','casa_rural',now() + interval '5 days',30,3000,30,'Cap de setmana',now() - interval '1 day',true,'00000000-0000-4000-8000-0000000000a2');
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ('00000000-0000-4000-8000-0000000000e4', 'Esdeveniment Delta')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 insert into public.event_details (event_id, descripcion, ubicacion)
-values ('00000000-0000-4000-8000-0000000000e4', 'Descripcio Delta', 'Casa Delta');
+values ('00000000-0000-4000-8000-0000000000e4', 'Descripcio Delta', 'Casa Delta')
+on conflict (event_id) do update set
+  descripcion = excluded.descripcion,
+  ubicacion = excluded.ubicacion;
 
 -- ── attendances: one of each visibility case on e1 ──────────────────────────
 insert into public.attendances (user_id, event_id, estado) values

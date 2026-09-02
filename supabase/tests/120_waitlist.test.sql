@@ -12,10 +12,15 @@ reset role;
 delete from public.attendances;
 
 -- One place, so the second person to answer is the interesting one.
-insert into public.events (id, titulo, tipo, starts_at, plazas, puntos, published, created_by)
-values ('00000000-0000-4000-8000-0000000000f9', 'Esdeveniment Golf', 'fiesta',
-        now() + interval '3 days', 1, 10, true,
-        '00000000-0000-4000-8000-0000000000a1');
+insert into public.events (id, tipo, starts_at, plazas, puntos, published, created_by)
+values
+  ('00000000-0000-4000-8000-0000000000f9','fiesta',now() + interval '3 days',1,10,true,'00000000-0000-4000-8000-0000000000a1');
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ('00000000-0000-4000-8000-0000000000f9', 'Esdeveniment Golf')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 -- ── room ────────────────────────────────────────────────────────────────────
 select ok(

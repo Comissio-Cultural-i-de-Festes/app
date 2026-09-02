@@ -234,7 +234,10 @@ export function ProfileScreen() {
                   {formatDayMonth(new Date(row.created_at), locale)}
                 </p>
                 <p className="min-w-0 flex-1 text-base [text-wrap:pretty]">
-                  {row.events?.titulo ?? t(`motive.${row.motivo}`)}
+                  {/* El motiu quan no hi ha títol, i això inclou ara els
+                      esdeveniments encara no revelats: «Venir» diu més que
+                      «? ? ?» en una llista del que ja has fet. */}
+                  {row.events?.event_title?.titulo ?? t(`motive.${row.motivo}`)}
                 </p>
                 <p className="tabular flex-none text-base font-extrabold text-success">
                   {row.puntos > 0 ? '+' : ''}

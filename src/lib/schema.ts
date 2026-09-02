@@ -27,10 +27,18 @@ type Definite<T, K extends keyof T> = Omit<T, K> & { readonly [P in K]-?: NonNul
 
 type PublicEvent = Database['public']['Views']['events_public']['Row']
 
+/**
+ * `titulo` NO hi és, i és el canvi de la migració 44.
+ *
+ * Abans hi era, perquè `events.titulo` era `not null`. Ara el títol viu a
+ * `event_title`, que la revelació filtra, i per tant un esdeveniment no
+ * revelat el torna NULL —que és tot el sentit de la funció. Deixar-lo a
+ * aquesta llista compilaria igual i mentiria: cada pantalla el pintaria com si
+ * sempre hi fos i el teaser sortiria en blanc en comptes de dir «? ? ?».
+ */
 export type EventRow = Definite<
   PublicEvent,
   | 'id'
-  | 'titulo'
   | 'tipo'
   | 'starts_at'
   | 'puntos'

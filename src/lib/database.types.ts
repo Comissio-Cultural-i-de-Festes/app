@@ -356,6 +356,36 @@ export type Database = {
           },
         ]
       }
+      event_title: {
+        Row: {
+          event_id: string
+          titulo: string
+        }
+        Insert: {
+          event_id: string
+          titulo: string
+        }
+        Update: {
+          event_id?: string
+          titulo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_title_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "event_title_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       events: {
         Row: {
           cal_confirmacio: boolean
@@ -371,7 +401,6 @@ export type Database = {
           te_cotxes: boolean
           teaser: string | null
           tipo: string
-          titulo: string
         }
         Insert: {
           cal_confirmacio?: boolean
@@ -387,7 +416,6 @@ export type Database = {
           te_cotxes?: boolean
           teaser?: string | null
           tipo: string
-          titulo: string
         }
         Update: {
           cal_confirmacio?: boolean
@@ -403,7 +431,6 @@ export type Database = {
           te_cotxes?: boolean
           teaser?: string | null
           tipo?: string
-          titulo?: string
         }
         Relationships: [
           {

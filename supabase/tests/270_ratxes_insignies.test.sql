@@ -70,19 +70,37 @@ select
   '00000000-0000-4000-8000-00000000fe0a'::uuid as nou_gent;
 grant select on que to authenticated;
 
-insert into public.events (id, titulo, tipo, starts_at, puntos, published) values
-  ((select e1 from que),       'Primera Inventada',   'fiesta',     now() - interval '60 days',  10, true),
-  ((select e2 from que),       'Segona Inventada',    'casa_rural', now() - interval '50 days',  30, true),
-  ((select e3 from que),       'Tercera Inventada',   'actividad',  now() - interval '40 days',  10, true),
-  ((select e4 from que),       'Quarta Inventada',    'fiesta',     now() - interval '30 days',  10, true),
-  ((select e5 from que),       'Cinquena Inventada',  'fiesta',     now() - interval '20 days',  10, true),
+insert into public.events (id, tipo, starts_at, puntos, published)
+values
+  ((select e1 from que),'fiesta',now() - interval '60 days',10,true),
+  ((select e2 from que),'casa_rural',now() - interval '50 days',30,true),
+  ((select e3 from que),'actividad',now() - interval '40 days',10,true),
+  ((select e4 from que),'fiesta',now() - interval '30 days',10,true),
+  ((select e5 from que),'fiesta',now() - interval '20 days',10,true),
   -- Passant ara mateix: encara s'hi pot fitxar, o sigui que encara no compta.
-  ((select ara from que),      'La d''Ara Mateix',    'fiesta',     now() - interval '1 hour',   10, true),
-  ((select dema from que),     'La de la Setmana',    'fiesta',     now() + interval '7 days',   10, true),
+  ((select ara from que),'fiesta',now() - interval '1 hour',10,true),
+  ((select dema from que),'fiesta',now() + interval '7 days',10,true),
   -- Abans que cap d'ells fos soci.
-  ((select antic from que),    'La de l''Any Passat', 'fiesta',     now() - interval '390 days', 10, true),
-  ((select deu_gent from que), 'La de Deu',           'fiesta',     now() - interval '380 days',  10, true),
-  ((select nou_gent from que), 'La de Nou',           'fiesta',     now() - interval '379 days',  10, true);
+  ((select antic from que),'fiesta',now() - interval '390 days',10,true),
+  ((select deu_gent from que),'fiesta',now() - interval '380 days',10,true),
+  ((select nou_gent from que),'fiesta',now() - interval '379 days',10,true);
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ((select e1 from que), 'Primera Inventada'),
+  ((select e2 from que), 'Segona Inventada'),
+  ((select e3 from que), 'Tercera Inventada'),
+  ((select e4 from que), 'Quarta Inventada'),
+  ((select e5 from que), 'Cinquena Inventada'),
+  -- Passant ara mateix: encara s'hi pot fitxar, o sigui que encara no compta.
+  ((select ara from que), 'La d''Ara Mateix'),
+  ((select dema from que), 'La de la Setmana'),
+  -- Abans que cap d'ells fos soci.
+  ((select antic from que), 'La de l''Any Passat'),
+  ((select deu_gent from que), 'La de Deu'),
+  ((select nou_gent from que), 'La de Nou')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 -- ── ratxa_a: tres seguides, en falla una, i en torna a fer una ─────────────
 insert into public.attendances (user_id, event_id, estado) values

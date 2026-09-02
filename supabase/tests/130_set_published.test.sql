@@ -88,7 +88,7 @@ select is(
 
 select is(
   (select detall->>'titulo' from public.audit_log where accio = 'set_published'),
-  (select titulo from public.events where id = '00000000-0000-4000-8000-0000000000e3'),
+  (select titulo from public.event_title where event_id = '00000000-0000-4000-8000-0000000000e3'),
   'and which event, by name, so the trail reads without a second query'
 );
 

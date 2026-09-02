@@ -5,7 +5,7 @@
 -- rows are simply not returned.
 
 begin;
-select plan(16);
+select plan(17);
 
 -- Own the starting state. These files run against a database an earlier suite
 -- may have written to, and an assertion that quietly stops proving anything is
@@ -62,13 +62,27 @@ select is(
 );
 
 -- The row still surfaces, which is the point: a blank space generates no FOMO
--- because nobody knows anything exists.
+-- because nobody knows anything exists. What surfaces is the teaser and the
+-- date, and NOT the title.
+--
+-- Aquesta assercio deia el contrari fins a la migracio 44: esperava
+-- 'Esdeveniment Bravo' abans de la revelacio, o sigui que codificava la fuita
+-- com a comportament correcte. El titol viu a `event_title` i el filtra la
+-- seva propia politica, com la resta.
 select row_eq(
   $$ select titulo, teaser, revelat, descripcion is null, ubicacion is null
        from public.events_public
       where id = '00000000-0000-4000-8000-0000000000e2' $$,
-  row('Esdeveniment Bravo'::text, 'Ja ho sabras'::text, false, true, true),
-  'before reveal_at the listing shows the teaser and nulls the details'
+  row(null::text, 'Ja ho sabras'::text, false, true, true),
+  'before reveal_at the listing shows the teaser and nulls the title and the details'
+);
+
+-- I no hi ha cap altra porta: ni la taula base ni la del titol.
+select is(
+  (select count(*)::int from public.event_title
+    where event_id = '00000000-0000-4000-8000-0000000000e2'),
+  0,
+  'and the title row itself is not there either, so no embed can reach it'
 );
 
 select row_eq(

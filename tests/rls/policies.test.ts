@@ -184,8 +184,93 @@ describe('scheduled content is filtered by the server clock', () => {
     expect(error).toBeNull()
     expect(data?.teaser).toBeTruthy()
     expect(data?.revelat).toBe(false)
+    // El títol també, des de la migració 44. Fins llavors arribava sempre:
+    // era una columna de `events`, que té un grant de taula sencera.
+    expect(data?.titulo).toBeNull()
     expect(data?.descripcion).toBeNull()
     expect(data?.ubicacion).toBeNull()
+  })
+
+  it('and no other door reaches the title either', async () => {
+    // Aquesta és la prova que la vista no era la frontera. Abans de la
+    // migració 44 el títol es podia demanar directament a `events`, i dos
+    // llocs del client ho feien; ara la columna no hi és i la taula que la té
+    // està filtrada.
+    const member = await as('alfa')
+
+    const direct = await member.from('event_title').select('titulo').eq('event_id', F.e2)
+    expect(direct.data).toEqual([])
+
+    // I la junta sí, perquè ha de poder llegir el que està preparant.
+    const admin = await as('junta_alfa')
+    const theirs = await admin.from('event_title').select('titulo').eq('event_id', F.e2)
+    expect(theirs.data).toHaveLength(1)
+    expect(theirs.data?.[0]?.titulo).toBeTruthy()
+  })
+
+  it('and the embed the profile really uses cannot go round it', async () => {
+    // `points_log → events → event_title`, que és la consulta del registre de
+    // punts del perfil. Un salt més que abans perquè `points_log` no té clau
+    // forana cap al títol; hi arriba per `events`, i la política del final és
+    // la que decideix.
+    const svc = serviceClient()
+
+    // Una fila de punts sobre cada esdeveniment, o la prova no mira res:
+    // sense cap fila que hi apunti, no trobar el títol és no haver preguntat.
+    // Les posa la prova i no el seed —quin esdeveniment té punts al seed
+    // canvia, i una prova que ho dóna per fet passa en una base bruta i falla
+    // en una neta. Idempotents pel `client_request_id`, que té índex únic
+    // parcial: la segona passada les refusa i tant li fa.
+    for (const [eventId, request] of [
+      [F.e2, '00000000-0000-4000-8000-0000000044e2'],
+      [F.e1, '00000000-0000-4000-8000-0000000044e1'],
+    ] as const) {
+      await svc.from('points_log').insert({
+        user_id: F.alfa,
+        event_id: eventId,
+        motivo: 'manual',
+        puntos: 1,
+        client_request_id: request,
+      })
+    }
+
+    const { data: secret } = await svc
+      .from('event_title')
+      .select('titulo')
+      .eq('event_id', F.e2)
+      .single()
+    const hidden = secret?.titulo ?? ''
+    expect(hidden).not.toBe('')
+
+    const member = await as('alfa')
+    const points = await member
+      .from('points_log')
+      .select('id, motivo, event_id, events(event_title(titulo))')
+      .eq('user_id', F.alfa)
+
+    expect(points.error).toBeNull()
+    const onHidden = points.data?.filter((r) => r.event_id === F.e2)
+    expect(onHidden?.length).toBeGreaterThan(0)
+    expect(JSON.stringify(points.data)).not.toContain(hidden)
+
+    // I el camí funciona: el títol d'un esdeveniment revelat sí que hi arriba.
+    // Sense aquesta meitat, l'anterior passaria igual el dia que l'embed es
+    // trenqui del tot i no torni mai res.
+    const { data: shown } = await svc
+      .from('event_title')
+      .select('titulo')
+      .eq('event_id', F.e1)
+      .single()
+    const visible = shown?.titulo ?? ''
+    expect(visible).not.toBe('')
+
+    const onRevealed = await member
+      .from('points_log')
+      .select('id, event_id, events(event_title(titulo))')
+      .eq('user_id', F.alfa)
+      .eq('event_id', F.e1)
+    expect(onRevealed.data?.length).toBeGreaterThan(0)
+    expect(JSON.stringify(onRevealed.data)).toContain(visible)
   })
 
   it('and the detail row is genuinely absent, not just hidden by the view', async () => {

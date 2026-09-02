@@ -21,9 +21,17 @@ select
 grant select on who to authenticated;
 
 -- One event with cars and one without, both revealed.
-insert into public.events (id, titulo, tipo, starts_at, puntos, published, te_cotxes) values
-  ((select casa from who),  'Casa rural de prova', 'casa_rural', now() + interval '20 days', 30, true, true),
-  ((select festa from who), 'Festa al campus',     'fiesta',     now() + interval '21 days', 10, true, false);
+insert into public.events (id, tipo, starts_at, puntos, published, te_cotxes)
+values
+  ((select casa from who),'casa_rural',now() + interval '20 days',30,true,true),
+  ((select festa from who),'fiesta',now() + interval '21 days',10,true,false);
+
+-- El títol viu a `event_title` des de la migració 44.
+insert into public.event_title (event_id, titulo)
+values
+  ((select casa from who), 'Casa rural de prova'),
+  ((select festa from who), 'Festa al campus')
+on conflict (event_id) do update set titulo = excluded.titulo;
 
 insert into public.profile_contact (id, telefon) values
   ((select bravo from who),   '600 00 00 01'),

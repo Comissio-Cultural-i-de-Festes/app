@@ -45,6 +45,7 @@ import { RidesBlock } from '@/features/rides/RidesBlock'
 
 import { eventKeys, fetchEvent, fetchWaitlist, formatPrice } from './api'
 import { Cover, Fact, Places } from './detail'
+import { eventTitle } from './title'
 
 const GUTTER = 'px-[var(--ds-gutter)]'
 
@@ -199,7 +200,7 @@ export function EventScreen() {
           {isPast ? null : <Share event={e} />}
         </div>
         <h1 className="display mt-4 text-d-md leading-[0.88] tracking-[-0.05em] [overflow-wrap:break-word] [text-wrap:balance]">
-          {e.titulo}
+          {eventTitle(e.titulo)}
         </h1>
         {e.teaser === null ? null : (
           <p className="mt-6 text-lg text-fg-secondary [text-wrap:pretty]">{e.teaser}</p>
@@ -343,7 +344,7 @@ export function EventScreen() {
               kind: 'recap',
               photo: await loadCardImage(cover),
               eyebrow: `${formatDayMonth(starts, locale)} · ${t('share.recap')}`,
-              headline: e.titulo,
+              headline: eventTitle(e.titulo),
               stats: [
                 { value: String(going.length), label: t('share.wereThere') },
                 ...(e.puntos > 0
@@ -352,7 +353,7 @@ export function EventScreen() {
               ],
               footnote: null,
             })}
-            name={[e.titulo, 'recap']}
+            name={[eventTitle(e.titulo), 'recap']}
           />
         </section>
       ) : null}
@@ -425,11 +426,14 @@ function CheckinShare({
             ? `${formatWeekdayLong(starts, locale)} ${formatDayMonth(starts, locale)}`
             : `${formatWeekdayLong(starts, locale)} ${formatDayMonth(starts, locale)} · ${formatTime(at, locale)}`,
         headline: t('share.checkin'),
-        what: event.ubicacion === null ? event.titulo : `${event.titulo} · ${event.ubicacion}`,
+        what:
+          event.ubicacion === null
+            ? eventTitle(event.titulo)
+            : `${eventTitle(event.titulo)} · ${event.ubicacion}`,
         count:
           event.plazas === null ? null : t('share.weAre', { dins: going, total: event.plazas }),
       })}
-      name={[event.titulo, 'dins']}
+      name={[eventTitle(event.titulo), 'dins']}
     />
   )
 }
@@ -454,7 +458,7 @@ function Share({ event }: { readonly event: EventRow }) {
   const link = `${window.location.origin}/esdeveniment/${event.id}`
 
   async function send(): Promise<void> {
-    const text = t('event.shareText', { title: event.titulo, link })
+    const text = t('event.shareText', { title: eventTitle(event.titulo), link })
     try {
       if (typeof navigator.share === 'function') {
         await navigator.share({ text })

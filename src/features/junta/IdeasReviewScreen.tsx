@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { type Proposal, decide, fetchProposals, proposalKeys } from '@/features/proposals/api'
+import { eventTitle } from '@/features/event/title'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
@@ -188,7 +189,10 @@ function Panel({
   readonly accepta: boolean
   readonly nota: string
   readonly event: string
-  readonly events: readonly { readonly id: string; readonly titulo: string }[]
+  // El títol pot ser null des de la migració 44 —la junta el veu sempre, però
+  // el tipus ve de la vista i no de la política— i aquí és un `<option>` d'un
+  // selector: una etiqueta buida deixaria una línia clicable sense text.
+  readonly events: readonly { readonly id: string; readonly titulo: string | null }[]
   readonly busy: boolean
   readonly onNota: (v: string) => void
   readonly onEvent: (v: string) => void
@@ -221,7 +225,7 @@ function Panel({
               <option value="">—</option>
               {events.map((e) => (
                 <option key={e.id} value={e.id}>
-                  {e.titulo}
+                  {eventTitle(e.titulo)}
                 </option>
               ))}
             </select>

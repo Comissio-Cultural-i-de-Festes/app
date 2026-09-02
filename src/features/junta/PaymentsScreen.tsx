@@ -1,14 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams } from 'react-router'
 
 import { formatMoney, formatPrice } from '@/features/event/api'
 import { horizonIso } from '@/features/home/api'
-import { useMyProfile } from '@/features/session/useMyProfile'
 import { formatDayMonth } from '@/i18n/format'
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
-import type { MemberRole } from '@/lib/model'
 import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -18,11 +16,8 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { JuntaHeader } from './JuntaHeader'
 import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
 import {
-  type AdminRow,
   type AttendeeRow,
-  fetchAdmins,
   fetchAttendees,
-  fetchMembers,
   type Decision,
   decideRequest,
   fetchQueue,
@@ -30,7 +25,6 @@ import {
   letInFromQueue,
   paymentKeys,
   setPaid,
-  setRole,
 } from './paymentsApi'
 
 /**
@@ -113,7 +107,7 @@ export function PaymentsScreen() {
           {event === null ? null : <Requests eventId={event.id} />}
           {event === null ? null : <Queue eventId={event.id} />}
         </div>
-        <Admins />
+        <WhoRuns />
       </div>
     </main>
   )
@@ -479,201 +473,6 @@ function PaidList({
 }
 
 /**
- * Naming the next committee.
- *
- * An admin can name another admin. The brief asks for the handover to be one
- * tap in June rather than a message to whoever set the thing up, and the trail
- * in audit_log is what covers the risk. `owner` is different — it is
- * infrastructure, only an owner can grant or remove it, and the database says
- * so whatever this screen draws.
- */
-function Admins() {
-  const { t } = useTranslation()
-  const client = useQueryClient()
-  const { data: me } = useMyProfile()
-  const [picking, setPicking] = useState(false)
-
-  const admins = useQuery({ queryKey: paymentKeys.admins(), queryFn: fetchAdmins })
-  const members = useQuery({
-    queryKey: paymentKeys.members(),
-    queryFn: fetchMembers,
-    enabled: picking,
-  })
-
-  const name = useMutation({
-    mutationFn: ({ id, role }: { id: string; role: MemberRole }) => setRole(id, role),
-    onSuccess: async () => {
-      setPicking(false)
-      await client.invalidateQueries({ queryKey: paymentKeys.admins() })
-      await client.invalidateQueries({ queryKey: paymentKeys.members() })
-    },
-  })
-
-  return (
-    <section className="mt-14 border-t border-surface-5 pt-9 lg:mt-0 lg:border-t-0">
-      <div className={GUTTER}>
-        <h2 className="display text-d-sm leading-none tracking-[-0.045em]">
-          {t('junta.payments.whoRuns')}
-        </h2>
-        <p className="mt-5 text-md font-medium text-fg-secondary [text-wrap:pretty]">
-          {t('junta.payments.handover')}
-        </p>
-      </div>
-
-      {admins.isPending ? (
-        <AdminsSkeleton />
-      ) : admins.isError ? (
-        <p role="alert" className={`pt-8 text-md font-bold text-error ${GUTTER}`}>
-          {t(errorKey(admins.error))}
-        </p>
-      ) : null}
-
-      <ul className="mt-7">
-        {admins.data?.map((a) => (
-          <li
-            key={a.id}
-            className="flex min-h-[56px] items-center gap-4 border-b border-surface-4 px-[var(--ds-gutter)] py-6"
-          >
-            <Avatar src={a.avatar_url} size={38} ring={a.id === me?.id} />
-            <span className="min-w-0 flex-1">
-              <span className="block truncate text-base font-bold">{a.nombre}</span>
-              <span className="mt-[2px] block text-sm-lo font-medium text-fg-muted">
-                {a.id === me?.id ? `${t('junta.payments.you')} · ` : ''}
-                {a.escola === null ? t('junta.invites.noSchool') : t(`escola.${a.escola}`)}
-              </span>
-            </span>
-            <RoleTag role={a.role} />
-          </li>
-        ))}
-      </ul>
-
-      <div className={`pt-8 ${GUTTER}`}>
-        {picking ? (
-          <MemberPicker
-            rows={members.data ?? []}
-            loading={members.isPending}
-            busy={name.isPending}
-            onPick={(id) => {
-              name.mutate({ id, role: 'admin' })
-            }}
-            onCancel={() => {
-              setPicking(false)
-            }}
-          />
-        ) : (
-          <button
-            type="button"
-            onClick={() => {
-              setPicking(true)
-            }}
-            className="flex min-h-[54px] w-full items-center justify-center border-[1.5px] border-dashed border-[var(--ds-border-input)] px-7 py-6 text-lg font-bold text-fg [text-wrap:balance]"
-          >
-            {t('junta.payments.nameAdmin')}
-          </button>
-        )}
-        <p className="mt-5 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-          {t('junta.payments.adminCan')}
-        </p>
-        {name.isError ? (
-          <p role="alert" className="mt-4 text-md font-bold text-error">
-            {t(errorKey(name.error))}
-          </p>
-        ) : null}
-      </div>
-    </section>
-  )
-}
-
-function RoleTag({ role }: { readonly role: MemberRole }) {
-  const { t } = useTranslation()
-  const brand = role === 'owner'
-  return (
-    <span
-      className={
-        'flex-none px-[7px] py-[4px] text-2xs font-extrabold tracking-[0.1em] uppercase ' +
-        (brand ? 'bg-brand-cta text-on-brand' : 'bg-surface-6 text-fg-secondary')
-      }
-    >
-      {t(`junta.payments.role.${role}`)}
-    </span>
-  )
-}
-
-function MemberPicker({
-  rows,
-  loading,
-  busy,
-  onPick,
-  onCancel,
-}: {
-  readonly rows: readonly AdminRow[]
-  readonly loading: boolean
-  readonly busy: boolean
-  readonly onPick: (id: string) => void
-  readonly onCancel: () => void
-}) {
-  const { t } = useTranslation()
-  const [query, setQuery] = useState('')
-
-  const needle = query.trim().toLowerCase()
-  const shown = needle === '' ? rows : rows.filter((r) => r.nombre.toLowerCase().includes(needle))
-
-  return (
-    <div className="border-[1.5px] border-surface-7 bg-surface-1">
-      <div className="flex items-center gap-4 border-b border-surface-5 p-6">
-        <input
-          value={query}
-          onChange={(e) => {
-            setQuery(e.target.value)
-          }}
-          type="search"
-          enterKeyHint="search"
-          aria-label={t('junta.payments.searchMember')}
-          placeholder={t('junta.payments.searchMember')}
-          className="min-h-[44px] min-w-0 flex-1 bg-transparent text-lg font-semibold text-fg outline-none placeholder:font-medium placeholder:text-fg-faint"
-        />
-        <button
-          type="button"
-          onClick={onCancel}
-          className="min-h-[44px] flex-none px-2 text-md font-bold text-fg-muted"
-        >
-          {t('actions.cancel')}
-        </button>
-      </div>
-
-      {loading ? (
-        <PickerSkeleton />
-      ) : shown.length === 0 ? (
-        <p className="p-7 text-md text-fg-muted [text-wrap:pretty]">
-          {t('junta.payments.noMembers')}
-        </p>
-      ) : (
-        <ul className="max-h-[320px] overflow-y-auto">
-          {shown.map((r) => (
-            <li key={r.id}>
-              <button
-                type="button"
-                disabled={busy}
-                onClick={() => {
-                  onPick(r.id)
-                }}
-                className="flex min-h-[52px] w-full items-center gap-4 border-b border-surface-4 px-6 py-5 text-left"
-              >
-                <Avatar src={r.avatar_url} size={32} />
-                <span className="min-w-0 flex-1 truncate text-base font-semibold">{r.nombre}</span>
-                <span className="flex-none text-md font-bold text-brand-label">
-                  {t('junta.payments.makeAdmin')}
-                </span>
-              </button>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  )
-}
-
-/**
  * Els qui han pagat, i —amb `head`— també la capçalera que hi va a sobre.
  *
  * Són dos estats de càrrega diferents amb la mateixa silueta a sota: el de
@@ -722,40 +521,42 @@ function PaidSkeleton({ head = false }: { readonly head?: boolean }) {
 }
 
 /** Qui la porta: cara amb anella, nom, escola, i el xip del càrrec. */
-function AdminsSkeleton() {
-  return (
-    <Skeleton className="mt-7">
-      {[0, 1, 2].map((i) => (
-        <div
-          key={i}
-          className="flex min-h-[56px] items-center gap-4 border-b border-surface-4 px-[var(--ds-gutter)] py-6"
-        >
-          <SkeletonBar w="w-[38px]" h="h-[38px]" className="flex-none rounded-round" />
-          <div className="min-w-0 flex-1">
-            <SkeletonBar w="w-[52%]" h="h-[15px]" />
-            <SkeletonBar w="w-[68%]" h="h-[10px]" className="mt-[2px]" />
-          </div>
-          <SkeletonBar w="w-[62px]" h="h-[16px]" className="flex-none" />
-        </div>
-      ))}
-    </Skeleton>
-  )
-}
 
-/** El desplegable de buscar soci, que ja té alçada màxima pròpia. */
-function PickerSkeleton() {
+/**
+ * Qui la porta, en una línia.
+ *
+ * Aquí hi havia el bloc sencer: la llista d'admins, el cercador de socis i
+ * l'únic botó de tota l'app que sabia nomenar algú. Els rols i els diners no
+ * tenen res a veure —hi eren junts perquè les dues coses les fa la junta i
+ * cabien a la mateixa pantalla— i el resultat era que per nomenar un admin
+ * calia passar per la llista de qui ha pagat.
+ *
+ * Es queda l'enllaç, i no res, perquè és on la gent ho ha après a buscar.
+ */
+function WhoRuns() {
+  const { t } = useTranslation()
+
   return (
-    <Skeleton>
-      {[0, 1, 2, 3].map((i) => (
-        <div
-          key={i}
-          className="flex min-h-[52px] items-center gap-4 border-b border-surface-4 px-6 py-5"
+    <section className="mt-14 border-t border-surface-5 pt-9 lg:mt-0 lg:border-t-0">
+      <div className={GUTTER}>
+        <h2 className="display text-d-sm leading-none tracking-[-0.045em]">
+          {t('junta.payments.whoRuns')}
+        </h2>
+        <Link
+          to="/junta/rols"
+          className="mt-7 flex items-center gap-3 border-b border-surface-4 py-[15px] no-underline"
         >
-          <SkeletonBar w="w-[32px]" h="h-[32px]" className="flex-none rounded-round" />
-          <SkeletonBar w="w-[50%]" h="h-[15px]" className="flex-1" />
-          <SkeletonBar w="w-[76px]" h="h-[13px]" className="flex-none" />
-        </div>
-      ))}
-    </Skeleton>
+          <span className="min-w-0 flex-1">
+            <span className="block text-base font-bold text-fg">{t('junta.roles.title')}</span>
+            <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+              {t('junta.roles.rowSub')}
+            </span>
+          </span>
+          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
+            ›
+          </span>
+        </Link>
+      </div>
+    </section>
   )
 }

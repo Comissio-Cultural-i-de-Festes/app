@@ -660,18 +660,6 @@
       "nobody": "Encara no s'hi ha apuntat ningú. Quan diguin que sí sortiran aquí.",
       "chaseThem": "Els que no han pagat el divendres al matí, avisa'ls tu al privat. Al grup no funciona.",
       "whoRuns": "Qui manega això",
-      "handover": "Quan plegueu al juny, nomeneu els que venen abans de marxar. Si no, el curs que ve ningú pot crear res.",
-      "you": "Tu",
-      "nameAdmin": "Nomenar un altre admin",
-      "adminCan": "Un admin pot crear esdeveniments, fitxar gent i donar punts. Poseu-ne tres o quatre, no un.",
-      "searchMember": "Busca pel nom",
-      "noMembers": "Cap nom que hi encaixi.",
-      "makeAdmin": "Fes-lo admin",
-      "role": {
-        "member": "soci",
-        "admin": "admin",
-        "owner": "owner"
-      },
       "queue_one": "Llista d'espera · {{count}}",
       "queue_other": "Llista d'espera · {{count}}",
       "queueSub": "En l'ordre en què s'hi han posat. Si s'allibera una plaça, decidiu vosaltres qui hi entra.",
@@ -805,6 +793,61 @@
     "role": {
       "admin": "Junta",
       "owner": "Owner"
+    },
+    "roles": {
+      "title": "Qui la porta",
+      "rowSub": "Puja, baixa i traspassa la propietat",
+      "what": "Un admin crea esdeveniments, escaneja a la porta, aprova socis i pot nomenar altres admins. L'owner, a més, pot treure admins i traspassar la propietat.",
+      "audited": "Tot el que facis aquí queda al registre amb el teu nom.",
+      "you": "Tu",
+      "change": "Canvia",
+      "leaveIt": "Deixa-ho",
+      "whatIs": "Què és, {{name}}",
+      "currently": "Ara mateix.",
+      "nameAdmin": "Nomena un admin",
+      "makeAdmin": "Fes-lo admin",
+      "searchMember": "Busca un soci",
+      "noMembers": "Cap soci per nomenar.",
+      "demoteTitle": "{{name}} passa a ser soci",
+      "demoteBody": "Perd el panell de junta, l'escàner i els pagaments. No és una baixa: continua a l'associació, amb els seus punts i el seu QR. Es pot desfer d'aquí amb un altre toc.",
+      "demote": "Treu-li l'admin",
+      "now": "{{name}} · {{role}}",
+      "recent": "Els últims canvis",
+      "recentEmpty": "Cap canvi de rol, de moment.",
+      "wholeLog": "Tot el registre",
+      "someone": "Algú",
+      "someoneElse": "algú que ja no hi és",
+      "role": {
+        "member": "Soci",
+        "admin": "Admin",
+        "owner": "Owner"
+      },
+      "means": {
+        "member": "Perd el panell de junta. Els punts, les assistències i les fotos es queden.",
+        "admin": "Crea esdeveniments, escaneja, aprova socis i nomena admins.",
+        "owner": "Només n'hi pot haver un. Es dóna des de «Traspassa la propietat»."
+      },
+      "log": {
+        "named": "{{actor}} ha fet {{target}} admin",
+        "demoted": "{{actor}} li ha tret l'admin a {{target}}",
+        "promotedOwner": "{{actor}} ha fet {{target}} owner",
+        "transfer": "{{actor}} ha traspassat la propietat a {{target}}"
+      },
+      "transfer": {
+        "title": "Traspassa la propietat",
+        "why": "Al juny, quan la junta canvia. Hi ha d'haver sempre exactament un owner, així que quan la donis deixaràs de tenir-la.",
+        "start": "Traspassa-la a algú altre",
+        "step1": "Pas 1 de 2 · a qui",
+        "step2": "Pas 2 de 2 · confirma",
+        "choose": "Tria",
+        "chosen": "Triat",
+        "adminsOnly": "Només admins. Passar la propietat a algú que no porta res seria donar-la a qui no sap que la té.",
+        "noAdmins": "Encara no hi ha cap admin. Nomena'n un primer, aquí sobre.",
+        "willBe": "{{name}} serà l'owner",
+        "consequence": "Tu passaràs a admin. Des d'aquest moment només qui la rebi pot tornar-te-la, i si perd el compte del Google caldrà entrar a la base de dades.",
+        "agreed": "Ho he parlat amb {{name}} i ho sap",
+        "confirm": "Fes {{name}} owner"
+      }
     },
     "audit": {
       "title": "El registre",

@@ -660,18 +660,6 @@
       "nobody": "Todavía no se ha apuntado nadie. Cuando digan que sí saldrán aquí.",
       "chaseThem": "A los que no han pagado el viernes por la mañana, avísalos tú por privado. En el grupo no funciona.",
       "whoRuns": "Quién lleva esto",
-      "handover": "Cuando lo dejéis en junio, nombrad a los que vienen antes de iros. Si no, el curso que viene nadie puede crear nada.",
-      "you": "Tú",
-      "nameAdmin": "Nombrar a otro admin",
-      "adminCan": "Un admin puede crear eventos, fichar gente y dar puntos. Poned tres o cuatro, no uno.",
-      "searchMember": "Busca por el nombre",
-      "noMembers": "Ningún nombre que encaje.",
-      "makeAdmin": "Hazlo admin",
-      "role": {
-        "member": "socio",
-        "admin": "admin",
-        "owner": "owner"
-      },
       "queue_one": "Lista de espera · {{count}}",
       "queue_other": "Lista de espera · {{count}}",
       "queueSub": "En el orden en que se han puesto. Si se libera una plaza, decidís vosotros quién entra.",
@@ -805,6 +793,61 @@
     "role": {
       "admin": "Junta",
       "owner": "Owner"
+    },
+    "roles": {
+      "title": "Quién la lleva",
+      "rowSub": "Sube, baja y traspasa la propiedad",
+      "what": "Un admin crea eventos, escanea en la puerta, aprueba socios y puede nombrar otros admins. El owner, además, puede quitar admins y traspasar la propiedad.",
+      "audited": "Todo lo que hagas aquí queda en el registro con tu nombre.",
+      "you": "Tú",
+      "change": "Cambia",
+      "leaveIt": "Déjalo",
+      "whatIs": "Qué es {{name}}",
+      "currently": "Ahora mismo.",
+      "nameAdmin": "Nombra un admin",
+      "makeAdmin": "Hazlo admin",
+      "searchMember": "Busca un socio",
+      "noMembers": "Ningún socio para nombrar.",
+      "demoteTitle": "{{name}} pasa a ser socio",
+      "demoteBody": "Pierde el panel de junta, el escáner y los pagos. No es una baja: sigue en la asociación, con sus puntos y su QR. Se puede deshacer desde aquí con otro toque.",
+      "demote": "Quítale el admin",
+      "now": "{{name}} · {{role}}",
+      "recent": "Los últimos cambios",
+      "recentEmpty": "Ningún cambio de rol, por ahora.",
+      "wholeLog": "Todo el registro",
+      "someone": "Alguien",
+      "someoneElse": "alguien que ya no está",
+      "role": {
+        "member": "Socio",
+        "admin": "Admin",
+        "owner": "Owner"
+      },
+      "means": {
+        "member": "Pierde el panel de junta. Los puntos, las asistencias y las fotos se quedan.",
+        "admin": "Crea eventos, escanea, aprueba socios y nombra admins.",
+        "owner": "Solo puede haber uno. Se da desde «Traspasa la propiedad»."
+      },
+      "log": {
+        "named": "{{actor}} ha hecho admin a {{target}}",
+        "demoted": "{{actor}} le ha quitado el admin a {{target}}",
+        "promotedOwner": "{{actor}} ha hecho owner a {{target}}",
+        "transfer": "{{actor}} ha traspasado la propiedad a {{target}}"
+      },
+      "transfer": {
+        "title": "Traspasa la propiedad",
+        "why": "En junio, cuando la junta cambia. Tiene que haber siempre exactamente un owner, así que cuando la des dejarás de tenerla.",
+        "start": "Traspásala a otra persona",
+        "step1": "Paso 1 de 2 · a quién",
+        "step2": "Paso 2 de 2 · confirma",
+        "choose": "Elige",
+        "chosen": "Elegido",
+        "adminsOnly": "Solo admins. Pasar la propiedad a alguien que no lleva nada sería dársela a quien no sabe que la tiene.",
+        "noAdmins": "Todavía no hay ningún admin. Nombra uno primero, aquí arriba.",
+        "willBe": "{{name}} será el owner",
+        "consequence": "Tú pasarás a admin. Desde ese momento solo quien la reciba puede devolvértela, y si pierde la cuenta de Google habrá que entrar en la base de datos.",
+        "agreed": "Lo he hablado con {{name}} y lo sabe",
+        "confirm": "Haz owner a {{name}}"
+      }
     },
     "audit": {
       "title": "El registro",

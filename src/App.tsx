@@ -26,6 +26,7 @@ import { PhotoReportsScreen } from '@/features/junta/PhotoReportsScreen'
 import { IdeasReviewScreen } from '@/features/junta/IdeasReviewScreen'
 import { MembersScreen } from '@/features/junta/MembersScreen'
 import { PeriodsScreen } from '@/features/junta/PeriodsScreen'
+import { RolesScreen } from '@/features/junta/RolesScreen'
 import { ScaleScreen } from '@/features/junta/ScaleScreen'
 import { ManualScreen } from '@/features/door/ManualScreen'
 import { PointsScreen } from '@/features/door/PointsScreen'
@@ -206,6 +207,7 @@ export default function App() {
             <Route path="esdeveniment/:id/fitxatges" element={<CheckinsScreen />} />
             <Route path="idees" element={<IdeasReviewScreen />} />
             <Route path="socis" element={<MembersScreen />} />
+            <Route path="rols" element={<RolesScreen />} />
             <Route path="registre" element={<AuditScreen />} />
             <Route path="periodes" element={<PeriodsScreen />} />
             <Route path="barem" element={<ScaleScreen />} />

@@ -660,18 +660,6 @@
       "nobody": "Nobody has signed up yet. They appear here once they say yes.",
       "chaseThem": "Anyone still unpaid on Friday morning, message them yourself. The group chat does not work.",
       "whoRuns": "Who runs this",
-      "handover": "When you hand over in June, name the next lot before you go. Otherwise nobody can create anything next year.",
-      "you": "You",
-      "nameAdmin": "Name another admin",
-      "adminCan": "An admin can create events, check people in and award points. Have three or four, not one.",
-      "searchMember": "Search by name",
-      "noMembers": "No name matches that.",
-      "makeAdmin": "Make them an admin",
-      "role": {
-        "member": "member",
-        "admin": "admin",
-        "owner": "owner"
-      },
       "queue_one": "Waiting list · {{count}}",
       "queue_other": "Waiting list · {{count}}",
       "queueSub": "In the order they joined. If a place frees up, you decide who takes it.",
@@ -805,6 +793,61 @@
     "role": {
       "admin": "Committee",
       "owner": "Owner"
+    },
+    "roles": {
+      "title": "Who runs this",
+      "rowSub": "Promote, demote and hand over ownership",
+      "what": "An admin creates events, scans at the door, approves members and can name other admins. The owner can also remove admins and hand over ownership.",
+      "audited": "Everything you do here goes into the log with your name on it.",
+      "you": "You",
+      "change": "Change",
+      "leaveIt": "Leave it",
+      "whatIs": "What {{name}} is",
+      "currently": "Right now.",
+      "nameAdmin": "Name an admin",
+      "makeAdmin": "Make them admin",
+      "searchMember": "Find a member",
+      "noMembers": "No member to name.",
+      "demoteTitle": "{{name}} becomes an ordinary member",
+      "demoteBody": "They lose the committee panel, the scanner and the payments. It is not a removal: they stay in the association, with their points and their QR. It can be undone from here with another tap.",
+      "demote": "Take the admin away",
+      "now": "{{name}} · {{role}}",
+      "recent": "The last changes",
+      "recentEmpty": "No role changes yet.",
+      "wholeLog": "The whole log",
+      "someone": "Somebody",
+      "someoneElse": "somebody no longer here",
+      "role": {
+        "member": "Member",
+        "admin": "Admin",
+        "owner": "Owner"
+      },
+      "means": {
+        "member": "They lose the committee panel. The points, the attendances and the photos stay.",
+        "admin": "Creates events, scans, approves members and names admins.",
+        "owner": "There can only be one. It is given from \u00abHand over ownership\u00bb."
+      },
+      "log": {
+        "named": "{{actor}} made {{target}} an admin",
+        "demoted": "{{actor}} took the admin away from {{target}}",
+        "promotedOwner": "{{actor}} made {{target}} the owner",
+        "transfer": "{{actor}} handed ownership to {{target}}"
+      },
+      "transfer": {
+        "title": "Hand over ownership",
+        "why": "In June, when the committee changes. There must always be exactly one owner, so when you give it away you stop having it.",
+        "start": "Hand it to somebody else",
+        "step1": "Step 1 of 2 · to whom",
+        "step2": "Step 2 of 2 · confirm",
+        "choose": "Choose",
+        "chosen": "Chosen",
+        "adminsOnly": "Admins only. Handing ownership to somebody who runs nothing is handing it to somebody who does not know they have it.",
+        "noAdmins": "There is no admin yet. Name one first, just above.",
+        "willBe": "{{name}} will be the owner",
+        "consequence": "You will become an admin. From then on only whoever receives it can give it back, and if they lose their Google account somebody will have to go into the database.",
+        "agreed": "I have talked to {{name}} and they know",
+        "confirm": "Make {{name}} the owner"
+      }
     },
     "audit": {
       "title": "The log",

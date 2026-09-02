@@ -189,6 +189,11 @@ export function JuntaHome() {
               : t('junta.members.rowSub', { count: home.data.socis })
           }
         />
+        <Row
+          to="/junta/rols"
+          title={t('junta.roles.title')}
+          sub={t('junta.roles.rowSub')}
+        />
         <Row to="/junta/idees" title={t('ideas.juntaTitle')} sub={t('junta.home.proposalsSub')} />
         <Row
           to="/junta/tauler"

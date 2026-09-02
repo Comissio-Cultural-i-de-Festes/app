@@ -148,3 +148,37 @@ insert into public.points_log (user_id, event_id, motivo, puntos, granted_by, cr
   ('00000000-0000-4000-8000-0000000000da', '00000000-0000-4000-8000-0000000000e6', 'montaje', 45, '00000000-0000-4000-8000-0000000000a1', now() - interval '3 days'),
   ('00000000-0000-4000-8000-0000000000db', '00000000-0000-4000-8000-0000000000e6', 'trajo_gente', 15, '00000000-0000-4000-8000-0000000000a1', now() - interval '4 days'),
   ('00000000-0000-4000-8000-0000000000dc', '00000000-0000-4000-8000-0000000000e5', 'montaje', 5, '00000000-0000-4000-8000-0000000000a1', now() - interval '44 days');
+
+-- ── dues reunions, per veure'n els dos àmbits ────────────────────────────────
+-- La de la comi surt a l'Inici de tothom amb la fila grisa i el xip; la de la
+-- junta no surt enlloc més que al panell, i és la que fa que es pugui comprovar
+-- —mirant-ho, no deduint-ho— que un soci no hi arriba ni sabent-ne l'enllaç.
+--
+-- SENSE `reveal_at`: una reunió no es teasereja. Es convoca, i qui l'ha de
+-- veure la veu de seguida.
+--
+-- La de junta va amb `puntos = 0` perquè és el que la RPC hi posaria: una
+-- reunió de junta no reparteix punts ni toca cap ratxa, que seria injust per a
+-- qui no és de la junta i no hi pot anar.
+insert into public.events (id, tipo, abast, starts_at, plazas, precio_cents, puntos, published, created_by)
+values
+  ('00000000-0000-4000-8000-0000000000e8','reunio','comi',
+   now() + interval '4 days', null, 0, 5, true, '00000000-0000-4000-8000-0000000000a1'),
+  ('00000000-0000-4000-8000-0000000000e9','reunio','junta',
+   now() + interval '2 days', null, 0, 0, true, '00000000-0000-4000-8000-0000000000a1');
+
+insert into public.event_title (event_id, titulo) values
+  ('00000000-0000-4000-8000-0000000000e8', 'Assemblea de la comi'),
+  ('00000000-0000-4000-8000-0000000000e9', 'Junta de dimarts');
+
+insert into public.event_details (event_id, descripcion, ubicacion) values
+  ('00000000-0000-4000-8000-0000000000e8', 'Ordre del dia: el trimestre que ve', 'Aula 1.3'),
+  ('00000000-0000-4000-8000-0000000000e9', 'Comptes i calendari', 'Aula 0.1');
+
+-- Uns quants sí a la de la comi, perquè el recompte no surti a zero.
+insert into public.attendances (user_id, event_id, estado, created_at) values
+  ('00000000-0000-4000-8000-0000000000d1', '00000000-0000-4000-8000-0000000000e8', 'si', now() - interval '2 days'),
+  ('00000000-0000-4000-8000-0000000000d3', '00000000-0000-4000-8000-0000000000e8', 'si', now() - interval '1 day'),
+  ('00000000-0000-4000-8000-0000000000d6', '00000000-0000-4000-8000-0000000000e8', 'no', now() - interval '1 day'),
+  ('00000000-0000-4000-8000-0000000000a1', '00000000-0000-4000-8000-0000000000e9', 'si', now() - interval '1 day'),
+  ('00000000-0000-4000-8000-0000000000a2', '00000000-0000-4000-8000-0000000000e9', 'si', now() - interval '6 hours');

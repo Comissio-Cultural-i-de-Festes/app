@@ -3,6 +3,7 @@ import QRCode from 'qrcode'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { InviteCodeSheet } from '@/features/session/InviteCodeSheet'
 import { useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
 import type { Escola } from '@/lib/model'
@@ -48,6 +49,7 @@ export function QrScreen() {
   const { data: profile } = useMyProfile()
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [drawError, setDrawError] = useState(false)
+  const [asking, setAsking] = useState(false)
 
   // A profile that is not active has no door token and cannot get one — the
   // door would turn them away anyway. Known BEFORE the request, so the screen
@@ -123,15 +125,59 @@ export function QrScreen() {
     .filter((part): part is string => part !== null)
     .join(' · ')
 
+  // La banda de dalt diu l'estat; això diu la conseqüència. Són dues meitats
+  // de la mateixa frase i per això la sortida —el codi d'invitació— surt als
+  // dos llocs: qui arriba aquí buscant el QR no ha de tornar amunt a buscar-la.
+  //
+  // El quadre discontinu manté la forma de la pantalla: un buit centrat sense
+  // res es llegeix com una targeta que no ha acabat de carregar, que és
+  // exactament el dubte que aquí no toca.
   if (inactive) {
+    const pending = profile?.estat === 'pendent'
+
     return (
-      <main className="with-tabbar flex min-h-dvh flex-col items-center justify-center gap-6 bg-app px-[var(--ds-gutter)] pt-[var(--ds-safe-top-min)]">
-        <h1 className="display text-center text-d-s tracking-[-0.045em] [text-wrap:balance]">
-          {t('qr.notYet.title')}
-        </h1>
-        <p className="text-center text-md text-fg-secondary [text-wrap:pretty]">
-          {profile?.estat === 'pendent' ? t('qr.notYet.pending') : t('qr.notYet.left')}
-        </p>
+      <main className="with-tabbar flex min-h-dvh flex-col items-center bg-app px-[var(--ds-gutter)] pt-[calc(var(--ds-safe-top-min)+28px)] pb-10">
+        {/* El centrat va aquí i no al `main`: el full és `fixed` però continua
+            sent descendent al DOM, i `text-align` s'hereta —amb el centrat a
+            dalt, l'etiqueta i el camp del codi sortien centrats. */}
+        <div className="w-full text-center">
+          <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">
+            {t('qr.notYet.heading')}
+          </h1>
+          <p className="mt-6 text-md text-fg-muted [text-wrap:pretty]">{t('qr.notYet.lead')}</p>
+
+          <div className="mx-auto mt-[28px] grid size-[240px] place-items-center border-[1.5px] border-dashed border-[var(--ds-border-input)] bg-surface-1 p-10">
+            <div>
+              <p className="display text-d-xs leading-[1.05] tracking-[-0.04em] text-fg-muted [text-wrap:balance]">
+                {t('qr.notYet.title')}
+              </p>
+              <p className="mt-5 text-sm leading-[1.4] text-fg-muted-lo [text-wrap:pretty]">
+                {pending ? t('qr.notYet.pending') : t('qr.notYet.left')}
+              </p>
+            </div>
+          </div>
+
+          {/* Només per a qui està pendent. A algú que ha plegat, un codi
+              d'invitació no li resol res: aquella conversa és amb la junta i
+              no amb un camp de text. */}
+          {pending ? (
+            <button
+              type="button"
+              onClick={() => setAsking(true)}
+              className="mt-[24px] flex min-h-[48px] w-full items-center justify-center border-[1.5px] border-border-strong bg-surface-2 px-7 py-6 text-base font-bold text-fg [text-wrap:balance]"
+            >
+              {t('pending.haveCode')}
+            </button>
+          ) : null}
+        </div>
+
+        {asking ? (
+          <InviteCodeSheet
+            onClose={() => {
+              setAsking(false)
+            }}
+          />
+        ) : null}
       </main>
     )
   }

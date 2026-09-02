@@ -272,7 +272,8 @@
   "eventType": {
     "fiesta": "Party",
     "casa_rural": "Country house",
-    "actividad": "Activity"
+    "actividad": "Activity",
+    "reunio": "Meeting"
   },
   "gimcana": {
     "title": "The gymkhana",
@@ -724,6 +725,22 @@
       "gone": "That person is no longer asking."
     },
     "form": {
+      "who": "Who has to come",
+      "abast": {
+        "junta": "The committee only",
+        "comi": "Everybody"
+      },
+      "abastSub": {
+        "junta": "It appears on nobody's home screen. Members cannot see it even with the link, and it gives nobody points or streak.",
+        "comi": "It appears on everybody's home screen, under the parties, and everyone can say whether they will be there."
+      },
+      "pointsMeetingHint": "They are given when you close the meeting, not when people confirm: whoever says they will be there and is not, earns none.",
+      "meetingHasNo": "A meeting has no places, no price, no cover and no cars",
+      "meetingHasNoSub": "Those fields disappear from the form rather than sitting there empty. If you picked the wrong kind, go back and they come back exactly as they were.",
+      "callIt": "Call it",
+      "willSee_one": "{{count}} person on the committee will see it.",
+      "willSee_other": "The {{count}} people on the committee will see it.",
+      "newMeeting": "New meeting",
       "leaveIt": "Leave it",
       "newTitle": "Create an event",
       "editTitle": "Edit",
@@ -1110,6 +1127,51 @@
   "legal": {
     "privacy": "Privacy policy",
     "terms": "Terms of use"
+  },
+  "meeting": {
+    "chip": "Meeting",
+    "chipScope": "Meeting · committee",
+    "canYou": "Can you be there?",
+    "yes": "I will be there",
+    "no": "I cannot be there",
+    "saidYes": "You said you will be there.",
+    "saidYesSub": "The +{{punts}} points arrive when the meeting is closed and you are on the list.",
+    "saidYesNoPoints": "You said you will be there.",
+    "saidNo": "You said you cannot be there.",
+    "saidNoSub": "If you change your mind, come back and say so: there are few of you and it matters whether it happens.",
+    "nothing": "You have not said anything yet.",
+    "nothingSub": "Two buttons and not three: in a meeting of three people, a \"maybe\" does not help decide whether it happens.",
+    "willBe": "{{quants}} of {{total}} will be there",
+    "were": "{{quants}} of {{total}} were there",
+    "whoKnows": "At a meeting you do get to see who is not coming: there are few of you and it matters whether anybody will be there.",
+    "points": "+{{punts}} if you are there",
+    "noPoints": "No points: this is a committee meeting",
+    "acta": "The minutes",
+    "actaEmpty": "They will appear here once the committee closes the meeting. If there are none, this block is not here.",
+    "closed": "Closed",
+    "close": "Close it",
+    "closeTitle": "Close the meeting",
+    "closeLead": "Mark who was actually there. The points come out when you close it, and not before.",
+    "closeLeadNoPoints": "Mark who was actually there. A committee meeting awards no points.",
+    "wasThere": "Was there",
+    "saidNoShort": "Had said they could not be there",
+    "saidYesShort": "Had said they would be there",
+    "noAnswer": "Said nothing",
+    "closeCta": "Close it and give the points",
+    "closeCtaNoPoints": "Close it",
+    "closeAgain": "It can be reopened until the term ends. Every change goes into the log.",
+    "shared": "handed out on closing",
+    "actaLabel": "Minutes",
+    "actaPlaceholder": "Four lines on what was decided. Whoever was not there will read it.",
+    "actaHint": "Optional. If you leave it blank the meeting still closes and the minutes block appears to nobody.",
+    "done": "{{quants}} of {{total}} were there",
+    "juntaOnly": "The committee ones are only visible to you.",
+    "title": "Meetings",
+    "rowSub": "Call them, and close them to give the points",
+    "callNew": "Call a meeting",
+    "none": "No meetings yet.",
+    "withActa": "with minutes",
+    "listSub": "{{on}} · {{time}}"
   },
   "motive": {
     "asistencia": "Turning up",

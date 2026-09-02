@@ -45,7 +45,11 @@ import { RidesBlock } from '@/features/rides/RidesBlock'
 
 import { eventKeys, fetchEvent, fetchWaitlist, formatPrice } from './api'
 import { Cover, Fact, Places } from './detail'
+import { JuntaHeader } from '@/features/junta/JuntaHeader'
+
 import { CalendarOffer, CalendarRow } from './Calendar'
+import { MeetingActa, MeetingAnswer, MeetingRoster } from './Meeting'
+import { meetingKeys } from './meetingApi'
 import { BigCountdown, HiddenChip, InterestBlock } from './Teaser'
 import { eventTitle, titleIsHidden } from './title'
 
@@ -166,6 +170,10 @@ export function EventScreen() {
   // pantalla: sense títol no hi ha places, ni cotxes, ni sí/potser/no, perquè
   // ningú no sap a què diria que sí.
   const hidden = titleIsHidden(e.titulo)
+  // Una reunió no és una festa amb menys camps: no té portada, ni places, ni
+  // preu, ni cotxes, i el que demana és «hi pots ser?» i no «hi véns?». Mitja
+  // pantalla canvia, i el que la decideix és `tipo`.
+  const isMeeting = e.tipo === 'reunio'
   const price = formatPrice(e.precio_cents, INTL_LOCALE[locale])
   const movement = signedUpToday(rows, id, userId, now)
   // Only worth a tap once the door has let somebody in. Before that the
@@ -186,19 +194,34 @@ export function EventScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <Cover
-        coverUrl={covers.data?.get(e.cover_url ?? '') ?? null}
-        isPast={isPast}
-        corner={
-          <Link
-            to="/"
-            aria-label={t('actions.back')}
-            className="grid size-[44px] place-items-center rounded-full bg-[oklch(0.15_0.012_25/0.7)] text-2xl text-fg backdrop-blur-[6px]"
-          >
-            <span aria-hidden="true">←</span>
-          </Link>
-        }
-      />
+      {/* Una reunió no té portada, i per tant tampoc el camí de tornada que
+          hi va a dins: se'n queda amb el capçal que fa servir tota la resta de
+          l'app quan no hi ha barra de pestanyes. */}
+      {isMeeting ? (
+        <JuntaHeader
+          to="/"
+          label={t('nav.home')}
+          aside={
+            <span className="eyebrow-sm flex-none rounded-xs border border-surface-8 px-4 py-3 text-fg-muted">
+              {t(e.abast === 'junta' ? 'meeting.chipScope' : 'meeting.chip')}
+            </span>
+          }
+        />
+      ) : (
+        <Cover
+          coverUrl={covers.data?.get(e.cover_url ?? '') ?? null}
+          isPast={isPast}
+          corner={
+            <Link
+              to="/"
+              aria-label={t('actions.back')}
+              className="grid size-[44px] place-items-center rounded-full bg-[oklch(0.15_0.012_25/0.7)] text-2xl text-fg backdrop-blur-[6px]"
+            >
+              <span aria-hidden="true">←</span>
+            </Link>
+          }
+        />
+      )}
 
       <section className={`pt-8 ${GUTTER}`}>
         <div className="flex items-start justify-between gap-6">
@@ -238,7 +261,9 @@ export function EventScreen() {
         </div>
       ) : null}
 
-      {going.length > 0 ? (
+      {isMeeting ? <MeetingRoster event={e} /> : null}
+
+      {isMeeting || going.length === 0 ? null : (
         <section className={`pt-9 ${GUTTER}`}>
           <div className="flex items-center gap-4">
             <div className="flex items-center">
@@ -273,7 +298,7 @@ export function EventScreen() {
             </p>
           ) : null}
         </section>
-      ) : null}
+      )}
 
       {/* The three facts people ask in the group, in the order they ask them.
           Amb el títol amagat es queden totes tres amb «Encara no» al lloc del
@@ -287,17 +312,32 @@ export function EventScreen() {
         ) : e.ubicacion === null ? null : (
           <Fact label={t('event.facts.where')} value={e.ubicacion} />
         )}
-        <Fact
-          label={t('event.facts.price')}
-          value={hidden ? t('event.teaser.notYet') : (price ?? t('event.facts.free'))}
-          unknown={hidden}
-        />
+        {/* Una reunió no té preu; té punts, que és el que la gent ve a
+            saber. I una de junta no en dóna cap, i ho diu: un zero sense
+            explicació sembla un error. */}
+        {isMeeting ? (
+          <Fact
+            label={t('junta.form.points')}
+            value={
+              e.puntos > 0 ? t('meeting.points', { punts: e.puntos }) : t('meeting.noPoints')
+            }
+          />
+        ) : (
+          <Fact
+            label={t('event.facts.price')}
+            value={hidden ? t('event.teaser.notYet') : (price ?? t('event.facts.free'))}
+            unknown={hidden}
+          />
+        )}
       </section>
 
       {/* La fila del calendari, just sota els fets: és on hi ha l'hora i el
           lloc, que és el que se'n va al calendari. Es filtra ella sola per a un
-          esdeveniment no revelat. */}
+          esdeveniment no revelat.
+          A una reunió de les 18:30 d'un dimarts és on més falta fa. */}
       {isPast ? null : <CalendarRow event={e} />}
+
+      {isMeeting ? <MeetingActa event={e} /> : null}
 
       {/* Places, cotxes, gimcana i el sí/potser/no no hi són: no se sap ni què
           és. L'única cosa que es pot fer és dir «avisa'm». */}
@@ -307,7 +347,7 @@ export function EventScreen() {
         </section>
       ) : null}
 
-      {hidden ? null : (
+      {hidden || isMeeting ? null : (
         <Places
           total={e.plazas}
           puntos={e.puntos}
@@ -355,7 +395,31 @@ export function EventScreen() {
           per a tothom que no constés dins —inclòs qui no havia contestat mai i
           qui havia dit que no. Se n'anaven set coses més amb ell, entre elles
           la posició a la llista d'espera, que no es veu enlloc més. */}
-      {hidden || isPast || mine === 'asistio' || justCheckedIn ? null : (
+      {/* «Hi pots ser?», amb dos botons. Es queda també quan ja ha passat i
+          fins que es tanqui: entre la reunió i el tancament encara es pot
+          corregir qui hi era, i és quan la gent se'n recorda. */}
+      {isMeeting ? (
+        e.tancada_at === null ? (
+          <MeetingAnswer
+            event={e}
+            mine={mine}
+            pending={answer.isPending}
+            onAnswer={(a) => {
+              // El recompte «2 de 3 hi seran» surt de `meeting_roster`, que té
+              // la seva pròpia clau: `useAnswer` només invalida les
+              // assistències de l'Inici, o sigui que sense això la xifra es
+              // queda com estava i sembla que la resposta no s'hagi desat.
+              // Al `onSuccess` de la crida i no al costat del `mutate`, perquè
+              // `mutate` no espera i el refetch sortiria abans de l'escriptura.
+              answer.mutate(a, {
+                onSuccess: () => {
+                  void client.invalidateQueries({ queryKey: meetingKeys.roster(e.id) })
+                },
+              })
+            }}
+          />
+        ) : null
+      ) : hidden || isPast || mine === 'asistio' || justCheckedIn ? null : (
         <AnswerBlock
           mine={mine}
           confirm={e.cal_confirmacio}
@@ -386,16 +450,16 @@ export function EventScreen() {
           nudge and this is where somebody comes looking a fortnight later. */}
       {/* La gimcana surt sola mentre la festa passa i desapareix quan acaba:
           la mateixa finestra que la de fitxar, i cap interruptor. */}
-      <GimcanaLink eventId={e.id} />
+      {isMeeting ? null : <GimcanaLink eventId={e.id} />}
 
-      {ended ? <MyNightBlock eventId={e.id} /> : null}
+      {ended && !isMeeting ? <MyNightBlock eventId={e.id} /> : null}
 
       {/* La galeria és d'una nit que ja ha passat: mentre la festa dura, la
           gent hi és. Va després del díptic perquè allò és teu i això és de
           tothom. */}
-      {ended ? <GalleryBlock eventId={e.id} /> : null}
+      {ended && !isMeeting ? <GalleryBlock eventId={e.id} /> : null}
 
-      {ended ? (
+      {ended && !isMeeting ? (
         <section className={`pt-12 ${GUTTER}`}>
           <ShareCard
             variant="quiet"
@@ -429,7 +493,7 @@ export function EventScreen() {
           away does not. */}
       {/* I els cotxes tampoc: encara no se sap on és, o sigui que no hi ha cap
           trajecte a oferir. */}
-      {e.te_cotxes && !hidden ? <RidesBlock eventId={e.id} /> : null}
+      {e.te_cotxes && !hidden && !isMeeting ? <RidesBlock eventId={e.id} /> : null}
 
       {e.descripcion === null ? null : (
         <section className={`pt-9 pb-8 ${GUTTER}`}>

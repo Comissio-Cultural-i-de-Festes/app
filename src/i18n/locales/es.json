@@ -272,7 +272,8 @@
   "eventType": {
     "fiesta": "Fiesta",
     "casa_rural": "Casa rural",
-    "actividad": "Actividad"
+    "actividad": "Actividad",
+    "reunio": "Reunión"
   },
   "gimcana": {
     "title": "La gincana",
@@ -724,6 +725,22 @@
       "gone": "Esta persona ya no lo pide."
     },
     "form": {
+      "who": "Quién tiene que venir",
+      "abast": {
+        "junta": "Solo la junta",
+        "comi": "Toda la comi"
+      },
+      "abastSub": {
+        "junta": "No sale en el Inicio de nadie. Los socios no la ven ni sabiendo el enlace, y no da puntos ni racha a nadie.",
+        "comi": "Sale en el Inicio de todos, debajo de las fiestas, y todos pueden decir si estarán."
+      },
+      "pointsMeetingHint": "Se dan cuando cierres la reunión, no al confirmar: quien dice que estará y no está, no hace puntos.",
+      "meetingHasNo": "Una reunión no tiene plazas, ni precio, ni portada, ni coches",
+      "meetingHasNoSub": "Estos campos desaparecen del formulario en vez de quedarse vacíos. Si te has equivocado de tipo, vuelve y los recuperas tal como estaban.",
+      "callIt": "Convócala",
+      "willSee_one": "La verá {{count}} persona de la junta.",
+      "willSee_other": "La verán las {{count}} personas de la junta.",
+      "newMeeting": "Nueva reunión",
       "leaveIt": "Déjalo",
       "newTitle": "Crear evento",
       "editTitle": "Editar",
@@ -1110,6 +1127,51 @@
   "legal": {
     "privacy": "Política de privacidad",
     "terms": "Condiciones de uso"
+  },
+  "meeting": {
+    "chip": "Reunión",
+    "chipScope": "Reunión · junta",
+    "canYou": "¿Puedes estar?",
+    "yes": "Estaré",
+    "no": "No puedo estar",
+    "saidYes": "Has dicho que estarás.",
+    "saidYesSub": "Los +{{punts}} puntos los tendrás cuando se cierre la reunión y conste que estabas.",
+    "saidYesNoPoints": "Has dicho que estarás.",
+    "saidNo": "Has dicho que no puedes estar.",
+    "saidNoSub": "Si cambias de idea, vuelve y dilo: sois pocos y hay que saber si se hace.",
+    "nothing": "Todavía no has dicho nada.",
+    "nothingSub": "Dos botones y no tres: en una reunión de tres personas, un «quizá» no ayuda a decidir si se hace.",
+    "willBe": "{{quants}} de {{total}} estarán",
+    "were": "{{quants}} de {{total}} estaban",
+    "whoKnows": "En una reunión sí que se sabe quién no viene: sois pocos y hay que saber si habrá alguien.",
+    "points": "+{{punts}} si estás",
+    "noPoints": "Ningún punto: es una reunión de junta",
+    "acta": "El acta",
+    "actaEmpty": "Saldrá aquí cuando la junta cierre la reunión. Si no hay, este bloque no está.",
+    "closed": "Cerrada",
+    "close": "Ciérrala",
+    "closeTitle": "Cierra la reunión",
+    "closeLead": "Marca quién estaba de verdad. Los puntos salen al cerrarla, y no antes.",
+    "closeLeadNoPoints": "Marca quién estaba de verdad. Una reunión de junta no reparte puntos.",
+    "wasThere": "Estaba",
+    "saidNoShort": "Había dicho que no podía estar",
+    "saidYesShort": "Había dicho que estaría",
+    "noAnswer": "No dijo nada",
+    "closeCta": "Ciérrala y da los puntos",
+    "closeCtaNoPoints": "Ciérrala",
+    "closeAgain": "Se puede volver a abrir mientras no acabe el trimestre. Cada cambio queda en el registro.",
+    "shared": "repartidos al cerrarla",
+    "actaLabel": "Acta",
+    "actaPlaceholder": "Cuatro líneas de lo que se ha decidido. Lo leerá quien no estaba.",
+    "actaHint": "Opcional. Si la dejas en blanco, la reunión se cierra igual y el bloque del acta no sale a nadie.",
+    "done": "{{quants}} de {{total}} estaban",
+    "juntaOnly": "Las de junta solo las veis vosotros.",
+    "title": "Reuniones",
+    "rowSub": "Convócalas, y ciérralas para dar los puntos",
+    "callNew": "Convoca una reunión",
+    "none": "Ninguna reunión, por ahora.",
+    "withActa": "con acta",
+    "listSub": "{{on}} · {{time}}"
   },
   "motive": {
     "asistencia": "Venir",

@@ -272,7 +272,8 @@
   "eventType": {
     "fiesta": "Festa",
     "casa_rural": "Casa rural",
-    "actividad": "Activitat"
+    "actividad": "Activitat",
+    "reunio": "Reunió"
   },
   "gimcana": {
     "title": "La gimcana",
@@ -724,6 +725,22 @@
       "gone": "Aquesta persona ja no ho demana."
     },
     "form": {
+      "who": "Qui hi ha de venir",
+      "abast": {
+        "junta": "Només la junta",
+        "comi": "Tota la comi"
+      },
+      "abastSub": {
+        "junta": "No surt a l'Inici de ningú. Els socis no la veuen ni sabent-ne l'enllaç, i no dóna punts ni ratxa a ningú.",
+        "comi": "Surt a l'Inici de tothom, sota les festes, i tots hi poden dir si hi seran."
+      },
+      "pointsMeetingHint": "Es donen quan tanquis la reunió, no en confirmar: qui diu que hi serà i no hi és, no en fa.",
+      "meetingHasNo": "Una reunió no té places, ni preu, ni portada, ni cotxes",
+      "meetingHasNoSub": "Aquests camps desapareixen del formulari en comptes de quedar-se buits. Si t'has equivocat de tipus, torna-hi i els recuperes tal com estaven.",
+      "callIt": "Convoca-la",
+      "willSee_one": "La veurà {{count}} persona de la junta.",
+      "willSee_other": "La veuran les {{count}} persones de la junta.",
+      "newMeeting": "Nova reunió",
       "leaveIt": "Deixa-ho",
       "newTitle": "Crear esdeveniment",
       "editTitle": "Editar",
@@ -1110,6 +1127,51 @@
   "legal": {
     "privacy": "Política de privadesa",
     "terms": "Condicions d'ús"
+  },
+  "meeting": {
+    "chip": "Reunió",
+    "chipScope": "Reunió · junta",
+    "canYou": "Hi pots ser?",
+    "yes": "Hi seré",
+    "no": "No hi puc ser",
+    "saidYes": "Has dit que hi seràs.",
+    "saidYesSub": "Els +{{punts}} punts els tindràs quan es tanqui la reunió i consti que hi eres.",
+    "saidYesNoPoints": "Has dit que hi seràs.",
+    "saidNo": "Has dit que no hi pots ser.",
+    "saidNoSub": "Si canvies d'idea, torna-hi i digues-ho: sou pocs i cal saber si es fa.",
+    "nothing": "Encara no has dit res.",
+    "nothingSub": "Dos botons i no tres: en una reunió de tres persones, un «potser» no ajuda a decidir si es fa.",
+    "willBe": "{{quants}} de {{total}} hi seran",
+    "were": "{{quants}} de {{total}} hi eren",
+    "whoKnows": "A una reunió sí que se sap qui no hi ve: sou pocs i cal saber si hi haurà ningú.",
+    "points": "+{{punts}} si hi ets",
+    "noPoints": "Cap punt: és una reunió de junta",
+    "acta": "L'acta",
+    "actaEmpty": "Sortirà aquí quan la junta tanqui la reunió. Si no n'hi ha, aquest bloc no hi és.",
+    "closed": "Tancada",
+    "close": "Tanca-la",
+    "closeTitle": "Tanca la reunió",
+    "closeLead": "Marca qui hi era de debò. Els punts surten en tancar-la, i no abans.",
+    "closeLeadNoPoints": "Marca qui hi era de debò. Una reunió de junta no reparteix punts.",
+    "wasThere": "Hi era",
+    "saidNoShort": "Havia dit que no hi podia ser",
+    "saidYesShort": "Havia dit que hi seria",
+    "noAnswer": "No va dir res",
+    "closeCta": "Tanca-la i dóna els punts",
+    "closeCtaNoPoints": "Tanca-la",
+    "closeAgain": "Es pot tornar a obrir mentre no acabi el trimestre. Cada canvi queda al registre.",
+    "shared": "repartits en tancar-la",
+    "actaLabel": "Acta",
+    "actaPlaceholder": "Quatre línies de què s'ha decidit. Ho llegirà qui no hi era.",
+    "actaHint": "Opcional. Si la deixes en blanc, la reunió es tanca igual i el bloc de l'acta no surt a ningú.",
+    "done": "{{quants}} de {{total}} hi eren",
+    "juntaOnly": "Les de junta només les veieu vosaltres.",
+    "title": "Reunions",
+    "rowSub": "Convoca-les, i tanca-les per donar els punts",
+    "callNew": "Convoca una reunió",
+    "none": "Cap reunió, de moment.",
+    "withActa": "amb acta",
+    "listSub": "{{on}} · {{time}}"
   },
   "motive": {
     "asistencia": "Venir",

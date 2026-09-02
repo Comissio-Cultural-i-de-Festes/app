@@ -329,9 +329,6 @@
     "empty": {
       "title": "Ara mateix, res",
       "body": "No hi ha res al calendari. Tranquil, ja caurà alguna cosa."
-    },
-    "waiting": {
-      "banner": "Encara ets a la llista d'espera. Pots mirar què ve, però no t'hi pots apuntar fins que la junta et doni l'alta."
     }
   },
   "inside": {
@@ -1213,6 +1210,26 @@
     },
     "atStake": "Portes {{n}} seguides. Aquesta hi compta."
   },
+  "pending": {
+    "eyebrow": "Encara no ets dins",
+    "title": "La junta t'ha d'acceptar",
+    "body": "Entrar amb el Google ens diu qui ets. Ser de la comi és una altra cosa, i algú de la junta ho ha de dir.",
+    "canLabel": "Ja pots",
+    "can": "Mirar el calendari i les fotos",
+    "cannotLabel": "Encara no",
+    "cannot": "Apuntar-te, tenir QR, fer punts",
+    "collapse": "Plega",
+    "expand": "Què puc fer?",
+    "haveCode": "Tinc un codi d'invitació",
+    "haveCodeHint": "Amb el codi entres a l'instant. Sense codi, algú de la junta t'ha d'aprovar a mà.",
+    "codeTitle": "El codi d'invitació",
+    "codeBody": "El que la junta reparteix al grup. En entra un i ja ets dins.",
+    "codeLabel": "El codi",
+    "codePlaceholder": "Enganxa'l aquí",
+    "codeCta": "Entra amb el codi",
+    "codeSending": "Un moment…",
+    "codeBad": "Aquest codi no val. Demana'n un altre a la junta."
+  },
   "qr": {
     "codeLabel": "El teu codi QR",
     "offlineOk": "Brillantor al màxim · va sense cobertura",
@@ -1220,8 +1237,10 @@
     "unavailable": "Ara mateix no podem mostrar el teu codi. Prova-ho amb connexió i quedarà desat per la propera.",
     "fallback": "El de la porta et pot buscar pel nom.",
     "notYet": {
-      "title": "Encara no tens codi",
-      "pending": "El QR surt quan la junta et dona l'alta. Mentrestant pots mirar què ve, però a la porta encara no et poden fitxar.",
+      "heading": "El meu QR",
+      "lead": "És el que ensenyes a la porta.",
+      "title": "Encara no en tens",
+      "pending": "La porta et faria tornar enrere, i això és pitjor que no tenir-ne.",
       "left": "Aquest compte ja no és actiu. Si creus que és un error, parla amb la junta."
     }
   },

@@ -329,9 +329,6 @@
     "empty": {
       "title": "Ahora mismo, nada",
       "body": "No hay nada en el calendario. Tranquilo, ya caerá algo."
-    },
-    "waiting": {
-      "banner": "Todavía estás en la lista de espera. Puedes mirar qué viene, pero no puedes apuntarte hasta que la junta te dé el alta."
     }
   },
   "inside": {
@@ -1213,6 +1210,26 @@
     },
     "atStake": "Llevas {{n}} seguidas. Esta cuenta."
   },
+  "pending": {
+    "eyebrow": "Todavía no estás dentro",
+    "title": "La junta te tiene que aceptar",
+    "body": "Entrar con Google nos dice quién eres. Ser de la comi es otra cosa, y lo tiene que decir alguien de la junta.",
+    "canLabel": "Ya puedes",
+    "can": "Mirar el calendario y las fotos",
+    "cannotLabel": "Todavía no",
+    "cannot": "Apuntarte, tener QR, hacer puntos",
+    "collapse": "Pliega",
+    "expand": "¿Qué puedo hacer?",
+    "haveCode": "Tengo un código de invitación",
+    "haveCodeHint": "Con el código entras al instante. Sin código, alguien de la junta te tiene que aprobar a mano.",
+    "codeTitle": "El código de invitación",
+    "codeBody": "El que la junta reparte en el grupo. Metes uno y ya estás dentro.",
+    "codeLabel": "El código",
+    "codePlaceholder": "Pégalo aquí",
+    "codeCta": "Entra con el código",
+    "codeSending": "Un momento…",
+    "codeBad": "Este código no vale. Pide otro a la junta."
+  },
   "qr": {
     "codeLabel": "Tu código QR",
     "offlineOk": "Brillo al máximo · va sin cobertura",
@@ -1220,8 +1237,10 @@
     "unavailable": "Ahora mismo no podemos mostrar tu código. Pruébalo con conexión y quedará guardado para la próxima.",
     "fallback": "El de la puerta te puede buscar por el nombre.",
     "notYet": {
-      "title": "Todavía no tienes código",
-      "pending": "El QR sale cuando la junta te da el alta. Mientras tanto puedes mirar qué viene, pero en la puerta aún no te pueden fichar.",
+      "heading": "Mi QR",
+      "lead": "Es lo que enseñas en la puerta.",
+      "title": "Todavía no tienes",
+      "pending": "La puerta te haría volver atrás, y eso es peor que no tener.",
       "left": "Esta cuenta ya no está activa. Si crees que es un error, habla con la junta."
     }
   },

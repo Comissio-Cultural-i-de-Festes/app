@@ -329,9 +329,6 @@
     "empty": {
       "title": "Nothing right now",
       "body": "There is nothing on the calendar. Relax, something will turn up."
-    },
-    "waiting": {
-      "banner": "You are still on the waiting list. You can see what is coming, but you cannot sign up until the committee lets you in."
     }
   },
   "inside": {
@@ -1213,6 +1210,26 @@
     },
     "atStake": "You are on {{n}} in a row. This one counts."
   },
+  "pending": {
+    "eyebrow": "You are not in yet",
+    "title": "The committee has to let you in",
+    "body": "Signing in with Google tells us who you are. Being one of the committee's people is another thing, and somebody on the committee has to say so.",
+    "canLabel": "You can already",
+    "can": "See the calendar and the photos",
+    "cannotLabel": "Not yet",
+    "cannot": "Sign up, have a QR, earn points",
+    "collapse": "Collapse",
+    "expand": "What can I do?",
+    "haveCode": "I have an invitation code",
+    "haveCodeHint": "With a code you are in at once. Without one, somebody on the committee has to approve you by hand.",
+    "codeTitle": "The invitation code",
+    "codeBody": "The one the committee hands out in the group. Enter one and you are in.",
+    "codeLabel": "The code",
+    "codePlaceholder": "Paste it here",
+    "codeCta": "Go in with the code",
+    "codeSending": "One moment…",
+    "codeBad": "That code does not work. Ask the committee for another."
+  },
   "qr": {
     "codeLabel": "Your QR code",
     "offlineOk": "Brightness up · works with no signal",
@@ -1220,8 +1237,10 @@
     "unavailable": "We cannot show your code right now. Try once with a connection and it will be saved for next time.",
     "fallback": "Whoever is on the door can look you up by name.",
     "notYet": {
-      "title": "No code yet",
-      "pending": "Your QR appears once the committee lets you in. Until then you can see what is coming, but the door cannot check you in.",
+      "heading": "My QR",
+      "lead": "It is what you show at the door.",
+      "title": "You have not got one yet",
+      "pending": "The door would turn you back, and that is worse than not having one.",
       "left": "This account is no longer active. If you think that is a mistake, talk to the committee."
     }
   },

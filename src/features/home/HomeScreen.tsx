@@ -28,7 +28,6 @@ import { useOnline } from '@/lib/useOnline'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { useCovers } from '@/ui/Cover/useCovers'
 import { LogoMark, Wordmark } from '@/ui/Logo/Logo'
-import { Notice } from '@/ui/Notice/Notice'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import {
@@ -43,8 +42,8 @@ import { type Home, useAnswer, useHome } from './useHome'
 
 const GUTTER = 'px-[var(--ds-gutter)]'
 
-/** Els tres candidats a ocupar l'únic lloc que hi ha sobre el hero. */
-type HomeNotice = 'failed' | 'waiting' | 'exit'
+/** Els dos candidats a ocupar l'únic lloc que hi ha sobre el hero. */
+type HomeNotice = 'failed' | 'exit'
 const EYEBROW_TIGHT = 'eyebrow text-fg-muted'
 
 export function HomeScreen() {
@@ -62,27 +61,28 @@ export function HomeScreen() {
   const waiting = home.profile !== null && home.profile.estat !== 'actiu'
 
   // Cada tasca hi va afegir el seu avís i cadascun és correcte pel seu compte;
-  // junts —soci pendent d'aprovar, l'endemà d'una festa amb mala cobertura—
-  // empenyien la foto de l'esdeveniment i el CTA sota la línia de plegat d'un
-  // iPhone SE. Els dos segons que ha de costar decidir la nit són exactament
-  // el que es trencava.
+  // junts empenyien la foto de l'esdeveniment i el CTA sota la línia de plegat
+  // d'un iPhone SE. Els dos segons que ha de costar decidir la nit són
+  // exactament el que es trencava.
   //
   // Un de sol per damunt del hero, per ordre: una nit que no va comptar pesa
-  // més que un estat que ja se sap, i tots dos més que una foto que encara es
-  // pot fer aquesta nit. Els altres no desapareixen: baixen just sota el CTA.
+  // més que una foto que encara es pot fer aquesta nit. L'altre no desapareix:
+  // baixa just sota el CTA.
+  //
+  // Eren tres. El de «encara ets a la llista d'espera» era el que menys hi
+  // pintava aquí: és un estat que dura setmanes i val a totes les pantalles,
+  // no una cosa que hagi passat avui, i perdia el torn contra un fitxatge
+  // fallat justament perquè no competia en la mateixa lliga. Ara és
+  // `PendingBanner`, muntat a `TabLayout`.
   const failed = useFailedCheckin() !== undefined
   const exitOffer = useExitOffer(home.previous ?? null) !== null
-  const notices = ([failed && 'failed', waiting && 'waiting', exitOffer && 'exit'] as const).filter(
+  const notices = ([failed && 'failed', exitOffer && 'exit'] as const).filter(
     (kind): kind is HomeNotice => kind !== false,
   )
 
   const notice = (kind: HomeNotice) =>
     kind === 'failed' ? (
       <FailedNotice key={kind} />
-    ) : kind === 'waiting' ? (
-      <Notice key={kind} className="mx-[var(--ds-gutter)] mt-1">
-        {t('home.waiting.banner')}
-      </Notice>
     ) : (
       <div key={kind} className={GUTTER}>
         <ExitPhotoCard event={home.previous ?? null} />
@@ -147,7 +147,7 @@ function Header({ home }: { readonly home: Home }) {
 
   return (
     <header
-      className={`sticky top-0 z-20 flex items-center justify-between gap-3 bg-app pt-[max(calc(var(--ds-safe-top)+4px),12px)] pb-6 ${GUTTER}`}
+      className={`sticky top-[var(--ds-sticky-top)] z-20 flex items-center justify-between gap-3 bg-app pt-[max(calc(var(--ds-safe-top)+4px),12px)] pb-6 ${GUTTER}`}
     >
       <div className="flex min-w-0 items-center gap-[10px]">
         <LogoMark size={36} />

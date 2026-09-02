@@ -9,8 +9,15 @@
  *
  * Decorative by default: every avatar in this app sits next to the name it
  * belongs to, and a screen reader announcing it twice is noise.
+ *
+ * `src` és o una URL absoluta —la de Google, que és el que hi ha per a tothom
+ * que no s'hagi canviat la foto— o un camí del bucket `avatars`, que s'ha de
+ * signar. Ho resol `useAvatarUrl` aquí dins i no cada pantalla: n'hi ha
+ * vint-i-cinc, i la que s'oblidés de signar ensenyaria el marc trencat.
  */
 import { useState } from 'react'
+
+import { useAvatarUrl } from './useAvatarUrl'
 
 export interface AvatarProps {
   readonly src: string | null
@@ -22,10 +29,14 @@ export interface AvatarProps {
 
 export function Avatar({ src, size, ring = false, className = '' }: AvatarProps) {
   const [failed, setFailed] = useState(false)
+  const url = useAvatarUrl(src)
   const box = { width: size, height: size } as const
   const outline = ring ? 'outline-[1.5px] outline-brand outline-offset-1' : ''
 
-  if (src === null || failed) {
+  // `null` mentre se signa vol dir les ratlles un instant i després la cara,
+  // que és el que ja passa amb una imatge que tarda. Un esquelet rodó aquí
+  // faria parpellejar dues formes en comptes d'una.
+  if (url === null || failed) {
     return (
       <span
         aria-hidden="true"
@@ -40,7 +51,7 @@ export function Avatar({ src, size, ring = false, className = '' }: AvatarProps)
 
   return (
     <img
-      src={src}
+      src={url}
       alt=""
       width={size}
       height={size}

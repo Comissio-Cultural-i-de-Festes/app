@@ -19,6 +19,7 @@ export const COVERS = 'event-covers'
 export const DOOR_PHOTOS = 'door-photos'
 export const EVENT_PHOTOS = 'event-photos'
 export const GIMCANA_PHOTOS = 'gimcana-photos'
+export const AVATARS = 'avatars'
 
 const SIGNED_TTL_SECONDS = 3600
 
@@ -134,6 +135,31 @@ export async function uploadCover(file: File, eventId: string): Promise<string> 
 
   const { error } = await supabase.storage
     .from(COVERS)
+    .upload(path, body, { contentType: type, upsert: false })
+
+  if (error) throw error
+  return path
+}
+
+/**
+ * Uploads an avatar and returns the path to store on the profile.
+ *
+ * `{uid}/{when}` — the id as a folder, so the storage policy can tell whose
+ * face it is without consulting a table (migration 42, same shape as the door
+ * photos in 34). A new object every time rather than a replacement: changing
+ * your picture must not have to win a fight with a cached copy of the last one
+ * under the same name.
+ *
+ * The bucket refuses PNG, so anything that is not already webp is called what
+ * `shrinkImage` will have encoded it as.
+ */
+export async function uploadAvatar(body: Blob, userId: string): Promise<string> {
+  const type = body.type === 'image/webp' ? 'image/webp' : 'image/jpeg'
+  const extension = type === 'image/webp' ? 'webp' : 'jpg'
+  const path = `${userId}/${String(Date.now())}.${extension}`
+
+  const { error } = await supabase.storage
+    .from(AVATARS)
     .upload(path, body, { contentType: type, upsert: false })
 
   if (error) throw error

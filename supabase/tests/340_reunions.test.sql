@@ -16,7 +16,7 @@
 -- Persones i reunions inventades, com a tot el repo.
 
 begin;
-select plan(28);
+select plan(35);
 
 reset role;
 delete from public.audit_log;
@@ -320,6 +320,121 @@ select lives_ok(
     '00000000-0000-4000-8000-0000000000a9'::uuid
   ),
   'mentre que una reunio de tota la comi si que en pot donar'
+);
+
+-- ── i la tercera, que es fitxa des del lloc ─────────────────────────────────
+-- `check_in_here` és definer i llegeix `events` sense RLS, o sigui que la
+-- política que amaga les reunions de junta no la protegeix. Els punts ja els
+-- para el disparador; el que aquí es comprova és que la fila d'assistència
+-- tampoc s'escrigui, perquè sortir al llistat de qui hi era és el que una
+-- reunió de junta no ha d'ensenyar.
+reset role;
+
+insert into private.event_geo (event_id, lat, lng, radi_m) values
+  ((select junta from que), 41.5388, 2.4449, 150),
+  ((select comi from que), 41.5388, 2.4449, 150);
+
+-- Dins de la finestra, que si no la resposta seria 'tancat' i la prova passaria
+-- per la raó equivocada.
+update public.events set starts_at = now() where id in (
+  (select junta from que), (select comi from que)
+);
+
+select tests.authenticate_as('alfa');
+
+select is(
+  public.check_in_here((select junta from que), 41.5388, 2.4449, 10)->>'estat',
+  'no_hi_es',
+  'un soci a sobre del punt no s''afegeix a una reunio de junta'
+);
+
+select is(
+  public.check_in_here((select comi from que), 41.5388, 2.4449, 10)->>'estat',
+  'no_hi_es',
+  'ni a una de la comi: qui hi era ho diu qui la tanca'
+);
+
+reset role;
+
+select is(
+  (select count(*)::int from public.attendances
+    where event_id in ((select junta from que), (select comi from que))
+      and user_id = '00000000-0000-4000-8000-000000000001'
+      and checked_in_at is not null),
+  0,
+  'i no queda cap fila de fitxatge a cap de les dues'
+);
+
+-- I EL CONTROL, sense el qual les tres de sobre passarien per la raó
+-- equivocada: amb el punt mal posat o la finestra tancada, `check_in_here`
+-- torna 'no_hi_es' i 'tancat' per a tot i les assercions no proven res. Una
+-- festa de debò al mateix punt i a la mateixa hora ha d'entrar.
+create temp table festa as
+select '00000000-0000-4000-8000-0000000000fc'::uuid as id;
+grant select on festa to authenticated;
+
+insert into public.events (id, tipo, starts_at, plazas, precio_cents, puntos, published, created_by)
+values (
+  (select id from festa), 'fiesta', now(), 50, 0, 10, true,
+  '00000000-0000-4000-8000-0000000000a1'
+);
+
+insert into public.event_title (event_id, titulo)
+values ((select id from festa), 'Festa inventada de control');
+
+insert into private.event_geo (event_id, lat, lng, radi_m)
+values ((select id from festa), 41.5388, 2.4449, 150);
+
+select tests.authenticate_as('alfa');
+
+select isnt(
+  public.check_in_here((select id from festa), 41.5388, 2.4449, 10)->>'estat',
+  'no_hi_es',
+  'i una festa al mateix punt i a la mateixa hora si que entra, o les de sobre no provarien res'
+);
+
+-- ── i la quarta: qui ha dit que si ──────────────────────────────────────────
+-- `att_select_public_si` deixava llegir qui havia dit que si a qualsevol
+-- esdeveniment publicat, i amb l'identificador d'una reunio de junta aixo es
+-- la llista de qui hi ha a la junta i qui hi sera. Publicat i visible eren el
+-- mateix fins que van existir les reunions.
+reset role;
+
+-- `do update`, perque les proves de tancar-les d'aqui dalt ja han deixat files
+-- d'aquesta persona a les dues reunions.
+insert into public.attendances (user_id, event_id, estado) values
+  ('00000000-0000-4000-8000-0000000000a1', (select junta from que), 'si'),
+  ('00000000-0000-4000-8000-0000000000a1', (select comi from que), 'si')
+on conflict (user_id, event_id) do update set estado = 'si';
+
+select tests.authenticate_as('alfa');
+
+select is(
+  (select count(*)::int from public.attendances
+    where event_id = (select junta from que)),
+  0,
+  'un soci no llegeix qui ha dit que si a una reunio de junta'
+);
+
+-- Per aquesta fila i no pel total: les proves de tancar-les d'aqui dalt ja han
+-- deixat gent marcada a la reunio de la comi.
+select is(
+  (select count(*)::int from public.attendances
+    where event_id = (select comi from que)
+      and user_id = '00000000-0000-4000-8000-0000000000a1'),
+  1,
+  'i a una de la comi si, que es el que fa el recompte de qui hi sera'
+);
+
+select throws_ok(
+  format(
+    $$insert into public.attendances (user_id, event_id, estado)
+      values (%L, %L, 'si')$$,
+    '00000000-0000-4000-8000-000000000001', (select junta from que)
+  ),
+  '42501',
+  null,
+  'ni s''hi pot apuntar: WITH CHECK aixeca, no filtra'
 );
 
 select * from finish();

@@ -903,6 +903,39 @@ describe('a junta-scoped meeting does not exist for a member', () => {
     expect((roster.data ?? []).length).toBeGreaterThan(0)
   })
 
+  it('and its answers are not readable either', async () => {
+    // La pitjor de les portes que quedaven: `att_select_public_si` deixava
+    // llegir qui havia dit que si a qualsevol esdeveniment publicat, i amb
+    // l'identificador d'una reunio de junta aixo es la llista de qui hi ha a
+    // la junta. El SQL no ho veia perque el predicat mira `attendances` i
+    // crida un helper definer que no passa per la politica d'`events`.
+    const svc = serviceClient()
+    // El fixture s'asserta. Sense aixo, si la fila no s'escriu la prova
+    // consulta una taula buida i passa per sempre, que es exactament el que
+    // aquesta va fer el primer cop.
+    const seeded = await svc
+      .from('attendances')
+      .upsert(
+        { user_id: F.juntaAlfa, event_id: MEETING, estado: 'si' },
+        { onConflict: 'user_id,event_id' },
+      )
+      .select('user_id')
+    expect(seeded.error).toBeNull()
+    expect(seeded.data).toHaveLength(1)
+
+    const member = await as('alfa')
+    const seen = await member.from('attendances').select('user_id, estado').eq('event_id', MEETING)
+    expect(seen.error).toBeNull()
+    expect(seen.data).toEqual([])
+
+    // I tampoc s'hi pot respondre: seria una fila en un esdeveniment que no es
+    // seu. `WITH CHECK` aixeca, no filtra.
+    const answered = await member
+      .from('attendances')
+      .insert({ user_id: F.alfa, event_id: MEETING, estado: 'si' })
+    expect(answered.error?.code).toBe('42501')
+  })
+
   it('and only the junta can close one', async () => {
     const member = await as('alfa')
     const { error } = await rpc(member, 'admin_close_meeting', {

@@ -89,10 +89,19 @@ export function useHome(): Home {
 
   const events = upcoming.data ?? NOTHING
 
+  // Una reunió no competeix amb una festa pel hero. El hero és la decisió de
+  // la nit —hi vaig o no— i una reunió de tres persones un dimarts a les 18:30
+  // hi ocuparia el lloc de la festa del divendres. Va a «Què més ve», que és
+  // on el disseny la posa, amb el seu xip i sense la portada.
+  //
+  // Si NOMÉS hi ha reunions, la primera sí que és el hero: val més el que ve
+  // que la pantalla buida de «res, de moment».
+  const hero = events.find((e) => e.tipo !== 'reunio') ?? events[0] ?? null
+
   return {
     profile: profile.data ?? null,
-    hero: events[0] ?? null,
-    rest: events.slice(1),
+    hero,
+    rest: events.filter((e) => e.id !== hero?.id),
     previous: previous.data?.[0] ?? null,
     attendances: attendances.data ?? [],
     me: ranking.data?.find((r) => r.user_id === userId) ?? null,

@@ -668,6 +668,10 @@ function Upcoming({
         {events.map((event) => {
           const start = new Date(event.starts_at)
           const hidden = titleIsHidden(event.titulo)
+          // Mateixa fila, tres diferències: el mes en gris i no en vermell, el
+          // xip «Reunió», i on hi hauria les places hi ha l'hora i els punts.
+          // Una reunió no competeix amb una festa pel hero.
+          const meeting = event.tipo === 'reunio'
           const left = placesLeft(event, goingRows(attendances, event.id).length)
           // Mateixa fila, tres diferències: el mes en violeta i no en vermell,
           // el dia com un interrogant, i on hi hauria les places hi ha quan es
@@ -679,9 +683,17 @@ function Upcoming({
               : days <= 1
                 ? t('event.teaser.willKnowInOne')
                 : t('event.teaser.willKnowIn', { count: days })
-            : [event.teaser, left === null ? null : t('units.placesLeft', { count: left })]
-                .filter((part): part is string => part !== null && part !== '')
-                .join(' · ')
+            : meeting
+              ? [
+                  event.ubicacion,
+                  formatTime(start, locale),
+                  event.puntos > 0 ? t('meeting.points', { punts: event.puntos }) : null,
+                ]
+                  .filter((part): part is string => part !== null && part !== '')
+                  .join(' · ')
+              : [event.teaser, left === null ? null : t('units.placesLeft', { count: left })]
+                  .filter((part): part is string => part !== null && part !== '')
+                  .join(' · ')
 
           return (
             <li key={event.id} className="border-b border-surface-5">
@@ -693,7 +705,7 @@ function Upcoming({
                   <p
                     className={
                       'text-2xs font-extrabold tracking-[0.1em] uppercase ' +
-                      (hidden ? 'text-unknown' : 'text-brand-accent')
+                      (hidden ? 'text-unknown' : meeting ? 'text-fg-dim' : 'text-brand-accent')
                     }
                   >
                     {formatMonthShort(start, locale)}
@@ -715,6 +727,11 @@ function Upcoming({
                     }
                   >
                     {eventTitle(event.titulo)}
+                    {meeting ? (
+                      <span className="eyebrow-sm ml-4 inline-block rounded-xs border border-surface-8 px-3 py-2 align-middle text-fg-muted">
+                        {t('meeting.chip')}
+                      </span>
+                    ) : null}
                   </p>
                   {sub === '' ? null : (
                     <p

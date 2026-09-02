@@ -796,11 +796,10 @@ describe('who is waiting for a reveal is a number, not a list', () => {
   it('lets you press it and see the count, and nobody see the names', async () => {
     const member = await as('alfa')
 
-    const pressed = await rpc<{ vol: boolean; quants: number }>(
-      member,
-      'set_event_interest',
-      { p_event_id: EVENT, p_vol: true },
-    )
+    const pressed = await rpc<{ vol: boolean; quants: number }>(member, 'set_event_interest', {
+      p_event_id: EVENT,
+      p_vol: true,
+    })
     expect(pressed.error).toBeNull()
     expect(pressed.data?.vol).toBe(true)
     expect(pressed.data?.quants).toBeGreaterThan(0)
@@ -845,7 +844,10 @@ describe('a junta-scoped meeting does not exist for a member', () => {
   // obri cap porta que el SQL tanca. És la capa que veu el que el SQL no pot:
   // una vista que hagués oblidat `security_invoker`, o un embed que arribi a la
   // taula per un altre camí.
-  const MEETING = '00000000-0000-4000-8000-0000000000d9'
+  // Un identificador que no fa servir ningú més. Aquesta suite escriu a la
+  // mateixa base i no desfà res, o sigui que un que ja sigui d'un fixture de
+  // pgTAP deixa aquell fitxer sense poder tornar a inserir el seu.
+  const MEETING = '00000000-0000-4000-8000-00000000fc01'
 
   beforeAll(async () => {
     const svc = serviceClient()
@@ -862,7 +864,10 @@ describe('a junta-scoped meeting does not exist for a member', () => {
     )
     await svc
       .from('event_title')
-      .upsert({ event_id: MEETING, titulo: 'Reunió inventada de junta' }, { onConflict: 'event_id' })
+      .upsert(
+        { event_id: MEETING, titulo: 'Reunió inventada de junta' },
+        { onConflict: 'event_id' },
+      )
   })
 
   it('is invisible through the view, the base table and the roster', async () => {

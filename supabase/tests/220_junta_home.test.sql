@@ -7,7 +7,7 @@
 -- to decide.
 
 begin;
-select plan(13);
+select plan(15);
 
 reset role;
 
@@ -146,6 +146,41 @@ select is(
   (public.junta_home()->>'socis')::int,
   (select count(*)::int from public.profiles where estat = 'actiu'),
   'and how many people are in, which is what the Socis row says out loud'
+);
+
+-- ── i una reunió no és la porta ─────────────────────────────────────────────
+-- La migració 48 va afegir un tipus d'esdeveniment, i aquest bloc i el
+-- comptador del calendari es van escriure quan tot esdeveniment era una festa.
+-- Una reunió no té cua, ni QR, ni ningú a qui reclamar res: si en surt una,
+-- desplaça la festa que la junta hi va a mirar.
+reset role;
+
+insert into public.events (id, tipo, abast, starts_at, plazas, precio_cents, puntos, published, created_by)
+values (
+  '00000000-0000-4000-8000-0000000000f7', 'reunio', 'junta',
+  now() + interval '1 hour', null, 0, 0, true,
+  '00000000-0000-4000-8000-0000000000a1'
+);
+
+insert into public.event_title (event_id, titulo)
+values ('00000000-0000-4000-8000-0000000000f7', 'Junta d''aquesta nit');
+
+select tests.authenticate_as('junta_alfa');
+
+select is(
+  public.junta_home()->'porta',
+  'null'::jsonb,
+  'una reunio d''aqui una hora no ocupa el bloc de la porta'
+);
+
+reset role;
+select tests.authenticate_as('junta_alfa');
+
+select is(
+  (public.junta_home()->>'propers')::int,
+  (select count(*)::int from public.events
+    where tipo <> 'reunio' and starts_at >= now() - interval '8 hours'),
+  'ni es compta al calendari, que te el seu bloc a part'
 );
 
 select * from finish();

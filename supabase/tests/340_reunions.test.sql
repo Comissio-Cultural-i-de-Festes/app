@@ -16,7 +16,7 @@
 -- Persones i reunions inventades, com a tot el repo.
 
 begin;
-select plan(24);
+select plan(28);
 
 reset role;
 delete from public.audit_log;
@@ -263,5 +263,64 @@ select is(
 );
 
 reset role;
+-- ── i les dues portes del darrere ───────────────────────────────────────────
+-- La regla «una reunió de junta no reparteix punts» va néixer dins
+-- `admin_close_meeting`, i una regla que viu dins d'una funció val només per
+-- aquella funció. `check_in` reparteix `asistencia` i es tria per URL: sense
+-- res que ho aturi, obrir l'escàner sobre una reunió de junta pagava.
+reset role;
+select tests.authenticate_as('junta_alfa');
+
+select throws_ok(
+  format(
+    $$select public.check_in(%L, null, %L, %L)$$,
+    (select junta from que),
+    '00000000-0000-4000-8000-000000000001'::uuid,
+    gen_random_uuid()
+  ),
+  '22023',
+  null,
+  'la porta no fitxa a una reunio: es tanca, no s''escaneja'
+);
+
+select throws_ok(
+  format(
+    $$select public.check_in(%L, null, %L, %L)$$,
+    (select comi from que),
+    '00000000-0000-4000-8000-000000000001'::uuid,
+    gen_random_uuid()
+  ),
+  '22023',
+  null,
+  'i tampoc a una de la comi, que tambe es tanca'
+);
+
+-- I la regla mateixa, a la taula: qualsevol cami hi topa, no només aquests dos.
+reset role;
+
+select throws_ok(
+  format(
+    $$insert into public.points_log (user_id, event_id, motivo, puntos, granted_by)
+      values (%L, %L, 'montaje', 40, %L)$$,
+    '00000000-0000-4000-8000-000000000001'::uuid,
+    (select junta from que),
+    '00000000-0000-4000-8000-0000000000a9'::uuid
+  ),
+  '22023',
+  null,
+  'ni un insert directe: la regla es de points_log i no de cap RPC'
+);
+
+select lives_ok(
+  format(
+    $$insert into public.points_log (user_id, event_id, motivo, puntos, granted_by)
+      values (%L, %L, 'montaje', 40, %L)$$,
+    '00000000-0000-4000-8000-000000000001'::uuid,
+    (select comi from que),
+    '00000000-0000-4000-8000-0000000000a9'::uuid
+  ),
+  'mentre que una reunio de tota la comi si que en pot donar'
+);
+
 select * from finish();
 rollback;

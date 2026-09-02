@@ -24,9 +24,7 @@
 export const HIDDEN_TITLE = '? ? ?'
 
 export function eventTitle(titulo: string | null | undefined): string {
-  return titulo === null || titulo === undefined || titulo.trim() === ''
-    ? HIDDEN_TITLE
-    : titulo
+  return titulo === null || titulo === undefined || titulo.trim() === '' ? HIDDEN_TITLE : titulo
 }
 
 /**

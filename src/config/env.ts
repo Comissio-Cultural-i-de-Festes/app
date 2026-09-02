@@ -55,4 +55,17 @@ export const env = {
   authEmailFallback: flag('VITE_AUTH_EMAIL_FALLBACK'),
   supabaseUrl: required('VITE_SUPABASE_URL'),
   supabaseAnonKey: required('VITE_SUPABASE_ANON_KEY'),
+  /**
+   * La clau PÚBLICA de VAPID, per subscriure el navegador als avisos.
+   *
+   * Pública de debò: el navegador l'ha d'enviar al servei de push i va al
+   * paquet, com la clau `anon`. La privada, que és la que signa, viu com a
+   * secret de l'Edge Function i no apareix mai per aquí —`npm run check:keys`
+   * escaneja el build i la trobaria.
+   *
+   * `optional` i no `required`: sense clau no hi ha avisos i l'app funciona
+   * igual. La targeta «Ja es pot dir» de l'Inici és el camí i el push l'extra,
+   * o sigui que una instal·lació sense configurar-ho ha d'arrencar i no petar.
+   */
+  vapidPublicKey: optional('VITE_VAPID_PUBLIC_KEY', ''),
 } as const

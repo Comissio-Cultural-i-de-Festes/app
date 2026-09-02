@@ -446,6 +446,19 @@ enabled = true
 # JSON string passed through to pg-delta SQL formatting.
 # format_options = "{\"keywordCase\":\"upper\",\"indent\":2,\"maxWidth\":80,\"commaStyle\":\"trailing\"}"
 
+[functions.reveal-push]
+# `false`, i és l'única funció del projecte que ho té. Qui la crida no és un
+# navegador amb sessió: és `pg_net` des de dins de la base de dades, que no té
+# cap JWT a mà. I la clau `anon` no serviria de porter de totes maneres —és
+# pública, va al paquet del navegador— així que `verify_jwt = true` no
+# distingiria el nostre cron d'un desconegut.
+#
+# Qui ho distingeix és un secret compartit que només és a `vault` i a l'entorn
+# d'aquesta funció, comprovat a la primera línia del cos. I el que la funció
+# pot fer si algú passa aquella porta està limitat per disseny: no té cap clau
+# de base de dades i només sap xifrar i enviar el que li arribi al cos.
+verify_jwt = false
+
 [functions.check-in]
 # A cheap first gate that keeps unauthenticated traffic from booting the
 # function. It is NOT the authorisation check: it proves there is a user, not

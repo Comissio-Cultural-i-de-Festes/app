@@ -428,6 +428,7 @@ export type Database = {
       }
       events: {
         Row: {
+          avisat_at: string | null
           cal_confirmacio: boolean
           created_at: string
           created_by: string | null
@@ -443,6 +444,7 @@ export type Database = {
           tipo: string
         }
         Insert: {
+          avisat_at?: string | null
           cal_confirmacio?: boolean
           created_at?: string
           created_by?: string | null
@@ -458,6 +460,7 @@ export type Database = {
           tipo: string
         }
         Update: {
+          avisat_at?: string | null
           cal_confirmacio?: boolean
           created_at?: string
           created_by?: string | null
@@ -1133,6 +1136,38 @@ export type Database = {
           },
           {
             foreignKeyName: "proposals_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_subscription: {
+        Row: {
+          auth: string
+          created_at: string
+          endpoint: string
+          p256dh: string
+          user_id: string
+        }
+        Insert: {
+          auth: string
+          created_at?: string
+          endpoint: string
+          p256dh: string
+          user_id: string
+        }
+        Update: {
+          auth?: string
+          created_at?: string
+          endpoint?: string
+          p256dh?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_subscription_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"

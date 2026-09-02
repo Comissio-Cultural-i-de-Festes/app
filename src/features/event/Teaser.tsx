@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { errorKey } from '@/lib/errors'
@@ -6,6 +7,7 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { type Interest, eventKeys, fetchInterest, setInterest } from './api'
 import { countdown } from './countdown'
+import { type PushOutcome, pushAvailable, pushGranted, subscribeToPush } from './push'
 
 /**
  * El que es pot dir d'un esdeveniment que encara no es pot dir.
@@ -126,22 +128,28 @@ export function InterestBlock({
       {vol ? (
         // Ja premut. Una caixa verda i no el botó una altra vegada: el que fa
         // falta saber és què passarà i quan, no que es pot tornar a prémer.
-        <div className="border-l-[3px] border-success bg-surface-2 px-9 py-8">
-          <p className="text-base font-bold [text-wrap:pretty]">
-            {t('event.teaser.done', { count: quants })}
-          </p>
-          <p className="mt-3 text-sm leading-[1.4] text-fg-muted [text-wrap:pretty]">
-            {t('event.teaser.doneSub')}
-          </p>
-          <button
-            type="button"
-            disabled={toggle.isPending}
-            onClick={() => toggle.mutate(false)}
-            className="mt-5 flex min-h-[44px] items-center font-body text-md font-bold text-fg-muted disabled:opacity-45"
-          >
-            {t('event.teaser.undo')}
-          </button>
-        </div>
+        <>
+          <div className="border-l-[3px] border-success bg-surface-2 px-9 py-8">
+            <p className="text-base font-bold [text-wrap:pretty]">
+              {t('event.teaser.done', { count: quants })}
+            </p>
+            <p className="mt-3 text-sm leading-[1.4] text-fg-muted [text-wrap:pretty]">
+              {t('event.teaser.doneSub')}
+            </p>
+            <button
+              type="button"
+              disabled={toggle.isPending}
+              onClick={() => toggle.mutate(false)}
+              className="mt-5 flex min-h-[44px] items-center font-body text-md font-bold text-fg-muted disabled:opacity-45"
+            >
+              {t('event.teaser.undo')}
+            </button>
+          </div>
+
+          {/* I només ara, el permís del sistema. Vegeu `push.ts`: demanar-lo
+              abans que algú vulgui res és com es perd per sempre. */}
+          <PushOffer />
+        </>
       ) : (
         <>
           <button
@@ -190,6 +198,86 @@ export function InterestCount({ eventId }: { readonly eventId: string }) {
       <p className="mt-[2px] text-sm-lo font-bold text-fg-muted [text-wrap:pretty]">
         {t('event.teaser.waiting', { count: quants })}
       </p>
+    </div>
+  )
+}
+
+/**
+ * «Vols que el mòbil t'avisi?», i el permís just després del sí.
+ *
+ * SURT DESPRÉS D'HAVER PREMUT «AVISA'M» i no abans. El diàleg del sistema es
+ * demana des del botó d'aquí dins, quan la persona ja ha dit dues vegades que
+ * aquell esdeveniment li interessa. A Chrome i a Safari un «no» és per sempre
+ * —la pàgina no pot tornar a demanar-ho— i per això `pushAvailable()` també
+ * amaga el bloc quan el permís ja està denegat: oferir una cosa que no es pot
+ * tornar a demanar és pitjor que no oferir-la.
+ *
+ * I «NO CAL» NO ÉS UN «NO» DEL SISTEMA. Tancar el bloc no toca cap permís: la
+ * propera vegada tornarà a sortir, perquè no haver-ho volgut al setembre no
+ * vol dir no voler-ho al desembre. El que sí que és per sempre és el diàleg
+ * del sistema, i aquest botó no l'obre.
+ *
+ * QUE FALLI NO ÉS UN ERROR VERMELL. Un navegador sense push, iOS sense l'app
+ * instal·lada, una instal·lació sense clau VAPID: en tots aquests casos
+ * l'avís no arribarà i la targeta «Ja es pot dir» de l'Inici sí. Es diu en una
+ * línia grisa i s'acaba.
+ */
+function PushOffer() {
+  const { t } = useTranslation()
+  const [asked, setAsked] = useState(false)
+  const [outcome, setOutcome] = useState<PushOutcome | null>(null)
+  const [busy, setBusy] = useState(false)
+
+  // Ja concedit vol dir que ja està subscrit d'un altre esdeveniment: la
+  // subscripció és del navegador i no de l'esdeveniment.
+  if (!pushAvailable() || pushGranted() || asked) return null
+
+  return (
+    <div className="pt-8">
+      <div className="border-[1.5px] border-brand-cta bg-brand-tint-soft px-9 py-8">
+        <p className="eyebrow-sm text-brand-label">{t('event.teaser.pushEyebrow')}</p>
+        <p className="display mt-4 text-d-xs leading-[1.05] tracking-[-0.04em] [text-wrap:balance]">
+          {t('event.teaser.pushTitle')}
+        </p>
+        <p className="mt-5 text-md-lo leading-[1.4] text-fg-secondary [text-wrap:pretty]">
+          {t('event.teaser.pushBody')}
+        </p>
+
+        <div className="mt-8 flex gap-4">
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              setBusy(true)
+              void subscribeToPush().then((result) => {
+                setBusy(false)
+                setOutcome(result)
+                if (result.ok) setAsked(true)
+              })
+            }}
+            className="flex min-h-[50px] flex-1 items-center justify-center rounded-cta border-0 bg-brand-cta px-6 font-body text-base font-bold text-on-brand disabled:opacity-45 [text-wrap:balance]"
+          >
+            {busy ? t('state.updating') : t('event.teaser.pushYes')}
+          </button>
+          <button
+            type="button"
+            onClick={() => setAsked(true)}
+            className="flex min-h-[50px] flex-none items-center justify-center bg-transparent px-6 font-body text-base font-bold text-fg-muted [text-wrap:balance]"
+          >
+            {t('event.teaser.pushNo')}
+          </button>
+        </div>
+      </div>
+
+      {outcome !== null && !outcome.ok ? (
+        <p className="mt-5 text-sm-lo leading-[1.4] text-fg-muted-lo [text-wrap:pretty]">
+          {t(`event.teaser.pushFail.${outcome.reason}`)}
+        </p>
+      ) : (
+        <p className="mt-5 text-sm-lo leading-[1.4] text-fg-muted-lo [text-wrap:pretty]">
+          {t('event.teaser.pushWhenSub')}
+        </p>
+      )}
     </div>
   )
 }

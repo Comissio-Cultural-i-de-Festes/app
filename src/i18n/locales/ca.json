@@ -156,6 +156,18 @@
       "now": "Ja es pot dir"
     },
     "teaser": {
+      "pushEyebrow": "Perquè no te n'assabentis l'endemà",
+      "pushTitle": "Vols que el mòbil t'avisi?",
+      "pushBody": "Les places bones s'acaben la primera hora. Un avís, el dia de la revelació, i cap més: la comi no fa notificacions de res més.",
+      "pushYes": "Sí, avisa'm",
+      "pushNo": "No cal",
+      "pushWhenSub": "El permís del sistema surt després d'aquest «Sí».",
+      "pushFail": {
+        "unsupported": "Aquest navegador no fa avisos. A l'iPhone, cal tenir l'app afegida a la pantalla d'inici. Igualment ho tindràs a l'Inici el dia que s'obri.",
+        "unconfigured": "Els avisos al mòbil encara no estan endollats. Ho tindràs a l'Inici el dia que s'obri.",
+        "denied": "Has dit que no als avisos, i des d'aquí ja no es pot tornar a demanar. Ho tindràs a l'Inici el dia que s'obri.",
+        "failed": "No hem pogut activar l'avís del mòbil. Ho tindràs a l'Inici el dia que s'obri."
+      },
       "chip": "Encara amagat",
       "willBeKnown": "Es sabrà d'aquí",
       "days": "dies",

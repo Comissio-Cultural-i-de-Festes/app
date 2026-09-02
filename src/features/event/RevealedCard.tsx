@@ -84,8 +84,7 @@ export function RevealedCard() {
   const event = revealed.data?.[0]
   if (event === undefined) return null
 
-  const places =
-    event.plazas === null ? null : t('home.places.of', { total: event.plazas })
+  const places = event.plazas === null ? null : t('home.places.of', { total: event.plazas })
   const sub = [formatDateTime(new Date(event.starts_at), locale), places]
     .filter((part): part is string => part !== null)
     .join(' · ')

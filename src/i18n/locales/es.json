@@ -156,6 +156,18 @@
       "now": "Ya se puede decir"
     },
     "teaser": {
+      "pushEyebrow": "Para que no te enteres al día siguiente",
+      "pushTitle": "¿Quieres que el móvil te avise?",
+      "pushBody": "Las plazas buenas se acaban la primera hora. Un aviso, el día de la revelación, y ninguno más: la comi no manda notificaciones de nada más.",
+      "pushYes": "Sí, avísame",
+      "pushNo": "No hace falta",
+      "pushWhenSub": "El permiso del sistema sale después de este «Sí».",
+      "pushFail": {
+        "unsupported": "Este navegador no hace avisos. En el iPhone hay que tener la app añadida a la pantalla de inicio. Igualmente lo tendrás en el Inicio el día que se abra.",
+        "unconfigured": "Los avisos al móvil todavía no están enchufados. Lo tendrás en el Inicio el día que se abra.",
+        "denied": "Dijiste que no a los avisos, y desde aquí ya no se puede volver a pedir. Lo tendrás en el Inicio el día que se abra.",
+        "failed": "No hemos podido activar el aviso del móvil. Lo tendrás en el Inicio el día que se abra."
+      },
       "chip": "Todavía oculto",
       "willBeKnown": "Se sabrá dentro de",
       "days": "días",

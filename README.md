@@ -193,6 +193,10 @@ from a migration on a hosted project is known to leave the schema grants
 half-set even when the dashboard reports it active. Enabling it here makes the
 migration a no-op instead.
 
+While you are there, enable `pg_net` too, for the same reason. Migration 47
+needs it to send the reveal notification, and it raises `0A000` with
+instructions rather than applying half-done if it is missing.
+
 ### 2. Supabase — push the schema
 
 ```
@@ -343,7 +347,65 @@ same table: they are `pendent` until the junta approves them from
 _Invitacions_. A pending member can look around but cannot sign up for anything
 and has no QR, because the door would turn them away.
 
-### 9. Test it on an iPhone
+### 9. Supabase — the reveal notification (optional)
+
+The app works without this. «Avisa'm» records the interest either way, and
+whoever pressed it finds the event at the top of their home screen the first
+time they open the app after the reveal — that is the promise, and it needs no
+notification. What this step adds is the phone buzzing on the day.
+
+It is also a **departure from the spec**: section 13 of
+`02-especificacion-tecnica.md` says no push in v1, and the reason it gives is
+still true — on iOS a PWA only receives notifications if the person has added
+it to their home screen. Migration 47 says so in its header.
+
+Generate a key pair. The public half ships in the bundle; the private half
+signs, and must never be in this repo:
+
+```
+npx web-push generate-vapid-keys
+```
+
+Then, in three places:
+
+1. **Cloudflare Pages** → the build environment → `VITE_VAPID_PUBLIC_KEY` =
+   the public key. Without it the app never asks for the permission, which is
+   the correct behaviour for an installation that has not set this up.
+
+2. **Supabase → Edge Functions → reveal-push → Secrets**:
+
+   | Name                | Value                                    |
+   | ------------------- | ---------------------------------------- |
+   | `VAPID_PUBLIC_KEY`  | the public key                           |
+   | `VAPID_PRIVATE_KEY` | the private key                          |
+   | `VAPID_SUBJECT`     | `mailto:` and an address the junta reads |
+   | `REVEAL_PUSH_TOKEN` | a long random string you invent          |
+   | `APP_ORIGIN`        | the site's address, no trailing slash    |
+
+   Then deploy it: `npx supabase functions deploy reveal-push`.
+
+3. **Supabase → SQL editor**, so the cron can reach the function. The same
+   token, and the function's URL:
+
+   ```sql
+   select vault.create_secret('<REVEAL_PUSH_TOKEN>', 'reveal_push_token');
+   select vault.create_secret(
+     'https://<ref>.supabase.co/functions/v1/reveal-push', 'reveal_push_url');
+   ```
+
+Why a shared token and not the anon key: the anon key is public — it ships in
+the browser bundle — so `verify_jwt` cannot tell our cron from a stranger.
+`reveal-push` is the only function in the project with `verify_jwt = false`,
+and the token in its first lines is what replaces it. What it can do if
+somebody gets past that door is limited by design: it holds no database
+credential at all and only knows how to encrypt and post whatever arrives in
+the request body. The database decides who gets told and what it says.
+
+Until the two `vault` secrets exist, the cron logs a warning every minute and
+sends nothing. That is deliberate — a scheduled job failing silently is worse
+than one that is not there.
+
+### 10. Test it on an iPhone
 
 See _Checking the iPhone round trip_ above. Do it before the first event, not
 after.

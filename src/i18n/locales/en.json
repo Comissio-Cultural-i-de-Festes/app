@@ -156,6 +156,18 @@
       "now": "It can be said now"
     },
     "teaser": {
+      "pushEyebrow": "So you do not find out the next day",
+      "pushTitle": "Want your phone to tell you?",
+      "pushBody": "The good places go in the first hour. One notification, on the day of the reveal, and no others: the committee does not send notifications about anything else.",
+      "pushYes": "Yes, tell me",
+      "pushNo": "No need",
+      "pushWhenSub": "The system prompt comes after this \"Yes\".",
+      "pushFail": {
+        "unsupported": "This browser does not do notifications. On iPhone the app has to be added to the home screen. You will still find it on your home screen the day it opens.",
+        "unconfigured": "Phone notifications are not plugged in yet. You will find it on your home screen the day it opens.",
+        "denied": "You said no to notifications, and this page cannot ask again. You will still find it on your home screen the day it opens.",
+        "failed": "We could not turn the phone notification on. You will still find it on your home screen the day it opens."
+      },
       "chip": "Still hidden",
       "willBeKnown": "Known in",
       "days": "days",

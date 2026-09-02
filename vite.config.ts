@@ -92,6 +92,21 @@ export default defineConfig(({ mode, command }) => {
           ],
         },
         workbox: {
+          // El tros de service worker que rep l'avís de la revelació.
+          //
+          // `generateSW` —que és el que aquest bloc `workbox` tria— escriu el
+          // service worker sencer i no deixa cap lloc on posar un
+          // `addEventListener('push')` propi. L'alternativa era `injectManifest`,
+          // o sigui escriure i mantenir tot el service worker (precaching,
+          // rutes, neteja de memòries cau, el `NetworkOnly` que protegeix la
+          // revelació) per afegir-hi vint línies. `importScripts` l'enganxa al
+          // que Workbox ja genera.
+          //
+          // El fitxer viu a `public/` perquè aquesta ruta la resol el service
+          // worker en temps d'execució: no és una importació que el bundler
+          // pugui reescriure, i per tant el nom no pot portar hash.
+          importScripts: ['push.js'],
+
           // Precache is build output only — these globs never see anything
           // outside dist/. Fonts are deliberately absent: the browser fetches
           // only the subset it needs and the rule below keeps it forever,

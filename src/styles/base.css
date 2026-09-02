@@ -194,6 +194,25 @@
     padding-bottom: var(--ds-tabbar-offset);
   }
 
+  /* I les que van sota la banda de pendent, igual, però per dalt.
+   *
+   * Va al contenidor de l'`Outlet` i no a cada pantalla: `TabLayout` sap si la
+   * banda hi és i les cinc pestanyes no ho han de saber. Fa dues coses, i la
+   * segona és la que costa de veure: reserva el lloc, i puja el punt on
+   * s'enganxa la cromàtica `sticky` de dins. Sense la segona, la capçalera de
+   * l'Inici es continua enganxant al viewport i queda sota la banda en desar,
+   * amb el títol tapat.
+   *
+   * El coixí de dalt va amb terra i no amb el retall cru, i les dues meitats
+   * han de dir el mateix: la banda es paga `--ds-safe-top-min` i això reserva
+   * `--ds-banner-h` a sobre. Amb el cru aquí i el terra allà, en un telèfon
+   * sense retall es reservarien dotze píxels menys dels que la banda ocupa i
+   * el contingut passaria per sota. */
+  .with-banner {
+    --ds-sticky-top: calc(var(--ds-banner-h) + var(--ds-safe-top-min));
+    padding-top: var(--ds-sticky-top);
+  }
+
   /* The radius slider on the event form.
    *
    * A range input cannot be styled with utilities: its track and its thumb are

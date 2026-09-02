@@ -293,6 +293,36 @@
   --ds-tabbar-h: calc(var(--ds-tabbar-pad-t) + var(--ds-tabbar-item-h) + var(--ds-tabbar-pad-b));
   --ds-tabbar-offset: calc(var(--ds-tabbar-h) + var(--ds-safe-bottom));
 
+  /* La banda de «encara no ets dins», plegada.
+   *
+   * Emmirallat del `TabBar`: la banda és `fixed`, o sigui que surt del flux i
+   * el contingut s'ha de reservar el lloc ell mateix —`.with-banner`, com
+   * `.with-tabbar` a baix. Sticky no servia: l'Inici i el Rànquing ja porten
+   * capçalera `sticky` i les dues s'encavallarien, i cada pantalla es paga el
+   * seu `--ds-safe-top`, que amb una banda a sobre es pagaria dues vegades.
+   *
+   * Per això la banda és qui es menja el retall de dalt, i aquesta alçada és
+   * la de la línia plegada i prou: desplegada creix, i mentre està desplegada
+   * ningú no està llegint el que hi ha a sota.
+   *
+   * L'alçada nua es fa servir un sol cop, a `.with-banner`, sumada al terra
+   * de `--ds-safe-top-min` —el mateix que es paga la banda. Aquí hi és perquè
+   * el número visqui al costat dels de la barra de baix i no dins d'una
+   * classe. */
+  --ds-banner-h: 38px;
+
+  /* On s'enganxa la cromàtica `sticky` d'una pantalla.
+   *
+   * Zero de sèrie, i `.with-banner` la puja quan hi ha una banda a sobre.
+   * Ha de ser una variable i no un `top-0`: un element `sticky` s'enganxa al
+   * viewport i no al seu contenidor, o sigui que el coixí de `.with-banner`
+   * baixa el contingut però deixa la capçalera enganxant-se igualment sota la
+   * banda. I no es pot arreglar amb un `.with-banner .sticky {…}` a
+   * `base.css`, perquè allà les regles viuen a `@layer components` i les
+   * utilitats de Tailwind, `top-0` inclòs, van a `@layer utilities`, que
+   * guanya sempre —passi el que passi amb l'especificitat. */
+  --ds-sticky-top: 0px;
+
   /* ─── BUTTONS ────────────────────────────────────────────────────────── */
   /* Catalan runs 15-20% longer than English. Buttons GROW, never clip.
    * There is deliberately no --ds-btn-height. */

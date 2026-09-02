@@ -1,7 +1,8 @@
 import { useTranslation } from 'react-i18next'
 import { Link, Outlet, useLocation } from 'react-router'
 
-import { PendingBanner, usePendingBanner } from '@/features/session/PendingBanner'
+import { PendingBanner } from '@/features/session/PendingBanner'
+import { usePendingBanner } from '@/features/session/pendingState'
 import { TabBar, type TabId } from '@/ui/TabBar/TabBar'
 
 /**

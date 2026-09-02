@@ -2,7 +2,6 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { InviteCodeSheet } from './InviteCodeSheet'
-import { useMyProfile } from './useMyProfile'
 
 /**
  * «Encara no ets dins», a dalt de tot, fins que la junta t'accepti.
@@ -46,50 +45,8 @@ import { useMyProfile } from './useMyProfile'
  * als dos casos, i per això aquella condició es queda allà on és.
  */
 
-const KEY = 'comi.pending.collapsed'
-
-function readCollapsed(): boolean {
-  try {
-    return localStorage.getItem(KEY) === '1'
-  } catch {
-    // Safari en privat llança en llegir. Desplegada és el pitjor cas
-    // acceptable; no poder pintar la banda, no.
-    return false
-  }
-}
-
-function writeCollapsed(collapsed: boolean): void {
-  try {
-    localStorage.setItem(KEY, collapsed ? '1' : '0')
-  } catch {
-    /* El plec és una comoditat. Si no es pot desar, la banda encara funciona. */
-  }
-}
-
 /** El filet ambre i el fons, iguals a les dues cares. */
 const SKIN = 'border-b border-surface-6 border-l-[3px] border-l-warning bg-surface-1'
-
-/**
- * El plec, compartit amb `TabLayout`.
- *
- * L'estat viu aquí i el llegeixen dos components, perquè el contenidor ha de
- * saber si posa `.with-banner` o no: amb la banda desplegada el coixí no toca,
- * i amb dos `useState` separats el commutador no es veuria a l'altre costat.
- */
-export function usePendingBanner() {
-  const { data: profile } = useMyProfile()
-  const [collapsed, setCollapsed] = useState(readCollapsed)
-
-  return {
-    /** Si hi ha banda. `'baixa'` no en té: vegeu la nota de dalt. */
-    showing: profile?.estat === 'pendent',
-    collapsed,
-    collapse: (next: boolean) => {
-      setCollapsed(next)
-      writeCollapsed(next)
-    },
-  }
-}
 
 export function PendingBanner({
   showing,

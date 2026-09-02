@@ -61,13 +61,33 @@ export function Cover({
   )
 }
 
-export function Fact({ label, value }: { readonly label: string; readonly value: string }) {
+export function Fact({
+  label,
+  value,
+  unknown = false,
+}: {
+  readonly label: string
+  readonly value: string
+  /**
+   * El valor és un «encara no se sap» i no un fet.
+   *
+   * En violeta, com tot el que la revelació tapa, i no en gris: un «Encara no»
+   * del mateix color que una adreça es llegeix com si fos l'adreça.
+   */
+  readonly unknown?: boolean
+}) {
   return (
     <div className="flex gap-6 py-2">
       <p className="w-[64px] flex-none text-2xs font-extrabold tracking-[0.08em] text-fg-dim uppercase">
         {label}
       </p>
-      <p className="flex-1 text-base text-fg-secondary [text-wrap:pretty]">{value}</p>
+      <p
+        className={
+          'flex-1 text-base [text-wrap:pretty] ' + (unknown ? 'text-unknown' : 'text-fg-secondary')
+        }
+      >
+        {value}
+      </p>
     </div>
   )
 }

@@ -45,7 +45,8 @@ import { RidesBlock } from '@/features/rides/RidesBlock'
 
 import { eventKeys, fetchEvent, fetchWaitlist, formatPrice } from './api'
 import { Cover, Fact, Places } from './detail'
-import { eventTitle } from './title'
+import { BigCountdown, HiddenChip, InterestBlock } from './Teaser'
+import { eventTitle, titleIsHidden } from './title'
 
 const GUTTER = 'px-[var(--ds-gutter)]'
 
@@ -160,6 +161,10 @@ export function EventScreen() {
   const left = placesLeft(e, going.length)
   const starts = new Date(e.starts_at)
   const isPast = starts.getTime() < now.getTime()
+  // El títol no arriba fins a la revelació, i és el que decideix mitja
+  // pantalla: sense títol no hi ha places, ni cotxes, ni sí/potser/no, perquè
+  // ningú no sap a què diria que sí.
+  const hidden = titleIsHidden(e.titulo)
   const price = formatPrice(e.precio_cents, INTL_LOCALE[locale])
   const movement = signedUpToday(rows, id, userId, now)
   // Only worth a tap once the door has let somebody in. Before that the
@@ -196,16 +201,41 @@ export function EventScreen() {
 
       <section className={`pt-8 ${GUTTER}`}>
         <div className="flex items-start justify-between gap-6">
-          <p className="eyebrow text-brand-accent">{formatDateTime(starts, locale)}</p>
-          {isPast ? null : <Share event={e} />}
+          <p className={`eyebrow ${hidden ? 'text-unknown' : 'text-brand-accent'}`}>
+            {formatDateTime(starts, locale)}
+          </p>
+          {/* Compartir una cosa que ningú no sap què és no té res a compartir:
+              l'enllaç portaria l'altra persona a la mateixa pantalla de
+              «? ? ?». Al seu lloc, el xip que diu per què. */}
+          {hidden ? <HiddenChip /> : isPast ? null : <Share event={e} />}
         </div>
-        <h1 className="display mt-4 text-d-md leading-[0.88] tracking-[-0.05em] [overflow-wrap:break-word] [text-wrap:balance]">
+        <h1
+          className={
+            'display mt-4 text-d-md leading-[0.88] [overflow-wrap:break-word] [text-wrap:balance] ' +
+            (hidden ? 'tracking-[0.02em] text-fg-muted' : 'tracking-[-0.05em]')
+          }
+        >
           {eventTitle(e.titulo)}
         </h1>
-        {e.teaser === null ? null : (
+        {hidden ? (
+          <p className="mt-6 text-lg leading-[1.4] text-fg-secondary [text-wrap:pretty]">
+            {t('event.teaser.lead', { when: formatDateLong(starts, locale) })}
+          </p>
+        ) : e.teaser === null ? null : (
           <p className="mt-6 text-lg text-fg-secondary [text-wrap:pretty]">{e.teaser}</p>
         )}
       </section>
+
+      {/* El compte enrere gran, al lloc on hi hauria les cares de qui hi va:
+          encara no hi va ningú, perquè encara no es pot dir a què. */}
+      {hidden && e.reveal_at !== null ? (
+        <div className={GUTTER}>
+          <BigCountdown revealAt={e.reveal_at} />
+          <p className="mt-7 text-sm font-bold text-fg-muted">
+            {t('event.teaser.opensAt', { when: formatDateTime(new Date(e.reveal_at), locale) })}
+          </p>
+        </div>
+      ) : null}
 
       {going.length > 0 ? (
         <section className={`pt-9 ${GUTTER}`}>
@@ -244,21 +274,43 @@ export function EventScreen() {
         </section>
       ) : null}
 
-      {/* The three facts people ask in the group, in the order they ask them. */}
+      {/* The three facts people ask in the group, in the order they ask them.
+          Amb el títol amagat es queden totes tres amb «Encara no» al lloc del
+          valor, i no desapareixen: una pantalla sense la fila del lloc fa
+          pensar que l'esdeveniment no en té, i el que passa és que encara no
+          es pot dir. */}
       <section className={`mt-9 border-y border-surface-7 py-8 ${GUTTER}`}>
         <Fact label={t('event.facts.when')} value={whenText(e, starts, locale, t)} />
-        {e.ubicacion === null ? null : <Fact label={t('event.facts.where')} value={e.ubicacion} />}
-        <Fact label={t('event.facts.price')} value={price ?? t('event.facts.free')} />
+        {hidden ? (
+          <Fact label={t('event.facts.where')} value={t('event.teaser.notYet')} unknown />
+        ) : e.ubicacion === null ? null : (
+          <Fact label={t('event.facts.where')} value={e.ubicacion} />
+        )}
+        <Fact
+          label={t('event.facts.price')}
+          value={hidden ? t('event.teaser.notYet') : (price ?? t('event.facts.free'))}
+          unknown={hidden}
+        />
       </section>
 
-      <Places
-        total={e.plazas}
-        puntos={e.puntos}
-        left={left}
-        going={going.length}
-        isPast={isPast}
-        waiting={waitlist.data?.total ?? 0}
-      />
+      {/* Places, cotxes, gimcana i el sí/potser/no no hi són: no se sap ni què
+          és. L'única cosa que es pot fer és dir «avisa'm». */}
+      {hidden ? (
+        <section className={GUTTER}>
+          <InterestBlock eventId={e.id} />
+        </section>
+      ) : null}
+
+      {hidden ? null : (
+        <Places
+          total={e.plazas}
+          puntos={e.puntos}
+          left={left}
+          going={going.length}
+          isPast={isPast}
+          waiting={waitlist.data?.total ?? 0}
+        />
+      )}
 
       {inside === 0 ? null : (
         <section className={`pt-12 ${GUTTER}`}>
@@ -297,7 +349,7 @@ export function EventScreen() {
           per a tothom que no constés dins —inclòs qui no havia contestat mai i
           qui havia dit que no. Se n'anaven set coses més amb ell, entre elles
           la posició a la llista d'espera, que no es veu enlloc més. */}
-      {isPast || mine === 'asistio' || justCheckedIn ? null : (
+      {hidden || isPast || mine === 'asistio' || justCheckedIn ? null : (
         <AnswerBlock
           mine={mine}
           confirm={e.cal_confirmacio}
@@ -368,7 +420,9 @@ export function EventScreen() {
       {/* Only where somebody has to drive. The flag is per event and not per
           type: a party out of town needs cars, a casa rural fifteen minutes
           away does not. */}
-      {e.te_cotxes ? <RidesBlock eventId={e.id} /> : null}
+      {/* I els cotxes tampoc: encara no se sap on és, o sigui que no hi ha cap
+          trajecte a oferir. */}
+      {e.te_cotxes && !hidden ? <RidesBlock eventId={e.id} /> : null}
 
       {e.descripcion === null ? null : (
         <section className={`pt-9 pb-8 ${GUTTER}`}>

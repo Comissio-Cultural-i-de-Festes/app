@@ -20,7 +20,9 @@ import {
   formatWeekdayLong,
 } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
-import { eventTitle } from '@/features/event/title'
+import { countdown, countdownLabel, countdownShape } from '@/features/event/countdown'
+import { InterestBlock, InterestCount } from '@/features/event/Teaser'
+import { eventTitle, titleIsHidden } from '@/features/event/title'
 import { ExitPhotoCard } from '@/features/photos/ExitPhotoCard'
 import { useExitOffer } from '@/features/photos/useExitOffer'
 import { errorKey } from '@/lib/errors'
@@ -222,22 +224,34 @@ function Hero({
 }) {
   const { t } = useTranslation()
   const start = new Date(event.starts_at)
+  const hidden = titleIsHidden(event.titulo)
 
   return (
     <Link
       to={`/esdeveniment/${event.id}`}
-      className="relative block h-[260px] bg-[oklch(0.2_0.02_25)] no-underline"
+      className="relative block h-[260px] overflow-hidden bg-[oklch(0.2_0.02_25)] no-underline"
     >
+      {/* La portada d'un esdeveniment no revelat es difumina AQUÍ i no al
+          servidor, perquè el camí ja no baixa fins que es revela: el que hi ha
+          és el fons de ratlles. El desenfoc es queda per al dia que el camí
+          sí que baixi tapat, i perquè la forma sigui la mateixa —`inset -40px`
+          perquè un `blur` deixa la vora transparent i es veuria el marc. */}
       {coverUrl === null ? (
         <div
           aria-hidden="true"
-          className="absolute inset-0 bg-[var(--ds-bg-avatar)] bg-[image:var(--ds-pattern-avatar)]"
+          className={
+            'absolute bg-[var(--ds-bg-avatar)] bg-[image:var(--ds-pattern-avatar)] ' +
+            (hidden ? '-inset-20 blur-[28px] saturate-[1.3]' : 'inset-0')
+          }
         />
       ) : (
         <img
           src={coverUrl}
           alt=""
-          className="absolute inset-0 size-full object-cover"
+          className={
+            'absolute size-full object-cover ' +
+            (hidden ? '-inset-20 blur-[28px] saturate-[1.3]' : 'inset-0')
+          }
           decoding="async"
         />
       )}
@@ -251,8 +265,18 @@ function Hero({
       />
 
       <div className="absolute right-4 bottom-4 left-[var(--ds-gutter)]">
-        <p className="eyebrow text-brand-accent">{whenLabel(start, locale, t)}</p>
-        <h1 className="display mt-4 text-d-md leading-[0.85] tracking-[-0.048em] [overflow-wrap:break-word] [text-wrap:balance]">
+        <p className={`eyebrow ${hidden ? 'text-unknown' : 'text-brand-accent'}`}>
+          {whenLabel(start, locale, t)}
+        </p>
+        {/* «? ? ?» amb el `tracking` positiu i en gris: els interrogants amb
+            el `tracking` negatiu del display se sobreposen, i en blanc
+            competirien amb la data, que aquí és l'única cosa que se sap. */}
+        <h1
+          className={
+            'display mt-4 text-d-md leading-[0.85] [overflow-wrap:break-word] [text-wrap:balance] ' +
+            (hidden ? 'tracking-[0.02em] text-fg-muted' : 'tracking-[-0.048em]')
+          }
+        >
           {eventTitle(event.titulo)}
         </h1>
       </div>
@@ -303,6 +327,23 @@ function Places({
         ? t('home.places.of', { total: event.plazas })
         : `${t('home.places.of', { total: event.plazas })} · ${where}`
 
+  // Un teaser no té places a dir: no se sap ni què és. Al seu lloc hi va el
+  // compte enrere i quanta gent hi està pendent, que és el que hi ha.
+  if (titleIsHidden(event.titulo) && event.reveal_at !== null) {
+    const label = countdownLabel(countdownShape(countdown(event.reveal_at)))
+    return (
+      <section className={`flex items-end justify-between gap-[14px] pt-8 ${GUTTER}`}>
+        <div className="min-w-0">
+          <p className="eyebrow-sm text-unknown">{t('event.teaser.willBeKnown')}</p>
+          <p className="tabular display mt-3 text-d-md leading-[0.85] tracking-[-0.05em]">
+            {t(label.key, label.vars)}
+          </p>
+        </div>
+        <InterestCount eventId={event.id} />
+      </section>
+    )
+  }
+
   return (
     <section className={`flex items-end justify-between gap-[14px] pt-8 ${GUTTER}`}>
       <div className="min-w-0">
@@ -346,6 +387,14 @@ function Places({
 
 // ── the answer ──────────────────────────────────────────────────────────────
 
+/**
+ * Un teaser no porta el botó d'apuntar-se, porta «Avisa'm».
+ *
+ * Abans d'aquí hi hauria hagut el botó de sempre, desactivat, i un botó
+ * desactivat en un esdeveniment que ningú no sap què és no explica res: la
+ * gent el prem i no passa res. El bloc de l'interès es busca les seves pròpies
+ * dades i entra en una línia.
+ */
 function CallToAction({
   event,
   attendances,
@@ -381,6 +430,17 @@ function CallToAction({
   const base =
     'flex w-full min-h-[56px] items-center justify-center px-[18px] py-[15px] ' +
     'text-[18px] font-bold tracking-[-0.01em] text-center [text-wrap:balance] rounded-cta'
+
+  // Un teaser no té res a què apuntar-se. El bloc de l'interès ocupa el lloc
+  // del botó, i porta la seva pròpia explicació perquè el botó sol es
+  // llegiria com «M'hi apunto» pel lloc on està.
+  if (titleIsHidden(event.titulo)) {
+    return (
+      <section className={GUTTER}>
+        <InterestBlock eventId={event.id} size="hero" />
+      </section>
+    )
+  }
 
   return (
     <section className={`pt-8 ${GUTTER}`}>
@@ -600,10 +660,21 @@ function Upcoming({
       <ul>
         {events.map((event) => {
           const start = new Date(event.starts_at)
+          const hidden = titleIsHidden(event.titulo)
           const left = placesLeft(event, goingRows(attendances, event.id).length)
-          const sub = [event.teaser, left === null ? null : t('units.placesLeft', { count: left })]
-            .filter((part): part is string => part !== null && part !== '')
-            .join(' · ')
+          // Mateixa fila, tres diferències: el mes en violeta i no en vermell,
+          // el dia com un interrogant, i on hi hauria les places hi ha quan es
+          // sabrà. Les places d'una cosa que ningú no sap què és no diuen res.
+          const days = hidden && event.reveal_at !== null ? daysUntil(new Date(event.reveal_at)) : null
+          const sub = hidden
+            ? days === null
+              ? (event.teaser ?? '')
+              : days <= 1
+                ? t('event.teaser.willKnowInOne')
+                : t('event.teaser.willKnowIn', { count: days })
+            : [event.teaser, left === null ? null : t('units.placesLeft', { count: left })]
+                .filter((part): part is string => part !== null && part !== '')
+                .join(' · ')
 
           return (
             <li key={event.id} className="border-b border-surface-5">
@@ -612,19 +683,41 @@ function Upcoming({
                 className="flex items-center gap-[14px] py-[15px] no-underline"
               >
                 <div className="w-[46px] flex-none text-center">
-                  <p className="text-2xs font-extrabold tracking-[0.1em] uppercase text-brand-accent">
+                  <p
+                    className={
+                      'text-2xs font-extrabold tracking-[0.1em] uppercase ' +
+                      (hidden ? 'text-unknown' : 'text-brand-accent')
+                    }
+                  >
                     {formatMonthShort(start, locale)}
                   </p>
-                  <p className="tabular display text-d-sm leading-[0.9] tracking-[-0.04em]">
-                    {formatDayNumber(start, locale)}
+                  <p
+                    className={
+                      'tabular display text-d-sm leading-[0.9] tracking-[-0.04em] ' +
+                      (hidden ? 'text-fg-muted' : '')
+                    }
+                  >
+                    {hidden ? '?' : formatDayNumber(start, locale)}
                   </p>
                 </div>
                 <div className="flex-1">
-                  <p className="text-lg leading-[1.15] font-bold [text-wrap:pretty]">
+                  <p
+                    className={
+                      'text-lg leading-[1.15] font-bold [text-wrap:pretty] ' +
+                      (hidden ? 'tracking-[0.02em] text-fg-muted' : '')
+                    }
+                  >
                     {eventTitle(event.titulo)}
                   </p>
                   {sub === '' ? null : (
-                    <p className="mt-2 text-sm text-fg-muted [text-wrap:pretty]">{sub}</p>
+                    <p
+                      className={
+                        'mt-2 text-sm [text-wrap:pretty] ' +
+                        (hidden ? 'font-bold text-unknown' : 'text-fg-muted')
+                      }
+                    >
+                      {sub}
+                    </p>
                   )}
                 </div>
                 <span aria-hidden="true" className="flex-none text-[20px] text-fg-faint">

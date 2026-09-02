@@ -839,3 +839,71 @@ describe('who is waiting for a reveal is a number, not a list', () => {
     expect(error?.code).toBe('42501')
   })
 })
+
+describe('a junta-scoped meeting does not exist for a member', () => {
+  // pgTAP ja ho asserta des de dins de la base; això comprova que PostgREST no
+  // obri cap porta que el SQL tanca. És la capa que veu el que el SQL no pot:
+  // una vista que hagués oblidat `security_invoker`, o un embed que arribi a la
+  // taula per un altre camí.
+  const MEETING = '00000000-0000-4000-8000-0000000000d9'
+
+  beforeAll(async () => {
+    const svc = serviceClient()
+    await svc.from('events').upsert(
+      {
+        id: MEETING,
+        tipo: 'reunio',
+        abast: 'junta',
+        starts_at: new Date(Date.now() + 3 * 86_400_000).toISOString(),
+        puntos: 0,
+        published: true,
+      },
+      { onConflict: 'id' },
+    )
+    await svc
+      .from('event_title')
+      .upsert({ event_id: MEETING, titulo: 'Reunió inventada de junta' }, { onConflict: 'event_id' })
+  })
+
+  it('is invisible through the view, the base table and the roster', async () => {
+    const member = await as('alfa')
+
+    const view = await member.from('events_public').select('id, titulo').eq('id', MEETING)
+    expect(view.error).toBeNull()
+    expect(view.data).toEqual([])
+
+    const base = await member.from('events').select('id').eq('id', MEETING)
+    expect(base.error).toBeNull()
+    expect(base.data).toEqual([])
+
+    // I el llistat tampoc: seria com sabria qui hi ha a la junta i qui hi va.
+    const roster = await rpc<unknown[]>(member, 'meeting_roster', { p_event_id: MEETING })
+    expect(roster.data ?? []).toEqual([])
+
+    // Ni el títol, que viu a la seva taula des de la migració 44.
+    const title = await member.from('event_title').select('titulo').eq('event_id', MEETING)
+    expect(title.data).toEqual([])
+  })
+
+  it('and the junta sees all of it', async () => {
+    const junta = await as('junta_alfa')
+
+    const view = await junta.from('events_public').select('id, titulo, abast').eq('id', MEETING)
+    expect(view.error).toBeNull()
+    expect(view.data).toHaveLength(1)
+    expect(view.data?.[0]?.abast).toBe('junta')
+    expect(view.data?.[0]?.titulo).toBeTruthy()
+
+    const roster = await rpc<unknown[]>(junta, 'meeting_roster', { p_event_id: MEETING })
+    expect((roster.data ?? []).length).toBeGreaterThan(0)
+  })
+
+  it('and only the junta can close one', async () => {
+    const member = await as('alfa')
+    const { error } = await rpc(member, 'admin_close_meeting', {
+      p_event_id: MEETING,
+      p_user_ids: [F.alfa],
+    })
+    expect(error?.code).toBe('42501')
+  })
+})

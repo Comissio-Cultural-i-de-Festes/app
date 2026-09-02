@@ -11,7 +11,24 @@
 export const ESCOLES = ['politecnica', 'empresa', 'salut'] as const
 export type Escola = (typeof ESCOLES)[number]
 
-export type EventType = 'fiesta' | 'casa_rural' | 'actividad'
+/**
+ * El quart va arribar amb la migració 48.
+ *
+ * Una reunió no és una festa amb un interruptor posat —no té places, ni preu,
+ * ni portada, ni cotxes, i el que demana no és «hi véns?» sinó «hi pots
+ * ser?»— i per això és un valor de `tipo` i no un booleà més, a diferència de
+ * `cal_confirmacio` i `te_cotxes`.
+ */
+export type EventType = 'fiesta' | 'casa_rural' | 'actividad' | 'reunio'
+
+/**
+ * Qui ha de venir a una reunió.
+ *
+ * Només vol dir alguna cosa amb `tipo = 'reunio'`: `admin_save_event` refusa
+ * una festa d'àmbit junta. `junta` no surt a l'Inici de ningú, i això ho
+ * filtra `events_select_member` i no cap `if` d'aquí.
+ */
+export type Abast = 'comi' | 'junta'
 
 /**
  * Els vuit estats que `attendances.estado` pot tenir de debò.

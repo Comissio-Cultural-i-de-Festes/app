@@ -35,7 +35,7 @@ import { supabase } from '@/lib/supabase'
 const COLUMNS =
   'id, titulo, tipo, starts_at, teaser, reveal_at, revelat, plazas, precio_cents, ' +
   'puntos, published, cal_confirmacio, te_cotxes, descripcion, ubicacion, ends_at, cover_url, ' +
-  'transport_info'
+  'transport_info, abast, tancada_at, acta'
 
 const myCalendarKeys = {
   mine: (horizon: string) => ['profile', 'calendar', horizon] as const,

@@ -254,6 +254,7 @@ export type Database = {
       }
       event_details: {
         Row: {
+          acta: string | null
           cover_url: string | null
           descripcion: string | null
           ends_at: string | null
@@ -262,6 +263,7 @@ export type Database = {
           ubicacion: string | null
         }
         Insert: {
+          acta?: string | null
           cover_url?: string | null
           descripcion?: string | null
           ends_at?: string | null
@@ -270,6 +272,7 @@ export type Database = {
           ubicacion?: string | null
         }
         Update: {
+          acta?: string | null
           cover_url?: string | null
           descripcion?: string | null
           ends_at?: string | null
@@ -428,6 +431,7 @@ export type Database = {
       }
       events: {
         Row: {
+          abast: string
           avisat_at: string | null
           cal_confirmacio: boolean
           created_at: string
@@ -439,11 +443,13 @@ export type Database = {
           puntos: number
           reveal_at: string | null
           starts_at: string
+          tancada_at: string | null
           te_cotxes: boolean
           teaser: string | null
           tipo: string
         }
         Insert: {
+          abast?: string
           avisat_at?: string | null
           cal_confirmacio?: boolean
           created_at?: string
@@ -455,11 +461,13 @@ export type Database = {
           puntos?: number
           reveal_at?: string | null
           starts_at: string
+          tancada_at?: string | null
           te_cotxes?: boolean
           teaser?: string | null
           tipo: string
         }
         Update: {
+          abast?: string
           avisat_at?: string | null
           cal_confirmacio?: boolean
           created_at?: string
@@ -471,6 +479,7 @@ export type Database = {
           puntos?: number
           reveal_at?: string | null
           starts_at?: string
+          tancada_at?: string | null
           te_cotxes?: boolean
           teaser?: string | null
           tipo?: string
@@ -1310,6 +1319,8 @@ export type Database = {
     Views: {
       events_public: {
         Row: {
+          abast: string | null
+          acta: string | null
           cal_confirmacio: boolean | null
           cover_url: string | null
           created_at: string | null
@@ -1324,6 +1335,7 @@ export type Database = {
           reveal_at: string | null
           revelat: boolean | null
           starts_at: string | null
+          tancada_at: string | null
           te_cotxes: boolean | null
           teaser: string | null
           tipo: string | null
@@ -1378,6 +1390,10 @@ export type Database = {
           user_id: string
           was_registered: boolean
         }[]
+      }
+      admin_close_meeting: {
+        Args: { p_acta?: string; p_event_id: string; p_user_ids: string[] }
+        Returns: Json
       }
       admin_create_invite: {
         Args: { p_expires_at?: string; p_max_usos?: number }
@@ -1463,6 +1479,7 @@ export type Database = {
       admin_revoke_invite: { Args: { p_id: string }; Returns: undefined }
       admin_save_event: {
         Args: {
+          p_abast?: string
           p_cal_confirmacio?: boolean
           p_cover_url?: string
           p_descripcion?: string
@@ -1656,6 +1673,15 @@ export type Database = {
       join_ride: { Args: { p_ride_id: string }; Returns: Json }
       junta_home: { Args: never; Returns: Json }
       mark_badges_seen: { Args: never; Returns: number }
+      meeting_roster: {
+        Args: { p_event_id: string }
+        Returns: {
+          avatar_url: string
+          estado: string
+          nombre: string
+          user_id: string
+        }[]
+      }
       my_badges: {
         Args: never
         Returns: {

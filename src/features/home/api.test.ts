@@ -38,6 +38,9 @@ function event(over: Partial<EventRow> = {}): EventRow {
     ends_at: null,
     cover_url: null,
     transport_info: null,
+    abast: 'comi',
+    tancada_at: null,
+    acta: null,
     ...over,
   }
 }

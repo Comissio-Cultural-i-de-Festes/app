@@ -1,12 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useParams } from 'react-router'
+import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import { APP_TIME_ZONE, formatDateTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
-import type { EventType } from '@/lib/model'
+import type { Abast, EventType } from '@/lib/model'
 import { DbError } from '@/lib/db'
 import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
@@ -16,6 +16,8 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { EventPreview, type PreviewData } from './EventPreview'
 import { GeoPicker } from './GeoPicker'
+import { Notice } from '@/ui/Notice/Notice'
+
 import { Field, INPUT } from './formBits'
 import { JuntaHeader } from './JuntaHeader'
 import {
@@ -48,7 +50,8 @@ import {
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
-const TYPES: readonly EventType[] = ['fiesta', 'casa_rural', 'actividad']
+const TYPES: readonly EventType[] = ['fiesta', 'casa_rural', 'actividad', 'reunio']
+const ABASTS: readonly Abast[] = ['junta', 'comi']
 
 /**
  * Keyed on the id, which is not a detail.
@@ -101,7 +104,19 @@ function EventForm() {
   // careful not to fire again and overwrite what somebody is typing.
   const [previewing, setPreviewing] = useState(false)
   const [edits, setEdits] = useState<FormState | null>(null)
-  const form = edits ?? (existing.data == null ? emptyForm() : formFrom(existing.data))
+  const [search] = useSearchParams()
+  // «Convoca una reunió» arriba amb `?tipus=reunio`, i el formulari s'obre amb
+  // el tipus ja triat. Sense això, el camí des del panell de la junta és obrir
+  // el formulari d'una festa i canviar-lo, que és exactament el pas que el
+  // botó existeix per estalviar.
+  const wanted = search.get('tipus')
+  const form =
+    edits ??
+    (existing.data == null
+      ? wanted === 'reunio'
+        ? { ...emptyForm(), tipo: 'reunio' as EventType }
+        : emptyForm()
+      : formFrom(existing.data))
   const setForm = setEdits
 
   // Both halves of the picked cover travel together, and the object URL is
@@ -168,6 +183,12 @@ function EventForm() {
   // l'esdeveniment: la finestra de fitxatge no obre mai i «qui hi ha dins» diu
   // que la festa s'ha acabat abans de començar.
   const endsBad = form.ends_at !== '' && form.starts_at !== '' && form.ends_at <= form.starts_at
+  // Una reunió no té places, ni preu, ni portada, ni cotxes, i els camps
+  // DESAPAREIXEN en comptes de quedar-se buits: un formulari amb sis camps
+  // desactivats fa pensar que hi falta alguna cosa. L'estat es queda, o sigui
+  // que si t'has equivocat de tipus i hi tornes els recuperes tal com estaven.
+  const isMeeting = form.tipo === 'reunio'
+
   const revealBad =
     form.reveal_at !== '' && form.starts_at !== '' && form.reveal_at >= form.starts_at
 
@@ -284,7 +305,13 @@ function EventForm() {
           </section>
         ) : null}
 
-        <section className={`pt-9 lg:col-start-2 lg:row-start-1 ${GUTTER}`}>
+        {/* Una reunió no té portada. La secció sencera desapareix i no queda
+            un quadre discontinu buit convidant a pujar-hi una foto d'una aula. */}
+        <section
+          className={
+            isMeeting ? 'hidden' : `pt-9 lg:col-start-2 lg:row-start-1 ${GUTTER}`
+          }
+        >
           <CoverPicker
             preview={coverPreview}
             onPick={(f) => {
@@ -339,6 +366,52 @@ function EventForm() {
             </div>
           </Field>
 
+          {/* Qui hi ha de venir. Només per a una reunió: per a una festa
+              l'àmbit no vol dir res i la base ho refusa. */}
+          {isMeeting ? (
+            <Field label={t('junta.form.who')}>
+              <div className="mt-4 flex flex-col gap-3">
+                {ABASTS.map((scope) => {
+                  const on = form.abast === scope
+                  return (
+                    <button
+                      key={scope}
+                      type="button"
+                      aria-pressed={on}
+                      onClick={() => {
+                        setForm({ ...form, abast: scope })
+                      }}
+                      className={
+                        'flex min-h-[56px] w-full items-start gap-6 border-[1.5px] px-7 py-6 text-left ' +
+                        (on
+                          ? 'border-brand-cta bg-brand-tint'
+                          : 'border-surface-7 bg-surface-1')
+                      }
+                    >
+                      <span
+                        aria-hidden="true"
+                        className={
+                          'mt-[1px] grid size-[22px] flex-none place-items-center rounded-full border-[1.5px] ' +
+                          (on ? 'border-brand-cta bg-brand-cta' : 'border-surface-7')
+                        }
+                      >
+                        {on ? <span className="block size-2 rounded-full bg-on-brand" /> : null}
+                      </span>
+                      <span className="min-w-0 flex-1">
+                        <span className="block font-body text-base font-bold text-fg">
+                          {t(`junta.form.abast.${scope}`)}
+                        </span>
+                        <span className="mt-[3px] block font-body text-sm-lo leading-[1.35] text-fg-muted-lo [text-wrap:pretty]">
+                          {t(`junta.form.abastSub.${scope}`)}
+                        </span>
+                      </span>
+                    </button>
+                  )
+                })}
+              </div>
+            </Field>
+          ) : null}
+
           <Field label={t('junta.form.starts')}>
             <input
               type="datetime-local"
@@ -377,7 +450,8 @@ function EventForm() {
             }}
           />
 
-          <div className="grid grid-cols-3 gap-4">
+          <div className={isMeeting ? '' : 'grid grid-cols-3 gap-4'}>
+            {isMeeting ? null : (
             <Field label={t('junta.form.places')}>
               <input
                 type="number"
@@ -391,6 +465,8 @@ function EventForm() {
                 className={INPUT}
               />
             </Field>
+            )}
+            {isMeeting ? null : (
             <Field label={t('junta.form.price')}>
               <input
                 type="number"
@@ -405,7 +481,12 @@ function EventForm() {
                 className={INPUT}
               />
             </Field>
-            <Field label={t('junta.form.points')}>
+            )}
+            {isMeeting && form.abast === 'junta' ? null : (
+            <Field
+              label={t('junta.form.points')}
+              {...(isMeeting ? { hint: t('junta.form.pointsMeetingHint') } : {})}
+            >
               <input
                 type="number"
                 inputMode="numeric"
@@ -415,11 +496,26 @@ function EventForm() {
                   setForm({ ...form, puntos: e.target.value })
                 }}
                 placeholder={defaultPoints === null ? '' : String(defaultPoints)}
-                className={INPUT}
+                className={isMeeting ? `${INPUT} w-[96px]` : INPUT}
               />
             </Field>
+            )}
           </div>
 
+          {/* Per què el formulari s'ha encongit. Sense la frase, sembla que la
+              pantalla s'hagi trencat. */}
+          {isMeeting ? (
+            <Notice as="div" tone="neutral" className="mt-2 mb-9">
+              <p className="text-md font-bold [text-wrap:pretty]">
+                {t('junta.form.meetingHasNo')}
+              </p>
+              <p className="mt-3 text-sm-lo leading-[1.4] text-fg-muted-lo [text-wrap:pretty]">
+                {t('junta.form.meetingHasNoSub')}
+              </p>
+            </Notice>
+          ) : null}
+
+          {isMeeting ? null : (
           <Field label={t('junta.form.confirm')} hint={t('junta.form.confirmHint')}>
             <button
               type="button"
@@ -450,7 +546,9 @@ function EventForm() {
               </span>
             </button>
           </Field>
+          )}
 
+          {isMeeting ? null : (
           <Field label={t('junta.form.cars')} hint={t('junta.form.carsHint')}>
             <button
               type="button"
@@ -481,6 +579,7 @@ function EventForm() {
               </span>
             </button>
           </Field>
+          )}
 
           {/* Només d'un esdeveniment que existeix, i sota el mapa perquè les
               dues coses són la mateixa: aquí es tria on es pot fitxar, i allà
@@ -609,6 +708,7 @@ interface FormState {
   cover_url: string | null
   cal_confirmacio: boolean
   te_cotxes: boolean
+  abast: Abast
 }
 
 function emptyForm(): FormState {
@@ -629,6 +729,10 @@ function emptyForm(): FormState {
     cover_url: null,
     cal_confirmacio: false,
     te_cotxes: false,
+    // Una reunió nova comença com a «només la junta»: és la que es convoca més
+    // sovint, i equivocar-se cap a menys visible és menys greu que publicar-la
+    // a l'Inici de dos-cents socis sense voler.
+    abast: 'junta',
   }
 }
 
@@ -654,6 +758,7 @@ function formFrom(e: EventRow): FormState {
     cover_url: e.cover_url,
     cal_confirmacio: e.cal_confirmacio,
     te_cotxes: e.te_cotxes,
+    abast: e.abast === 'junta' ? 'junta' : 'comi',
   }
 }
 
@@ -686,6 +791,10 @@ function draftFrom(form: FormState, published: boolean, coverPath: string | null
     tipo: form.tipo,
     cal_confirmacio: form.cal_confirmacio,
     te_cotxes: form.te_cotxes,
+    // L'àmbit només s'envia amb el que és de debò: `admin_save_event` refusa
+    // una festa d'àmbit junta, i enviar-l'hi seria un 22023 per un camp que la
+    // pantalla ni ensenya quan el tipus no és una reunió.
+    abast: form.tipo === 'reunio' ? form.abast : 'comi',
     starts_at: fromLocalInput(form.starts_at, APP_TIME_ZONE) ?? new Date().toISOString(),
     ends_at: fromLocalInput(form.ends_at, APP_TIME_ZONE),
     plazas: Number.isFinite(places) && places > 0 ? places : null,

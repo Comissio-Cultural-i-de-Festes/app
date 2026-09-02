@@ -7,13 +7,21 @@ import { warmDecoder } from '@/features/door/decoder'
 import { horizonIso } from '@/features/home/api'
 import { fetchPeriods, rankingKeys } from '@/features/ranking/api'
 import { useMyProfile } from '@/features/session/useMyProfile'
-import { formatDateLong, formatDayNumber, formatMonthShort, formatWeekdayLong } from '@/i18n/format'
+import {
+  formatDateLong,
+  formatDayNumber,
+  formatMonthShort,
+  formatTime,
+  formatWeekdayLong,
+} from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
+import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { eventTitle } from '@/features/event/title'
 
 import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
+import { fetchMeetings, meetingListKeys } from './meetingsApi'
 import { JuntaHeader } from './JuntaHeader'
 
 /**
@@ -203,6 +211,13 @@ export function JuntaHome() {
         />
         <Row to="/junta/fotos" title={t('junta.photos.title')} sub={t('junta.photos.rowSub')} />
       </div>
+
+      {/* ── Les reunions ──
+          Aquí i no a l'Inici: les de junta no arriben enlloc més, perquè
+          `events_select_member` les filtra. Aquest és l'únic lloc on es veuen,
+          i el que hi porta l'acció és tancar la que s'acaba de fer. */}
+      <Heading display title={t('meeting.title')} sub={t('meeting.juntaOnly')} />
+      <Meetings />
 
       {/* ── Els que venen ── */}
       <Heading
@@ -622,5 +637,113 @@ function Chevron(): ReactNode {
     <span aria-hidden="true" className="flex-none text-2xl text-[var(--ds-text-muted-lo)]">
       ›
     </span>
+  )
+}
+
+/**
+ * Les reunions de la junta, la que toca tancar primer a dalt.
+ *
+ * Es busca les seves pròpies dades i entra al panell en una línia, com la
+ * resta dels blocs. En ordre invers: el que fa falta primer és tancar la que
+ * s'acaba de fer, no veure la del mes que ve.
+ */
+function Meetings() {
+  const { t, i18n } = useTranslation()
+  const locale = toLocale(i18n.resolvedLanguage)
+
+  const meetings = useQuery({ queryKey: meetingListKeys.list(), queryFn: fetchMeetings })
+
+  if (meetings.isPending) return <CalendarSkeleton />
+
+  if (meetings.isError) {
+    return (
+      <p role="alert" className={`pt-6 text-md font-bold text-error ${GUTTER}`}>
+        {t(errorKey(meetings.error))}
+      </p>
+    )
+  }
+
+  const rows = meetings.data
+  return (
+    <>
+      {rows.length === 0 ? (
+        <p className={`pt-6 text-md text-fg-muted [text-wrap:pretty] ${GUTTER}`}>
+          {t('meeting.none')}
+        </p>
+      ) : (
+        <div className="mt-6">
+          {rows.map((m) => {
+            const closed = m.tancada_at !== null
+            const starts = new Date(m.starts_at)
+            const sub = closed
+              ? [
+                  t('meeting.closed'),
+                  m.acta === null || m.acta.trim() === '' ? null : t('meeting.withActa'),
+                ]
+                  .filter((part): part is string => part !== null)
+                  .join(' · ')
+              : [m.ubicacion, formatTime(starts, locale)]
+                  .filter((part): part is string => part !== null && part !== '')
+                  .join(' · ')
+
+            return (
+              <Link
+                key={m.id}
+                // Oberta, l'acció és tancar-la; tancada, s'hi va a llegir
+                // l'acta. Dos destins i una sola fila, perquè és la mateixa
+                // reunió en dos moments.
+                to={closed ? `/esdeveniment/${m.id}` : `/junta/reunio/${m.id}/tanca`}
+                className={ROW}
+              >
+                <span className="w-[42px] flex-none text-center">
+                  <span className="eyebrow block text-[var(--ds-text-muted-lo)]">
+                    {formatMonthShort(starts, locale).replace('.', '')}
+                  </span>
+                  <span
+                    className={
+                      'display mt-[1px] block text-d-sm leading-none tracking-[-0.05em] ' +
+                      (closed ? 'text-fg-muted' : 'text-fg')
+                    }
+                  >
+                    {formatDayNumber(starts, locale)}
+                  </span>
+                </span>
+                <span className="min-w-0 flex-1">
+                  <span
+                    className={
+                      'block text-base font-bold [text-wrap:pretty] ' +
+                      (closed ? 'text-fg-secondary' : 'text-fg')
+                    }
+                  >
+                    {eventTitle(m.titulo)}
+                  </span>
+                  {sub === '' ? null : (
+                    <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+                      {sub}
+                    </span>
+                  )}
+                </span>
+                {closed ? (
+                  <Chevron />
+                ) : (
+                  <span className="flex-none text-md font-bold text-brand-label [text-wrap:balance]">
+                    {t('meeting.close')}
+                  </span>
+                )}
+              </Link>
+            )
+          })}
+        </div>
+      )}
+
+      <div className={`pt-7 ${GUTTER}`}>
+        <Link
+          to="/junta/esdeveniment/nou?tipus=reunio"
+          className="flex min-h-[54px] w-full items-center justify-center border-[1.5px] border-dashed border-[var(--ds-border-input)] px-7 py-6 text-lg font-bold text-fg no-underline [text-wrap:balance]"
+        >
+          {t('meeting.callNew')}
+        </Link>
+      </div>
+    </>
   )
 }

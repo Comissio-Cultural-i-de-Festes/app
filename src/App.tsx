@@ -16,6 +16,7 @@ import { OfferRideScreen } from '@/features/rides/OfferRideScreen'
 import { RidesScreen } from '@/features/rides/RidesScreen'
 import { useCheckinQueue } from '@/features/checkin/useCheckinQueue'
 import { CheckinsScreen } from '@/features/junta/CheckinsScreen'
+import { CloseMeetingScreen } from '@/features/junta/CloseMeetingScreen'
 import { EventFormScreen } from '@/features/junta/EventFormScreen'
 import { AuditScreen } from '@/features/junta/AuditScreen'
 import { GrausScreen } from '@/features/junta/GrausScreen'
@@ -208,6 +209,7 @@ export default function App() {
             <Route path="idees" element={<IdeasReviewScreen />} />
             <Route path="socis" element={<MembersScreen />} />
             <Route path="rols" element={<RolesScreen />} />
+            <Route path="reunio/:id/tanca" element={<CloseMeetingScreen />} />
             <Route path="registre" element={<AuditScreen />} />
             <Route path="periodes" element={<PeriodsScreen />} />
             <Route path="barem" element={<ScaleScreen />} />

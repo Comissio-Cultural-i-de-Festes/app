@@ -1,5 +1,5 @@
 import { DbError, unwrapAs } from '@/lib/db'
-import type { EventType } from '@/lib/model'
+import type { Abast, EventType } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
 import { supabase } from '@/lib/supabase'
 
@@ -29,6 +29,11 @@ export interface EventDraft {
   readonly cal_confirmacio: boolean
   /** Whether the event shows the shared-cars block. */
   readonly te_cotxes: boolean
+  /**
+   * Qui hi ha de venir. Només vol dir res amb `tipo = 'reunio'`, i
+   * `admin_save_event` refusa una festa d'àmbit `junta`.
+   */
+  readonly abast: Abast
   readonly descripcion: string | null
   readonly ubicacion: string | null
   readonly cover_url: string | null
@@ -93,6 +98,7 @@ export async function saveEvent(draft: EventDraft): Promise<string> {
     ...(draft.ends_at === null ? {} : { p_ends_at: draft.ends_at }),
     ...(draft.cover_url === null ? {} : { p_cover_url: draft.cover_url }),
     ...(draft.transport_info === null ? {} : { p_transport_info: draft.transport_info }),
+    p_abast: draft.abast,
   })
 
   if (error) throw new DbError(error)
@@ -113,7 +119,7 @@ export async function fetchTemplates(): Promise<EventRow[]> {
       .select(
         'id, titulo, tipo, starts_at, teaser, reveal_at, revelat, plazas, precio_cents, ' +
           'puntos, published, cal_confirmacio, te_cotxes, descripcion, ubicacion, ends_at, ' +
-          'cover_url, transport_info',
+          'cover_url, transport_info, abast, tancada_at, acta',
       )
       .order('starts_at', { ascending: false })
       .limit(8),

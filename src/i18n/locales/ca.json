@@ -1157,6 +1157,29 @@
     }
   },
   "profile": {
+    "photo": {
+      "title": "La teva foto",
+      "body": "Que se't reconegui. Res més.",
+      "change": "Canvia la foto",
+      "badge": "Canvia la foto",
+      "where": "Es veu al rànquing, a la llista de qui va a cada festa i a la porta. Que se't reconegui de nit i de lluny.",
+      "camera": "Fes-te-la ara",
+      "gallery": "Tria-la de la galeria",
+      "google": "Torna a la del Google",
+      "clear": "Treu-la, i deixa les ratlles"
+    },
+    "name": {
+      "label": "Com et dius",
+      "hint": "Com et diuen de debò, no un àlies: la junta t'ha de trobar a la llista de pagaments.",
+      "saved": "Desat",
+      "everywhere": "Es veurà a tot arreu de seguida."
+    },
+    "locked": {
+      "title": "Això no es canvia aquí",
+      "school": "Escola, curs i grau",
+      "none": "Encara no ho has dit",
+      "why": "Els punts van a la teva escola, i canviar-la a mig curs mouria el rànquing de tothom. Si està malament, escriu a la junta."
+    },
     "memberSince": "soci des del {{year}}",
     "youAreJunta": "Ets de la junta",
     "stats": {
@@ -1175,6 +1198,10 @@
     },
     "settings": {
       "title": "Ajustos",
+      "photo": "La teva foto i el teu nom",
+      "photoSubGoogle": "Ara mateix, la del Google",
+      "photoSubOwn": "La que has pujat tu",
+      "photoSubNone": "Ara mateix, les ratlles",
       "public": "Surto al rànquing públic",
       "publicOn": "Hi surts amb nom i cara.",
       "publicOff": "No hi surts, però els teus punts segueixen sumant per la teva escola.",
@@ -1378,6 +1405,7 @@
     }
   },
   "state": {
+    "saving": "Desant…",
     "loading": "Un segon…",
     "empty": "Ara mateix res. Tranquil, ja caurà alguna cosa",
     "offline": "Sense connexió",

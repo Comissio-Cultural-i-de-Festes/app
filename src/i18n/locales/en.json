@@ -1157,6 +1157,29 @@
     }
   },
   "profile": {
+    "photo": {
+      "title": "Your photo",
+      "body": "So people recognise you. That is all.",
+      "change": "Change the photo",
+      "badge": "Change the photo",
+      "where": "It shows in the ranking, in the list of who is going to each party, and at the door. So you are recognised at night and from a distance.",
+      "camera": "Take one now",
+      "gallery": "Pick one from the gallery",
+      "google": "Go back to the Google one",
+      "clear": "Take it off, leave the stripes"
+    },
+    "name": {
+      "label": "What you are called",
+      "hint": "What people actually call you, not a nickname: the committee has to find you on the payments list.",
+      "saved": "Saved",
+      "everywhere": "It will show everywhere right away."
+    },
+    "locked": {
+      "title": "This is not changed here",
+      "school": "School, year and degree",
+      "none": "You have not said yet",
+      "why": "Points go to your school, and changing it mid-year would move everybody's ranking. If it is wrong, write to the committee."
+    },
     "memberSince": "member since {{year}}",
     "youAreJunta": "You are on the committee",
     "stats": {
@@ -1175,6 +1198,10 @@
     },
     "settings": {
       "title": "Settings",
+      "photo": "Your photo and your name",
+      "photoSubGoogle": "Right now, the Google one",
+      "photoSubOwn": "The one you uploaded",
+      "photoSubNone": "Right now, the stripes",
       "public": "Show me in the public ranking",
       "publicOn": "You appear with your name and face.",
       "publicOff": "You do not appear, but your points still count for your school.",
@@ -1378,6 +1405,7 @@
     }
   },
   "state": {
+    "saving": "Saving…",
     "loading": "One sec…",
     "empty": "Nothing right now. Something will turn up",
     "offline": "No connection",

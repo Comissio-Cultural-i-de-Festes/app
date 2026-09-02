@@ -1157,6 +1157,29 @@
     }
   },
   "profile": {
+    "photo": {
+      "title": "Tu foto",
+      "body": "Que se te reconozca. Nada más.",
+      "change": "Cambia la foto",
+      "badge": "Cambia la foto",
+      "where": "Se ve en el ranking, en la lista de quién va a cada fiesta y en la puerta. Que se te reconozca de noche y de lejos.",
+      "camera": "Hazte una ahora",
+      "gallery": "Elígela de la galería",
+      "google": "Vuelve a la de Google",
+      "clear": "Quítala, y deja las rayas"
+    },
+    "name": {
+      "label": "Cómo te llamas",
+      "hint": "Como te llaman de verdad, no un alias: la junta te tiene que encontrar en la lista de pagos.",
+      "saved": "Guardado",
+      "everywhere": "Se verá en todas partes enseguida."
+    },
+    "locked": {
+      "title": "Esto no se cambia aquí",
+      "school": "Escuela, curso y grado",
+      "none": "Todavía no lo has dicho",
+      "why": "Los puntos van a tu escuela, y cambiarla a mitad de curso movería el ranking de todos. Si está mal, escribe a la junta."
+    },
     "memberSince": "socio desde {{year}}",
     "youAreJunta": "Eres de la junta",
     "stats": {
@@ -1175,6 +1198,10 @@
     },
     "settings": {
       "title": "Ajustes",
+      "photo": "Tu foto y tu nombre",
+      "photoSubGoogle": "Ahora mismo, la de Google",
+      "photoSubOwn": "La que has subido tú",
+      "photoSubNone": "Ahora mismo, las rayas",
       "public": "Salgo en el ranking público",
       "publicOn": "Sales con nombre y cara.",
       "publicOff": "No sales, pero tus puntos siguen sumando para tu escuela.",
@@ -1378,6 +1405,7 @@
     }
   },
   "state": {
+    "saving": "Guardando…",
     "loading": "Un segundo…",
     "empty": "Ahora mismo nada. Tranqui, ya caerá algo",
     "offline": "Sin conexión",

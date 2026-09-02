@@ -41,6 +41,7 @@ import { GalleryScreen } from '@/features/gallery/GalleryScreen'
 import { ProvesScreen } from '@/features/gimcana/ProvesScreen'
 import { ScoreboardScreen } from '@/features/gimcana/ScoreboardScreen'
 import { SubmitScreen } from '@/features/gimcana/SubmitScreen'
+import { EditProfileScreen } from '@/features/profile/EditProfileScreen'
 import { ProfileScreen } from '@/features/profile/ProfileScreen'
 import { QrScreen } from '@/features/qr/QrScreen'
 import { JuntaLayout } from '@/features/shell/JuntaLayout'
@@ -178,6 +179,7 @@ export default function App() {
             <Route path="/idees/nova" element={<NewIdeaScreen />} />
             <Route path="/perfil" element={<ProfileScreen />} />
             <Route path="/perfil/insignies" element={<BadgesScreen />} />
+            <Route path="/perfil/editar" element={<EditProfileScreen />} />
             <Route path="/esdeveniment/:id" element={<EventScreen />} />
             <Route path="/esdeveniment/:eventId/dins" element={<InsideScreen />} />
             <Route path="/esdeveniment/:id/fotos" element={<GalleryScreen />} />

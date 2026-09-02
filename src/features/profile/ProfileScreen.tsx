@@ -20,6 +20,7 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { supabase } from '@/lib/supabase'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
+import { CameraIcon } from './icons'
 import { StreakCard } from './StreakCard'
 import {
   byMotive,
@@ -115,12 +116,40 @@ export function ProfileScreen() {
     await supabase.auth.signOut()
   }
 
+  // Què diu la fila d'Ajustos, que és tres coses diferents: la de Google, una
+  // que ha pujat ella, o les ratlles. Dir «la del Google» a qui s'acaba de
+  // penjar una foto seva seria mentida, i és l'únic lloc de la pantalla on es
+  // pot saber.
+  const photoSub =
+    profile?.avatar_url == null
+      ? t('profile.settings.photoSubNone')
+      : profile.avatar_url.startsWith('http')
+        ? t('profile.settings.photoSubGoogle')
+        : t('profile.settings.photoSubOwn')
+
   return (
     <main className="with-tabbar min-h-dvh bg-app pt-[var(--ds-safe-top-min)]">
       {/* El títol més gran de l'app i el que està més amunt de tot: sis
           píxels no eren coixí, eren una coincidència. */}
       <header className={`flex items-center gap-8 pt-6 ${GUTTER}`}>
-        <Avatar src={profile?.avatar_url ?? null} size={72} />
+        {/* La insígnia de càmera a sobre de la foto, que és on la gent la
+            busca —i la fila d'Ajustos a sota, que és on es busca el nom. Dues
+            entrades a la mateixa pantalla i no una tria: qui ve a canviar-se la
+            cara no pensa «ajustos», i qui ve a corregir-se el nom no pensa
+            «toca la foto». */}
+        <Link
+          to="/perfil/editar"
+          aria-label={t('profile.photo.badge')}
+          className="relative block flex-none no-underline"
+        >
+          <Avatar src={profile?.avatar_url ?? null} size={72} />
+          <span
+            aria-hidden="true"
+            className="absolute -right-[2px] -bottom-[2px] grid size-[26px] place-items-center rounded-full border-2 border-app bg-brand-cta text-on-brand"
+          >
+            <CameraIcon size={13} />
+          </span>
+        </Link>
         <div className="min-w-0 flex-1">
           <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">
             {profile?.nombre ?? ''}
@@ -260,6 +289,20 @@ export function ProfileScreen() {
             {t(errorKey(hide.error))}
           </p>
         ) : null}
+
+        <Link to="/perfil/editar" className={`${ROW} no-underline`}>
+          <span className="min-w-0 flex-1">
+            <span className="block text-base font-semibold text-fg">
+              {t('profile.settings.photo')}
+            </span>
+            <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
+              {photoSub}
+            </span>
+          </span>
+          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
+            ›
+          </span>
+        </Link>
 
         <div className={ROW}>
           <span className="flex-1 text-base font-semibold">{t('language.label')}</span>

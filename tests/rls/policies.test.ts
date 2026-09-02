@@ -604,3 +604,99 @@ describe('galeria', () => {
     expect(data?.every((r) => r.user_id === F.alfa)).toBe(true)
   })
 })
+
+describe('an avatar is yours to change and everybody else to look at', () => {
+  // El bucket de la migració 42. Com el dels díptics, això només es pot provar
+  // per l'API: signar una URL és una crida HTTP a storage, i
+  // `storage.protect_delete()` refusa qualsevol DELETE directe, o sigui que la
+  // política d'esborrat no s'executa mai des de pgTAP.
+  //
+  // I la diferència amb `door-photos` és el punt de tot el fitxer: un avatar
+  // el veu tothom qui ja veu el nom de la persona, i una foto de porta no la
+  // veu ni la junta. Les dues meitats van juntes al mateix `describe` perquè
+  // una política massa ampla ha de fer fallar alguna cosa.
+  const BUCKET = 'avatars'
+  const body = new Blob([new Uint8Array([0xff, 0xd8, 0xff, 0xd9])], { type: 'image/jpeg' })
+
+  // Un nom fresc a cada passada: la suite escriu a la mateixa base i no fa
+  // rollback, i l'app tampoc no reemplaça mai un objecte —cada foto nova és un
+  // fitxer nou amb la seva hora.
+  const stamp = () => `${String(Date.now())}${String(Math.floor(Math.random() * 1000))}`
+
+  it('lets you write into your own folder and nowhere else', async () => {
+    const member = await as('alfa')
+
+    const own = await member.storage
+      .from(BUCKET)
+      .upload(`${F.alfa}/${stamp()}.jpg`, body, { contentType: 'image/jpeg' })
+    expect(own.error).toBeNull()
+
+    const theirs = await member.storage
+      .from(BUCKET)
+      .upload(`${F.bravo}/${stamp()}.jpg`, body, { contentType: 'image/jpeg' })
+    expect(theirs.error).not.toBeNull()
+
+    // I un camí sense carpeta no és de ningú: `private.avatar_owner` torna
+    // null i la política refusa, que és el que ha de fer un camí mal format.
+    const loose = await member.storage
+      .from(BUCKET)
+      .upload(`${stamp()}.jpg`, body, { contentType: 'image/jpeg' })
+    expect(loose.error).not.toBeNull()
+  })
+
+  it('and lets any active member sign it, because that is what a face is for', async () => {
+    const owner = await as('bravo')
+    const path = `${F.bravo}/${stamp()}.jpg`
+    const up = await owner.storage.from(BUCKET).upload(path, body, { contentType: 'image/jpeg' })
+    expect(up.error).toBeNull()
+
+    // Qualsevol soci, i la junta. Un avatar que només es veu ell mateix no
+    // serveix de res: surt al rànquing i a la llista de qui va a cada festa.
+    for (const handle of ['alfa', 'junta_alfa']) {
+      const other = await as(handle)
+      const { data, error } = await other.storage.from(BUCKET).createSignedUrl(path, 60)
+      expect(error).toBeNull()
+      expect(data?.signedUrl).toContain(encodeURIComponent(BUCKET))
+    }
+  })
+
+  it('but not somebody still waiting for approval, who is on no list yet', async () => {
+    const owner = await as('charlie')
+    const path = `${F.charlie}/${stamp()}.jpg`
+    await owner.storage.from(BUCKET).upload(path, body, { contentType: 'image/jpeg' })
+
+    // `is_active_member` i no `is_member_or_pending`: qui espera l'alta no surt
+    // a cap llista, i per tant no hi ha res que la cara de ningú il·lustri.
+    const pending = await as('pendent_alfa')
+    const { data, error } = await pending.storage.from(BUCKET).createSignedUrl(path, 60)
+    expect(error).not.toBeNull()
+    expect(data).toBeNull()
+
+    // I no en pot pujar cap, tampoc a la seva carpeta.
+    const up = await pending.storage
+      .from(BUCKET)
+      .upload(`${F.pendent}/${stamp()}.jpg`, body, { contentType: 'image/jpeg' })
+    expect(up.error).not.toBeNull()
+  })
+
+  it('and only you can delete yours', async () => {
+    const owner = await as('golf')
+    const path = `${F.golf}/${stamp()}.jpg`
+    await owner.storage.from(BUCKET).upload(path, body, { contentType: 'image/jpeg' })
+
+    // Un esborrat refusat torna un resultat buit i no un error, com al díptic:
+    // la prova és que l'objecte encara hi és.
+    const other = await as('alfa')
+    const refused = await other.storage.from(BUCKET).remove([path])
+    expect(refused.data?.length ?? 0).toBe(0)
+
+    const stillThere = await other.storage.from(BUCKET).createSignedUrl(path, 60)
+    expect(stillThere.error).toBeNull()
+
+    const { data } = await owner.storage.from(BUCKET).remove([path])
+    expect(data?.length).toBe(1)
+
+    const gone = await owner.storage.from(BUCKET).createSignedUrl(path, 60)
+    expect(gone.error).not.toBeNull()
+  })
+})

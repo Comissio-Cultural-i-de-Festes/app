@@ -372,7 +372,18 @@ Then, in three places:
    the public key. Without it the app never asks for the permission, which is
    the correct behaviour for an installation that has not set this up.
 
-2. **Supabase → Edge Functions → reveal-push → Secrets**:
+2. **Deploy the function**, which is also what makes it appear in the
+   dashboard at all — before this there is nothing under Edge Functions to
+   click on:
+
+   ```
+   npx supabase functions deploy reveal-push
+   ```
+
+3. **The secrets.** They belong to the **project**, not to one function:
+   Supabase → Project Settings → Edge Functions → Secrets, or from here with
+   `npx supabase secrets set NAME=value`. Every function sees all of them, so
+   there is no per-function panel to look for.
 
    | Name                | Value                                    |
    | ------------------- | ---------------------------------------- |
@@ -382,10 +393,12 @@ Then, in three places:
    | `REVEAL_PUSH_TOKEN` | a long random string you invent          |
    | `APP_ORIGIN`        | the site's address, no trailing slash    |
 
-   Then deploy it: `npx supabase functions deploy reveal-push`.
+   `SUPABASE_URL` and `SUPABASE_ANON_KEY` are not in that list because the
+   runtime injects them, and `reveal-push` uses neither: it holds no database
+   credential at all.
 
-3. **Supabase → SQL editor**, so the cron can reach the function. The same
-   token, and the function's URL:
+4. **Supabase → SQL editor**, so the cron can reach the function. Leave this
+   for last: it is what arms the job. The same token, and the function's URL:
 
    ```sql
    select vault.create_secret('<REVEAL_PUSH_TOKEN>', 'reveal_push_token');

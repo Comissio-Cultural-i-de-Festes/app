@@ -52,12 +52,26 @@ export function GeoPicker({
   onWhere,
   value,
   onChange,
+  withPoint = true,
 }: {
   /** El text que llegeix la gent: `events.ubicacion`. */
   readonly where: string
   readonly onWhere: (text: string) => void
   readonly value: Geo | null
   readonly onChange: (g: Geo | null) => void
+  /**
+   * Si es demana el punt al mapa, o només el text del lloc.
+   *
+   * EL PUNT NOMÉS SERVEIX PER A FITXAR DES DEL LLOC, i des de la migració 50
+   * `check_in_here` refusa qualsevol reunió: a una reunió qui hi era ho diu qui
+   * la tanca. O sigui que oferir-hi un radi seria oferir un control que el
+   * servidor no farà servir mai, i algú de la junta el posaria esperant que la
+   * gent fitxés des de la sala.
+   *
+   * El text del lloc es queda: «Aula 1.3» surt a la pantalla de la reunió i és
+   * el que fa que la gent sàpiga on anar.
+   */
+  readonly withPoint?: boolean
 }) {
   const { t } = useTranslation()
   const [results, setResults] = useState<Place[]>([])
@@ -163,115 +177,119 @@ export function GeoPicker({
         </div>
       </Field>
 
-      {/* Només un cop hi ha punt: un mapa buit al mig d'un formulari no diu res
+      {!withPoint ? null : (
+        <>
+          {/* Només un cop hi ha punt: un mapa buit al mig d'un formulari no diu res
           i ocupa dos-cents píxels. */}
-      {point === null ? (
-        <p className="text-sm text-fg-muted [text-wrap:pretty]">
-          {searching ? t('junta.geo.searching') : t('junta.geo.noPoint')}
-        </p>
-      ) : (
-        <Suspense
-          fallback={
-            <Skeleton className="border border-surface-8 bg-surface-2">
-              {/* El mapa és un rectangle ple: la seva silueta també. */}
-              <SkeletonBar w="w-full" h="h-[220px]" />
-            </Skeleton>
-          }
-        >
-          <GeoMap
-            point={point}
-            radius={radius}
-            onPick={(p) => {
-              onChange({ lat: p.lat, lng: p.lng, radi_m: radius })
-            }}
-          />
-        </Suspense>
-      )}
+          {point === null ? (
+            <p className="text-sm text-fg-muted [text-wrap:pretty]">
+              {searching ? t('junta.geo.searching') : t('junta.geo.noPoint')}
+            </p>
+          ) : (
+            <Suspense
+              fallback={
+                <Skeleton className="border border-surface-8 bg-surface-2">
+                  {/* El mapa és un rectangle ple: la seva silueta també. */}
+                  <SkeletonBar w="w-full" h="h-[220px]" />
+                </Skeleton>
+              }
+            >
+              <GeoMap
+                point={point}
+                radius={radius}
+                onPick={(p) => {
+                  onChange({ lat: p.lat, lng: p.lng, radi_m: radius })
+                }}
+              />
+            </Suspense>
+          )}
 
-      <div className="mt-6 flex flex-wrap items-center gap-5">
-        <button
-          type="button"
-          disabled={locating}
-          onClick={() => {
-            void here()
-          }}
-          className="min-h-[48px] flex-none border border-surface-8 bg-surface-2 px-7 text-md font-bold text-fg disabled:opacity-60"
-        >
-          {locating ? t('junta.geo.locating') : t('junta.geo.here')}
-        </button>
-        {value === null ? null : (
-          <>
-            <span className="text-sm-lo text-fg-muted tabular-nums">
-              {value.lat.toFixed(5)}, {value.lng.toFixed(5)}
-            </span>
+          <div className="mt-6 flex flex-wrap items-center gap-5">
             <button
               type="button"
+              disabled={locating}
               onClick={() => {
-                onChange(null)
-                setCoords('')
+                void here()
               }}
-              className="min-h-[48px] flex-none px-3 text-md font-bold text-[var(--ds-warning)]"
+              className="min-h-[48px] flex-none border border-surface-8 bg-surface-2 px-7 text-md font-bold text-fg disabled:opacity-60"
             >
-              {t('junta.geo.clear')}
+              {locating ? t('junta.geo.locating') : t('junta.geo.here')}
             </button>
-          </>
-        )}
-      </div>
+            {value === null ? null : (
+              <>
+                <span className="text-sm-lo text-fg-muted tabular-nums">
+                  {value.lat.toFixed(5)}, {value.lng.toFixed(5)}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onChange(null)
+                    setCoords('')
+                  }}
+                  className="min-h-[48px] flex-none px-3 text-md font-bold text-[var(--ds-warning)]"
+                >
+                  {t('junta.geo.clear')}
+                </button>
+              </>
+            )}
+          </div>
 
-      {failed ? (
-        <p
-          role="alert"
-          className="mt-5 text-sm font-bold text-[var(--ds-warning)] [text-wrap:pretty]"
-        >
-          {t('junta.geo.noFix')}
-        </p>
-      ) : null}
+          {failed ? (
+            <p
+              role="alert"
+              className="mt-5 text-sm font-bold text-[var(--ds-warning)] [text-wrap:pretty]"
+            >
+              {t('junta.geo.noFix')}
+            </p>
+          ) : null}
 
-      {/* El radi, arrossegant. Un número escrit et fa pensar quants metres és
+          {/* El radi, arrossegant. Un número escrit et fa pensar quants metres és
           un bar; una barra amb el cercle movent-se al mapa al mateix temps
           t'ho ensenya. */}
-      <div className="mt-8">
-        <div className="flex items-baseline justify-between gap-5">
-          <span className="eyebrow text-fg-muted">{t('junta.geo.radius')}</span>
-          <span className="display text-lg tabular-nums text-fg">
-            {t('junta.geo.metres', { count: radius })}
-          </span>
-        </div>
-        <input
-          type="range"
-          min={MIN_RADIUS}
-          max={MAX_RADIUS}
-          step={10}
-          value={radius}
-          disabled={value === null}
-          aria-label={t('junta.geo.radius')}
-          onChange={(e) => {
-            const next = Number(e.target.value)
-            if (value !== null && Number.isFinite(next)) onChange({ ...value, radi_m: next })
-          }}
-          className="radius-slider mt-5 w-full disabled:opacity-40"
-        />
-        <p className="mt-4 text-sm-lo text-fg-muted [text-wrap:pretty]">
-          {t('junta.geo.radiusNote')}
-        </p>
-      </div>
+          <div className="mt-8">
+            <div className="flex items-baseline justify-between gap-5">
+              <span className="eyebrow text-fg-muted">{t('junta.geo.radius')}</span>
+              <span className="display text-lg tabular-nums text-fg">
+                {t('junta.geo.metres', { count: radius })}
+              </span>
+            </div>
+            <input
+              type="range"
+              min={MIN_RADIUS}
+              max={MAX_RADIUS}
+              step={10}
+              value={radius}
+              disabled={value === null}
+              aria-label={t('junta.geo.radius')}
+              onChange={(e) => {
+                const next = Number(e.target.value)
+                if (value !== null && Number.isFinite(next)) onChange({ ...value, radi_m: next })
+              }}
+              className="radius-slider mt-5 w-full disabled:opacity-40"
+            />
+            <p className="mt-4 text-sm-lo text-fg-muted [text-wrap:pretty]">
+              {t('junta.geo.radiusNote')}
+            </p>
+          </div>
 
-      <div className="mt-8">
-        <Field label={t('junta.geo.paste')} hint={t('junta.geo.pasteHint')}>
-          <input
-            type="text"
-            inputMode="decimal"
-            value={coords}
-            placeholder="41.5381, 2.4445"
-            onChange={(e) => {
-              setCoords(e.target.value)
-              const parsed = parsePair(e.target.value)
-              if (parsed !== null) onChange({ ...parsed, radi_m: radius })
-            }}
-            className={INPUT}
-          />
-        </Field>
-      </div>
+          <div className="mt-8">
+            <Field label={t('junta.geo.paste')} hint={t('junta.geo.pasteHint')}>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={coords}
+                placeholder="41.5381, 2.4445"
+                onChange={(e) => {
+                  setCoords(e.target.value)
+                  const parsed = parsePair(e.target.value)
+                  if (parsed !== null) onChange({ ...parsed, radi_m: radius })
+                }}
+                className={INPUT}
+              />
+            </Field>
+          </div>
+        </>
+      )}
     </section>
   )
 }

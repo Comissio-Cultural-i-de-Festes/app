@@ -307,11 +307,7 @@ function EventForm() {
 
         {/* Una reunió no té portada. La secció sencera desapareix i no queda
             un quadre discontinu buit convidant a pujar-hi una foto d'una aula. */}
-        <section
-          className={
-            isMeeting ? 'hidden' : `pt-9 lg:col-start-2 lg:row-start-1 ${GUTTER}`
-          }
-        >
+        <section className={isMeeting ? 'hidden' : `pt-9 lg:col-start-2 lg:row-start-1 ${GUTTER}`}>
           <CoverPicker
             preview={coverPreview}
             onPick={(f) => {
@@ -383,9 +379,7 @@ function EventForm() {
                       }}
                       className={
                         'flex min-h-[56px] w-full items-start gap-6 border-[1.5px] px-7 py-6 text-left ' +
-                        (on
-                          ? 'border-brand-cta bg-brand-tint'
-                          : 'border-surface-7 bg-surface-1')
+                        (on ? 'border-brand-cta bg-brand-tint' : 'border-surface-7 bg-surface-1')
                       }
                     >
                       <span
@@ -440,6 +434,7 @@ function EventForm() {
           </Field>
 
           <GeoPicker
+            withPoint={!isMeeting}
             where={form.ubicacion}
             onWhere={(text) => {
               setForm({ ...form, ubicacion: text })
@@ -452,53 +447,53 @@ function EventForm() {
 
           <div className={isMeeting ? '' : 'grid grid-cols-3 gap-4'}>
             {isMeeting ? null : (
-            <Field label={t('junta.form.places')}>
-              <input
-                type="number"
-                inputMode="numeric"
-                min={1}
-                value={form.plazas}
-                onChange={(e) => {
-                  setForm({ ...form, plazas: e.target.value })
-                }}
-                placeholder={t('junta.form.noLimit')}
-                className={INPUT}
-              />
-            </Field>
+              <Field label={t('junta.form.places')}>
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={1}
+                  value={form.plazas}
+                  onChange={(e) => {
+                    setForm({ ...form, plazas: e.target.value })
+                  }}
+                  placeholder={t('junta.form.noLimit')}
+                  className={INPUT}
+                />
+              </Field>
             )}
             {isMeeting ? null : (
-            <Field label={t('junta.form.price')}>
-              <input
-                type="number"
-                inputMode="decimal"
-                min={0}
-                step="0.5"
-                value={form.preu}
-                onChange={(e) => {
-                  setForm({ ...form, preu: e.target.value })
-                }}
-                placeholder="0"
-                className={INPUT}
-              />
-            </Field>
+              <Field label={t('junta.form.price')}>
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  min={0}
+                  step="0.5"
+                  value={form.preu}
+                  onChange={(e) => {
+                    setForm({ ...form, preu: e.target.value })
+                  }}
+                  placeholder="0"
+                  className={INPUT}
+                />
+              </Field>
             )}
             {isMeeting && form.abast === 'junta' ? null : (
-            <Field
-              label={t('junta.form.points')}
-              {...(isMeeting ? { hint: t('junta.form.pointsMeetingHint') } : {})}
-            >
-              <input
-                type="number"
-                inputMode="numeric"
-                min={0}
-                value={form.puntos}
-                onChange={(e) => {
-                  setForm({ ...form, puntos: e.target.value })
-                }}
-                placeholder={defaultPoints === null ? '' : String(defaultPoints)}
-                className={isMeeting ? `${INPUT} w-[96px]` : INPUT}
-              />
-            </Field>
+              <Field
+                label={t('junta.form.points')}
+                {...(isMeeting ? { hint: t('junta.form.pointsMeetingHint') } : {})}
+              >
+                <input
+                  type="number"
+                  inputMode="numeric"
+                  min={0}
+                  value={form.puntos}
+                  onChange={(e) => {
+                    setForm({ ...form, puntos: e.target.value })
+                  }}
+                  placeholder={defaultPoints === null ? '' : String(defaultPoints)}
+                  className={isMeeting ? `${INPUT} w-[96px]` : INPUT}
+                />
+              </Field>
             )}
           </div>
 
@@ -506,9 +501,7 @@ function EventForm() {
               pantalla s'hagi trencat. */}
           {isMeeting ? (
             <Notice as="div" tone="neutral" className="mt-2 mb-9">
-              <p className="text-md font-bold [text-wrap:pretty]">
-                {t('junta.form.meetingHasNo')}
-              </p>
+              <p className="text-md font-bold [text-wrap:pretty]">{t('junta.form.meetingHasNo')}</p>
               <p className="mt-3 text-sm-lo leading-[1.4] text-fg-muted-lo [text-wrap:pretty]">
                 {t('junta.form.meetingHasNoSub')}
               </p>
@@ -516,69 +509,69 @@ function EventForm() {
           ) : null}
 
           {isMeeting ? null : (
-          <Field label={t('junta.form.confirm')} hint={t('junta.form.confirmHint')}>
-            <button
-              type="button"
-              aria-pressed={form.cal_confirmacio}
-              onClick={() => {
-                setForm({ ...form, cal_confirmacio: !form.cal_confirmacio })
-              }}
-              className={
-                'mt-4 flex min-h-[56px] w-full items-center gap-5 px-6 py-4 text-left ' +
-                (form.cal_confirmacio
-                  ? 'border-[1.5px] border-brand-cta bg-[var(--ds-bg-live)]'
-                  : 'border-[1.5px] border-surface-7 bg-surface-1')
-              }
-            >
-              <span
-                aria-hidden="true"
+            <Field label={t('junta.form.confirm')} hint={t('junta.form.confirmHint')}>
+              <button
+                type="button"
+                aria-pressed={form.cal_confirmacio}
+                onClick={() => {
+                  setForm({ ...form, cal_confirmacio: !form.cal_confirmacio })
+                }}
                 className={
-                  'grid size-[24px] flex-none place-items-center border-[1.5px] text-sm font-bold ' +
+                  'mt-4 flex min-h-[56px] w-full items-center gap-5 px-6 py-4 text-left ' +
                   (form.cal_confirmacio
-                    ? 'border-brand-cta bg-brand-cta text-on-brand'
-                    : 'border-surface-7 text-transparent')
+                    ? 'border-[1.5px] border-brand-cta bg-[var(--ds-bg-live)]'
+                    : 'border-[1.5px] border-surface-7 bg-surface-1')
                 }
               >
-                ✓
-              </span>
-              <span className="min-w-0 flex-1 text-md font-bold [text-wrap:pretty]">
-                {form.cal_confirmacio ? t('junta.form.confirmOn') : t('junta.form.confirmOff')}
-              </span>
-            </button>
-          </Field>
+                <span
+                  aria-hidden="true"
+                  className={
+                    'grid size-[24px] flex-none place-items-center border-[1.5px] text-sm font-bold ' +
+                    (form.cal_confirmacio
+                      ? 'border-brand-cta bg-brand-cta text-on-brand'
+                      : 'border-surface-7 text-transparent')
+                  }
+                >
+                  ✓
+                </span>
+                <span className="min-w-0 flex-1 text-md font-bold [text-wrap:pretty]">
+                  {form.cal_confirmacio ? t('junta.form.confirmOn') : t('junta.form.confirmOff')}
+                </span>
+              </button>
+            </Field>
           )}
 
           {isMeeting ? null : (
-          <Field label={t('junta.form.cars')} hint={t('junta.form.carsHint')}>
-            <button
-              type="button"
-              aria-pressed={form.te_cotxes}
-              onClick={() => {
-                setForm({ ...form, te_cotxes: !form.te_cotxes })
-              }}
-              className={
-                'mt-4 flex min-h-[56px] w-full items-center gap-5 px-6 py-4 text-left ' +
-                (form.te_cotxes
-                  ? 'border-[1.5px] border-brand-cta bg-[var(--ds-bg-live)]'
-                  : 'border-[1.5px] border-surface-7 bg-surface-1')
-              }
-            >
-              <span
-                aria-hidden="true"
+            <Field label={t('junta.form.cars')} hint={t('junta.form.carsHint')}>
+              <button
+                type="button"
+                aria-pressed={form.te_cotxes}
+                onClick={() => {
+                  setForm({ ...form, te_cotxes: !form.te_cotxes })
+                }}
                 className={
-                  'grid size-[24px] flex-none place-items-center border-[1.5px] text-sm font-bold ' +
+                  'mt-4 flex min-h-[56px] w-full items-center gap-5 px-6 py-4 text-left ' +
                   (form.te_cotxes
-                    ? 'border-brand-cta bg-brand-cta text-on-brand'
-                    : 'border-surface-7 text-transparent')
+                    ? 'border-[1.5px] border-brand-cta bg-[var(--ds-bg-live)]'
+                    : 'border-[1.5px] border-surface-7 bg-surface-1')
                 }
               >
-                ✓
-              </span>
-              <span className="min-w-0 flex-1 text-md font-bold [text-wrap:pretty]">
-                {form.te_cotxes ? t('junta.form.carsOn') : t('junta.form.carsOff')}
-              </span>
-            </button>
-          </Field>
+                <span
+                  aria-hidden="true"
+                  className={
+                    'grid size-[24px] flex-none place-items-center border-[1.5px] text-sm font-bold ' +
+                    (form.te_cotxes
+                      ? 'border-brand-cta bg-brand-cta text-on-brand'
+                      : 'border-surface-7 text-transparent')
+                  }
+                >
+                  ✓
+                </span>
+                <span className="min-w-0 flex-1 text-md font-bold [text-wrap:pretty]">
+                  {form.te_cotxes ? t('junta.form.carsOn') : t('junta.form.carsOff')}
+                </span>
+              </button>
+            </Field>
           )}
 
           {/* Només d'un esdeveniment que existeix, i sota el mapa perquè les

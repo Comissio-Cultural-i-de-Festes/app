@@ -16,7 +16,7 @@
 -- Persones i reunions inventades, com a tot el repo.
 
 begin;
-select plan(35);
+select plan(40);
 
 reset role;
 delete from public.audit_log;
@@ -435,6 +435,84 @@ select throws_ok(
   '42501',
   null,
   'ni s''hi pot apuntar: WITH CHECK aixeca, no filtra'
+);
+
+-- ── les tanques que va trobar l'auditoria de producció ──────────────────────
+-- Totes tres son la mateixa confusio: fins que van existir les reunions,
+-- «publicat» i «revelat» volien dir «visible». Una reunio no te reveal_at, o
+-- sigui que qualsevol predicat que nomes miri la revelacio la deixa passar.
+reset role;
+
+-- Els cotxes. Amb `te_cotxes` posat a la reunio de junta, un soci de fora en
+-- llegia els cotxes i qui hi puja: qui es de la junta i qui hi va.
+update public.events set te_cotxes = true where id = (select junta from que);
+
+insert into public.rides (id, event_id, driver_id, sentit, origen, places)
+values (
+  '00000000-0000-4000-8000-0000000000fd',
+  (select junta from que),
+  '00000000-0000-4000-8000-0000000000a1',
+  'anada', 'Un lloc inventat', 3
+);
+
+select tests.authenticate_as('alfa');
+
+select is(
+  (select count(*)::int from public.rides where event_id = (select junta from que)),
+  0,
+  'un soci no veu els cotxes d''una reunio de junta'
+);
+
+select is(
+  (select count(*)::int from public.ride_seats s
+     join public.rides r on r.id = s.ride_id
+    where r.event_id = (select junta from que)),
+  0,
+  'ni els seients, que van per private.ride_is_visible'
+);
+
+select throws_ok(
+  format(
+    $$insert into public.rides (event_id, driver_id, sentit, origen, places)
+      values (%L, %L, 'anada', 'Un altre lloc inventat', 2)$$,
+    (select junta from que), '00000000-0000-4000-8000-000000000001'
+  ),
+  '42501',
+  null,
+  'ni s''hi pot oferir per portar-hi ningu'
+);
+
+-- L'interes: una reunio no es teasereja, pero la fila es podia escriure
+-- sabent l'identificador.
+select throws_ok(
+  format(
+    $$insert into public.event_interest (event_id, user_id) values (%L, %L)$$,
+    (select junta from que), '00000000-0000-4000-8000-000000000001'
+  ),
+  '42501',
+  null,
+  'ni dir que hi esta pendent, que d''una reunio no vol dir res'
+);
+
+-- I la reunio de la comi segueix funcionant, o les de sobre passarien per la
+-- rao equivocada.
+reset role;
+update public.events set te_cotxes = true where id = (select comi from que);
+
+insert into public.rides (id, event_id, driver_id, sentit, origen, places)
+values (
+  '00000000-0000-4000-8000-0000000000fe',
+  (select comi from que),
+  '00000000-0000-4000-8000-0000000000a1',
+  'anada', 'Un lloc inventat de la comi', 3
+);
+
+select tests.authenticate_as('alfa');
+
+select is(
+  (select count(*)::int from public.rides where event_id = (select comi from que)),
+  1,
+  'i a una reunio de tota la comi si que es veuen, que es el control'
 );
 
 select * from finish();

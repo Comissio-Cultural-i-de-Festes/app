@@ -16,6 +16,7 @@ import { SUPPORTED_LOCALES, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { HERE, IDEAS, PROVES, SCANS, clearAllQueues, count } from '@/lib/queue'
+import { SafeTop } from '@/ui/SafeTop/SafeTop'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { supabase } from '@/lib/supabase'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -129,7 +130,8 @@ export function ProfileScreen() {
         : t('profile.settings.photoSubOwn')
 
   return (
-    <main className="with-tabbar min-h-dvh bg-app pt-[var(--ds-safe-top-min)]">
+    <main className="with-tabbar min-h-dvh bg-app">
+      <SafeTop />
       {/* El títol més gran de l'app i el que està més amunt de tot: sis
           píxels no eren coixí, eren una coincidència. */}
       <header className={`flex items-center gap-8 pt-6 ${GUTTER}`}>

@@ -8,6 +8,15 @@ import { Link } from 'react-router'
  * out of — so every one of them has to draw its own exit, and the prototype
  * draws the same one on all of them: a back chevron with where it goes.
  */
+/*
+ * S'enganxa a `--ds-sticky-top` i no a zero. Amb `top-0` es pinta al capdamunt
+ * de la finestra, que és on hi ha la banda de pendent quan algú encara espera
+ * que la junta l'accepti: el títol quedava a sota d'ella. La funció 1 va
+ * introduir el token i va arreglar l'Inici i el Rànquing, i aquest capçal
+ * —que és el de les altres tretze pantalles— es va quedar enrere.
+ *
+ * Quan no hi ha banda, `--ds-sticky-top` val zero i això és exactament `top-0`.
+ */
 export function JuntaHeader({
   to,
   label,
@@ -24,7 +33,7 @@ export function JuntaHeader({
 }) {
   return (
     <header
-      className={`sticky top-0 z-20 border-b border-surface-5 bg-app px-[var(--ds-gutter)] pt-[max(calc(var(--ds-safe-top)+4px),12px)] pb-4 ${className}`}
+      className={`sticky top-[var(--ds-sticky-top)] z-20 border-b border-surface-5 bg-app px-[var(--ds-gutter)] pt-[max(calc(var(--ds-safe-top)+4px),12px)] pb-4 ${className}`}
     >
       <div className="flex items-center justify-between gap-3">
         <Link

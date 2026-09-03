@@ -71,3 +71,58 @@ describe('el safe-area de dalt', () => {
     ).toEqual([])
   })
 })
+
+/**
+ * I la franja de dalt s'ha de tapar, no només encoixinar.
+ *
+ * El coixí de dalt resol el repòs. `viewport-fit=cover` fa que la vista
+ * s'estengui per sota de la barra d'estat, o sigui que **en fer scroll** el
+ * contingut puja i passa per darrere del rellotge i la bateria. L'Inici i el
+ * Rànquing no ho van patir mai per casualitat —tenen la capçalera `sticky` amb
+ * `bg-app`— i Idees ho patia: el títol es barrejava amb el rellotge.
+ *
+ * Només es veu amb un iPhone a la mà i fent scroll, i per això va arribar a
+ * producció. Això és el que el converteix en el mateix cas que el token de
+ * dalt: una regla que ningú no pot comprovar mirant la pantalla al portàtil
+ * s'ha d'escriure aquí.
+ *
+ * Tres maneres de complir-ho, i totes tres tapen la franja de debò:
+ * `<SafeTop />`, una capçalera `sticky` a `--ds-sticky-top`, o `JuntaHeader`,
+ * que ja és tots dos.
+ */
+describe('la franja de la barra d’estat', () => {
+  /**
+   * L'excepció, dita en veu alta com el bloc de dalt demana.
+   *
+   * `QrScreen` centra un quadrat i no fa scroll mai: no hi ha contingut que
+   * pugui pujar per darrere de res. Enganxar-hi una franja li mouria el QR sis
+   * píxels amunt per a resoldre un problema que no té.
+   */
+  const DELIBERADES = ['src/features/qr/QrScreen.tsx']
+
+  const cobreix = (source: string) =>
+    source.includes('<SafeTop') ||
+    source.includes('sticky top-[var(--ds-sticky-top)]') ||
+    source.includes('<JuntaHeader')
+
+  it('la tapa a cada pantalla amb barra de pestanyes', () => {
+    const nues = SOURCES.filter((file) => {
+      const ruta = file.split(/[\\/]/).join('/')
+      // Pantalles i prou. `TabBar` anomena la classe al comentari que explica
+      // què fa, i no és una pantalla ni té res a tapar.
+      if (!ruta.endsWith('Screen.tsx')) return false
+      if (DELIBERADES.some((d) => ruta.endsWith(d))) return false
+
+      const source = stripComments(readFileSync(file, 'utf8'))
+      if (!source.includes('with-tabbar')) return false
+      return !cobreix(source)
+    })
+
+    expect(
+      nues,
+      `Aquestes pantalles deixen el contingut passar per darrere del rellotge en fer scroll. ` +
+        `Posa-hi <SafeTop /> com a primer fill del <main>, o una capçalera sticky a ` +
+        `--ds-sticky-top:\n${nues.join('\n')}`,
+    ).toEqual([])
+  })
+})

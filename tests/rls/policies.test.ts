@@ -945,3 +945,63 @@ describe('a junta-scoped meeting does not exist for a member', () => {
     expect(error?.code).toBe('42501')
   })
 })
+
+describe('a push subscription goes in through the RPC and nowhere else', () => {
+  // AQUESTA PROVA NO EXISTIA I PER AIXO EL PUSH VA ARRIBAR TRENCAT A
+  // PRODUCCIO. El client feia un upsert sobre `push_subscription`, i un
+  // `on conflict do update` exigeix SELECT sobre la taula —Postgres l'ha de
+  // llegir per resoldre el conflicte—, un SELECT que es nega a posta perque
+  // les claus d'una subscripcio son la capacitat d'enviar avisos al mobil de
+  // qui la va crear.
+  //
+  // Les proves de dins de la base miraven els grants i deien que hi havia
+  // INSERT i UPDATE, cosa certa i inutil. Aquesta capa es la que ho hauria vist
+  // el primer dia, perque es la que fa la peticio de debo.
+  const ENDPOINT = 'https://push.example.invalid/rls-' + process.pid
+
+  it('the member can save their own through the RPC', async () => {
+    const member = await as('alfa')
+    const { error } = await rpc(member, 'save_push_subscription', {
+      p_endpoint: ENDPOINT,
+      p_p256dh: 'p-rls',
+      p_auth: 'a-rls',
+    })
+    expect(error).toBeNull()
+
+    // I ha quedat atribuida a qui la va desar, no a qui digui el client.
+    const svc = serviceClient()
+    const { data } = await svc
+      .from('push_subscription')
+      .select('user_id, p256dh')
+      .eq('endpoint', ENDPOINT)
+    expect(data).toHaveLength(1)
+    expect(data?.[0]?.user_id).toBe(F.alfa)
+  })
+
+  it('but not through the table, which is how it used to be attempted', async () => {
+    const member = await as('alfa')
+
+    // El cami vell, exactament: un upsert amb `on_conflict`.
+    const upsert = await member
+      .from('push_subscription')
+      .upsert(
+        { endpoint: ENDPOINT, user_id: F.alfa, p256dh: 'p-directe', auth: 'a-directe' },
+        { onConflict: 'endpoint' },
+      )
+    expect(upsert.error?.code).toBe('42501')
+
+    // I un insert pelat tampoc.
+    const insert = await member
+      .from('push_subscription')
+      .insert({ endpoint: ENDPOINT + '-2', user_id: F.alfa, p256dh: 'p', auth: 'a' })
+    expect(insert.error?.code).toBe('42501')
+  })
+
+  it('and cannot read anyone\u2019s keys, including their own', async () => {
+    const member = await as('alfa')
+    const { error } = await member.from('push_subscription').select('endpoint')
+    // 42501 i no una llista buida: el que ho impedeix es el privilegi que no
+    // s'ha donat, no cap politica que filtri.
+    expect(error?.code).toBe('42501')
+  })
+})

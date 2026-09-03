@@ -107,22 +107,79 @@ export async function subscribeToPush(): Promise<PushOutcome> {
       return { ok: false, reason: 'failed' }
     }
 
-    const { data: user } = await supabase.auth.getUser()
-    const userId = user.user?.id
-    if (userId === undefined) return { ok: false, reason: 'failed' }
-
-    // Upsert per `endpoint`: el navegador rota les claus de tant en tant i el
-    // mateix endpoint ha de quedar-se amb les noves, no duplicar-se.
-    const { error } = await supabase
-      .from('push_subscription')
-      .upsert(
-        { endpoint: json.endpoint, user_id: userId, p256dh, auth },
-        { onConflict: 'endpoint' },
-      )
-    if (error) return { ok: false, reason: 'failed' }
-
-    return { ok: true }
+    return saveSubscription(json.endpoint, p256dh, auth)
   } catch {
     return { ok: false, reason: 'failed' }
+  }
+}
+
+/**
+ * Desar-la, per l'RPC i no per la taula.
+ *
+ * AQUÍ HI VA HAVER UN UPSERT I NO PODIA FUNCIONAR MAI. `push_subscription` no
+ * dóna SELECT a `authenticated` —les claus d'una subscripció són la capacitat
+ * d'enviar avisos al mòbil de qui la va crear—, i un `on conflict do update`
+ * exigeix aquell SELECT perquè Postgres ha de llegir la fila per resoldre el
+ * conflicte. Sortia `42501` i aquesta funció el convertia en `failed`. A
+ * producció no s'hi va desar cap subscripció mai.
+ *
+ * La migració 51 hi va posar `save_push_subscription`, que escriu com a
+ * `definer` i atribueix la fila a `auth.uid()`. Vegeu-hi la capçalera: la
+ * sortida no era donar el SELECT.
+ */
+async function saveSubscription(
+  endpoint: string,
+  p256dh: string,
+  auth: string,
+): Promise<PushOutcome> {
+  const { error } = await supabase.rpc('save_push_subscription', {
+    p_endpoint: endpoint,
+    p_p256dh: p256dh,
+    p_auth: auth,
+  })
+  if (error) {
+    // Es registra. La versió d'abans se'l menjava, i per això un permís
+    // concedit amb el desat trencat semblava un èxit durant setmanes.
+    console.error('[push] subscripció no desada', error.code, error.message)
+    return { ok: false, reason: 'failed' }
+  }
+  return { ok: true }
+}
+
+/**
+ * Si el navegador ja hi està subscrit, tornar-ho a desar.
+ *
+ * PERQUÈ «PERMÍS CONCEDIT» NO VOL DIR «DESADA». Són dues coses que passen en
+ * dos llocs diferents i la segona pot fallar sola: el navegador es queda
+ * subscrit i el servidor no en sap res, i com que el permís ja està concedit
+ * la pantalla no torna a oferir res. Sense això, aquell navegador no rep un
+ * avís mai més i ningú se n'assabenta.
+ *
+ * És idempotent i barata —una crida quan es mira un esdeveniment sense
+ * revelar— i el que arregla és precisament el cas que ja ha passat: qui es va
+ * «subscriure» mentre el desat estava trencat es cura sol la pròxima vegada
+ * que obre l'app.
+ */
+export async function ensureSubscriptionSaved(): Promise<boolean> {
+  if (env.vapidPublicKey === '') return false
+  if (!('serviceWorker' in navigator) || !('PushManager' in window)) return false
+  if (!pushGranted()) return false
+
+  try {
+    const registration = await navigator.serviceWorker.ready
+    const subscription = await registration.pushManager.getSubscription()
+    if (subscription === null) return false
+
+    const json = subscription.toJSON()
+    const p256dh = json.keys?.p256dh
+    const auth = json.keys?.auth
+    if (json.endpoint === undefined || p256dh === undefined || auth === undefined) {
+      return false
+    }
+
+    const saved = await saveSubscription(json.endpoint, p256dh, auth)
+    return saved.ok
+  } catch {
+    return false
   }
 }

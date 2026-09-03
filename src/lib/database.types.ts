@@ -1754,6 +1754,10 @@ export type Database = {
         }[]
       }
       rotate_qr_token: { Args: never; Returns: string }
+      save_push_subscription: {
+        Args: { p_auth: string; p_endpoint: string; p_p256dh: string }
+        Returns: undefined
+      }
       set_attendance: {
         Args: { p_estado: string; p_event_id: string }
         Returns: Json

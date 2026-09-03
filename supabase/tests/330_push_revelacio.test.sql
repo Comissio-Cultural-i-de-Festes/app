@@ -14,7 +14,7 @@
 -- avisos iguals no els cobreix res.
 
 begin;
-select plan(9);
+select plan(20);
 
 reset role;
 
@@ -30,11 +30,116 @@ select is(
   'authenticated no té SELECT sobre push_subscription: les claus són la capacitat d''enviar'
 );
 
+-- I CAP ALTRE TAMPOC. Aquesta asserció deia el contrari: comprovava que hi
+-- hagués INSERT i UPDATE «que és l'upsert que fa el navegador», tres línies
+-- sota d'assertar que no hi ha SELECT. Les dues passaven i juntes eren
+-- impossibles: un `on conflict do update` exigeix el SELECT que la de dalt
+-- nega. El test mirava la forma dels permisos i mai el comportament, i per
+-- això va deixar passar un push que a producció no va desar res mai.
 select ok(
-  has_table_privilege('authenticated', 'public.push_subscription', 'INSERT')
-    and has_table_privilege('authenticated', 'public.push_subscription', 'UPDATE'),
-  'però sí INSERT i UPDATE, que és l''upsert que fa el navegador'
+  not has_table_privilege('authenticated', 'public.push_subscription', 'INSERT')
+    and not has_table_privilege('authenticated', 'public.push_subscription', 'UPDATE')
+    and not has_table_privilege('authenticated', 'public.push_subscription', 'DELETE')
+    and not has_table_privilege('authenticated', 'public.push_subscription', 'SELECT'),
+  'cap grant de cap mena: l''unica entrada es save_push_subscription()'
 );
+
+-- ── i ara el comportament, que és el que faltava ────────────────────────────
+select tests.authenticate_as('alfa');
+
+select lives_ok(
+  $$select public.save_push_subscription(
+      'https://push.example.invalid/nou', 'p-nou', 'a-nou')$$,
+  'un soci pot desar la seva subscripcio per la RPC'
+);
+
+-- Dues vegades el mateix endpoint: s'actualitza, no es duplica. És el cas de
+-- debò —el navegador rota les claus— i el que l'upsert havia d'atendre.
+select lives_ok(
+  $$select public.save_push_subscription(
+      'https://push.example.invalid/nou', 'p-rotada', 'a-rotada')$$,
+  'i tornar-hi amb claus noves no peta'
+);
+
+reset role;
+
+select is(
+  (select count(*)::int from public.push_subscription
+    where endpoint = 'https://push.example.invalid/nou'),
+  1,
+  'queda una sola fila per endpoint, amb les claus noves'
+);
+
+select is(
+  (select p256dh from public.push_subscription
+    where endpoint = 'https://push.example.invalid/nou'),
+  'p-rotada',
+  'i son les ultimes que el navegador va donar'
+);
+
+select is(
+  (select user_id from public.push_subscription
+    where endpoint = 'https://push.example.invalid/nou'),
+  '00000000-0000-4000-8000-000000000001'::uuid,
+  'atribuida a auth.uid() i no a cap parametre'
+);
+
+-- Un endpoint pot canviar de mà: mateix navegador, una altra persona hi entra.
+select tests.authenticate_as('bravo');
+
+select lives_ok(
+  $$select public.save_push_subscription(
+      'https://push.example.invalid/nou', 'p-bravo', 'a-bravo')$$,
+  'i si al mateix navegador hi entra algu altre, la fila passa a ser seva'
+);
+
+reset role;
+
+select is(
+  (select user_id from public.push_subscription
+    where endpoint = 'https://push.example.invalid/nou'),
+  '00000000-0000-4000-8000-000000000002'::uuid,
+  'perque si no els avisos anirien a qui ja no hi es'
+);
+
+-- Un soci no pot llegir la taula ni sabent que hi és: el que el 42501 protegeix
+-- son les claus dels altres.
+select tests.authenticate_as('alfa');
+
+select throws_ok(
+  'select count(*) from public.push_subscription',
+  '42501',
+  null,
+  'i seguir sense poder llegir-la, que es el que protegeix les claus dels altres'
+);
+
+select throws_ok(
+  $$select public.save_push_subscription('no-es-una-adreca', 'p', 'a')$$,
+  '22023',
+  null,
+  'un endpoint que no es una adreca https es refusa'
+);
+
+reset role;
+select tests.authenticate_as('pendent_alfa');
+
+select throws_ok(
+  $$select public.save_push_subscription(
+      'https://push.example.invalid/pendent', 'p', 'a')$$,
+  '42501',
+  null,
+  'i qui encara no es soci no en pot desar cap'
+);
+
+reset role;
+
+select ok(
+  not has_function_privilege('anon',
+    'public.save_push_subscription(text, text, text)', 'EXECUTE'),
+  'anon no la pot executar: invite_preview segueix sent l''unica que pot'
+);
+
+reset role;
 
 -- ── el paquet que la funció rebrà ───────────────────────────────────────────
 insert into public.push_subscription (endpoint, user_id, p256dh, auth)

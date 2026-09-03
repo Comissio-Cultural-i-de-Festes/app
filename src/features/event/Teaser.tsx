@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { errorKey } from '@/lib/errors'
@@ -7,7 +7,13 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { type Interest, eventKeys, fetchInterest, setInterest } from './api'
 import { countdown } from './countdown'
-import { type PushOutcome, pushAvailable, pushGranted, subscribeToPush } from './push'
+import {
+  type PushOutcome,
+  ensureSubscriptionSaved,
+  pushAvailable,
+  pushGranted,
+  subscribeToPush,
+} from './push'
 
 /**
  * El que es pot dir d'un esdeveniment que encara no es pot dir.
@@ -227,10 +233,41 @@ function PushOffer() {
   const [asked, setAsked] = useState(false)
   const [outcome, setOutcome] = useState<PushOutcome | null>(null)
   const [busy, setBusy] = useState(false)
+  const [broken, setBroken] = useState(false)
 
-  // Ja concedit vol dir que ja està subscrit d'un altre esdeveniment: la
-  // subscripció és del navegador i no de l'esdeveniment.
-  if (!pushAvailable() || pushGranted() || asked) return null
+  // «PERMÍS CONCEDIT» NO ÉS «SUBSCRIT», i tractar-ho com si ho fos és el que va
+  // deixar el push trencat en silenci a producció: el desat al servidor fallava
+  // amb 42501, el navegador es quedava amb el permís donat, i com que aquesta
+  // línia sortia d'aquí amb un `null`, el missatge de fracàs de sota no es
+  // podia veure mai. Setmanes amb l'avís apagat i ningú per dir-ho.
+  //
+  // Ara, amb el permís ja donat, es torna a desar en silenci —és idempotent— i
+  // només si això falla es diu alguna cosa.
+  useEffect(() => {
+    if (!pushGranted()) return
+    let viu = true
+    void ensureSubscriptionSaved().then((ok) => {
+      if (viu && !ok) setBroken(true)
+    })
+    return () => {
+      viu = false
+    }
+  }, [])
+
+  if (!pushAvailable() || asked) return null
+
+  // Ja subscrit i desat, o encara comprovant-ho: no hi ha res a oferir.
+  if (pushGranted() && !broken) return null
+
+  // Concedit però sense desar: no s'ofereix res —el permís ja el tenim— però
+  // es diu que l'avís no arribarà, que és l'única cosa útil en aquest estat.
+  if (pushGranted()) {
+    return (
+      <p className="pt-8 text-sm-lo leading-[1.4] text-fg-muted-lo [text-wrap:pretty]">
+        {t('event.teaser.pushFail.failed')}
+      </p>
+    )
+  }
 
   return (
     <div className="pt-8">

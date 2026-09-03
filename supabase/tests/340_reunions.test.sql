@@ -16,7 +16,7 @@
 -- Persones i reunions inventades, com a tot el repo.
 
 begin;
-select plan(40);
+select plan(44);
 
 reset role;
 delete from public.audit_log;
@@ -514,6 +514,60 @@ select is(
   1,
   'i a una reunio de tota la comi si que es veuen, que es el control'
 );
+
+-- ── EL CONTROL QUE FALTAVA A L'ALTRE COSTAT ─────────────────────────────────
+-- Les assercions de dalt proven que el forat esta tapat. Aquesta prova que la
+-- porta s'obre, i es la que no hi era: la tanca de la migracio 50 bloquejava
+-- tothom, i com que `attendances` no te cap politica d'INSERT per a
+-- administradors, la junta va quedar tancada fora de la seva propia reunio.
+-- Premer «Hi sere» no escrivia res i la pantalla no deia res.
+reset role;
+select tests.authenticate_as('junta_alfa');
+
+select lives_ok(
+  format(
+    $$insert into public.attendances (user_id, event_id, estado)
+      values (%L, %L, 'si')
+      on conflict (user_id, event_id) do update set estado = 'si'$$,
+    '00000000-0000-4000-8000-0000000000a1', (select junta from que)
+  ),
+  'qui es convocat a una reunio de junta hi pot contestar'
+);
+
+select lives_ok(
+  format(
+    $$update public.attendances set estado = 'no'
+       where user_id = %L and event_id = %L$$,
+    '00000000-0000-4000-8000-0000000000a1', (select junta from que)
+  ),
+  'i pot canviar la resposta, que es el mateix boto una segona vegada'
+);
+
+reset role;
+
+select is(
+  (select estado from public.attendances
+    where user_id = '00000000-0000-4000-8000-0000000000a1'
+      and event_id = (select junta from que)),
+  'no',
+  'i el canvi hi queda'
+);
+
+-- El soci de fora segueix refusat: la tanca no s'ha obert, s'ha fet precisa.
+select tests.authenticate_as('alfa');
+
+select throws_ok(
+  format(
+    $$insert into public.attendances (user_id, event_id, estado)
+      values (%L, %L, 'si')$$,
+    '00000000-0000-4000-8000-000000000001', (select junta from que)
+  ),
+  '42501',
+  null,
+  'mentre que qui no hi es convocat segueix fora'
+);
+
+reset role;
 
 select * from finish();
 rollback;

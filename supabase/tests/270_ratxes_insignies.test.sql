@@ -357,10 +357,21 @@ select is(
 );
 
 -- ── qui més la té ────────────────────────────────────────────
-update public.profiles set avatar_url = 'https://exemple.invalid/a.jpg'
+-- El camí del bucket i no una URL inventada: des de la migració 59 la columna
+-- té un CHECK que només accepta un camí d'`avatars` o un amfitrió de Google, i
+-- aquí el valor només ha de ser no-nul perquè `badge_holders()` tingui cares.
+update public.profiles set avatar_url = id::text || '/1788000000000.jpg'
  where id = (select i from qui);
-update public.profiles set avatar_url = 'https://exemple.invalid/h.jpg'
+update public.profiles set avatar_url = id::text || '/1788000000001.jpg'
  where id = tests.uid('hidden_alfa');
+
+-- Els dos valors, capturats ARA que encara som postgres: `tests.*` esta
+-- revocat a `authenticated` i mes avall la sessio ja es d'un soci.
+create temporary table cares as
+select
+  (select avatar_url from public.profiles where id = (select i from qui)) as visible,
+  (select avatar_url from public.profiles where id = tests.uid('hidden_alfa')) as amagada;
+grant select on cares to authenticated;
 
 select private.grant_badges(tests.uid('hidden_alfa'));
 
@@ -381,11 +392,11 @@ select is(
 -- Amagar-se del rànquing treu la cara i no la persona: «la tenen 23» amb 22
 -- cares seria una manera rebuscada de dir qui és el que falta.
 select ok(
-  'https://exemple.invalid/a.jpg' = any (
-    select unnest(cares) from public.badge_holders() where codi = 'primera')
+  (select visible from cares) = any (
+    select unnest(b.cares) from public.badge_holders() b where b.codi = 'primera')
   and not (
-    'https://exemple.invalid/h.jpg' = any (
-      select unnest(cares) from public.badge_holders() where codi = 'primera')),
+    (select amagada from cares) = any (
+      select unnest(b.cares) from public.badge_holders() b where b.codi = 'primera')),
   'qui s''amaga del rànquing compta però no hi posa la cara'
 );
 

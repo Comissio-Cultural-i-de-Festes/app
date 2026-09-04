@@ -922,7 +922,7 @@
       "title": "El registro",
       "lede": "Quién ha hecho qué, y cuándo. Sirve para saber quién nombró a un admin y para responder si alguien pide qué tenéis sobre él.",
       "unknown": "Alguien que ya no está",
-      "other": "Ha pasado algo: {{accio}}",
+      "other": "{{actor}} ha hecho algo: {{accio}}",
       "detail": "Ver el detalle",
       "more": "Carga más",
       "empty": "Todavía no hay nada en el registro.",
@@ -943,7 +943,12 @@
         "save_periods": "{{actor}} ha movido los periodos del ranking",
         "set_point_value": "{{actor}} ha cambiado el baremo",
         "save_grau": "{{actor}} ha guardado un grado",
-        "delete_grau": "{{actor}} ha quitado un grado de la lista"
+        "delete_grau": "{{actor}} ha quitado un grado de la lista",
+        "check_in_here": "{{actor}} ha fichado a alguien por ubicación",
+        "close_meeting": "{{actor}} ha cerrado una reunión",
+        "decide_proposal": "{{actor}} ha decidido una idea",
+        "transfer_owner": "{{actor}} ha traspasado la propiedad",
+        "reveal_push": "Se ha enviado el aviso de una revelación"
       },
       "rowSub": "Quién ha hecho qué"
     },

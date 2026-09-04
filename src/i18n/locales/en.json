@@ -922,7 +922,7 @@
       "title": "The log",
       "lede": "Who did what, and when. It answers who appointed an admin, and what the association holds about somebody who asks.",
       "unknown": "Somebody no longer here",
-      "other": "Something happened: {{accio}}",
+      "other": "{{actor}} did something: {{accio}}",
       "detail": "See the detail",
       "more": "Load more",
       "empty": "Nothing in the log yet.",
@@ -943,7 +943,12 @@
         "save_periods": "{{actor}} moved the ranking periods",
         "set_point_value": "{{actor}} changed the scale",
         "save_grau": "{{actor}} saved a degree",
-        "delete_grau": "{{actor}} took a degree off the list"
+        "delete_grau": "{{actor}} took a degree off the list",
+        "check_in_here": "{{actor}} checked somebody in by location",
+        "close_meeting": "{{actor}} closed a meeting",
+        "decide_proposal": "{{actor}} decided an idea",
+        "transfer_owner": "{{actor}} handed over ownership",
+        "reveal_push": "The reveal notice went out"
       },
       "rowSub": "Who did what"
     },

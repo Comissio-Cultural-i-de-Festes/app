@@ -922,7 +922,7 @@
       "title": "El registre",
       "lede": "Qui ha fet què, i quan. Serveix per saber qui va nomenar un admin i per respondre si algú demana què teniu sobre ell.",
       "unknown": "Algú que ja no hi és",
-      "other": "Ha passat una cosa: {{accio}}",
+      "other": "{{actor}} ha fet una cosa: {{accio}}",
       "detail": "Veure el detall",
       "more": "Carrega'n més",
       "empty": "Encara no hi ha res al registre.",
@@ -943,7 +943,12 @@
         "save_periods": "{{actor}} ha mogut els períodes del rànquing",
         "set_point_value": "{{actor}} ha canviat el barem",
         "save_grau": "{{actor}} ha desat un grau",
-        "delete_grau": "{{actor}} ha tret un grau de la llista"
+        "delete_grau": "{{actor}} ha tret un grau de la llista",
+        "check_in_here": "{{actor}} ha fitxat algú per ubicació",
+        "close_meeting": "{{actor}} ha tancat una reunió",
+        "decide_proposal": "{{actor}} ha decidit una idea",
+        "transfer_owner": "{{actor}} ha traspassat la propietat",
+        "reveal_push": "S'ha enviat l'avís d'una revelació"
       },
       "rowSub": "Qui ha fet què"
     },

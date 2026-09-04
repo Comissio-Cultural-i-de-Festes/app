@@ -22,6 +22,21 @@ export function errorKey(error: unknown, online = navigator.onLine): string {
     // Class 42 is the rest of privileges and undefined objects, 22 bad input,
     // 23 a constraint. A member can do nothing about any of them.
     if (/^(?:42|22|23)/.test(error.code)) return 'errors.generic'
+    // P0002 no_data_found — the RPCs raise it for the thing that is not there:
+    // «esdeveniment inexistent», «aquesta persona no esta fitxada», «aquest
+    // grau no existeix», «proposta inexistent». Twelve sites, and every one of
+    // them was being told the network was down.
+    if (error.code === 'P0002') return 'errors.notFound'
+    // P0001 is plpgsql's default for a bare `raise`, and the two sites that
+    // use it are business refusals: an event that still has points on it, and
+    // a profile that is not active. Neither is about permission exactly, so
+    // this is the closest honest key rather than the right one — a per-case
+    // sentence would need those two RPCs to carry codes of their own.
+    if (error.code === 'P0001') return 'errors.forbidden'
+    // 55000 object_not_in_prerequisite_state — one site, and it is the invite
+    // generator failing to find a free code. That one really does come good on
+    // a second try, so «try again in a moment» is the correct advice.
+    if (error.code === '55000') return 'errors.generic'
     // PostgREST's own: no row where one was required, and its parse failures.
     if (error.code === 'PGRST116') return 'errors.notFound'
     // 202 is a function the schema cache does not have, 203 is one whose

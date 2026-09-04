@@ -6,7 +6,7 @@ import { homeKeys, horizonIso } from '@/features/home/api'
 import { useAnswer } from '@/features/home/useHome'
 import { formatDateTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
-import { unwrapAs } from '@/lib/db'
+import { DbError, unwrapAs } from '@/lib/db'
 import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
 import { supabase } from '@/lib/supabase'
@@ -59,7 +59,10 @@ const revealedKeys = {
  */
 async function fetchRevealed(): Promise<EventRow[]> {
   const { data, error } = await supabase.rpc('my_revealed_interests')
-  if (error) throw error
+  // `DbError` i no l'error cru: `errorKey()` només sap classificar els seus,
+  // així que un 42501 d'aquí sortia com «no hi ha manera de connectar». És
+  // l'única escletxa d'aquest tipus en un centenar de crides iguals.
+  if (error) throw new DbError(error)
   const ids = data ?? []
   if (ids.length === 0) return []
 

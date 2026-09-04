@@ -125,6 +125,7 @@
     "offline": "Necesitas conexión para ver esto.",
     "forbidden": "Esto no lo puedes hacer tú.",
     "notFound": "Esto ya no está.",
+    "notAnImage": "Esta foto no la sé leer. Prueba con otra, o hazla desde la cámara.",
     "rateLimited": "Demasiados intentos seguidos. Espera un par de minutos y vuelve.",
     "behindServer": "Esto todavía no está en el servidor: la app se ha actualizado antes que la base de datos. Si eres de la junta, sube las migraciones; si no, avísalos."
   },

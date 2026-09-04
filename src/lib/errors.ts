@@ -1,4 +1,5 @@
 import { DbError } from './db'
+import { UnreadableImage } from './storage'
 
 /**
  * Which sentence a failure gets.
@@ -14,6 +15,11 @@ import { DbError } from './db'
  * wait, sign in again, ask the junta, or stop.
  */
 export function errorKey(error: unknown, online = navigator.onLine): string {
+  // Abans que l'offline: triar un fitxer que no es pot llegir no té res a
+  // veure amb la cobertura, i dir-li «mira la xarxa» és enviar algú a
+  // comprovar una cosa que no és.
+  if (error instanceof UnreadableImage) return 'errors.notAnImage'
+
   if (!online) return 'errors.offline'
 
   if (error instanceof DbError) {

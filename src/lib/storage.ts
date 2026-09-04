@@ -36,9 +36,34 @@ const JPEG_QUALITY = 0.82
  * tell the difference. If anything goes wrong the original is used, because a
  * slow upload beats no cover.
  */
+/**
+ * El fitxer triat no és una imatge que aquest navegador sàpiga llegir.
+ *
+ * El cas real és un HEIC del carret d'un iPhone en un navegador que no el
+ * descodifica. Abans això queia al `catch` de `shrinkImage` i tornava el
+ * fitxer ORIGINAL, que se pujava sencer —dotze megues per la wifi de la sala—
+ * i el rebutjava el servidor amb un 415. Aquí es para abans de sortir del
+ * telèfon, i `errorKey()` en sap dir el motiu.
+ */
+export class UnreadableImage extends Error {
+  constructor(cause: unknown) {
+    super('the browser cannot decode this file as an image', { cause })
+    this.name = 'UnreadableImage'
+  }
+}
+
 export async function shrinkImage(file: File): Promise<Blob> {
+  let bitmap: ImageBitmap
   try {
-    const bitmap = await createImageBitmap(file)
+    bitmap = await createImageBitmap(file)
+  } catch (cause) {
+    // Únic cas que és culpa del fitxer. Tot el que ve després pot fallar per
+    // motius del navegador —sense canvas, sense codificador— i aleshores
+    // tornar l'original és la degradació correcta.
+    throw new UnreadableImage(cause)
+  }
+
+  try {
     const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height))
     if (scale === 1 && file.size <= 2_000_000) return file
 

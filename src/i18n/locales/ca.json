@@ -125,6 +125,7 @@
     "offline": "Necessites connexió per veure això.",
     "forbidden": "Això no ho pots fer tu.",
     "notFound": "Això ja no hi és.",
+    "notAnImage": "Aquesta foto no la sé llegir. Prova amb una altra, o fes-la des de la càmera.",
     "rateLimited": "Massa intents seguits. Espera un parell de minuts i torna-hi.",
     "behindServer": "Això encara no hi és al servidor: l'app s'ha actualitzat abans que la base de dades. Si ets de la junta, apuja les migracions; si no, avisa'ls."
   },

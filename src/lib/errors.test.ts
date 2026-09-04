@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import { DbError } from './db'
 import { errorKey } from './errors'
+import { UnreadableImage } from './storage'
 
 /**
  * Which sentence a failure gets.
@@ -75,6 +76,19 @@ describe('errorKey', () => {
       expect(errorKey(db('PGRST301'), true)).toBe('errors.generic')
       expect(errorKey(db('PGRST100'), true)).toBe('errors.generic')
     })
+  })
+
+  /**
+   * A file the browser cannot decode — a HEIC off an iPhone, in practice.
+   *
+   * It comes BEFORE the offline check on purpose: the file being unreadable
+   * has nothing to do with coverage, and «check your signal» sends somebody
+   * to look at the wrong thing. So it wins even with the radio off.
+   */
+  it('names an unreadable image, offline or not', () => {
+    const bad = new UnreadableImage(new Error('decode failed'))
+    expect(errorKey(bad, true)).toBe('errors.notAnImage')
+    expect(errorKey(bad, false)).toBe('errors.notAnImage')
   })
 
   it('treats anything that is not a DbError as transport', () => {

@@ -1044,7 +1044,7 @@ describe('a push subscription goes in through the RPC and nowhere else', () => {
   // Les proves de dins de la base miraven els grants i deien que hi havia
   // INSERT i UPDATE, cosa certa i inutil. Aquesta capa es la que ho hauria vist
   // el primer dia, perque es la que fa la peticio de debo.
-  const ENDPOINT = 'https://push.example.invalid/rls-' + process.pid
+  const ENDPOINT = 'https://fcm.googleapis.com/fcm/send/AUDIT-rls-' + process.pid
 
   it('the member can save their own through the RPC', async () => {
     const member = await as('alfa')

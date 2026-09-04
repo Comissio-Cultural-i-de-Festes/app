@@ -49,7 +49,7 @@ select tests.authenticate_as('alfa');
 
 select lives_ok(
   $$select public.save_push_subscription(
-      'https://push.example.invalid/nou', 'p-nou', 'a-nou')$$,
+      'https://fcm.googleapis.com/fcm/send/AUDIT-nou', 'p-nou', 'a-nou')$$,
   'un soci pot desar la seva subscripcio per la RPC'
 );
 
@@ -57,7 +57,7 @@ select lives_ok(
 -- debò —el navegador rota les claus— i el que l'upsert havia d'atendre.
 select lives_ok(
   $$select public.save_push_subscription(
-      'https://push.example.invalid/nou', 'p-rotada', 'a-rotada')$$,
+      'https://fcm.googleapis.com/fcm/send/AUDIT-nou', 'p-rotada', 'a-rotada')$$,
   'i tornar-hi amb claus noves no peta'
 );
 
@@ -65,21 +65,21 @@ reset role;
 
 select is(
   (select count(*)::int from public.push_subscription
-    where endpoint = 'https://push.example.invalid/nou'),
+    where endpoint = 'https://fcm.googleapis.com/fcm/send/AUDIT-nou'),
   1,
   'queda una sola fila per endpoint, amb les claus noves'
 );
 
 select is(
   (select p256dh from public.push_subscription
-    where endpoint = 'https://push.example.invalid/nou'),
+    where endpoint = 'https://fcm.googleapis.com/fcm/send/AUDIT-nou'),
   'p-rotada',
   'i son les ultimes que el navegador va donar'
 );
 
 select is(
   (select user_id from public.push_subscription
-    where endpoint = 'https://push.example.invalid/nou'),
+    where endpoint = 'https://fcm.googleapis.com/fcm/send/AUDIT-nou'),
   '00000000-0000-4000-8000-000000000001'::uuid,
   'atribuida a auth.uid() i no a cap parametre'
 );
@@ -89,7 +89,7 @@ select tests.authenticate_as('bravo');
 
 select lives_ok(
   $$select public.save_push_subscription(
-      'https://push.example.invalid/nou', 'p-bravo', 'a-bravo')$$,
+      'https://fcm.googleapis.com/fcm/send/AUDIT-nou', 'p-bravo', 'a-bravo')$$,
   'i si al mateix navegador hi entra algu altre, la fila passa a ser seva'
 );
 
@@ -97,7 +97,7 @@ reset role;
 
 select is(
   (select user_id from public.push_subscription
-    where endpoint = 'https://push.example.invalid/nou'),
+    where endpoint = 'https://fcm.googleapis.com/fcm/send/AUDIT-nou'),
   '00000000-0000-4000-8000-000000000002'::uuid,
   'perque si no els avisos anirien a qui ja no hi es'
 );
@@ -125,7 +125,7 @@ select tests.authenticate_as('pendent_alfa');
 
 select throws_ok(
   $$select public.save_push_subscription(
-      'https://push.example.invalid/pendent', 'p', 'a')$$,
+      'https://fcm.googleapis.com/fcm/send/AUDIT-pendent', 'p', 'a')$$,
   '42501',
   null,
   'i qui encara no es soci no en pot desar cap'
@@ -144,8 +144,8 @@ reset role;
 -- ── el paquet que la funció rebrà ───────────────────────────────────────────
 insert into public.push_subscription (endpoint, user_id, p256dh, auth)
 values
-  ('https://push.example.invalid/un', '00000000-0000-4000-8000-000000000001', 'p-un', 'a-un'),
-  ('https://push.example.invalid/dos', '00000000-0000-4000-8000-000000000002', 'p-dos', 'a-dos');
+  ('https://fcm.googleapis.com/fcm/send/AUDIT-un', '00000000-0000-4000-8000-000000000001', 'p-un', 'a-un'),
+  ('https://fcm.googleapis.com/fcm/send/AUDIT-dos', '00000000-0000-4000-8000-000000000002', 'p-dos', 'a-dos');
 
 -- Només l'Alfa ho ha demanat.
 insert into public.event_interest (event_id, user_id)
@@ -162,7 +162,7 @@ select is(
 select is(
   private.reveal_push_payload('00000000-0000-4000-8000-0000000000e2')
     -> 'subscripcions' -> 0 ->> 'endpoint',
-  'https://push.example.invalid/un',
+  'https://fcm.googleapis.com/fcm/send/AUDIT-un',
   'i és la de la persona que ho va demanar, no la de l''altre soci'
 );
 

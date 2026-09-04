@@ -173,9 +173,17 @@ export function GimcanaFormScreen() {
                 {t('junta.gimcana.shuffle')}
               </button>
             </div>
+            {/* `.data === 'ja_jugada'` és el refús que arriba com a èxit; això és
+                el fracàs de debò. Sense la segona línia, un nom d'equip buit o
+                un nombre fora de rang no deixaven cap senyal a la pantalla. */}
             {shuffle.data === 'ja_jugada' ? (
               <p role="alert" className="mt-5 text-md font-bold text-warning [text-wrap:pretty]">
                 {t('junta.gimcana.alreadyPlayed')}
+              </p>
+            ) : null}
+            {shuffle.isError ? (
+              <p role="alert" className="mt-5 text-md font-bold text-error [text-wrap:pretty]">
+                {t(errorKey(shuffle.error))}
               </p>
             ) : null}
             <p className="mt-5 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
@@ -225,6 +233,11 @@ export function GimcanaFormScreen() {
             {named.data === 'ja_jugada' ? (
               <p role="alert" className="mt-5 text-md font-bold text-warning [text-wrap:pretty]">
                 {t('junta.gimcana.alreadyPlayed')}
+              </p>
+            ) : null}
+            {named.isError ? (
+              <p role="alert" className="mt-5 text-md font-bold text-error [text-wrap:pretty]">
+                {t(errorKey(named.error))}
               </p>
             ) : null}
           </div>

@@ -196,6 +196,34 @@ describe('the profile screen queries', () => {
 
     expect(data?.every((r) => r.user_id === me)).toBe(true)
   })
+
+  it('scopes «les meves al calendari» by hand, because attendances cannot', async () => {
+    // The same shape as the points_log case above and worse, because here the
+    // widening is not admin-only: `att_select_public_si` lets EVERY active
+    // member read everybody's «sí», deliberately, since the list of who is
+    // coming is public. So row-level security cannot scope "mine" at all, and
+    // the calendar row was handing whoever pressed it every event anybody was
+    // going to.
+    const alfa = await as('alfa')
+    const me = (await alfa.auth.getUser()).data.user?.id ?? ''
+
+    const scoped = await alfa
+      .from('attendances')
+      .select('event_id, user_id')
+      .eq('user_id', me)
+      .in('estado', ['si', 'asistio'])
+
+    const unscoped = await alfa
+      .from('attendances')
+      .select('event_id, user_id')
+      .in('estado', ['si', 'asistio'])
+
+    expect(scoped.error).toBeNull()
+    expect(scoped.data?.every((r) => r.user_id === me)).toBe(true)
+    // The point of the test. If this stops being true, either the policy
+    // changed or the fixtures did, and the filter above stopped mattering.
+    expect(unscoped.data?.some((r) => r.user_id !== me)).toBe(true)
+  })
 })
 
 describe('the ranking screen queries', () => {

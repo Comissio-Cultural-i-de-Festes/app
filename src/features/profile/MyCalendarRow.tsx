@@ -6,6 +6,7 @@ import { downloadIcs, markAdded } from '@/features/event/icsStore'
 import { CalendarIcon } from '@/features/event/icons'
 import { titleIsHidden } from '@/features/event/title'
 import { horizonIso } from '@/features/home/api'
+import { useUserId } from '@/features/session/useUserId'
 import { unwrapAs } from '@/lib/db'
 import type { CalendarEvent } from '@/lib/ics'
 import type { EventRow } from '@/lib/schema'
@@ -38,7 +39,8 @@ const COLUMNS =
   'transport_info, abast, tancada_at, acta'
 
 const myCalendarKeys = {
-  mine: (horizon: string) => ['profile', 'calendar', horizon] as const,
+  mine: (userId: string, horizon: string) =>
+    ['profile', 'calendar', userId, horizon] as const,
 }
 
 /**
@@ -48,9 +50,17 @@ const myCalendarKeys = {
  * `events_public` —és una vista— i incrustar-la per `events` tornaria a portar
  * el problema del títol. Els identificadors primer, la vista després.
  */
-async function fetchMine(horizon: string): Promise<EventRow[]> {
+async function fetchMine(horizon: string, userId: string): Promise<EventRow[]> {
+  // `.eq('user_id', …)` i no confiar en la RLS: `att_select_public_si` deixa
+  // llegir els «sí» de TOTHOM a posta, perque la llista de qui ve es publica.
+  // Sense el filtre, aquesta funcio no baixava el calendari de qui la prem
+  // sino el de tota l'associacio.
   const rows = await unwrapAs<{ readonly event_id: string }[]>(
-    supabase.from('attendances').select('event_id').in('estado', ['si', 'asistio']),
+    supabase
+      .from('attendances')
+      .select('event_id')
+      .eq('user_id', userId)
+      .in('estado', ['si', 'asistio']),
   )
   const ids = rows.map((r) => r.event_id)
   if (ids.length === 0) return []
@@ -68,12 +78,13 @@ async function fetchMine(horizon: string): Promise<EventRow[]> {
 
 export function MyCalendarRow({ className = '' }: { readonly className?: string }) {
   const { t } = useTranslation()
+  const userId = useUserId()
   const horizon = horizonIso()
   const [failed, setFailed] = useState(false)
 
   const mine = useQuery({
-    queryKey: myCalendarKeys.mine(horizon),
-    queryFn: () => fetchMine(horizon),
+    queryKey: myCalendarKeys.mine(userId, horizon),
+    queryFn: () => fetchMine(horizon, userId),
   })
 
   const events = (mine.data ?? []).filter((e) => !titleIsHidden(e.titulo))

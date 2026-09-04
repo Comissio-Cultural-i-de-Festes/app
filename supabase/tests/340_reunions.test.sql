@@ -331,8 +331,8 @@ select lives_ok(
 reset role;
 
 insert into private.event_geo (event_id, lat, lng, radi_m) values
-  ((select junta from que), 41.5388, 2.4449, 150),
-  ((select comi from que), 41.5388, 2.4449, 150);
+  ((select junta from que), 40.1234, 1.5678, 150),
+  ((select comi from que), 40.1234, 1.5678, 150);
 
 -- Dins de la finestra, que si no la resposta seria 'tancat' i la prova passaria
 -- per la raó equivocada.
@@ -343,13 +343,13 @@ update public.events set starts_at = now() where id in (
 select tests.authenticate_as('alfa');
 
 select is(
-  public.check_in_here((select junta from que), 41.5388, 2.4449, 10)->>'estat',
+  public.check_in_here((select junta from que), 40.1234, 1.5678, 10)->>'estat',
   'no_hi_es',
   'un soci a sobre del punt no s''afegeix a una reunio de junta'
 );
 
 select is(
-  public.check_in_here((select comi from que), 41.5388, 2.4449, 10)->>'estat',
+  public.check_in_here((select comi from que), 40.1234, 1.5678, 10)->>'estat',
   'no_hi_es',
   'ni a una de la comi: qui hi era ho diu qui la tanca'
 );
@@ -383,12 +383,12 @@ insert into public.event_title (event_id, titulo)
 values ((select id from festa), 'Festa inventada de control');
 
 insert into private.event_geo (event_id, lat, lng, radi_m)
-values ((select id from festa), 41.5388, 2.4449, 150);
+values ((select id from festa), 40.1234, 1.5678, 150);
 
 select tests.authenticate_as('alfa');
 
 select isnt(
-  public.check_in_here((select id from festa), 41.5388, 2.4449, 10)->>'estat',
+  public.check_in_here((select id from festa), 40.1234, 1.5678, 10)->>'estat',
   'no_hi_es',
   'i una festa al mateix punt i a la mateixa hora si que entra, o les de sobre no provarien res'
 );

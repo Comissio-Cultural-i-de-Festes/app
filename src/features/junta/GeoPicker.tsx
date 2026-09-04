@@ -279,7 +279,7 @@ export function GeoPicker({
                 type="text"
                 inputMode="decimal"
                 value={coords}
-                placeholder="41.5381, 2.4445"
+                placeholder="40.1234, 1.5678"
                 onChange={(e) => {
                   setCoords(e.target.value)
                   const parsed = parsePair(e.target.value)
@@ -297,7 +297,7 @@ export function GeoPicker({
 }
 
 /**
- * «41.5381, 2.4445», que és el que surt de copiar de qualsevol mapa.
+ * «40.1234, 1.5678», que és el que surt de copiar de qualsevol mapa.
  *
  * Es rebutja tot el que no siguin dos números dins de rang, en comptes de
  * quedar-se amb el que s'entengui: mig parell de coordenades és un punt en un

@@ -145,6 +145,12 @@ jobs:
       # identifying even when invented, and this repo is public. Fixtures are
       # obviously synthetic on purpose; a rule nobody checks decays, so it is
       # checked.
+      #
+      # `.design-sync` is on the list because it was the blind spot: it holds
+      # 52 tracked files of sample data for the design-system previews, and a
+      # real institutional email address and a real street address lived there
+      # for two terms. The extensions matter as much as the directory — the
+      # email was in a `.tsx`, and `--include='*.ts'` does not match that.
       - name: grep the deny list
         run: |
           set -euo pipefail
@@ -152,8 +158,9 @@ jobs:
           # Comment lines are stripped first. Several of these files name the
           # forbidden terms in order to explain the rule, and a guard that
           # trips on its own documentation gets deleted rather than fixed.
-          hits=$(grep -RIn --include='*.sql' --include='*.ts' -E '.' \
-                   supabase/seed supabase/tests tests/rls \
+          hits=$(grep -RIn --include='*.sql' --include='*.ts' --include='*.tsx' \
+                   --include='*.md' -E '.' \
+                   supabase/seed supabase/tests tests/rls .design-sync \
                  | grep -vE ':[0-9]+: *(--|//|\*|#)' \
                  | grep -iE "$PATTERN" || true)
           if [ -n "$hits" ]; then

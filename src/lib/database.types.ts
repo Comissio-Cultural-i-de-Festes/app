@@ -1620,7 +1620,6 @@ export type Database = {
           user_id: string
         }[]
       }
-      claim_first_owner: { Args: never; Returns: undefined }
       clear_exit_photo: { Args: { p_event_id: string }; Returns: Json }
       event_interest_size: { Args: { p_event_id: string }; Returns: number }
       event_photo_count: {

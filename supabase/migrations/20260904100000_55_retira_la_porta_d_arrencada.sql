@@ -1,0 +1,71 @@
+-- Es retira `claim_first_owner()`, la porta d'arrencada de la propietat.
+--
+-- LA VA DEMANAR EL SEU PROPI COMENTARI. Deia, des de la migració 6: «drop this
+-- function in a follow-up migration once the president has claimed». Aquesta és
+-- aquella migració, amb dos cursos de retard.
+--
+-- QUÈ HI HAVIA DARRERE. La funció és `security definer`, `authenticated` la pot
+-- executar, i la seva única tanca era «no existeix cap fila amb role = owner».
+-- No comprovava que qui la crida sigui soci, ni tan sols que estigui aprovat.
+-- Mentre hi hagi un owner, la tanca aguanta i no passa res. El problema és què
+-- fa que deixi d'haver-n'hi:
+--
+--   `public.profiles.id` referencia `auth.users(id)` amb ON DELETE CASCADE. Si
+--   qui té la propietat esborra el seu compte de Google, la seva fila de
+--   `profiles` desapareix i amb ella l'únic owner. Totes les altres tanques de
+--   rol i estat són hermètiques —la de «últim owner» d'`admin_set_member_role`
+--   i d'`admin_set_member_estat`, i `admin_transfer_owner`—; la cascada era
+--   l'única via.
+--
+--   A partir d'aquí, provat contra una base local amb la fila d'owner treta:
+--   un compte PENDENT D'APROVACIÓ, que no ha estat mai soci, cridava
+--   `claim_first_owner`, passava a owner i actiu, es nomenava els admins que
+--   volgués i llegia el correu i el telèfon de tota l'associació.
+--
+-- COM ES CREA UN OWNER A MÀ, ARA QUE AQUESTA PORTA ES TANCA. És l'única via que
+-- queda i no hi ha cap pantalla que la faci, així que va escrit aquí perquè el
+-- dia que calgui ningú no hagi de deduir-ho. Amb la clau `service_role`, que
+-- salta totes les polítiques, des de l'editor de SQL del tauler de Supabase:
+--
+--   update public.profiles
+--      set role = 'owner', estat = 'actiu'
+--    where id = (select id from auth.users where email = 'qui@toqui');
+--
+-- Cal fer-ho des del tauler i no des de l'app: `authenticated` no té grant
+-- d'UPDATE sobre `role` ni sobre `estat` —el disparador `profiles_guard` ho
+-- bloqueja— i és exactament el que ha de passar.
+--
+-- PER QUÈ ES RETIRA I NO ES REFORÇA. L'alternativa era deixar-la exigint
+-- `is_active_member()` i que deixés rastre a `audit_log`. Costava el mateix
+-- d'escriure i deixava viva una funció que converteix «no hi ha owner» en «el
+-- primer que passi mana», que és una condició que no es vol tenir mai per molt
+-- ben tancada que estigui. Una associació que es queda sense owner té un
+-- problema que ha de resoldre una persona amb la clau, no la primera sessió que
+-- arribi.
+
+drop function if exists public.claim_first_owner();
+
+-- ── ROLLBACK ────────────────────────────────────────────────────────────────
+--
+-- Per desfer aquesta migració, torna a crear la funció tal com era. NO ho facis
+-- sense llegir el motiu de dalt: el que es recupera és el forat.
+--
+-- create or replace function public.claim_first_owner()
+-- returns void
+-- language plpgsql
+-- security definer
+-- set search_path = ''
+-- as $fn$
+-- begin
+--   perform pg_advisory_xact_lock(hashtext('claim_first_owner'));
+--   if exists (select 1 from public.profiles where role = 'owner') then
+--     raise exception 'ja hi ha owner' using errcode = '42501';
+--   end if;
+--   update public.profiles
+--      set role = 'owner', estat = 'actiu'
+--    where id = (select auth.uid());
+-- end $fn$;
+--
+-- alter function public.claim_first_owner() owner to postgres;
+-- revoke all on function public.claim_first_owner() from public, anon;
+-- grant execute on function public.claim_first_owner() to authenticated;

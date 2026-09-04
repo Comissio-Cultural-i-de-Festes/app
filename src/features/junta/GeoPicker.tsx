@@ -153,6 +153,7 @@ export function GeoPicker({
             }}
             className={INPUT}
             aria-label={t('junta.form.where')}
+            maxLength={120}
           />
 
           {visible.length === 0 ? null : (

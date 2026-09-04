@@ -332,6 +332,7 @@ function EventForm() {
               // s'anuncien sense nom. Mateixa cadena que l'etiqueta visible, com
               // ja fa ScaleScreen.
               aria-label={t('junta.form.name')}
+              maxLength={120}
             />
           </Field>
 
@@ -612,6 +613,7 @@ function EventForm() {
               placeholder={t('junta.form.descriptionPlaceholder')}
               className={`${INPUT} resize-y`}
               aria-label={t('junta.form.description')}
+              maxLength={2000}
             />
           </Field>
 
@@ -625,6 +627,7 @@ function EventForm() {
               placeholder={t('junta.form.transportPlaceholder')}
               className={`${INPUT} resize-y`}
               aria-label={t('junta.form.transport')}
+              maxLength={500}
             />
           </Field>
         </section>

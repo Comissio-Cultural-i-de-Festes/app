@@ -164,11 +164,6 @@ export async function bumpTries(scan: QueuedScan): Promise<void> {
   await enqueue({ ...scan, tries: scan.tries + 1 })
 }
 
-/** For the tests. Signing out uses clearAllQueues(), which includes this one. */
-export async function clearQueue(): Promise<void> {
-  await run(SCANS, 'readwrite', (store) => store.clear())
-}
-
 /**
  * Buida les quatre cues. Es crida en tancar la sessió, i no és neteja.
  *

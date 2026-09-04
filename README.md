@@ -441,8 +441,9 @@ has policies and every policy has a test.
 **The `service_role` key is not in this repo**, not in `.env.example`, not
 commented out, and never in the frontend. It bypasses every policy in
 `supabase/`. It lives as a Supabase Functions secret, and the platform injects
-it into Edge Functions automatically — the check-in function deliberately does
-not use it at all.
+it into Edge Functions automatically — `reveal-push`, the only Edge Function
+this project has, deliberately does not use it at all: it has no Supabase
+client, and all it can do is encrypt and send whatever the cron hands it.
 
 Two test layers, because each is blind to the other's failures:
 

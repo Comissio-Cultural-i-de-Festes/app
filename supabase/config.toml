@@ -459,14 +459,6 @@ enabled = true
 # de base de dades i només sap xifrar i enviar el que li arribi al cos.
 verify_jwt = false
 
-[functions.check-in]
-# A cheap first gate that keeps unauthenticated traffic from booting the
-# function. It is NOT the authorisation check: it proves there is a user, not
-# that the user is on the junta, and with legacy keys the anon key is itself a
-# valid JWT that ships in the browser bundle. The real check is inside
-# public.check_in().
-verify_jwt = true
-
 # Sign in with Google. There is no association domain, so there is no verified
 # sender, so real email cannot be sent: Supabase's built-in SMTP is two
 # messages an hour and the first event is about a hundred sign-ups in an

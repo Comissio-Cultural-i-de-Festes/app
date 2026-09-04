@@ -157,8 +157,20 @@ describe('check-in over HTTP', () => {
       p_event_id: F.e1,
     })
     // is_admin() is false, so the set-returning function yields nothing rather
-    // than raising. Either shape is a refusal; neither leaks a token.
-    expect(error ?? data).toEqual([])
+    // than raising. Either shape is a refusal, and the assertion has to accept
+    // both: `expect(error ?? data).toEqual([])` said the same thing in prose
+    // and did the opposite in code, because a refusal that started RAISING —
+    // the security getting stronger — put the error object on the left of the
+    // comparison and failed the test.
+    //
+    // What must never happen is rows. That is the assertion.
+    if (error === null) {
+      expect(data).toEqual([])
+    } else {
+      // Refused outright: 42501 from a policy, or the definer's own raise.
+      expect(error.code).toMatch(/^(42501|P0001)$/)
+    }
+    expect(JSON.stringify(data ?? [])).not.toMatch(/token/)
   })
 })
 

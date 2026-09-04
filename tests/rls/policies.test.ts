@@ -713,17 +713,67 @@ describe('galeria', () => {
   })
 
   it('keeps who reported a photo away from whoever posted it', async () => {
+    // AQUEST TEST NO PROVAVA RES. Afirmava que tota fila que l'alfa veu és
+    // seva, sobre una taula on ningú no havia inserit mai amb èxit: l'únic
+    // intent de tota la suite era el de sota, que ha de fallar. `photo_reports`
+    // quedava buida a cada passada i `[].every(...)` és cert tant si la
+    // política filtra com si no.
+    //
+    // I l'insert tampoc: `photo_id` era `F.e1`, que és l'id d'un ESDEVENIMENT i
+    // no d'una foto, així que l'error que s'afirmava podia ser el de la clau
+    // forana i no el de la política. Ara la foto existeix, i el refús és el que
+    // es vol.
+    const svc = serviceClient()
+    const stamp = `${String(Date.now())}${String(Math.floor(Math.random() * 1000))}`
+
+    const foto = await svc
+      .from('event_photos')
+      .insert({
+        event_id: attended,
+        user_id: F.alfa,
+        path: `${attended}/${F.alfa}/${stamp}.jpg`,
+        thumb_path: `${attended}/${F.alfa}/${stamp}-t.jpg`,
+      })
+      .select('id')
+      .single()
+    expect(foto.error).toBeNull()
+    const photoId = foto.data?.id ?? ''
+
+    // Una denúncia que NO és de l'alfa, i que existeix de debò.
+    const seva = await svc
+      .from('photo_reports')
+      .insert({ photo_id: photoId, user_id: F.bravo, motiu: 'hi_surto' })
+      .select('id')
+      .single()
+    expect(seva.error).toBeNull()
+
     const member = await as('alfa')
+
+    // A nom d'un altre no, i ara amb una foto que existeix, així que el que
+    // refusa és `reports_insert_own` i no la clau forana.
     const insert = await member
       .from('photo_reports')
-      .insert({ photo_id: F.e1, user_id: F.bravo, motiu: 'hi_surto' })
-
-    // A nom d'un altre no, i llegir les dels altres tampoc.
+      .insert({ photo_id: photoId, user_id: F.bravo, motiu: 'hi_surto' })
     expect(insert.error).not.toBeNull()
 
-    const { data, error } = await member.from('photo_reports').select('user_id')
+    // I llegir la d'un altre tampoc. Això és el que abans era buit.
+    const { data, error } = await member.from('photo_reports').select('id, user_id')
     expect(error).toBeNull()
     expect(data?.every((r) => r.user_id === F.alfa)).toBe(true)
+    expect(data?.some((r) => r.id === seva.data?.id)).toBe(false)
+
+    // El control que fa que l'asserció de dalt valgui: la fila hi és.
+    const totes = await svc.from('photo_reports').select('id').eq('id', seva.data?.id ?? '')
+    expect(totes.data?.length).toBe(1)
+
+    // I la junta sí que la veu, que és l'altra meitat de `reports_select`.
+    const junta = await as('junta_alfa')
+    const vista = await junta.from('photo_reports').select('id').eq('id', seva.data?.id ?? '')
+    expect(vista.error).toBeNull()
+    expect(vista.data?.length).toBe(1)
+
+    // La foto se'n porta la denúncia per CASCADE.
+    await svc.from('event_photos').delete().eq('id', photoId)
   })
 })
 

@@ -326,6 +326,12 @@ function EventForm() {
               }}
               placeholder={t('junta.form.namePlaceholder')}
               className={INPUT}
+              // `Field` posa el nom al GRUP, no al control de dins, i un
+              // `placeholder` no és un nom accessible —i a més desapareix en
+              // escriure—. Sense això, deu dels dotze camps d'aquest formulari
+              // s'anuncien sense nom. Mateixa cadena que l'etiqueta visible, com
+              // ja fa ScaleScreen.
+              aria-label={t('junta.form.name')}
             />
           </Field>
 
@@ -414,6 +420,7 @@ function EventForm() {
                 setForm({ ...form, starts_at: e.target.value })
               }}
               className={INPUT}
+              aria-label={t('junta.form.starts')}
             />
           </Field>
 
@@ -425,6 +432,7 @@ function EventForm() {
                 setForm({ ...form, ends_at: e.target.value })
               }}
               className={INPUT}
+              aria-label={t('junta.form.ends')}
             />
             {endsBad ? (
               <p role="alert" className="mt-3 text-sm font-semibold text-warning">
@@ -458,6 +466,7 @@ function EventForm() {
                   }}
                   placeholder={t('junta.form.noLimit')}
                   className={INPUT}
+                  aria-label={t('junta.form.places')}
                 />
               </Field>
             )}
@@ -474,6 +483,7 @@ function EventForm() {
                   }}
                   placeholder="0"
                   className={INPUT}
+                  aria-label={t('junta.form.price')}
                 />
               </Field>
             )}
@@ -492,6 +502,7 @@ function EventForm() {
                   }}
                   placeholder={defaultPoints === null ? '' : String(defaultPoints)}
                   className={isMeeting ? `${INPUT} w-[96px]` : INPUT}
+                  aria-label={t('junta.form.points')}
                 />
               </Field>
             )}
@@ -600,6 +611,7 @@ function EventForm() {
               rows={4}
               placeholder={t('junta.form.descriptionPlaceholder')}
               className={`${INPUT} resize-y`}
+              aria-label={t('junta.form.description')}
             />
           </Field>
 
@@ -612,6 +624,7 @@ function EventForm() {
               rows={3}
               placeholder={t('junta.form.transportPlaceholder')}
               className={`${INPUT} resize-y`}
+              aria-label={t('junta.form.transport')}
             />
           </Field>
         </section>
@@ -1140,6 +1153,7 @@ function RevealBlock({
                 onChange({ ...form, reveal_at: e.target.value })
               }}
               className={INPUT}
+              aria-label={t('junta.form.revealAt')}
             />
             {form.starts_at !== '' && form.reveal_at >= form.starts_at ? (
               <p role="alert" className="mt-3 text-sm font-semibold text-warning">
@@ -1165,6 +1179,7 @@ function RevealBlock({
               }}
               placeholder={t('junta.form.teaserPlaceholder')}
               className={INPUT}
+              aria-label={t('junta.form.teaser')}
             />
           </Field>
 

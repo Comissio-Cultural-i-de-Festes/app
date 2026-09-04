@@ -97,6 +97,10 @@ function PeriodsBlock() {
                 setEdits(chain.map((d, i) => (i === index ? e.target.value : d)))
               }}
               className={INPUT}
+              // `Field` names the GROUP, not the control inside it, so without
+              // this the four dates are announced with no name at all. Same
+              // string as the visible label, the way ScaleScreen does it.
+              aria-label={label}
             />
           </Field>
         )

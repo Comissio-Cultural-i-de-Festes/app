@@ -152,6 +152,7 @@ export function GeoPicker({
               onWhere(e.target.value)
             }}
             className={INPUT}
+            aria-label={t('junta.form.where')}
           />
 
           {visible.length === 0 ? null : (
@@ -285,6 +286,7 @@ export function GeoPicker({
                   if (parsed !== null) onChange({ ...parsed, radi_m: radius })
                 }}
                 className={INPUT}
+                aria-label={t('junta.geo.paste')}
               />
             </Field>
           </div>

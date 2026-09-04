@@ -675,6 +675,43 @@ describe('galeria', () => {
     expect(denied.error).not.toBeNull()
   })
 
+  // LA PORTA QUE pgTAP NO POT PROVAR. La migració 56 va tapar quatre camins cap
+  // a una reunió d'àmbit junta, i aquest és l'únic que no té signatura a
+  // nivell de SQL: el fitxer es servia igual que abans encara que la fila de
+  // `event_photos` ja no es veiés. Les dues meitats van juntes perquè una tanca
+  // massa ampla ha de fer fallar alguna cosa aquí.
+  it('does not serve a junta meeting gallery to a member, and still serves it to the junta', async () => {
+    const REUNIO_JUNTA = '00000000-0000-4000-8000-0000000000e9'
+    const svc = serviceClient()
+    const stamp = `${String(Date.now())}${String(Math.floor(Math.random() * 1000))}`
+    const path = `${REUNIO_JUNTA}/${F.juntaAlfa}/${stamp}.jpg`
+
+    const put = await svc.storage.from(BUCKET).upload(path, jpeg(), { contentType: 'image/jpeg' })
+    expect(put.error).toBeNull()
+
+    // El soci de fora no la pot signar.
+    const member = await as('alfa')
+    const denied = await member.storage.from(BUCKET).createSignedUrl(path, 60)
+    expect(denied.error).not.toBeNull()
+
+    // I la junta sí. Sense això, l'asserció de dalt passaria igual si el bucket
+    // hagués deixat de servir res a ningú.
+    const junta = await as('junta_alfa')
+    const allowed = await junta.storage.from(BUCKET).createSignedUrl(path, 60)
+    expect(allowed.error).toBeNull()
+    expect(allowed.data?.signedUrl).toBeTruthy()
+
+    // I la galeria d'una festa normal segueix servint-se a qualsevol soci, que
+    // és la meitat que es trencaria si la tanca es passés de llarga.
+    const festa = `${attended}/${F.alfa}/${stamp}.jpg`
+    const posada = await svc.storage.from(BUCKET).upload(festa, jpeg(), { contentType: 'image/jpeg' })
+    expect(posada.error).toBeNull()
+    const normal = await member.storage.from(BUCKET).createSignedUrl(festa, 60)
+    expect(normal.error).toBeNull()
+
+    await svc.storage.from(BUCKET).remove([path, festa])
+  })
+
   it('keeps who reported a photo away from whoever posted it', async () => {
     const member = await as('alfa')
     const insert = await member

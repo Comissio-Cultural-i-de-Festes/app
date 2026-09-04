@@ -2,6 +2,9 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
+import { errorKey } from '@/lib/errors'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
+
 import { fetchPhotoCount, fetchPhotos, fetchUrls, galleryKeys } from './api'
 
 /**
@@ -42,6 +45,11 @@ export function GalleryBlock({ eventId }: { readonly eventId: string }) {
 
   const total = count.data?.quantes ?? 0
   const rest = Math.max(0, total - PEEK)
+  // Un fallo de xarxa deixava `total` a zero i es pintava «encara no hi ha cap
+  // foto», que és el contrari del que ha passat: potser n'hi ha quaranta i no
+  // s'han pogut demanar. `GalleryScreen` sí que distingeix els tres estats;
+  // aquest bloc no ho feia.
+  const failed = count.isError || photos.isError
 
   return (
     <section className="pt-12 px-[var(--ds-gutter)]">
@@ -57,7 +65,19 @@ export function GalleryBlock({ eventId }: { readonly eventId: string }) {
         )}
       </div>
 
-      {total === 0 ? (
+      {failed ? (
+        <p role="alert" className="mt-5 text-sm font-semibold text-error [text-wrap:pretty]">
+          {t(errorKey(count.error ?? photos.error))}
+        </p>
+      ) : count.isPending ? (
+        <Skeleton className="mt-5">
+          <div className="grid grid-cols-3 gap-[2px]">
+            <SkeletonBar w="w-full" h="h-full" className="aspect-square" />
+            <SkeletonBar w="w-full" h="h-full" className="aspect-square" />
+            <SkeletonBar w="w-full" h="h-full" className="aspect-square" />
+          </div>
+        </Skeleton>
+      ) : total === 0 ? (
         <p className="mt-5 text-sm text-fg-muted [text-wrap:pretty]">{t('gallery.blockEmpty')}</p>
       ) : (
         <div className="mt-5 grid grid-cols-3 gap-[2px]">

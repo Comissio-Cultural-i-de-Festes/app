@@ -1333,6 +1333,7 @@
     "stats": {
       "points": "punts",
       "position": "de {{total}}",
+      "positionUnknown": "posició",
       "attended": "hi has anat"
     },
     "breakdown": {

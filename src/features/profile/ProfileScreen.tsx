@@ -76,6 +76,8 @@ export function ProfileScreen() {
 
   const me = ranking.data?.find((r) => r.user_id === userId) ?? null
   const totals = byMotive(points.data ?? [])
+  // El que has fet, independentment que surtis al rànquing o no.
+  const myPoints = totals.reduce((sum, row) => sum + row.punts, 0)
   const hidden = profile?.hide_from_ranking === true
 
   const subtitle = [
@@ -171,10 +173,21 @@ export function ProfileScreen() {
       {/* Three numbers, equal weight, hairlines between. Anything with a
           bigger figure next to it stops being read. */}
       <section className="mt-8 grid grid-cols-3 border-y border-surface-7">
-        <Stat value={me ? String(me.punts) : '—'} label={t('profile.stats.points')} />
+        {/* Zero punts és un valor CONEGUT, no un desconegut. Abans tots dos
+            números eren un guionet quan `me` era null —perquè t'has amagat del
+            rànquing, o perquè encara carrega— i el perfil deia «— de 0»
+            mentre l'Inici deia «vas 1r de 7» de la mateixa persona. Els punts
+            surten del registre, que és teu passi el que passi al rànquing; la
+            posició no existeix si no hi surts, i aleshores tampoc no hi ha cap
+            «de N» a dir. */}
+        <Stat value={String(me?.punts ?? myPoints)} label={t('profile.stats.points')} />
         <Stat
           value={me ? formatOrdinal(me.posicio, locale) : '—'}
-          label={t('profile.stats.position', { total: ranking.data?.length ?? 0 })}
+          label={
+            me
+              ? t('profile.stats.position', { total: ranking.data?.length ?? 0 })
+              : t('profile.stats.positionUnknown')
+          }
           divided
         />
         <Stat value={String(attended.data ?? 0)} label={t('profile.stats.attended')} divided />

@@ -1,8 +1,7 @@
 {
   "a11y": {
     "tabBar": "Navegació principal",
-    "comingSoon": "properament",
-    "loading": "Carregant contingut"
+    "comingSoon": "properament"
   },
   "actions": {
     "yes": "Hi vaig",
@@ -124,11 +123,9 @@
     "generic": "No ha sortit bé. Torna-ho a provar d'aquí un moment.",
     "network": "No hi ha manera de connectar. Mira la cobertura i torna-ho a provar.",
     "offline": "Necessites connexió per veure això.",
-    "unauthorized": "Has d'entrar primer.",
     "forbidden": "Això no ho pots fer tu.",
     "notFound": "Això ja no hi és.",
     "rateLimited": "Massa intents seguits. Espera un parell de minuts i torna-hi.",
-    "expired": "Ha caducat.",
     "behindServer": "Això encara no hi és al servidor: l'app s'ha actualitzat abans que la base de dades. Si ets de la junta, apuja les migracions; si no, avisa'ls."
   },
   "escola": {
@@ -306,8 +303,7 @@
     "yours": "el teu",
     "state": {
       "validada": "validada",
-      "pendent": "enviada",
-      "rebutjada": "no ha valgut"
+      "pendent": "enviada"
     },
     "takePhoto": "Fes la foto o tria-la del carret",
     "send": "Envia-la a validar",
@@ -660,15 +656,12 @@
   "junta": {
     "title": "Zona junta",
     "back": "Junta",
-    "door": "Ara mateix a la porta",
     "scan": "Escanejar",
     "givePoints": "Donar punts",
-    "manage": "Gestionar",
     "newEvent": "Crear esdeveniment",
     "newEventSub": "O copiar-ne un d’abans i canviar-hi la data",
     "invitesSub": "El codi del grup i qui vol entrar",
     "paymentsSub": "Marcar qui ha pagat i nomenar admins",
-    "events": "Esdeveniments",
     "noEvents": "Encara no hi ha res al calendari. Crea el primer.",
     "draft": "esborrany",
     "youAreAdmin": "Ets admin: pots crear esdeveniments, fitxar gent, donar punts i nomenar altres admins.",
@@ -737,10 +730,6 @@
       "pointsMeetingHint": "Es donen quan tanquis la reunió, no en confirmar: qui diu que hi serà i no hi és, no en fa.",
       "meetingHasNo": "Una reunió no té places, ni preu, ni portada, ni cotxes",
       "meetingHasNoSub": "Aquests camps desapareixen del formulari en comptes de quedar-se buits. Si t'has equivocat de tipus, torna-hi i els recuperes tal com estaven.",
-      "callIt": "Convoca-la",
-      "willSee_one": "La veurà {{count}} persona de la junta.",
-      "willSee_other": "La veuran les {{count}} persones de la junta.",
-      "newMeeting": "Nova reunió",
       "leaveIt": "Deixa-ho",
       "newTitle": "Crear esdeveniment",
       "editTitle": "Editar",
@@ -993,7 +982,6 @@
       "soonFailedSub": "Pot ser que n'hi hagi i no els veiem. No creïs res nou fins que carregui.",
       "how": "Com funciona la comi",
       "howSub": "Es toca un cop l’any i avui només es toca amb SQL.",
-      "proposals": "Propostes i cotxes",
       "proposalsSub": "Les propostes portaran número, com les aprovacions",
       "periodsStale": "Els trimestres no cobreixen el dia d'avui",
       "periodsOk": "Quan comença i acaba cada trimestre"
@@ -1172,11 +1160,9 @@
     "done": "{{quants}} de {{total}} hi eren",
     "juntaOnly": "Les de junta només les veieu vosaltres.",
     "title": "Reunions",
-    "rowSub": "Convoca-les, i tanca-les per donar els punts",
     "callNew": "Convoca una reunió",
     "none": "Cap reunió, de moment.",
-    "withActa": "amb acta",
-    "listSub": "{{on}} · {{time}}"
+    "withActa": "amb acta"
   },
   "motive": {
     "asistencia": "Venir",
@@ -1572,15 +1558,12 @@
   "state": {
     "saving": "Desant…",
     "loading": "Un segon…",
-    "empty": "Ara mateix res. Tranquil, ja caurà alguna cosa",
     "offline": "Sense connexió",
     "updating": "Actualitzant…"
   },
   "time": {
     "today": "Avui",
-    "tomorrow": "Demà",
-    "yesterday": "Ahir",
-    "startsIn": "Comença en {{duration}}"
+    "tomorrow": "Demà"
   },
   "units": {
     "points_one": "{{count}} punt",

@@ -1,8 +1,7 @@
 {
   "a11y": {
     "tabBar": "Main navigation",
-    "comingSoon": "coming soon",
-    "loading": "Loading content"
+    "comingSoon": "coming soon"
   },
   "actions": {
     "yes": "I'm in",
@@ -124,11 +123,9 @@
     "generic": "That didn't go through. Try again in a moment.",
     "network": "Can't get through. Check your signal and try again.",
     "offline": "You need to be online for this.",
-    "unauthorized": "Sign in first.",
     "forbidden": "That one isn't yours to do.",
     "notFound": "That's not there any more.",
     "rateLimited": "Too many tries in a row. Give it a couple of minutes.",
-    "expired": "This has expired.",
     "behindServer": "This is not on the server yet: the app was deployed ahead of the database. If you are on the committee, push the migrations; if not, tell them."
   },
   "escola": {
@@ -306,8 +303,7 @@
     "yours": "yours",
     "state": {
       "validada": "approved",
-      "pendent": "sent",
-      "rebutjada": "did not count"
+      "pendent": "sent"
     },
     "takePhoto": "Take the photo or pick one from your camera roll",
     "send": "Send it to be approved",
@@ -660,15 +656,12 @@
   "junta": {
     "title": "Committee area",
     "back": "Committee",
-    "door": "At the door right now",
     "scan": "Scan",
     "givePoints": "Give points",
-    "manage": "Manage",
     "newEvent": "Create an event",
     "newEventSub": "Or copy an earlier one and change the date",
     "invitesSub": "The group code and who wants in",
     "paymentsSub": "Mark who has paid and name admins",
-    "events": "Events",
     "noEvents": "Nothing on the calendar yet. Create the first one.",
     "draft": "draft",
     "youAreAdmin": "You are an admin: you can create events, check people in, give points and name other admins.",
@@ -737,10 +730,6 @@
       "pointsMeetingHint": "They are given when you close the meeting, not when people confirm: whoever says they will be there and is not, earns none.",
       "meetingHasNo": "A meeting has no places, no price, no cover and no cars",
       "meetingHasNoSub": "Those fields disappear from the form rather than sitting there empty. If you picked the wrong kind, go back and they come back exactly as they were.",
-      "callIt": "Call it",
-      "willSee_one": "{{count}} person on the committee will see it.",
-      "willSee_other": "The {{count}} people on the committee will see it.",
-      "newMeeting": "New meeting",
       "leaveIt": "Leave it",
       "newTitle": "Create an event",
       "editTitle": "Edit",
@@ -993,7 +982,6 @@
       "soonFailedSub": "There may be events we cannot see. Do not create anything new until it loads.",
       "how": "How the committee works",
       "howSub": "Touched once a year, and today only with SQL.",
-      "proposals": "Proposals and lifts",
       "proposalsSub": "Proposals will carry a number, like the approvals",
       "periodsStale": "The terms do not cover today",
       "periodsOk": "When each term starts and ends"
@@ -1172,11 +1160,9 @@
     "done": "{{quants}} of {{total}} were there",
     "juntaOnly": "The committee ones are only visible to you.",
     "title": "Meetings",
-    "rowSub": "Call them, and close them to give the points",
     "callNew": "Call a meeting",
     "none": "No meetings yet.",
-    "withActa": "with minutes",
-    "listSub": "{{on}} · {{time}}"
+    "withActa": "with minutes"
   },
   "motive": {
     "asistencia": "Turning up",
@@ -1572,15 +1558,12 @@
   "state": {
     "saving": "Saving…",
     "loading": "One sec…",
-    "empty": "Nothing right now. Something will turn up",
     "offline": "No connection",
     "updating": "Updating…"
   },
   "time": {
     "today": "Today",
-    "tomorrow": "Tomorrow",
-    "yesterday": "Yesterday",
-    "startsIn": "Starts in {{duration}}"
+    "tomorrow": "Tomorrow"
   },
   "units": {
     "points_one": "{{count}} point",

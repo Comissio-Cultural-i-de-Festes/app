@@ -1,8 +1,7 @@
 {
   "a11y": {
     "tabBar": "Navegación principal",
-    "comingSoon": "próximamente",
-    "loading": "Cargando contenido"
+    "comingSoon": "próximamente"
   },
   "actions": {
     "yes": "Voy",
@@ -124,11 +123,9 @@
     "generic": "No ha salido. Inténtalo otra vez en un momento.",
     "network": "No hay manera de conectar. Mira la cobertura y vuelve a intentarlo.",
     "offline": "Necesitas conexión para ver esto.",
-    "unauthorized": "Entra primero.",
     "forbidden": "Esto no lo puedes hacer tú.",
     "notFound": "Esto ya no está.",
     "rateLimited": "Demasiados intentos seguidos. Espera un par de minutos y vuelve.",
-    "expired": "Ha caducado.",
     "behindServer": "Esto todavía no está en el servidor: la app se ha actualizado antes que la base de datos. Si eres de la junta, sube las migraciones; si no, avísalos."
   },
   "escola": {
@@ -306,8 +303,7 @@
     "yours": "el tuyo",
     "state": {
       "validada": "validada",
-      "pendent": "enviada",
-      "rebutjada": "no ha valido"
+      "pendent": "enviada"
     },
     "takePhoto": "Haz la foto o elígela del carrete",
     "send": "Envíala a validar",
@@ -660,15 +656,12 @@
   "junta": {
     "title": "Zona junta",
     "back": "Junta",
-    "door": "Ahora mismo en la puerta",
     "scan": "Escanear",
     "givePoints": "Dar puntos",
-    "manage": "Gestionar",
     "newEvent": "Crear evento",
     "newEventSub": "O copiar uno anterior y cambiarle la fecha",
     "invitesSub": "El código del grupo y quién quiere entrar",
     "paymentsSub": "Marcar quién ha pagado y nombrar admins",
-    "events": "Eventos",
     "noEvents": "Todavía no hay nada en el calendario. Crea el primero.",
     "draft": "borrador",
     "youAreAdmin": "Eres admin: puedes crear eventos, fichar gente, dar puntos y nombrar otros admins.",
@@ -737,10 +730,6 @@
       "pointsMeetingHint": "Se dan cuando cierres la reunión, no al confirmar: quien dice que estará y no está, no hace puntos.",
       "meetingHasNo": "Una reunión no tiene plazas, ni precio, ni portada, ni coches",
       "meetingHasNoSub": "Estos campos desaparecen del formulario en vez de quedarse vacíos. Si te has equivocado de tipo, vuelve y los recuperas tal como estaban.",
-      "callIt": "Convócala",
-      "willSee_one": "La verá {{count}} persona de la junta.",
-      "willSee_other": "La verán las {{count}} personas de la junta.",
-      "newMeeting": "Nueva reunión",
       "leaveIt": "Déjalo",
       "newTitle": "Crear evento",
       "editTitle": "Editar",
@@ -993,7 +982,6 @@
       "soonFailedSub": "Puede que haya y no los veamos. No crees nada nuevo hasta que cargue.",
       "how": "Cómo funciona la comi",
       "howSub": "Se toca una vez al año y hoy solo se toca con SQL.",
-      "proposals": "Propuestas y coches",
       "proposalsSub": "Las propuestas llevarán número, como las aprobaciones",
       "periodsStale": "Los trimestres no cubren el día de hoy",
       "periodsOk": "Cuándo empieza y acaba cada trimestre"
@@ -1172,11 +1160,9 @@
     "done": "{{quants}} de {{total}} estaban",
     "juntaOnly": "Las de junta solo las veis vosotros.",
     "title": "Reuniones",
-    "rowSub": "Convócalas, y ciérralas para dar los puntos",
     "callNew": "Convoca una reunión",
     "none": "Ninguna reunión, por ahora.",
-    "withActa": "con acta",
-    "listSub": "{{on}} · {{time}}"
+    "withActa": "con acta"
   },
   "motive": {
     "asistencia": "Venir",
@@ -1572,15 +1558,12 @@
   "state": {
     "saving": "Guardando…",
     "loading": "Un segundo…",
-    "empty": "Ahora mismo nada. Tranqui, ya caerá algo",
     "offline": "Sin conexión",
     "updating": "Actualizando…"
   },
   "time": {
     "today": "Hoy",
-    "tomorrow": "Mañana",
-    "yesterday": "Ayer",
-    "startsIn": "Empieza en {{duration}}"
+    "tomorrow": "Mañana"
   },
   "units": {
     "points_one": "{{count}} punto",

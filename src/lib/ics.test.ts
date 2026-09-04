@@ -10,7 +10,7 @@ const festa = {
   titol: 'Sopar de tardor',
   startsAt: '2026-11-14T21:00:00.000Z',
   endsAt: '2026-11-15T02:00:00.000Z',
-  ubicacio: 'Nau 3, Polígon del Rengle',
+  ubicacio: 'Nau 3, Polígon Alfa',
   descripcio: 'Porta el got.',
 }
 
@@ -66,7 +66,7 @@ describe('el fitxer del calendari', () => {
     // «Nau 3, Polígon» s'ha d'escapar; i la barra invertida s'escapa PRIMER,
     // perquè fer-ho al final tornaria a escapar les que acabem d'introduir.
     const ics = buildIcs([festa], ORIGIN, NOW)
-    expect(line(ics, 'LOCATION:')).toBe('LOCATION:Nau 3\\, Polígon del Rengle')
+    expect(line(ics, 'LOCATION:')).toBe('LOCATION:Nau 3\\, Polígon Alfa')
     expect(ics).not.toContain('\\\\,')
   })
 

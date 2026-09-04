@@ -31,7 +31,7 @@ function ride(seats: readonly unknown[], places = 4) {
     event_id: 'ev-1',
     driver_id: 'u-driver',
     sentit: 'anada',
-    origen: 'Mataró Nord',
+    origen: 'Vila Beta Nord',
     hora_sortida: '20:30',
     places,
     notes: null,

@@ -10,7 +10,7 @@ size in pixels; the disc and the gap scale from it.
 
 ```tsx
 <Wordmark size={64} />
-<p className="mt-6 text-md font-bold text-fg-muted">TecnoCampus Mataró</p>
+<p className="mt-6 text-md font-bold text-fg-muted">Campus Alfa</p>
 ```
 
 It uses the display face (`--ds-font-display`, Archivo Black) and `text-fg`, so

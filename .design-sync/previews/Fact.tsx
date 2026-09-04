@@ -17,7 +17,7 @@ export function TheFactsBlock() {
   return (
     <div className="w-[358px]">
       <Fact label="Quan" value="Divendres 12 de setembre · 23:00 fins a les 04:00" />
-      <Fact label="On" value="Nau 3, Polígon del Rengle. Mataró" />
+      <Fact label="On" value="Nau 3, Polígon Alfa. Vila Beta" />
       <Fact label="Preu" value="Gratis" />
       <Fact label="Com es torna" value="Hi ha tres cotxes oferts i queden places a dos." />
     </div>
@@ -28,7 +28,7 @@ export function TheFactsBlock() {
 export function AValueThatWraps() {
   return (
     <div className="w-[300px]">
-      <Fact label="On" value="Nau 3, Polígon del Rengle, entrada pel carrer de darrere. Mataró." />
+      <Fact label="On" value="Nau 3, Polígon Alfa, entrada per la porta de darrere. Vila Beta." />
     </div>
   )
 }

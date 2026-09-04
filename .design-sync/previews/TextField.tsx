@@ -17,7 +17,7 @@ export function Filled() {
         id="p-email-2"
         label="El teu correu"
         type="email"
-        defaultValue="marta@tecnocampus.cat"
+        defaultValue="marta@exemple.cat"
       />
     </div>
   )
@@ -42,7 +42,7 @@ export function CodeFromTheEmail() {
 export function AForm() {
   return (
     <div className="flex w-[358px] flex-col gap-4">
-      <TextField id="p-from" label="D'on surts" defaultValue="Mataró Nord" />
+      <TextField id="p-from" label="D'on surts" defaultValue="Vila Beta Nord" />
       <TextField id="p-at" label="A quina hora" type="time" defaultValue="20:30" />
       <TextField id="p-notes" label="Alguna cosa més" placeholder="Quatre paraules" />
     </div>

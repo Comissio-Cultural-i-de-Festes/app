@@ -12,10 +12,10 @@
  * statically and must never reach a real project.
  */
 export const env = {
-  appName: 'Comissió Cultural i de Festes del TecnoCampus',
+  appName: 'Associació de Proves',
   appShortName: 'comi.',
   appDescription: 'Esdeveniments, check-in, punts i rànquings de la comi',
-  appTagline: 'TecnoCampus Mataró',
+  appTagline: 'Campus Alfa',
   whatsappUrl: '',
   defaultLocale: 'ca',
   timeZone: 'Europe/Madrid',

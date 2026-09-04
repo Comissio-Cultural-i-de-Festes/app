@@ -108,7 +108,7 @@ function EventScreen() {
             Sopar de tardor
           </h1>
           <p className="mt-6 text-base text-fg-secondary [text-wrap:pretty]">
-            Nau 3, Polígon del Rengle. Queden vuit places de trenta.
+            Nau 3, Polígon Alfa. Queden vuit places de trenta.
           </p>
 
           <div className="mt-9 border border-border-strong bg-surface-1 p-9">

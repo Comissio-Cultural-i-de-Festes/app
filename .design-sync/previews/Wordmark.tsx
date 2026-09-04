@@ -16,7 +16,7 @@ export function OnTheEntryScreen() {
   return (
     <div className="w-[358px]">
       <Wordmark size={64} />
-      <p className="mt-6 text-md font-bold text-fg-muted">TecnoCampus Mataró</p>
+      <p className="mt-6 text-md font-bold text-fg-muted">Campus Alfa</p>
     </div>
   )
 }

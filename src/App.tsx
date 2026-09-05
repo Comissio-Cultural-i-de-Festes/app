@@ -1,5 +1,5 @@
 import type { Session } from '@supabase/supabase-js'
-import { useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Route, Routes } from 'react-router'
 
@@ -15,26 +15,6 @@ import { MyRideScreen } from '@/features/rides/MyRideScreen'
 import { OfferRideScreen } from '@/features/rides/OfferRideScreen'
 import { RidesScreen } from '@/features/rides/RidesScreen'
 import { useCheckinQueue } from '@/features/checkin/useCheckinQueue'
-import { CheckinsScreen } from '@/features/junta/CheckinsScreen'
-import { CloseMeetingScreen } from '@/features/junta/CloseMeetingScreen'
-import { EventFormScreen } from '@/features/junta/EventFormScreen'
-import { AuditScreen } from '@/features/junta/AuditScreen'
-import { GrausScreen } from '@/features/junta/GrausScreen'
-import { DashboardScreen } from '@/features/junta/DashboardScreen'
-import { GimcanaFormScreen } from '@/features/junta/GimcanaFormScreen'
-import { GimcanaValidateScreen } from '@/features/junta/GimcanaValidateScreen'
-import { PhotoReportsScreen } from '@/features/junta/PhotoReportsScreen'
-import { IdeasReviewScreen } from '@/features/junta/IdeasReviewScreen'
-import { MembersScreen } from '@/features/junta/MembersScreen'
-import { PeriodsScreen } from '@/features/junta/PeriodsScreen'
-import { RolesScreen } from '@/features/junta/RolesScreen'
-import { ScaleScreen } from '@/features/junta/ScaleScreen'
-import { ManualScreen } from '@/features/door/ManualScreen'
-import { PointsScreen } from '@/features/door/PointsScreen'
-import { ScannerScreen } from '@/features/door/ScannerScreen'
-import { InvitesScreen } from '@/features/junta/InvitesScreen'
-import { PaymentsScreen } from '@/features/junta/PaymentsScreen'
-import { JuntaHome } from '@/features/junta/JuntaHome'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen'
@@ -60,6 +40,81 @@ import {
   snoozeInstall,
 } from '@/features/install/installGate'
 import { supabase } from '@/lib/supabase'
+
+/**
+ * La zona de junta, carregada quan s'hi entra i no abans.
+ *
+ * Són vint pantalles que arriben al cinc o deu per cent de la gent —qui és de
+ * la junta— i fins ara viatjaven al mateix tros que l'Inici, o sigui a cada
+ * telèfon de cada soci la primera vegada que obre l'app, per la wifi que hi
+ * hagi. La partició natural ja existia: totes pengen d'una sola branca de
+ * l'arbre de rutes.
+ *
+ * Una per una i no un mòdul que les reexporti: així el que es baixa en obrir
+ * `/junta/registre` és el registre, i no també l'escàner i el formulari
+ * d'esdeveniment.
+ */
+const CheckinsScreen = lazy(() =>
+  import('@/features/junta/CheckinsScreen').then((m) => ({ default: m.CheckinsScreen })),
+)
+const CloseMeetingScreen = lazy(() =>
+  import('@/features/junta/CloseMeetingScreen').then((m) => ({ default: m.CloseMeetingScreen })),
+)
+const EventFormScreen = lazy(() =>
+  import('@/features/junta/EventFormScreen').then((m) => ({ default: m.EventFormScreen })),
+)
+const AuditScreen = lazy(() =>
+  import('@/features/junta/AuditScreen').then((m) => ({ default: m.AuditScreen })),
+)
+const GrausScreen = lazy(() =>
+  import('@/features/junta/GrausScreen').then((m) => ({ default: m.GrausScreen })),
+)
+const DashboardScreen = lazy(() =>
+  import('@/features/junta/DashboardScreen').then((m) => ({ default: m.DashboardScreen })),
+)
+const GimcanaFormScreen = lazy(() =>
+  import('@/features/junta/GimcanaFormScreen').then((m) => ({ default: m.GimcanaFormScreen })),
+)
+const GimcanaValidateScreen = lazy(() =>
+  import('@/features/junta/GimcanaValidateScreen').then((m) => ({ default: m.GimcanaValidateScreen })),
+)
+const PhotoReportsScreen = lazy(() =>
+  import('@/features/junta/PhotoReportsScreen').then((m) => ({ default: m.PhotoReportsScreen })),
+)
+const IdeasReviewScreen = lazy(() =>
+  import('@/features/junta/IdeasReviewScreen').then((m) => ({ default: m.IdeasReviewScreen })),
+)
+const MembersScreen = lazy(() =>
+  import('@/features/junta/MembersScreen').then((m) => ({ default: m.MembersScreen })),
+)
+const PeriodsScreen = lazy(() =>
+  import('@/features/junta/PeriodsScreen').then((m) => ({ default: m.PeriodsScreen })),
+)
+const RolesScreen = lazy(() =>
+  import('@/features/junta/RolesScreen').then((m) => ({ default: m.RolesScreen })),
+)
+const ScaleScreen = lazy(() =>
+  import('@/features/junta/ScaleScreen').then((m) => ({ default: m.ScaleScreen })),
+)
+const ManualScreen = lazy(() =>
+  import('@/features/door/ManualScreen').then((m) => ({ default: m.ManualScreen })),
+)
+const PointsScreen = lazy(() =>
+  import('@/features/door/PointsScreen').then((m) => ({ default: m.PointsScreen })),
+)
+const ScannerScreen = lazy(() =>
+  import('@/features/door/ScannerScreen').then((m) => ({ default: m.ScannerScreen })),
+)
+const InvitesScreen = lazy(() =>
+  import('@/features/junta/InvitesScreen').then((m) => ({ default: m.InvitesScreen })),
+)
+const PaymentsScreen = lazy(() =>
+  import('@/features/junta/PaymentsScreen').then((m) => ({ default: m.PaymentsScreen })),
+)
+const JuntaHome = lazy(() =>
+  import('@/features/junta/JuntaHome').then((m) => ({ default: m.JuntaHome })),
+)
+
 
 /**
  * The order of the gates, and why.
@@ -201,7 +256,24 @@ export default function App() {
 
           {/* No tab bar in here: these are places you go into and come back
               out of, and each one draws its own way out. */}
-          <Route path="/junta" element={<JuntaLayout />}>
+          <Route
+            path="/junta"
+            element={
+              // Un sol Suspense per a tota la branca: el que es carrega és una
+              // pantalla de junta, i totes entren pel mateix lloc. La frase és
+              // la mateixa que fa servir l'arrencada de l'app, perquè és la
+              // mateixa espera vista des de dins.
+              <Suspense
+                fallback={
+                  <main className="flex min-h-dvh items-center justify-center bg-app">
+                    <p className="text-fg-muted">{t('state.loading')}</p>
+                  </main>
+                }
+              >
+                <JuntaLayout />
+              </Suspense>
+            }
+          >
             <Route index element={<JuntaHome />} />
             <Route path="invitacions" element={<InvitesScreen />} />
             <Route path="esdeveniment/:id" element={<EventFormScreen />} />

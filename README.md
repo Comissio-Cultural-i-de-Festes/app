@@ -213,6 +213,26 @@ done in the dashboard, in the steps below.
 `db push` sends migrations and nothing else — not seeds, not auth config, not
 the email templates.
 
+**There are two projects, and the staging one is kept level with production.**
+Every migration goes to staging first, gets looked at there, and only then goes
+to production. That order is the whole point of having it: a migration that
+passes locally against seed data has not met a real project's auth schema,
+extensions or data.
+
+Staging is only useful if it is *actually* level. It fell four migrations
+behind once, which meant the four rehearsals that mattered most — the ones
+fixing defects production had already shown — were rehearsed nowhere. So:
+
+```
+# staging first, always
+npx supabase link --project-ref <staging-ref> && npm run db:push
+# look at it, then
+npx supabase link --project-ref <production-ref> && npm run db:push
+```
+
+And take a backup before each round; the exact commands are in the "Backups"
+section below.
+
 ### 3. Google Cloud — the production OAuth client
 
 APIs & Services → Credentials → Create credentials → OAuth client ID → Web
@@ -533,6 +553,43 @@ it first.
 purpose for processing, alongside the obvious ones. It is a legitimate purpose
 and a short paragraph, but it has to be written down before the first sign-up,
 not after.
+
+## Backups
+
+**There is no PITR and there are no managed backups**: this is a free-tier
+project. There is also no nightly job, deliberately — it would need a
+`service_role` key living as a GitHub Actions secret, and that is a credential
+that bypasses every policy in `supabase/` sitting in one more place.
+
+So the policy is manual and it is a habit: **a full dump before every round of
+migrations**, downloaded locally, kept outside this repository.
+
+```
+npx supabase db dump --linked -s public,auth -f <somewhere>/<date>-schema.sql
+npx supabase db dump --linked --data-only -s public,auth -f <somewhere>/<date>-data.sql
+npx supabase db dump --linked --role-only -f <somewhere>/<date>-roles.sql
+```
+
+**`auth` is not optional.** `public.profiles.id` references `auth.users(id)`, so
+a `public`-only dump does not restore: every profile row fails its foreign key
+on the way in, and the rest cascades off that. It is the kind of mistake you
+find out about on the one day you cannot afford to.
+
+**Two things a SQL dump does not carry, and both matter.**
+
+The bucket files. The dump brings the rows of `storage.objects` — names, sizes,
+metadata — and none of the bytes. Restore it and the database will tell you
+there is a cover photo and an avatar, and the bucket will be empty. Today that
+is two files; after a term of party photos and door diptychs it is thousands,
+and at that point this stops being a footnote and becomes the main problem with
+the backup.
+
+The Vault, where `reveal_push_url` and `reveal_push_token` live. Restore into a
+fresh project and the reveal notifications stop going out, silently, until
+somebody puts both secrets back by hand.
+
+Check the dump rather than trusting it: count the tuples in the data file
+before you rely on it.
 
 ## Brand colours
 

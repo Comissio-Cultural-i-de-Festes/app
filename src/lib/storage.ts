@@ -35,6 +35,20 @@ const JPEG_QUALITY = 0.82
  * the bucket's five-megabyte ceiling, and nothing on a 430-pixel screen can
  * tell the difference. If anything goes wrong the original is used, because a
  * slow upload beats no cover.
+ *
+ * I SEMPRE PASSA PEL CANVAS, encara que no calgui encongir-la. Abans hi havia
+ * un camí ràpid —si ja cabia i no calia escalar, es tornava el fitxer tal com
+ * havia arribat— i aquell camí s'enduia les metadades EXIF amunt: un JPEG de
+ * menys de dos megues fet amb el mòbil porta la marca del model i, si la
+ * càmera té la ubicació encesa, **les coordenades d'on es va fer**. Els altres
+ * tres cubells ja hi passaven sempre (`encodeJpeg` per a la galeria i la
+ * gimcana, el canvas de la càmera per a la porta); els avatars i les portades
+ * eren els dos que se saltaven la re-codificació, i són precisament els dos on
+ * la foto surt del carret i no de la càmera de l'app.
+ *
+ * Re-codificar el que ja cabia costa unes dècimes de segon al telèfon i una
+ * mica de qualitat. Val la pena: és l'única manera que «traiem les metadades»
+ * sigui una frase certa i no «gairebé sempre».
  */
 /**
  * El fitxer triat no és una imatge que aquest navegador sàpiga llegir.
@@ -65,7 +79,6 @@ export async function shrinkImage(file: File): Promise<Blob> {
 
   try {
     const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height))
-    if (scale === 1 && file.size <= 2_000_000) return file
 
     const canvas = document.createElement('canvas')
     canvas.width = Math.round(bitmap.width * scale)
@@ -148,9 +161,10 @@ const EXTENSIONS: Readonly<Record<string, string>> = {
 export async function uploadCover(file: File, eventId: string): Promise<string> {
   const body = await shrinkImage(file)
 
-  // The name follows what came back, not what was hoped for: shrinkImage
-  // hands back the untouched file when there is nothing worth re-encoding, and
-  // calling that .jpg would store a PNG under a name that lies about it.
+  // The name follows what came back, not what was hoped for. Since shrinkImage
+  // always re-encodes this is a JPEG in every path that worked, but it still
+  // hands back the original if the canvas itself failed, and calling that .jpg
+  // would store a PNG under a name that lies about it.
   const type = body.type === '' ? 'image/jpeg' : body.type
   const extension = EXTENSIONS[type] ?? 'jpg'
 

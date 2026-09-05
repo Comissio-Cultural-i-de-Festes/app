@@ -1499,6 +1499,7 @@
     "notes": "Algo más",
     "notesPlaceholder": "Si fumas en el coche, si el maletero va lleno, si vuelves el domingo por la tarde… cuatro palabras.",
     "phoneNote": "Verás el teléfono de quien suba, por si tienes que esperar cinco minutos. Ellos no ven el tuyo.",
+      "phoneToDriver": "Si te subes, el conductor verá tu teléfono por si tiene que esperarte. El resto de pasajeros, no.",
     "offerCta": "Ofrece el coche",
     "pointsLater": "Los {{points}} te los ponemos cuando volváis, no ahora.",
     "onlyOne": "De momento hay uno. Ya aparecerán más, pero este ya va seguro.",

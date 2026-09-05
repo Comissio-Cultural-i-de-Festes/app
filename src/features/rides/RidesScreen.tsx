@@ -280,6 +280,19 @@ function Card({
           {free === 0 ? t('rides.full') : t('rides.join')}
         </button>
       )}
+
+      {/*
+        El conductor ja sap que veurà els telèfons —ho diu `phoneNote` al
+        formulari d'oferir el cotxe— i el passatger no sabia que el donava.
+        `ride_phones()` només comprova qui condueix, o sigui que pujar a un
+        cotxe és cedir el número, i això s'ha de saber ABANS de prémer, no
+        després. No canvia qui veu què: només deixa de ser una sorpresa.
+      */}
+      {iDrive ? null : (
+        <p className="mt-5 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
+          {t('rides.phoneToDriver')}
+        </p>
+      )}
     </section>
   )
 }

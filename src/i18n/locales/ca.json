@@ -1499,6 +1499,7 @@
     "notes": "Alguna cosa més",
     "notesPlaceholder": "Si fumes al cotxe, si el maleter va ple, si tornes diumenge a la tarda… quatre paraules.",
     "phoneNote": "Veuràs el telèfon de qui hi pugi, per si t'has d'esperar cinc minuts. Ells no veuen el teu.",
+      "phoneToDriver": "Si hi puges, el conductor veurà el teu telèfon per si s'ha d'esperar. La resta de passatgers, no.",
     "offerCta": "Ofereix el cotxe",
     "pointsLater": "Els {{points}} te'ls posem quan torneu, no ara.",
     "onlyOne": "De moment n'hi ha un. Ja n'apareixeran més, però aquest ja hi va segur.",

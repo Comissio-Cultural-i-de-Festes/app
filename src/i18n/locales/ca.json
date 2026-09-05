@@ -484,7 +484,7 @@
       "nextTime": "A la pròxima, la de sortida te la pots fer encara que la de la porta no hi sigui: llavors el díptic surt amb l'hora d'entrada en lloc de la foto."
     },
     "yourNight": "La teva nit",
-    "pending": "falta",
+    "pending": "(per completar)",
     "staysHere": "Aquest botó es queda per sempre, encara que hagin passat dues setmanes. La targeta de l'Inici marxa; aquest no.",
     "seeIt": "Mira el díptic"
   },
@@ -1123,7 +1123,112 @@
   },
   "legal": {
     "privacy": "Política de privadesa",
-    "terms": "Condicions d'ús"
+    "terms": "Condicions d'ús",
+    "draft": "Esborrany per a revisar. Aquest text descriu el que l'app fa de debò, però encara no l'ha revisat ningú de fora. Si hi veus alguna cosa que no quadra, digues-ho.",
+    "pending": "encara no consta",
+    "back": "Enrere",
+    "privacyBody": {
+      "lead": "Aquesta app guarda el teu nom, la teva cara i on vas els divendres. Val la pena que sàpigues què n'hi ha i qui ho veu, així que aquí ho tens sense embuts.",
+      "who": {
+        "title": "Qui respon",
+        "p1": "De les dades que hi ha aquí en respon {{entity}}, amb NIF {{taxId}} i adreça a {{address}}. No en respon qui va fer l'app.",
+        "p2": "Per a qualsevol cosa d'aquesta pàgina, escriu a {{contact}}. És on arriba de debò; no tenim cap adreça de correu institucional."
+      },
+      "identity": {
+        "title": "Qui ets",
+        "p1": "Entres amb el compte de Google, i d'allà agafem el nom, el correu i la foto de perfil. Després tu hi poses l'escola, el grau, el curs i el telèfon. El nom i la foto els pots canviar quan vulguis.",
+        "p2": "El teu nom, la foto, l'escola, el grau i el curs els veu qualsevol soci actiu. Això és a posta —això és una associació i no una llista de correu— però val més que ho sàpigues que no que ho descobreixis."
+      },
+      "contact": {
+        "title": "El correu i el telèfon",
+        "p1": "El correu només el veus tu i el veu la junta. El telèfon, igual, amb una excepció: si puges al cotxe d'algú, aquell conductor veu el teu número per si s'ha d'esperar. Els altres passatgers no. T'ho diu la pantalla abans de pujar-hi."
+      },
+      "going": {
+        "title": "On dius que vas",
+        "p1": "Quan dius que vas a alguna cosa, surts a la llista de qui hi va. Quan hi entres per la porta, també queda l'hora exacta i si has pagat, i això ho veu qualsevol soci.",
+        "p2": "Sumat, això és un calendari de les teves nits, i qualsevol soci el pot llegir. Al rànquing sí que pots deixar de sortir des del teu perfil: llavors no surts a la llista, però els punts segueixen sumant per a la teva escola i, com que les llistes d'assistència són obertes, no és cap manera d'amagar-los."
+      },
+      "photos": {
+        "title": "Les fotos",
+        "p1": "N'hi ha de tres menes i no es veuen igual. La de la porta la veus tu i la veu la junta; la de la sortida només la veus tu, i la pots esborrar; les de la galeria d'una nit les veuen tots els socis.",
+        "p2": "Cap és pública a internet: totes es demanen amb un enllaç que caduca en una hora. Abans de pujar-se, se'ls treuen les metadades, o sigui el model del mòbil i la ubicació que hi hagués gravada.",
+        "p3": "Si una foto teva no t'agrada, la pots denunciar des de la mateixa foto i la junta la despenja. Qui la va pujar veurà que ja no hi és, però no veurà qui ho ha demanat."
+      },
+      "where": {
+        "title": "On eres quan vas fitxar",
+        "p1": "Si fitxes des del mòbil en lloc del QR, el telèfon envia on ets per comprovar que ets al lloc. La coordenada es desa, però no la veu ningú per l'app: la junta només veu a quants metres del local eres, que és el que fa falta per a veure si algú fitxa des de casa."
+      },
+      "log": {
+        "title": "El registre de la junta",
+        "p1": "Cada cosa que fa la junta —donar punts, acceptar algú, publicar un esdeveniment— queda anotada amb qui ho ha fet i quan. Aquest registre el llegeix la junta i s'esborra sol als dos anys. És l'única cosa de tota l'app que caduca sola.",
+        "p2": "També hi ha una pantalla on la junta veu qui fa temps que no ve, calculat amb les últimes activitats. No serveix per a res més que per a escriure't i preguntar-te si tot va bé."
+      },
+      "keep": {
+        "title": "Quant de temps ho guardem",
+        "p1": "Ara mateix, i dit clar: tret del registre, res no s'esborra sol. Ni el perfil, ni el telèfon, ni les fotos, ni l'històric. Si et dones de baixa deixes de sortir a tot arreu, però les dades es queden fins que algú les tregui a mà.",
+        "p2": "És una cosa que volem arreglar abans que això creixi, i mentrestant no et direm cap termini que no complim."
+      },
+      "others": {
+        "title": "Qui més ho toca",
+        "p1": "La base de dades i les fotos són a Supabase, en servidors d'Irlanda. La pàgina la serveix Cloudflare. Google fa d'entrada quan hi entres, i com que la foto de perfil ve del seu servidor, Google sap quan obres l'app.",
+        "p2": "Si actives els avisos, el missatge viatja xifrat pel servei del teu navegador —Google, Apple, Mozilla o Microsoft, segons el mòbil—, que veu que t'arriba alguna cosa però no què diu.",
+        "p3": "No hi ha cap sistema d'analítica, ni de publicitat, ni cap altre script de ningú. No venem res a ningú perquè no hi ha res a vendre."
+      },
+      "minors": {
+        "title": "Si encara no tens 18",
+        "p1": "A partir dels 14 anys pots donar tu mateix el permís per a aquestes dades, i per tant per a fer servir l'app. L'autorització dels pares que et demanem per a segons quines activitats és una altra cosa i va per un altre camí: en paper i a part.",
+        "p2": "L'app no et demana la data de naixement ni comprova cap edat. Si ets menor i no vols que la teva cara surti a la galeria d'una nit, digues-ho i no hi surt."
+      },
+      "rights": {
+        "title": "El que pots demanar",
+        "p1": "Pots veure i canviar el teu perfil des de l'app, deixar de sortir al rànquing, esborrar la teva foto de sortida i donar-te de baixa. Això funciona sol i és immediat.",
+        "p2": "Per a la resta —una còpia de tot el que tenim de tu, una correcció, o que ho esborrem— escriu a {{contact}}. Encara no hi ha cap botó que ho faci: ho fa una persona a mà, i per això pot trigar uns dies."
+      },
+      "changes": {
+        "title": "Si això canvia",
+        "p1": "Si canviem alguna cosa d'aquí, ho direm al grup. No fem servir dades teves per a res que no digui aquesta pàgina."
+      }
+    },
+    "termsBody": {
+      "lead": "Poca cosa i sense lletra petita. Això és l'app d'una associació d'estudiants, la porten quatre persones entre classe i classe, i les regles són les que ja et pensaves.",
+      "what": {
+        "title": "Què és això",
+        "p1": "Una app per a saber què es fa, apuntar-s'hi, entrar per la porta i veure com va el rànquing. No és un servei que hàgim venut a ningú i no en cobrem res."
+      },
+      "who": {
+        "title": "Qui hi pot entrar",
+        "p1": "Cal una invitació de la junta. Mentre no t'accepten, el teu compte està pendent: veus el que hi ha, però no et pots apuntar a res. Si deixes l'associació, la junta et dona de baixa i deixes de sortir a les llistes."
+      },
+      "you": {
+        "title": "El que esperem de tu",
+        "p1": "El teu QR és teu: si el passes a algú, aquell algú entra amb el teu nom i els punts te'ls quedes tu. No ho facis.",
+        "p2": "A la galeria, no hi pengis fotos de gent que no vulgui sortir-hi. És la norma de sempre en una festa, escrita.",
+        "p3": "I el que diguis a les idees i als comentaris ho llegeix tothom de la comi, amb el teu nom al costat."
+      },
+      "points": {
+        "title": "Els punts",
+        "p1": "Es guanyen anant-hi i ajudant: fitxar a la porta, portar gent en cotxe, muntar, proposar una idea que acaba fent-se. Els posa la junta o la porta, i el barem és públic a la zona de junta.",
+        "p2": "Si algú s'equivoca, es corregeixen. Els punts no es compren ni es passen d'una persona a una altra, i el rànquing és de curs: quan comença un de nou, es torna a zero."
+      },
+      "junta": {
+        "title": "El que pot fer la junta",
+        "p1": "Acceptar i donar de baixa socis, publicar i esborrar esdeveniments, corregir punts, despenjar una foto i tancar una reunió amb l'acta. Tot això queda anotat al registre amb el nom de qui ho ha fet."
+      },
+      "moderation": {
+        "title": "Si una foto no hauria de ser-hi",
+        "p1": "A cada foto de la galeria hi ha un botó per a demanar que la mirin. Pots dir que hi surts tu i no vols, o que hi ha alguna altra cosa que no toca.",
+        "p2": "Ho mira la junta i decideix. Si la despengen, desapareix per a tothom a l'instant i es pot desfer si va ser un error. Qui la va pujar veu que ja no hi és; qui ho va demanar no surt enlloc.",
+        "p3": "No hi ha cap termini promès. Són quatre persones, i el compromís honest és que ho miren quan ho veuen, no que ho mirin en vint-i-quatre hores."
+      },
+      "stop": {
+        "title": "Si ho deixes",
+        "p1": "Digues-ho a la junta i et donen de baixa. Deixes de sortir a les llistes i al rànquing. El que ja va passar —els punts d'una festa, les fotos d'una nit— es queda, perquè és de tothom qui hi era i no només teu."
+      },
+      "noguarantee": {
+        "title": "Això no és un producte",
+        "p1": "L'app pot caure la nit d'una festa, un avís pot no arribar i un dia pot deixar d'existir. No et podem prometre que funcioni sempre. Si passa alguna cosa, hi ha la porta, una llibreta i algú apuntant noms, com sempre."
+      }
+    }
   },
   "meeting": {
     "chip": "Reunió",

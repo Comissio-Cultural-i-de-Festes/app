@@ -1,7 +1,7 @@
 import type { Session } from '@supabase/supabase-js'
 import { Suspense, lazy, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, Route, Routes } from 'react-router'
+import { Navigate, Route, Routes, useLocation } from 'react-router'
 
 import { EntryScreen } from '@/features/entry/EntryScreen'
 import { EventScreen } from '@/features/event/EventScreen'
@@ -32,6 +32,8 @@ import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
 import { INVITE_PARAM, readInviteCode } from '@/features/entry/useInvite'
 import { InstallScreen } from '@/features/install/InstallScreen'
+import { PrivacyScreen } from '@/features/legal/PrivacyScreen'
+import { TermsScreen } from '@/features/legal/TermsScreen'
 import {
   SNOOZE_DONE_MS,
   SNOOZE_LATER_MS,
@@ -133,6 +135,15 @@ const JuntaHome = lazy(() =>
  * abans d'aquest punt —la pantalla d'instal·lació, la d'entrada— i un hook
  * darrere d'un `return` és un hook que unes vegades s'executa i altres no.
  */
+/**
+ * Les dues rutes que es llegeixen sense sessió.
+ *
+ * Exportades perquè les enllacen tres pantalles i cap d'elles ha de repetir la
+ * cadena: si un dia canvien de nom, canvien aquí i prou.
+ */
+export const PRIVACY_PATH = '/privadesa'
+export const TERMS_PATH = '/condicions'
+
 function DrainCheckins() {
   useCheckinQueue()
   return null
@@ -141,6 +152,7 @@ function DrainCheckins() {
 export default function App() {
   const { t } = useTranslation()
   const [session, setSession] = useState<Session | null>(null)
+  const { pathname } = useLocation()
   const [ready, setReady] = useState(false)
   const [promptInstall, setPromptInstall] = useState(() => shouldPromptInstall())
 
@@ -197,6 +209,23 @@ export default function App() {
       </main>
     )
   }
+
+  // ── El que es llegeix sense haver entrat ──────────────────────────────────
+  //
+  // Les dues pantalles legals van DAVANT dels dos porters de sota, i és tot el
+  // sentit que tenen: qui encara no ha entrat ha de poder saber què li passarà
+  // a les seves dades abans de decidir entrar-hi. Enllaçar-les des de la porta
+  // i declarar-les dins de l'arbre de sota no serviria de res —el `return` de
+  // la sessió mata l'enrutament abans d'arribar-hi, i el catch-all reboteria el
+  // visitant a l'Inici sense cap explicació.
+  //
+  // També van davant del porter d'instal·lació, que dispara encara abans que
+  // el de la sessió: si no, la primera visita des de Safari se les menjaria.
+  //
+  // El `*` torna l'arbre de sempre, o sigui que per a tota la resta això no hi
+  // és.
+  if (pathname === PRIVACY_PATH) return <PrivacyScreen />
+  if (pathname === TERMS_PATH) return <TermsScreen />
 
   if (promptInstall && !session) {
     return (

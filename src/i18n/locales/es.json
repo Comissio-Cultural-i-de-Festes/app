@@ -484,7 +484,7 @@
       "nextTime": "La próxima vez, la de salida te la puedes hacer aunque la de la puerta no esté: entonces el díptico sale con la hora de entrada en lugar de la foto."
     },
     "yourNight": "Tu noche",
-    "pending": "falta",
+    "pending": "(por completar)",
     "staysHere": "Este botón se queda para siempre, aunque hayan pasado dos semanas. La tarjeta del Inicio se va; este no.",
     "seeIt": "Mira el díptico"
   },
@@ -1123,7 +1123,112 @@
   },
   "legal": {
     "privacy": "Política de privacidad",
-    "terms": "Condiciones de uso"
+    "terms": "Condiciones de uso",
+    "draft": "Borrador por revisar. Este texto describe lo que la app hace de verdad, pero todavía no lo ha revisado nadie de fuera. Si ves algo que no cuadra, dilo.",
+    "pending": "todavía sin rellenar",
+    "back": "Atrás",
+    "privacyBody": {
+      "lead": "Esta app guarda tu nombre, tu cara y dónde vas los viernes. Vale la pena que sepas qué hay y quién lo ve, así que aquí lo tienes sin rodeos.",
+      "who": {
+        "title": "Quién responde",
+        "p1": "De los datos que hay aquí responde {{entity}}, con NIF {{taxId}} y dirección en {{address}}. No responde quien hizo la app.",
+        "p2": "Para cualquier cosa de esta página, escribe a {{contact}}. Es donde llega de verdad; no tenemos ninguna dirección de correo institucional."
+      },
+      "identity": {
+        "title": "Quién eres",
+        "p1": "Entras con la cuenta de Google, y de ahí cogemos el nombre, el correo y la foto de perfil. Después tú pones la escuela, el grado, el curso y el teléfono. El nombre y la foto los puedes cambiar cuando quieras.",
+        "p2": "Tu nombre, la foto, la escuela, el grado y el curso los ve cualquier socio activo. Eso es a propósito —esto es una asociación y no una lista de correo— pero más vale que lo sepas a que lo descubras."
+      },
+      "contact": {
+        "title": "El correo y el teléfono",
+        "p1": "El correo solo lo ves tú y lo ve la junta. El teléfono, igual, con una excepción: si te subes al coche de alguien, ese conductor ve tu número por si tiene que esperarte. Los demás pasajeros no. Te lo dice la pantalla antes de subir."
+      },
+      "going": {
+        "title": "Dónde dices que vas",
+        "p1": "Cuando dices que vas a algo, sales en la lista de quién va. Cuando entras por la puerta, queda también la hora exacta y si has pagado, y eso lo ve cualquier socio.",
+        "p2": "Sumado, esto es un calendario de tus noches, y cualquier socio puede leerlo. Del ranking sí puedes dejar de salir desde tu perfil: entonces no sales en la lista, pero los puntos siguen sumando para tu escuela y, como las listas de asistencia son abiertas, no es ninguna manera de esconderlos."
+      },
+      "photos": {
+        "title": "Las fotos",
+        "p1": "Hay de tres tipos y no se ven igual. La de la puerta la ves tú y la ve la junta; la de la salida solo la ves tú, y la puedes borrar; las de la galería de una noche las ven todos los socios.",
+        "p2": "Ninguna es pública en internet: todas se piden con un enlace que caduca en una hora. Antes de subirse se les quitan los metadatos, o sea el modelo del móvil y la ubicación que llevaran grabada.",
+        "p3": "Si una foto tuya no te gusta, la puedes denunciar desde la propia foto y la junta la descuelga. Quien la subió verá que ya no está, pero no verá quién lo ha pedido."
+      },
+      "where": {
+        "title": "Dónde estabas al fichar",
+        "p1": "Si fichas desde el móvil en lugar del QR, el teléfono envía dónde estás para comprobar que estás en el sitio. La coordenada se guarda, pero no la ve nadie por la app: la junta solo ve a cuántos metros del local estabas, que es lo que hace falta para ver si alguien ficha desde casa."
+      },
+      "log": {
+        "title": "El registro de la junta",
+        "p1": "Cada cosa que hace la junta —dar puntos, aceptar a alguien, publicar un evento— queda anotada con quién lo ha hecho y cuándo. Ese registro lo lee la junta y se borra solo a los dos años. Es lo único de toda la app que caduca solo.",
+        "p2": "También hay una pantalla donde la junta ve quién lleva tiempo sin venir, calculado con las últimas actividades. No sirve para nada más que para escribirte y preguntarte si todo va bien."
+      },
+      "keep": {
+        "title": "Cuánto tiempo lo guardamos",
+        "p1": "Ahora mismo, y dicho claro: salvo el registro, nada se borra solo. Ni el perfil, ni el teléfono, ni las fotos, ni el histórico. Si te das de baja dejas de salir en todas partes, pero los datos se quedan hasta que alguien los quite a mano.",
+        "p2": "Es algo que queremos arreglar antes de que esto crezca, y mientras tanto no te diremos ningún plazo que no cumplimos."
+      },
+      "others": {
+        "title": "Quién más lo toca",
+        "p1": "La base de datos y las fotos están en Supabase, en servidores de Irlanda. La página la sirve Cloudflare. Google hace de entrada cuando entras, y como la foto de perfil viene de su servidor, Google sabe cuándo abres la app.",
+        "p2": "Si activas los avisos, el mensaje viaja cifrado por el servicio de tu navegador —Google, Apple, Mozilla o Microsoft, según el móvil—, que ve que te llega algo pero no qué dice.",
+        "p3": "No hay ningún sistema de analítica, ni de publicidad, ni ningún otro script de nadie. No vendemos nada a nadie porque no hay nada que vender."
+      },
+      "minors": {
+        "title": "Si todavía no tienes 18",
+        "p1": "A partir de los 14 años puedes dar tú mismo el permiso para estos datos, y por tanto para usar la app. La autorización de los padres que te pedimos para según qué actividades es otra cosa y va por otro camino: en papel y aparte.",
+        "p2": "La app no te pide la fecha de nacimiento ni comprueba ninguna edad. Si eres menor y no quieres que tu cara salga en la galería de una noche, dilo y no sale."
+      },
+      "rights": {
+        "title": "Lo que puedes pedir",
+        "p1": "Puedes ver y cambiar tu perfil desde la app, dejar de salir en el ranking, borrar tu foto de salida y darte de baja. Eso funciona solo y es inmediato.",
+        "p2": "Para lo demás —una copia de todo lo que tenemos de ti, una corrección, o que lo borremos— escribe a {{contact}}. Todavía no hay ningún botón que lo haga: lo hace una persona a mano, y por eso puede tardar unos días."
+      },
+      "changes": {
+        "title": "Si esto cambia",
+        "p1": "Si cambiamos algo de aquí, lo diremos en el grupo. No usamos datos tuyos para nada que no diga esta página."
+      }
+    },
+    "termsBody": {
+      "lead": "Poca cosa y sin letra pequeña. Esto es la app de una asociación de estudiantes, la llevan cuatro personas entre clase y clase, y las reglas son las que ya te imaginabas.",
+      "what": {
+        "title": "Qué es esto",
+        "p1": "Una app para saber qué se hace, apuntarse, entrar por la puerta y ver cómo va el ranking. No es un servicio que hayamos vendido a nadie y no cobramos nada por él."
+      },
+      "who": {
+        "title": "Quién puede entrar",
+        "p1": "Hace falta una invitación de la junta. Mientras no te aceptan, tu cuenta está pendiente: ves lo que hay, pero no te puedes apuntar a nada. Si dejas la asociación, la junta te da de baja y dejas de salir en las listas."
+      },
+      "you": {
+        "title": "Lo que esperamos de ti",
+        "p1": "Tu QR es tuyo: si se lo pasas a alguien, ese alguien entra con tu nombre y los puntos te los quedas tú. No lo hagas.",
+        "p2": "En la galería, no cuelgues fotos de gente que no quiera salir. Es la norma de siempre en una fiesta, escrita.",
+        "p3": "Y lo que digas en las ideas y en los comentarios lo lee todo el mundo de la comi, con tu nombre al lado."
+      },
+      "points": {
+        "title": "Los puntos",
+        "p1": "Se ganan yendo y ayudando: fichar en la puerta, llevar gente en coche, montar, proponer una idea que acaba haciéndose. Los pone la junta o la puerta, y el baremo es público en la zona de junta.",
+        "p2": "Si alguien se equivoca, se corrigen. Los puntos no se compran ni se pasan de una persona a otra, y el ranking es de curso: cuando empieza uno nuevo, se vuelve a cero."
+      },
+      "junta": {
+        "title": "Lo que puede hacer la junta",
+        "p1": "Aceptar y dar de baja socios, publicar y borrar eventos, corregir puntos, descolgar una foto y cerrar una reunión con el acta. Todo eso queda anotado en el registro con el nombre de quien lo ha hecho."
+      },
+      "moderation": {
+        "title": "Si una foto no debería estar",
+        "p1": "En cada foto de la galería hay un botón para pedir que la miren. Puedes decir que sales tú y no quieres, o que hay otra cosa que no toca.",
+        "p2": "Lo mira la junta y decide. Si la descuelgan, desaparece para todos al instante y se puede deshacer si fue un error. Quien la subió ve que ya no está; quien lo pidió no aparece en ningún sitio.",
+        "p3": "No hay ningún plazo prometido. Son cuatro personas, y el compromiso honesto es que lo miran cuando lo ven, no que lo miren en veinticuatro horas."
+      },
+      "stop": {
+        "title": "Si lo dejas",
+        "p1": "Díselo a la junta y te dan de baja. Dejas de salir en las listas y en el ranking. Lo que ya pasó —los puntos de una fiesta, las fotos de una noche— se queda, porque es de todos los que estaban y no solo tuyo."
+      },
+      "noguarantee": {
+        "title": "Esto no es un producto",
+        "p1": "La app puede caerse la noche de una fiesta, un aviso puede no llegar y un día puede dejar de existir. No te podemos prometer que funcione siempre. Si pasa algo, está la puerta, una libreta y alguien apuntando nombres, como siempre."
+      }
+    }
   },
   "meeting": {
     "chip": "Reunión",

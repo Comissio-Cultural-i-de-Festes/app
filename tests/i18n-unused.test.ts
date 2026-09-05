@@ -42,18 +42,19 @@ const DYNAMIC_PREFIX = /\bt\(\s*`([A-Za-z0-9_.]*)\$\{/g
 const PLURAL_SUFFIX = /_(zero|one|two|few|many|other)$/
 
 /**
- * The two that stay, and why.
+ * Empty, and it is meant to stay empty.
  *
- * `legal.privacy` and `legal.terms` are as unreachable as the seventeen that
- * were deleted, and they are kept on purpose: there is no screen anywhere in
- * this app where a member can read a privacy policy or terms of use, in an app
- * that holds names, phone numbers and photographs of real people. The keys are
- * the only trace of that, and deleting them would tidy away the evidence of a
- * gap in the product rather than the gap.
+ * It held `legal.privacy` and `legal.terms`, which were as unreachable as the
+ * seventeen keys that were deleted and were kept on purpose: there was no
+ * screen anywhere in this app where a member could read a privacy policy or
+ * terms of use, in an app that holds names, phone numbers and photographs of
+ * real people. The keys were the only trace of that gap.
  *
- * Removing an entry from this list is the right move the day the screen exists.
+ * The screens exist now, so the excuse is gone with them. That is the whole
+ * design of this list: an entry stops being allowed the moment it stops being
+ * true, and the assertion below makes the build say so.
  */
-const KEPT_ON_PURPOSE = ['legal.privacy', 'legal.terms']
+const KEPT_ON_PURPOSE: readonly string[] = []
 
 function leafKeys(node: unknown, path = ''): string[] {
   if (typeof node !== 'object' || node === null) return [path]

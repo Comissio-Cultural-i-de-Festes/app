@@ -484,7 +484,7 @@
       "nextTime": "Next time you can take the way-out one even without the door one: the diptych then shows your arrival time instead of the picture."
     },
     "yourNight": "Your night",
-    "pending": "missing",
+    "pending": "(to be filled in)",
     "staysHere": "This button stays for good, even a fortnight later. The card on the home screen goes away; this one does not.",
     "seeIt": "See the diptych"
   },
@@ -1123,7 +1123,112 @@
   },
   "legal": {
     "privacy": "Privacy policy",
-    "terms": "Terms of use"
+    "terms": "Terms of use",
+    "draft": "Draft, not yet reviewed. This text describes what the app actually does, but nobody outside has checked it over. If something here does not add up, say so.",
+    "pending": "not filled in yet",
+    "back": "Back",
+    "privacyBody": {
+      "lead": "This app holds your name, your face and where you go on a Friday. It is worth knowing what is in there and who sees it, so here it is without the padding.",
+      "who": {
+        "title": "Who answers for this",
+        "p1": "The data here is the responsibility of {{entity}}, tax number {{taxId}}, at {{address}}. Not of whoever built the app.",
+        "p2": "For anything on this page, write to {{contact}}. That is where it actually arrives; we have no institutional email address."
+      },
+      "identity": {
+        "title": "Who you are",
+        "p1": "You sign in with your Google account, and from there we take your name, your email and your profile picture. You then add your school, degree, year and phone number. Name and picture you can change whenever you like.",
+        "p2": "Your name, picture, school, degree and year are visible to every active member. That is on purpose — this is an association, not a mailing list — but you are better off knowing than finding out."
+      },
+      "contact": {
+        "title": "Your email and phone",
+        "p1": "Your email is seen by you and by the committee. Your phone likewise, with one exception: if you get into somebody's car, that driver sees your number in case they have to wait for you. The other passengers do not. The screen tells you before you get in."
+      },
+      "going": {
+        "title": "Where you say you are going",
+        "p1": "When you say you are going to something, you appear on the list of who is going. When you come through the door, the exact time and whether you have paid are recorded too, and any member can see that.",
+        "p2": "Added up, that is a calendar of your nights out, and any member can read it. You can take yourself off the leaderboard from your profile: you then do not appear on the list, but your points still count towards your school and, since attendance lists are open, it is no way of hiding them."
+      },
+      "photos": {
+        "title": "Photographs",
+        "p1": "There are three kinds and they are not seen alike. The door photo is seen by you and by the committee; the leaving photo only by you, and you can delete it; a night's gallery is seen by every member.",
+        "p2": "None of them is public on the internet: every one is fetched through a link that expires within the hour. Before upload the metadata is stripped, meaning the phone model and any location recorded in the file.",
+        "p3": "If you do not like a photo of yourself, you can report it from the photo itself and the committee takes it down. Whoever posted it will see that it is gone, but not who asked."
+      },
+      "where": {
+        "title": "Where you were when you checked in",
+        "p1": "If you check in from your phone instead of the QR code, the phone sends where you are so we can tell you are at the venue. The coordinate is stored, but nobody sees it through the app: the committee only sees how many metres from the venue you were, which is what it takes to spot somebody checking in from home."
+      },
+      "log": {
+        "title": "The committee's log",
+        "p1": "Everything the committee does — awarding points, admitting somebody, publishing an event — is recorded with who did it and when. The committee reads that log and it deletes itself after two years. It is the only thing in the whole app that expires on its own.",
+        "p2": "There is also a screen where the committee sees who has not been around for a while, worked out from recent activities. It is good for nothing except writing to you and asking whether everything is all right."
+      },
+      "keep": {
+        "title": "How long we keep it",
+        "p1": "As things stand, plainly: apart from the log, nothing deletes itself. Not the profile, not the phone number, not the photographs, not the history. If you leave you stop appearing everywhere, but the data stays until somebody removes it by hand.",
+        "p2": "It is something we want to fix before this grows, and in the meantime we will not quote you a deadline we do not meet."
+      },
+      "others": {
+        "title": "Who else touches it",
+        "p1": "The database and the photographs live on Supabase, on servers in Ireland. The page is served by Cloudflare. Google is the front door when you sign in, and since your profile picture comes from their server, Google knows when you open the app.",
+        "p2": "If you turn on notifications, the message travels encrypted through your browser's push service — Google, Apple, Mozilla or Microsoft, depending on the phone — which sees that something reached you but not what it said.",
+        "p3": "There is no analytics, no advertising, and no other third-party script of any kind. We sell nothing to anybody because there is nothing to sell."
+      },
+      "minors": {
+        "title": "If you are not 18 yet",
+        "p1": "From the age of 14 you can give permission for this data yourself, and therefore to use the app. The parental authorisation we ask for on certain activities is a different thing and goes a different way: on paper, separately.",
+        "p2": "The app does not ask your date of birth and checks no age. If you are under 18 and would rather your face did not appear in a night's gallery, say so and it will not."
+      },
+      "rights": {
+        "title": "What you can ask for",
+        "p1": "You can see and change your profile in the app, take yourself off the leaderboard, delete your leaving photo and leave the association. That works on its own and takes effect at once.",
+        "p2": "For anything else — a copy of everything we hold about you, a correction, or deletion — write to {{contact}}. There is no button for it yet: a person does it by hand, which is why it can take a few days."
+      },
+      "changes": {
+        "title": "If this changes",
+        "p1": "If we change anything here, we will say so in the group. We do not use your data for anything this page does not describe."
+      }
+    },
+    "termsBody": {
+      "lead": "Not much, and no small print. This is a student association's app, run by four people between lectures, and the rules are the ones you were already expecting.",
+      "what": {
+        "title": "What this is",
+        "p1": "An app for seeing what is on, signing up, getting through the door and watching the leaderboard. It is not a service we have sold to anybody and we charge nothing for it."
+      },
+      "who": {
+        "title": "Who can join",
+        "p1": "You need an invitation from the committee. Until they admit you your account is pending: you can see what is on, but you cannot sign up for anything. If you leave the association the committee marks you as gone and you stop appearing on the lists."
+      },
+      "you": {
+        "title": "What we expect of you",
+        "p1": "Your QR code is yours: hand it to somebody and they come in under your name and you keep the points. Do not do it.",
+        "p2": "In the gallery, do not post photographs of people who would rather not be in them. It is the usual rule at a party, written down.",
+        "p3": "And what you write in ideas and comments is read by everyone in the association, with your name next to it."
+      },
+      "points": {
+        "title": "Points",
+        "p1": "You earn them by turning up and helping: checking in at the door, driving people, setting up, proposing an idea that ends up happening. The committee or the door awards them, and the scale is public in the committee area.",
+        "p2": "If somebody gets it wrong, it gets corrected. Points are not bought and do not move from one person to another, and the leaderboard runs by academic year: when a new one starts, it goes back to zero."
+      },
+      "junta": {
+        "title": "What the committee can do",
+        "p1": "Admit and remove members, publish and delete events, correct points, take a photograph down, and close a meeting with its minutes. All of it is recorded in the log with the name of whoever did it."
+      },
+      "moderation": {
+        "title": "If a photograph should not be there",
+        "p1": "Every gallery photograph has a button to ask for it to be looked at. You can say that you are in it and would rather not be, or that there is something else wrong with it.",
+        "p2": "The committee looks and decides. If they take it down it disappears for everybody at once, and it can be undone if it was a mistake. Whoever posted it sees that it is gone; whoever asked does not appear anywhere.",
+        "p3": "No deadline is promised. There are four of them, and the honest commitment is that they look when they see it, not that they look within twenty-four hours."
+      },
+      "stop": {
+        "title": "If you leave",
+        "p1": "Tell the committee and they will mark you as gone. You stop appearing on the lists and on the leaderboard. What already happened — the points from a party, the photographs of a night — stays, because it belongs to everybody who was there and not only to you."
+      },
+      "noguarantee": {
+        "title": "This is not a product",
+        "p1": "The app can fall over on the night of a party, a notification can fail to arrive, and one day it can stop existing. We cannot promise you it will always work. If something goes wrong there is the door, a notebook and somebody writing names down, the way there always was."
+      }
+    }
   },
   "meeting": {
     "chip": "Meeting",

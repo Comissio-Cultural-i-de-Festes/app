@@ -1127,6 +1127,9 @@
     "draft": "Esborrany per a revisar. Aquest text descriu el que l'app fa de debò, però encara no l'ha revisat ningú de fora. Si hi veus alguna cosa que no quadra, digues-ho.",
     "pending": "encara no consta",
     "back": "Enrere",
+    "privacySub": "Què guardem, qui ho veu i quant de temps hi és.",
+    "termsSub": "Les normes, en curt.",
+    "acceptNote": "En continuar acceptes com tractem les teves dades.",
     "privacyBody": {
       "lead": "Aquesta app guarda el teu nom, la teva cara i on vas els divendres. Val la pena que sàpigues què n'hi ha i qui ho veu, així que aquí ho tens sense embuts.",
       "who": {

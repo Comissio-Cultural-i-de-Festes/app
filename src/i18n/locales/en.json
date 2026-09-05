@@ -1127,6 +1127,9 @@
     "draft": "Draft, not yet reviewed. This text describes what the app actually does, but nobody outside has checked it over. If something here does not add up, say so.",
     "pending": "not filled in yet",
     "back": "Back",
+    "privacySub": "What we hold, who sees it, how long it stays.",
+    "termsSub": "The rules, kept short.",
+    "acceptNote": "By carrying on you accept how we handle your data.",
     "privacyBody": {
       "lead": "This app holds your name, your face and where you go on a Friday. It is worth knowing what is in there and who sees it, so here it is without the padding.",
       "who": {

@@ -3,6 +3,7 @@ import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
+import { LegalLinks } from '@/features/legal/LegalLinks'
 import { fetchSchools, rankingKeys } from '@/features/ranking/api'
 import { useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
@@ -351,6 +352,14 @@ export function OnboardingScreen() {
         <p className="mt-[11px] text-center text-sm font-medium text-fg-dim [text-wrap:pretty]">
           {t('onboarding.later')}
         </p>
+
+        {/* Aquí i no només a la porta: aquesta és la pantalla que demana
+            l'escola, el grau, el curs i el telèfon, o sigui el punt on de debò
+            es donen dades. */}
+        <p className="mt-8 text-center text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
+          {t('legal.acceptNote')}
+        </p>
+        <LegalLinks className="mt-3 text-center" />
       </section>
     </main>
   )

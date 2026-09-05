@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
+import { PRIVACY_PATH, TERMS_PATH } from '@/App'
 import { BadgeStrip } from '@/features/badges/BadgeStrip'
 import { clearFailedCheckins } from '@/features/checkin/failed'
 import { forgetCachedTokens } from '@/features/qr/api'
@@ -379,6 +380,33 @@ export function ProfileScreen() {
             </span>
           </Link>
         ) : null}
+
+        {/* Aquí a baix i no a la capçalera: al perfil s'hi arriba quan ja s'ha
+            entrat, i qui vulgui llegir-ho abans de donar res ho té a la porta i
+            a l'alta. Aquestes dues files són perquè es pugui rellegir. */}
+        <Link to={PRIVACY_PATH} className={`${ROW} no-underline`}>
+          <span className="min-w-0 flex-1">
+            <span className="block text-base font-semibold text-fg">{t('legal.privacy')}</span>
+            <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
+              {t('legal.privacySub')}
+            </span>
+          </span>
+          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
+            ›
+          </span>
+        </Link>
+
+        <Link to={TERMS_PATH} className={`${ROW} no-underline`}>
+          <span className="min-w-0 flex-1">
+            <span className="block text-base font-semibold text-fg">{t('legal.terms')}</span>
+            <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
+              {t('legal.termsSub')}
+            </span>
+          </span>
+          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
+            ›
+          </span>
+        </Link>
 
         {pending === null ? (
           <button

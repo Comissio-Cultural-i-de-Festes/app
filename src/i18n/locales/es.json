@@ -1127,6 +1127,9 @@
     "draft": "Borrador por revisar. Este texto describe lo que la app hace de verdad, pero todavía no lo ha revisado nadie de fuera. Si ves algo que no cuadra, dilo.",
     "pending": "todavía sin rellenar",
     "back": "Atrás",
+    "privacySub": "Qué guardamos, quién lo ve y cuánto tiempo está.",
+    "termsSub": "Las normas, en corto.",
+    "acceptNote": "Al continuar aceptas cómo tratamos tus datos.",
     "privacyBody": {
       "lead": "Esta app guarda tu nombre, tu cara y dónde vas los viernes. Vale la pena que sepas qué hay y quién lo ve, así que aquí lo tienes sin rodeos.",
       "who": {

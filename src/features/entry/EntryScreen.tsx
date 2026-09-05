@@ -2,6 +2,7 @@ import type { TFunction } from 'i18next'
 import { type FormEvent, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { LegalLinks } from '@/features/legal/LegalLinks'
 import { brand } from '@/config/brand'
 import { env } from '@/config/env'
 import { isStandalone } from '@/lib/platform'
@@ -240,6 +241,9 @@ export function EntryScreen() {
             <span className="text-brand-label">{t('entry.hasCode.hint')}</span>
           </p>
         )}
+
+        {/* A la porta, que és on encara es pot dir que no. */}
+        <LegalLinks className="mt-8" />
       </div>
     </main>
   )

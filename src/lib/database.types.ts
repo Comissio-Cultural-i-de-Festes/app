@@ -1453,6 +1453,7 @@ export type Database = {
         Returns: {
           a_la_cua: number
           equip: string
+          equip_ordre: number
           escola: string
           id: string
           path: string

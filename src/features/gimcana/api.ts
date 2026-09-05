@@ -72,7 +72,10 @@ export interface QueueRow {
   readonly prova: string
   readonly punts: number
   readonly qui: string
+  /** El nom de l'equip, i és `null` quan els va crear un sorteig. */
   readonly equip: string | null
+  /** El seu número, que és com s'anomena un equip sense nom. Compta des d'1. */
+  readonly equip_ordre: number
   readonly escola: string | null
   readonly quan: string
   readonly a_la_cua: number

@@ -22,6 +22,13 @@ export interface DoorNow {
   /** Waiting for a place and waiting for a decision, added together. */
   readonly esperen: number
   readonly no_pagats: number
+  /**
+   * Fotos de la gimcana esperant que algú digui si valen, i `null` quan
+   * l'esdeveniment no en té cap. Zero i cap no són el mateix: amb zero el camí
+   * cap a la cua ha de sortir igual, perquè durant una festa s'omple i es
+   * buida cada pocs minuts i és quan està buida que algú hi va a mirar.
+   */
+  readonly gimcana_cua: number | null
 }
 
 export interface JuntaHomeData {

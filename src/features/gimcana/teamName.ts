@@ -9,9 +9,16 @@ import type { Escola } from '@/lib/model'
  * —el nom d'una escola ja viu a les traduccions, i desar-lo tres vegades a la
  * base seria tenir-lo en dos llocs— i en els altres tres modes el nom és el que
  * hi va posar la junta o el número que li va tocar al sorteig.
+ *
+ * `nom` ÉS OBLIGATORI I ABANS ERA OPCIONAL, i el canvi és l'arreglo. La cua de
+ * validació de la junta li passava una fila on el camp es diu `equip`: com que
+ * `nom` es podia ometre, encaixava igual, arribava `undefined` i queia al
+ * número. Amb l'índex escrit a mà, «Equip 1» a totes les fotos de la nit. Ara
+ * una fila que no porti nom no compila, que és l'única manera que això no
+ * torni a passar a la propera pantalla que la cridi.
  */
 export function teamName(
-  team: { readonly nom?: string | null; readonly escola: string | null },
+  team: { readonly nom: string | null; readonly escola: string | null },
   index: number,
   t: TFunction,
 ): string {

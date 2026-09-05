@@ -322,7 +322,13 @@ function workCount(
   data: { readonly pendents: number; readonly esborranys: number },
   porta: DoorNow | null,
 ): number {
-  return data.pendents + data.esborranys + (porta?.esperen ?? 0) + (porta?.no_pagats ?? 0)
+  return (
+    data.pendents +
+    data.esborranys +
+    (porta?.esperen ?? 0) +
+    (porta?.no_pagats ?? 0) +
+    (porta?.gimcana_cua ?? 0)
+  )
 }
 
 /**
@@ -392,6 +398,23 @@ function Door({ porta, locale }: { readonly porta: DoorNow; readonly locale: Loc
           {t('junta.givePoints')}
         </Link>
       </div>
+
+      {/*
+        La cua de la gimcana. Hi surt sempre que l'esdeveniment en tingui una,
+        també amb zero fotos esperant: durant una festa s'omple i es buida cada
+        pocs minuts, i si el camí desaparegués quan està buida desapareixeria
+        justament quan algú hi va a mirar. `null` és «no hi ha gimcana».
+      */}
+      {porta.gimcana_cua === null ? null : (
+        <Link
+          to={`/junta/gimcana/${porta.id}`}
+          className="mt-5 flex min-h-[62px] w-full items-center justify-center border-[1.5px] border-surface-7 px-6 text-lg font-bold text-fg no-underline [text-wrap:balance]"
+        >
+          {porta.gimcana_cua === 0
+            ? t('junta.home.doorGimcana')
+            : t('junta.home.doorGimcanaQueue', { count: porta.gimcana_cua })}
+        </Link>
+      )}
 
       <p className="mt-5 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
         {t('junta.home.doorHint')}

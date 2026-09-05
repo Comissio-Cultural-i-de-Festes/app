@@ -120,7 +120,12 @@ export function GimcanaValidateScreen() {
               </p>
             </div>
             <p className="mt-2 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
-              {current.qui} · {teamName(current, 0, t)}
+              {current.qui} ·{' '}
+              {teamName(
+                { nom: current.equip, escola: current.escola },
+                current.equip_ordre - 1,
+                t,
+              )}
             </p>
 
             <div className="mt-7 grid grid-cols-2 items-stretch gap-5">

@@ -23,3 +23,50 @@
   Cache-Control: no-cache
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
+
+# ── Capçaleres de seguretat ─────────────────────────────────────────────────
+#
+# Fins ara aquest fitxer només tenia regles de memòria cau: cap capçalera de
+# seguretat, en una app que guarda un pas de porta de llarga durada a
+# `localStorage` i noms, telèfons i fotos de gent real.
+#
+# LA CSP VA EN `Report-Only` A POSTA, i s'hi ha de quedar una setmana. Una CSP
+# mal ajustada no avisa: bloqueja un origen i la pantalla es queda buida sense
+# error visible, que és el pitjor mode de fallada que hi ha. En `Report-Only`
+# el navegador ho deixa passar tot i escriu la violació a la consola.
+#
+# AVÍS QUE VAL LA PENA LLEGIR: no hi ha `report-to`, o sigui que les violacions
+# NOMÉS es veuen obrint la consola del navegador. Durant la setmana de prova cal
+# recórrer les pantalles amb la consola oberta —sobretot el mapa d'un
+# esdeveniment, el cercador d'adreces, la galeria i qualsevol pantalla amb
+# avatars— i mirar si en surt cap. Posar-hi un recol·lector voldria dir un
+# tercer servei més, i per a una app d'aquesta mida no compensa.
+#
+# ELS CINC ORÍGENS EXTERNS, comptats del codi i no de memòria:
+#
+#   xuirxygwhpykwjietjhj.supabase.co   PostgREST, GoTrue, Storage, Realtime i
+#                                      les Edge Functions; Realtime per `wss:`
+#   *.googleusercontent.com            les fotos de perfil de Google. Amb
+#                                      comodí perquè Google les reparteix
+#                                      entre lh3 i lh6
+#   *.basemaps.cartocdn.com            les tessel·les del mapa (GeoMap.tsx:92)
+#   photon.komoot.io                   el cercador d'adreces (geocode.ts:21)
+#   wa.me                              només enllaços que se segueixen; una
+#                                      navegació de primer nivell no la
+#                                      restringeix cap directiva d'aquestes
+#
+# EL HOST DE SUPABASE VA LITERAL, i és l'única cosa d'aquest repositori que ho
+# fa. La resta del projecte el llegeix de l'entorn a posta; aquí no es pot,
+# perquè `_headers` és un fitxer estàtic que Cloudflare Pages llegeix tal com
+# és. Qui bifurqui això per a una altra associació ha de canviar aquesta línia
+# igual que canvia el `.env`.
+#
+# `style-src 'unsafe-inline'`: React escriu `style=` a l'element per als
+# avatars i les tessel·les del mapa, i Leaflet en posa uns quants més. Es podria
+# afinar amb `style-src-attr`, però no abans de veure què diu la setmana de
+# `Report-Only`.
+/*
+  Content-Security-Policy-Report-Only: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; worker-src 'self'; manifest-src 'self'; img-src 'self' data: blob: https://*.googleusercontent.com https://*.basemaps.cartocdn.com https://xuirxygwhpykwjietjhj.supabase.co; connect-src 'self' https://xuirxygwhpykwjietjhj.supabase.co wss://xuirxygwhpykwjietjhj.supabase.co https://photon.komoot.io
+  Referrer-Policy: strict-origin-when-cross-origin
+  X-Content-Type-Options: nosniff
+  Permissions-Policy: camera=(self), geolocation=(self), microphone=(), payment=(), interest-cohort=()

@@ -60,16 +60,23 @@ export interface CloseResult {
  * cobrats— i una reunió és el cas contrari: es tanca una vegada, i quedar-se a
  * mitges deixaria una reunió tancada amb la meitat de la gent pagada i sense
  * manera de saber quina meitat.
+ *
+ * L'ACTA S'ENVIA SEMPRE, també buida, i abans no. Ometre-la volia dir «no en
+ * tinc», i des de la migració 62 això vol dir «no la toquis»: la RPC distingeix
+ * absent de buida. Com que la pantalla ara arrenca amb l'acta desada al quadre,
+ * un quadre buit ja no és desconeixement sinó una decisió —algú l'ha esborrada
+ * a mà— i s'ha de poder dir. Enviar-la sempre és el que fa que les dues coses
+ * no es confonguin.
  */
 export async function closeMeeting(
   eventId: string,
   userIds: readonly string[],
-  acta: string | null,
+  acta: string,
 ): Promise<CloseResult> {
   const { data, error } = await supabase.rpc('admin_close_meeting', {
     p_event_id: eventId,
     p_user_ids: [...userIds],
-    ...(acta === null || acta.trim() === '' ? {} : { p_acta: acta.trim() }),
+    p_acta: acta.trim(),
   })
   if (error) throw new DbError(error)
   return data as unknown as CloseResult

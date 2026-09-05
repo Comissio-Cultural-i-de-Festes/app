@@ -34,6 +34,12 @@ import { meetingListKeys } from './meetingsApi'
  * vegades, i treure algú de la llista el deixa de comptar: la RPC posa a 'no'
  * qui ja no hi surti. Per tant equivocar-se aquí es corregeix tornant-hi, que
  * és el que la frase de sota del botó promet.
+ *
+ * I PER AIXÒ EL QUADRE DE L'ACTA ARRENCA AMB EL QUE HI HA DESAT. Arrencava en
+ * blanc, i tornar a entrar a corregir una assistència esborrava l'acta sense
+ * dir res —la RPC rebia NULL i el sobreescrivia—. Amb l'acta a la vista també
+ * es pot corregir, que abans no es podia de cap manera. L'altra meitat és a la
+ * migració 62: absent vol dir «no la toquis» i buida vol dir «treu-la».
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -76,10 +82,15 @@ export function CloseMeetingScreen() {
   // `null` fins que la llista arriba: així el valor per defecte es calcula un
   // sol cop des de les dades i no cal cap efecte que el sincronitzi.
   const [picked, setPicked] = useState<ReadonlySet<string> | null>(null)
-  const [acta, setActa] = useState('')
+  // I l'acta igual, pel mateix motiu i per un de més gros: arrencava en blanc
+  // sempre, i com que tornar a tancar sense acta l'esborrava, entrar aquí a
+  // corregir una assistència s'enduia el que hi havia escrit. Ara el quadre
+  // surt amb el que hi ha desat.
+  const [acta, setActa] = useState<string | null>(null)
+  const written = acta ?? event.data?.acta ?? ''
 
   const close = useMutation({
-    mutationFn: (ids: readonly string[]) => closeMeeting(id, ids, acta),
+    mutationFn: (ids: readonly string[]) => closeMeeting(id, ids, written),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: meetingKeys.roster(id) })
       await client.invalidateQueries({ queryKey: eventKeys.one(id) })
@@ -171,7 +182,7 @@ export function CloseMeetingScreen() {
       <section className={`pt-12 ${GUTTER}`}>
         <span className="eyebrow block text-fg-muted">{t('meeting.actaLabel')}</span>
         <textarea
-          value={acta}
+          value={written}
           onChange={(ev) => setActa(ev.target.value)}
           rows={4}
           placeholder={t('meeting.actaPlaceholder')}

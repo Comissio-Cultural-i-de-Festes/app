@@ -33,6 +33,17 @@ export const env = {
   // Shown under the wordmark on the entry screen. Association-specific, so it
   // is configuration, not a translated string.
   appTagline: optional('VITE_APP_TAGLINE', ''),
+  // Qui respon de les dades, per a la política de privadesa. Va aquí i no a
+  // les traduccions per la mateixa raó que el nom, i a més perquè el test de
+  // paritat prohibeix escriure el nom de l'associació dins d'un fitxer de
+  // locale. Buit vol dir «encara no consta», i la pantalla ho diu així.
+  legalEntity: optional('VITE_LEGAL_ENTITY', ''),
+  legalTaxId: optional('VITE_LEGAL_TAX_ID', ''),
+  legalAddress: optional('VITE_LEGAL_ADDRESS', ''),
+  // On s'escriu per a exercir els drets. No es pot donar per fet un correu:
+  // l'associació no té domini propi —per això no hi ha entrada per correu— i
+  // per tant això pot ser una adreça personal de la junta o l'enllaç del grup.
+  legalContact: optional('VITE_LEGAL_CONTACT', ''),
   // Where "ask for one in the WhatsApp group" points. A group invite link, so
   // it changes without a deploy and does not belong in the bundle as a
   // literal.

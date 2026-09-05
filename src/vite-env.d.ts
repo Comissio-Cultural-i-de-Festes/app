@@ -5,6 +5,10 @@ interface ImportMetaEnv {
   readonly VITE_APP_SHORT_NAME: string
   readonly VITE_APP_DESCRIPTION?: string
   readonly VITE_APP_TAGLINE?: string
+  readonly VITE_LEGAL_ENTITY?: string
+  readonly VITE_LEGAL_TAX_ID?: string
+  readonly VITE_LEGAL_ADDRESS?: string
+  readonly VITE_LEGAL_CONTACT?: string
   readonly VITE_WHATSAPP_URL?: string
   readonly VITE_AUTH_EMAIL_FALLBACK?: string
   readonly VITE_THEME_COLOR?: string

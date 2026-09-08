@@ -1135,7 +1135,7 @@
       "who": {
         "title": "Qui respon",
         "p1": "De les dades que hi ha aquí en respon {{entity}}, amb NIF {{taxId}} i adreça a {{address}}. No en respon qui va fer l'app.",
-        "p2": "Per a qualsevol cosa d'aquesta pàgina, escriu a {{contact}}. És on arriba de debò; no tenim cap adreça de correu institucional."
+        "p2": "Per a qualsevol cosa d'aquesta pàgina, escriu a {{contact}}. És on arriba de debò, i el llegeix la junta."
       },
       "identity": {
         "title": "Qui ets",

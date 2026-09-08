@@ -1135,7 +1135,7 @@
       "who": {
         "title": "Who answers for this",
         "p1": "The data here is the responsibility of {{entity}}, tax number {{taxId}}, at {{address}}. Not of whoever built the app.",
-        "p2": "For anything on this page, write to {{contact}}. That is where it actually arrives; we have no institutional email address."
+        "p2": "For anything on this page, write to {{contact}}. That is where it actually arrives, and the committee reads it."
       },
       "identity": {
         "title": "Who you are",

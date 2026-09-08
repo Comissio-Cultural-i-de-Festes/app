@@ -1135,7 +1135,7 @@
       "who": {
         "title": "Quién responde",
         "p1": "De los datos que hay aquí responde {{entity}}, con NIF {{taxId}} y dirección en {{address}}. No responde quien hizo la app.",
-        "p2": "Para cualquier cosa de esta página, escribe a {{contact}}. Es donde llega de verdad; no tenemos ninguna dirección de correo institucional."
+        "p2": "Para cualquier cosa de esta página, escribe a {{contact}}. Es donde llega de verdad, y lo lee la junta."
       },
       "identity": {
         "title": "Quién eres",

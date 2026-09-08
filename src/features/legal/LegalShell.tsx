@@ -52,12 +52,6 @@ export function LegalShell({
           {title}
         </h1>
         <p className="mt-5 text-lg text-fg-secondary [text-wrap:pretty]">{lead}</p>
-
-        {/* A dalt i no en un peu de pàgina: qui llegeix això ha de saber què
-            està llegint abans de creure-se'l, no després. */}
-        <p className="mt-7 border-l-[3px] border-brand bg-surface-1 px-6 py-6 text-sm text-fg-secondary [text-wrap:pretty]">
-          {t('legal.draft')}
-        </p>
       </div>
 
       {children}

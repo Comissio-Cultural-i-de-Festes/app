@@ -81,8 +81,13 @@ export async function shrinkImage(file: File): Promise<Blob> {
     const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height))
 
     const canvas = document.createElement('canvas')
-    canvas.width = Math.round(bitmap.width * scale)
-    canvas.height = Math.round(bitmap.height * scale)
+    // `Math.max(1, …)`, com a `encodeJpeg`: un retall panoràmic de 5000×1
+    // arrodoneix el costat curt a zero, i un canvas de dimensió zero fa que
+    // `toBlob` torni null. Llavors sortiríem per l'`?? file` de sota amb el
+    // fitxer original i les metadades a dins, que és justament el camí que es
+    // va tancar traient la drecera.
+    canvas.width = Math.max(1, Math.round(bitmap.width * scale))
+    canvas.height = Math.max(1, Math.round(bitmap.height * scale))
 
     const context = canvas.getContext('2d')
     if (context === null) return file
@@ -90,12 +95,33 @@ export async function shrinkImage(file: File): Promise<Blob> {
     bitmap.close()
 
     const blob = await new Promise<Blob | null>((resolve) => {
-      canvas.toBlob(resolve, 'image/jpeg', JPEG_QUALITY)
+      canvas.toBlob(resolve, encodingFor(file.type), JPEG_QUALITY)
     })
     return blob ?? file
   } catch {
     return file
   }
+}
+
+/**
+ * Amb què es torna a codificar, i per què no sempre JPEG.
+ *
+ * Treure la drecera va fer que TOT passés pel canvas, i el canvas sempre
+ * escrivia JPEG. Però el selector de portada accepta PNG i WebP a posta, i el
+ * JPEG no té canal alfa: un cartell exportat amb fons transparent sortia amb
+ * tots els píxels transparents a negre, sense error i sense avís. La
+ * previsualització no ho ensenyava perquè mostra el fitxer d'origen, no el
+ * blob codificat.
+ *
+ * WebP i no PNG per a les que porten alfa: manté la transparència, comprimeix
+ * com el JPEG —un PNG d'una foto de 1600 px se'n va a diversos megues i el
+ * cubell de portades en talla a cinc— i els dos cubells que fan servir això
+ * l'accepten (portades: jpeg, png i webp; avatars: jpeg i webp).
+ *
+ * Segueix sent una re-codificació, o sigui que les metadades marxen igual.
+ */
+function encodingFor(sourceType: string): string {
+  return sourceType === 'image/png' || sourceType === 'image/webp' ? 'image/webp' : 'image/jpeg'
 }
 
 /**

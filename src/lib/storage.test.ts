@@ -99,6 +99,43 @@ describe('shrinkImage', () => {
     expect(out).not.toBe(original)
   })
 
+  // Un PNG o un WebP poden portar transparència i el JPEG no en té: si es
+  // codifiquessin a JPEG, un cartell amb fons transparent sortiria negre.
+  it('i el que pot portar alfa surt en WebP, no en JPEG', async () => {
+    bitmap(800, 600)
+    const canvas = muntaCanvas()
+
+    await shrinkImage(fitxer(200_000, 'image/png'))
+    expect(canvas.toBlob.mock.calls[0]?.[1]).toBe('image/webp')
+
+    canvas.toBlob.mockClear()
+    await shrinkImage(fitxer(200_000, 'image/webp'))
+    expect(canvas.toBlob.mock.calls[0]?.[1]).toBe('image/webp')
+  })
+
+  it('i una foto de càmera segueix sortint en JPEG', async () => {
+    bitmap(4000, 3000)
+    const canvas = muntaCanvas()
+
+    await shrinkImage(fitxer(9_000_000, 'image/jpeg'))
+
+    expect(canvas.toBlob.mock.calls[0]?.[1]).toBe('image/jpeg')
+  })
+
+  // Un costat que arrodoneix a zero dona un canvas de dimensió zero, `toBlob`
+  // torna null i sortiríem amb l'original i les metadades a dins.
+  it('un retall panoràmic no acaba amb un canvas de zero píxels', async () => {
+    bitmap(5000, 1)
+    const canvas = muntaCanvas()
+
+    await shrinkImage(fitxer(300_000))
+
+    expect(canvas.drawImage).toHaveBeenCalled()
+    const dibuixat = canvas.drawImage.mock.calls[0] as unknown[]
+    expect(dibuixat[3]).toBeGreaterThanOrEqual(1)
+    expect(dibuixat[4]).toBeGreaterThanOrEqual(1)
+  })
+
   // La degradació que es queda: sense canvas no hi ha manera de treure res, i
   // pujar l'original és millor que no pujar. És l'únic camí que conserva les
   // metadades, i cal un navegador trencat per a arribar-hi.

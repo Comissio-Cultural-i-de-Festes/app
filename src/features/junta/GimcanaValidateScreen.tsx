@@ -121,9 +121,13 @@ export function GimcanaValidateScreen() {
             </div>
             <p className="mt-2 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
               {current.qui} ·{' '}
+              {/* `?? 1` perquè el paquet i la base es despleguen per separat:
+                  contra una base d'abans de la migració 64 la columna no hi és,
+                  i `undefined - 1` és NaN — «Equip NaN», pitjor que l'«Equip 1»
+                  que això venia a arreglar. */}
               {teamName(
                 { nom: current.equip, escola: current.escola },
-                current.equip_ordre - 1,
+                (current.equip_ordre ?? 1) - 1,
                 t,
               )}
             </p>

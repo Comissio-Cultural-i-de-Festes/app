@@ -405,7 +405,13 @@ function Door({ porta, locale }: { readonly porta: DoorNow; readonly locale: Loc
         pocs minuts, i si el camí desaparegués quan està buida desapareixeria
         justament quan algú hi va a mirar. `null` és «no hi ha gimcana».
       */}
-      {porta.gimcana_cua === null ? null : (
+      {/* `== null` i no `=== null`: contra una base d'abans de la migració 63
+          la clau no arriba, i `undefined` no és `null`. Amb la comparació
+          estricta sortia el botó d'un esdeveniment sense gimcana, i amb un
+          `count` indefinit i18next es queda sense forma plural i pinta la clau
+          crua. `workCount` ja ho llegia amb `?? 0`; això és posar-hi d'acord
+          els dos lectors. */}
+      {porta.gimcana_cua == null ? null : (
         <Link
           to={`/junta/gimcana/${porta.id}`}
           className="mt-5 flex min-h-[62px] w-full items-center justify-center border-[1.5px] border-surface-7 px-6 text-lg font-bold text-fg no-underline [text-wrap:balance]"

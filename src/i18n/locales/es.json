@@ -18,6 +18,13 @@
     "signIn": "Entra",
     "signOut": "Cerrar sesión"
   },
+  "crash": {
+    "title": "Algo se ha roto",
+    "body": "No debería pasar. Vuelve a cargar y, si sigue igual, díselo a la junta.",
+    "staleTitle": "Hay una versión nueva",
+    "staleBody": "La app se ha actualizado mientras la tenías abierta. Vuelve a cargar y estarás donde estabas.",
+    "reload": "Vuelve a cargar"
+  },
   "door": {
     "checkedIn": "{{count}} fichados de {{total}}",
     "queued_one": "{{count}} en la cola",

@@ -18,6 +18,13 @@
     "signIn": "Entra",
     "signOut": "Tanca la sessió"
   },
+  "crash": {
+    "title": "Alguna cosa s'ha trencat",
+    "body": "No hauria de passar. Torna-ho a carregar i, si segueix igual, digues-ho a la junta.",
+    "staleTitle": "Hi ha una versió nova",
+    "staleBody": "S'ha actualitzat l'app mentre la tenies oberta. Torna-ho a carregar i hi seràs on eres.",
+    "reload": "Torna-ho a carregar"
+  },
   "door": {
     "checkedIn": "{{count}} fitxats de {{total}}",
     "queued_one": "{{count}} a la cua",

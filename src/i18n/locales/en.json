@@ -18,6 +18,13 @@
     "signIn": "Sign in",
     "signOut": "Sign out"
   },
+  "crash": {
+    "title": "Something broke",
+    "body": "That should not happen. Reload, and if it keeps happening tell the committee.",
+    "staleTitle": "There is a new version",
+    "staleBody": "The app updated while you had it open. Reload and you will be where you were.",
+    "reload": "Reload"
+  },
   "door": {
     "checkedIn": "{{count}} of {{total}} in",
     "queued_one": "{{count}} waiting to send",

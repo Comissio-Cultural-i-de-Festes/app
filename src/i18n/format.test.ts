@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
 
-import { daysUntil, formatOrdinal, zonedDayStart } from './format'
+import { daysUntil, formatHores, formatOrdinal, horesParts, zonedDayStart } from './format'
 
 /**
- * These two are the ones with an opinion in them. The rest of format.ts is
- * Intl with the association's time zone pinned, which has nothing to assert
- * that is not really a test of Intl.
+ * These are the ones with an opinion in them. The rest of format.ts is Intl
+ * with the association's time zone pinned, which has nothing to assert that is
+ * not really a test of Intl.
  */
 
 describe('ordinals', () => {
@@ -82,5 +82,50 @@ describe('how many sleeps away', () => {
     // began on the 25th and that is the day everybody will call it.
     const after = new Date('2026-09-26T00:30:00Z')
     expect(zonedDayStart(after)).toBeGreaterThan(zonedDayStart(friday))
+  })
+})
+
+describe('durades', () => {
+  it('escriu «2 h 30», que és la forma de tota l’app', () => {
+    expect(formatHores(150, 'ca')).toBe('2 h 30')
+  })
+
+  it('i sense minuts no escriu el zero', () => {
+    expect(formatHores(120, 'ca')).toBe('2 h')
+    expect(formatHores(60, 'ca')).toBe('1 h')
+  })
+
+  // Una columna de durades ha de quedar alineada, i «4 h 5» la trenca.
+  it('posa els minuts a dues xifres', () => {
+    expect(formatHores(245, 'ca')).toBe('4 h 05')
+  })
+
+  it('per sota d’una hora només diu els minuts', () => {
+    expect(formatHores(45, 'ca')).toBe('45 min')
+    expect(formatHores(1, 'ca')).toBe('1 min')
+  })
+
+  // El zero és un valor conegut i es diu. Un guionet voldria dir «no ho sabem»,
+  // que a la targeta del perfil és un altre estat i té una altra frase.
+  it('i el zero és «0 h» i no un guionet', () => {
+    expect(formatHores(0, 'ca')).toBe('0 h')
+  })
+
+  it('no torna mai una durada negativa', () => {
+    expect(formatHores(-30, 'ca')).toBe('0 h')
+  })
+
+  // Les hores passen per Intl com tots els números de l'app: a partir de mil,
+  // el separador és el de l'idioma i no el que porti el navegador.
+  it('i les hores van per Intl, també quan passen de mil', () => {
+    expect(formatHores(60 * 1234, 'ca')).toBe('1.234 h')
+    expect(formatHores(60 * 1234, 'en')).toBe('1,234 h')
+  })
+
+  // La targeta del perfil pinta el número a un graó del display i la unitat dos
+  // graons més avall, i per això li fa falta partida.
+  it('i ve partida per a les xifres grans', () => {
+    expect(horesParts(795, 'ca')).toEqual({ xifra: '13', unitat: 'h 15' })
+    expect(horesParts(45, 'ca')).toEqual({ xifra: '45', unitat: 'min' })
   })
 })

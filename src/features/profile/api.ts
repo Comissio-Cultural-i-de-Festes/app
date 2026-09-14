@@ -2,6 +2,7 @@ import { DbError, unwrap, unwrapAs } from '@/lib/db'
 import { AVATARS, shrinkImage, uploadAvatar } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
 
+import type { Hores } from './hores'
 import type { Streak } from './streak'
 
 /**
@@ -36,6 +37,7 @@ export const profileScreenKeys = {
   points: (userId: string) => ['profile', 'points', userId] as const,
   attended: (userId: string) => ['profile', 'attended', userId] as const,
   streak: (userId: string) => ['profile', 'streak', userId] as const,
+  hores: (userId: string) => ['profile', 'hores', userId] as const,
 }
 
 /**
@@ -51,6 +53,20 @@ export async function fetchStreak(): Promise<Streak> {
   const { data, error } = await supabase.rpc('my_streak')
   if (error) throw new DbError(error)
   return data as unknown as Streak
+}
+
+/**
+ * Les hores del curs, també calculades a cada crida.
+ *
+ * Igual que la ratxa: la regla de qui fa quantes hores viu tota a
+ * `private.minuts_persona`, i el client rep el total ja fet. Aquí no es pot
+ * passar cap paràmetre a posta — la funció es filtra sola per `auth.uid()`,
+ * així que no hi ha cap manera de demanar les d'un altre.
+ */
+export async function fetchHores(): Promise<Hores> {
+  const { data, error } = await supabase.rpc('my_hores')
+  if (error) throw new DbError(error)
+  return data as unknown as Hores
 }
 
 /**

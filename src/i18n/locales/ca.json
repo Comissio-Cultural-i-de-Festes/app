@@ -1156,6 +1156,8 @@
       "noExit": "sense sortida",
       "sign": "Visa les hores",
       "signSub": "En visar-les, {{gent}} les tindran al perfil com a definitives.",
+      "notOverYet": "Encara no s'ha acabat. Les hores es visen quan l'activitat ja ha passat i les marques d'entrada i sortida són les definitives.",
+      "signNobody": "No hi ha cap hora a visar, però visar-ho el treu de la llista de feina.",
       "signedBy": "Visat el {{data}} per {{qui}}",
       "signedSub": "{{gent}} · {{h}} · ja són al perfil de cadascú",
       "unsign": "Desfés el vist",

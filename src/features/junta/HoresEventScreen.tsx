@@ -53,6 +53,8 @@ export function HoresEventScreen() {
   const eventId = id ?? ''
   const client = useQueryClient()
   const [desfent, setDesfent] = useState(false)
+  // Una sola lectura del rellotge per render, com la pantalla de dins.
+  const [ara] = useState(() => Date.now())
 
   const hores = useQuery({
     queryKey: horesKeys.event(eventId),
@@ -76,6 +78,15 @@ export function HoresEventScreen() {
 
   const dades = hores.data
   const visat = dades?.visat_at ?? null
+
+  // Visar una activitat que encara no s'ha acabat és signar un número que
+  // continuarà movent-se: les hores es calculen a cada lectura, i qui fitxi
+  // després apareixeria com a visat sense que ningú ho hagi mirat. La marca no
+  // congela res, i per això la porta és el temps i no un candau.
+  const acabada =
+    dades === undefined
+      ? false
+      : ara >= Date.parse(dades.ends_at ?? dades.starts_at)
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
@@ -139,7 +150,11 @@ export function HoresEventScreen() {
           )}
 
           <section className={`pt-12 ${GUTTER}`}>
-            {visat === null ? (
+            {visat === null && !acabada ? (
+              <p className="text-md text-fg-muted [text-wrap:pretty]">
+                {t('junta.hores.notOverYet')}
+              </p>
+            ) : visat === null ? (
               <>
                 <button
                   type="button"
@@ -152,9 +167,11 @@ export function HoresEventScreen() {
                   {visa.isPending ? t('state.updating') : t('junta.hores.sign')}
                 </button>
                 <p className="mt-4 text-center text-sm text-fg-muted-lo [text-wrap:pretty]">
-                  {t('junta.hores.signSub', {
-                    gent: t('junta.hores.people', { count: dades.persones }),
-                  })}
+                  {dades.persones === 0
+                    ? t('junta.hores.signNobody')
+                    : t('junta.hores.signSub', {
+                        gent: t('junta.hores.people', { count: dades.persones }),
+                      })}
                 </p>
               </>
             ) : (

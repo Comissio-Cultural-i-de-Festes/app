@@ -62,6 +62,12 @@ const CheckinsScreen = lazy(() =>
 const CloseMeetingScreen = lazy(() =>
   import('@/features/junta/CloseMeetingScreen').then((m) => ({ default: m.CloseMeetingScreen })),
 )
+const HoresEventScreen = lazy(() =>
+  import('@/features/junta/HoresEventScreen').then((m) => ({ default: m.HoresEventScreen })),
+)
+const HoresScreen = lazy(() =>
+  import('@/features/junta/HoresScreen').then((m) => ({ default: m.HoresScreen })),
+)
 const EventFormScreen = lazy(() =>
   import('@/features/junta/EventFormScreen').then((m) => ({ default: m.EventFormScreen })),
 )
@@ -307,6 +313,8 @@ export default function App() {
             <Route path="invitacions" element={<InvitesScreen />} />
             <Route path="esdeveniment/:id" element={<EventFormScreen />} />
             <Route path="esdeveniment/:id/fitxatges" element={<CheckinsScreen />} />
+          <Route path="esdeveniment/:id/hores" element={<HoresEventScreen />} />
+          <Route path="hores" element={<HoresScreen />} />
             <Route path="idees" element={<IdeasReviewScreen />} />
             <Route path="socis" element={<MembersScreen />} />
             <Route path="rols" element={<RolesScreen />} />

@@ -16,6 +16,7 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { EventPreview, type PreviewData } from './EventPreview'
 import { GeoPicker } from './GeoPicker'
+import { HoresStrip } from './HoresStrip'
 import { Notice } from '@/ui/Notice/Notice'
 
 import { Field, INPUT } from './formBits'
@@ -192,7 +193,17 @@ function EventForm() {
   const revealBad =
     form.reveal_at !== '' && form.starts_at !== '' && form.reveal_at >= form.starts_at
 
-  const ready = form.titulo.trim() !== '' && form.starts_at !== '' && !endsBad && !revealBad
+  // Des de la migració 67, sense hora de final no hi ha durada, i sense durada
+  // no hi ha memòria: la RPC la refusa, i val més que el botó ho digui aquí que
+  // no pas que el desat peti a l'altra banda.
+  const endsMissing = form.ends_at === ''
+
+  const ready =
+    form.titulo.trim() !== '' &&
+    form.starts_at !== '' &&
+    !endsMissing &&
+    !endsBad &&
+    !revealBad
   const showTemplates = !editing && (templates.data?.length ?? 0) > 0
   // Without templates there is nothing above the fields, so they take both
   // rows rather than leaving a hole where the list would have been.
@@ -439,6 +450,10 @@ function EventForm() {
               <p role="alert" className="mt-3 text-sm font-semibold text-warning">
                 {t('junta.form.endsBeforeStarts')}
               </p>
+            ) : endsMissing ? (
+              <p role="alert" className="mt-3 text-sm font-semibold text-warning">
+                {t('junta.form.endsRequired')}
+              </p>
             ) : null}
           </Field>
 
@@ -508,6 +523,14 @@ function EventForm() {
               </Field>
             )}
           </div>
+
+          {/* Les hores de la memòria. Només en editar: la tira desa amb la seva
+              pròpia RPC i necessita un esdeveniment que ja existeixi, i en crear
+              un de nou els minuts i la marca els omple `admin_save_event` a
+              partir de l'horari. */}
+          {editing ? (
+            <HoresStrip eventId={id ?? ''} tipo={form.tipo} teFinal={!endsMissing && !endsBad} />
+          ) : null}
 
           {/* Per què el formulari s'ha encongit. Sense la frase, sembla que la
               pantalla s'hagi trencat. */}

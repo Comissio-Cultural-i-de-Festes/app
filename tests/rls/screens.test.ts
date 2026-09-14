@@ -294,3 +294,113 @@ describe('the ranking screen queries', () => {
     expect(data).toEqual([])
   })
 })
+
+/**
+ * The hours counter, through Kong.
+ *
+ * pgTAP already proves the arithmetic and the gates from inside the database.
+ * What it cannot see is this: that `my_hores()` comes back as one object and
+ * not a row set, that its keys are spelled what the card reads, and that the
+ * two new columns on `events` inherit the row filter that was already there
+ * rather than opening a door of their own.
+ *
+ * Nothing here asserts an exact total. The suite writes to the same database
+ * and rolls nothing back, so a number that is right on a fresh reset is the
+ * kind of assertion that goes red three runs later for no reason anybody can
+ * find.
+ */
+interface HoresRow {
+  readonly event_id: string
+  /** Null when only one of the two marks is there and nobody knows yet. */
+  readonly minuts: number | null
+  readonly verificat: boolean
+}
+
+interface Hores {
+  readonly minuts: number
+  readonly minuts_provisionals: number
+  readonly quantes: number
+  readonly files: readonly HoresRow[]
+}
+
+describe('the hours counter', () => {
+  it('gives a member their own hours, shaped the way the card reads them', async () => {
+    const { data, error } = await member.rpc('my_hores')
+    expect(error).toBeNull()
+
+    const hores = data as unknown as Hores
+    // The seed puts two past activities inside the course window, so a zero
+    // here means the window resolved wrong, not that nobody went to anything.
+    expect(hores.minuts).toBeGreaterThan(0)
+    expect(hores.quantes).toBeGreaterThan(0)
+    expect(hores.files.length).toBe(hores.quantes)
+    expect(hores.minuts_provisionals).toBeLessThanOrEqual(hores.minuts)
+    expect(hores.files.every((f) => typeof f.event_id === 'string')).toBe(true)
+    expect(hores.files.every((f) => typeof f.verificat === 'boolean')).toBe(true)
+  })
+
+  it('counts only what the member actually turned up to', async () => {
+    const { data } = await member.rpc('my_hores')
+    const hores = data as unknown as Hores
+    const me = (await member.auth.getUser()).data.user?.id ?? ''
+
+    const attended = await member
+      .from('attendances')
+      .select('event_id')
+      .eq('user_id', me)
+      .eq('estado', 'asistio')
+
+    const went = new Set((attended.data ?? []).map((r) => r.event_id))
+    expect(hores.files.every((f) => went.has(f.event_id))).toBe(true)
+  })
+
+  it('refuses them to somebody who is not a member yet', async () => {
+    // Unlike the ranking, this one raises rather than returning nothing: an
+    // empty hours card would read as «you have done nothing», which is a
+    // different and worse lie to tell somebody still waiting to be let in.
+    const pending = await as('pendent_alfa')
+    const { error } = await pending.rpc('my_hores')
+
+    expect(error?.code).toBe('42501')
+  })
+
+  it('gives the whole association only to the junta', async () => {
+    const mine = await member.rpc('admin_hores_socis')
+    expect(mine.error).toBeNull()
+    expect(mine.data).toEqual([])
+
+    const junta = await as('junta_alfa')
+    const theirs = await junta.rpc('admin_hores_socis')
+    expect(theirs.error).toBeNull()
+    expect((theirs.data ?? []).length).toBeGreaterThan(0)
+  })
+
+  it('publishes the two new columns without widening which rows come back', async () => {
+    // They are on `events`, which every member holds a table-wide SELECT on,
+    // so they are public by design. The thing worth proving is that they did
+    // not come with a row: an unpublished event and a junta-scoped meeting
+    // still have to be missing.
+    const { data, error } = await member
+      .from('events_public')
+      .select('id, minuts_memoria, a_la_uni')
+
+    expect(error).toBeNull()
+    const ids = new Set((data ?? []).map((r) => r.id))
+    expect(ids.has('00000000-0000-4000-8000-0000000000e3')).toBe(false)
+    expect(ids.has('00000000-0000-4000-8000-0000000000e9')).toBe(false)
+    expect((data ?? []).every((r) => typeof r.minuts_memoria === 'number')).toBe(true)
+  })
+
+  it('denies a member the UPDATE outright, rather than filtering it away', async () => {
+    // The grant went in migration 19, so this is 42501 and not a 200 with an
+    // empty array. Asserting the code is the difference between a test that
+    // proves something and one that would keep passing with no protection at
+    // all.
+    const { error } = await member
+      .from('events')
+      .update({ minuts_memoria: 999 })
+      .eq('id', '00000000-0000-4000-8000-0000000000e1')
+
+    expect(error?.code).toBe('42501')
+  })
+})

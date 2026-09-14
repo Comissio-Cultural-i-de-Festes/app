@@ -24,6 +24,7 @@ import { Avatar } from '@/ui/Avatar/Avatar'
 
 import { CameraIcon } from './icons'
 import { MyCalendarRow } from './MyCalendarRow'
+import { HoresCard } from './HoresCard'
 import { StreakCard } from './StreakCard'
 import {
   byMotive,
@@ -200,6 +201,9 @@ export function ProfileScreen() {
           una línia, com l'ExitPhotoCard i el MyNightBlock. */}
       <StreakCard />
       <BadgeStrip />
+      {/* I les hores just després, ja dins de la meitat de baix: la seva llista
+          queda a sobre de la dels punts i amb la mateixa forma de fila. */}
+      <HoresCard />
 
       <section className={`pt-12 ${GUTTER}`}>
         <h2 className="eyebrow text-fg-muted">{t('profile.breakdown.title')}</h2>

@@ -1510,6 +1510,25 @@
     },
     "atStake": "Llevas {{n}} seguidas. Esta cuenta."
   },
+  "hores": {
+    "title": "Tus horas",
+    "label": "horas este curso",
+    "none": "ninguna hora este curso",
+    "activities_one": "{{count}} actividad",
+    "activities_other": "{{count}} actividades",
+    "window": "{{des}} → {{fins}}",
+    "today": "hoy",
+    "always": "todo lo que has hecho",
+    "pending": "{{h}} aún por visar",
+    "empty": "Todavía no has hecho ninguna. Cuentan las actividades que se hacen en la universidad: montajes, ferias, talleres y las reuniones de junta.",
+    "note": "Para el informe de final de curso solo cuentan las actividades que se hacen en la universidad. Las horas las visa la junta cuando la actividad termina.",
+    "signed": "Las horas las visa la junta cuando la actividad termina.",
+    "nota": {
+      "reunio": "reunión",
+      "sense_sortida": "sin salida",
+      "pendent": "pendiente"
+    }
+  },
   "pending": {
     "eyebrow": "Todavía no estás dentro",
     "title": "La junta te tiene que aceptar",

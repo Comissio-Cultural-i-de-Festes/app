@@ -1510,6 +1510,25 @@
     },
     "atStake": "Portes {{n}} seguides. Aquesta hi compta."
   },
+  "hores": {
+    "title": "Les teves hores",
+    "label": "hores aquest curs",
+    "none": "cap hora aquest curs",
+    "activities_one": "{{count}} activitat",
+    "activities_other": "{{count}} activitats",
+    "window": "{{des}} → {{fins}}",
+    "today": "avui",
+    "always": "tot el que has fet",
+    "pending": "{{h}} encara per visar",
+    "empty": "Encara no n'has fet cap. Es compten les activitats que es fan a la universitat: muntatges, fires, tallers i les reunions de junta.",
+    "note": "Per a l'informe de final de curs només compten les activitats que es fan a la universitat. Les hores les visa la junta quan l'activitat s'acaba.",
+    "signed": "Les hores les visa la junta quan l'activitat s'acaba.",
+    "nota": {
+      "reunio": "reunió",
+      "sense_sortida": "sense sortida",
+      "pendent": "pendent"
+    }
+  },
   "pending": {
     "eyebrow": "Encara no ets dins",
     "title": "La junta t'ha d'acceptar",

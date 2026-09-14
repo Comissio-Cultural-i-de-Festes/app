@@ -130,3 +130,56 @@ const DAY_MS = 86_400_000
 export function daysUntil(date: Date, now: Date = new Date()): number {
   return Math.round((zonedDayStart(date) - zonedDayStart(now)) / DAY_MS)
 }
+
+const nfCache = new Map<Locale, Intl.NumberFormat>()
+
+function nf(locale: Locale): Intl.NumberFormat {
+  const hit = nfCache.get(locale)
+  if (hit) return hit
+  const made = new Intl.NumberFormat(INTL_LOCALE[locale])
+  nfCache.set(locale, made)
+  return made
+}
+
+/** Una durada partida en el número i el que va darrere: «13» + «h 15». */
+export interface HoresParts {
+  /** Les hores, o els minuts quan no arriba a una hora. */
+  readonly xifra: string
+  /** «h 15», «h», «min». */
+  readonly unitat: string
+}
+
+/**
+ * Una durada, en la forma que fa servir tota l'app: «2 h 30».
+ *
+ * UNA SOLA FORMA I NO TRES. No «2 h 30 min», que no cap a la dreta d'una fila;
+ * i sobre tot no «2:30», que en aquesta app és una hora del dia —«21:00»— i es
+ * llegiria com tal. És el que ja fa el compte enrere de l'esdeveniment amb
+ * «6 d 4 h»: dues unitats i para.
+ *
+ * Els minuts van a dues xifres perquè una columna de durades quedi alineada
+ * («4 h 05», no «4 h 5»), i per sota de l'hora només hi ha minuts: «45 min».
+ * El zero és un valor conegut i s'escriu, «0 h», que és el que la targeta del
+ * perfil ensenya a qui encara no n'ha fet cap.
+ *
+ * Ve partida en dos perquè les xifres grans de l'app les pinten amb el número
+ * a un graó del display i la unitat dos graons més avall, i una sola cadena no
+ * es pot partir sense tornar a parsejar-la.
+ */
+export function horesParts(minuts: number, l: Locale): HoresParts {
+  const total = Math.max(0, Math.round(minuts))
+  if (total > 0 && total < 60) return { xifra: nf(l).format(total), unitat: 'min' }
+
+  const hores = Math.floor(total / 60)
+  const resta = total % 60
+  return {
+    xifra: nf(l).format(hores),
+    unitat: resta === 0 ? 'h' : `h ${String(resta).padStart(2, '0')}`,
+  }
+}
+
+/** El mateix, en una sola cadena. */
+export function formatHores(minuts: number, l: Locale): string {
+  const { xifra, unitat } = horesParts(minuts, l)
+  return `${xifra} ${unitat}`
+}

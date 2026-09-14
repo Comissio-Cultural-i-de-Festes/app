@@ -1510,6 +1510,25 @@
     },
     "atStake": "You are on {{n}} in a row. This one counts."
   },
+  "hores": {
+    "title": "Your hours",
+    "label": "hours this year",
+    "none": "no hours this year",
+    "activities_one": "{{count}} activity",
+    "activities_other": "{{count}} activities",
+    "window": "{{des}} → {{fins}}",
+    "today": "today",
+    "always": "everything you have done",
+    "pending": "{{h}} still to sign off",
+    "empty": "None yet. What counts is what happens at the university: get-ins, fairs, workshops and committee meetings.",
+    "note": "Only what happens at the university counts towards the end-of-year report. The committee signs the hours off once the activity is over.",
+    "signed": "The committee signs the hours off once the activity is over.",
+    "nota": {
+      "reunio": "meeting",
+      "sense_sortida": "no exit",
+      "pendent": "pending"
+    }
+  },
   "pending": {
     "eyebrow": "You are not in yet",
     "title": "The committee has to let you in",

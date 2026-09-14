@@ -47,6 +47,11 @@ export type EventRow = Definite<
   | 'revelat'
   | 'cal_confirmacio'
   | 'te_cotxes'
+  // Les dues de la memòria són `not null` a `events`. `hores_verificat_at` i
+  // `hores_verificat_per` no hi són a posta: NULL vol dir «encara no s'ha
+  // visat», que és l'estat de partida de tothom.
+  | 'a_la_uni'
+  | 'minuts_memoria'
 >
 
 export type AttendanceTable = Database['public']['Tables']['attendances']['Row']

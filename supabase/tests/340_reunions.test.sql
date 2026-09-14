@@ -126,6 +126,7 @@ select throws_ok(
 create temporary table nova as
 select public.admin_save_event(
   'Reunió inventada de junta', 'reunio', now() + interval '3 days',
+  p_ends_at => now() + interval '3 days' + interval '1 hour',
   p_published => true, p_abast => 'junta') as id;
 grant select on nova to authenticated;
 

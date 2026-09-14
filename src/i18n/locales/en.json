@@ -945,6 +945,9 @@
         "close_meeting": "{{actor}} closed a meeting",
         "decide_proposal": "{{actor}} decided an idea",
         "transfer_owner": "{{actor}} handed over ownership",
+        "set_hores": "{{actor}} changed an activity's hours",
+        "visa_hores": "{{actor}} signed off an activity's hours",
+        "hores_persona": "{{actor}} changed somebody's hours at an activity",
         "reveal_push": "The reveal notice went out"
       },
       "rowSub": "Who did what"

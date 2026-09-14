@@ -945,6 +945,9 @@
         "close_meeting": "{{actor}} ha cerrado una reunión",
         "decide_proposal": "{{actor}} ha decidido una idea",
         "transfer_owner": "{{actor}} ha traspasado la propiedad",
+        "set_hores": "{{actor}} ha cambiado las horas de una actividad",
+        "visa_hores": "{{actor}} ha visado las horas de una actividad",
+        "hores_persona": "{{actor}} ha cambiado las horas de alguien en una actividad",
         "reveal_push": "Se ha enviado el aviso de una revelación"
       },
       "rowSub": "Quién ha hecho qué"

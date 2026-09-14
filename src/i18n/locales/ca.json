@@ -945,6 +945,9 @@
         "close_meeting": "{{actor}} ha tancat una reunió",
         "decide_proposal": "{{actor}} ha decidit una idea",
         "transfer_owner": "{{actor}} ha traspassat la propietat",
+        "set_hores": "{{actor}} ha canviat les hores d'una activitat",
+        "visa_hores": "{{actor}} ha visat les hores d'una activitat",
+        "hores_persona": "{{actor}} ha canviat les hores d'algú en una activitat",
         "reveal_push": "S'ha enviat l'avís d'una revelació"
       },
       "rowSub": "Qui ha fet què"

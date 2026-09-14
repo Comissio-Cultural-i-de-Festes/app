@@ -50,6 +50,7 @@ export type Database = {
           exit_photo_at: string | null
           exit_photo_url: string | null
           id: string
+          minuts_memoria: number | null
           pagado: boolean
           prev_estado: string | null
           user_id: string
@@ -70,6 +71,7 @@ export type Database = {
           exit_photo_at?: string | null
           exit_photo_url?: string | null
           id?: string
+          minuts_memoria?: number | null
           pagado?: boolean
           prev_estado?: string | null
           user_id: string
@@ -90,6 +92,7 @@ export type Database = {
           exit_photo_at?: string | null
           exit_photo_url?: string | null
           id?: string
+          minuts_memoria?: number | null
           pagado?: boolean
           prev_estado?: string | null
           user_id?: string
@@ -431,12 +434,16 @@ export type Database = {
       }
       events: {
         Row: {
+          a_la_uni: boolean
           abast: string
           avisat_at: string | null
           cal_confirmacio: boolean
           created_at: string
           created_by: string | null
+          hores_verificat_at: string | null
+          hores_verificat_per: string | null
           id: string
+          minuts_memoria: number
           plazas: number | null
           precio_cents: number
           published: boolean
@@ -449,12 +456,16 @@ export type Database = {
           tipo: string
         }
         Insert: {
+          a_la_uni?: boolean
           abast?: string
           avisat_at?: string | null
           cal_confirmacio?: boolean
           created_at?: string
           created_by?: string | null
+          hores_verificat_at?: string | null
+          hores_verificat_per?: string | null
           id?: string
+          minuts_memoria?: number
           plazas?: number | null
           precio_cents?: number
           published?: boolean
@@ -467,12 +478,16 @@ export type Database = {
           tipo: string
         }
         Update: {
+          a_la_uni?: boolean
           abast?: string
           avisat_at?: string | null
           cal_confirmacio?: boolean
           created_at?: string
           created_by?: string | null
+          hores_verificat_at?: string | null
+          hores_verificat_per?: string | null
           id?: string
+          minuts_memoria?: number
           plazas?: number | null
           precio_cents?: number
           published?: boolean
@@ -488,6 +503,13 @@ export type Database = {
           {
             foreignKeyName: "events_created_by_fkey"
             columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_hores_verificat_per_fkey"
+            columns: ["hores_verificat_per"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1319,6 +1341,7 @@ export type Database = {
     Views: {
       events_public: {
         Row: {
+          a_la_uni: boolean | null
           abast: string | null
           acta: string | null
           cal_confirmacio: boolean | null
@@ -1327,7 +1350,10 @@ export type Database = {
           created_by: string | null
           descripcion: string | null
           ends_at: string | null
+          hores_verificat_at: string | null
+          hores_verificat_per: string | null
           id: string | null
+          minuts_memoria: number | null
           plazas: number | null
           precio_cents: number | null
           published: boolean | null
@@ -1347,6 +1373,13 @@ export type Database = {
           {
             foreignKeyName: "events_created_by_fkey"
             columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_hores_verificat_per_fkey"
+            columns: ["hores_verificat_per"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1463,6 +1496,21 @@ export type Database = {
           qui: string
         }[]
       }
+      admin_hores_esdeveniment: { Args: { p_event_id: string }; Returns: Json }
+      admin_hores_pendents: { Args: never; Returns: Json }
+      admin_hores_socis: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          curs: number
+          escola: string
+          minuts: number
+          minuts_provisionals: number
+          nombre: string
+          quantes: number
+          user_id: string
+        }[]
+      }
       admin_reported_photos: {
         Args: never
         Returns: {
@@ -1533,6 +1581,14 @@ export type Database = {
         Args: { p_gimcana_id: string; p_noms: string[] }
         Returns: Json
       }
+      admin_set_hores: {
+        Args: { p_a_la_uni: boolean; p_event_id: string; p_minuts: number }
+        Returns: undefined
+      }
+      admin_set_hores_persona: {
+        Args: { p_event_id: string; p_minuts: number; p_user_id: string }
+        Returns: undefined
+      }
       admin_set_member_estat: {
         Args: { p_estat: string; p_user_id: string }
         Returns: undefined
@@ -1568,6 +1624,10 @@ export type Database = {
         Returns: undefined
       }
       admin_undo_prova: { Args: { p_enviament_id: string }; Returns: Json }
+      admin_visa_hores: {
+        Args: { p_event_id: string; p_visat: boolean }
+        Returns: undefined
+      }
       award_points: {
         Args: {
           p_event_id: string
@@ -1694,6 +1754,7 @@ export type Database = {
         }[]
       }
       my_event_interest: { Args: { p_event_id: string }; Returns: boolean }
+      my_hores: { Args: never; Returns: Json }
       my_photos: {
         Args: never
         Returns: {

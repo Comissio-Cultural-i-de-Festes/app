@@ -1156,6 +1156,8 @@
       "noExit": "sin salida",
       "sign": "Visa las horas",
       "signSub": "Al visarlas, {{gent}} las tendrán en el perfil como definitivas.",
+      "notOverYet": "Todavía no ha terminado. Las horas se visan cuando la actividad ya ha pasado y las marcas de entrada y salida son las definitivas.",
+      "signNobody": "No hay ninguna hora que visar, pero visarlo lo saca de la lista de trabajo.",
       "signedBy": "Visado el {{data}} por {{qui}}",
       "signedSub": "{{gent}} · {{h}} · ya están en el perfil de cada uno",
       "unsign": "Deshaz el visto",

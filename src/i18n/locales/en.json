@@ -1156,6 +1156,8 @@
       "noExit": "no exit",
       "sign": "Sign the hours off",
       "signSub": "Once signed off, {{gent}} will have them on their profile as final.",
+      "notOverYet": "It is not over yet. Hours are signed off once the activity has happened and the entry and exit marks are final.",
+      "signNobody": "There are no hours to sign off, but signing it takes it off the work list.",
       "signedBy": "Signed off on {{data}} by {{qui}}",
       "signedSub": "{{gent}} · {{h}} · already on everybody's profile",
       "unsign": "Undo the sign-off",

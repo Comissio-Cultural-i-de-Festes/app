@@ -41,6 +41,10 @@ function event(over: Partial<EventRow> = {}): EventRow {
     abast: 'comi',
     tancada_at: null,
     acta: null,
+    a_la_uni: false,
+    minuts_memoria: 0,
+    hores_verificat_at: null,
+    hores_verificat_per: null,
     ...over,
   }
 }

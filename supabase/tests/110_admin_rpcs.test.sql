@@ -171,6 +171,7 @@ select tests.authenticate_as('junta_alfa');
 select lives_ok(
   $$ select public.admin_save_event(
        'Prova Alfa', 'casa_rural', now() + interval '20 days',
+       p_ends_at := now() + interval '22 days',
        p_ubicacion := 'Sala Bravo', p_descripcion := 'Descripcio') $$,
   'the junta can create an event'
 );

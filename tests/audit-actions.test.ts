@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { readFileSync, readdirSync } from 'node:fs'
 
 import { describe, expect, it } from 'vitest'
 
@@ -29,14 +29,32 @@ import es from '../src/i18n/locales/es.json' with { type: 'json' }
  * forces the labels.
  */
 
-const MIGRATION = 'supabase/migrations/20260904120000_57_el_registre_diu_qui.sql'
+const MIGRATIONS = 'supabase/migrations'
 
-/** The values inside `check (accio in ( … ))`. */
+const CHECK = /add constraint audit_log_accio_check check \(accio in \(([^)]*)\)/
+
+/**
+ * The values inside `check (accio in ( … ))`, from the NEWEST migration that
+ * declares the constraint.
+ *
+ * It used to name migration 57, which was right while 57 was the only one that
+ * declared it. Migration 67 restates it with three more actions, and a constant
+ * pointing at 57 would have gone on reading the old list — failing not as «an
+ * action with no label», which would say what happened, but as three labels for
+ * actions nothing writes, in all three locales at once.
+ *
+ * Sorting by filename is sorting by when it ran: the prefix is a timestamp.
+ */
 function actionsFromCheck(): string[] {
-  const sql = readFileSync(MIGRATION, 'utf8')
-  const block = /add constraint audit_log_accio_check check \(accio in \(([^)]*)\)/.exec(sql)
-  if (block === null) throw new Error(`no CHECK on accio found in ${MIGRATION}`)
-  return [...block[1]!.matchAll(/'([a-z_]+)'/g)].map((m) => m[1]!)
+  const declared = readdirSync(MIGRATIONS)
+    .filter((f) => f.endsWith('.sql'))
+    .sort()
+    .map((f) => CHECK.exec(readFileSync(`${MIGRATIONS}/${f}`, 'utf8')))
+    .filter((m): m is RegExpExecArray => m !== null)
+
+  const last = declared.at(-1)
+  if (last === undefined) throw new Error(`no CHECK on accio found under ${MIGRATIONS}`)
+  return [...last[1]!.matchAll(/'([a-z_]+)'/g)].map((m) => m[1]!)
 }
 
 const LOCALES = { ca, es, en } as const
@@ -52,7 +70,7 @@ describe('the audit log says who did what', () => {
   // every assertion below vacuously true — the same trap the usage test
   // guards against next door.
   it('finds the action list at all, so an empty pass means nothing', () => {
-    expect(actions.length).toBe(21)
+    expect(actions.length).toBe(24)
     expect(actions).toContain('transfer_owner')
     expect(new Set(actions).size).toBe(actions.length)
   })

@@ -182,3 +182,123 @@ insert into public.attendances (user_id, event_id, estado, created_at) values
   ('00000000-0000-4000-8000-0000000000d6', '00000000-0000-4000-8000-0000000000e8', 'no', now() - interval '1 day'),
   ('00000000-0000-4000-8000-0000000000a1', '00000000-0000-4000-8000-0000000000e9', 'si', now() - interval '1 day'),
   ('00000000-0000-4000-8000-0000000000a2', '00000000-0000-4000-8000-0000000000e9', 'si', now() - interval '6 hours');
+
+-- ── dues coses ja fetes, dins del curs, amb hores ───────────────────────────
+-- Sense això el comptador d'hores del perfil surt a zero en local i no
+-- demostraria res: l'únic esdeveniment passat que hi havia és l'e5, que cau
+-- quaranta-cinc dies enrere i per tant sovint fora de la finestra del curs.
+--
+-- L'hora d'inici es fixa a deu dies enrere, però mai abans que comenci el curs
+-- de `ranking_periods` —que el setembre pot haver començat fa quatre dies— i
+-- sempre en passat. Si no, segons el dia que algú fes el reset, l'activitat
+-- cauria fora de la finestra i el bloc tornaria a sortir buit.
+--
+-- N'hi ha dues i no una perquè `private.minuts_persona` té tres camins i s'han
+-- de poder veure tots: qui fitxa i no es fa la foto de sortida, qui arriba tard,
+-- qui se'n va aviat, i qui no té cap marca perquè la reunió es va tancar des del
+-- panell i allà no fitxa ningú.
+insert into public.events (id, tipo, abast, starts_at, plazas, precio_cents, puntos, published, created_by)
+values
+  ('00000000-0000-4000-8000-0000000000ea', 'actividad', 'comi',
+   greatest(
+     now() - interval '10 days',
+     coalesce(
+       (select rp.starts_at from public.ranking_periods rp
+         where rp.mena = 'global' order by rp.ordre, rp.codi limit 1),
+       now() - interval '10 days'
+     ) + interval '2 hours'
+   ),
+   null, 0, 10, true, '00000000-0000-4000-8000-0000000000a1'),
+  ('00000000-0000-4000-8000-0000000000eb', 'reunio', 'comi',
+   greatest(
+     now() - interval '6 days',
+     coalesce(
+       (select rp.starts_at from public.ranking_periods rp
+         where rp.mena = 'global' order by rp.ordre, rp.codi limit 1),
+       now() - interval '6 days'
+     ) + interval '3 hours'
+   ),
+   null, 0, 5, true, '00000000-0000-4000-8000-0000000000a1');
+
+update public.events set tancada_at = starts_at + interval '2 hours'
+ where id = '00000000-0000-4000-8000-0000000000eb';
+
+insert into public.event_title (event_id, titulo) values
+  ('00000000-0000-4000-8000-0000000000ea', 'Taller de cartells'),
+  ('00000000-0000-4000-8000-0000000000eb', 'Assemblea de setembre')
+on conflict (event_id) do update set titulo = excluded.titulo;
+
+-- Amb hora de final, que és el que fa que les hores surtin de l'horari i no
+-- del valor per defecte del tipus. Quatre hores el taller, hora i mitja
+-- l'assemblea.
+insert into public.event_details (event_id, descripcion, ubicacion, ends_at)
+select e.id,
+       case e.id when '00000000-0000-4000-8000-0000000000ea'
+                 then 'Pintar els cartells del trimestre'
+                 else 'Ordre del dia: el curs que comenca' end,
+       case e.id when '00000000-0000-4000-8000-0000000000ea'
+                 then 'Aula 2.1' else 'Aula 1.3' end,
+       e.starts_at + case e.id when '00000000-0000-4000-8000-0000000000ea'
+                               then interval '4 hours'
+                               else interval '90 minutes' end
+  from public.events e
+ where e.id in ('00000000-0000-4000-8000-0000000000ea',
+                '00000000-0000-4000-8000-0000000000eb')
+on conflict (event_id) do update set
+  descripcion = excluded.descripcion,
+  ubicacion   = excluded.ubicacion,
+  ends_at     = excluded.ends_at;
+
+-- Al taller hi va fitxar gent, i a hores diferents a posta.
+insert into public.attendances (
+  user_id, event_id, estado, checked_in_at, checked_in_by, was_registered, exit_photo_at
+)
+select q.user_id,
+       '00000000-0000-4000-8000-0000000000ea',
+       'asistio',
+       e.starts_at + q.entra,
+       '00000000-0000-4000-8000-0000000000a1',
+       true,
+       case when q.surt is null then null else e.starts_at + q.surt end
+  from public.events e,
+       (values
+          -- Hi va ser de cap a cap: les quatre hores.
+          ('00000000-0000-4000-8000-000000000001'::uuid, interval '0 minutes',  interval '4 hours'),
+          -- Va arribar a la meitat: dues.
+          ('00000000-0000-4000-8000-0000000000d1'::uuid, interval '2 hours',    interval '4 hours'),
+          -- Hi era des del principi i va marxar a l'hora i mitja.
+          ('00000000-0000-4000-8000-0000000000d2'::uuid, interval '0 minutes',  interval '90 minutes'),
+          -- I la que fa falta per veure el guionet: va entrar i no es va fer la
+          -- foto de sortida, o sigui que no se sap quanta estona hi va ser.
+          ('00000000-0000-4000-8000-0000000000d3'::uuid, interval '30 minutes', null::interval)
+       ) as q(user_id, entra, surt)
+ where e.id = '00000000-0000-4000-8000-0000000000ea'
+on conflict (user_id, event_id) do nothing;
+
+-- A l'assemblea no hi va fitxar ningú, perquè una reunió es tanca des del
+-- panell i allà no hi ha porta. Tothom qui hi consta fa l'hora i mitja sencera.
+insert into public.attendances (user_id, event_id, estado)
+values
+  ('00000000-0000-4000-8000-000000000001', '00000000-0000-4000-8000-0000000000eb', 'asistio'),
+  ('00000000-0000-4000-8000-0000000000d1', '00000000-0000-4000-8000-0000000000eb', 'asistio'),
+  ('00000000-0000-4000-8000-0000000000d4', '00000000-0000-4000-8000-0000000000eb', 'asistio')
+on conflict (user_id, event_id) do nothing;
+
+-- ── i el que `admin_save_event` hauria escrit en crear-los ──────────────────
+-- La llavor insereix a `events` directament, o sigui que aquestes dues columnes
+-- es quedarien al valor per defecte i tot valdria zero hores. Això és el mateix
+-- càlcul que fa la RPC, i per tant les mateixes dues funcions: si algun dia el
+-- defecte canvia, la llavor el segueix sola.
+update public.events e
+   set a_la_uni       = private.memoria_a_la_uni_defecte(e.tipo),
+       minuts_memoria = private.memoria_minuts(
+                          e.tipo, e.starts_at,
+                          (select d.ends_at from public.event_details d where d.event_id = e.id)
+                        );
+
+-- El taller ja està visat i l'assemblea no: així al perfil es veuen les dues
+-- cares del bloc, la xifra tancada i la provisional.
+update public.events
+   set hores_verificat_at  = now() - interval '2 days',
+       hores_verificat_per = '00000000-0000-4000-8000-0000000000a1'
+ where id = '00000000-0000-4000-8000-0000000000ea';

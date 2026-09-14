@@ -21,6 +21,7 @@ import { eventTitle } from '@/features/event/title'
 
 import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
+import { fetchHoresPendents, horesKeys } from './horesApi'
 import { fetchMeetings, meetingListKeys } from './meetingsApi'
 import { JuntaHeader } from './JuntaHeader'
 
@@ -72,6 +73,12 @@ export function JuntaHome() {
   // most of the time. It is here for one line: whether the terms still cover
   // today, which is the one configuration mistake nobody notices.
   const periods = useQuery({ queryKey: rankingKeys.periods(), queryFn: fetchPeriods })
+
+  // Les activitats fetes a la uni que encara no tenen les hores visades. La
+  // fila de sota les ensenya com a feina, que és el que són: fins que algú les
+  // visa, al perfil de tothom qui hi era surten com a provisionals.
+  const pendents = useQuery({ queryKey: horesKeys.pendents(), queryFn: fetchHoresPendents })
+  const perVisar = pendents.data?.activitats ?? 0
 
   // Fetched here rather than at the door: this screen is opened on the way to
   // the venue, and the scanner is opened inside it, where there is no signal.
@@ -197,6 +204,17 @@ export function JuntaHome() {
               ? t('junta.members.rowSubPlain')
               : t('junta.members.rowSub', { count: home.data.socis })
           }
+        />
+        <Row
+          to="/junta/hores"
+          title={t('junta.hores.title')}
+          sub={
+            perVisar > 0
+              ? t('junta.hores.rowWork', { count: perVisar })
+              : t('junta.hores.rowSub')
+          }
+          warn={perVisar > 0}
+          badge={perVisar}
         />
         <Row
           to="/junta/rols"

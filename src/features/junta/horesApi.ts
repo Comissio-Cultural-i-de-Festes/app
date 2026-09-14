@@ -59,10 +59,21 @@ export interface HoresSoci {
   readonly quantes: number
 }
 
-/** Quanta feina queda abans de tancar la memòria. */
+/** Una activitat que espera que algú li miri les hores. */
+export interface HoresPendentFila {
+  readonly event_id: string
+  readonly titol: string | null
+  readonly starts_at: string
+  readonly persones: number
+  readonly minuts: number
+}
+
+/** Quanta feina queda abans de tancar la memòria, i quina és. */
 export interface HoresPendents {
   readonly activitats: number
   readonly minuts: number
+  /** De la més antiga a la més nova: la que fa més dies que espera, primer. */
+  readonly files: readonly HoresPendentFila[]
 }
 
 export const horesKeys = {

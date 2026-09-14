@@ -27,7 +27,7 @@
 -- Persones i esdeveniments inventats, com a tot el repo.
 
 begin;
-select plan(47);
+select plan(54);
 
 reset role;
 
@@ -470,6 +470,66 @@ select is(
   (select count(*)::int from private.periode_curs()),
   1,
   'amb dues files de curs, el resolutor en tria una i prou'
+);
+
+-- ── 10. la feina, amb el cami per anar-hi ───────────────────────────────────
+-- Sense la llista, `/junta/hores` tenia el numero de la feina i cap porta: al
+-- formulari d'una activitat passada no s'hi arriba des d'enlloc.
+
+reset role;
+select tests.authenticate_as('junta_alfa');
+
+select is(
+  jsonb_array_length(public.admin_hores_pendents() -> 'files'),
+  (public.admin_hores_pendents() ->> 'activitats')::int,
+  'hi ha tantes files com activitats diu que queden'
+);
+
+select is(
+  (select f ->> 'event_id'
+     from jsonb_array_elements(public.admin_hores_pendents() -> 'files')
+          with ordinality as x(f, i)
+    where i = 1),
+  (select h2::text from quins),
+  'i la mes antiga va primer, que es la que fa mes dies que espera'
+);
+
+select is(
+  (select (f ->> 'persones')::int
+     from jsonb_array_elements(public.admin_hores_pendents() -> 'files') f
+    where f ->> 'event_id' = (select h2::text from quins)),
+  1,
+  'cada fila diu quanta gent hi consta'
+);
+
+-- ── 11. i les funcions de private no les crida ningu des de fora ────────────
+-- Nomes les criden funcions definer, que corren com el propietari. Un definer
+-- amb l'EXECUTE al defecte de Postgres —PUBLIC— no es l'estil d'aquest repo,
+-- i `010_structure` nomes vigila `public`.
+
+reset role;
+
+select ok(
+  not has_function_privilege('authenticated',
+    'private.minuts_persona(timestamptz,int,timestamptz,timestamptz,int)'::regprocedure, 'execute'),
+  'un soci no pot cridar la regla de les hores directament'
+);
+
+select ok(
+  not has_function_privilege('authenticated', 'private.periode_curs()'::regprocedure, 'execute'),
+  'ni el resolutor del curs, que es definer'
+);
+
+select ok(
+  not has_function_privilege('authenticated',
+    'private.memoria_minuts(text,timestamptz,timestamptz)'::regprocedure, 'execute'),
+  'ni el calcul de la durada per defecte'
+);
+
+select ok(
+  not has_function_privilege('authenticated',
+    'private.memoria_a_la_uni_defecte(text)'::regprocedure, 'execute'),
+  'ni el defecte de la marca'
 );
 
 select * from finish();

@@ -1,8 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 
-import { formatHores, horesParts } from '@/i18n/format'
+import { formatDayMonth, formatHores, horesParts } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -102,15 +103,49 @@ export function HoresScreen() {
             </p>
           ) : (
             <>
-              <div className={`pt-6 ${GUTTER}`}>
-                {(pendents.data?.activitats ?? 0) > 0 ? (
+              {/* La feina, i el camí per anar-hi. Al formulari d'una activitat
+                  passada no s'hi arriba des de cap altre lloc, així que sense
+                  aquesta llista el visat era una pantalla sense porta. */}
+              {(pendents.data?.activitats ?? 0) > 0 ? (
+                <section className={`pt-6 ${GUTTER}`}>
                   <p className="text-sm font-bold text-warning-deep [text-wrap:pretty]">
                     {t('junta.hores.pendingWork', {
                       count: pendents.data?.activitats ?? 0,
                       h: formatHores(pendents.data?.minuts ?? 0, locale),
                     })}
                   </p>
-                ) : null}
+                  <ul className="mt-5">
+                    {(pendents.data?.files ?? []).map((fila) => (
+                      <li key={fila.event_id}>
+                        <Link
+                          to={`/junta/esdeveniment/${fila.event_id}/hores`}
+                          className="flex min-h-[62px] items-center gap-3 border-b border-surface-4 py-5 text-fg no-underline"
+                        >
+                          <span className="w-[52px] flex-none text-sm-lo font-semibold text-fg-dim">
+                            {formatDayMonth(new Date(fila.starts_at), locale)}
+                          </span>
+                          <span className="min-w-0 flex-1">
+                            <span className="block text-base font-bold [text-wrap:pretty]">
+                              {fila.titol ?? '—'}
+                            </span>
+                            <span className="mt-[3px] block text-sm-lo text-fg-muted-lo">
+                              {[
+                                t('junta.hores.people', { count: fila.persones }),
+                                formatHores(fila.minuts, locale),
+                              ].join(' · ')}
+                            </span>
+                          </span>
+                          <span aria-hidden="true" className="flex-none text-lg text-fg-muted">
+                            ›
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+
+              <div className={`pt-6 ${GUTTER}`}>
                 <input
                   type="search"
                   value={busca}

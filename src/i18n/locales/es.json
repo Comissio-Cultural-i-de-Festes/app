@@ -1356,7 +1356,7 @@
   },
   "onboarding": {
     "title": "Ya estás dentro",
-    "lede": "Cuatro cosas y entras. El nombre y la foto ya los tenemos de tu Google, mira que estén bien.",
+    "lede": "Cinco cosas y entras. El nombre y la foto ya los tenemos de tu Google, mira que estén bien.",
     "nameHint": "Pon el nombre con el que te llaman en la comi, no el del DNI.",
     "school": {
       "label": "Tu escuela",

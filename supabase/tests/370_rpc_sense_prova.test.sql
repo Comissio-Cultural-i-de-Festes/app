@@ -112,11 +112,14 @@ select lives_ok(
   'award_points: la junta sí'
 );
 
--- Restar punts és només de l'owner, que és una verja DINS de la verja.
+-- Restar punts és una verja DINS de la verja, i des de la migració 69 val per
+-- als quatre motius de la porta i no per a `manual`: allà no hi ha cap lloc on
+-- escriure per què, i una resta muda no es pot respondre. `manual` va amb nota
+-- obligatòria i és el camí de la correcció; el seu cas viu al fitxer 450.
 select throws_ok(
   $$ select public.award_points('00000000-0000-4000-8000-000000000002',
-       '00000000-0000-4000-8000-0000000000e1', 'manual', -5, 'audit') $$,
-  '42501', null, 'award_points: un admin no pot restar punts'
+       '00000000-0000-4000-8000-0000000000e1', 'montaje', -5, 'audit') $$,
+  '42501', null, 'award_points: un admin no pot restar punts per un motiu de la porta'
 );
 
 reset role;

@@ -861,6 +861,30 @@
       "rowSub": "{{count}} people. Sign out whoever has left",
       "rowSubPlain": "Sign out whoever has left"
     },
+    "soci": {
+      "ledger": {
+        "title": "The points record",
+        "total": "Total: {{total}}",
+        "empty": "No points yet."
+      },
+      "adjust": {
+        "title": "Adjust the points",
+        "lede": "Write in the points that are missing, or the ones that are not owed. Nothing is edited: a new line joins the record next to the old one.",
+        "points": "Points",
+        "pointsHint": "With a sign. \u201c-20\u201d takes twenty away.",
+        "pointsPlaceholder": "-20",
+        "pointsBad": "A whole number, not zero, and no larger than {{max}}.",
+        "note": "Why",
+        "noteHint": "{{nombre}} will read this on their profile.",
+        "notePlaceholder": "Counted twice the same evening",
+        "noteBad": "Without the why it cannot be saved.",
+        "event": "Which night",
+        "eventHint": "Optional. No event at all is a valid line too.",
+        "eventNone": "None in particular",
+        "save": "Save the adjustment",
+        "done": "Recorded: {{punts}} for {{nombre}}."
+      }
+    },
     "role": {
       "admin": "Committee",
       "owner": "Owner"

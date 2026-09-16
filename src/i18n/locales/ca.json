@@ -861,6 +861,30 @@
       "rowSub": "{{count}} persones. Donar de baixa qui ha marxat",
       "rowSubPlain": "Donar de baixa qui ha marxat"
     },
+    "soci": {
+      "ledger": {
+        "title": "El registre de punts",
+        "total": "Total: {{total}}",
+        "empty": "Encara no té cap punt."
+      },
+      "adjust": {
+        "title": "Ajusta els punts",
+        "lede": "Escriu-hi els punts que falten o els que sobren. No s'edita res: queda una línia nova al registre, al costat de la d'abans.",
+        "points": "Punts",
+        "pointsHint": "Amb signe. «-20» en treu vint.",
+        "pointsPlaceholder": "-20",
+        "pointsBad": "Un número enter, que no sigui zero i que no passi de {{max}}.",
+        "note": "Per què",
+        "noteHint": "Ho llegirà {{nombre}} al seu perfil.",
+        "notePlaceholder": "Comptats dos cops el mateix vespre",
+        "noteBad": "Sense el per què no es pot desar.",
+        "event": "De quina nit",
+        "eventHint": "Opcional. Sense esdeveniment també és una línia vàlida.",
+        "eventNone": "De cap en concret",
+        "save": "Desa l'ajust",
+        "done": "Apuntat: {{punts}} per a {{nombre}}."
+      }
+    },
     "role": {
       "admin": "Junta",
       "owner": "Owner"

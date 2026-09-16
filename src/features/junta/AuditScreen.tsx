@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { formatDateTime } from '@/i18n/format'
@@ -7,8 +7,9 @@ import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
-import { type AuditRow, PAGE, auditKeys, fetchAudit } from './auditApi'
+import { type AuditRow, PAGE, auditKeys, fetchAudit, targetNom } from './auditApi'
 import { JuntaHeader } from './JuntaHeader'
+import { fetchAllMembers, memberKeys } from './membersApi'
 
 /**
  * What the association has done, in order.
@@ -31,6 +32,16 @@ export function AuditScreen() {
   const locale = toLocale(i18n.language)
   const [pages, setPages] = useState(1)
 
+  // La llista de socis, per posar-hi el nom de qui va rebre els punts. Va
+  // aquí i no a cada pàgina: és una sola consulta per a totes, i comparteix
+  // clau —i per tant cache— amb la pantalla de socis, així que qui ve d'allà
+  // ja la porta posada.
+  const members = useQuery({ queryKey: memberKeys.list(), queryFn: fetchAllMembers })
+  const noms = useMemo(
+    () => new Map((members.data ?? []).map((m) => [m.id, m.nombre])),
+    [members.data],
+  )
+
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
       <JuntaHeader
@@ -49,6 +60,7 @@ export function AuditScreen() {
           key={index}
           index={index}
           locale={locale}
+          noms={noms}
           last={index === pages - 1}
           onMore={() => {
             setPages(pages + 1)
@@ -69,11 +81,13 @@ export function AuditScreen() {
 function Page({
   index,
   locale,
+  noms,
   last,
   onMore,
 }: {
   readonly index: number
   readonly locale: ReturnType<typeof toLocale>
+  readonly noms: ReadonlyMap<string, string>
   readonly last: boolean
   readonly onMore: () => void
 }) {
@@ -102,7 +116,7 @@ function Page({
     <>
       <ul>
         {rows.data.map((row) => (
-          <Entry key={row.id} row={row} locale={locale} />
+          <Entry key={row.id} row={row} locale={locale} noms={noms} />
         ))}
       </ul>
 
@@ -124,17 +138,24 @@ function Page({
 function Entry({
   row,
   locale,
+  noms,
 }: {
   readonly row: AuditRow
   readonly locale: ReturnType<typeof toLocale>
+  readonly noms: ReadonlyMap<string, string>
 }) {
   const { t } = useTranslation()
 
   // `actor_id` is ON DELETE SET NULL, so an entry outlives the account that
   // made it. Saying so is better than a blank where a name goes.
   const actor = row.profiles?.nombre ?? t('junta.audit.unknown')
+  // El destinatari només el fan servir les frases que en tenen un. A la resta
+  // la interpolació sobra i i18next l'ignora, que és més barat que decidir
+  // aquí quines frases el volen.
+  const target = targetNom(row, noms) ?? t('junta.audit.unknownTarget')
   const sentence = t(`junta.audit.accio.${row.accio}`, {
     actor,
+    target,
     defaultValue: t('junta.audit.other', { actor, accio: row.accio }),
   })
 

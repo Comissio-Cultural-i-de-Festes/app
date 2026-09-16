@@ -70,15 +70,21 @@ export async function fetchHores(): Promise<Hores> {
 }
 
 /**
- * Your rows, and the filter is not optional.
+ * One person's rows, and the filter is not optional.
  *
  * `points_log` has two select policies: one for your own rows and one that
  * hands an admin the whole ledger. Leaning on row-level security to scope this
  * works perfectly for an ordinary member and shows somebody on the junta the
  * association's entire points history as though it were their own — which is
  * what it did until this line was added.
+ *
+ * Es diu `Of` i no `My` des que la junta llegeix el llibre major d'un altre
+ * des de `/junta/socis/:id`: la consulta és exactament la mateixa, i el que
+ * canvia entre les dues pantalles és quina política la deixa passar. Dues
+ * còpies voldrien dir que el dia que el filtre s'hagi de tocar només se'n
+ * toqui una.
  */
-export async function fetchMyPoints(userId: string): Promise<PointRow[]> {
+export async function fetchPointsOf(userId: string): Promise<PointRow[]> {
   return unwrapAs<PointRow[]>(
     supabase
       .from('points_log')

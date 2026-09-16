@@ -1739,6 +1739,7 @@
     "ok": "Fichado. Ya está dentro",
     "okWalkin": "No estaba apuntado, pero adelante",
     "okWalkinReview": "Entra, pero no estaba apuntado ni ha pagado",
+    "okWalkinReviewFree": "Entra, pero no estaba apuntado",
     "alreadyCheckedIn": "Este QR ya se ha usado",
     "notAMember": "Este QR no es de la comi",
     "memberInactive": "Todavía no está dado de alta",
@@ -1748,6 +1749,7 @@
     "action": {
       "okWalkin": "No estaba apuntado. Ya consta que ha venido.",
       "okWalkinReview": "Mira que pague antes de entrar, o apúntalo.",
+      "okWalkinReviewFree": "Hay plazas contadas. Apúntalo para que el número cuadre.",
       "alreadyCheckedIn": "Ya había pasado. Si insiste, míralo en el alta manual.",
       "notAMember": "Que te diga el nombre y lo buscas a mano. No lo dejes pasar sin apuntarlo.",
       "memberInactive": "Que pida entrar. Lo aprobáis mañana desde la zona junta.",

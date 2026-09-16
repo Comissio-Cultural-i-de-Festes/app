@@ -17,6 +17,7 @@ import {
   scan,
 } from './api'
 import { ScanGlyph } from './icons'
+import { verdictText } from './verdict'
 import { useCamera } from './useCamera'
 import { useQueue } from './useQueue'
 import { type Undo, useUndo, undoNoteKey } from './useUndo'
@@ -181,7 +182,11 @@ export function ScannerScreen() {
         )}
       </div>
 
-      {outcome === null ? null : <Verdict outcome={outcome} undo={undoLast} />}
+      {outcome === null ? null : (
+        // El preu, i null mentre no hagi arribat: la targeta no ha de dir que
+        // ningú deu res fins que sap que hi ha alguna cosa a deure.
+        <Verdict outcome={outcome} undo={undoLast} priceCents={event.data?.precio_cents ?? null} />
+      )}
 
       <footer className="relative z-10 border-t border-surface-5 bg-[var(--ds-scrim-bar)] px-8 pt-7 pb-[calc(var(--ds-safe-bottom)+16px)] backdrop-blur-[14px]">
         <Link
@@ -213,7 +218,15 @@ function Reticle() {
   )
 }
 
-function Verdict({ outcome, undo }: { readonly outcome: DoorOutcome; readonly undo: Undo }) {
+function Verdict({
+  outcome,
+  undo,
+  priceCents,
+}: {
+  readonly outcome: DoorOutcome
+  readonly undo: Undo
+  readonly priceCents: number | null
+}) {
   const { t } = useTranslation()
   const shown = presentationOf(outcome)
   const result = outcome.kind === 'sent' ? outcome.result : null
@@ -227,23 +240,11 @@ function Verdict({ outcome, undo }: { readonly outcome: DoorOutcome; readonly un
   const gone = undo.state === 'undone' || undo.state === 'dropped'
   const tone = gone ? 'var(--ds-text-secondary)' : toneVar(shown.tone)
 
-  const detail =
-    result === null || gone
-      ? ''
-      : [
-          result.points_awarded !== undefined && result.points_awarded > 0
-            ? t('units.points', { count: result.points_awarded })
-            : null,
-          result.pagado === false ? t('door.notPaid') : null,
-          result.escola == null ? null : t(`escolaShort.${result.escola}`),
-        ]
-          .filter((s): s is string => s !== null)
-          .join(' · ')
-
-  // The line under the name, and the one under that: a failed undo keeps the
-  // verdict and adds a warning, an undone one replaces it.
-  const headline = gone && undoNote !== null ? t(undoNote, { nombre }) : t(shown.messageKey)
-  const noteKey = gone ? null : (undoNote ?? shown.actionKey)
+  // Quines paraules hi van: viu a `verdict.ts`, que es pot provar sense càmera.
+  const words = verdictText(shown, result, { gone, undoNote, priceCents })
+  const detail = words.detail.map((p) => t(p.key, p.params)).join(' · ')
+  const headline = t(words.headlineKey, { nombre })
+  const noteKey = words.actionKey
 
   return (
     <div

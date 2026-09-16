@@ -89,16 +89,23 @@ describe('les insígnies d’un altre soci', () => {
     expect(error).toBeNull()
     expect(Array.isArray(data)).toBe(true)
 
-    const row = data?.[0]
-    if (row !== undefined) {
-      expect(Object.keys(row).sort()).toEqual(
-        ['codi', 'earned_at', 'event_id', 'starts_at', 'titol'].sort(),
-      )
-      // I sobretot: `nova` no hi és. És «encara no te l’has mirada», que és una
-      // cosa teva, i treure-la és el que fa que des d’aquí no hi hagi cap camí
-      // cap a `mark_badges_seen()`.
-      expect(row).not.toHaveProperty('nova')
-    }
+    // AMB ZERO FILES AQUESTA PROVA NO PROVA RES, i abans se n’anava en silenci:
+    // la comprovació dels noms de columna vivia dins d’un `if (row !==
+    // undefined)`, o sigui que el dia que el seed deixés bravo sense cap
+    // insígnia, l’única asserció que justifica el fitxer sencer deixava de
+    // córrer i el fitxer sortia verd. PostgREST torna `[]` sense cap nom de
+    // columna a dins, així que la fila hi ha de ser: aquesta línia és la que
+    // converteix aquell silenci en un vermell.
+    expect(data?.length ?? 0).toBeGreaterThan(0)
+
+    const row = data?.[0] ?? {}
+    expect(Object.keys(row).sort()).toEqual(
+      ['codi', 'earned_at', 'event_id', 'starts_at', 'titol'].sort(),
+    )
+    // I sobretot: `nova` no hi és. És «encara no te l’has mirada», que és una
+    // cosa teva, i treure-la és el que fa que des d’aquí no hi hagi cap camí
+    // cap a `mark_badges_seen()`.
+    expect(row).not.toHaveProperty('nova')
   })
 
   it('no en reparteix cap: mirar el perfil d’algú no li regala res', async () => {
@@ -205,13 +212,24 @@ describe('la capçalera i les nits del perfil, sense cap migració al darrere', 
       .eq('estado', 'asistio')
 
     expect(error).toBeNull()
+
+    let ambActivitat = 0
     for (const row of data ?? []) {
       expect(Array.isArray(row.events)).toBe(false)
       if (row.events !== null) {
+        ambActivitat += 1
         expect(typeof row.events.starts_at).toBe('string')
         expect(Array.isArray(row.events.event_title)).toBe(false)
       }
     }
+
+    // El mateix forat que a les insígnies, i aquí doble: un `for` sobre `data ??
+    // []` no falla mai quan no hi ha files, i l’`if` de dins tampoc quan
+    // l’incrustat arriba buit. Alfa té assistències al seed —una de les quals és
+    // una reunió de junta, que la política deixa fora abans d’arribar aquí— i el
+    // que això fixa és que en quedi alguna: sense cap, el fitxer diria que la
+    // forma de l’incrustat és correcta sense haver-ne vist cap.
+    expect(ambActivitat).toBeGreaterThan(0)
   })
 
   it('i qui s’amaga del rànquing veu igualment el perfil dels altres', async () => {

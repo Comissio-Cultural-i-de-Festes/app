@@ -1092,3 +1092,126 @@ describe('a push subscription goes in through the RPC and nowhere else', () => {
     expect(error?.code).toBe('42501')
   })
 })
+
+describe('els avisos de la junta, vistos des de fora', () => {
+  // AQUESTA CAPA VEU UNA COSA QUE LA PGTAP NO POT VEURE: que la fitxa d'un
+  // altre no arriba pel cable. Dins de la base, `avisos_select_self_or_admin`
+  // i un `where user_id = ...` donen el mateix resultat i no es distingeixen;
+  // aqui la peticio es fa de debo, amb el token de qui la fa.
+  //
+  // RERUNNABLE, com tota aquesta suite: no fa rollback, o sigui que cada cas
+  // es marca amb el pid i mai no dona per fet que la taula estigui buida.
+  const MARCA = `rls-${String(process.pid)}`
+
+  it('un soci no pot escriure a avisos de cap de les tres maneres', async () => {
+    const member = await as('alfa')
+
+    const insert = await member
+      .from('avisos')
+      .insert({ user_id: F.alfa, tipus: 'no_va_venir', gravetat: 1, nota: `${MARCA} insert` })
+    // 42501 i no una llista buida: el que ho impedeix es el privilegi que no
+    // s'ha donat, no cap politica que filtri. Una prova que esperes
+    // `toHaveLength(0)` passaria per sempre.
+    expect(insert.error?.code).toBe('42501')
+
+    const update = await member
+      .from('avisos')
+      .update({ nota: `${MARCA} update` })
+      .eq('user_id', F.alfa)
+    expect(update.error?.code).toBe('42501')
+
+    const del = await member.from('avisos').delete().eq('user_id', F.alfa)
+    expect(del.error?.code).toBe('42501')
+  })
+
+  it('ni cridar avisa() o retira_avis()', async () => {
+    const member = await as('alfa')
+
+    const { error } = await rpc(member, 'avisa', {
+      p_user_id: F.bravo,
+      p_tipus: 'no_va_venir',
+      p_nota: `${MARCA} jo mateix`,
+      p_punts: 0,
+      p_event_id: null,
+    })
+    expect(error?.code).toBe('42501')
+
+    const retirada = await rpc(member, 'retira_avis', {
+      p_avis_id: '00000000-0000-4000-8000-0000000fffff',
+      p_nota: `${MARCA} jo mateix`,
+    })
+    expect(retirada.error?.code).toBe('42501')
+  })
+
+  it('la junta avisa, i nomes el qui hi surt i la junta el veuen', async () => {
+    const junta = await as('junta_alfa')
+    const { data: id, error } = await rpc<string>(junta, 'avisa', {
+      p_user_id: F.bravo,
+      p_tipus: 'mal_gest',
+      p_nota: `${MARCA} un motiu escrit`,
+      p_punts: 0,
+      p_event_id: null,
+    })
+    expect(error).toBeNull()
+    expect(id).toBeTruthy()
+
+    // Qui hi surt el veu.
+    const seu = await as('bravo')
+    const meu = await seu.from('avisos').select('id, nota').eq('id', id ?? '')
+    expect(meu.error).toBeNull()
+    expect(meu.data).toHaveLength(1)
+
+    // Un altre soci no. Zero files i no error: aqui si que es la politica qui
+    // filtra, i per aixo l'asercio es una llista buida i no un codi.
+    const altre = await as('alfa')
+    const seva = await altre.from('avisos').select('id').eq('id', id ?? '')
+    expect(seva.error).toBeNull()
+    expect(seva.data).toHaveLength(0)
+
+    // I la junta el veu.
+    const vist = await junta.from('avisos').select('id').eq('id', id ?? '')
+    expect(vist.data).toHaveLength(1)
+  })
+
+  it('el cataleg es llegeix i no s’escriu', async () => {
+    const member = await as('alfa')
+
+    const llegit = await member.from('avis_tipus').select('clau, gravetat')
+    expect(llegit.error).toBeNull()
+    // Mai «exactament quatre»: la junta en pot haver afegit un, i aquesta suite
+    // no fa rollback.
+    expect((llegit.data ?? []).length).toBeGreaterThanOrEqual(4)
+
+    const escrit = await member.from('avis_tipus').update({ punts_suggerits: 0 }).eq('clau', 'greu')
+    expect(escrit.error?.code).toBe('42501')
+
+    const rpcEscrit = await rpc(member, 'admin_set_avis_tipus', {
+      p_clau: 'provasoci',
+      p_gravetat: 1,
+      p_punts_suggerits: -5,
+      p_ordre: 99,
+      p_etiqueta: null,
+      p_actiu: true,
+    })
+    expect(rpcEscrit.error?.code).toBe('42501')
+  })
+
+  it('l’anonim no arriba a res de tot aixo', async () => {
+    const anon = anonClient()
+
+    const avisos = await anon.from('avisos').select('id')
+    expect(avisos.error).not.toBeNull()
+
+    const tipus = await anon.from('avis_tipus').select('clau')
+    expect(tipus.error).not.toBeNull()
+
+    const { error } = await rpc(anon, 'avisa', {
+      p_user_id: F.bravo,
+      p_tipus: 'mal_gest',
+      p_nota: `${MARCA} anonim`,
+      p_punts: 0,
+      p_event_id: null,
+    })
+    expect(error).not.toBeNull()
+  })
+})

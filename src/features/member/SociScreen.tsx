@@ -9,6 +9,7 @@ import { useUserId } from '@/features/session/useUserId'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { MemberBadgesBlock } from './MemberBadgesBlock'
 import { MemberNightsBlock } from './MemberNightsBlock'
@@ -54,6 +55,13 @@ import { memberSubtitle } from './subtitle'
 
 const GUTTER = 'px-[var(--ds-gutter)]'
 
+// L'àrea segura de baix, com a les altres pantalles sense barra de pestanyes.
+// La barra la posa allà on n'hi ha; aquí no n'hi ha cap, o sigui que l'última
+// nit de la llista queda sota l'indicador d'inici d'un mòbil amb osca si ningú
+// no ho reserva. Un `pb-10` pelat, que és el que hi havia, són 20px fixos: prou
+// a l'ordinador i mig dit de menys al telèfon.
+const SHELL = 'min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]'
+
 export function SociScreen() {
   const { t } = useTranslation()
   const { id } = useParams()
@@ -77,18 +85,36 @@ export function SociScreen() {
 
   if (profile.isPending) {
     return (
-      <main className="min-h-dvh bg-app">
+      <main className={SHELL}>
         {header}
-        <p className={`pt-8 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
+        {/* LA SILUETA DE LA CAPÇALERA, i no «Un segon…», que és el que hi havia i
+            el que feia que aquesta fos l'única pantalla nova sense esquelet. La
+            diferència no és decorativa: una frase ocupa una línia i la capçalera
+            de debò ocupa 72px d'avatar, o sigui que el nom de la persona
+            apareixia 60px més avall d'on s'havia mirat. La silueta té la mida
+            exacta del que ve, i el que ve no mou res.
+            No s'hi posa la d'un bloc: cada bloc ja duu la seva —vegeu
+            `MemberStreakCard`— i dibuixar-les aquí voldria dir tenir-ne dues
+            versions de cadascuna. */}
+        <Skeleton className={`flex items-center gap-8 pt-6 ${GUTTER}`}>
+          <SkeletonBar w="w-[72px]" h="h-[72px]" className="flex-none rounded-full" />
+          <span className="min-w-0 flex-1">
+            <SkeletonBar w="w-[70%]" h="h-[22px]" />
+            <SkeletonBar w="w-[50%]" h="h-[13px]" className="mt-[6px]" />
+          </span>
+        </Skeleton>
       </main>
     )
   }
 
   if (profile.isError) {
     return (
-      <main className="min-h-dvh bg-app">
+      <main className={SHELL}>
         {header}
-        <p role="alert" className={`pt-8 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}>
+        <p
+          role="alert"
+          className={`pt-8 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}
+        >
           {t(errorKey(profile.error))}
         </p>
       </main>
@@ -102,7 +128,7 @@ export function SociScreen() {
   // pantalla amb el nom buit i quatre blocs que no arriben mai.
   if (soci?.estat !== 'actiu') {
     return (
-      <main className="min-h-dvh bg-app">
+      <main className={SHELL}>
         {header}
         <div className={`pt-8 ${GUTTER}`}>
           <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">
@@ -122,13 +148,15 @@ export function SociScreen() {
   })
 
   return (
-    <main className="min-h-dvh bg-app">
+    <main className={SHELL}>
       {header}
 
       <header className={`flex items-center gap-8 pt-6 ${GUTTER}`}>
         <Avatar src={soci.avatar_url} size={72} />
         <div className="min-w-0 flex-1">
-          <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">{soci.nombre}</h1>
+          <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">
+            {soci.nombre}
+          </h1>
           {subtitle === '' ? null : (
             <p className="mt-[3px] text-md-lo font-semibold text-fg-muted">{subtitle}</p>
           )}
@@ -162,7 +190,7 @@ export function SociScreen() {
         >
           <span className="min-w-0 flex-1">
             <span className="block text-base font-semibold text-fg">{t('member.instagram')}</span>
-            <span className="mt-[3px] block truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
+            <span className="mt-[3px] block truncate text-sm-lo text-fg-muted-lo">
               {`@${soci.instagram}`}
             </span>
           </span>
@@ -182,12 +210,10 @@ export function SociScreen() {
           no va de tu, i on val la pena dir-la és precisament quan t'hi trobes:
           és l'única manera de saber què se'n veu sense demanar-ho a ningú. */}
       {userId === meId ? (
-        <p className={`pt-12 pb-10 text-sm-lo text-fg-muted-lo [text-wrap:pretty] ${GUTTER}`}>
+        <p className={`pt-12 text-sm-lo text-fg-muted-lo [text-wrap:pretty] ${GUTTER}`}>
           {t('member.footer')}
         </p>
-      ) : (
-        <div className="pb-10" />
-      )}
+      ) : null}
     </main>
   )
 }

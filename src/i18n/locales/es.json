@@ -58,7 +58,7 @@
     "pointsLede": "Marca quién ha ayudado y toca el motivo. Dos toques y fuera.",
     "whoIsHere": "Quién ha fichado · {{count}}",
     "nobodyHere": "Todavía no ha fichado nadie. Los puntos se dan cuando la gente ya está dentro.",
-    "pointsUndo": "Los puntos entran enseguida. Si te equivocas, los puedes quitar desde el perfil de la persona.",
+    "pointsUndo": "Los puntos entran enseguida. Si te equivocas, se corrigen desde la ficha de la persona, en Socios: no se borra nada, se suma la corrección.",
     "chosen_zero": "Nadie marcado todavía",
     "chosen_one": "{{count}} persona marcada",
     "chosen_other": "{{count}} personas marcadas",

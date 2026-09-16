@@ -58,7 +58,7 @@
     "pointsLede": "Tick whoever helped and tap the reason. Two taps and done.",
     "whoIsHere": "Who is in · {{count}}",
     "nobodyHere": "Nobody has come in yet. Points go to people who are already here.",
-    "pointsUndo": "Points land straight away. If you get it wrong you can take them off from that person’s profile.",
+    "pointsUndo": "Points land straight away. If you get one wrong, correct it from the person's page under Members: nothing is deleted, the correction is added.",
     "chosen_zero": "Nobody ticked yet",
     "chosen_one": "{{count}} person ticked",
     "chosen_other": "{{count}} people ticked",

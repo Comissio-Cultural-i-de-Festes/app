@@ -1,4 +1,4 @@
--- Rollback de la migració 69. NO és a `migrations/` a posta: un fitxer aquí
+-- Rollback de la migració 75. NO és a `migrations/` a posta: un fitxer aquí
 -- dins el desfaria el mateix `db push` que acaba d'aplicar-lo.
 --
 -- Treu les dues portes públiques —`member_streak()` i `member_badges()`— i

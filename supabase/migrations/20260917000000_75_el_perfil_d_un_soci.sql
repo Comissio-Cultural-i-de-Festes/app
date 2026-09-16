@@ -134,7 +134,7 @@ comment on function public.my_streak() is
   'La teva ratxa: `actual`, `millor`, i si s''ha trencat, quant valia i quan. '
   'Es calcula sempre, mai es desa. No diu res de si esta «en perill»: aixo '
   'depen de si hi ha una activitat oberta, cosa que la pantalla ja sap. El '
-  'recompte es a private.streak_of() des de la migracio 69.';
+  'recompte es a private.streak_of() des de la migracio 75.';
 
 -- ── i la d'un altre ────────────────────────────────────────────────────────
 -- Torna null en comptes de petar quan la persona ja no és sòcia. Vegeu el

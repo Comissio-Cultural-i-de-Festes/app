@@ -13,7 +13,7 @@
 -- passar.
 --
 -- La segona: la ratxa que veu un altre és EXACTAMENT la que veus tu. El bucle
--- va baixar a `private.streak_of()` amb la migració 69 precisament per això, i
+-- va baixar a `private.streak_of()` amb la migració 75 precisament per això, i
 -- la comprovació compara les dues respostes objecte contra objecte en comptes
 -- de camp a camp: un camp nou que només arribés a una de les dues portes
 -- passaria desapercebut a qualsevol comparació escrita a mà.

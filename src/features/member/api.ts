@@ -16,7 +16,7 @@ import type { Streak } from '@/features/profile/streak'
  *
  * L'ALTRA MEITAT SÍ, perquè `badges` i la ratxa viuen en taules tancades: les
  * insígnies només les llegeix qui les té i `my_streak()` sempre és `auth.uid()`.
- * Les dues funcions de la migració 69 són el mateix patró que `ranking_period()`
+ * Les dues funcions de la migració 75 són el mateix patró que `ranking_period()`
  * fa servir per publicar sumes sobre `points_log` sense obrir-lo.
  *
  * EL QUE NO HI HA, I PER QUÈ. Cap crida que torni el desglossament de punts per

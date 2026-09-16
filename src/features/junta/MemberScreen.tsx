@@ -2,14 +2,16 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
+import { memberSubtitle } from '@/features/member/subtitle'
+import { fetchProfile, profileKeys } from '@/features/session/profile'
 import { errorKey } from '@/lib/errors'
+import type { Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { AdjustPointsBlock } from './AdjustPointsBlock'
 import { JuntaHeader } from './JuntaHeader'
 import { MemberLedgerBlock } from './MemberLedgerBlock'
-import { fetchMemberProfile, memberPointsKeys } from './memberPointsApi'
 
 /**
  * El full d'una persona.
@@ -32,7 +34,16 @@ import { fetchMemberProfile, memberPointsKeys } from './memberPointsApi'
  *
  * ELS DONATS DE BAIXA HI SÓN. Donar de baixa no esborra ningú —els punts, les
  * assistències i el rànquing es queden— i corregir un error d'algú que ja ha
- * marxat continua sent una cosa que s'ha de poder fer.
+ * marxat continua sent una cosa que s'ha de poder fer. Per això la baixa surt
+ * a la línia de sota el nom i no tanca la pantalla, que és el contrari del que
+ * fa `/soci/:id`: allà el perfil és públic i qui ha plegat no en té.
+ *
+ * LA FILA ES DEMANA AMB `fetchProfile` I NO AMB UNA CONSULTA PRÒPIA. Aquesta
+ * pantalla en tenia una —`fetchMemberProfile`, sota `['junta','soci',id]`— que
+ * demanava un subconjunt estricte de les mateixes columnes de la mateixa
+ * taula. Eren dues entrades de cache per a la mateixa fila que envellien per
+ * separat: canviar-se el nom refrescava la del perfil i deixava la de la junta
+ * dient el nom vell fins que caduqués tota sola.
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -43,23 +54,25 @@ export function MemberScreen() {
   const userId = id ?? ''
 
   const soci = useQuery({
-    queryKey: memberPointsKeys.profile(userId),
-    queryFn: () => fetchMemberProfile(userId),
+    queryKey: profileKeys.of(userId),
+    queryFn: () => fetchProfile(userId),
     enabled: userId !== '',
   })
 
-  const subtitle = [
-    soci.data?.escola == null ? null : t(`escolaShort.${soci.data.escola}`),
-    soci.data?.curs == null ? null : t(`onboarding.year.${String(soci.data.curs)}`),
-    soci.data?.grau == null || soci.data.grau === '' ? null : soci.data.grau,
-    soci.data?.estat === 'baixa' ? t('junta.members.gone') : null,
-  ]
-    .filter((part): part is string => part !== null)
-    .join(' · ')
+  const dades = soci.data ?? null
+  const subtitle =
+    dades === null
+      ? ''
+      : memberSubtitle({
+          escola: dades.escola === null ? null : t(`escolaShort.${dades.escola satisfies Escola}`),
+          curs: dades.curs === null ? null : t(`onboarding.year.${String(dades.curs)}`),
+          grau: dades.grau,
+          cua: dades.estat === 'baixa' ? t('junta.members.gone') : null,
+        })
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
-      <JuntaHeader to="/junta/socis" label={t('junta.members.title')} />
+      <JuntaHeader to="/junta/socis" label={t('junta.members.title')} className="lg:hidden" />
 
       <div className={`pt-8 ${GUTTER}`}>
         {soci.isPending ? (
@@ -68,27 +81,34 @@ export function MemberScreen() {
           <p role="alert" className="text-md font-bold text-error [text-wrap:pretty]">
             {t(errorKey(soci.error))}
           </p>
+        ) : dades === null ? (
+          // `fetchProfile` fa `maybeSingle`, o sigui que un id que no existeix
+          // arriba com a null i no com a error. Un admin llegeix tota la taula,
+          // així que aquí null vol dir que la persona no hi és de debò.
+          <p role="alert" className="text-md font-bold text-error [text-wrap:pretty]">
+            {t('errors.notFound')}
+          </p>
         ) : (
           <>
             <div className="flex items-center gap-6">
-              <Avatar src={soci.data.avatar_url} size={56} />
+              <Avatar src={dades.avatar_url} size={56} />
               <div className="min-w-0 flex-1">
                 <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">
-                  {soci.data.nombre}
+                  {dades.nombre}
                 </h1>
                 {subtitle === '' ? null : (
                   <p className="mt-2 text-sm-lo text-[var(--ds-text-muted-lo)]">{subtitle}</p>
                 )}
               </div>
-              {soci.data.role === 'member' ? null : (
+              {dades.role === 'member' ? null : (
                 <span className="eyebrow flex-none text-brand-label">
-                  {t(`junta.role.${soci.data.role}`)}
+                  {t(`junta.role.${dades.role}`)}
                 </span>
               )}
             </div>
 
             <MemberLedgerBlock userId={userId} />
-            <AdjustPointsBlock userId={userId} nombre={soci.data.nombre} />
+            <AdjustPointsBlock userId={userId} nombre={dades.nombre} />
           </>
         )}
       </div>

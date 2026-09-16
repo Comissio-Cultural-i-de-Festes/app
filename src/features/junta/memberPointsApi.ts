@@ -1,5 +1,4 @@
 import { DbError, unwrapAs } from '@/lib/db'
-import type { Escola, MemberRole } from '@/lib/model'
 import { rpc, supabase } from '@/lib/supabase'
 
 /**
@@ -11,6 +10,12 @@ import { rpc, supabase } from '@/lib/supabase'
  * `features/profile/api`, que és la mateixa consulta amb el mateix filtre
  * explícit: no n'hi ha dues, n'hi ha una i dues pantalles que la criden.
  *
+ * I LA FILA DE LA PERSONA TAMPOC ÉS D'AQUÍ. Hi va haver un `fetchMemberProfile`
+ * amb la seva clau `['junta','soci',id]` que demanava vuit columnes de
+ * `profiles`; `fetchProfile` de `features/session/profile` ja en demana onze,
+ * de la mateixa taula i amb el mateix filtre. Dues entrades de cache per a la
+ * mateixa fila és una que es queda vella sense que res ho digui.
+ *
  * L'ESCRIPTURA VA PER `award_points` amb `motivo = 'manual'`, i no hi ha cap
  * altra porta: `points_log` no té ni grant ni política d'INSERT per a
  * `authenticated`, ni per a la junta. La RPC és definer i és l'única entrada.
@@ -21,17 +26,6 @@ import { rpc, supabase } from '@/lib/supabase'
  * una limitació que s'aguanti: és el que fa que el registre serveixi de res.
  */
 
-export interface MemberProfile {
-  readonly id: string
-  readonly nombre: string
-  readonly avatar_url: string | null
-  readonly escola: Escola | null
-  readonly curs: number | null
-  readonly grau: string | null
-  readonly estat: string
-  readonly role: MemberRole
-}
-
 /** Un esdeveniment al qual es pot penjar l'ajust, si es vol penjar a algun. */
 export interface AjustEvent {
   readonly id: string
@@ -40,18 +34,7 @@ export interface AjustEvent {
 }
 
 export const memberPointsKeys = {
-  profile: (userId: string) => ['junta', 'soci', userId] as const,
   events: () => ['junta', 'soci', 'esdeveniments'] as const,
-}
-
-export async function fetchMemberProfile(userId: string): Promise<MemberProfile> {
-  return unwrapAs<MemberProfile>(
-    supabase
-      .from('profiles')
-      .select('id, nombre, avatar_url, escola, curs, grau, estat, role')
-      .eq('id', userId)
-      .single(),
-  )
 }
 
 /**

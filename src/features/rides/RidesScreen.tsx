@@ -52,7 +52,10 @@ export function RidesScreen() {
   })
   const values = useQuery({ queryKey: doorKeys.pointValues(), queryFn: fetchPointValues })
 
-  const reward = values.data?.find((v) => v.mena === 'motiu' && v.clau === 'conduir')?.punts ?? null
+  // Vegeu OfferRideScreen: el motiu és `trajo_gente` des de la migració 71, i
+  // el que es premia és la gent que puja, no el viatge.
+  const reward =
+    values.data?.find((v) => v.mena === 'motiu' && v.clau === 'trajo_gente')?.punts ?? null
   const points = reward === null ? '' : t('units.points', { count: reward })
 
   const join = useMutation({

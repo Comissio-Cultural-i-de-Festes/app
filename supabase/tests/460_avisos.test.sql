@@ -38,6 +38,14 @@ reset role;
 
 -- Res del que hi hagi de la llavor: els saldos han de sortir d'aquí i d'enlloc
 -- més.
+--
+-- I `avisos` TAMBÉ S'HI BUIDA, que no és zel. La suite d'RLS escriu avisos de
+-- veritat per `avisa()` i no desfà res, o sigui que en una base on ja hagi
+-- corregut hi ha files d'abans. Sense aquesta línia, els recomptes de la
+-- secció 6 —«el bravo només veu el seu»— compten aquelles i fallen segons
+-- l'ordre en què s'hagin executat les dues capes. Es va veure corrent la
+-- pgTAP després de l'RLS en comptes d'abans.
+delete from public.avisos;
 delete from public.points_log;
 delete from public.events;
 

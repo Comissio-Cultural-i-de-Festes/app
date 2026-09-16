@@ -1,4 +1,4 @@
--- Rollback de la migració 71. NO és a `migrations/` a posta: un fitxer aquí
+-- Rollback de la migració 73. NO és a `migrations/` a posta: un fitxer aquí
 -- dins el desfaria el mateix `db push` que acaba d'aplicar-lo.
 --
 -- QUÈ DESFÀ, I EN QUIN ORDRE. Primer les dues taules i les tres RPC, que és el
@@ -35,7 +35,7 @@ alter table public.points_log drop constraint points_log_motivo_check;
 alter table public.points_log add constraint points_log_motivo_check
   check (motivo in ('asistencia', 'montaje', 'trajo_gente', 'propuso', 'conduir', 'manual'));
 
--- `award_points` no cal tocar-la: la 71 no la toca. Qui la va deixar com és
+-- `award_points` no cal tocar-la: la 73 no la toca. Qui la va deixar com és
 -- ara és la 69, i desfer-la és cosa del seu propi rollback.
 
 -- ── i el registre torna a les vint-i-quatre accions de la 67 ───────────────

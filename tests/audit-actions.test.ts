@@ -70,7 +70,7 @@ describe('the audit log says who did what', () => {
   // every assertion below vacuously true — the same trap the usage test
   // guards against next door.
   it('finds the action list at all, so an empty pass means nothing', () => {
-    // 24 fins a la migració 68; la 71 hi afegeix `avis`, `retira_avis` i
+    // 24 fins a la migració 68; la 73 hi afegeix `avis`, `retira_avis` i
     // `set_avis_tipus`. Aquest número es toca a mà a posta: és el que obliga
     // que afegir una acció sigui una decisió i no una passada.
     expect(actions.length).toBe(27)

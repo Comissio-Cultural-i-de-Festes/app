@@ -17,7 +17,7 @@ import type { Streak } from './streak'
 /**
  * Els motius que el llibre major admet, i n'hi ha dos que resten.
  *
- * `avis` i `avis_retirat` arriben amb la migració 71 i NO els escriu mai
+ * `avis` i `avis_retirat` arriben amb la migració 73 i NO els escriu mai
  * `award_points`: la seva porta és `avisa()` i `retira_avis()`. Aquí són un
  * motiu com qualsevol altre a posta —`byMotive()` ja documenta que una línia
  * pot quedar en negatiu i que s'hi queda igualment—, perquè el que el soci ha

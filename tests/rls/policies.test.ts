@@ -49,6 +49,129 @@ describe('points_log is unreachable from a client', () => {
   })
 })
 
+describe('un ajust a mà, pel camí que fa servir la pantalla', () => {
+  /**
+   * Les regles de la migració 72 vistes des de fora, que és l'única vista que
+   * compta: `award_points` té el grant per a `authenticated` sencer, o sigui
+   * que qualsevol de la junta la pot cridar des de la consola del navegador
+   * amb els paràmetres que vulgui. El que la pgTAP prova des de dins, això ho
+   * prova a través de Kong i PostgREST amb un token de debò.
+   *
+   * Cada cas que escriu deixa una fila —`points_log` és append-only i aquesta
+   * suite no desfà res—, així que cap asserció compta files: es llegeix la
+   * fila per l'id que torna la RPC, i la nota porta la marca de temps de la
+   * passada perquè dues execucions no es trepitgin.
+   */
+  const marca = () => `prova rls ${String(Date.now())}`
+
+  it('la junta ajusta amb nota, i la nota arriba a la fila', async () => {
+    const admin = await as('junta_alfa')
+    const nota = marca()
+    const { data: id, error } = await rpc<string>(admin, 'award_points', {
+      p_user_id: F.alfa,
+      p_event_id: null,
+      p_motivo: 'manual',
+      p_puntos: 7,
+      p_nota: `  ${nota}  `,
+    })
+
+    expect(error).toBeNull()
+    expect(id).toBeTruthy()
+
+    const { data } = await admin
+      .from('points_log')
+      .select('motivo, puntos, nota, event_id')
+      .eq('id', id ?? '')
+      .single()
+
+    expect(data?.motivo).toBe('manual')
+    expect(data?.puntos).toBe(7)
+    // Retallada, i sense esdeveniment: `event_id` és nullable a posta.
+    expect(data?.nota).toBe(nota)
+    expect(data?.event_id).toBeNull()
+  })
+
+  it('i sense nota no passa, que és la garantia sencera', async () => {
+    const admin = await as('junta_alfa')
+    const { error } = await rpc(admin, 'award_points', {
+      p_user_id: F.alfa,
+      p_event_id: null,
+      p_motivo: 'manual',
+      p_puntos: 7,
+      p_nota: null,
+    })
+
+    expect(error?.code).toBe('22023')
+  })
+
+  it('ni amb una nota de tres espais', async () => {
+    const admin = await as('junta_alfa')
+    const { error } = await rpc(admin, 'award_points', {
+      p_user_id: F.alfa,
+      p_event_id: null,
+      p_motivo: 'manual',
+      p_puntos: 7,
+      p_nota: '   ',
+    })
+
+    expect(error?.code).toBe('22023')
+  })
+
+  it('un admin resta per manual, i no per un motiu de la porta', async () => {
+    const admin = await as('junta_alfa')
+
+    const resta = await rpc<string>(admin, 'award_points', {
+      p_user_id: F.alfa,
+      p_event_id: null,
+      p_motivo: 'manual',
+      p_puntos: -7,
+      p_nota: marca(),
+    })
+    expect(resta.error).toBeNull()
+
+    // La meitat que hauria de fallar si la verja s'obrís del tot.
+    const porta = await rpc(admin, 'award_points', {
+      p_user_id: F.alfa,
+      p_event_id: null,
+      p_motivo: 'montaje',
+      p_puntos: -7,
+      p_nota: marca(),
+    })
+    expect(porta.error?.code).toBe('42501')
+  })
+
+  it('i qui no és de la junta no ajusta res, encara que porti la nota escrita', async () => {
+    const member = await as('alfa')
+    const { error } = await rpc(member, 'award_points', {
+      p_user_id: F.bravo,
+      p_event_id: null,
+      p_motivo: 'manual',
+      p_puntos: 7,
+      p_nota: marca(),
+    })
+
+    expect(error?.code).toBe('42501')
+  })
+
+  it('el llibre major d’un altre el llegeix la junta i ningú més', async () => {
+    // És la consulta de `/junta/socis/:id`, i el filtre explícit no és
+    // decoració: sense ell, `plog_select_admin` tornaria el llibre major de
+    // l'associació sencera com si fos d'aquesta persona.
+    const admin = await as('junta_alfa')
+    const seus = await admin.from('points_log').select('user_id').eq('user_id', F.alfa)
+    expect(seus.error).toBeNull()
+    expect(seus.data?.length).toBeGreaterThan(0)
+    expect(seus.data?.every((r) => r.user_id === F.alfa)).toBe(true)
+
+    // I el control negatiu, al costat: un soci demanant el mateix no en treu
+    // cap fila. Sense les dues meitats juntes, una política massa ampla
+    // passaria igual.
+    const member = await as('bravo')
+    const alienes = await member.from('points_log').select('user_id').eq('user_id', F.alfa)
+    expect(alienes.data).toEqual([])
+  })
+})
+
 describe('identity cannot be self-assigned', () => {
   it('a member cannot promote themselves', async () => {
     const member = await as('alfa')
@@ -1214,5 +1337,128 @@ describe('a push subscription goes in through the RPC and nowhere else', () => {
     // 42501 i no una llista buida: el que ho impedeix es el privilegi que no
     // s'ha donat, no cap politica que filtri.
     expect(error?.code).toBe('42501')
+  })
+})
+
+describe('els avisos de la junta, vistos des de fora', () => {
+  // AQUESTA CAPA VEU UNA COSA QUE LA PGTAP NO POT VEURE: que la fitxa d'un
+  // altre no arriba pel cable. Dins de la base, `avisos_select_self_or_admin`
+  // i un `where user_id = ...` donen el mateix resultat i no es distingeixen;
+  // aqui la peticio es fa de debo, amb el token de qui la fa.
+  //
+  // RERUNNABLE, com tota aquesta suite: no fa rollback, o sigui que cada cas
+  // es marca amb el pid i mai no dona per fet que la taula estigui buida.
+  const MARCA = `rls-${String(process.pid)}`
+
+  it('un soci no pot escriure a avisos de cap de les tres maneres', async () => {
+    const member = await as('alfa')
+
+    const insert = await member
+      .from('avisos')
+      .insert({ user_id: F.alfa, tipus: 'no_va_venir', gravetat: 1, nota: `${MARCA} insert` })
+    // 42501 i no una llista buida: el que ho impedeix es el privilegi que no
+    // s'ha donat, no cap politica que filtri. Una prova que esperes
+    // `toHaveLength(0)` passaria per sempre.
+    expect(insert.error?.code).toBe('42501')
+
+    const update = await member
+      .from('avisos')
+      .update({ nota: `${MARCA} update` })
+      .eq('user_id', F.alfa)
+    expect(update.error?.code).toBe('42501')
+
+    const del = await member.from('avisos').delete().eq('user_id', F.alfa)
+    expect(del.error?.code).toBe('42501')
+  })
+
+  it('ni cridar avisa() o retira_avis()', async () => {
+    const member = await as('alfa')
+
+    const { error } = await rpc(member, 'avisa', {
+      p_user_id: F.bravo,
+      p_tipus: 'no_va_venir',
+      p_nota: `${MARCA} jo mateix`,
+      p_punts: 0,
+      p_event_id: null,
+    })
+    expect(error?.code).toBe('42501')
+
+    const retirada = await rpc(member, 'retira_avis', {
+      p_avis_id: '00000000-0000-4000-8000-0000000fffff',
+      p_nota: `${MARCA} jo mateix`,
+    })
+    expect(retirada.error?.code).toBe('42501')
+  })
+
+  it('la junta avisa, i nomes el qui hi surt i la junta el veuen', async () => {
+    const junta = await as('junta_alfa')
+    const { data: id, error } = await rpc<string>(junta, 'avisa', {
+      p_user_id: F.bravo,
+      p_tipus: 'mal_gest',
+      p_nota: `${MARCA} un motiu escrit`,
+      p_punts: 0,
+      p_event_id: null,
+    })
+    expect(error).toBeNull()
+    expect(id).toBeTruthy()
+
+    // Qui hi surt el veu.
+    const seu = await as('bravo')
+    const meu = await seu.from('avisos').select('id, nota').eq('id', id ?? '')
+    expect(meu.error).toBeNull()
+    expect(meu.data).toHaveLength(1)
+
+    // Un altre soci no. Zero files i no error: aqui si que es la politica qui
+    // filtra, i per aixo l'asercio es una llista buida i no un codi.
+    const altre = await as('alfa')
+    const seva = await altre.from('avisos').select('id').eq('id', id ?? '')
+    expect(seva.error).toBeNull()
+    expect(seva.data).toHaveLength(0)
+
+    // I la junta el veu.
+    const vist = await junta.from('avisos').select('id').eq('id', id ?? '')
+    expect(vist.data).toHaveLength(1)
+  })
+
+  it('el cataleg es llegeix i no s’escriu', async () => {
+    const member = await as('alfa')
+
+    const llegit = await member.from('avis_tipus').select('clau, gravetat')
+    expect(llegit.error).toBeNull()
+    // Mai «exactament quatre»: la junta en pot haver afegit un, i aquesta suite
+    // no fa rollback.
+    expect((llegit.data ?? []).length).toBeGreaterThanOrEqual(4)
+
+    const escrit = await member.from('avis_tipus').update({ punts_suggerits: 0 }).eq('clau', 'greu')
+    expect(escrit.error?.code).toBe('42501')
+
+    const rpcEscrit = await rpc(member, 'admin_set_avis_tipus', {
+      p_clau: 'provasoci',
+      p_gravetat: 1,
+      p_punts_suggerits: -5,
+      p_ordre: 99,
+      p_etiqueta: null,
+      p_actiu: true,
+    })
+    expect(rpcEscrit.error?.code).toBe('42501')
+  })
+
+  it('l’anonim no arriba a res de tot aixo', async () => {
+    const anon = anonClient()
+
+    const avisos = await anon.from('avisos').select('id')
+    expect(avisos.error).not.toBeNull()
+
+    const tipus = await anon.from('avis_tipus').select('clau')
+    expect(tipus.error).not.toBeNull()
+
+    const { error } = await rpc(anon, 'avisa', {
+      p_user_id: F.bravo,
+      p_tipus: 'mal_gest',
+      p_nota: `${MARCA} anonim`,
+      p_punts: 0,
+      p_event_id: null,
+    })
+    expect(error).not.toBeNull()
   })
 })

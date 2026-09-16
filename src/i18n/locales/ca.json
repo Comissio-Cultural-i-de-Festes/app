@@ -58,7 +58,7 @@
     "pointsLede": "Marca qui ha ajudat i toca el motiu. Dos tocs i fora.",
     "whoIsHere": "Qui hi ha fitxat · {{count}}",
     "nobodyHere": "Encara no ha fitxat ningú. Els punts es donen quan la gent ja és dins.",
-    "pointsUndo": "Els punts entren de seguida. Si t'equivoques, els pots treure des del perfil de la persona.",
+    "pointsUndo": "Els punts entren de seguida. Si t'equivoques, es corregeixen des del full de la persona, a Socis: no s'esborra res, s'hi suma la correcció.",
     "chosen_zero": "Ningú marcat encara",
     "chosen_one": "{{count}} persona marcada",
     "chosen_other": "{{count}} persones marcades",
@@ -817,6 +817,24 @@
     },
     "config": {
       "saved": "Desat.",
+      "avisos": {
+        "nums": "Els avisos",
+        "num": {
+          "llindar": "Llindar per mirar-s'ho",
+          "sostre_curs": "Màxim de punts per curs"
+        },
+        "heading": "El catàleg d'avisos",
+        "lede": "El pes de cada cosa. Els punts d'aquí només precarreguen el formulari: un cop l'avís existeix, els seus punts són els seus, i canviar aquesta xifra al juny no reescriu què va valer una nit d'octubre.",
+        "gravetat": "Gravetat (1 a 3)",
+        "punts": "Punts suggerits",
+        "inUse": "En ús",
+        "retired": "Retirat",
+        "newHeading": "Afegir-ne un",
+        "newHint": "La clau és el nom intern i no es pot canviar després; en minúscules i amb guions baixos. L'etiqueta és el que llegirà la gent si la clau no té traducció.",
+        "newClau": "Clau, p. ex. se_en_va_aviat",
+        "newEtiqueta": "Etiqueta",
+        "newCta": "Afegir el tipus"
+      },
       "periods": {
         "title": "Els períodes del rànquing",
         "lede": "El que acaba un trimestre comença el següent, o sigui que entre dos només hi ha una data. Es desen tots alhora: si una està malament, no se'n desa cap.",
@@ -860,6 +878,30 @@
       "lede": "Qui ha marxat, qui torna. Donar de baixa no esborra res: la persona deixa d'entrar a l'app i el que va fer segueix comptant a la història.",
       "rowSub": "{{count}} persones. Donar de baixa qui ha marxat",
       "rowSubPlain": "Donar de baixa qui ha marxat"
+    },
+    "soci": {
+      "ledger": {
+        "title": "El registre de punts",
+        "total": "Total: {{total}}",
+        "empty": "Encara no té cap punt."
+      },
+      "adjust": {
+        "title": "Ajusta els punts",
+        "lede": "Escriu-hi els punts que falten o els que sobren. No s'edita res: queda una línia nova al registre, al costat de la d'abans.",
+        "points": "Punts",
+        "pointsHint": "Amb signe. «-20» en treu vint.",
+        "pointsPlaceholder": "-20",
+        "pointsBad": "Un número enter, que no sigui zero i que no passi de {{max}}.",
+        "note": "Per què",
+        "noteHint": "Ho llegirà {{nombre}} al seu perfil.",
+        "notePlaceholder": "Comptats dos cops el mateix vespre",
+        "noteBad": "Sense el per què no es pot desar.",
+        "event": "De quina nit",
+        "eventHint": "Opcional. Sense esdeveniment també és una línia vàlida.",
+        "eventNone": "De cap en concret",
+        "save": "Desa l'ajust",
+        "done": "Apuntat: {{punts}} per a {{nombre}}."
+      }
     },
     "role": {
       "admin": "Junta",
@@ -924,13 +966,14 @@
       "title": "El registre",
       "lede": "Qui ha fet què, i quan. Serveix per saber qui va nomenar un admin i per respondre si algú demana què teniu sobre ell.",
       "unknown": "Algú que ja no hi és",
+      "unknownTarget": "algú que ja no hi és",
       "other": "{{actor}} ha fet una cosa: {{accio}}",
       "detail": "Veure el detall",
       "more": "Carrega'n més",
       "empty": "Encara no hi ha res al registre.",
       "end": "Ja no hi ha res més.",
       "accio": {
-        "award_points": "{{actor}} ha donat punts",
+        "award_points": "{{actor}} ha donat punts a {{target}}",
         "create_event": "{{actor}} ha creat un esdeveniment",
         "edit_event": "{{actor}} ha editat un esdeveniment",
         "delete_event": "{{actor}} ha esborrat un esdeveniment",
@@ -953,7 +996,10 @@
         "set_hores": "{{actor}} ha canviat les hores d'una activitat",
         "visa_hores": "{{actor}} ha visat les hores d'una activitat",
         "hores_persona": "{{actor}} ha canviat les hores d'algú en una activitat",
-        "reveal_push": "S'ha enviat l'avís d'una revelació"
+        "reveal_push": "S'ha enviat l'avís d'una revelació",
+        "avis": "{{actor}} ha registrat un avís a algú",
+        "retira_avis": "{{actor}} ha retirat un avís",
+        "set_avis_tipus": "{{actor}} ha canviat el catàleg d'avisos"
       },
       "rowSub": "Qui ha fet què"
     },
@@ -1349,7 +1395,17 @@
     "trajo_gente": "Portar gent",
     "propuso": "Proposta seva",
     "conduir": "Conduir",
-    "manual": "A mà"
+    "manual": "A mà",
+    "avis": "Avís",
+    "avis_retirat": "Avís retirat"
+  },
+  "avisos": {
+    "tipus": {
+      "no_va_venir": "No va venir",
+      "mal_gest": "Mal gest",
+      "va_deixar_ho": "Ho va deixar malament",
+      "greu": "Greu"
+    }
   },
   "nav": {
     "home": "Inici",

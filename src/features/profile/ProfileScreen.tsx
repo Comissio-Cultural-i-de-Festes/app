@@ -29,7 +29,7 @@ import { StreakCard } from './StreakCard'
 import {
   byMotive,
   fetchAttendedCount,
-  fetchMyPoints,
+  fetchPointsOf,
   profileScreenKeys,
   setHideFromRanking,
 } from './api'
@@ -62,7 +62,7 @@ export function ProfileScreen() {
   })
   const points = useQuery({
     queryKey: profileScreenKeys.points(userId),
-    queryFn: () => fetchMyPoints(userId),
+    queryFn: () => fetchPointsOf(userId),
   })
   const attended = useQuery({
     queryKey: profileScreenKeys.attended(userId),
@@ -251,16 +251,32 @@ export function ProfileScreen() {
           <ul className="mt-2">
             {points.data.slice(0, 6).map((row) => (
               <li key={row.id} className={ROW}>
-                <p className="w-[52px] flex-none text-sm-lo font-semibold text-fg-dim">
+                <p className="w-[52px] flex-none self-start pt-[2px] text-sm-lo font-semibold text-fg-dim">
                   {formatDayMonth(new Date(row.created_at), locale)}
                 </p>
-                <p className="min-w-0 flex-1 text-base [text-wrap:pretty]">
-                  {/* El motiu quan no hi ha títol, i això inclou ara els
-                      esdeveniments encara no revelats: «Venir» diu més que
-                      «? ? ?» en una llista del que ja has fet. */}
-                  {row.events?.event_title?.titulo ?? t(`motive.${row.motivo}`)}
-                </p>
-                <p className="tabular flex-none text-base font-extrabold text-success">
+                <div className="min-w-0 flex-1">
+                  <p className="text-base [text-wrap:pretty]">
+                    {/* El motiu quan no hi ha títol, i això inclou ara els
+                        esdeveniments encara no revelats: «Venir» diu més que
+                        «? ? ?» en una llista del que ja has fet. */}
+                    {row.events?.event_title?.titulo ?? t(`motive.${row.motivo}`)}
+                  </p>
+                  {/* La nota d'una correcció. Es descarregava des del primer
+                      dia i no es pintava enlloc, o sigui que qui es trobava
+                      vint punts menys no tenia manera de saber per què. La
+                      junta l'escriu sabent que surt aquí. */}
+                  {row.nota === null || row.nota === '' ? null : (
+                    <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+                      {row.nota}
+                    </p>
+                  )}
+                </div>
+                <p
+                  className={
+                    'tabular flex-none self-start pt-[2px] text-base font-extrabold ' +
+                    (row.puntos < 0 ? 'text-[var(--ds-warning)]' : 'text-success')
+                  }
+                >
                   {row.puntos > 0 ? '+' : ''}
                   {row.puntos}
                 </p>

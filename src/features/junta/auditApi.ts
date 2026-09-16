@@ -11,6 +11,23 @@ import { supabase } from '@/lib/supabase'
  * make and the junta has to be able to answer without a database client.
  */
 
+/**
+ * Les accions el `target_id` de les quals és una persona.
+ *
+ * UNA LLISTA I NO «TOTES», i aquest és el motiu pel qual `audit_log.target_id`
+ * no té clau forana cap a `profiles`: la columna no apunta sempre al mateix
+ * lloc. `delete_event` hi guarda un esdeveniment, `decide_proposal` una idea,
+ * `close_meeting` una reunió. Buscar aquells uuid a la llista de socis no
+ * trobaria res gairebé sempre —i la vegada que en trobés seria per casualitat,
+ * que és pitjor.
+ *
+ * Comença amb una sola entrada perquè `award_points` és l'única frase que es
+ * queda coixa sense el nom: «ha donat punts» sense dir a qui no contesta res.
+ * Afegir-n'hi una vol dir afegir-la aquí i posar el `{{target}}` a la seva
+ * frase dels tres locales.
+ */
+export const ACCIONS_AMB_PERSONA: ReadonlySet<string> = new Set(['award_points'])
+
 export interface AuditRow {
   readonly id: string
   readonly accio: string
@@ -44,4 +61,23 @@ export async function fetchAudit(page: number): Promise<AuditRow[]> {
       .order('created_at', { ascending: false })
       .range(from, from + PAGE - 1),
   )
+}
+
+/**
+ * A qui, quan l'acció en té un i el nom es pot resoldre.
+ *
+ * Es resol al client amb la llista de socis que la junta ja es descarrega, i
+ * no per un `embed` de PostgREST, perquè sense clau forana no n'hi pot haver.
+ *
+ * Torna null —i no una cadena buida— quan el nom no hi és: un compte esborrat
+ * continua deixant la seva fila al registre, i la pantalla hi posa una frase
+ * que ho diu en comptes d'un forat.
+ */
+export function targetNom(
+  row: AuditRow,
+  noms: ReadonlyMap<string, string>,
+): string | null {
+  if (!ACCIONS_AMB_PERSONA.has(row.accio)) return null
+  if (row.target_id === null) return null
+  return noms.get(row.target_id) ?? null
 }

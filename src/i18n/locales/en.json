@@ -58,7 +58,7 @@
     "pointsLede": "Tick whoever helped and tap the reason. Two taps and done.",
     "whoIsHere": "Who is in · {{count}}",
     "nobodyHere": "Nobody has come in yet. Points go to people who are already here.",
-    "pointsUndo": "Points land straight away. If you get it wrong you can take them off from that person’s profile.",
+    "pointsUndo": "Points land straight away. If you get one wrong, correct it from the person's page under Members: nothing is deleted, the correction is added.",
     "chosen_zero": "Nobody ticked yet",
     "chosen_one": "{{count}} person ticked",
     "chosen_other": "{{count}} people ticked",
@@ -817,6 +817,24 @@
     },
     "config": {
       "saved": "Saved.",
+      "avisos": {
+        "nums": "Warnings",
+        "num": {
+          "llindar": "Threshold worth a look",
+          "sostre_curs": "Most points per course"
+        },
+        "heading": "The warning catalogue",
+        "lede": "What each thing weighs. The points here only pre-fill the form: once a warning exists its points are its own, and changing this figure in June does not rewrite what a night in October was worth.",
+        "gravetat": "Severity (1 to 3)",
+        "punts": "Suggested points",
+        "inUse": "In use",
+        "retired": "Retired",
+        "newHeading": "Add one",
+        "newHint": "The key is the internal name and cannot be changed later; lowercase with underscores. The label is what people read when the key has no translation.",
+        "newClau": "Key, e.g. se_en_va_aviat",
+        "newEtiqueta": "Label",
+        "newCta": "Add the type"
+      },
       "periods": {
         "title": "The ranking periods",
         "lede": "Where one term ends the next begins, so there is only one date between any two. They save together: if one is wrong, none of them is saved.",
@@ -860,6 +878,30 @@
       "lede": "Who has left, who is back. Signing somebody out deletes nothing: they stop getting into the app and what they did still counts in the history.",
       "rowSub": "{{count}} people. Sign out whoever has left",
       "rowSubPlain": "Sign out whoever has left"
+    },
+    "soci": {
+      "ledger": {
+        "title": "The points record",
+        "total": "Total: {{total}}",
+        "empty": "No points yet."
+      },
+      "adjust": {
+        "title": "Adjust the points",
+        "lede": "Write in the points that are missing, or the ones that are not owed. Nothing is edited: a new line joins the record next to the old one.",
+        "points": "Points",
+        "pointsHint": "With a sign. \u201c-20\u201d takes twenty away.",
+        "pointsPlaceholder": "-20",
+        "pointsBad": "A whole number, not zero, and no larger than {{max}}.",
+        "note": "Why",
+        "noteHint": "{{nombre}} will read this on their profile.",
+        "notePlaceholder": "Counted twice the same evening",
+        "noteBad": "Without the why it cannot be saved.",
+        "event": "Which night",
+        "eventHint": "Optional. No event at all is a valid line too.",
+        "eventNone": "None in particular",
+        "save": "Save the adjustment",
+        "done": "Recorded: {{punts}} for {{nombre}}."
+      }
     },
     "role": {
       "admin": "Committee",
@@ -924,13 +966,14 @@
       "title": "The log",
       "lede": "Who did what, and when. It answers who appointed an admin, and what the association holds about somebody who asks.",
       "unknown": "Somebody no longer here",
+      "unknownTarget": "somebody who is no longer here",
       "other": "{{actor}} did something: {{accio}}",
       "detail": "See the detail",
       "more": "Load more",
       "empty": "Nothing in the log yet.",
       "end": "That is all of it.",
       "accio": {
-        "award_points": "{{actor}} gave points",
+        "award_points": "{{actor}} gave points to {{target}}",
         "create_event": "{{actor}} created an event",
         "edit_event": "{{actor}} edited an event",
         "delete_event": "{{actor}} deleted an event",
@@ -953,7 +996,10 @@
         "set_hores": "{{actor}} changed an activity's hours",
         "visa_hores": "{{actor}} signed off an activity's hours",
         "hores_persona": "{{actor}} changed somebody's hours at an activity",
-        "reveal_push": "The reveal notice went out"
+        "reveal_push": "The reveal notice went out",
+        "avis": "{{actor}} recorded a warning against somebody",
+        "retira_avis": "{{actor}} withdrew a warning",
+        "set_avis_tipus": "{{actor}} changed the warning catalogue"
       },
       "rowSub": "Who did what"
     },
@@ -1349,7 +1395,17 @@
     "trajo_gente": "Bringing people",
     "propuso": "Their idea",
     "conduir": "Driving",
-    "manual": "By hand"
+    "manual": "By hand",
+    "avis": "Warning",
+    "avis_retirat": "Warning withdrawn"
+  },
+  "avisos": {
+    "tipus": {
+      "no_va_venir": "Did not turn up",
+      "mal_gest": "Bad behaviour",
+      "va_deixar_ho": "Left it badly",
+      "greu": "Serious"
+    }
   },
   "nav": {
     "home": "Home",

@@ -7,7 +7,14 @@ import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
-import { type AuditRow, PAGE, auditKeys, fetchAudit, targetNom } from './auditApi'
+import {
+  AUDIT_SEMPRE_FRESC,
+  type AuditRow,
+  PAGE,
+  auditKeys,
+  fetchAudit,
+  targetNom,
+} from './auditApi'
 import { JuntaHeader } from './JuntaHeader'
 import { fetchAllMembers, memberKeys } from './membersApi'
 
@@ -92,7 +99,11 @@ function Page({
   readonly onMore: () => void
 }) {
   const { t } = useTranslation()
-  const rows = useQuery({ queryKey: auditKeys.page(index), queryFn: () => fetchAudit(index) })
+  const rows = useQuery({
+    queryKey: auditKeys.page(index),
+    queryFn: () => fetchAudit(index),
+    ...AUDIT_SEMPRE_FRESC,
+  })
 
   if (rows.isPending) {
     return <AuditSkeleton />

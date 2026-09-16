@@ -44,6 +44,26 @@ export const auditKeys = {
 }
 
 /**
+ * Un registre no es cacheja: es torna a demanar cada cop que s'obre.
+ *
+ * El `staleTime` global de l'app és un minut (`lib/queryClient.ts`), que és el
+ * que fa que moure's entre dues pestanyes no torni a demanar res. Aquí aquell
+ * minut és exactament el forat: s'obre el registre, es va a ajustar els punts
+ * d'algú, es torna, i la fila que s'acaba d'escriure no hi és —la còpia en
+ * memòria encara és «fresca»—. Qui ve a comprovar que allò ha quedat apuntat
+ * se'n va creient que no.
+ *
+ * DESCARTAT: invalidar `['junta','audit']` des de cada mutació que escriu al
+ * registre. Hauria arreglat les quatre pantalles que algú recordés i hauria
+ * deixat les altres —rols, traspàs, idees, gimcana, tancar una reunió,
+ * convits, pagaments, hores, avisos— dient el mateix silenci, i hauria obligat
+ * cada RPC auditada futura a recordar-se'n. El cost d'això és una consulta per
+ * pàgina cada cop que la pantalla es munta o la finestra recupera el focus.
+ * Per a la pantalla que existeix per contestar «què ha passat», és el preu bo.
+ */
+export const AUDIT_SEMPRE_FRESC = { staleTime: 0 } as const
+
+/**
  * A page of it, newest first.
  *
  * The actor comes through the foreign key rather than a second round trip, and

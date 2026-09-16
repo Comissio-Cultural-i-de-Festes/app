@@ -58,7 +58,10 @@ export function AdjustPointsBlock({
   const [eventId, setEventId] = useState('')
   const [fet, setFet] = useState<number | null>(null)
 
-  const events = useQuery({ queryKey: memberPointsKeys.events(), queryFn: () => fetchAjustEvents() })
+  const events = useQuery({
+    queryKey: memberPointsKeys.events(),
+    queryFn: () => fetchAjustEvents(),
+  })
 
   const lectura = llegeixAjust({ punts, nota })
   const valid = esValid(lectura)
@@ -120,10 +123,7 @@ export function AdjustPointsBlock({
         </p>
       ) : null}
 
-      <Field
-        label={t('junta.soci.adjust.note')}
-        hint={t('junta.soci.adjust.noteHint', { nombre })}
-      >
+      <Field label={t('junta.soci.adjust.note')} hint={t('junta.soci.adjust.noteHint', { nombre })}>
         <textarea
           value={nota}
           onChange={(e) => {
@@ -179,7 +179,10 @@ export function AdjustPointsBlock({
 
       {fet === null ? null : (
         <p role="status" className="pt-6 text-md font-bold text-success [text-wrap:pretty]">
-          {t('junta.soci.adjust.done', { punts: fet > 0 ? `+${String(fet)}` : String(fet), nombre })}
+          {t('junta.soci.adjust.done', {
+            punts: fet > 0 ? `+${String(fet)}` : String(fet),
+            nombre,
+          })}
         </p>
       )}
 

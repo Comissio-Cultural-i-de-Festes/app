@@ -42,7 +42,9 @@ export function MemberBadgesBlock({ userId }: { readonly userId: string }) {
       </div>
 
       {seves.length === 0 ? (
-        <p className="mt-5 text-sm text-fg-muted-lo [text-wrap:pretty]">{t('member.badges.empty')}</p>
+        <p className="mt-5 text-sm text-fg-muted-lo [text-wrap:pretty]">
+          {t('member.badges.empty')}
+        </p>
       ) : (
         // Una graella i no una fila amb scroll: qui en porta deu les ha de
         // poder veure totes sense arrossegar, i el títol de cada una és el que

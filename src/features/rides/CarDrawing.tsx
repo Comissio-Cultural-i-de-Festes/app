@@ -145,33 +145,32 @@ function Bubble({
   return (
     <div className={`absolute ${faded ? 'opacity-55' : ''}`} style={{ left, top, width: size }}>
       <MemberLink userId={userId} label={from} className="block text-fg no-underline">
-      <span
-        className={
-          'block rounded-full ' +
-          (ringed ? 'outline-2 outline-offset-2 outline-brand' : '')
-        }
-      >
-        <Avatar src={src} size={size} />
-      </span>
-      {/* Wider than the bubble and centred on it, so a long first name does not
-          shove the next one along. */}
-      <span
-        className="mt-4 block w-[76px] text-center text-[11px] font-bold"
-        style={{ marginLeft: (size - 76) / 2 }}
-      >
-        <span className={highlight ? 'text-[var(--ds-brand-label-hi)]' : ''}>{name}</span>
-      </span>
-      {role === undefined ? null : (
         <span
           className={
-            'block w-[76px] text-center text-[9.5px] font-extrabold tracking-[0.1em] uppercase ' +
-            (faded ? 'text-[var(--ds-text-muted-lo)]' : 'text-brand-accent')
+            'block rounded-full ' + (ringed ? 'outline-2 outline-offset-2 outline-brand' : '')
           }
+        >
+          <Avatar src={src} size={size} />
+        </span>
+        {/* Wider than the bubble and centred on it, so a long first name does not
+          shove the next one along. */}
+        <span
+          className="mt-4 block w-[76px] text-center text-[11px] font-bold"
           style={{ marginLeft: (size - 76) / 2 }}
         >
-          {role}
+          <span className={highlight ? 'text-[var(--ds-brand-label-hi)]' : ''}>{name}</span>
         </span>
-      )}
+        {role === undefined ? null : (
+          <span
+            className={
+              'block w-[76px] text-center text-[9.5px] font-extrabold tracking-[0.1em] uppercase ' +
+              (faded ? 'text-[var(--ds-text-muted-lo)]' : 'text-brand-accent')
+            }
+            style={{ marginLeft: (size - 76) / 2 }}
+          >
+            {role}
+          </span>
+        )}
       </MemberLink>
     </div>
   )

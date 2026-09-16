@@ -88,7 +88,10 @@ export function SociScreen() {
     return (
       <main className="min-h-dvh bg-app">
         {header}
-        <p role="alert" className={`pt-8 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}>
+        <p
+          role="alert"
+          className={`pt-8 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}
+        >
           {t(errorKey(profile.error))}
         </p>
       </main>
@@ -128,7 +131,9 @@ export function SociScreen() {
       <header className={`flex items-center gap-8 pt-6 ${GUTTER}`}>
         <Avatar src={soci.avatar_url} size={72} />
         <div className="min-w-0 flex-1">
-          <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">{soci.nombre}</h1>
+          <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">
+            {soci.nombre}
+          </h1>
           {subtitle === '' ? null : (
             <p className="mt-[3px] text-md-lo font-semibold text-fg-muted">{subtitle}</p>
           )}

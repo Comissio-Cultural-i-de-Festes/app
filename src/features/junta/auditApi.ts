@@ -73,10 +73,7 @@ export async function fetchAudit(page: number): Promise<AuditRow[]> {
  * continua deixant la seva fila al registre, i la pantalla hi posa una frase
  * que ho diu en comptes d'un forat.
  */
-export function targetNom(
-  row: AuditRow,
-  noms: ReadonlyMap<string, string>,
-): string | null {
+export function targetNom(row: AuditRow, noms: ReadonlyMap<string, string>): string | null {
   if (!ACCIONS_AMB_PERSONA.has(row.accio)) return null
   if (row.target_id === null) return null
   return noms.get(row.target_id) ?? null

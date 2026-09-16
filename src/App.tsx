@@ -85,7 +85,9 @@ const GimcanaFormScreen = lazy(() =>
   import('@/features/junta/GimcanaFormScreen').then((m) => ({ default: m.GimcanaFormScreen })),
 )
 const GimcanaValidateScreen = lazy(() =>
-  import('@/features/junta/GimcanaValidateScreen').then((m) => ({ default: m.GimcanaValidateScreen })),
+  import('@/features/junta/GimcanaValidateScreen').then((m) => ({
+    default: m.GimcanaValidateScreen,
+  })),
 )
 const PhotoReportsScreen = lazy(() =>
   import('@/features/junta/PhotoReportsScreen').then((m) => ({ default: m.PhotoReportsScreen })),
@@ -126,7 +128,6 @@ const PaymentsScreen = lazy(() =>
 const JuntaHome = lazy(() =>
   import('@/features/junta/JuntaHome').then((m) => ({ default: m.JuntaHome })),
 )
-
 
 /**
  * The order of the gates, and why.
@@ -323,8 +324,8 @@ export default function App() {
             <Route path="invitacions" element={<InvitesScreen />} />
             <Route path="esdeveniment/:id" element={<EventFormScreen />} />
             <Route path="esdeveniment/:id/fitxatges" element={<CheckinsScreen />} />
-          <Route path="esdeveniment/:id/hores" element={<HoresEventScreen />} />
-          <Route path="hores" element={<HoresScreen />} />
+            <Route path="esdeveniment/:id/hores" element={<HoresEventScreen />} />
+            <Route path="hores" element={<HoresScreen />} />
             <Route path="idees" element={<IdeasReviewScreen />} />
             <Route path="socis" element={<MembersScreen />} />
             <Route path="socis/:id" element={<MemberScreen />} />

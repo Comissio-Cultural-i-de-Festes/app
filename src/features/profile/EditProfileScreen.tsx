@@ -84,7 +84,9 @@ export function EditProfileScreen() {
   const refresh = () => queryClient.invalidateQueries({ queryKey: profileKeys.me(userId) })
 
   const photo = useMutation({
-    mutationFn: async (action: { kind: 'pick'; file: File } | { kind: 'google' } | { kind: 'clear' }) => {
+    mutationFn: async (
+      action: { kind: 'pick'; file: File } | { kind: 'google' } | { kind: 'clear' },
+    ) => {
       if (action.kind === 'pick') await setMyPhoto(userId, action.file)
       else if (action.kind === 'google') await revertToGooglePhoto(userId)
       else await clearMyPhoto(userId, profile?.avatar_url ?? null)
@@ -236,7 +238,10 @@ export function EditProfileScreen() {
         {/* Una línia i no una caixa, com les quatre confirmacions de la junta.
             `role="status"` perquè apareix mentre algú mira la pantalla. */}
         {rename.isError ? (
-          <p role="alert" className="mt-5 text-center text-md font-bold text-error [text-wrap:pretty]">
+          <p
+            role="alert"
+            className="mt-5 text-center text-md font-bold text-error [text-wrap:pretty]"
+          >
             {t(errorKey(rename.error))}
           </p>
         ) : saved ? (

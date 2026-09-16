@@ -206,9 +206,7 @@ export async function setMyNameAndInstagram(
 export async function setMyPhoto(userId: string, file: Blob): Promise<void> {
   const body = file instanceof File ? await shrinkImage(file) : file
   const path = await uploadAvatar(body, userId)
-  await unwrap(
-    supabase.from('profiles').update({ avatar_url: path }).eq('id', userId).select('id'),
-  )
+  await unwrap(supabase.from('profiles').update({ avatar_url: path }).eq('id', userId).select('id'))
 }
 
 /** La de Google, que ja és a `user_metadata` des que la persona va entrar. */
@@ -240,11 +238,8 @@ export async function revertToGooglePhoto(userId: string): Promise<void> {
  * després de dir que la treguis és una promesa incomplerta.
  */
 export async function clearMyPhoto(userId: string, current: string | null): Promise<void> {
-  await unwrap(
-    supabase.from('profiles').update({ avatar_url: null }).eq('id', userId).select('id'),
-  )
+  await unwrap(supabase.from('profiles').update({ avatar_url: null }).eq('id', userId).select('id'))
 
-  const stored =
-    current !== null && current !== '' && !current.startsWith('http') ? current : null
+  const stored = current !== null && current !== '' && !current.startsWith('http') ? current : null
   if (stored !== null) await supabase.storage.from(AVATARS).remove([stored])
 }

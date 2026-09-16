@@ -951,7 +951,9 @@ describe('galeria', () => {
     // I la galeria d'una festa normal segueix servint-se a qualsevol soci, que
     // és la meitat que es trencaria si la tanca es passés de llarga.
     const festa = `${attended}/${F.alfa}/${stamp}.jpg`
-    const posada = await svc.storage.from(BUCKET).upload(festa, jpeg(), { contentType: 'image/jpeg' })
+    const posada = await svc.storage
+      .from(BUCKET)
+      .upload(festa, jpeg(), { contentType: 'image/jpeg' })
     expect(posada.error).toBeNull()
     const normal = await member.storage.from(BUCKET).createSignedUrl(festa, 60)
     expect(normal.error).toBeNull()
@@ -1010,12 +1012,18 @@ describe('galeria', () => {
     expect(data?.some((r) => r.id === seva.data?.id)).toBe(false)
 
     // El control que fa que l'asserció de dalt valgui: la fila hi és.
-    const totes = await svc.from('photo_reports').select('id').eq('id', seva.data?.id ?? '')
+    const totes = await svc
+      .from('photo_reports')
+      .select('id')
+      .eq('id', seva.data?.id ?? '')
     expect(totes.data?.length).toBe(1)
 
     // I la junta sí que la veu, que és l'altra meitat de `reports_select`.
     const junta = await as('junta_alfa')
-    const vista = await junta.from('photo_reports').select('id').eq('id', seva.data?.id ?? '')
+    const vista = await junta
+      .from('photo_reports')
+      .select('id')
+      .eq('id', seva.data?.id ?? '')
     expect(vista.error).toBeNull()
     expect(vista.data?.length).toBe(1)
 
@@ -1404,19 +1412,28 @@ describe('els avisos de la junta, vistos des de fora', () => {
 
     // Qui hi surt el veu.
     const seu = await as('bravo')
-    const meu = await seu.from('avisos').select('id, nota').eq('id', id ?? '')
+    const meu = await seu
+      .from('avisos')
+      .select('id, nota')
+      .eq('id', id ?? '')
     expect(meu.error).toBeNull()
     expect(meu.data).toHaveLength(1)
 
     // Un altre soci no. Zero files i no error: aqui si que es la politica qui
     // filtra, i per aixo l'asercio es una llista buida i no un codi.
     const altre = await as('alfa')
-    const seva = await altre.from('avisos').select('id').eq('id', id ?? '')
+    const seva = await altre
+      .from('avisos')
+      .select('id')
+      .eq('id', id ?? '')
     expect(seva.error).toBeNull()
     expect(seva.data).toHaveLength(0)
 
     // I la junta el veu.
-    const vist = await junta.from('avisos').select('id').eq('id', id ?? '')
+    const vist = await junta
+      .from('avisos')
+      .select('id')
+      .eq('id', id ?? '')
     expect(vist.data).toHaveLength(1)
   })
 

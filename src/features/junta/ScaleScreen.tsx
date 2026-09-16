@@ -115,63 +115,62 @@ function ScaleBlock() {
   function renderGroups(which: typeof groups) {
     return which.map((group) => (
       <section key={group.mena} className="pb-9">
-          <h3 className="eyebrow text-fg-muted">{group.heading}</h3>
-          <ul className="mt-2">
-            {rows
-              .filter((r) => r.mena === group.mena)
-              .map((row) => {
-                const id = keyOf(row)
-                const typed = edits[id]
-                const shown = typed ?? String(row.punts)
-                const parsed = Number(shown)
-                const valid =
-                  shown !== '' && Number.isInteger(parsed) && parsed >= 0 && parsed <= 500
-                const busy =
-                  save.isPending && save.variables !== undefined && keyOf(save.variables) === id
+        <h3 className="eyebrow text-fg-muted">{group.heading}</h3>
+        <ul className="mt-2">
+          {rows
+            .filter((r) => r.mena === group.mena)
+            .map((row) => {
+              const id = keyOf(row)
+              const typed = edits[id]
+              const shown = typed ?? String(row.punts)
+              const parsed = Number(shown)
+              const valid = shown !== '' && Number.isInteger(parsed) && parsed >= 0 && parsed <= 500
+              const busy =
+                save.isPending && save.variables !== undefined && keyOf(save.variables) === id
 
-                return (
-                  <li
-                    key={id}
-                    className="flex min-h-[60px] items-center gap-5 border-b border-surface-4 py-4"
-                  >
-                    <span className="min-w-0 flex-1 text-lg font-semibold">
-                      {group.name(row.clau)}
+              return (
+                <li
+                  key={id}
+                  className="flex min-h-[60px] items-center gap-5 border-b border-surface-4 py-4"
+                >
+                  <span className="min-w-0 flex-1 text-lg font-semibold">
+                    {group.name(row.clau)}
+                  </span>
+
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={0}
+                    max={500}
+                    value={shown}
+                    aria-label={group.name(row.clau)}
+                    onChange={(e) => {
+                      setSaved(null)
+                      setEdits((previous) => ({ ...previous, [id]: e.target.value }))
+                    }}
+                    className="min-h-[46px] w-[86px] flex-none border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none"
+                  />
+
+                  {typed === undefined ? (
+                    <span className="w-[76px] flex-none text-right text-sm font-bold text-success">
+                      {saved === id ? t('junta.config.saved') : ''}
                     </span>
-
-                    <input
-                      type="number"
-                      inputMode="numeric"
-                      min={0}
-                      max={500}
-                      value={shown}
-                      aria-label={group.name(row.clau)}
-                      onChange={(e) => {
-                        setSaved(null)
-                        setEdits((previous) => ({ ...previous, [id]: e.target.value }))
+                  ) : (
+                    <button
+                      type="button"
+                      disabled={!valid || busy}
+                      onClick={() => {
+                        save.mutate({ ...row, punts: parsed })
                       }}
-                      className="min-h-[46px] w-[86px] flex-none border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none"
-                    />
-
-                    {typed === undefined ? (
-                      <span className="w-[76px] flex-none text-right text-sm font-bold text-success">
-                        {saved === id ? t('junta.config.saved') : ''}
-                      </span>
-                    ) : (
-                      <button
-                        type="button"
-                        disabled={!valid || busy}
-                        onClick={() => {
-                          save.mutate({ ...row, punts: parsed })
-                        }}
-                        className="min-h-[46px] w-[76px] flex-none bg-brand-cta px-3 text-sm font-bold text-on-brand disabled:opacity-50"
-                      >
-                        {busy ? '…' : t('actions.save')}
-                      </button>
-                    )}
-                  </li>
-                )
-              })}
-          </ul>
+                      className="min-h-[46px] w-[76px] flex-none bg-brand-cta px-3 text-sm font-bold text-on-brand disabled:opacity-50"
+                    >
+                      {busy ? '…' : t('actions.save')}
+                    </button>
+                  )}
+                </li>
+              )
+            })}
+        </ul>
       </section>
     ))
   }

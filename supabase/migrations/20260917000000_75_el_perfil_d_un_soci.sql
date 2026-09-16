@@ -1,5 +1,12 @@
 -- El perfil d'un soci, vist per un altre soci.
 --
+-- NO HI HA CAP 74, I NO ÉS CAP DESCUIT. El número final no surt de mirar el
+-- repositori: surt de mirar què hi ha aplicat de debò. Sis branques obertes
+-- alhora es van anar prenent el 69, el 70 i el 71 mentre aquesta esperava, i
+-- quan li va tocar el torn el 73 ja era a producció. El 74 no se'l va quedar
+-- ningú. `supabase db push` ordena pel segell de temps del davant, que sí que
+-- és estrictament creixent; el número de darrere és documentació.
+--
 -- PER QUÈ EXISTEIX. L'app ensenya la cara i el nom d'altra gent a cinc llocs
 -- —el rànquing, qui hi ha dins, els cotxes, les idees i la tira d'insígnies— i
 -- cap d'aquells noms porta enlloc. Qui entra al setembre es passa el primer

@@ -447,7 +447,7 @@ select is(
 );
 
 -- ── 10. `award_points` no es la porta dels avisos ───────────────────────────
--- QUI POT RESTAR PER `award_points` NO ES COSA D'AQUEST FITXER. La migració 69
+-- QUI POT RESTAR PER `award_points` NO ES COSA D'AQUEST FITXER. La migració 72
 -- (issue #3) hi posa nota obligatòria per a `manual` i deixa que un admin resti
 -- només amb aquell motiu; aquesta migració no la toca i les seves proves són
 -- allà. El que sí que és cosa d'aquí és que els dos motius nous NO hi entrin:

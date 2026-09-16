@@ -6,7 +6,7 @@ import { MAX_AJUST, esValid, llegeixAjust } from './adjust'
  * El que s'envia i el que no.
  *
  * El que hi ha en joc no és el botó: és que la nota hi sigui. Un ajust sense
- * nota el refusa la migració 69 amb 22023, que al client es tradueix a
+ * nota el refusa la migració 72 amb 22023, que al client es tradueix a
  * «errors.generic» —«alguna cosa ha anat malament»— i qui l'ha escrit no sap
  * que li falta el per què. Aquestes proves són les que fan que això no arribi
  * mai a passar per aquest camí.
@@ -52,7 +52,7 @@ describe('el que falta', () => {
     expect(llegeixAjust({ punts: '', nota: 'perquè sí' })).toBe('punts')
   })
 
-  it('i els punts sense nota són el cas que la migració 69 refusa', () => {
+  it('i els punts sense nota són el cas que la migració 72 refusa', () => {
     expect(llegeixAjust({ punts: '20', nota: '' })).toBe('nota')
   })
 

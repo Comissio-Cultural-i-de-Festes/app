@@ -15,6 +15,7 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
 import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
+import { paidHeader } from './payments'
 import {
   type AttendeeRow,
   fetchAttendees,
@@ -349,11 +350,13 @@ function PaidList({
   const locale = toLocale(i18n.resolvedLanguage)
   const client = useQueryClient()
 
-  const paid = rows.filter((r) => r.pagado)
+  // Què respon aquesta pantalla, que no és la mateixa pregunta segons si hi ha
+  // preu. Viu fora del component perquè és la decisió i no el dibuix.
+  const head = paidHeader(priceCents, rows)
   // A free event has no money to count, so the whole green half disappears
   // rather than standing there reading "0 €".
   const each = formatPrice(priceCents, INTL_LOCALE[locale])
-  const total = each === null ? null : formatMoney(paid.length * priceCents, INTL_LOCALE[locale])
+  const total = each === null ? null : formatMoney(head.n * priceCents, INTL_LOCALE[locale])
 
   const toggle = useMutation({
     mutationFn: ({ id, pagado }: { id: string; pagado: boolean }) => setPaid(id, pagado),
@@ -365,17 +368,15 @@ function PaidList({
   return (
     <>
       <section className={`pt-8 ${GUTTER}`}>
-        <h1 className="display text-d-md leading-[0.9] tracking-[-0.05em]">
-          {t('junta.payments.whoPaid')}
-        </h1>
+        <h1 className="display text-d-md leading-[0.9] tracking-[-0.05em]">{t(head.titleKey)}</h1>
 
         <div className="mt-7 flex items-end gap-7">
           <div>
             <p className="display text-d-xl leading-[0.95] tracking-[-0.055em] tabular-nums">
-              {paid.length}
+              {head.n}
             </p>
             <p className="mt-1 text-sm font-bold text-fg-muted">
-              {t('junta.payments.ofSignedUp', { count: rows.length })}
+              {t(head.subKey, { count: head.subCount })}
             </p>
           </div>
           {each === null || total === null ? null : (
@@ -389,7 +390,7 @@ function PaidList({
         </div>
 
         <Notice tone="neutral" size="tight" className="mt-8 font-medium">
-          {t('junta.payments.bizum')}
+          {t(head.noticeKey)}
         </Notice>
       </section>
 
@@ -405,63 +406,34 @@ function PaidList({
         </p>
       ) : (
         <ul className="mt-10">
-          {rows.map((r) => (
-            <li key={r.id}>
-              <button
-                type="button"
-                aria-pressed={r.pagado}
-                disabled={toggle.isPending}
-                onClick={() => {
+          {rows.map((r) =>
+            head.free ? (
+              <GuestRow key={r.id} row={r} />
+            ) : (
+              <PaidRow
+                key={r.id}
+                row={r}
+                each={each}
+                busy={toggle.isPending}
+                onToggle={() => {
                   toggle.mutate({ id: r.id, pagado: !r.pagado })
                 }}
-                className={
-                  `flex min-h-[56px] w-full items-center gap-4 border-b border-surface-4 ` +
-                  `px-[var(--ds-gutter)] py-[11px] text-left ` +
-                  (r.pagado ? 'bg-[var(--ds-bg-paid)]' : '')
-                }
-              >
-                <span
-                  aria-hidden="true"
-                  className={
-                    'flex size-[26px] flex-none items-center justify-center rounded-full text-sm font-extrabold ' +
-                    (r.pagado
-                      ? 'bg-success text-[var(--ds-bg-app)]'
-                      : 'border-[1.5px] border-[var(--ds-border-input)] text-transparent')
-                  }
-                >
-                  ✓
-                </span>
-                <Avatar src={r.profiles?.avatar_url ?? null} size={36} />
-                <span className="min-w-0 flex-1">
-                  <span className="block truncate text-base font-semibold">
-                    {r.profiles?.nombre ?? '—'}
-                  </span>
-                  <span
-                    className={
-                      'mt-[2px] block text-sm-lo font-bold tracking-[0.06em] uppercase ' +
-                      (r.pagado ? 'text-success' : 'text-[var(--ds-warning-deep)]')
-                    }
-                  >
-                    {r.pagado ? t('junta.payments.paid') : t('junta.payments.pending')}
-                  </span>
-                </span>
-                <span
-                  className={
-                    'flex-none text-right text-lg font-extrabold tabular-nums ' +
-                    (r.pagado ? 'text-success' : 'text-fg-dim')
-                  }
-                >
-                  {r.pagado ? (each ?? '✓') : '—'}
-                </span>
-              </button>
-            </li>
-          ))}
+              />
+            ),
+          )}
         </ul>
       )}
 
-      <p className={`pt-7 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}>
-        {t('junta.payments.chaseThem')}
-      </p>
+      {/* Qui no ha pagat no existeix quan no hi ha res a pagar, i perseguir-lo
+          tampoc. La línia se'n va sencera en comptes de quedar-se dient una
+          feina que ningú no ha de fer. */}
+      {head.free ? null : (
+        <p
+          className={`pt-7 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
+        >
+          {t('junta.payments.chaseThem')}
+        </p>
+      )}
 
       {toggle.isError ? (
         <p role="alert" className={`pt-4 text-md font-bold text-error ${GUTTER}`}>
@@ -469,6 +441,117 @@ function PaidList({
         </p>
       ) : null}
     </>
+  )
+}
+
+/**
+ * Una fila que es toca: verd amb disc ple si ha pagat, ambre amb anella si no.
+ *
+ * Els dos estats s'han de distingir amb mala llum i de nit, o sigui que no es
+ * diferencien només pel to: hi ha el disc, hi ha la paraula i hi ha l'import.
+ */
+function PaidRow({
+  row,
+  each,
+  busy,
+  onToggle,
+}: {
+  readonly row: AttendeeRow
+  readonly each: string | null
+  readonly busy: boolean
+  readonly onToggle: () => void
+}) {
+  const { t } = useTranslation()
+
+  return (
+    <li>
+      <button
+        type="button"
+        aria-pressed={row.pagado}
+        disabled={busy}
+        onClick={onToggle}
+        className={
+          `flex min-h-[56px] w-full items-center gap-4 border-b border-surface-4 ` +
+          `px-[var(--ds-gutter)] py-[11px] text-left ` +
+          (row.pagado ? 'bg-[var(--ds-bg-paid)]' : '')
+        }
+      >
+        <span
+          aria-hidden="true"
+          className={
+            'flex size-[26px] flex-none items-center justify-center rounded-full text-sm font-extrabold ' +
+            (row.pagado
+              ? 'bg-success text-[var(--ds-bg-app)]'
+              : 'border-[1.5px] border-[var(--ds-border-input)] text-transparent')
+          }
+        >
+          ✓
+        </span>
+        <Avatar src={row.profiles?.avatar_url ?? null} size={36} />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-base font-semibold">
+            {row.profiles?.nombre ?? '—'}
+          </span>
+          <span
+            className={
+              'mt-[2px] block text-sm-lo font-bold tracking-[0.06em] uppercase ' +
+              (row.pagado ? 'text-success' : 'text-[var(--ds-warning-deep)]')
+            }
+          >
+            {row.pagado ? t('junta.payments.paid') : t('junta.payments.pending')}
+          </span>
+        </span>
+        <span
+          className={
+            'flex-none text-right text-lg font-extrabold tabular-nums ' +
+            (row.pagado ? 'text-success' : 'text-fg-dim')
+          }
+        >
+          {row.pagado ? (each ?? '✓') : '—'}
+        </span>
+      </button>
+    </li>
+  )
+}
+
+/**
+ * La mateixa persona quan no hi ha res a cobrar: un nom, i prou.
+ *
+ * NO ÉS UN BOTÓ. Marcar algú com a pagat en una activitat de franc no vol dir
+ * res, i un botó que no vol dir res és pitjor que cap: es toca sense voler i
+ * escriu. El que hi havia a la segona línia —PAGAT o PENDENT— el substitueixen
+ * l'escola i el curs, que és el que la junta mira quan repassa qui ve.
+ *
+ * `attendances.pagado` no es toca: si l'activitat passa a tenir preu, el que
+ * s'hagués marcat abans hi continua sent i aquestes files tornen a ser botons.
+ */
+function GuestRow({ row }: { readonly row: AttendeeRow }) {
+  const { t } = useTranslation()
+
+  const line = [
+    row.profiles?.escola == null ? null : t(`escolaShort.${row.profiles.escola}`),
+    row.profiles?.curs == null ? null : t(`onboarding.year.${row.profiles.curs}`),
+  ]
+    .filter((s): s is string => s !== null)
+    .join(' · ')
+
+  return (
+    <li
+      className={
+        `flex min-h-[56px] items-center gap-4 border-b border-surface-4 ` +
+        `px-[var(--ds-gutter)] py-[11px]`
+      }
+    >
+      <Avatar src={row.profiles?.avatar_url ?? null} size={36} />
+      <span className="min-w-0 flex-1">
+        <span className="block truncate text-base font-semibold">
+          {row.profiles?.nombre ?? '—'}
+        </span>
+        {line === '' ? null : (
+          <span className="mt-[2px] block text-sm-lo text-[var(--ds-text-muted-lo)]">{line}</span>
+        )}
+      </span>
+    </li>
   )
 }
 

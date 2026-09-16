@@ -7,6 +7,7 @@ import { LegalLinks } from '@/features/legal/LegalLinks'
 import { fetchSchools, rankingKeys } from '@/features/ranking/api'
 import { useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
+import { INSTAGRAM_MAX, isInstagramHandle, normaliseInstagram } from '@/features/profile/instagram'
 import { errorKey } from '@/lib/errors'
 import { ESCOLES, type Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -15,7 +16,7 @@ import { Wordmark } from '@/ui/Logo/Logo'
 import { fetchDegrees, looksLikePhone, onboardingKeys, saveFirstRun } from './api'
 
 /**
- * The four questions asked once, right after the door.
+ * The five questions asked once, right after the door.
  *
  * Only the school is required, and it is required because points go to a
  * school: somebody without one is missing from half of what the app is for.
@@ -23,6 +24,18 @@ import { fetchDegrees, looksLikePhone, onboardingKeys, saveFirstRun } from './ap
  *
  * The school cards carry live numbers — how many members, what position — so
  * the choice reads as joining a side rather than filling in a form.
+ *
+ * L'INSTAGRAM ES DEMANA AQUÍ encara que la pantalla on es veu sigui una altra.
+ * Aquest és el moment en què algú s'està donant d'alta i vol precisament que el
+ * trobin, i és de franc: viu a `profiles`, o sigui una clau més al `update` que
+ * ja hi havia. Demanar-lo només a `/perfil/editar` voldria dir que la columna
+ * neix buida per a tothom qui ja hi és i gairebé buida per als nous.
+ *
+ * LA PORTA NO ES MOU PERÒ SÍ QUE MIRA SI EL QUE S'HI HA ESCRIT VAL, igual que
+ * el telèfon: buit continua sent perfectament vàlid —no és obligatori— i el que
+ * s'evita és que prémer «Entrar» amb un nom impossible torni un 23514 que la
+ * persona no pot llegir. `escola !== null` continua sent l'única cosa que de
+ * debò es demana.
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -39,6 +52,21 @@ const COURSES = [1, 2, 3, 4, 5] as const
  */
 const OTHER = '__altre__'
 
+/**
+ * Puja el camp a mitja pantalla quan rep el focus.
+ *
+ * A iOS instal·lat el teclat tapa els últims camps i el botó de desar, i la
+ * pantalla no es pot saltar. `scrollIntoView` no serveix —el teclat no canvia
+ * l'alçada del viewport de disposició, així que el navegador es creu que el
+ * camp ja es veu— i per això és un desplaçament a mà, i només si el camp ha
+ * quedat a la meitat de sota.
+ */
+function keepAboveKeyboard(el: HTMLElement): void {
+  const box = el.getBoundingClientRect()
+  const half = window.innerHeight / 2
+  if (box.top > half) window.scrollBy({ top: box.top - half })
+}
+
 export function OnboardingScreen() {
   const { t } = useTranslation()
   const navigate = useNavigate()
@@ -47,6 +75,7 @@ export function OnboardingScreen() {
   const { data: profile } = useMyProfile()
   const grauId = useId()
   const phoneId = useId()
+  const igId = useId()
 
   const [escola, setEscola] = useState<Escola | null>(null)
   const [grau, setGrau] = useState('')
@@ -55,6 +84,7 @@ export function OnboardingScreen() {
   const [typing, setTyping] = useState(false)
   const [curs, setCurs] = useState<number | null>(null)
   const [phone, setPhone] = useState('')
+  const [instagram, setInstagram] = useState('')
 
   const degrees = useQuery({
     queryKey: onboardingKeys.degrees(escola),
@@ -79,6 +109,7 @@ export function OnboardingScreen() {
         escola,
         grau: grau.trim() === '' ? null : grau.trim(),
         curs,
+        instagram: normaliseInstagram(instagram),
         telefon: phone.trim() === '' ? null : phone.trim(),
       })
     },
@@ -89,7 +120,9 @@ export function OnboardingScreen() {
   })
 
   const phoneOk = phone.trim() === '' || looksLikePhone(phone)
-  const ready = escola !== null && phoneOk
+  const igValue = normaliseInstagram(instagram)
+  const igOk = igValue === null || isInstagramHandle(igValue)
+  const ready = escola !== null && phoneOk && igOk
 
   return (
     <main className="min-h-dvh bg-app pt-[var(--ds-safe-top-min)] pb-[calc(var(--ds-safe-bottom)+16px)]">
@@ -293,16 +326,8 @@ export function OnboardingScreen() {
             onChange={(e) => {
               setPhone(e.target.value)
             }}
-            // El telèfon és l'últim camp i el botó de desar és just a sota: a
-            // iOS instal·lat el teclat els tapa tots dos i la pantalla no es
-            // pot saltar. `scrollIntoView` no serveix —el teclat no canvia
-            // l'alçada del viewport de disposició, així que el navegador es
-            // creu que el camp ja es veu— i per això és un desplaçament a mà,
-            // i només si el camp ha quedat a la meitat de sota.
             onFocus={(e) => {
-              const box = e.currentTarget.getBoundingClientRect()
-              const half = window.innerHeight / 2
-              if (box.top > half) window.scrollBy({ top: box.top - half })
+              keepAboveKeyboard(e.currentTarget)
             }}
             type="tel"
             inputMode="tel"
@@ -318,6 +343,56 @@ export function OnboardingScreen() {
         </div>
         <p className="mt-4 text-sm-lo font-medium text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
           {phoneOk ? t('onboarding.phone.why') : t('onboarding.phone.invalid')}
+        </p>
+      </section>
+
+      {/* Al costat del telèfon perquè són les dues maneres de trobar algú, i
+          just després perquè aquesta és pública i l'altra no: llegides
+          seguides, les dues línies de sota ho diuen sense haver-ho d'explicar.
+          L'arrova va dibuixada i no escrita, com el `+34`. */}
+      <section className={`mt-9 ${GUTTER}`}>
+        <label htmlFor={igId} className="block eyebrow text-fg-muted">
+          {t('onboarding.instagram.label')}
+        </label>
+        <div
+          className={
+            'mt-4 flex min-h-[50px] items-center gap-[10px] border-[1.5px] bg-surface-1 px-[14px] py-[13px] ' +
+            (igOk ? 'border-surface-7' : 'border-warning')
+          }
+        >
+          <span aria-hidden="true" className="flex-none text-lg font-semibold text-fg-faint">
+            @
+          </span>
+          <input
+            id={igId}
+            value={instagram}
+            onChange={(e) => {
+              setInstagram(e.target.value)
+            }}
+            onFocus={(e) => {
+              keepAboveKeyboard(e.currentTarget)
+            }}
+            type="text"
+            inputMode="text"
+            autoComplete="off"
+            autoCapitalize="none"
+            autoCorrect="off"
+            spellCheck={false}
+            enterKeyHint="done"
+            // Trenta és el màxim del nom i l'arrova que la gent escriu davant
+            // no hi compta, així que el camp n'admet una més.
+            maxLength={INSTAGRAM_MAX + 1}
+            aria-invalid={!igOk}
+            placeholder={t('onboarding.instagram.placeholder')}
+            className={
+              'w-full flex-1 border-0 bg-transparent p-0 text-lg font-semibold tracking-[0.02em] ' +
+              'text-fg outline-none caret-[var(--ds-brand-strong)] placeholder:font-medium ' +
+              'placeholder:text-fg-faint'
+            }
+          />
+        </div>
+        <p className="mt-4 text-sm-lo font-medium text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+          {igOk ? t('onboarding.instagram.why') : t('onboarding.instagram.invalid')}
         </p>
       </section>
 

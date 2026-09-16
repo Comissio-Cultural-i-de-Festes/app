@@ -705,10 +705,14 @@
       "title": "Pagaments i junta",
       "pickEvent": "De quin esdeveniment",
       "whoPaid": "Qui ha pagat",
+      "whoComes": "Qui ve",
       "ofSignedUp_one": "d'{{count}} apuntat",
       "ofSignedUp_other": "de {{count}} apuntats",
+      "saidYes_one": "que ha dit que sí",
+      "saidYes_other": "que han dit que sí",
       "eachOne": "registrats a {{price}} cadascun",
       "bizum": "El Bizum va a part, com sempre. Aquí només ho marques per no acabar amb un Excel al mòbil.",
+      "free": "Aquesta activitat és de franc. No hi ha res a cobrar.",
       "paid": "Pagat",
       "pending": "Pendent",
       "nobody": "Encara no s'hi ha apuntat ningú. Quan diguin que sí sortiran aquí.",
@@ -974,7 +978,7 @@
       "workCount_one": "{{count}} cosa",
       "workCount_other": "{{count}} coses",
       "workNone": "Res a fer",
-      "workNoneSub": "Ningú espera aprovació, tothom ha pagat i no hi ha esborranys.",
+      "workNoneSub": "Ningú espera aprovació i no hi ha esborranys.",
       "workFailed": "No hem pogut comptar què queda per fer",
       "pending_one": "espera que el deixis entrar",
       "pending_other": "esperen que els deixis entrar",
@@ -1356,7 +1360,7 @@
   },
   "onboarding": {
     "title": "Ja ets dins",
-    "lede": "Quatre coses i entres. El nom i la foto ja els tenim del teu Google, mira que estiguin bé.",
+    "lede": "Cinc coses i entres. El nom i la foto ja els tenim del teu Google, mira que estiguin bé.",
     "nameHint": "Posa-hi el nom amb què et diuen a la comi, no el del DNI.",
     "school": {
       "label": "La teva escola",
@@ -1387,6 +1391,12 @@
       "placeholder": "600 00 00 00",
       "why": "Només per afegir-te al grup de WhatsApp. No surt al teu perfil ni el veu ningú més que la comi.",
       "invalid": "Aquest número no acaba de quadrar. Deixa-ho en blanc si no el vols posar."
+    },
+    "instagram": {
+      "label": "Instagram",
+      "placeholder": "elteucompte",
+      "why": "Perquè et puguin seguir. Aquest sí que surt al teu perfil i el veuen els altres socis.",
+      "invalid": "Això no és un nom d'usuari. Només lletres, xifres, punt i guió baix."
     },
     "cta": {
       "ready": "Entrar",
@@ -1497,6 +1507,12 @@
       "saved": "Desat",
       "everywhere": "Es veurà a tot arreu de seguida."
     },
+    "instagram": {
+      "label": "Instagram",
+      "placeholder": "elteucompte",
+      "hint": "Surt al teu perfil perquè els altres socis et puguin seguir. Deixa-ho en blanc si no el vols posar.",
+      "invalid": "Això no és un nom d'usuari. Només lletres, xifres, punt i guió baix, i sense l'adreça sencera."
+    },
     "locked": {
       "title": "Això no es canvia aquí",
       "school": "Escola, curs i grau",
@@ -1526,6 +1542,8 @@
       "photoSubGoogle": "Ara mateix, la del Google",
       "photoSubOwn": "La que has pujat tu",
       "photoSubNone": "Ara mateix, les ratlles",
+      "instagram": "Instagram",
+      "instagramNone": "Encara no l'has posat",
       "public": "Surto al rànquing públic",
       "publicOn": "Hi surts amb nom i cara.",
       "publicOff": "No hi surts, però els teus punts segueixen sumant per la teva escola.",
@@ -1761,6 +1779,7 @@
     "ok": "Fitxat. Ja és dins",
     "okWalkin": "No estava apuntat, però endavant",
     "okWalkinReview": "Entra, però no estava apuntat ni ha pagat",
+    "okWalkinReviewFree": "Entra, però no estava apuntat",
     "alreadyCheckedIn": "Aquest QR ja s'ha fet servir",
     "notAMember": "Aquest QR no és de la comi",
     "memberInactive": "Encara no està donat d'alta",
@@ -1770,6 +1789,7 @@
     "action": {
       "okWalkin": "No estava apuntat. Ja consta que ha vingut.",
       "okWalkinReview": "Mira que pagui abans d’entrar, o apunta-ho.",
+      "okWalkinReviewFree": "Hi ha places comptades. Apunta-ho perquè el número quadri.",
       "alreadyCheckedIn": "Ja havia passat. Si insisteix, mira-ho a l’alta manual.",
       "notAMember": "Que et digui el nom i el busques a mà. No el deixis passar sense apuntar-lo.",
       "memberInactive": "Que demani entrar. L’aproveu demà des de la zona junta.",

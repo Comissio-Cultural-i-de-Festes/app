@@ -705,10 +705,14 @@
       "title": "Payments and committee",
       "pickEvent": "Which event",
       "whoPaid": "Who has paid",
+      "whoComes": "Who is coming",
       "ofSignedUp_one": "of {{count}} signed up",
       "ofSignedUp_other": "of {{count}} signed up",
+      "saidYes_one": "who said yes",
+      "saidYes_other": "who said yes",
       "eachOne": "logged at {{price}} each",
       "bizum": "The money still moves the way it always has. This is only so nobody ends up keeping a spreadsheet on their phone.",
+      "free": "This one is free. There is nothing to collect.",
       "paid": "Paid",
       "pending": "Pending",
       "nobody": "Nobody has signed up yet. They appear here once they say yes.",
@@ -974,7 +978,7 @@
       "workCount_one": "{{count}} thing",
       "workCount_other": "{{count}} things",
       "workNone": "Nothing to do",
-      "workNoneSub": "Nobody is waiting to be approved, everybody has paid and there are no drafts.",
+      "workNoneSub": "Nobody is waiting to be approved and there are no drafts.",
       "workFailed": "We could not count what is left to do",
       "pending_one": "is waiting to be let in",
       "pending_other": "are waiting to be let in",
@@ -1356,7 +1360,7 @@
   },
   "onboarding": {
     "title": "You're in",
-    "lede": "Four things and you are in. We already have your name and photo from Google — check they look right.",
+    "lede": "Five things and you are in. We already have your name and photo from Google — check they look right.",
     "nameHint": "Use the name people call you here, not the one on your ID.",
     "school": {
       "label": "Your school",
@@ -1387,6 +1391,12 @@
       "placeholder": "600 00 00 00",
       "why": "Only so we can add you to the WhatsApp group. It does not appear on your profile and nobody outside the committee sees it.",
       "invalid": "That number does not look right. Leave it blank if you would rather not."
+    },
+    "instagram": {
+      "label": "Instagram",
+      "placeholder": "yourhandle",
+      "why": "So people can follow you. This one does show on your profile and other members see it.",
+      "invalid": "That is not a username. Letters, numbers, full stop and underscore only."
     },
     "cta": {
       "ready": "Go in",
@@ -1497,6 +1507,12 @@
       "saved": "Saved",
       "everywhere": "It will show everywhere right away."
     },
+    "instagram": {
+      "label": "Instagram",
+      "placeholder": "yourhandle",
+      "hint": "It shows on your profile so other members can follow you. Leave it blank if you would rather not.",
+      "invalid": "That is not a username. Letters, numbers, full stop and underscore only, and not the whole address."
+    },
     "locked": {
       "title": "This is not changed here",
       "school": "School, year and degree",
@@ -1526,6 +1542,8 @@
       "photoSubGoogle": "Right now, the Google one",
       "photoSubOwn": "The one you uploaded",
       "photoSubNone": "Right now, the stripes",
+      "instagram": "Instagram",
+      "instagramNone": "You have not added it yet",
       "public": "Show me in the public ranking",
       "publicOn": "You appear with your name and face.",
       "publicOff": "You do not appear, but your points still count for your school.",
@@ -1761,6 +1779,7 @@
     "ok": "Checked in",
     "okWalkin": "Not on the list, but come on in",
     "okWalkinReview": "Let them in — not signed up and not paid",
+    "okWalkinReviewFree": "Let them in — not signed up",
     "alreadyCheckedIn": "This QR has already been used",
     "notAMember": "This QR isn't one of ours",
     "memberInactive": "This account isn't active yet",
@@ -1770,6 +1789,7 @@
     "action": {
       "okWalkin": "They were not signed up. It is recorded now.",
       "okWalkinReview": "Check they pay on the way in, or note it down.",
+      "okWalkinReviewFree": "Places are capped. Note it down so the count adds up.",
       "alreadyCheckedIn": "They already came through. If they insist, check the manual list.",
       "notAMember": "Ask their name and find them by hand. Do not wave them through unrecorded.",
       "memberInactive": "Have them ask to join. You approve it tomorrow from the junta area.",

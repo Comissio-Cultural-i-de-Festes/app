@@ -7,7 +7,7 @@
 -- to decide.
 
 begin;
-select plan(15);
+select plan(16);
 
 reset role;
 
@@ -181,6 +181,27 @@ select is(
   (select count(*)::int from public.events
     where tipo <> 'reunio' and starts_at >= now() - interval '8 hours'),
   'ni es compta al calendari, que te el seu bloc a part'
+);
+
+-- ── i una activitat de franc no deu res a ningú ────────────────────────────
+-- El bessó de l'assert de més amunt: la mateixa gent, la mateixa absència de
+-- `pagado`, i preu zero. `attendances.pagado` arrenca a false per a tothom, o
+-- sigui que sense la condició del preu aquest número seria 3 —tothom qui ha dit
+-- que sí— i el rebedor diria que hi ha feina quan no n'hi ha gens.
+--
+-- És el mateix esdeveniment de sempre, tornat a la finestra de la porta.
+reset role;
+update public.events
+   set starts_at = now() + interval '3 hours',
+       precio_cents = 0
+ where id = (select avui from who);
+
+select tests.authenticate_as('junta_alfa');
+
+select is(
+  (public.junta_home()->'porta'->>'no_pagats')::int,
+  0,
+  'a una activitat sense preu no hi ha ningu que no hagi pagat'
 );
 
 select * from finish();

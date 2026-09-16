@@ -136,7 +136,7 @@ export async function setHideFromRanking(userId: string, hidden: boolean): Promi
 }
 
 /**
- * El nom i la foto, les dues coses que es poden canviar del perfil.
+ * El nom i l'Instagram, que és el que porta el botó «Desa».
  *
  * Van pel `update` directe i no per una RPC: `profiles` té el `grant update`
  * columna a columna des de la migració 03 i `profiles_update_self` a la 04, i
@@ -146,9 +146,25 @@ export async function setHideFromRanking(userId: string, hidden: boolean): Promi
  *
  * El `.select('id')` no és decoració: sense ell un `update` que cap fila
  * satisfà torna 200 amb un array buit, i això és indistinguible d'haver desat.
+ *
+ * UNA SOLA SENTÈNCIA I NO DUES. Les dues columnes són de la mateixa taula, així
+ * que partir-ho en `setMyName` i `setMyInstagram` només compraria dues anades i
+ * tornades i un estat impossible d'explicar: el nom desat, l'Instagram refusat
+ * amb un 23514, i una pantalla que diu que ha fallat mentre la meitat ja hi és.
+ * Amb una sentència, o hi són tots dos o no hi és cap.
+ *
+ * `instagram` s'envia sempre, també quan és null: és així com es treu, i
+ * ometre'l voldria dir que un cop posat no es pot desar mai més la seva
+ * absència.
  */
-export async function setMyName(userId: string, nombre: string): Promise<void> {
-  await unwrap(supabase.from('profiles').update({ nombre }).eq('id', userId).select('id'))
+export async function setMyNameAndInstagram(
+  userId: string,
+  nombre: string,
+  instagram: string | null,
+): Promise<void> {
+  await unwrap(
+    supabase.from('profiles').update({ nombre, instagram }).eq('id', userId).select('id'),
+  )
 }
 
 /**

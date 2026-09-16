@@ -5,6 +5,7 @@ import { Link, useNavigate, useParams } from 'react-router'
 
 import { formatMoney, formatPrice } from '@/features/event/api'
 import { horizonIso } from '@/features/home/api'
+import { memberSubtitle } from '@/features/member/subtitle'
 import { formatDayMonth } from '@/i18n/format'
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
@@ -528,12 +529,15 @@ function PaidRow({
 function GuestRow({ row }: { readonly row: AttendeeRow }) {
   const { t } = useTranslation()
 
-  const line = [
-    row.profiles?.escola == null ? null : t(`escolaShort.${row.profiles.escola}`),
-    row.profiles?.curs == null ? null : t(`onboarding.year.${row.profiles.curs}`),
-  ]
-    .filter((s): s is string => s !== null)
-    .join(' · ')
+  // Sense grau a posta: la fila és de 56px i el grau és text lliure que la gent
+  // escriu sencer —«Enginyeria Informàtica de Gestió i Sistemes d'Informació»—,
+  // que en una llista de quaranta persones empeny l'escola i el curs fora.
+  const line = memberSubtitle({
+    escola: row.profiles?.escola == null ? null : t(`escolaShort.${row.profiles.escola}`),
+    curs: row.profiles?.curs == null ? null : t(`onboarding.year.${row.profiles.curs}`),
+    grau: null,
+    cua: null,
+  })
 
   return (
     <li

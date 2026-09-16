@@ -55,6 +55,27 @@ export interface AvisRow {
   readonly points_log: { readonly puntos: number } | null
 }
 
+/**
+ * Les quatre columnes que el comptador necessita, i cap més.
+ *
+ * SENSE LA NOTA, i això és el motiu pel qual aquesta lectura no reaprofita
+ * `AvisRow`. La llista de socis només ha de pintar un número al costat d'un
+ * nom; baixar-se amb ell el motiu escrit de cada avís de tothom seria posar el
+ * registre disciplinari sencer al telèfon de qui obre una llista.
+ */
+export interface AvisPeriode {
+  readonly user_id: string
+  readonly gravetat: number
+  readonly created_at: string
+  readonly retirat_at: string | null
+}
+
+/** Quants n'hi ha de vius i quanta gravetat sumen, per a una persona. */
+export interface AvisCompte {
+  readonly quants: number
+  readonly gravetat: number
+}
+
 export const avisosKeys = {
   tipus: () => ['junta', 'avisos', 'tipus'] as const,
   ofMember: (userId: string) => ['junta', 'avisos', 'soci', userId] as const,
@@ -62,9 +83,11 @@ export const avisosKeys = {
 }
 
 const TIPUS_COLS = 'clau, gravetat, punts_suggerits, etiqueta, actiu, ordre'
+
 const AVIS_COLS =
   'id, user_id, tipus, gravetat, nota, event_id, created_at, retirat_at, retirat_nota, ' +
   'points_log!avisos_points_log_id_fkey(puntos)'
+const COMPTE_COLS = 'user_id, gravetat, created_at, retirat_at'
 
 /**
  * El catàleg sencer, retirats inclosos.
@@ -87,6 +110,24 @@ export async function fetchAvisos(userId: string): Promise<AvisRow[]> {
       .eq('user_id', userId)
       .order('created_at', { ascending: false }),
   )
+}
+
+/**
+ * Els comptadors del curs, per a la llista de socis i el rebedor.
+ *
+ * DUES COLUMNES DE MENYS I CAP RPC. `avisos_del_periode()` era la manera que
+ * proposava l'issue; per què no hi és i què costaria tornar-hi està escrit
+ * sencer a `avisosCompte.ts`, que és on es fa el recompte.
+ *
+ * SENSE FILTRE PER DATA A LA CONSULTA, i a posta. La finestra la sap la
+ * pantalla —`defaultPeriod(usePeriods())`, que és la fila `global` de
+ * `ranking_periods` i per tant la mateixa que `private.periode_curs()`— i
+ * filtrar aquí obligaria a passar-la-hi com a paràmetre i a tenir una clau de
+ * cache per finestra. Les files d'una associació hi caben totes; la que decideix
+ * quines compten és `compta()`, en un sol lloc i amb prova.
+ */
+export async function fetchAvisComptes(): Promise<AvisPeriode[]> {
+  return unwrapAs<AvisPeriode[]>(supabase.from('avisos').select(COMPTE_COLS))
 }
 
 /**

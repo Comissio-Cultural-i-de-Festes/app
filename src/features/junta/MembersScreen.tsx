@@ -7,8 +7,11 @@ import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
+import { avisosKeys, fetchAvisComptes } from './avisosApi'
+import { compta, passaElLlindar } from './avisosCompte'
 import { JuntaHeader } from './JuntaHeader'
 import { type MemberRow, fetchAllMembers, memberKeys, setMemberEstat } from './membersApi'
+import { useLlindar } from './useLlindar'
 
 /**
  * Who is in the association.
@@ -26,6 +29,22 @@ import { type MemberRow, fetchAllMembers, memberKeys, setMemberEstat } from './m
  *
  * `pendent` is not shown. Approving somebody is the invitations screen's whole
  * purpose, and two places to approve from is two behaviours that drift.
+ *
+ * EL COMPTADOR D'AVISOS I LA MARCA DEL LLINDAR. Fins ara `point_values` tenia
+ * una fila `avisos.llindar` que la junta podia moure, amb l'etiqueta «Llindar
+ * per mirar-s'ho», i no la llegia ningú: un número que prometia una cosa i no en
+ * feia cap. Aquesta és la pantalla que la promet, i per això és aquí que es
+ * compleix.
+ *
+ * LA MARCA NO FA RES, i això s'ha de poder llegir de la pantalla. No dona de
+ * baixa, no bloqueja, no envia res: diu «mira-t'ho». Donar de baixa continua sent
+ * el botó del costat, amb la seva confirmació i el seu registre, i han de
+ * continuar semblant dues coses diferents perquè ho són.
+ *
+ * I ELS DOS NÚMEROS NO ATUREN LA LLISTA. Els comptadors i el llindar són dues
+ * consultes més, i si triguen o fallen la llista surt igual sense la marca. Qui
+ * ve a buscar una persona no ha d'esperar un número que no ha demanat — és la
+ * mateixa regla que el rebedor de `/junta` es va escriure per a les seves files.
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -39,6 +58,10 @@ export function MembersScreen() {
   const [done, setDone] = useState<{ nombre: string; estat: 'actiu' | 'baixa' } | null>(null)
 
   const members = useQuery({ queryKey: memberKeys.list(), queryFn: fetchAllMembers })
+  const comptes = useQuery({ queryKey: avisosKeys.comptes(), queryFn: fetchAvisComptes })
+  const { llindar, des_de, fins_a } = useLlindar()
+
+  const perSoci = compta(comptes.data ?? [], des_de, fins_a)
 
   const change = useMutation({
     mutationFn: (v: { readonly row: MemberRow; readonly estat: 'actiu' | 'baixa' }) =>
@@ -172,6 +195,28 @@ export function MembersScreen() {
                         .filter((s): s is string => s !== null && s !== '')
                         .join(' · ')}
                     </span>
+                    {/* El comptador del curs, i només quan n'hi ha. «0 avisos»
+                        sota cada nom convertiria una llista de socis en un
+                        expedient de tothom. */}
+                    {perSoci.get(row.id) === undefined ? null : (
+                      <span className="mt-[3px] flex items-center gap-3">
+                        <span className="text-sm-lo font-semibold text-[var(--ds-warning)]">
+                          {t('junta.members.avisos', {
+                            count: perSoci.get(row.id)?.quants ?? 0,
+                          })}
+                        </span>
+                        <span className="text-sm-lo text-[var(--ds-text-muted-lo)]">
+                          {t('junta.members.avisosGravetat', {
+                            total: perSoci.get(row.id)?.gravetat ?? 0,
+                          })}
+                        </span>
+                        {passaElLlindar(perSoci.get(row.id), llindar) ? (
+                          <span className="eyebrow flex-none border-[1.5px] border-[var(--ds-warning)] px-3 py-[2px] text-[var(--ds-warning)]">
+                            {t('junta.members.avisosFlag')}
+                          </span>
+                        ) : null}
+                      </span>
+                    )}
                   </span>
                   <span aria-hidden="true" className="flex-none text-lg text-fg-muted">
                     ›

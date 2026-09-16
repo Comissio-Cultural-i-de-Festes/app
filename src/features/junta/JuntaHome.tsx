@@ -19,11 +19,14 @@ import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { eventTitle } from '@/features/event/title'
 
+import { avisosKeys, fetchAvisComptes } from './avisosApi'
+import { compta, quantsPassen } from './avisosCompte'
 import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
 import { fetchHoresPendents, horesKeys } from './horesApi'
 import { fetchMeetings, meetingListKeys } from './meetingsApi'
 import { JuntaHeader } from './JuntaHeader'
+import { useLlindar } from './useLlindar'
 
 /**
  * The junta's front door.
@@ -80,6 +83,17 @@ export function JuntaHome() {
   const pendents = useQuery({ queryKey: horesKeys.pendents(), queryFn: fetchHoresPendents })
   const perVisar = pendents.data?.activitats ?? 0
 
+  // Qui ha passat el llindar de gravetat aquest curs. L'issue demanava «una
+  // entrada a /junta perquè algú ho miri», i la paraula important és MIRI: no
+  // dona de baixa ningú, no bloqueja res, no envia res. Porta a la llista de
+  // socis, que és on hi ha la marca al costat del nom i el botó de debò.
+  //
+  // Amb el llindar a zero —la sortida que la junta té per apagar-ho— no en surt
+  // cap, i llavors la fila no hi és, com les altres d'aquest bloc.
+  const comptes = useQuery({ queryKey: avisosKeys.comptes(), queryFn: fetchAvisComptes })
+  const { llindar, des_de, fins_a } = useLlindar()
+  const marcats = quantsPassen(compta(comptes.data ?? [], des_de, fins_a), llindar)
+
   // Fetched here rather than at the door: this screen is opened on the way to
   // the venue, and the scanner is opened inside it, where there is no signal.
   useEffect(() => {
@@ -109,7 +123,7 @@ export function JuntaHome() {
         aside={
           home.data === undefined
             ? undefined
-            : t('junta.home.workCount', { count: workCount(home.data, porta) })
+            : t('junta.home.workCount', { count: workCount(home.data, porta, marcats) })
         }
         amber
       />
@@ -130,7 +144,7 @@ export function JuntaHome() {
             {t('actions.retry')}
           </button>
         </div>
-      ) : workCount(home.data, porta) === 0 ? (
+      ) : workCount(home.data, porta, marcats) === 0 ? (
         <div className={`pt-6 ${GUTTER}`}>
           <p className="text-md font-bold">{t('junta.home.workNone')}</p>
           <p className="mt-2 text-sm text-fg-muted [text-wrap:pretty]">
@@ -171,6 +185,14 @@ export function JuntaHome() {
               sub={t('junta.home.draftsSub')}
             />
           )}
+          {marcats === 0 ? null : (
+            <Count
+              to="/junta/socis"
+              n={marcats}
+              title={t('junta.home.avisos', { count: marcats })}
+              sub={t('junta.home.avisosSub', { total: llindar })}
+            />
+          )}
         </div>
       )}
 
@@ -209,18 +231,12 @@ export function JuntaHome() {
           to="/junta/hores"
           title={t('junta.hores.title')}
           sub={
-            perVisar > 0
-              ? t('junta.hores.rowWork', { count: perVisar })
-              : t('junta.hores.rowSub')
+            perVisar > 0 ? t('junta.hores.rowWork', { count: perVisar }) : t('junta.hores.rowSub')
           }
           warn={perVisar > 0}
           badge={perVisar}
         />
-        <Row
-          to="/junta/rols"
-          title={t('junta.roles.title')}
-          sub={t('junta.roles.rowSub')}
-        />
+        <Row to="/junta/rols" title={t('junta.roles.title')} sub={t('junta.roles.rowSub')} />
         <Row to="/junta/idees" title={t('ideas.juntaTitle')} sub={t('junta.home.proposalsSub')} />
         <Row
           to="/junta/tauler"
@@ -335,17 +351,26 @@ export function JuntaHome() {
   )
 }
 
-/** How many separate things are asking to be done. */
+/**
+ * How many separate things are asking to be done.
+ *
+ * ELS MARCATS PEL LLINDAR HI SUMEN, i no és un detall de recompte: sense
+ * això, un dia en què l'única feina fos «algú ha passat el llindar» el bloc
+ * diria «Res a fer» i la fila no es dibuixaria, perquè el bloc sencer es
+ * decideix amb aquest número. La fila hi entra com les altres cinc.
+ */
 function workCount(
   data: { readonly pendents: number; readonly esborranys: number },
   porta: DoorNow | null,
+  marcats = 0,
 ): number {
   return (
     data.pendents +
     data.esborranys +
     (porta?.esperen ?? 0) +
     (porta?.no_pagats ?? 0) +
-    (porta?.gimcana_cua ?? 0)
+    (porta?.gimcana_cua ?? 0) +
+    marcats
   )
 }
 

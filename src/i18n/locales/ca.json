@@ -882,7 +882,11 @@
       "bringBack": "Torna a activar",
       "lede": "Qui ha marxat, qui torna. Donar de baixa no esborra res: la persona deixa d'entrar a l'app i el que va fer segueix comptant a la història.",
       "rowSub": "{{count}} persones. Donar de baixa qui ha marxat",
-      "rowSubPlain": "Donar de baixa qui ha marxat"
+      "rowSubPlain": "Donar de baixa qui ha marxat",
+      "avisos_one": "{{count}} avís",
+      "avisos_other": "{{count}} avisos",
+      "avisosGravetat": "gravetat {{total}}",
+      "avisosFlag": "Per mirar"
     },
     "soci": {
       "ledger": {
@@ -1079,6 +1083,9 @@
       "drafts_one": "esborrany sense publicar",
       "drafts_other": "esborranys sense publicar",
       "draftsSub": "Feina feta que encara no serveix de res",
+      "avisos_one": "ha passat el llindar d'avisos",
+      "avisos_other": "han passat el llindar d'avisos",
+      "avisosSub": "Gravetat {{total}} o més aquest curs. Només per mirar-s'ho",
       "now": "El que passa ara",
       "soon": "Els que venen",
       "soonCount": "{{count}} al calendari",

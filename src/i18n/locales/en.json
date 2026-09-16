@@ -882,7 +882,11 @@
       "bringBack": "Bring them back",
       "lede": "Who has left, who is back. Signing somebody out deletes nothing: they stop getting into the app and what they did still counts in the history.",
       "rowSub": "{{count}} people. Sign out whoever has left",
-      "rowSubPlain": "Sign out whoever has left"
+      "rowSubPlain": "Sign out whoever has left",
+      "avisos_one": "{{count}} warning",
+      "avisos_other": "{{count}} warnings",
+      "avisosGravetat": "severity {{total}}",
+      "avisosFlag": "Worth a look"
     },
     "soci": {
       "ledger": {
@@ -1079,6 +1083,9 @@
       "drafts_one": "draft not published",
       "drafts_other": "drafts not published",
       "draftsSub": "Work done that is not doing anything yet",
+      "avisos_one": "is over the warning threshold",
+      "avisos_other": "are over the warning threshold",
+      "avisosSub": "Severity {{total}} or more this course. Worth a look, nothing else",
       "now": "What is happening now",
       "soon": "Coming up",
       "soonCount": "{{count}} on the calendar",

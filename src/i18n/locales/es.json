@@ -882,7 +882,11 @@
       "bringBack": "Vuelve a activar",
       "lede": "Quién se ha ido, quién vuelve. Dar de baja no borra nada: la persona deja de entrar en la app y lo que hizo sigue contando en la historia.",
       "rowSub": "{{count}} personas. Dar de baja a quien se ha ido",
-      "rowSubPlain": "Dar de baja a quien se ha ido"
+      "rowSubPlain": "Dar de baja a quien se ha ido",
+      "avisos_one": "{{count}} aviso",
+      "avisos_other": "{{count}} avisos",
+      "avisosGravetat": "gravedad {{total}}",
+      "avisosFlag": "Para mirar"
     },
     "soci": {
       "ledger": {
@@ -1079,6 +1083,9 @@
       "drafts_one": "borrador sin publicar",
       "drafts_other": "borradores sin publicar",
       "draftsSub": "Trabajo hecho que todavía no sirve de nada",
+      "avisos_one": "ha pasado el umbral de avisos",
+      "avisos_other": "han pasado el umbral de avisos",
+      "avisosSub": "Gravedad {{total}} o más este curso. Solo para mirarlo",
       "now": "Lo que pasa ahora",
       "soon": "Los que vienen",
       "soonCount": "{{count}} en el calendario",

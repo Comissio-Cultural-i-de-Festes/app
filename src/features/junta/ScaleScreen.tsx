@@ -90,8 +90,31 @@ function ScaleBlock() {
         {t('junta.config.scale.lede')}
       </p>
 
-      {groups.map((group) => (
-        <section key={group.mena} className="pb-9">
+      {/* LA FRASE DEL «NO SE'N POT AFEGIR» VA AL MIG I NO AL FINAL, i això no és
+          maquetació: parla dels motius i dels tipus d'esdeveniment, on un `clau`
+          nou necessita també una CHECK i una allowlist. Al final de tot queia
+          just sota «Els avisos» i deia el contrari del que passa dues línies més
+          avall, on el catàleg d'avisos SÍ que en deixa afegir. Es va veure
+          obrint la pantalla, no llegint-la. */}
+      {renderGroups(groups.slice(0, 2))}
+
+      <p className="pb-9 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        {t('junta.config.scale.cantAdd')}
+      </p>
+
+      {renderGroups(groups.slice(2))}
+
+      {save.isError ? (
+        <p role="alert" className="pb-6 text-md font-bold text-error [text-wrap:pretty]">
+          {t(errorKey(save.error))}
+        </p>
+      ) : null}
+    </>
+  )
+
+  function renderGroups(which: typeof groups) {
+    return which.map((group) => (
+      <section key={group.mena} className="pb-9">
           <h3 className="eyebrow text-fg-muted">{group.heading}</h3>
           <ul className="mt-2">
             {rows
@@ -149,20 +172,9 @@ function ScaleBlock() {
                 )
               })}
           </ul>
-        </section>
-      ))}
-
-      {save.isError ? (
-        <p role="alert" className="pb-6 text-md font-bold text-error [text-wrap:pretty]">
-          {t(errorKey(save.error))}
-        </p>
-      ) : null}
-
-      <p className="text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-        {t('junta.config.scale.cantAdd')}
-      </p>
-    </>
-  )
+      </section>
+    ))
+  }
 }
 
 const keyOf = (v: { readonly mena: string; readonly clau: string }) => `${v.mena}:${v.clau}`

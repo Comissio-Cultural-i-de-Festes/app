@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
+import { Link } from 'react-router'
 
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -12,7 +13,12 @@ import { type MemberRow, fetchAllMembers, memberKeys, setMemberEstat } from './m
 /**
  * Who is in the association.
  *
- * Signing somebody out is the only action here, and the wording around it does
+ * DUES COSES PER FILA: la fila porta al full de la persona —el llibre major i
+ * l'ajust— i el botó del costat la dóna de baixa. Fins ara només hi havia el
+ * botó, i la llista era un cul-de-sac: es veia qui hi és i no s'hi podia fer
+ * res més que treure'l.
+ *
+ * Signing somebody out is the other action here, and the wording around it does
  * the real work: "donar de baixa" sounds like deleting somebody, and it is
  * not. Their points stay, their attendance stays, the ranking history stays.
  * What stops is the app letting them in. Saying that next to the button is the
@@ -136,27 +142,41 @@ export function MembersScreen() {
         <ul className="mt-8">
           {shown.map((row) => (
             <li key={row.id} className="border-b border-surface-4">
-              <div className={`flex min-h-[64px] items-center gap-5 py-6 ${GUTTER}`}>
-                <Avatar src={row.avatar_url} size={40} />
-                <span className="min-w-0 flex-1">
-                  <span className="flex items-center gap-3">
-                    <span className="min-w-0 truncate text-lg font-semibold">{row.nombre}</span>
-                    {row.role === 'member' ? null : (
-                      <span className="eyebrow flex-none text-brand-label">
-                        {t(`junta.role.${row.role}`)}
-                      </span>
-                    )}
+              {/* L'enllaç i el botó són germans, no un dins de l'altre: un
+                  `<button>` dins d'un `<a>` no és HTML vàlid i el navegador
+                  el treu de dins, deixant dos controls on n'hi havia d'haver
+                  un a sobre de l'altre. Així la fila porta al full de la
+                  persona i «Dóna de baixa» continua sent la seva pròpia
+                  acció. */}
+              <div className={`flex items-center gap-4 ${GUTTER}`}>
+                <Link
+                  to={`/junta/socis/${row.id}`}
+                  className="flex min-h-[64px] min-w-0 flex-1 items-center gap-5 py-6 text-fg no-underline"
+                >
+                  <Avatar src={row.avatar_url} size={40} />
+                  <span className="min-w-0 flex-1">
+                    <span className="flex items-center gap-3">
+                      <span className="min-w-0 truncate text-lg font-semibold">{row.nombre}</span>
+                      {row.role === 'member' ? null : (
+                        <span className="eyebrow flex-none text-brand-label">
+                          {t(`junta.role.${row.role}`)}
+                        </span>
+                      )}
+                    </span>
+                    <span className="mt-[2px] block truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
+                      {[
+                        row.escola === null ? null : t(`escolaShort.${row.escola}`),
+                        row.curs === null ? null : t(`onboarding.year.${row.curs}`),
+                        row.grau,
+                      ]
+                        .filter((s): s is string => s !== null && s !== '')
+                        .join(' · ')}
+                    </span>
                   </span>
-                  <span className="mt-[2px] block truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
-                    {[
-                      row.escola === null ? null : t(`escolaShort.${row.escola}`),
-                      row.curs === null ? null : t(`onboarding.year.${row.curs}`),
-                      row.grau,
-                    ]
-                      .filter((s): s is string => s !== null && s !== '')
-                      .join(' · ')}
+                  <span aria-hidden="true" className="flex-none text-lg text-fg-muted">
+                    ›
                   </span>
-                </span>
+                </Link>
 
                 {confirming === row.id ? null : (
                   <button

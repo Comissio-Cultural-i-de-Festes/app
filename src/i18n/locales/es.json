@@ -861,6 +861,30 @@
       "rowSub": "{{count}} personas. Dar de baja a quien se ha ido",
       "rowSubPlain": "Dar de baja a quien se ha ido"
     },
+    "soci": {
+      "ledger": {
+        "title": "El registro de puntos",
+        "total": "Total: {{total}}",
+        "empty": "Todavía no tiene ningún punto."
+      },
+      "adjust": {
+        "title": "Ajusta los puntos",
+        "lede": "Escribe los puntos que faltan o los que sobran. No se edita nada: queda una línea nueva en el registro, al lado de la de antes.",
+        "points": "Puntos",
+        "pointsHint": "Con signo. «-20» quita veinte.",
+        "pointsPlaceholder": "-20",
+        "pointsBad": "Un número entero, que no sea cero y que no pase de {{max}}.",
+        "note": "Por qué",
+        "noteHint": "Lo leerá {{nombre}} en su perfil.",
+        "notePlaceholder": "Contados dos veces la misma noche",
+        "noteBad": "Sin el porqué no se puede guardar.",
+        "event": "De qué noche",
+        "eventHint": "Opcional. Sin evento también es una línea válida.",
+        "eventNone": "De ninguna en concreto",
+        "save": "Guarda el ajuste",
+        "done": "Apuntado: {{punts}} para {{nombre}}."
+      }
+    },
     "role": {
       "admin": "Junta",
       "owner": "Owner"

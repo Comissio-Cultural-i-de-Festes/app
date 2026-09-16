@@ -30,6 +30,18 @@
 begin;
 select plan(16);
 
+-- L'INSTAGRAM DE BRAVO D'ABANS, CAPTURAT I NO DONAT PER FET. L'última asserció
+-- del bloc 3 comprova que alfa no ha pogut tocar la fila d'un altre, i deia
+-- «want: NULL» perquè el dia que es va escriure la llavor no en tenia cap. Però
+-- aquesta columna existeix precisament perquè els socis se l'omplin, i un cop
+-- algú va desar el seu des de l'app, la prova va petar sense que cap política
+-- hagués canviat. El que s'ha de comprovar és que el valor no s'ha mogut, no
+-- quin valor és.
+create temp table ig_bravo as
+select instagram from public.profiles
+ where id = '00000000-0000-4000-8000-000000000002';
+grant select on ig_bravo to authenticated;
+
 reset role;
 select tests.authenticate_as('alfa');
 
@@ -153,7 +165,7 @@ update public.profiles set instagram = 'segrestat'
 select is(
   (select instagram from public.profiles
     where id = '00000000-0000-4000-8000-000000000002'),
-  null,
+  (select instagram from ig_bravo),
   'i l''instagram d''un altre soci es queda com estava'
 );
 

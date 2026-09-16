@@ -1356,7 +1356,7 @@
   },
   "onboarding": {
     "title": "You're in",
-    "lede": "Four things and you are in. We already have your name and photo from Google — check they look right.",
+    "lede": "Five things and you are in. We already have your name and photo from Google — check they look right.",
     "nameHint": "Use the name people call you here, not the one on your ID.",
     "school": {
       "label": "Your school",

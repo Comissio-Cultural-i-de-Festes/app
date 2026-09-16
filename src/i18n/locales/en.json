@@ -1645,6 +1645,11 @@
     "history": {
       "title": "The last thing you did"
     },
+    "avisos": {
+      "title": "Your warnings",
+      "lede": "What the junta recorded this course and why. A struck-through one has been withdrawn: it no longer counts.",
+      "withdrawn": "Withdrawn"
+    },
     "settings": {
       "title": "Settings",
       "photo": "Your photo and your name",

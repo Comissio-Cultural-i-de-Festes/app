@@ -22,6 +22,7 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { supabase } from '@/lib/supabase'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
+import { AvisosCard } from './AvisosCard'
 import { CameraIcon } from './icons'
 import { MyCalendarRow } from './MyCalendarRow'
 import { HoresCard } from './HoresCard'
@@ -285,6 +286,12 @@ export function ProfileScreen() {
           </ul>
         </section>
       ) : null}
+
+      {/* I just sota el registre, els avisos. En aquest ordre perquè la fila
+          «Avís −25» del registre és el que fa venir aquí: la targeta és qui diu
+          de què era, quant pesava i si s'ha retirat. Es busca les seves pròpies
+          dades i no surt gens quan no n'hi ha cap. */}
+      <AvisosCard userId={userId} />
 
       <section className={`pt-12 pb-8 ${GUTTER}`}>
         <h2 className="eyebrow text-fg-muted">{t('profile.settings.title')}</h2>

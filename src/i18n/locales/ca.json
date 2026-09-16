@@ -1645,6 +1645,11 @@
     "history": {
       "title": "L'últim que has fet"
     },
+    "avisos": {
+      "title": "Els teus avisos",
+      "lede": "El que la junta ha registrat aquest curs i per què. Un de ratllat és un avís retirat: ja no compta.",
+      "withdrawn": "Retirat"
+    },
     "settings": {
       "title": "Ajustos",
       "photo": "La teva foto i el teu nom",

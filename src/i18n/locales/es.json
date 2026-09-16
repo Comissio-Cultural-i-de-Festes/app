@@ -1645,6 +1645,11 @@
     "history": {
       "title": "Lo último que has hecho"
     },
+    "avisos": {
+      "title": "Tus avisos",
+      "lede": "Lo que la junta ha registrado este curso y por qué. Uno tachado es un aviso retirado: ya no cuenta.",
+      "withdrawn": "Retirado"
+    },
     "settings": {
       "title": "Ajustes",
       "photo": "Tu foto y tu nombre",

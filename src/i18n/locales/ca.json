@@ -978,7 +978,7 @@
       "workCount_one": "{{count}} cosa",
       "workCount_other": "{{count}} coses",
       "workNone": "Res a fer",
-      "workNoneSub": "Ningú espera aprovació, tothom ha pagat i no hi ha esborranys.",
+      "workNoneSub": "Ningú espera aprovació i no hi ha esborranys.",
       "workFailed": "No hem pogut comptar què queda per fer",
       "pending_one": "espera que el deixis entrar",
       "pending_other": "esperen que els deixis entrar",

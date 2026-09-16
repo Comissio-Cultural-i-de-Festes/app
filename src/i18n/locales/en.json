@@ -978,7 +978,7 @@
       "workCount_one": "{{count}} thing",
       "workCount_other": "{{count}} things",
       "workNone": "Nothing to do",
-      "workNoneSub": "Nobody is waiting to be approved, everybody has paid and there are no drafts.",
+      "workNoneSub": "Nobody is waiting to be approved and there are no drafts.",
       "workFailed": "We could not count what is left to do",
       "pending_one": "is waiting to be let in",
       "pending_other": "are waiting to be let in",

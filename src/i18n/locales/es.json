@@ -978,7 +978,7 @@
       "workCount_one": "{{count}} cosa",
       "workCount_other": "{{count}} cosas",
       "workNone": "Nada que hacer",
-      "workNoneSub": "Nadie espera aprobación, todo el mundo ha pagado y no hay borradores.",
+      "workNoneSub": "Nadie espera aprobación y no hay borradores.",
       "workFailed": "No hemos podido contar qué queda por hacer",
       "pending_one": "espera que lo dejes entrar",
       "pending_other": "esperan que los dejes entrar",

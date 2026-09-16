@@ -21,12 +21,29 @@ import { supabase } from '@/lib/supabase'
  * trobaria res gairebé sempre —i la vegada que en trobés seria per casualitat,
  * que és pitjor.
  *
- * Comença amb una sola entrada perquè `award_points` és l'única frase que es
- * queda coixa sense el nom: «ha donat punts» sense dir a qui no contesta res.
- * Afegir-n'hi una vol dir afegir-la aquí i posar el `{{target}}` a la seva
+ * Va començar amb una sola entrada perquè `award_points` era l'única frase que
+ * es quedava coixa sense el nom: «ha donat punts» sense dir a qui no contesta
+ * res. Afegir-n'hi una vol dir afegir-la aquí i posar el `{{target}}` a la seva
  * frase dels tres locales.
+ *
+ * I AIXÒ ÉS EXACTAMENT EL QUE LA MIGRACIÓ 73 NO VA FER. `avisa()` i
+ * `retira_avis()` escriuen `target_id` amb la persona, i les seves frases deien
+ * «ha registrat un avís A ALGÚ» i «ha retirat un avís» tenint el nom a mà. En un
+ * registre disciplinari, «a algú» és pitjor que a qualsevol altra fila: qui obre
+ * `/junta/registre` per contestar «què teniu sobre mi» troba una acció que el
+ * pot afectar i cap manera de saber-ho sense obrir la base. És el mateix defecte
+ * que aquesta llista va néixer per arreglar, tornat a posar tres migracions
+ * després.
+ *
+ * `set_avis_tipus` NO HI ÉS, i no per descuit: canviar el catàleg no és una cosa
+ * que es faci A ningú. El seu `target_id` és null perquè no hi ha cap persona a
+ * l'altra banda.
  */
-export const ACCIONS_AMB_PERSONA: ReadonlySet<string> = new Set(['award_points'])
+export const ACCIONS_AMB_PERSONA: ReadonlySet<string> = new Set([
+  'award_points',
+  'avis',
+  'retira_avis',
+])
 
 export interface AuditRow {
   readonly id: string

@@ -1041,9 +1041,9 @@
         "set_hores": "{{actor}} changed an activity's hours",
         "visa_hores": "{{actor}} signed off an activity's hours",
         "hores_persona": "{{actor}} changed somebody's hours at an activity",
-        "reveal_push": "The reveal notice went out",
-        "avis": "{{actor}} recorded a warning against somebody",
-        "retira_avis": "{{actor}} withdrew a warning",
+        "reveal_push": "The reveal notification went out",
+        "avis": "{{actor}} recorded a warning against {{target}}",
+        "retira_avis": "{{actor}} withdrew a warning against {{target}}",
         "set_avis_tipus": "{{actor}} changed the warning catalogue"
       },
       "rowSub": "Who did what"

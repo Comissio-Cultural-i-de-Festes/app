@@ -1041,9 +1041,9 @@
         "set_hores": "{{actor}} ha canviat les hores d'una activitat",
         "visa_hores": "{{actor}} ha visat les hores d'una activitat",
         "hores_persona": "{{actor}} ha canviat les hores d'algú en una activitat",
-        "reveal_push": "S'ha enviat l'avís d'una revelació",
-        "avis": "{{actor}} ha registrat un avís a algú",
-        "retira_avis": "{{actor}} ha retirat un avís",
+        "reveal_push": "S'ha enviat la notificació d'una revelació",
+        "avis": "{{actor}} ha registrat un avís a {{target}}",
+        "retira_avis": "{{actor}} ha retirat un avís a {{target}}",
         "set_avis_tipus": "{{actor}} ha canviat el catàleg d'avisos"
       },
       "rowSub": "Qui ha fet què"

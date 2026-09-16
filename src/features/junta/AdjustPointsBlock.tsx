@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useId, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { profileScreenKeys } from '@/features/profile/api'
@@ -37,6 +37,17 @@ import { adjustPoints, fetchAjustEvents, memberPointsKeys } from './memberPoints
  * Sense xarxa, React Query la deixa en pausa i el que la persona ha escrit es
  * queda al formulari, que és exactament el que ha de passar quan no hi ha cap
  * lloc on desar-ho.
+ *
+ * LA VALIDACIÓ NO CRIDA, LA DESCRIU. Les dues frases d'error anaven amb
+ * `role="alert"`, i el que les fa aparèixer és cada tecla: escrivint «900» el
+ * lector de pantalla interrompia l'usuari al mig de la paraula per dir-li que
+ * el número no val, i se'n tornava a anar en escriure el caràcter següent. Ara
+ * pengen del camp per `aria-describedby`, que és el que `aria-invalid` estava
+ * anunciant sense tenir —«no vàlid» i cap manera de saber per què—. Es
+ * llegeixen en arribar al camp i en sortir-ne, que és quan serveixen.
+ *
+ * L'ERROR DE DESAR SÍ QUE ÉS UN `alert`: aquell no el produeix teclejar, el
+ * produeix apretar, i és la resposta a una acció que la persona ja ha acabat.
  */
 
 const BOX = 'mt-10 border border-surface-8 bg-surface-2 p-9'
@@ -57,6 +68,14 @@ export function AdjustPointsBlock({
   const [nota, setNota] = useState('')
   const [eventId, setEventId] = useState('')
   const [fet, setFet] = useState<number | null>(null)
+  const errPunts = useId()
+  const errNota = useId()
+  // En desar, els camps es buiden i el botó que tenia el focus es desactiva.
+  // Un element desactivat no pot tenir el focus, així que queia al `<body>`:
+  // el tabulador següent tornava a començar pel capdamunt del document i qui
+  // navega per teclat perdia el lloc just després de fer la feina. Torna al
+  // primer camp, que és on s'escriu el següent ajust si n'hi ha.
+  const primerCamp = useRef<HTMLInputElement>(null)
 
   const events = useQuery({
     queryKey: memberPointsKeys.events(),
@@ -83,6 +102,7 @@ export function AdjustPointsBlock({
       setPunts('')
       setNota('')
       setEventId('')
+      primerCamp.current?.focus()
       await client.invalidateQueries({ queryKey: profileScreenKeys.points(userId) })
       await client.invalidateQueries({ queryKey: ['ranking'] })
     },
@@ -97,6 +117,7 @@ export function AdjustPointsBlock({
 
       <Field label={t('junta.soci.adjust.points')} hint={t('junta.soci.adjust.pointsHint')}>
         <input
+          ref={primerCamp}
           value={punts}
           onChange={(e) => {
             setPunts(e.target.value)
@@ -112,13 +133,14 @@ export function AdjustPointsBlock({
           placeholder={t('junta.soci.adjust.pointsPlaceholder')}
           aria-label={t('junta.soci.adjust.points')}
           aria-invalid={lectura === 'punts'}
+          aria-describedby={lectura === 'punts' ? errPunts : undefined}
           maxLength={5}
           className={`${INPUT} tabular ${lectura === 'punts' ? BAD : ''}`}
         />
       </Field>
 
       {lectura === 'punts' ? (
-        <p role="alert" className="-mt-6 pb-9 text-sm font-bold text-[var(--ds-warning)]">
+        <p id={errPunts} className="-mt-6 pb-9 text-sm font-bold text-[var(--ds-warning)]">
           {t('junta.soci.adjust.pointsBad', { max: MAX_AJUST })}
         </p>
       ) : null}
@@ -134,13 +156,14 @@ export function AdjustPointsBlock({
           placeholder={t('junta.soci.adjust.notePlaceholder')}
           aria-label={t('junta.soci.adjust.note')}
           aria-invalid={lectura === 'nota'}
+          aria-describedby={lectura === 'nota' ? errNota : undefined}
           maxLength={500}
           className={`${INPUT} resize-y ${lectura === 'nota' ? BAD : ''}`}
         />
       </Field>
 
       {lectura === 'nota' ? (
-        <p role="alert" className="-mt-6 pb-9 text-sm font-bold text-[var(--ds-warning)]">
+        <p id={errNota} className="-mt-6 pb-9 text-sm font-bold text-[var(--ds-warning)]">
           {t('junta.soci.adjust.noteBad')}
         </p>
       ) : null}

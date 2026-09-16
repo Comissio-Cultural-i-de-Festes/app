@@ -102,6 +102,130 @@ describe('identity cannot be self-assigned', () => {
   })
 })
 
+/**
+ * L'Instagram: públic a posta, i només un nom d'usuari.
+ *
+ * El pgTAP 450 prova el mateix des de dins de la base de dades. Aquí importa
+ * perquè aquesta és la capa que veu què torna PostgREST de debò: que el
+ * `grant update (instagram)` arriba fins al client, que el `CHECK` surt com un
+ * 23514 i no com un 200 amb zero files, i que la columna nova viatja dins del
+ * `select` que fa l'app.
+ *
+ * EL NOM ÉS DIFERENT A CADA EXECUCIÓ. Aquesta suite escriu sobre la base de
+ * dades i no desfà res: amb una constant, la segona passada comprovaria el que
+ * hi havia deixat la primera i passaria encara que l'escriptura hagués deixat
+ * de funcionar.
+ */
+describe('the Instagram handle is public on purpose, and is only a handle', () => {
+  const handle = `alfa_${String(Date.now())}`.slice(0, 30)
+  let nombre = ''
+
+  beforeAll(async () => {
+    const { data } = await serviceClient()
+      .from('profiles')
+      .select('nombre')
+      .eq('id', F.alfa)
+      .single()
+    nombre = data?.nombre ?? ''
+  })
+
+  it('a member writes it in the same update as their name, the way the screen does', async () => {
+    const member = await as('alfa')
+    const { data, error } = await member
+      .from('profiles')
+      .update({ nombre, instagram: handle })
+      .eq('id', F.alfa)
+      .select('id, instagram')
+
+    expect(error).toBeNull()
+    expect(data).toEqual([{ id: F.alfa, instagram: handle }])
+  })
+
+  it('and another active member reads it, which is the whole point of the column', async () => {
+    const other = await as('bravo')
+    const { data, error } = await other
+      .from('profiles')
+      .select('instagram')
+      .eq('id', F.alfa)
+      .single()
+
+    expect(error).toBeNull()
+    expect(data?.instagram).toBe(handle)
+  })
+
+  it('a URL is refused by the database, not by the form', async () => {
+    // Aquesta és la que motiva el CHECK: si hi cabés, l'app dibuixaria un
+    // enllaç tocable cap allà a la pantalla de tots els altres socis.
+    const member = await as('alfa')
+    const { error } = await member
+      .from('profiles')
+      .update({ instagram: 'https://instagram.com/algu' })
+      .eq('id', F.alfa)
+
+    expect(error?.code).toBe('23514')
+  })
+
+  it.each([
+    ['@algu', 'the at sign the app strips before sending'],
+    ['javascript:alert(1)', 'a scheme that is not a name'],
+    ['dos noms', 'a space'],
+    ['a'.repeat(31), 'thirty-one characters'],
+    ['', 'the empty string, because removing it means null'],
+  ])('refuses %s — %s', async (value) => {
+    const member = await as('alfa')
+    const { error } = await member.from('profiles').update({ instagram: value }).eq('id', F.alfa)
+
+    expect(error?.code).toBe('23514')
+  })
+
+  it('removing it writes null, and null is accepted', async () => {
+    const member = await as('alfa')
+    const { data, error } = await member
+      .from('profiles')
+      .update({ instagram: null })
+      .eq('id', F.alfa)
+      .select('id, instagram')
+
+    expect(error).toBeNull()
+    expect(data).toEqual([{ id: F.alfa, instagram: null }])
+
+    // I es torna a deixar posat, perquè la resta del fitxer no depengui de
+    // l'ordre en què vitest hagi decidit executar aquests casos.
+    await member.from('profiles').update({ instagram: handle }).eq('id', F.alfa)
+  })
+
+  it('cannot be smuggled alongside a role change — that is a grant, not a policy', async () => {
+    const member = await as('alfa')
+    const { error } = await member
+      .from('profiles')
+      .update({ instagram: handle, role: 'owner' })
+      .eq('id', F.alfa)
+
+    expect(error?.code).toBe('42501')
+  })
+
+  it('and a member cannot write somebody else’s', async () => {
+    const member = await as('alfa')
+    const { data, error } = await member
+      .from('profiles')
+      .update({ instagram: 'segrestat' })
+      .eq('id', F.bravo)
+      .select('id')
+
+    // Filtrat per la política, o sigui zero files i un 200 — no un error. Per
+    // això l'assercio és sobre la fila de debò i no sobre `data`.
+    expect(error).toBeNull()
+    expect(data).toEqual([])
+
+    const { data: theirs } = await serviceClient()
+      .from('profiles')
+      .select('instagram')
+      .eq('id', F.bravo)
+      .single()
+    expect(theirs?.instagram).not.toBe('segrestat')
+  })
+})
+
 describe('the two things that are not the association’s business', () => {
   it('a QR token is readable by its owner and nobody else', async () => {
     const member = await as('alfa')

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
+import { memberSubtitle } from '@/features/member/subtitle'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
@@ -164,13 +165,14 @@ export function MembersScreen() {
                       )}
                     </span>
                     <span className="mt-[2px] block truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
-                      {[
-                        row.escola === null ? null : t(`escolaShort.${row.escola}`),
-                        row.curs === null ? null : t(`onboarding.year.${row.curs}`),
-                        row.grau,
-                      ]
-                        .filter((s): s is string => s !== null && s !== '')
-                        .join(' · ')}
+                      {memberSubtitle({
+                        escola: row.escola === null ? null : t(`escolaShort.${row.escola}`),
+                        curs: row.curs === null ? null : t(`onboarding.year.${row.curs}`),
+                        grau: row.grau,
+                        // La pestanya ja diu si són els actius o els de baixa;
+                        // repetir-ho a cada fila seria dir-ho quaranta vegades.
+                        cua: null,
+                      })}
                     </span>
                   </span>
                   <span aria-hidden="true" className="flex-none text-lg text-fg-muted">

@@ -16,28 +16,28 @@ describe('la línia de sota el nom', () => {
         escola: 'Politècnica',
         curs: '2n',
         grau: 'Informàtica',
-        desDe: 'des de 2024',
+        cua: 'des de 2024',
       }),
     ).toBe('Politècnica · 2n · Informàtica · des de 2024')
   })
 
   it('no deixa cap separador penjat quan falta un tros', () => {
-    expect(memberSubtitle({ escola: 'Salut', curs: null, grau: null, desDe: 'des de 2025' })).toBe(
+    expect(memberSubtitle({ escola: 'Salut', curs: null, grau: null, cua: 'des de 2025' })).toBe(
       'Salut · des de 2025',
     )
   })
 
   it('tracta un grau buit com un grau que no hi és', () => {
-    expect(memberSubtitle({ escola: 'Empresa', curs: '1r', grau: '   ', desDe: null })).toBe(
+    expect(memberSubtitle({ escola: 'Empresa', curs: '1r', grau: '   ', cua: null })).toBe(
       'Empresa · 1r',
     )
   })
 
   it('amb res a dir no diu res, en comptes de dir un separador', () => {
-    expect(memberSubtitle({ escola: null, curs: null, grau: null, desDe: null })).toBe('')
+    expect(memberSubtitle({ escola: null, curs: null, grau: null, cua: null })).toBe('')
   })
 
-  it('manté l’ordre: escola, curs, grau i des de quan', () => {
-    expect(memberSubtitle({ escola: 'A', curs: 'B', grau: 'C', desDe: 'D' })).toBe('A · B · C · D')
+  it('manté l’ordre: escola, curs, grau i la cua', () => {
+    expect(memberSubtitle({ escola: 'A', curs: 'B', grau: 'C', cua: 'D' })).toBe('A · B · C · D')
   })
 })

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { memberSubtitle } from '@/features/member/subtitle'
 import { profileKeys } from '@/features/session/profile'
 import { useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
@@ -81,7 +82,7 @@ export function EditProfileScreen() {
   const name = draft ?? profile?.nombre ?? ''
   const instagram = igDraft ?? profile?.instagram ?? ''
 
-  const refresh = () => queryClient.invalidateQueries({ queryKey: profileKeys.me(userId) })
+  const refresh = () => queryClient.invalidateQueries({ queryKey: profileKeys.of(userId) })
 
   const photo = useMutation({
     mutationFn: async (
@@ -115,13 +116,14 @@ export function EditProfileScreen() {
   // arrova davant del que ja hi tenia no ha canviat res, i el botó no s'ha
   // d'encendre per una cosa que desarà igual.
   const changed = trimmed !== profile?.nombre || igValue !== (profile?.instagram ?? null)
-  const school = [
-    profile?.escola == null ? null : t(`escolaShort.${profile.escola satisfies Escola}`),
-    profile?.curs == null ? null : t(`onboarding.year.${String(profile.curs)}`),
-    profile?.grau ?? null,
-  ]
-    .filter((part): part is string => part !== null)
-    .join(' · ')
+  const school = memberSubtitle({
+    escola: profile?.escola == null ? null : t(`escolaShort.${profile.escola satisfies Escola}`),
+    curs: profile?.curs == null ? null : t(`onboarding.year.${String(profile.curs)}`),
+    grau: profile?.grau ?? null,
+    // Res al final: aquesta és la teva pantalla i «soci des de» ja surt al teu
+    // perfil, tres línies més amunt de l'enllaç que porta aquí.
+    cua: null,
+  })
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">

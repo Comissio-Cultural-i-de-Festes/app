@@ -42,7 +42,18 @@ export interface MemberBadge {
   readonly starts_at: string | null
 }
 
-export const memberKeys = {
+/**
+ * Es diu `sociKeys` i no `memberKeys`, que és com va néixer.
+ *
+ * `junta/membersApi.ts` ja exporta un `memberKeys` —el de la llista de socis,
+ * `['junta','socis']`— i aquest és el de les tres consultes d'una persona,
+ * `['member', id, …]`. Dos noms iguals amb formes diferents no petaven avui
+ * perquè cap fitxer importava tots dos; el primer que ho necessités hauria
+ * d'haver renombrat un dels dos a l'`import` i hauria triat quin segons el que
+ * li anés bé aquella tarda. El nom d'aquest és el de la seva pantalla,
+ * `SociScreen`, igual que aquella va triar el nom de la seva ruta.
+ */
+export const sociKeys = {
   nights: (userId: string) => ['member', userId, 'nights'] as const,
   streak: (userId: string) => ['member', userId, 'streak'] as const,
   badges: (userId: string) => ['member', userId, 'badges'] as const,

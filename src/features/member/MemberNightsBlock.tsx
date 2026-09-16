@@ -7,7 +7,7 @@ import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { EventType } from '@/lib/model'
 
-import { fetchMemberNights, memberKeys } from './api'
+import { fetchMemberNights, sociKeys } from './api'
 import { sortNights } from './nights'
 
 /**
@@ -34,7 +34,7 @@ export function MemberNightsBlock({ userId }: { readonly userId: string }) {
   const locale = toLocale(i18n.resolvedLanguage)
 
   const nights = useQuery({
-    queryKey: memberKeys.nights(userId),
+    queryKey: sociKeys.nights(userId),
     queryFn: () => fetchMemberNights(userId),
   })
 

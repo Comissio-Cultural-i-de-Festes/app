@@ -63,7 +63,7 @@ export function InviteCodeSheet({ onClose }: { readonly onClose: () => void }) {
       if (data?.ok !== true) throw new BadCode()
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: profileKeys.me(userId) })
+      await queryClient.invalidateQueries({ queryKey: profileKeys.of(userId) })
       onClose()
     },
   })

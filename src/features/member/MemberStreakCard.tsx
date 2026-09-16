@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
-import { fetchMemberStreak, memberKeys } from './api'
+import { fetchMemberStreak, sociKeys } from './api'
 
 /**
  * La ratxa d'una altra persona.
@@ -21,7 +21,7 @@ export function MemberStreakCard({ userId }: { readonly userId: string }) {
   const { t } = useTranslation()
 
   const streak = useQuery({
-    queryKey: memberKeys.streak(userId),
+    queryKey: sociKeys.streak(userId),
     queryFn: () => fetchMemberStreak(userId),
   })
 

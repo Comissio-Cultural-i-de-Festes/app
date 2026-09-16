@@ -17,8 +17,17 @@ export interface MyProfile {
   readonly role: 'member' | 'admin' | 'owner'
 }
 
+/**
+ * Es diu `of` i no `me`, i el nom hi ha arribat tard.
+ *
+ * La clau ja prenia un id des del primer dia, però el nom deia que la fila era
+ * la teva. Ara la fan servir tres pantalles que llegeixen la d'una altra
+ * persona —el perfil públic d'un soci, la fitxa de la junta i el traspàs—, i
+ * `profileKeys.me(altreId)` és una frase que es llegeix com un error i no ho
+ * és. Mateix parell que `fetchPointsOf`.
+ */
 export const profileKeys = {
-  me: (id: string) => ['profile', id] as const,
+  of: (id: string) => ['profile', id] as const,
 }
 
 export async function fetchProfile(id: string): Promise<MyProfile | null> {

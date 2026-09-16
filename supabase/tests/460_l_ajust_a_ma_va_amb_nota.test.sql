@@ -11,6 +11,21 @@
 -- aquestes dues assercions, obrir el negatiu sencer per error passaria el
 -- fitxer igual.
 --
+-- CAP ASSERCIÓ COMPTA EL LLIBRE MAJOR SENCER, i aquesta és la correcció que
+-- ha costat el fitxer: la primera versió llegia
+-- `select nota from points_log where motivo = 'manual' and user_id = alfa`
+-- com si fos una sola fila. Ho és en una base acabada de sembrar i deixa de
+-- ser-ho la primera vegada que algú passa `tests/rls/` —que escriu justament
+-- ajustos `manual` a l'alfa i no desfà res, tal com el README de la suite
+-- adverteix—. Llavors el subconsulta escalar peta amb 21000, el fitxer avorta
+-- a la meitat i les deu assercions de sota no s'arriben a executar: un fitxer
+-- que només passa en una base neta no prova res el dia que importa.
+--
+-- Per això la fila que s'escriu es llegeix per l'`id` que torna la RPC —el
+-- guarda una taula temporal, que és l'única manera de passar-lo d'una
+-- asserció a l'altra— i el refús es mesura contra el recompte d'abans, no
+-- contra zero.
+--
 -- Persones inventades, com a tot el repo.
 
 begin;
@@ -18,6 +33,20 @@ select plan(14);
 
 reset role;
 delete from public.audit_log;
+
+-- El llibre major de l'alfa NO comença buit: la suite de RLS hi escriu i no
+-- desfà res. El que aquest fitxer ha de provar és que un refús no hi afegeix
+-- cap fila, no que la taula estigui neta.
+create temp table abans as
+select count(*) as files
+from public.points_log
+where motivo = 'manual'
+  and user_id = '00000000-0000-4000-8000-000000000001';
+
+-- On para l'ajust que sí que entra. Cal el grant: `tests.authenticate_as`
+-- canvia de persona i una taula temporal creada com a postgres no la segueix.
+create temp table ajust (id uuid);
+grant insert on ajust to authenticated;
 
 -- ── `manual` vol nota ───────────────────────────────────────────────────────
 
@@ -42,13 +71,12 @@ select throws_ok(
 );
 
 reset role;
--- Fitat a l'alfa: la llavor ja porta dues files `manual` d'altra gent, i una
--- comprovacio sobre la taula sencera passaria o fallaria per elles.
-select is_empty(
-  $$ select 1 from public.points_log
-      where motivo = 'manual'
-        and user_id = '00000000-0000-4000-8000-000000000001' $$,
-  'i no ha quedat cap fila: el refus es abans de l''insert'
+select is(
+  (select count(*) from public.points_log
+    where motivo = 'manual'
+      and user_id = '00000000-0000-4000-8000-000000000001'),
+  (select files from abans),
+  'i no ha quedat cap fila nova: el refus es abans de l''insert'
 );
 
 -- ── amb nota, entra ─────────────────────────────────────────────────────────
@@ -56,7 +84,8 @@ select is_empty(
 select tests.authenticate_as('junta_alfa');
 
 select lives_ok(
-  $$ select public.award_points(
+  $$ insert into ajust
+     select public.award_points(
        '00000000-0000-4000-8000-000000000001',
        null, 'manual', 20, '  Va portar el projector  ') $$,
   'amb nota si, i sense esdeveniment: p_event_id es nullable a posta'
@@ -65,14 +94,14 @@ select lives_ok(
 reset role;
 select is(
   (select nota from public.points_log
-    where motivo = 'manual' and user_id = '00000000-0000-4000-8000-000000000001'),
+    where id = (select id from ajust)),
   'Va portar el projector',
   'la nota es desa retallada, no tal com ha arribat'
 );
 
 select is(
   (select event_id from public.points_log
-    where motivo = 'manual' and user_id = '00000000-0000-4000-8000-000000000001'),
+    where id = (select id from ajust)),
   null,
   'i un ajust sense esdeveniment es una fila legal'
 );

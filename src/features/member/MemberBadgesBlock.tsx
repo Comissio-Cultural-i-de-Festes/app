@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { CATALOGUE, isEarned, TOTAL_CARDS } from '@/features/badges/catalogue'
 
-import { fetchMemberBadges, memberKeys } from './api'
+import { fetchMemberBadges, sociKeys } from './api'
 
 /**
  * Les insígnies que ha guanyat, i només aquestes.
@@ -23,7 +23,7 @@ export function MemberBadgesBlock({ userId }: { readonly userId: string }) {
   const { t } = useTranslation()
 
   const badges = useQuery({
-    queryKey: memberKeys.badges(userId),
+    queryKey: sociKeys.badges(userId),
     queryFn: () => fetchMemberBadges(userId),
   })
 

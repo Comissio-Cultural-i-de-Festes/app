@@ -66,7 +66,7 @@ export function SociScreen() {
   // La mateixa clau que `useMyProfile`, a posta: obrir el teu propi perfil des
   // d'una llista no ha de tornar a demanar una fila que ja hi és.
   const profile = useQuery({
-    queryKey: profileKeys.me(userId),
+    queryKey: profileKeys.of(userId),
     queryFn: () => fetchProfile(userId),
     enabled: userId !== '',
   })
@@ -121,7 +121,7 @@ export function SociScreen() {
     escola: soci.escola === null ? null : t(`escolaShort.${soci.escola satisfies Escola}`),
     curs: soci.curs === null ? null : t(`onboarding.year.${String(soci.curs)}`),
     grau: soci.grau,
-    desDe: t('profile.memberSince', { year: new Date(soci.created_at).getFullYear() }),
+    cua: t('profile.memberSince', { year: new Date(soci.created_at).getFullYear() }),
   })
 
   return (

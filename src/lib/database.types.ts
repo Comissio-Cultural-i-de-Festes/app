@@ -1898,6 +1898,17 @@ export type Database = {
           user_id: string
         }[]
       }
+      member_badges: {
+        Args: { p_user: string }
+        Returns: {
+          codi: string
+          earned_at: string
+          event_id: string
+          starts_at: string
+          titol: string
+        }[]
+      }
+      member_streak: { Args: { p_user: string }; Returns: Json }
       my_badges: {
         Args: never
         Returns: {

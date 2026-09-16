@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { MemberLink } from '@/features/member/MemberLink'
 import { useUserId } from '@/features/session/useUserId'
 import { ShareCard } from '@/features/share/ShareCard'
 import { formatOrdinal } from '@/i18n/format'
@@ -345,56 +346,64 @@ function MemberLine({
   const top = row.posicio <= 3
 
   return (
-    <li
-      className={
-        'flex items-center gap-[11px] border-b border-surface-3 px-[var(--ds-gutter)] ' +
-        (top ? 'py-[13px] ' : 'py-[10px] ') +
-        (mine ? 'selected' : '')
-      }
-    >
-      <p
+    <li className={'border-b border-surface-3 ' + (mine ? 'selected' : '')}>
+      {/* Tota la fila és la porta al perfil d'aquesta persona, i no un botó
+          afegit al final: la cara i el nom ja són el que la gent prem, i un
+          objectiu de 44 px d'alçada que ocupa l'amplada sencera és el que fa que
+          no calgui apuntar. `text-fg` perquè `a` porta el color d'enllaç i
+          aquesta llista no n'és una. */}
+      <MemberLink
+        userId={row.user_id}
+        label={t('nav.ranking')}
         className={
-          'tabular w-[30px] flex-none text-right tracking-[-0.02em] ' +
-          (top
-            ? 'display text-2xl text-brand-accent'
-            : `text-md font-bold ${mine ? 'text-fg-selected' : 'text-fg-muted-lo'}`)
+          'flex items-center gap-[11px] px-[var(--ds-gutter)] text-fg no-underline ' +
+          (top ? 'py-[13px]' : 'py-[10px]')
         }
       >
-        {row.posicio}.
-      </p>
-
-      <Avatar src={row.avatar_url} size={top ? 40 : 32} ring={mine} />
-
-      <div className="min-w-0 flex-1">
         <p
           className={
-            'truncate tracking-[-0.01em] ' +
+            'tabular w-[30px] flex-none text-right tracking-[-0.02em] ' +
             (top
-              ? 'text-[16.5px] font-bold'
-              : mine
-                ? 'text-base font-bold'
-                : 'text-base font-medium')
+              ? 'display text-2xl text-brand-accent'
+              : `text-md font-bold ${mine ? 'text-fg-selected' : 'text-fg-muted-lo'}`)
           }
         >
-          {mine ? t('ranking.mine', { name: row.nombre }) : row.nombre}
+          {row.posicio}.
         </p>
-        {row.escola === null ? null : (
-          <p className="mt-[2px] text-xs-lo font-semibold tracking-[0.05em] text-fg-dim uppercase">
-            {t(`escolaShort.${row.escola satisfies Escola}`)}
+
+        <Avatar src={row.avatar_url} size={top ? 40 : 32} ring={mine} />
+
+        <div className="min-w-0 flex-1">
+          <p
+            className={
+              'truncate tracking-[-0.01em] ' +
+              (top
+                ? 'text-[16.5px] font-bold'
+                : mine
+                  ? 'text-base font-bold'
+                  : 'text-base font-medium')
+            }
+          >
+            {mine ? t('ranking.mine', { name: row.nombre }) : row.nombre}
           </p>
-        )}
-      </div>
+          {row.escola === null ? null : (
+            <p className="mt-[2px] text-xs-lo font-semibold tracking-[0.05em] text-fg-dim uppercase">
+              {t(`escolaShort.${row.escola satisfies Escola}`)}
+            </p>
+          )}
+        </div>
 
-      <Movement delta={delta} />
+        <Movement delta={delta} />
 
-      <p
-        className={
-          'tabular w-[52px] flex-none text-right tracking-[-0.03em] ' +
-          (top || mine ? 'display text-2xl' : 'text-lg font-bold text-fg-secondary')
-        }
-      >
-        {row.punts}
-      </p>
+        <p
+          className={
+            'tabular w-[52px] flex-none text-right tracking-[-0.03em] ' +
+            (top || mine ? 'display text-2xl' : 'text-lg font-bold text-fg-secondary')
+          }
+        >
+          {row.punts}
+        </p>
+      </MemberLink>
     </li>
   )
 }

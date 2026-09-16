@@ -7,6 +7,19 @@ import type { PostgrestError } from '@supabase/supabase-js'
  * forgotten `if (error)` reads as an empty result — a leaderboard with nobody
  * in it, a home screen with no events. Every query goes through here so a
  * failure is a failure and the screens can show it.
+ *
+ * `code` ÉS `string` PER AL COMPILADOR I POT NO ARRIBAR MAI. El tipus de
+ * supabase-js el declara obligatori, però el que hi posa és el que venia al
+ * cos de la resposta, i un 500 de la passarel·la —o qualsevol cosa que
+ * contesti abans que PostgREST— no en porta cap. Aleshores això valia
+ * `undefined` i `errorKey()` petava a `code.startsWith('PGRST')`: la pantalla
+ * sencera queia a la pantalla de «alguna cosa s'ha trencat» just quan hauria
+ * d'haver ensenyat una frase. Que un error trenqui l'app és exactament el
+ * camí que no es prova mai.
+ *
+ * La cadena buida i no un codi inventat: no coincideix amb cap branca, o sigui
+ * que `errorKey()` acaba a `errors.network`, que és el que una resposta sense
+ * codi de Postgres vol dir de debò.
  */
 export class DbError extends Error {
   readonly code: string
@@ -14,7 +27,7 @@ export class DbError extends Error {
   constructor(error: PostgrestError) {
     super(error.message)
     this.name = 'DbError'
-    this.code = error.code
+    this.code = error.code ?? ''
   }
 }
 

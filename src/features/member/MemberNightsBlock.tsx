@@ -6,6 +6,7 @@ import { formatDateLong } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { EventType } from '@/lib/model'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { fetchMemberNights, sociKeys } from './api'
 import { sortNights } from './nights'
@@ -52,7 +53,17 @@ export function MemberNightsBlock({ userId }: { readonly userId: string }) {
       </div>
 
       {nights.isPending ? (
-        <p className="py-8 text-fg-muted">{t('state.loading')}</p>
+        // Files i no «Un segon…»: aquest és el bloc més alt de la pantalla i
+        // l'últim en arribar, o sigui el que decideix si el peu balla. Tres
+        // files és el que hi cap a la primera pantalla d'un mòbil.
+        <Skeleton className="mt-2">
+          {[0, 1, 2].map((i) => (
+            <span key={i} className="block border-b border-surface-4 py-[15px]">
+              <SkeletonBar w="w-[65%]" h="h-[13px]" />
+              <SkeletonBar w="w-[40%]" h="h-[11px]" className="mt-[6px]" />
+            </span>
+          ))}
+        </Skeleton>
       ) : nights.isError ? (
         <p role="alert" className="py-8 text-md font-bold text-error [text-wrap:pretty]">
           {t(errorKey(nights.error))}
@@ -74,7 +85,7 @@ export function MemberNightsBlock({ userId }: { readonly userId: string }) {
                   <span className="block text-base font-semibold text-fg [text-wrap:pretty]">
                     {night.titol ?? t(`eventType.${night.tipo satisfies EventType}`)}
                   </span>
-                  <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
+                  <span className="mt-[3px] block text-sm-lo text-fg-muted-lo">
                     {formatDateLong(new Date(night.starts_at), locale)}
                   </span>
                 </span>

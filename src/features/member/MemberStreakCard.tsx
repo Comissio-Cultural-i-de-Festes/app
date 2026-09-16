@@ -1,6 +1,9 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
+import { errorKey } from '@/lib/errors'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
+
 import { fetchMemberStreak, sociKeys } from './api'
 
 /**
@@ -14,8 +17,14 @@ import { fetchMemberStreak, sociKeys } from './api'
  * d'«Entesos» seria tancar un avís que no és seu. El que queda és el número i
  * la millor marca, que és el que la gent ve a mirar.
  *
- * Amb `null` no hi ha bloc: la funció torna null quan la persona ja no és
- * sòcia, i la capçalera de la pantalla ja ho ha dit.
+ * TRES SORTIDES BUIDES I NO UNA, que era el forat de la primera versió. Un
+ * `streak.data == null` sol aplega «encara no ha arribat», «ha petat» i «ja no
+ * és sòcia», i les tres desapareixien igual: si `member_streak` feia 500, el
+ * bloc no hi era i el que es llegia era «no té ratxa». Dir un número que no
+ * s'ha pogut llegir és pitjor que dir que no s'ha pogut llegir.
+ *
+ * Amb `null` de debò —la funció el torna quan la persona ja no és sòcia— sí que
+ * no hi ha bloc: la capçalera de la pantalla ja ho ha dit una vegada.
  */
 export function MemberStreakCard({ userId }: { readonly userId: string }) {
   const { t } = useTranslation()
@@ -25,7 +34,36 @@ export function MemberStreakCard({ userId }: { readonly userId: string }) {
     queryFn: () => fetchMemberStreak(userId),
   })
 
-  if (streak.data == null) return null
+  if (streak.isPending) {
+    return (
+      <section className="px-[var(--ds-gutter)] pt-6">
+        <h2 className="eyebrow text-fg-muted">{t('streak.title')}</h2>
+        {/* L'esquelet té la mida del bloc de debò —el número gros a l'esquerra i
+            les dues línies al costat— perquè el que arribi no empenyi les
+            insígnies cap avall. És l'única manera que la pantalla no salti. */}
+        <Skeleton className="flex items-center gap-7 border-b border-surface-4 pt-6 pb-7">
+          <SkeletonBar w="w-[54px]" h="h-[44px]" />
+          <span className="min-w-0 flex-1">
+            <SkeletonBar w="w-[60%]" h="h-[14px]" />
+            <SkeletonBar w="w-[40%]" h="h-[11px]" className="mt-[6px]" />
+          </span>
+        </Skeleton>
+      </section>
+    )
+  }
+
+  if (streak.isError) {
+    return (
+      <section className="px-[var(--ds-gutter)] pt-6">
+        <h2 className="eyebrow text-fg-muted">{t('streak.title')}</h2>
+        <p role="alert" className="py-8 text-md font-bold text-error [text-wrap:pretty]">
+          {t(errorKey(streak.error))}
+        </p>
+      </section>
+    )
+  }
+
+  if (streak.data === null) return null
 
   const { actual, millor } = streak.data
 

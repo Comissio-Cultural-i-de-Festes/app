@@ -98,6 +98,25 @@ describe('errorKey', () => {
   })
 
   /**
+   * Una resposta d'error sense codi, que és la que petava.
+   *
+   * `PostgrestError.code` és obligatori per al compilador i opcional a la
+   * realitat: el que hi arriba és el que venia al cos, i un 500 de la
+   * passarel·la no en porta cap. Amb `undefined`, `code.startsWith('PGRST')`
+   * llançava un TypeError des de dins del render, o sigui que el bloc que
+   * havia d'ensenyar «no hi ha manera de connectar» tombava l'app sencera cap
+   * a la pantalla de trencat. Es va veure obrint `/soci/:id` amb
+   * `member_badges` retornant un 500 sense codi.
+   */
+  it('survives an error payload with no code at all', () => {
+    const sense = new DbError({ message: 'boom' } as unknown as PostgrestError)
+
+    expect(sense.code).toBe('')
+    expect(() => errorKey(sense, true)).not.toThrow()
+    expect(errorKey(sense, true)).toBe('errors.network')
+  })
+
+  /**
    * The order matters, and this is the assertion that pins it.
    *
    * `42501` would also match the class-42 branch below it, and `PGRST116`

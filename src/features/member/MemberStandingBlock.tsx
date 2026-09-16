@@ -5,6 +5,7 @@ import { fetchRanking, periodBounds, rankingKeys } from '@/features/ranking/api'
 import { defaultPeriod, usePeriods } from '@/features/ranking/useRanking'
 import { formatOrdinal } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
+import { errorKey } from '@/lib/errors'
 
 /**
  * Els punts i la posició d'aquesta persona, del rànquing i d'enlloc més.
@@ -41,6 +42,27 @@ export function MemberStandingBlock({ userId }: { readonly userId: string }) {
     queryFn: () => fetchRanking(bounds),
     enabled: periods.isSuccess,
   })
+
+  // UN ERROR NO ÉS UN ZERO, i aquesta és la distinció que la primera versió no
+  // feia: amb una sola sortida per a «encara no ha arribat» i «ha petat», un
+  // 500 del rànquing deixava la pantalla sense bloc, i el que el soci llegia
+  // era «no té posició» —una frase falsa i indistingible de la certa. Per això
+  // l'error surt, i surt abans que res.
+  //
+  // Les dues consultes en un sol avís perquè per a qui mira són una sola cosa:
+  // sense períodes no hi ha rànquing —`enabled` el deixa aturat, o sigui
+  // «pendent» per sempre— i dos avisos per la mateixa xifra seria dir-ho dues
+  // vegades.
+  if (periods.isError || ranking.isError) {
+    return (
+      <p
+        role="alert"
+        className="px-[var(--ds-gutter)] pt-8 text-md font-bold text-error [text-wrap:pretty]"
+      >
+        {t(errorKey(periods.error ?? ranking.error))}
+      </p>
+    )
+  }
 
   // Mentre no hi hagi resposta no hi ha bloc. Un esquelet de dos números entre
   // la capçalera i la ratxa parpellejaria a cada obertura per una xifra que no

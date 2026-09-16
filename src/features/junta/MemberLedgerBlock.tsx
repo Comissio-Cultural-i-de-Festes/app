@@ -2,8 +2,8 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
 import { fetchPointsOf, profileScreenKeys } from '@/features/profile/api'
-import { formatDayMonth } from '@/i18n/format'
-import { toLocale } from '@/i18n/locales'
+import { LEDGER_ROW } from '@/features/profile/ledger'
+import { LedgerRow } from '@/features/profile/LedgerRow'
 import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
@@ -28,13 +28,16 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
  * UNA CORRECCIÓ NO ESBORRA RES. `points_log` és append-only, així que un -20
  * surt a sota del +20 i tots dos es queden. Es pinten amb colors diferents
  * perquè la diferència es vegi de lluny, no per assenyalar ningú.
+ *
+ * LA FILA LA PINTA `LedgerRow`, que és la mateixa que el perfil del soci. Aquí
+ * n'hi havia una còpia, i les dues ja s'havien separat en tres coses —
+ * l'alineació, el motiu sota el títol i la mida de la nota—. Aquesta pantalla i
+ * la del soci ensenyen la mateixa fila a dues persones que en parlaran entre
+ * elles.
  */
 
-const ROW = 'flex items-start gap-4 border-b border-surface-4 py-[15px]'
-
 export function MemberLedgerBlock({ userId }: { readonly userId: string }) {
-  const { t, i18n } = useTranslation()
-  const locale = toLocale(i18n.resolvedLanguage)
+  const { t } = useTranslation()
 
   const points = useQuery({
     queryKey: profileScreenKeys.points(userId),
@@ -68,38 +71,7 @@ export function MemberLedgerBlock({ userId }: { readonly userId: string }) {
       ) : (
         <ul className="mt-2">
           {rows.map((row) => (
-            <li key={row.id} className={ROW}>
-              <p className="w-[52px] flex-none pt-[2px] text-sm-lo font-semibold text-fg-dim">
-                {formatDayMonth(new Date(row.created_at), locale)}
-              </p>
-              <div className="min-w-0 flex-1">
-                <p className="text-base [text-wrap:pretty]">
-                  {/* El motiu quan no hi ha títol, que inclou l'esdeveniment
-                      encara no revelat: la política el deixa fora i el nom
-                      arriba null. */}
-                  {row.events?.event_title?.titulo ?? t(`motive.${row.motivo}`)}
-                </p>
-                {row.events?.event_title?.titulo == null ? null : (
-                  <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)]">
-                    {t(`motive.${row.motivo}`)}
-                  </p>
-                )}
-                {row.nota === null || row.nota === '' ? null : (
-                  <p className="mt-[5px] text-sm text-fg-secondary [text-wrap:pretty]">
-                    {row.nota}
-                  </p>
-                )}
-              </div>
-              <p
-                className={
-                  'tabular flex-none pt-[2px] text-base font-extrabold ' +
-                  (row.puntos < 0 ? 'text-[var(--ds-warning)]' : 'text-success')
-                }
-              >
-                {row.puntos > 0 ? '+' : ''}
-                {row.puntos}
-              </p>
-            </li>
+            <LedgerRow key={row.id} row={row} />
           ))}
         </ul>
       )}
@@ -118,7 +90,7 @@ function LedgerSkeleton() {
   return (
     <Skeleton className="mt-2">
       {[0, 1, 2, 3].map((i) => (
-        <div key={i} className={ROW}>
+        <div key={i} className={LEDGER_ROW}>
           <SkeletonBar w="w-[42px]" h="h-[11px]" className="mt-[2px] flex-none" />
           <div className="min-w-0 flex-1">
             <SkeletonBar w="w-[58%]" h="h-[14px]" />

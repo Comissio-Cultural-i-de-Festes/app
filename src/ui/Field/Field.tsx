@@ -58,21 +58,43 @@ interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'cl
   readonly id: string
   readonly label: string
   readonly ref?: Ref<HTMLInputElement>
+  /**
+   * Un signe dibuixat davant del que s'escriu, com el `+34` del telèfon a
+   * l'alta. Decoratiu i `aria-hidden`: no forma part del valor, i el camp
+   * d'Instagram el fa servir precisament perquè l'`@` NO es desa.
+   */
+  readonly prefix?: string
 }
 
-export function TextField({ id, label, ref, ...rest }: TextFieldProps) {
+export function TextField({ id, label, ref, prefix, ...rest }: TextFieldProps) {
+  const input = (
+    <input
+      {...rest}
+      id={id}
+      ref={ref}
+      className={
+        'mt-[7px] min-h-[30px] w-full border-0 bg-transparent p-0 text-xl font-semibold ' +
+        'text-fg caret-[var(--ds-brand-strong)] outline-none ' +
+        'placeholder:text-[var(--ds-text-faint)] placeholder:font-normal'
+      }
+    />
+  )
+
   return (
     <FieldShell label={label} htmlFor={id}>
-      <input
-        {...rest}
-        id={id}
-        ref={ref}
-        className={
-          'mt-[7px] min-h-[30px] w-full border-0 bg-transparent p-0 text-xl font-semibold ' +
-          'text-fg caret-[var(--ds-brand-strong)] outline-none ' +
-          'placeholder:text-[var(--ds-text-faint)] placeholder:font-normal'
-        }
-      />
+      {prefix === undefined ? (
+        input
+      ) : (
+        <div className="flex items-baseline gap-[3px]">
+          <span
+            aria-hidden="true"
+            className="mt-[7px] flex-none text-xl font-semibold text-fg-faint"
+          >
+            {prefix}
+          </span>
+          {input}
+        </div>
+      )}
     </FieldShell>
   )
 }

@@ -1173,6 +1173,7 @@ export type Database = {
           grau: string | null
           hide_from_ranking: boolean
           id: string
+          instagram: string | null
           nombre: string
           role: string
         }
@@ -1185,6 +1186,7 @@ export type Database = {
           grau?: string | null
           hide_from_ranking?: boolean
           id: string
+          instagram?: string | null
           nombre: string
           role?: string
         }
@@ -1197,6 +1199,7 @@ export type Database = {
           grau?: string | null
           hide_from_ranking?: boolean
           id?: string
+          instagram?: string | null
           nombre?: string
           role?: string
         }

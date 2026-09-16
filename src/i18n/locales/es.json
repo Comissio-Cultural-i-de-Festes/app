@@ -705,10 +705,14 @@
       "title": "Pagos y junta",
       "pickEvent": "De qué evento",
       "whoPaid": "Quién ha pagado",
+      "whoComes": "Quién viene",
       "ofSignedUp_one": "de {{count}} apuntado",
       "ofSignedUp_other": "de {{count}} apuntados",
+      "saidYes_one": "que ha dicho que sí",
+      "saidYes_other": "que han dicho que sí",
       "eachOne": "registrados a {{price}} cada uno",
       "bizum": "El Bizum va aparte, como siempre. Aquí solo lo marcas para no acabar con un Excel en el móvil.",
+      "free": "Esta actividad es gratis. No hay nada que cobrar.",
       "paid": "Pagado",
       "pending": "Pendiente",
       "nobody": "Todavía no se ha apuntado nadie. Cuando digan que sí saldrán aquí.",
@@ -995,7 +999,7 @@
       "workCount_one": "{{count}} cosa",
       "workCount_other": "{{count}} cosas",
       "workNone": "Nada que hacer",
-      "workNoneSub": "Nadie espera aprobación, todo el mundo ha pagado y no hay borradores.",
+      "workNoneSub": "Nadie espera aprobación y no hay borradores.",
       "workFailed": "No hemos podido contar qué queda por hacer",
       "pending_one": "espera que lo dejes entrar",
       "pending_other": "esperan que los dejes entrar",
@@ -1387,7 +1391,7 @@
   },
   "onboarding": {
     "title": "Ya estás dentro",
-    "lede": "Cuatro cosas y entras. El nombre y la foto ya los tenemos de tu Google, mira que estén bien.",
+    "lede": "Cinco cosas y entras. El nombre y la foto ya los tenemos de tu Google, mira que estén bien.",
     "nameHint": "Pon el nombre con el que te llaman en la comi, no el del DNI.",
     "school": {
       "label": "Tu escuela",
@@ -1418,6 +1422,12 @@
       "placeholder": "600 00 00 00",
       "why": "Solo para añadirte al grupo de WhatsApp. No sale en tu perfil ni lo ve nadie más que la comi.",
       "invalid": "Este número no acaba de cuadrar. Déjalo en blanco si no lo quieres poner."
+    },
+    "instagram": {
+      "label": "Instagram",
+      "placeholder": "tucuenta",
+      "why": "Para que puedan seguirte. Este sí que sale en tu perfil y lo ven los demás socios.",
+      "invalid": "Esto no es un nombre de usuario. Solo letras, cifras, punto y guion bajo."
     },
     "cta": {
       "ready": "Entrar",
@@ -1528,6 +1538,12 @@
       "saved": "Guardado",
       "everywhere": "Se verá en todas partes enseguida."
     },
+    "instagram": {
+      "label": "Instagram",
+      "placeholder": "tucuenta",
+      "hint": "Sale en tu perfil para que los demás socios puedan seguirte. Déjalo en blanco si no lo quieres poner.",
+      "invalid": "Esto no es un nombre de usuario. Solo letras, cifras, punto y guion bajo, y sin la dirección entera."
+    },
     "locked": {
       "title": "Esto no se cambia aquí",
       "school": "Escuela, curso y grado",
@@ -1557,6 +1573,8 @@
       "photoSubGoogle": "Ahora mismo, la de Google",
       "photoSubOwn": "La que has subido tú",
       "photoSubNone": "Ahora mismo, las rayas",
+      "instagram": "Instagram",
+      "instagramNone": "Todavía no lo has puesto",
       "public": "Salgo en el ranking público",
       "publicOn": "Sales con nombre y cara.",
       "publicOff": "No sales, pero tus puntos siguen sumando para tu escuela.",
@@ -1766,6 +1784,7 @@
     "ok": "Fichado. Ya está dentro",
     "okWalkin": "No estaba apuntado, pero adelante",
     "okWalkinReview": "Entra, pero no estaba apuntado ni ha pagado",
+    "okWalkinReviewFree": "Entra, pero no estaba apuntado",
     "alreadyCheckedIn": "Este QR ya se ha usado",
     "notAMember": "Este QR no es de la comi",
     "memberInactive": "Todavía no está dado de alta",
@@ -1775,6 +1794,7 @@
     "action": {
       "okWalkin": "No estaba apuntado. Ya consta que ha venido.",
       "okWalkinReview": "Mira que pague antes de entrar, o apúntalo.",
+      "okWalkinReviewFree": "Hay plazas contadas. Apúntalo para que el número cuadre.",
       "alreadyCheckedIn": "Ya había pasado. Si insiste, míralo en el alta manual.",
       "notAMember": "Que te diga el nombre y lo buscas a mano. No lo dejes pasar sin apuntarlo.",
       "memberInactive": "Que pida entrar. Lo aprobáis mañana desde la zona junta.",

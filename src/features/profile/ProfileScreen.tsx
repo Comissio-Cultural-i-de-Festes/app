@@ -328,6 +328,27 @@ export function ProfileScreen() {
           </span>
         </Link>
 
+        {/* Una fila pròpia i no una menció a la de dalt: qui ja hi era no
+            tornarà a passar per l'alta, i la columna li neix buida. Sense
+            aquesta línia, una funció que existeix perquè et trobin viuria
+            amagada dins d'una pantalla que es diu «la teva foto i el teu nom».
+            Hi és sempre i el que canvia és el subtítol, com la de la foto. */}
+        <Link to="/perfil/editar" className={`${ROW} no-underline`}>
+          <span className="min-w-0 flex-1">
+            <span className="block text-base font-semibold text-fg">
+              {t('profile.settings.instagram')}
+            </span>
+            <span className="mt-[3px] block truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
+              {profile?.instagram == null || profile.instagram === ''
+                ? t('profile.settings.instagramNone')
+                : `@${profile.instagram}`}
+            </span>
+          </span>
+          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
+            ›
+          </span>
+        </Link>
+
         <div className={ROW}>
           <span className="flex-1 text-base font-semibold">{t('language.label')}</span>
           <div className="flex gap-2">

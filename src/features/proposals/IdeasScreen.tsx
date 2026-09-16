@@ -5,6 +5,7 @@ import { Link } from 'react-router'
 
 import { doorKeys } from '@/features/door/api'
 import { fetchPointValues } from '@/features/junta/eventFormApi'
+import { MemberLink } from '@/features/member/MemberLink'
 import { useUserId } from '@/features/session/useUserId'
 import { formatDateLong } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
@@ -213,12 +214,18 @@ function OpenRow({
           </span>
         ) : null}
         <span className="block text-base font-bold [text-wrap:pretty]">{proposal.titol}</span>
-        <span className="mt-2 flex items-center gap-3">
+        {/* Qui l'ha proposada, i ara també qui és. L'enllaç només agafa la
+            cara i el nom: la fila sencera ja té el botó de votar i el títol de
+            la idea, i fer-la tota enllaç voldria dir que prémer «aquesta idea
+            m'agrada» de vegades et porta al perfil d'algú. */}
+        <MemberLink
+          userId={proposal.user_id}
+          label={t('nav.proposals')}
+          className="mt-2 flex items-center gap-3 text-[var(--ds-text-muted-lo)] no-underline"
+        >
           <Avatar src={proposal.autor?.avatar_url ?? null} size={20} />
-          <span className="min-w-0 truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
-            {proposal.autor?.nombre ?? ''}
-          </span>
-        </span>
+          <span className="min-w-0 truncate text-sm-lo">{proposal.autor?.nombre ?? ''}</span>
+        </MemberLink>
         {proposal.descripcio === null ? null : (
           <span className="mt-2 block text-sm-lo text-fg-muted [text-wrap:pretty]">
             {proposal.descripcio}

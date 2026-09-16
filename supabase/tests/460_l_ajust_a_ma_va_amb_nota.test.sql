@@ -1,4 +1,4 @@
--- L'ajust a mà, i les dues regles que la migració 69 posa dins de la base.
+-- L'ajust a mà, i les dues regles que la migració 72 posa dins de la base.
 --
 -- Les dues es podrien escriure al formulari i les dues hi són escrites; això
 -- prova que també hi són sense formulari. La distinció no és teòrica: la RPC

@@ -5,7 +5,7 @@
  * perquè exportar-ho des de la pantalla només per a la prova trencaria la
  * regla del fast refresh.
  *
- * NO SUBSTITUEIX LA BASE, la duplica a posta. La migració 69 fa les mateixes
+ * NO SUBSTITUEIX LA BASE, la duplica a posta. La migració 72 fa les mateixes
  * dues comprovacions dins d'`award_points`, que és on han de ser: la RPC té el
  * grant per a `authenticated` sencer i qualsevol de la junta la pot cridar des
  * de la consola. El que fa aquest fitxer és que el refús arribi abans

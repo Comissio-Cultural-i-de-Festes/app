@@ -15,7 +15,7 @@ import { adjustPoints, fetchAjustEvents, memberPointsKeys } from './memberPoints
  * Els punts que falten o els que sobren, amb el per què al costat.
  *
  * LA NOTA ÉS OBLIGATÒRIA I HO DIU ABANS, no després d'apretar. La garantia viu
- * a la migració 69 —un `manual` sense nota torna 22023— i aquí es repeteix
+ * a la migració 72 —un `manual` sense nota torna 22023— i aquí es repeteix
  * perquè un 22023 es tradueix a «errors.generic», que és «alguna cosa ha anat
  * malament» i no «t'has deixat el per què».
  *

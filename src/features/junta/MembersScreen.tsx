@@ -58,8 +58,12 @@ export function MembersScreen() {
   const [done, setDone] = useState<{ nombre: string; estat: 'actiu' | 'baixa' } | null>(null)
 
   const members = useQuery({ queryKey: memberKeys.list(), queryFn: fetchAllMembers })
-  const comptes = useQuery({ queryKey: avisosKeys.comptes(), queryFn: fetchAvisComptes })
-  const { llindar, des_de, fins_a } = useLlindar()
+  const { llindar, des_de, fins_a, llest } = useLlindar()
+  const comptes = useQuery({
+    queryKey: avisosKeys.comptes(des_de),
+    queryFn: () => fetchAvisComptes(des_de),
+    enabled: llest,
+  })
 
   const perSoci = compta(comptes.data ?? [], des_de, fins_a)
 

@@ -30,11 +30,20 @@ import { fetchPointValues } from './eventFormApi'
  * es substitueix per cap valor per defecte quan la fila no hi és: si algú
  * l'esborra, el que ha de passar és que la marca desaparegui, no que n'aparegui
  * una d'inventada.
+ *
+ * `llest` HI ÉS PER UNA TRUNCACIÓ SILENCIOSA. `supabase/config.toml` posa
+ * `max_rows = 1000` a PostgREST: una lectura d'`avisos` sense fitar es queda a
+ * mil files SENSE ERROR, i el comptador diria un número més petit del que toca
+ * sense que res ho digués. Qui llegeix els avisos els fita per `des_de`, i per
+ * fitar-los cal esperar que els períodes hagin arribat —abans, `des_de` és null
+ * i «sense finestra» és indistingible de «encara no ho sé»—. Amb `llest` la
+ * consulta no surt fins que la resposta és de debò.
  */
 export function useLlindar(): {
   readonly llindar: number
   readonly des_de: string | null
   readonly fins_a: string | null
+  readonly llest: boolean
 } {
   const values = useQuery({ queryKey: doorKeys.pointValues(), queryFn: fetchPointValues })
   const periods = useQuery({ queryKey: rankingKeys.periods(), queryFn: fetchPeriods })
@@ -46,5 +55,6 @@ export function useLlindar(): {
     llindar: fila?.punts ?? SENSE_LLINDAR,
     des_de: bounds.from,
     fins_a: bounds.to,
+    llest: periods.isSuccess,
   }
 }

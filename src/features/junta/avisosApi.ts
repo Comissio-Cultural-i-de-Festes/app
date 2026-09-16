@@ -79,7 +79,11 @@ export interface AvisCompte {
 export const avisosKeys = {
   tipus: () => ['junta', 'avisos', 'tipus'] as const,
   ofMember: (userId: string) => ['junta', 'avisos', 'soci', userId] as const,
-  comptes: () => ['junta', 'avisos', 'comptes'] as const,
+  comptes: (desDe: string | null) => ['junta', 'avisos', 'comptes', desDe] as const,
+  // L'arrel, per invalidar. Hi ha una entrada de cache per finestra i qui acaba
+  // d'avisar algú les ha de tornar a demanar totes: amb la clau sencera
+  // n'invalidaria una i deixaria la del curs passat dient el que deia.
+  comptesTots: () => ['junta', 'avisos', 'comptes'] as const,
 }
 
 const TIPUS_COLS = 'clau, gravetat, punts_suggerits, etiqueta, actiu, ordre'
@@ -119,15 +123,24 @@ export async function fetchAvisos(userId: string): Promise<AvisRow[]> {
  * proposava l'issue; per què no hi és i què costaria tornar-hi està escrit
  * sencer a `avisosCompte.ts`, que és on es fa el recompte.
  *
- * SENSE FILTRE PER DATA A LA CONSULTA, i a posta. La finestra la sap la
- * pantalla —`defaultPeriod(usePeriods())`, que és la fila `global` de
- * `ranking_periods` i per tant la mateixa que `private.periode_curs()`— i
- * filtrar aquí obligaria a passar-la-hi com a paràmetre i a tenir una clau de
- * cache per finestra. Les files d'una associació hi caben totes; la que decideix
- * quines compten és `compta()`, en un sol lloc i amb prova.
+ * FITADA PEL COMENÇAMENT DEL CURS, i això no és una optimització: és una
+ * truncació silenciosa evitada. `supabase/config.toml` posa `max_rows = 1000` a
+ * PostgREST, o sigui que una lectura sense fitar es queda a mil files I NO DONA
+ * CAP ERROR. El dia que l'associació en porti mil acumulades, el comptador
+ * començaria a dir un número més petit del que toca i res no ho diria; amb el
+ * filtre, el que baixa és el curs, que no hi arriba ni de lluny.
+ *
+ * QUI DECIDEIX QUINES COMPTEN CONTINUA SENT `compta()`, que torna a aplicar la
+ * mateixa finestra —i el final, i el retirat— sobre el que ha arribat. El filtre
+ * d'aquí acota el que viatja; la regla viu en un sol lloc i té prova.
+ *
+ * `desDe` NUL VOL DIR SENSE FITAR, que és el cas d'una base sense períodes
+ * configurats. Qui la crida no ha de passar-hi un null «perquè encara no ho sap»:
+ * `useLlindar().llest` diu quan la resposta és de debò.
  */
-export async function fetchAvisComptes(): Promise<AvisPeriode[]> {
-  return unwrapAs<AvisPeriode[]>(supabase.from('avisos').select(COMPTE_COLS))
+export async function fetchAvisComptes(desDe: string | null): Promise<AvisPeriode[]> {
+  const q = supabase.from('avisos').select(COMPTE_COLS)
+  return unwrapAs<AvisPeriode[]>(desDe === null ? q : q.gte('created_at', desDe))
 }
 
 /**

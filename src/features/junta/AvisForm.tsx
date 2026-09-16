@@ -111,7 +111,7 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
       setEventId('')
       setConfirmant(false)
       await client.invalidateQueries({ queryKey: avisosKeys.ofMember(userId) })
-      await client.invalidateQueries({ queryKey: avisosKeys.comptes() })
+      await client.invalidateQueries({ queryKey: avisosKeys.comptesTots() })
       await client.invalidateQueries({ queryKey: profileScreenKeys.points(userId) })
       await client.invalidateQueries({ queryKey: ['ranking'] })
     },

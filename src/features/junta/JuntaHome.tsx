@@ -90,8 +90,12 @@ export function JuntaHome() {
   //
   // Amb el llindar a zero —la sortida que la junta té per apagar-ho— no en surt
   // cap, i llavors la fila no hi és, com les altres d'aquest bloc.
-  const comptes = useQuery({ queryKey: avisosKeys.comptes(), queryFn: fetchAvisComptes })
-  const { llindar, des_de, fins_a } = useLlindar()
+  const { llindar, des_de, fins_a, llest } = useLlindar()
+  const comptes = useQuery({
+    queryKey: avisosKeys.comptes(des_de),
+    queryFn: () => fetchAvisComptes(des_de),
+    enabled: llest,
+  })
   const marcats = quantsPassen(compta(comptes.data ?? [], des_de, fins_a), llindar)
 
   // Fetched here rather than at the door: this screen is opened on the way to

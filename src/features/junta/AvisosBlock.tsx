@@ -83,7 +83,7 @@ export function AvisosBlock({
       setRetirant(null)
       setNota('')
       await client.invalidateQueries({ queryKey: avisosKeys.ofMember(userId) })
-      await client.invalidateQueries({ queryKey: avisosKeys.comptes() })
+      await client.invalidateQueries({ queryKey: avisosKeys.comptesTots() })
       // La compensació és una fila NOVA al llibre major, no una edició de la
       // vella: sense això, el registre de dalt es queda ensenyant el `-25` sol.
       await client.invalidateQueries({ queryKey: profileScreenKeys.points(userId) })

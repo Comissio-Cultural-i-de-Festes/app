@@ -813,6 +813,24 @@
     },
     "config": {
       "saved": "Desat.",
+      "avisos": {
+        "nums": "Els avisos",
+        "num": {
+          "llindar": "Llindar per mirar-s'ho",
+          "sostre_curs": "Màxim de punts per curs"
+        },
+        "heading": "El catàleg d'avisos",
+        "lede": "El pes de cada cosa. Els punts d'aquí només precarreguen el formulari: un cop l'avís existeix, els seus punts són els seus, i canviar aquesta xifra al juny no reescriu què va valer una nit d'octubre.",
+        "gravetat": "Gravetat (1 a 3)",
+        "punts": "Punts suggerits",
+        "inUse": "En ús",
+        "retired": "Retirat",
+        "newHeading": "Afegir-ne un",
+        "newHint": "La clau és el nom intern i no es pot canviar després; en minúscules i amb guions baixos. L'etiqueta és el que llegirà la gent si la clau no té traducció.",
+        "newClau": "Clau, p. ex. se_en_va_aviat",
+        "newEtiqueta": "Etiqueta",
+        "newCta": "Afegir el tipus"
+      },
       "periods": {
         "title": "Els períodes del rànquing",
         "lede": "El que acaba un trimestre comença el següent, o sigui que entre dos només hi ha una data. Es desen tots alhora: si una està malament, no se'n desa cap.",
@@ -1348,7 +1366,17 @@
     "trajo_gente": "Portar gent",
     "propuso": "Proposta seva",
     "conduir": "Conduir",
-    "manual": "A mà"
+    "manual": "A mà",
+    "avis": "Avís",
+    "avis_retirat": "Avís retirat"
+  },
+  "avisos": {
+    "tipus": {
+      "no_va_venir": "No va venir",
+      "mal_gest": "Mal gest",
+      "va_deixar_ho": "Ho va deixar malament",
+      "greu": "Greu"
+    }
   },
   "nav": {
     "home": "Inici",

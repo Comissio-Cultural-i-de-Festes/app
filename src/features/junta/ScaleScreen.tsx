@@ -6,6 +6,7 @@ import { doorKeys } from '@/features/door/api'
 import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
+import { AvisTipusBlock } from './AvisTipusBlock'
 import { setPointValue } from './configApi'
 import { JuntaHeader } from './JuntaHeader'
 import { type PointValue, fetchPointValues } from './eventFormApi'
@@ -52,9 +53,35 @@ function ScaleBlock() {
   }
 
   const rows = values.data
+  // EL TERCER GRUP NO SÓN PUNTS: són el llindar de gravetat acumulada i el
+  // sostre de punts que es poden treure a una persona en un curs. Viuen a
+  // `point_values` perquè és la taula que el repositori ja té per a «un número
+  // que la junta mou sense desplegar», amb la seva política, el seu grant i la
+  // seva RPC auditada fets des de la migració 25. Una taula nova per a dos
+  // enters hauria estat sis peces més per mantenir.
+  //
+  // I CADA GRUP DIU COM ES DIU UNA FILA SEVA, amb el prefix escrit sencer dins
+  // del `t()`. Això abans era un `label` que es concatenava a fora, i llavors
+  // `tests/i18n-unused.test.ts` no hi veia cap prefix —el seu escàner llegeix
+  // la part fixa del literal, i allà no n'hi havia—. Les claus del grup nou li
+  // sortien com a inabastables, que és exactament el que aquell fitxer ha de
+  // detectar; la manera de callar-lo era donar-li la veritat, no una excepció.
   const groups = [
-    { mena: 'motiu', heading: t('junta.config.scale.motius'), label: 'motive' },
-    { mena: 'tipus_esdeveniment', heading: t('junta.config.scale.tipus'), label: 'eventType' },
+    {
+      mena: 'motiu',
+      heading: t('junta.config.scale.motius'),
+      name: (clau: string) => t(`motive.${clau}`, { defaultValue: clau }),
+    },
+    {
+      mena: 'tipus_esdeveniment',
+      heading: t('junta.config.scale.tipus'),
+      name: (clau: string) => t(`eventType.${clau}`, { defaultValue: clau }),
+    },
+    {
+      mena: 'avisos',
+      heading: t('junta.config.avisos.nums'),
+      name: (clau: string) => t(`junta.config.avisos.num.${clau}`, { defaultValue: clau }),
+    },
   ]
 
   return (
@@ -85,7 +112,7 @@ function ScaleBlock() {
                     className="flex min-h-[60px] items-center gap-5 border-b border-surface-4 py-4"
                   >
                     <span className="min-w-0 flex-1 text-lg font-semibold">
-                      {t(`${group.label}.${row.clau}`, { defaultValue: row.clau })}
+                      {group.name(row.clau)}
                     </span>
 
                     <input
@@ -94,7 +121,7 @@ function ScaleBlock() {
                       min={0}
                       max={500}
                       value={shown}
-                      aria-label={t(`${group.label}.${row.clau}`, { defaultValue: row.clau })}
+                      aria-label={group.name(row.clau)}
                       onChange={(e) => {
                         setSaved(null)
                         setEdits((previous) => ({ ...previous, [id]: e.target.value }))
@@ -154,17 +181,18 @@ export function ScaleScreen() {
       />
       <div className={`pt-8 ${GUTTER}`}>
         <ScaleBlock />
+        <AvisTipusBlock />
       </div>
     </main>
   )
 }
 
-/** Els dos grups del barem: el nom del motiu i la caixeta dels punts. */
+/** Els tres grups del barem: el nom de la fila i la caixeta del número. */
 function ScaleSkeleton() {
   return (
     <Skeleton>
       <SkeletonBar w="w-[85%]" h="h-[14px]" className="mb-8" />
-      {[0, 1].map((group) => (
+      {[0, 1, 2].map((group) => (
         <div key={group} className="pb-9">
           <SkeletonBar w="w-[36%]" h="h-[10px]" />
           <div className="mt-2">

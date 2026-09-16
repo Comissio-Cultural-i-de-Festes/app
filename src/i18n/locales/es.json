@@ -813,6 +813,24 @@
     },
     "config": {
       "saved": "Guardado.",
+      "avisos": {
+        "nums": "Los avisos",
+        "num": {
+          "llindar": "Umbral para mirarlo",
+          "sostre_curs": "Máximo de puntos por curso"
+        },
+        "heading": "El catálogo de avisos",
+        "lede": "El peso de cada cosa. Los puntos de aquí solo precargan el formulario: una vez el aviso existe, sus puntos son los suyos, y cambiar esta cifra en junio no reescribe lo que valió una noche de octubre.",
+        "gravetat": "Gravedad (1 a 3)",
+        "punts": "Puntos sugeridos",
+        "inUse": "En uso",
+        "retired": "Retirado",
+        "newHeading": "Añadir uno",
+        "newHint": "La clave es el nombre interno y no se puede cambiar después; en minúsculas y con guiones bajos. La etiqueta es lo que leerá la gente si la clave no tiene traducción.",
+        "newClau": "Clave, p. ej. se_en_va_aviat",
+        "newEtiqueta": "Etiqueta",
+        "newCta": "Añadir el tipo"
+      },
       "periods": {
         "title": "Los periodos del ranking",
         "lede": "Donde acaba un trimestre empieza el siguiente, o sea que entre dos solo hay una fecha. Se guardan todos a la vez: si una está mal, no se guarda ninguna.",
@@ -1348,7 +1366,17 @@
     "trajo_gente": "Traer gente",
     "propuso": "Propuesta suya",
     "conduir": "Conducir",
-    "manual": "A mano"
+    "manual": "A mano",
+    "avis": "Aviso",
+    "avis_retirat": "Aviso retirado"
+  },
+  "avisos": {
+    "tipus": {
+      "no_va_venir": "No vino",
+      "mal_gest": "Mal gesto",
+      "va_deixar_ho": "Lo dejó mal",
+      "greu": "Grave"
+    }
   },
   "nav": {
     "home": "Inicio",

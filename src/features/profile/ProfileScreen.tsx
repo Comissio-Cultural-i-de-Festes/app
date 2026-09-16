@@ -29,7 +29,7 @@ import { StreakCard } from './StreakCard'
 import {
   byMotive,
   fetchAttendedCount,
-  fetchMyPoints,
+  fetchPointsOf,
   profileScreenKeys,
   setHideFromRanking,
 } from './api'
@@ -62,7 +62,7 @@ export function ProfileScreen() {
   })
   const points = useQuery({
     queryKey: profileScreenKeys.points(userId),
-    queryFn: () => fetchMyPoints(userId),
+    queryFn: () => fetchPointsOf(userId),
   })
   const attended = useQuery({
     queryKey: profileScreenKeys.attended(userId),

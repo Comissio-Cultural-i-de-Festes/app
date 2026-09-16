@@ -1,4 +1,4 @@
--- Rollback de la migració 69. NO és a `migrations/` a posta: un fitxer aquí
+-- Rollback de la migració 72. NO és a `migrations/` a posta: un fitxer aquí
 -- dins el desfaria el mateix `db push` que acaba d'aplicar-lo.
 --
 -- Torna `award_points` a la versió de la 15: `manual` sense nota torna a ser

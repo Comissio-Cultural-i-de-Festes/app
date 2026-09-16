@@ -93,7 +93,7 @@ export interface Ajust {
  * L'ajust, tal com el rep la base.
  *
  * `p_nota` no és opcional aquí encara que la signatura SQL li doni un valor
- * per defecte: des de la migració 69 un `manual` sense nota torna 22023, i
+ * per defecte: des de la migració 72 un `manual` sense nota torna 22023, i
  * deixar-ho com a paràmetre opcional en aquest costat seria convidar a
  * escriure la crida que falla.
  *
@@ -102,7 +102,7 @@ export interface Ajust {
  * `p_event_id: string` quan la columna és nullable i un ajust sense
  * esdeveniment és justament el cas normal. El nom de la funció sí que queda
  * comprovat, que és la meitat que es taca d'escriure-la malament; la resta la
- * comprova Postgres, i el fitxer de proves de la migració 69 ho cobreix.
+ * comprova Postgres, i el fitxer de proves de la migració 72 ho cobreix.
  */
 export async function adjustPoints(ajust: Ajust): Promise<void> {
   const { error } = await rpc<string>('award_points', {

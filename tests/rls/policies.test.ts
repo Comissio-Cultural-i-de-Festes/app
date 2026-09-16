@@ -51,7 +51,7 @@ describe('points_log is unreachable from a client', () => {
 
 describe('un ajust a mà, pel camí que fa servir la pantalla', () => {
   /**
-   * Les regles de la migració 69 vistes des de fora, que és l'única vista que
+   * Les regles de la migració 72 vistes des de fora, que és l'única vista que
    * compta: `award_points` té el grant per a `authenticated` sencer, o sigui
    * que qualsevol de la junta la pot cridar des de la consola del navegador
    * amb els paràmetres que vulgui. El que la pgTAP prova des de dins, això ho

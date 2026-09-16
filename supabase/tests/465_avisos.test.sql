@@ -124,8 +124,20 @@ select throws_ok(
 
 -- El control positiu de les quatre: el cataleg SI que es llegeix, que es el que
 -- posa nom al seu propi avis a la seva pantalla.
+--
+-- ELS QUATRE SEMBRATS I NO «EXACTAMENT QUATRE FILES». La junta pot afegir tipus
+-- des de `/junta/barem` sense desplegar —es el proposit de la taula— i aquest
+-- fitxer buida `avisos`, `points_log` i `events` pero no `avis_tipus`, que no
+-- s'ha de buidar: hi ha avisos de cursos passats que hi apunten. Un recompte
+-- exacte convertia una accio normal del producte en una prova vermella, i va
+-- passar: afegint un tipus per la pantalla, aquesta asercio queia. La d'RLS del
+-- costat ja ho te escrit —«mai exactament quatre»— i aquesta deia el contrari.
+--
+-- El que la prova ha de dir es que el soci VEU els quatre que la migracio sembra,
+-- que es el que li posa nom al seu avis. Que n'hi hagi mes no la contradiu.
 select is(
-  (select count(*)::int from public.avis_tipus),
+  (select count(*)::int from public.avis_tipus
+    where clau in ('no_va_venir', 'mal_gest', 'va_deixar_ho', 'greu')),
   4,
   'pero el soci llegeix el cataleg, que es el que li posa nom a l''avis'
 );

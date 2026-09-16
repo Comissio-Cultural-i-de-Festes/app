@@ -1,24 +1,26 @@
 -- Un sol motiu per haver portat gent, i l'històric que no se'n ressent.
 --
--- LES TRES LLISTES. La 71 en mou una i en deixa dues quietes, i aquest fitxer
--- és l'únic lloc on es veuen les tres alhora:
+-- LES TRES LLISTES. La 71 en mou una, la 76 en mou una altra i la tercera no es
+-- mou mai, i aquest fitxer és l'únic lloc on es veuen les tres alhora:
 --
---   files de point_values    quins botons es dibuixen   → `conduir` FORA
---   CHECK de points_log      què pot EXISTIR            → `conduir` HI ÉS
---   allowlist d'award_points què es pot crear ara       → `conduir` HI ÉS, encara
+--   files de point_values    quins botons es dibuixen   → `conduir` FORA (71)
+--   allowlist d'award_points què es pot crear ara       → `conduir` FORA (76)
+--   CHECK de points_log      què pot EXISTIR            → `conduir` HI ÉS, i s'hi queda
 --
--- La segona és la que costa de provar i la que es trencarà sola: retallar el
+-- L'ÚLTIMA ÉS LA QUE COSTA DE PROVAR i la que es trencarà sola: retallar el
 -- CHECK no falla al desplegar, falla el dia que algú obre el perfil de qui va
 -- portar gent al desembre. Per això aquí hi ha una fila de `conduir` escrita a
 -- mà i llegida des del perfil del soci, i no només una asserció sobre el text
 -- de la constraint.
 --
--- LA TERCERA NO ES PROVA, I ÉS A PROPÒSIT. Que `award_points` encara accepti
--- `conduir` és el que la 71 deixa obert —hi explica per què: treure'l demana
--- reescriure la funció sencera, i la funció l'acaba de canviar una altra feina.
--- No hi ha cap asserció que ho fixi, perquè una prova que digui «encara
--- s'accepta» és una prova que caldrà esborrar el dia que es tanqui, i mentre hi
--- sigui semblarà que això és el que es vol.
+-- I LA SEGONA JA ES PROVA. Fins que la 76 no va arribar, aquest fitxer deixava
+-- escrit que no es provava a posta, perquè la 71 deixava el forat obert i una
+-- asserció que digués «encara s'accepta» hauria semblat que allò era el que es
+-- volia. Ara el forat és tancat i l'asserció mira cap a l'altra banda: una
+-- crida a mà amb `p_motivo = 'conduir'` contesta 22023. És la meitat del canvi
+-- que no es veu enlloc de l'app —`award_points` té el grant per a
+-- `authenticated` sencer, o sigui que el camí que tanca és la consola del
+-- navegador d'algú de la junta, no cap botó.
 --
 -- CADA REFÚS PORTA EL SEU CONTROL POSITIU, com demana el capçal de la 370: una
 -- prova que només comprova que una cosa peta passaria igual el dia que peti
@@ -33,7 +35,7 @@
 -- Persones i esdeveniments inventats, com a tot el repo.
 
 begin;
-select plan(11);
+select plan(13);
 
 reset role;
 delete from public.points_log;
@@ -84,10 +86,45 @@ select is(
   'i el que entra al llibre són els 20 de la fila, no cap número de la pantalla'
 );
 
+-- ── 2b. I `conduir` ja no es pot crear ──────────────────────────────────────
+--
+-- El camí que això tanca no és cap botó: és la consola del navegador d'algú de
+-- la junta, perquè `award_points` té el grant per a `authenticated` sencer. El
+-- codi importa —22023 és «motiu invàlid» i 42501 seria «no ets de la junta»—,
+-- o sigui que aquesta asserció continuaria passant per la raó equivocada el dia
+-- que la persona deixés de ser admin si només mirés que peta.
+
+reset role;
+select tests.authenticate_as('junta_alfa');
+
+select throws_ok(
+  $$ select public.award_points('00000000-0000-4000-8000-000000000002',
+       '00000000-0000-4000-8000-0000000000e1', 'conduir', 25) $$,
+  '22023',
+  'motiu invalid',
+  'ni a mà: des de la 76 l''allowlist d''award_points tampoc té conduir'
+);
+
+-- El control positiu del refús d'abans, i amb un altre motiu que el de cotxe:
+-- la 76 reescriu la funció sencera, i el que s'ha de veure és que només n'ha
+-- caigut un dels sis i no dos.
+select lives_ok(
+  $$ select public.award_points('00000000-0000-4000-8000-000000000002',
+       '00000000-0000-4000-8000-0000000000e1', 'montaje', 20) $$,
+  'i la resta de l''allowlist sobreviu a la reescriptura: muntatge encara entra'
+);
+
 -- ── 3. L'històric: què pot existir ──────────────────────────────────────────
 --
 -- La fila que la junta va donar al desembre, escrita com la va escriure
 -- `award_points` quan `conduir` encara era un botó.
+--
+-- `reset role` abans i no confiant en el de més amunt: `authenticated` no té
+-- INSERT sobre `points_log` —no hi entra res que no passi per una RPC—, o sigui
+-- que això s'escriu com a superusuari a posta. Sense la línia, l'asserció no
+-- provaria el CHECK sinó el grant, i amb un 42501 que sembla un altre problema.
+
+reset role;
 
 select lives_ok(
   $$ insert into public.points_log (user_id, event_id, motivo, puntos, granted_by)
@@ -110,8 +147,8 @@ select is(
 select is(
   (select sum(puntos)::int from public.points_log
      where user_id = '00000000-0000-4000-8000-000000000002'),
-  45,
-  'i suma al total igual que qualsevol altra: 25 de l''històric i 20 d''ara'
+  65,
+  'i suma al total igual que qualsevol altra: 25 de l''històric i les dues d''ara'
 );
 
 -- ── 4. L'escala no el pot tornar a inventar ─────────────────────────────────

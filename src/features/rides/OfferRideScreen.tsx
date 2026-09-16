@@ -45,7 +45,12 @@ export function OfferRideScreen() {
     enabled: id !== '',
   })
   const values = useQuery({ queryKey: doorKeys.pointValues(), queryFn: fetchPointValues })
-  const reward = values.data?.find((v) => v.mena === 'motiu' && v.clau === 'conduir')?.punts ?? null
+  // `trajo_gente` i no `conduir`: des de la migració 71 el motiu és haver
+  // portat algú, i el cotxe buit no val res. Aquesta pantalla ensenya el
+  // número perquè és on es decideix agafar el cotxe, però la frase de sota diu
+  // la condició —si no hi puja ningú, no hi ha punts.
+  const reward =
+    values.data?.find((v) => v.mena === 'motiu' && v.clau === 'trajo_gente')?.punts ?? null
 
   const [places, setPlaces] = useState(3)
   const [sentit, setSentit] = useState<Sentit>('anada_tornada')

@@ -1456,7 +1456,8 @@
     },
     "cta": {
       "ready": "Entrar",
-      "pickSchool": "Elige la escuela y entras"
+      "pickSchool": "Elige la escuela y entras",
+      "fix": "Repasa el teléfono o el Instagram"
     },
     "later": "Todo esto lo puedes cambiar después en tu perfil."
   },

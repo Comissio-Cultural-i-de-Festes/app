@@ -427,11 +427,21 @@ export function OnboardingScreen() {
               : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-muted')
           }
         >
+          {/* TRES ETIQUETES I NO DUES. Amb «apagat» i «encès» com a únics
+              estats, el botó deia «Tria l'escola i entres» també quan l'escola
+              ja estava triada i el que fallava era el telèfon o l'Instagram:
+              enviava a fer una cosa ja feta, i l'única pista de què passava de
+              debò era la línia de sota d'un camp que pot quedar fora de
+              pantalla. En una pantalla que no es pot saltar, això és un
+              cul-de-sac. Es mira l'escola per separat perquè és l'únic camp
+              obligatori; la resta només pot ser buida —vàlida— o mal escrita. */}
           {save.isPending
             ? t('state.updating')
-            : ready
-              ? t('onboarding.cta.ready')
-              : t('onboarding.cta.pickSchool')}
+            : escola === null
+              ? t('onboarding.cta.pickSchool')
+              : ready
+                ? t('onboarding.cta.ready')
+                : t('onboarding.cta.fix')}
         </button>
 
         {save.isError ? (

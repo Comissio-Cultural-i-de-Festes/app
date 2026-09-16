@@ -906,6 +906,42 @@
         "eventNone": "De cap en concret",
         "save": "Desa l'ajust",
         "done": "Apuntat: {{punts}} per a {{nombre}}."
+      },
+      "avisos": {
+        "title": "Els avisos",
+        "live_one": "{{count}} viu",
+        "live_other": "{{count}} vius",
+        "empty": "Cap avís. Que duri.",
+        "withdraw": "Retira l'avís",
+        "withdrawSure": "L'avís es queda a la fitxa, ratllat, i si va restar punts es tornen amb una línia nova al registre. Escriu per què es retira.",
+        "withdrawNote": "Per què es retira",
+        "withdrawPlaceholder": "Havia avisat, error nostre",
+        "withdrawnOn": "Retirat el {{dia}}"
+      },
+      "avis": {
+        "title": "Registra un avís",
+        "lede": "Queda escrit i no s'esborra mai. Pot restar punts o no: es pot avisar sense tocar el rànquing.",
+        "tipus": "Què ha passat",
+        "tipusHint": "El catàleg es toca a «El barem».",
+        "tipusNone": "Tria'n un",
+        "gravetatIs": "Gravetat: {{gravetat}}",
+        "punts": "Punts",
+        "puntsHint": "Surten del catàleg i es poden canviar. Zero vol dir un avís que no toca el rànquing.",
+        "puntsBad": "Un número enter entre -{{max}} i 0.",
+        "note": "Per què",
+        "noteHint": "Obligatori. Ho llegirà {{nombre}} al seu perfil.",
+        "notePlaceholder": "No va venir al muntatge que havia dit que faria",
+        "noteBad": "Un avís sense motiu escrit no es pot desar.",
+        "event": "De quina nit",
+        "eventHint": "Opcional. Si va ser en una reunió de junta, l'avís s'hi queda i els punts hi van sense esdeveniment.",
+        "eventNone": "De cap en concret",
+        "save": "Registra l'avís",
+        "sureTitle": "Abans de registrar-lo",
+        "surePoints": "Es restaran {{punts}} punts a {{nombre}} i li baixarà la posició al rànquing.",
+        "sureNoPoints": "No es restarà cap punt: {{nombre}} no es mourà del rànquing.",
+        "sureSeen": "{{nombre}} ho veurà al seu perfil amb el motiu que has escrit, i la fila no s'esborra mai.",
+        "sureCta": "Sí, registra'l",
+        "done": "Registrat: {{tipus}} per a {{nombre}}."
       }
     },
     "role": {
@@ -1410,6 +1446,11 @@
       "mal_gest": "Mal gest",
       "va_deixar_ho": "Ho va deixar malament",
       "greu": "Greu"
+    },
+    "gravetat": {
+      "1": "Lleu",
+      "2": "Greu",
+      "3": "Molt greu"
     }
   },
   "nav": {

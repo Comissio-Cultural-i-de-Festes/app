@@ -1,5 +1,5 @@
 import { DbError, unwrapAs } from '@/lib/db'
-import { supabase } from '@/lib/supabase'
+import { rpc, supabase } from '@/lib/supabase'
 
 /**
  * Els avisos, i el catàleg que els posa nom.
@@ -43,16 +43,28 @@ export interface AvisRow {
   readonly created_at: string
   readonly retirat_at: string | null
   readonly retirat_nota: string | null
+  /**
+   * Els punts que va restar, si en va restar, resolts per la clau forana.
+   *
+   * VE DE `points_log` I NO D'UNA COLUMNA A `avisos`, perquè no n'hi ha cap: la
+   * fila del llibre major ÉS el registre dels punts i l'avís només hi apunta.
+   * Arriba null quan l'avís no en va restar cap —el primer avís, que és el cas
+   * que la migració 73 defensa— i llavors la pantalla no pinta cap número en
+   * comptes de pintar un zero, que voldria dir una altra cosa.
+   */
+  readonly points_log: { readonly puntos: number } | null
 }
 
 export const avisosKeys = {
   tipus: () => ['junta', 'avisos', 'tipus'] as const,
   ofMember: (userId: string) => ['junta', 'avisos', 'soci', userId] as const,
+  comptes: () => ['junta', 'avisos', 'comptes'] as const,
 }
 
 const TIPUS_COLS = 'clau, gravetat, punts_suggerits, etiqueta, actiu, ordre'
 const AVIS_COLS =
-  'id, user_id, tipus, gravetat, nota, event_id, created_at, retirat_at, retirat_nota'
+  'id, user_id, tipus, gravetat, nota, event_id, created_at, retirat_at, retirat_nota, ' +
+  'points_log!avisos_points_log_id_fkey(puntos)'
 
 /**
  * El catàleg sencer, retirats inclosos.
@@ -75,6 +87,45 @@ export async function fetchAvisos(userId: string): Promise<AvisRow[]> {
       .eq('user_id', userId)
       .order('created_at', { ascending: false }),
   )
+}
+
+/**
+ * Registrar-ne un.
+ *
+ * VA PEL `rpc()` GENÈRIC i no pel tipat, pel mateix motiu que `adjustPoints`: el
+ * generador escriu `p_event_id: string` per a un paràmetre que admet null, i un
+ * avís sense esdeveniment és el cas normal. El nom de la funció sí que queda
+ * comprovat, que és la meitat que es taca d'escriure-la malament.
+ */
+export async function avisa(avis: {
+  readonly userId: string
+  readonly tipus: string
+  readonly nota: string
+  readonly punts: number
+  readonly eventId: string | null
+}): Promise<string> {
+  const { data, error } = await rpc<string>('avisa', {
+    p_user_id: avis.userId,
+    p_tipus: avis.tipus,
+    p_nota: avis.nota,
+    p_punts: avis.punts,
+    p_event_id: avis.eventId,
+  })
+  if (error) throw new DbError(error)
+  return data ?? ''
+}
+
+/**
+ * I retirar-ne un, que no l'esborra.
+ *
+ * La fila es queda i surt ratllada; el que passa és que `retirat_at` s'omple i,
+ * si l'avís havia restat punts, `retira_avis()` escriu la fila compensatòria al
+ * llibre major. Per això qui la crida ha d'invalidar també els punts de la
+ * persona: n'hi ha una de nova que abans no hi era.
+ */
+export async function retiraAvis(avisId: string, nota: string): Promise<void> {
+  const { error } = await supabase.rpc('retira_avis', { p_avis_id: avisId, p_nota: nota })
+  if (error) throw new DbError(error)
 }
 
 export async function saveAvisTipus(tipus: {

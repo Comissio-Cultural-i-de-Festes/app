@@ -906,6 +906,42 @@
         "eventNone": "None in particular",
         "save": "Save the adjustment",
         "done": "Recorded: {{punts}} for {{nombre}}."
+      },
+      "avisos": {
+        "title": "Warnings",
+        "live_one": "{{count}} standing",
+        "live_other": "{{count}} standing",
+        "empty": "No warnings. Long may it last.",
+        "withdraw": "Withdraw the warning",
+        "withdrawSure": "The warning stays on the sheet, struck through, and any points it took come back as a new line in the ledger. Write why it is being withdrawn.",
+        "withdrawNote": "Why it is withdrawn",
+        "withdrawPlaceholder": "They had told us, our mistake",
+        "withdrawnOn": "Withdrawn on {{dia}}"
+      },
+      "avis": {
+        "title": "Record a warning",
+        "lede": "It is written down and never deleted. It may take points or not: you can warn somebody without touching the ranking.",
+        "tipus": "What happened",
+        "tipusHint": "The catalogue lives in \"The scale\".",
+        "tipusNone": "Pick one",
+        "gravetatIs": "Severity: {{gravetat}}",
+        "punts": "Points",
+        "puntsHint": "They come from the catalogue and can be changed. Zero means a warning that leaves the ranking alone.",
+        "puntsBad": "A whole number between -{{max}} and 0.",
+        "note": "Why",
+        "noteHint": "Required. {{nombre}} will read it on their profile.",
+        "notePlaceholder": "Did not turn up to the set-up they had offered to do",
+        "noteBad": "A warning with no reason written down cannot be saved.",
+        "event": "Which night",
+        "eventHint": "Optional. If it happened at a junta meeting, the warning stays with it and the points go without an event.",
+        "eventNone": "No particular one",
+        "save": "Record the warning",
+        "sureTitle": "Before recording it",
+        "surePoints": "{{nombre}} will lose {{punts}} points and drop in the ranking.",
+        "sureNoPoints": "No points will be taken: {{nombre}} will not move in the ranking.",
+        "sureSeen": "{{nombre}} will see it on their profile with the reason you wrote, and the row is never deleted.",
+        "sureCta": "Yes, record it",
+        "done": "Recorded: {{tipus}} for {{nombre}}."
       }
     },
     "role": {
@@ -1410,6 +1446,11 @@
       "mal_gest": "Bad behaviour",
       "va_deixar_ho": "Left it badly",
       "greu": "Serious"
+    },
+    "gravetat": {
+      "1": "Minor",
+      "2": "Serious",
+      "3": "Very serious"
     }
   },
   "nav": {

@@ -906,6 +906,42 @@
         "eventNone": "De ninguna en concreto",
         "save": "Guarda el ajuste",
         "done": "Apuntado: {{punts}} para {{nombre}}."
+      },
+      "avisos": {
+        "title": "Los avisos",
+        "live_one": "{{count}} vivo",
+        "live_other": "{{count}} vivos",
+        "empty": "Ningún aviso. Que dure.",
+        "withdraw": "Retira el aviso",
+        "withdrawSure": "El aviso se queda en la ficha, tachado, y si restó puntos se devuelven con una línea nueva en el registro. Escribe por qué se retira.",
+        "withdrawNote": "Por qué se retira",
+        "withdrawPlaceholder": "Había avisado, error nuestro",
+        "withdrawnOn": "Retirado el {{dia}}"
+      },
+      "avis": {
+        "title": "Registra un aviso",
+        "lede": "Queda escrito y no se borra nunca. Puede restar puntos o no: se puede avisar sin tocar el ranking.",
+        "tipus": "Qué ha pasado",
+        "tipusHint": "El catálogo se toca en «El baremo».",
+        "tipusNone": "Elige uno",
+        "gravetatIs": "Gravedad: {{gravetat}}",
+        "punts": "Puntos",
+        "puntsHint": "Salen del catálogo y se pueden cambiar. Cero significa un aviso que no toca el ranking.",
+        "puntsBad": "Un número entero entre -{{max}} y 0.",
+        "note": "Por qué",
+        "noteHint": "Obligatorio. Lo leerá {{nombre}} en su perfil.",
+        "notePlaceholder": "No vino al montaje que había dicho que haría",
+        "noteBad": "Un aviso sin motivo escrito no se puede guardar.",
+        "event": "De qué noche",
+        "eventHint": "Opcional. Si fue en una reunión de junta, el aviso se queda ahí y los puntos van sin evento.",
+        "eventNone": "De ninguna en concreto",
+        "save": "Registra el aviso",
+        "sureTitle": "Antes de registrarlo",
+        "surePoints": "Se restarán {{punts}} puntos a {{nombre}} y le bajará la posición en el ranking.",
+        "sureNoPoints": "No se restará ningún punto: {{nombre}} no se moverá del ranking.",
+        "sureSeen": "{{nombre}} lo verá en su perfil con el motivo que has escrito, y la fila no se borra nunca.",
+        "sureCta": "Sí, regístralo",
+        "done": "Registrado: {{tipus}} para {{nombre}}."
       }
     },
     "role": {
@@ -1410,6 +1446,11 @@
       "mal_gest": "Mal gesto",
       "va_deixar_ho": "Lo dejó mal",
       "greu": "Grave"
+    },
+    "gravetat": {
+      "1": "Leve",
+      "2": "Grave",
+      "3": "Muy grave"
     }
   },
   "nav": {

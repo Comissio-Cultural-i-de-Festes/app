@@ -23,7 +23,20 @@ import { awardPoints, doorKeys, fetchRoster } from './api'
  * definition the ones who were there.
  */
 
-const MOTIVES = ['montaje', 'conduir', 'trajo_gente', 'propuso'] as const
+/**
+ * Els botons, en l'ordre en què es premen.
+ *
+ * `conduir` va sortir d'aquí amb la migració 71: conduir sol no és cap servei
+ * al grup, i tenir-lo al costat de «portar gent» volia dir que la mateixa nit
+ * es podia pagar 25 a qui hi va anar sol o 40 a qui va portar gent, segons qui
+ * hi hagués a la porta. La clau no desapareix del tot —el registre de desembre
+ * la conserva, i l'i18n també, perquè una fila vella no es quedi sense etiqueta.
+ *
+ * L'ordre és el de `point_values.ordre`, escrit aquí perquè el que es dibuixa a
+ * la porta no ha de canviar de lloc el dia que algú reordeni l'escala mentre
+ * hi ha cua.
+ */
+const MOTIVES = ['montaje', 'trajo_gente', 'propuso'] as const
 
 export function PointsScreen() {
   const { t } = useTranslation()
@@ -186,6 +199,11 @@ export function PointsScreen() {
           {MOTIVES.map((clau, index) => {
             const punts = pointsFor(clau)
             const strong = index < 2
+            // Amb un nombre senar de motius l'últim queda tot sol a la segona
+            // fila, mig forat al costat. S'estén en comptes de deixar-lo:
+            // l'alternativa era passar a tres columnes, i «Proposta seva» en un
+            // terç d'amplada són tres línies en català.
+            const wide = index === MOTIVES.length - 1 && MOTIVES.length % 2 === 1
             return (
               <button
                 key={clau}
@@ -197,6 +215,7 @@ export function PointsScreen() {
                 className={
                   'flex min-h-[56px] flex-col items-center justify-center gap-1 px-4 py-5 ' +
                   '[text-wrap:balance] disabled:opacity-45 ' +
+                  (wide ? 'col-span-2 ' : '') +
                   (strong
                     ? 'bg-brand-cta text-on-brand'
                     : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg')

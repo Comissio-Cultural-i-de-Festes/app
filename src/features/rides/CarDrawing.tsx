@@ -1,5 +1,6 @@
 import { useTranslation } from 'react-i18next'
 
+import { MemberLink } from '@/features/member/MemberLink'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
 import type { Ride } from './api'
@@ -39,9 +40,12 @@ const SEATS = [
 export function CarDrawing({
   ride,
   meId,
+  from,
 }: {
   readonly ride: Ride
   readonly meId: string
+  /** Com es diu aquesta pantalla, per a la fletxa de tornar del perfil. */
+  readonly from: string
 }) {
   const { t } = useTranslation()
   // Oldest first, so somebody's bubble does not move when the next person gets
@@ -65,6 +69,8 @@ export function CarDrawing({
         left={DRIVER.left}
         top={DRIVER.top}
         size={DRIVER.size}
+        userId={ride.driver_id}
+        from={from}
         src={ride.driver?.avatar_url ?? null}
         name={ride.driver_id === meId ? t('rides.you') : (ride.driver?.nombre ?? '')}
         role={t('rides.drives')}
@@ -81,6 +87,8 @@ export function CarDrawing({
               left={slot.left}
               top={slot.top}
               size={46}
+              userId={rider.user_id}
+              from={from}
               src={rider.profiles?.avatar_url ?? null}
               name={isMe ? t('rides.you') : (rider.profiles?.nombre ?? '')}
               role={rider.estat === 'convidat' ? t('rides.held') : undefined}
@@ -102,10 +110,19 @@ export function CarDrawing({
   )
 }
 
+/**
+ * Una cara del cotxe, i la porta al perfil de qui és.
+ *
+ * L'enllaç embolcalla la bombolla sencera —cara, nom i la paraula «condueix»—
+ * i no només la imatge: a 46 px, un objectiu que és només la cara es falla, i
+ * el nom de sota és el que la gent mira.
+ */
 function Bubble({
   left,
   top,
   size,
+  userId,
+  from,
   src,
   name,
   role,
@@ -116,6 +133,8 @@ function Bubble({
   readonly left: number
   readonly top: number
   readonly size: number
+  readonly userId: string
+  readonly from: string
   readonly src: string | null
   readonly name: string
   readonly role?: string | undefined
@@ -125,6 +144,7 @@ function Bubble({
 }) {
   return (
     <div className={`absolute ${faded ? 'opacity-55' : ''}`} style={{ left, top, width: size }}>
+      <MemberLink userId={userId} label={from} className="block text-fg no-underline">
       <span
         className={
           'block rounded-full ' +
@@ -152,6 +172,7 @@ function Bubble({
           {role}
         </span>
       )}
+      </MemberLink>
     </div>
   )
 }

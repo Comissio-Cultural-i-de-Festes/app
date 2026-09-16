@@ -6,6 +6,7 @@ import { useParams } from 'react-router'
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import { IN_PROGRESS_MS } from '@/features/home/api'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
+import { MemberLink } from '@/features/member/MemberLink'
 import { useUserId } from '@/features/session/useUserId'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -181,6 +182,8 @@ export function InsideScreen() {
                 <Bubble
                   key={r.user_id}
                   slot={slot}
+                  userId={r.user_id}
+                  from={e?.titulo ?? t('actions.back')}
                   name={r.user_id === meId ? t('rides.you') : r.nombre}
                   src={r.avatar_url}
                   ringed={r.user_id === meId}
@@ -212,29 +215,43 @@ export function InsideScreen() {
 
 type Slot = { readonly top: number } & ({ readonly left: number } | { readonly right: number })
 
+/**
+ * Una cara del rotllo, i ara també la porta al seu perfil.
+ *
+ * Aquesta pantalla és el cas que millor explica per què l'enllaç ha de recordar
+ * d'on ve: qui toca una cara aquí ve de «qui hi ha dins» d'una festa concreta, i
+ * la fletxa de tornar ha de dir el nom d'aquella festa. Per això el títol viatja
+ * fins aquí en comptes que el perfil s'ho imagini.
+ */
 function Bubble({
   slot,
+  userId,
+  from,
   name,
   src,
   ringed,
 }: {
   readonly slot: Slot
+  readonly userId: string
+  readonly from: string
   readonly name: string
   readonly src: string | null
   readonly ringed: boolean
 }) {
   return (
     <div className="absolute" style={{ ...slot, width: BUBBLE }}>
-      <span
-        className={`block rounded-full ${ringed ? 'outline-2 outline-offset-2 outline-brand' : ''}`}
-      >
-        <Avatar src={src} size={BUBBLE} />
-      </span>
-      {/* Wider than the face and centred on it, but only by as much as the
-          ring's own margin: any wider and a corner name leaves the screen. */}
-      <span className="mt-2 -ml-[4px] block w-[52px] truncate text-center text-[11px] font-bold">
-        {name}
-      </span>
+      <MemberLink userId={userId} label={from} className="block text-fg no-underline">
+        <span
+          className={`block rounded-full ${ringed ? 'outline-2 outline-offset-2 outline-brand' : ''}`}
+        >
+          <Avatar src={src} size={BUBBLE} />
+        </span>
+        {/* Wider than the face and centred on it, but only by as much as the
+            ring's own margin: any wider and a corner name leaves the screen. */}
+        <span className="mt-2 -ml-[4px] block w-[52px] truncate text-center text-[11px] font-bold">
+          {name}
+        </span>
+      </MemberLink>
     </div>
   )
 }

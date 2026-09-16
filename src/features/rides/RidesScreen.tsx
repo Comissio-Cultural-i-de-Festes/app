@@ -52,7 +52,10 @@ export function RidesScreen() {
   })
   const values = useQuery({ queryKey: doorKeys.pointValues(), queryFn: fetchPointValues })
 
-  const reward = values.data?.find((v) => v.mena === 'motiu' && v.clau === 'conduir')?.punts ?? null
+  // Vegeu OfferRideScreen: el motiu és `trajo_gente` des de la migració 71, i
+  // el que es premia és la gent que puja, no el viatge.
+  const reward =
+    values.data?.find((v) => v.mena === 'motiu' && v.clau === 'trajo_gente')?.punts ?? null
   const points = reward === null ? '' : t('units.points', { count: reward })
 
   const join = useMutation({
@@ -143,6 +146,7 @@ export function RidesScreen() {
               ride={ride}
               meId={meId}
               locale={locale}
+              from={event.data?.titulo ?? t('nav.home')}
               busy={join.isPending || leave.isPending}
               onJoin={() => {
                 setNote(null)
@@ -180,6 +184,7 @@ function Card({
   ride,
   meId,
   locale,
+  from,
   busy,
   onJoin,
   onLeave,
@@ -187,6 +192,8 @@ function Card({
   readonly ride: Ride
   readonly meId: string
   readonly locale: Locale
+  /** El nom d'aquesta activitat, que viatja fins a les cares del dibuix. */
+  readonly from: string
   readonly busy: boolean
   readonly onJoin: () => void
   readonly onLeave: () => void
@@ -210,7 +217,7 @@ function Card({
         </span>
       </div>
 
-      <CarDrawing ride={ride} meId={meId} />
+      <CarDrawing ride={ride} meId={meId} from={from} />
 
       <dl className="mt-2 grid grid-cols-2 gap-x-6 gap-y-4">
         <Fact label={t('rides.from')} value={ride.origen} />

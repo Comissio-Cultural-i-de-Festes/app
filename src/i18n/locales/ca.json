@@ -1084,7 +1084,7 @@
       },
       "points": {
         "title": "D’on surten els punts",
-        "action": "→ Muntar i conduir són punts fàcils de repartir al gener: anuncieu-los abans de cada pla."
+        "action": "→ Muntar i portar gent són punts fàcils de repartir al gener: anuncieu-los abans de cada pla."
       },
       "limits": {
         "title": "Límits i dades",
@@ -1657,6 +1657,33 @@
       "pendent": "pendent"
     }
   },
+  "member": {
+    "gone": {
+      "title": "Aquest soci ja no hi és",
+      "body": "Un perfil deixa de veure's quan algú deixa la comi. El que va fer es queda al registre de la junta."
+    },
+    "isYou": "Ets tu",
+    "instagram": "Segueix-lo a Instagram",
+    "footer": "Això és el que qualsevol soci veu de tu. El telèfon i les fotos de sortida no hi surten.",
+    "standing": {
+      "hidden": "Ha demanat no sortir al rànquing, així que els seus punts no es diuen aquí."
+    },
+    "streak": {
+      "none": "cap ratxa en marxa",
+      "never": "Encara no n'ha fet cap.",
+      "best": "La seva millor marca: {{best}}",
+      "bestNow": "La seva millor marca, ara mateix."
+    },
+    "badges": {
+      "empty": "Encara no en té cap. La primera cau el primer dia."
+    },
+    "nights": {
+      "title": "On ha estat",
+      "count_one": "{{count}} activitat",
+      "count_other": "{{count}} activitats",
+      "empty": "Encara no consta a cap activitat."
+    }
+  },
   "pending": {
     "eyebrow": "Encara no ets dins",
     "title": "La junta t'ha d'acceptar",
@@ -1734,7 +1761,7 @@
     "riding_other": "{{count}} amunt",
     "goUp": "Puja a un cotxe",
     "iDrive": "Condueixo jo i ofereixo places",
-    "drivingPays": "Conduir són {{points}}. És l'única manera de puntuar que no passa per la barra.",
+    "drivingPays": "Portar gent al cotxe són {{points}}. És l'única manera de puntuar que no passa per la barra.",
     "lede": "Qui hi vulgui pujar. La gasolina ja us la partireu vosaltres.",
     "offer": "Ofereix el teu cotxe · {{points}}",
     "offerShort": "Ofereixo el meu cotxe",
@@ -1765,12 +1792,12 @@
     "phoneNote": "Veuràs el telèfon de qui hi pugi, per si t'has d'esperar cinc minuts. Ells no veuen el teu.",
       "phoneToDriver": "Si hi puges, el conductor veurà el teu telèfon per si s'ha d'esperar. La resta de passatgers, no.",
     "offerCta": "Ofereix el cotxe",
-    "pointsLater": "Els {{points}} te'ls posem quan torneu, no ara.",
+    "pointsLater": "Els {{points}} són per la gent que puges, i te'ls posem quan torneu.",
     "onlyOne": "De moment n'hi ha un. Ja n'apareixeran més, però aquest ja hi va segur.",
     "beFirst": "Sigues el primer i tria seient. Els altres cotxes surten quan hi ha gent: sempre passa igual.",
     "emptyTitle": "Encara no hi ha cap cotxe",
     "emptyLede": "Si tens cotxe, digues-ho ara: la gent s'apunta al viatge abans que a la casa.",
-    "emptyFoot": "Conduir són {{points}} i no cal que beguis res per fer-los.",
+    "emptyFoot": "Portar gent són {{points}} i no cal que beguis res per fer-los.",
     "emptyNote": "Buit vol dir buit: ningú n'ha ofert cap.",
     "loading": "Carregant els cotxes…",
     "loadingNote": "Oferir-ne un no espera: aquest botó ja es pot tocar.",

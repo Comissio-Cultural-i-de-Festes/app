@@ -1084,7 +1084,7 @@
       },
       "points": {
         "title": "Where the points come from",
-        "action": "→ Setting up and driving are easy points to hand out in January: announce them before each plan."
+        "action": "→ Setting up and bringing people are easy points to hand out in January: announce them before each plan."
       },
       "limits": {
         "title": "Limits and data",
@@ -1657,6 +1657,33 @@
       "pendent": "pending"
     }
   },
+  "member": {
+    "gone": {
+      "title": "This member is no longer here",
+      "body": "A profile stops being visible when somebody leaves the comi. What they did stays in the committee's ledger."
+    },
+    "isYou": "This is you",
+    "instagram": "Follow on Instagram",
+    "footer": "This is what any member sees of you. Your phone number and your exit photos are not here.",
+    "standing": {
+      "hidden": "They have asked to stay out of the leaderboard, so their points are not shown here."
+    },
+    "streak": {
+      "none": "no streak running",
+      "never": "No streak yet.",
+      "best": "Their best run: {{best}}",
+      "bestNow": "Their best run, right now."
+    },
+    "badges": {
+      "empty": "None yet. The first one lands on day one."
+    },
+    "nights": {
+      "title": "Where they have been",
+      "count_one": "{{count}} activity",
+      "count_other": "{{count}} activities",
+      "empty": "Not down for any activity yet."
+    }
+  },
   "pending": {
     "eyebrow": "You are not in yet",
     "title": "The committee has to let you in",
@@ -1734,7 +1761,7 @@
     "riding_other": "{{count}} riding",
     "goUp": "Get a lift",
     "iDrive": "I am driving and have seats",
-    "drivingPays": "Driving is worth {{points}}. It is the only way to score that does not go through the bar.",
+    "drivingPays": "Bringing people in your car is worth {{points}}. It is the only way to score that does not go through the bar.",
     "lede": "Whoever wants a lift. You can sort the petrol out between you.",
     "offer": "Offer your car · {{points}}",
     "offerShort": "I can drive",
@@ -1765,12 +1792,12 @@
     "phoneNote": "You will see the number of whoever gets in, in case you have to wait five minutes. They do not see yours.",
       "phoneToDriver": "If you get in, the driver sees your phone in case they have to wait. The other passengers do not.",
     "offerCta": "Offer the car",
-    "pointsLater": "The {{points}} go on when you are back, not now.",
+    "pointsLater": "The {{points}} are for the people you take, and they go on when you are back.",
     "onlyOne": "One so far. More will turn up, but this one is definitely going.",
     "beFirst": "Be first and pick your seat. The other cars appear once there are people: it always goes that way.",
     "emptyTitle": "No cars yet",
     "emptyLede": "If you have a car, say so now: people sign up for the journey before they sign up for the house.",
-    "emptyFoot": "Driving is worth {{points}}, and you do not have to drink anything to earn them.",
+    "emptyFoot": "Bringing people is worth {{points}}, and you do not have to drink anything to earn them.",
     "emptyNote": "Empty means empty: nobody has offered one.",
     "loading": "Loading the cars…",
     "loadingNote": "Offering one does not wait: this button already works.",

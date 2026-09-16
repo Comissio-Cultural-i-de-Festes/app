@@ -6,7 +6,7 @@
  * Si cadascuna es fes la seva normalització, una desaria `@algu` i l'altra
  * `algu`, i la pantalla del soci dibuixaria `instagram.com/@algu`.
  *
- * `isInstagramHandle` ÉS UNA CÒPIA DEL `CHECK` de la migració 69, i això és a
+ * `isInstagramHandle` ÉS UNA CÒPIA DEL `CHECK` de la migració 70, i això és a
  * posta: la barrera de debò és la de la base de dades —`profiles` s'escriu amb
  * un `update` directe i el formulari no atura ningú— i aquesta d'aquí només
  * serveix perquè el camp pugui dir que no abans d'enviar, en comptes de tornar
@@ -20,7 +20,7 @@
  * llargada del que casa amb la del text.
  */
 
-/** El màxim que accepta Instagram, i el que diu el `CHECK` de la migració 69. */
+/** El màxim que accepta Instagram, i el que diu el `CHECK` de la migració 70. */
 export const INSTAGRAM_MAX = 30
 
 const HANDLE = /^[A-Za-z0-9._]{1,30}$/

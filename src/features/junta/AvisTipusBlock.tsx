@@ -37,8 +37,22 @@ interface Draft {
 }
 
 export function AvisTipusBlock() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const client = useQueryClient()
+
+  /**
+   * La traducció d'un tipus, o cadena buida si no en té.
+   *
+   * ES PREGUNTA AMB `i18n.exists` I NO AMB `defaultValue: ''`. Aquesta app
+   * arrenca amb `returnEmptyString: false` (`src/i18n/index.ts`), i amb aquesta
+   * opció i18next descarta una cadena buida i torna LA CLAU. O sigui que el
+   * `defaultValue: ''` que hi havia aquí no tornava mai '' i el recanvi de
+   * `nomDelTipus` no s'arribava a disparar: un tipus afegit per la junta sortia
+   * a la pantalla com «avisos.tipus.se_en_va_aviat». Es va veure afegint-ne un
+   * de debò a la pantalla, no llegint el codi.
+   */
+  const traduccio = (clau: string): string =>
+    i18n.exists(`avisos.tipus.${clau}`) ? t(`avisos.tipus.${clau}`) : ''
   const [edits, setEdits] = useState<Record<string, Draft>>({})
   const [saved, setSaved] = useState<string | null>(null)
   const [nou, setNou] = useState({ clau: '', etiqueta: '', gravetat: '1', punts: '0' })
@@ -91,8 +105,11 @@ export function AvisTipusBlock() {
     puntsNous <= 0 &&
     puntsNous >= -500
 
+  // La ratlla de dalt separa el catàleg del barem de punts. Sense ella, el
+  // títol d'aquí queia enganxat a l'última línia del bloc anterior i les dues
+  // seccions es llegien com una de sola. Es va veure obrint la pantalla.
   return (
-    <section className="pb-9">
+    <section className="mt-9 border-t border-surface-4 pt-9 pb-9">
       <h3 className="eyebrow text-fg-muted">{t('junta.config.avisos.heading')}</h3>
       <p className="pt-4 text-md text-fg-secondary [text-wrap:pretty]">
         {t('junta.config.avisos.lede')}
@@ -139,7 +156,7 @@ export function AvisTipusBlock() {
                     (actiu ? '' : 'text-fg-muted line-through')
                   }
                 >
-                  {nomDelTipus(row, t(`avisos.tipus.${row.clau}`, { defaultValue: '' }))}
+                  {nomDelTipus(row, traduccio(row.clau))}
                 </span>
                 <button
                   type="button"

@@ -8,6 +8,22 @@ import { supabase } from '@/lib/supabase'
  * that can fail. Which parts are allowed to wait is a design decision the
  * prototype states out loud: the door panel and the numbers, never the
  * navigation rows.
+ *
+ * AQUÍ NO HI HA `de_pagament`, I ÉS A POSTA. La funció el torna des de la
+ * migració 28 i el client no l'ha llegit mai. Quan una activitat és de franc,
+ * qui ho respon és `no_pagats`, que des de la 69 ja val zero: l'avís, el
+ * subtítol, la rodona de la fila de Pagaments i la suma de «hi ha feina» surten
+ * les quatre d'aquest mateix número i no s'han de tornar a preguntar res.
+ *
+ * L'ALTRA OPCIÓ ERA DECLARAR-LO I NO FER-LO SERVIR, que és on era. Un camp
+ * tipat que ningú no llegeix és una invitació: la cinquena superfície que
+ * s'afegeixi el trobarà i es dibuixarà la seva pròpia guarda, i llavors hi
+ * haurà dues regles per a la mateixa pregunta i un dia no diran el mateix.
+ *
+ * I no s'ha tret del `jsonb`: seria un `create or replace` sobre una funció
+ * `security definer` —que torna a donar EXECUTE a PUBLIC, i en aquest repo això
+ * ja s'ha pagat un cop— a canvi de res que es vegi. El que enganyava era el
+ * tipus, i el tipus diu el que la pantalla llegeix.
  */
 
 export interface DoorNow {
@@ -16,11 +32,14 @@ export interface DoorNow {
   readonly starts_at: string
   readonly ubicacion: string | null
   readonly plazas: number | null
-  readonly de_pagament: boolean
   readonly diuen_si: number
   readonly fitxats: number
   /** Waiting for a place and waiting for a decision, added together. */
   readonly esperen: number
+  /**
+   * Qui ve i encara no ha passat pel Bizum, i zero quan no hi ha res a cobrar.
+   * La condició del preu viu a la funció, no aquí.
+   */
   readonly no_pagats: number
   /**
    * Fotos de la gimcana esperant que algú digui si valen, i `null` quan

@@ -12,7 +12,12 @@ import { memberSubtitle } from './subtitle'
 describe('la línia de sota el nom', () => {
   it('uneix els quatre trossos amb el separador de l’app', () => {
     expect(
-      memberSubtitle({ escola: 'Politècnica', curs: '2n', grau: 'Informàtica', desDe: 'des de 2024' }),
+      memberSubtitle({
+        escola: 'Politècnica',
+        curs: '2n',
+        grau: 'Informàtica',
+        desDe: 'des de 2024',
+      }),
     ).toBe('Politècnica · 2n · Informàtica · des de 2024')
   })
 

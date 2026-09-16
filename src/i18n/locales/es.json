@@ -1388,6 +1388,12 @@
       "why": "Solo para añadirte al grupo de WhatsApp. No sale en tu perfil ni lo ve nadie más que la comi.",
       "invalid": "Este número no acaba de cuadrar. Déjalo en blanco si no lo quieres poner."
     },
+    "instagram": {
+      "label": "Instagram",
+      "placeholder": "tucuenta",
+      "why": "Para que puedan seguirte. Este sí que sale en tu perfil y lo ven los demás socios.",
+      "invalid": "Esto no es un nombre de usuario. Solo letras, cifras, punto y guion bajo."
+    },
     "cta": {
       "ready": "Entrar",
       "pickSchool": "Elige la escuela y entras"

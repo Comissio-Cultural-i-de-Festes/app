@@ -1388,6 +1388,12 @@
       "why": "Only so we can add you to the WhatsApp group. It does not appear on your profile and nobody outside the committee sees it.",
       "invalid": "That number does not look right. Leave it blank if you would rather not."
     },
+    "instagram": {
+      "label": "Instagram",
+      "placeholder": "yourhandle",
+      "why": "So people can follow you. This one does show on your profile and other members see it.",
+      "invalid": "That is not a username. Letters, numbers, full stop and underscore only."
+    },
     "cta": {
       "ready": "Go in",
       "pickSchool": "Pick a school and you are in"

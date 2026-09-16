@@ -1388,6 +1388,12 @@
       "why": "Només per afegir-te al grup de WhatsApp. No surt al teu perfil ni el veu ningú més que la comi.",
       "invalid": "Aquest número no acaba de quadrar. Deixa-ho en blanc si no el vols posar."
     },
+    "instagram": {
+      "label": "Instagram",
+      "placeholder": "elteucompte",
+      "why": "Perquè et puguin seguir. Aquest sí que surt al teu perfil i el veuen els altres socis.",
+      "invalid": "Això no és un nom d'usuari. Només lletres, xifres, punt i guió baix."
+    },
     "cta": {
       "ready": "Entrar",
       "pickSchool": "Tria l'escola i entres"

@@ -3,12 +3,18 @@ import type { Escola } from '@/lib/model'
 import { supabase } from '@/lib/supabase'
 
 /**
- * The four first-run answers.
+ * The five first-run answers.
  *
  * Two statements, not one, because the phone number lives in a different table
  * from everything else — `profile_contact`, alongside the email the provider
  * gave us, so that `select('*')` on `profiles` can be handed to any member
  * without leaking anybody's number.
+ *
+ * L'Instagram és la cinquena i no costa cap petició: viu a `profiles`, o sigui
+ * que és una clau més al `update` que ja hi havia. És també la raó per la qual
+ * es demana aquí i no només a `/perfil/editar` —ningú no entra als ajustos a
+ * oferir el seu compte pel seu compte, i una columna que neix buida per a
+ * tothom no serveix de res.
  */
 
 export interface Degree {
@@ -40,6 +46,7 @@ export interface FirstRunAnswers {
   readonly escola: Escola
   readonly grau: string | null
   readonly curs: number | null
+  readonly instagram: string | null
   readonly telefon: string | null
 }
 
@@ -47,7 +54,12 @@ export async function saveFirstRun(userId: string, answers: FirstRunAnswers): Pr
   await unwrap(
     supabase
       .from('profiles')
-      .update({ escola: answers.escola, grau: answers.grau, curs: answers.curs })
+      .update({
+        escola: answers.escola,
+        grau: answers.grau,
+        curs: answers.curs,
+        instagram: answers.instagram,
+      })
       .eq('id', userId)
       .select('id'),
   )

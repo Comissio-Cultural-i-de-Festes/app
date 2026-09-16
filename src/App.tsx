@@ -15,7 +15,7 @@ import { MyRideScreen } from '@/features/rides/MyRideScreen'
 import { OfferRideScreen } from '@/features/rides/OfferRideScreen'
 import { RidesScreen } from '@/features/rides/RidesScreen'
 import { useCheckinQueue } from '@/features/checkin/useCheckinQueue'
-import { MemberScreen } from '@/features/member/MemberScreen'
+import { SociScreen } from '@/features/member/SociScreen'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen'
@@ -297,7 +297,7 @@ export default function App() {
               d'una cara en una llista i se'n torna a sortir per on s'ha entrat,
               que és el que la fletxa de la capçalera sap fer i una pestanya
               marcada no. */}
-          <Route path="/soci/:id" element={<MemberScreen />} />
+          <Route path="/soci/:id" element={<SociScreen />} />
 
           {/* No tab bar in here: these are places you go into and come back
               out of, and each one draws its own way out. */}

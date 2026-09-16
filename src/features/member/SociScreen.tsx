@@ -20,6 +20,12 @@ import { memberSubtitle } from './subtitle'
 /**
  * El perfil d'un altre soci.
  *
+ * ES DIU `SociScreen` I NO `MemberScreen`, que seria el nom obvi: aquell ja
+ * és la fitxa de junta d'un soci —el llibre major de punts, a
+ * `/junta/socis/:id`— i dues pantalles amb el mateix nom dins de la mateixa
+ * app és una trampa per a qui les cerqui i un error de compilació el dia que
+ * totes dues entren a `App.tsx`. El nom d'aquesta és el de la seva ruta.
+ *
  * PER QUÈ EXISTEIX. L'app ensenya la cara i el nom d'altra gent a cinc llocs
  * —el rànquing, qui hi ha dins, els cotxes, les idees, la tira d'insígnies— i
  * fins ara cap d'aquells noms portava enlloc. Es veia una cara i d'aquella
@@ -48,7 +54,7 @@ import { memberSubtitle } from './subtitle'
 
 const GUTTER = 'px-[var(--ds-gutter)]'
 
-export function MemberScreen() {
+export function SociScreen() {
   const { t } = useTranslation()
   const { id } = useParams()
   const userId = id ?? ''

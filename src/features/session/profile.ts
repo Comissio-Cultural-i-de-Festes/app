@@ -9,6 +9,8 @@ export interface MyProfile {
   readonly escola: Escola | null
   readonly grau: string | null
   readonly curs: number | null
+  /** Nom d'usuari sense @, o null. Públic per a tot soci actiu, a posta. */
+  readonly instagram: string | null
   readonly hide_from_ranking: boolean
   readonly created_at: string
   readonly estat: 'pendent' | 'actiu' | 'baixa'
@@ -24,7 +26,7 @@ export async function fetchProfile(id: string): Promise<MyProfile | null> {
     supabase
       .from('profiles')
       .select(
-        'id, nombre, avatar_url, escola, grau, curs, hide_from_ranking, created_at, estat, role',
+        'id, nombre, avatar_url, escola, grau, curs, instagram, hide_from_ranking, created_at, estat, role',
       )
       .eq('id', id)
       .maybeSingle(),

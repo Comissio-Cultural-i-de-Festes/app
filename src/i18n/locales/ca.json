@@ -1497,6 +1497,12 @@
       "saved": "Desat",
       "everywhere": "Es veurà a tot arreu de seguida."
     },
+    "instagram": {
+      "label": "Instagram",
+      "placeholder": "elteucompte",
+      "hint": "Surt al teu perfil perquè els altres socis et puguin seguir. Deixa-ho en blanc si no el vols posar.",
+      "invalid": "Això no és un nom d'usuari. Només lletres, xifres, punt i guió baix, i sense l'adreça sencera."
+    },
     "locked": {
       "title": "Això no es canvia aquí",
       "school": "Escola, curs i grau",
@@ -1526,6 +1532,8 @@
       "photoSubGoogle": "Ara mateix, la del Google",
       "photoSubOwn": "La que has pujat tu",
       "photoSubNone": "Ara mateix, les ratlles",
+      "instagram": "Instagram",
+      "instagramNone": "Encara no l'has posat",
       "public": "Surto al rànquing públic",
       "publicOn": "Hi surts amb nom i cara.",
       "publicOff": "No hi surts, però els teus punts segueixen sumant per la teva escola.",

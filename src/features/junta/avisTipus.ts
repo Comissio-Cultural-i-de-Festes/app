@@ -4,7 +4,7 @@ import type { AvisTipus } from './avisosApi'
  * El nom d'un tipus d'avís, i l'ordre en què es busca.
  *
  * TRES ESGLAONS I NO DOS. Primer la traducció, que és el que tenen els quatre
- * tipus que la migració 69 sembra i que es pinten com `badges.*` i `motive.*`:
+ * tipus que la migració 71 sembra i que es pinten com `badges.*` i `motive.*`:
  * clau dinàmica cap a `avisos.tipus.<clau>`. Després l'etiqueta que la junta hi
  * hagi posat, que és l'ÚNICA cosa que té un `clau` inventat des de
  * `/junta/barem` —cap fitxer de locales no el coneixerà mai—. I la clau crua

@@ -53,74 +53,32 @@ alter table public.points_log add constraint points_log_motivo_check
     'avis', 'avis_retirat'
   ));
 
--- ── el canvi de criteri que la migració 15 va deixar escrit ─────────────────
--- La 15 reserva els punts negatius a l'owner, i en diu el motiu: «taking points
--- away is the kind of thing that starts arguments». Que qualsevol admin pugui
--- restar és un canvi deliberat d'aquell criteri, no un detall, i es fa aquí
--- perquè és aquí que deixa de ser sostenible: si `avisa()` deixa restar a un
--- admin i `award_points` no, hi ha dos camins amb regles diferents per a la
--- mateixa operació, que és exactament la mena de cosa que la junta de l'any que
--- ve trobarà incomprensible.
+-- ── `award_points` NO ES TOCA AQUÍ, i val la pena dir per què ───────────────
+-- L'issue #4 proposava relaxar `award_points` perquè `is_admin()` bastés per
+-- als negatius, i deia que això contestaria també la pregunta oberta de l'issue
+-- #3. La #3 ja l'ha contestada, i millor: allà restar amb motiu `manual` demana
+-- NOTA OBLIGATÒRIA, i és només amb aquell motiu que un admin pot restar —per
+-- als motius de la porta, que no tenen on escriure el per què, continua fent
+-- falta l'owner—. La doctrina que en surt no és «un admin pot restar» sinó
+-- «una resta ha de poder respondre's», que és més estreta i més defensable.
 --
--- L'ALTERNATIVA DESCARTADA era deixar `award_points` com estava i que `avisa()`
--- escrigués a `points_log` pel seu compte. Menys radi de canvi avui i dues
--- regles a mantenir per sempre. Es tria un sol criteri, escrit un sol cop, amb
--- el REGISTRE com a garantia en comptes del rol: tota resta queda a
--- `audit_log` amb nom i hora des de la migració 15.
+-- I AQUESTA MIGRACIÓ JA HI ENCAIXA SENSE TOCAR RES: `avisa()` no passa per
+-- `award_points`. Escriu a `points_log` pel seu compte, com a `security
+-- definer`, i exigeix la nota abans de tocar res. O sigui que el criteri de la
+-- #3 i el d'aquí ja són el mateix, i no hi ha dos camins amb regles diferents.
 --
--- LA SIGNATURA NO CANVIA, o sigui que `create or replace` hi arriba i no es
--- crea cap sobrecàrrega ni cap PGRST203.
+-- Una versió anterior d'aquest fitxer sí que reescrivia `award_points` amb la
+-- verja oberta de bat a bat. Hauria passat per sobre de la nota obligatòria de
+-- la #3 sense que cap prova ho veiés —les dues migracions fan `create or
+-- replace` sobre la mateixa funció i guanya la que s'apliqui més tard—. Es
+-- treu, i queda escrit aquí perquè no es torni a proposar.
 --
--- I LA SEVA ALLOWLIST NO GUANYA ELS DOS MOTIUS NOUS. La constraint de la taula
--- els admet; aquesta funció no. És la tanca que fa que l'única porta a una fila
--- d'avís sigui `avisa()`, que és qui copia la gravetat, comprova el sostre i
--- deixa la fila d'`avisos` al costat. Un `award_points(..., 'avis', -25)` que
--- passés deixaria el `-25` sense cap avís que l'expliqui.
-create or replace function public.award_points(
-  p_user_id uuid,
-  p_event_id uuid,
-  p_motivo text,
-  p_puntos int,
-  p_nota text default null
-)
-returns uuid
-language plpgsql
-volatile
-security definer
-set search_path = ''
-as $fn$
-declare v_id uuid;
-begin
-  if not private.is_admin() then
-    raise exception 'nomes junta' using errcode = '42501';
-  end if;
-  if p_motivo not in ('asistencia', 'montaje', 'trajo_gente', 'propuso', 'conduir', 'manual') then
-    raise exception 'motiu invalid' using errcode = '22023';
-  end if;
-  if p_puntos = 0 or abs(p_puntos) > 500 then
-    raise exception 'punts fora de rang' using errcode = '22023';
-  end if;
-
-  insert into public.points_log (user_id, event_id, motivo, puntos, nota, granted_by)
-  values (p_user_id, p_event_id, p_motivo, p_puntos, p_nota, (select auth.uid()))
-  returning id into v_id;
-
-  insert into public.audit_log (actor_id, accio, target_id, detall)
-  values (
-    (select auth.uid()),
-    'award_points',
-    p_user_id,
-    jsonb_build_object('motiu', p_motivo, 'punts', p_puntos, 'esdeveniment', p_event_id)
-  );
-
-  return v_id;
-end $fn$;
-
-comment on function public.award_points(uuid, uuid, text, int, text) is
-  'Dona o treu punts a ma. Des de la migracio 69 restar demana `is_admin()` i '
-  'no `is_owner()`: un sol criteri per a tot, amb el registre com a garantia en '
-  'comptes del rol. No admet els motius `avis` ni `avis_retirat`, que nomes '
-  'poden venir d''`avisa()` i de `retira_avis()`.';
+-- EL QUE SÍ QUE IMPORTA és que `award_points` no aprèn els dos motius nous.
+-- La constraint de la taula els admet; la funció no, ni abans ni després. És la
+-- tanca que fa que l'única porta a una fila d'avís sigui `avisa()`, que és qui
+-- copia la gravetat, comprova el sostre i deixa la fila d'`avisos` al costat.
+-- Un `award_points(..., 'avis', -25)` que passés deixaria el `-25` sense cap
+-- avís que l'expliqui, i això ja falla sol amb la funció tal com és.
 
 -- ── el catàleg ─────────────────────────────────────────────────────────────
 -- Editable per la junta sense desplegar, exactament pel mateix motiu que

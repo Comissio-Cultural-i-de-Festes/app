@@ -112,17 +112,11 @@ select lives_ok(
   'award_points: la junta sí'
 );
 
--- RESTAR PUNTS VA SER NOMÉS DE L'OWNER FINS A LA MIGRACIÓ 69, que ho va obrir
--- a qualsevol admin. El canvi és deliberat i està escrit allà: amb `avisa()`
--- restant per a un admin, deixar `award_points` amb la verja alta eren dos
--- camins amb regles diferents per a la mateixa operació. El que fa de garantia
--- ara és el registre, no el rol —tota resta queda a `audit_log` amb nom i hora
--- des de la migració 15—. Aquesta línia era un `throws_ok` i es deixa aquí,
--- girada, perquè es vegi què va canviar.
-select lives_ok(
+-- Restar punts és només de l'owner, que és una verja DINS de la verja.
+select throws_ok(
   $$ select public.award_points('00000000-0000-4000-8000-000000000002',
        '00000000-0000-4000-8000-0000000000e1', 'manual', -5, 'audit') $$,
-  'award_points: des de la 69 un admin també pot restar punts'
+  '42501', null, 'award_points: un admin no pot restar punts'
 );
 
 reset role;

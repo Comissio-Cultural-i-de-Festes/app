@@ -1,10 +1,9 @@
--- Rollback de la migració 69. NO és a `migrations/` a posta: un fitxer aquí
+-- Rollback de la migració 71. NO és a `migrations/` a posta: un fitxer aquí
 -- dins el desfaria el mateix `db push` que acaba d'aplicar-lo.
 --
--- QUÈ DESFÀ, I EN QUIN ORDRE. Primer les dues taules, que és el que fa que els
--- motius nous del llibre major quedin sense ningú que els escrigui; després la
--- tornada d'`award_points` al criteri de la migració 15, on restar demanava ser
--- owner; i al final les dues allowlists, que no es poden estrènyer mentre hi
+-- QUÈ DESFÀ, I EN QUIN ORDRE. Primer les dues taules i les tres RPC, que és el
+-- que fa que els motius nous del llibre major quedin sense ningú que els
+-- escrigui; i al final les allowlists, que no es poden estrènyer mentre hi
 -- hagi files que les violin.
 --
 -- I PER AIXÒ ESBORRA LES FILES DE `points_log` DELS DOS MOTIUS NOUS. És l'única
@@ -36,51 +35,8 @@ alter table public.points_log drop constraint points_log_motivo_check;
 alter table public.points_log add constraint points_log_motivo_check
   check (motivo in ('asistencia', 'montaje', 'trajo_gente', 'propuso', 'conduir', 'manual'));
 
--- ── i `award_points` torna a demanar l'owner per restar ────────────────────
-create or replace function public.award_points(
-  p_user_id uuid,
-  p_event_id uuid,
-  p_motivo text,
-  p_puntos int,
-  p_nota text default null
-)
-returns uuid
-language plpgsql
-volatile
-security definer
-set search_path = ''
-as $fn$
-declare v_id uuid;
-begin
-  if not private.is_admin() then
-    raise exception 'nomes junta' using errcode = '42501';
-  end if;
-  if p_motivo not in ('asistencia', 'montaje', 'trajo_gente', 'propuso', 'conduir', 'manual') then
-    raise exception 'motiu invalid' using errcode = '22023';
-  end if;
-  if p_puntos = 0 or abs(p_puntos) > 500 then
-    raise exception 'punts fora de rang' using errcode = '22023';
-  end if;
-  -- Corrections are compensating rows, and taking points away is the kind of
-  -- thing that starts arguments, so it needs the higher role.
-  if p_puntos < 0 and not private.is_owner() then
-    raise exception 'nomes owner pot restar punts' using errcode = '42501';
-  end if;
-
-  insert into public.points_log (user_id, event_id, motivo, puntos, nota, granted_by)
-  values (p_user_id, p_event_id, p_motivo, p_puntos, p_nota, (select auth.uid()))
-  returning id into v_id;
-
-  insert into public.audit_log (actor_id, accio, target_id, detall)
-  values (
-    (select auth.uid()),
-    'award_points',
-    p_user_id,
-    jsonb_build_object('motiu', p_motivo, 'punts', p_puntos, 'esdeveniment', p_event_id)
-  );
-
-  return v_id;
-end $fn$;
+-- `award_points` no cal tocar-la: la 71 no la toca. Qui la va deixar com és
+-- ara és la 69, i desfer-la és cosa del seu propi rollback.
 
 -- ── i el registre torna a les vint-i-quatre accions de la 67 ───────────────
 delete from public.audit_log where accio in ('avis', 'retira_avis', 'set_avis_tipus');

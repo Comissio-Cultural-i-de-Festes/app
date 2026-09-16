@@ -438,15 +438,16 @@ select is(
   'dins la finestra del curs el bravo nomes hi porta la d''ara'
 );
 
--- ── 10. `award_points` i el canvi de criteri ────────────────────────────────
+-- ── 10. `award_points` no es la porta dels avisos ───────────────────────────
+-- QUI POT RESTAR PER `award_points` NO ES COSA D'AQUEST FITXER. La migració 69
+-- (issue #3) hi posa nota obligatòria per a `manual` i deixa que un admin resti
+-- només amb aquell motiu; aquesta migració no la toca i les seves proves són
+-- allà. El que sí que és cosa d'aquí és que els dos motius nous NO hi entrin:
+-- l'única porta a una fila d'avís ha de ser `avisa()`, que és qui copia la
+-- gravetat, mira el sostre i deixa la fila d'`avisos` al costat.
 
 reset role;
 select tests.authenticate_as('junta_alfa');
-
-select lives_ok(
-  format($$ select public.award_points(%L, null, 'manual', -5, 'ajust a ma') $$, (select alfa from qui)),
-  'award_points(): des de la 69 un admin pot restar, i no nomes l''owner'
-);
 
 select throws_ok(
   format($$ select public.award_points(%L, null, 'avis', -25, 'per la porta del costat') $$, (select alfa from qui)),
@@ -464,6 +465,18 @@ select tests.authenticate_as('alfa');
 select throws_ok(
   format($$ select public.award_points(%L, null, 'manual', -5, 'jo mateix') $$, (select alfa from qui)),
   '42501', null, 'award_points(): i un soci segueix sense poder restar res'
+);
+
+-- I el control positiu del refús dels dos motius nous: amb un motiu de sempre,
+-- la funció segueix funcionant. Sense això, un `award_points` que petés per
+-- qualsevol cosa faria passar les dues assercions de dalt per sempre.
+reset role;
+select tests.authenticate_as('junta_alfa');
+
+select lives_ok(
+  format($$ select public.award_points(%L, null, 'manual', 5, 'un motiu de sempre') $$,
+         (select alfa from qui)),
+  'award_points(): i amb un motiu de sempre segueix funcionant'
 );
 
 -- ── 11. el cataleg, per RPC ─────────────────────────────────────────────────

@@ -833,7 +833,12 @@
         "newHint": "The key is the internal name and cannot be changed later; lowercase with underscores. The label is what people read when the key has no translation.",
         "newClau": "Key, e.g. se_en_va_aviat",
         "newEtiqueta": "Label",
-        "newCta": "Add the type"
+        "newCta": "Add the type",
+        "gravetatBad": "Severity runs from {{min}} to {{max}}.",
+        "puntsBad": "A whole number between -{{max}} and 0: a warning never gives points.",
+        "clauBad": "Lower case, no accents or spaces, starting with a letter. Use underscores between words.",
+        "clauTaken": "That key is already in the catalogue.",
+        "added": "Added: {{clau}}."
       },
       "periods": {
         "title": "The ranking periods",

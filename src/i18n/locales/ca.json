@@ -833,7 +833,12 @@
         "newHint": "La clau és el nom intern i no es pot canviar després; en minúscules i amb guions baixos. L'etiqueta és el que llegirà la gent si la clau no té traducció.",
         "newClau": "Clau, p. ex. se_en_va_aviat",
         "newEtiqueta": "Etiqueta",
-        "newCta": "Afegir el tipus"
+        "newCta": "Afegir el tipus",
+        "gravetatBad": "La gravetat va de {{min}} a {{max}}.",
+        "puntsBad": "Un número enter entre -{{max}} i 0: un avís no dona punts.",
+        "clauBad": "En minúscules, sense accents ni espais, començant per lletra. Els talls van amb guió baix.",
+        "clauTaken": "Aquesta clau ja és al catàleg.",
+        "added": "Afegit: {{clau}}."
       },
       "periods": {
         "title": "Els períodes del rànquing",

@@ -833,7 +833,12 @@
         "newHint": "La clave es el nombre interno y no se puede cambiar después; en minúsculas y con guiones bajos. La etiqueta es lo que leerá la gente si la clave no tiene traducción.",
         "newClau": "Clave, p. ej. se_en_va_aviat",
         "newEtiqueta": "Etiqueta",
-        "newCta": "Añadir el tipo"
+        "newCta": "Añadir el tipo",
+        "gravetatBad": "La gravedad va de {{min}} a {{max}}.",
+        "puntsBad": "Un número entero entre -{{max}} y 0: un aviso no da puntos.",
+        "clauBad": "En minúsculas, sin acentos ni espacios, empezando por letra. Los cortes van con guion bajo.",
+        "clauTaken": "Esta clave ya está en el catálogo.",
+        "added": "Añadido: {{clau}}."
       },
       "periods": {
         "title": "Los periodos del ranking",

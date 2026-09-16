@@ -13,13 +13,14 @@ import { Button } from '@/ui/Button/Button'
 import { TextField } from '@/ui/Field/Field'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
-import { clearMyPhoto, revertToGooglePhoto, setMyName, setMyPhoto } from './api'
+import { clearMyPhoto, revertToGooglePhoto, setMyNameAndInstagram, setMyPhoto } from './api'
+import { INSTAGRAM_MAX, isInstagramHandle, normaliseInstagram } from './instagram'
 import { PhotoSheet } from './PhotoSheet'
 
 /**
- * La foto i el nom. Res més.
+ * La foto, el nom i l'Instagram.
  *
- * PER QUÈ NOMÉS DUES COSES. L'escola, el curs i el grau van al rànquing i els
+ * PER QUÈ NOMÉS AQUESTES TRES. L'escola, el curs i el grau van al rànquing i els
  * punts van a una escola: canviar-la a mig curs mouria la taula de tothom, i
  * no és una preferència sinó un fet que la junta va comprovar. Surten a la
  * pantalla, en gris i amb el motiu escrit, perquè treure-les del tot faria
@@ -34,6 +35,12 @@ import { PhotoSheet } from './PhotoSheet'
  * el resultat— i deixar-la esperant un «Desa» vol dir que qui tanqui la
  * pantalla es queda sense. Escriure un nom no és cap confirmació: és un camp a
  * mig omplir fins que algú diu que ja està.
+ *
+ * EL BOTÓ PORTA DUES COSES I ÉS UNA SOLA SENTÈNCIA. Les dues viuen a `profiles`
+ * i van juntes a `setMyNameAndInstagram`: dos botons voldrien dir dos «Desat»
+ * en una pantalla de tres camps, i dues crides voldrien dir que el nom es pot
+ * desar mentre l'Instagram peta. Per això el `disabled` mira si ha canviat
+ * qualsevol de les dues, i no només el nom com feia abans.
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -57,6 +64,7 @@ export function EditProfileScreen() {
   const userId = useUserId()
   const queryClient = useQueryClient()
   const nameId = useId()
+  const igId = useId()
   const { data: profile, isPending } = useMyProfile()
 
   // El nom desat és el valor per defecte del camp, i l'estat només guarda el
@@ -64,10 +72,14 @@ export function EditProfileScreen() {
   // efecte, el camp sortiria buit al primer render —el perfil arriba
   // després— i «Desa» hauria esborrat el nom de qui premés de pressa.
   const [draft, setDraft] = useState<string | null>(null)
+  // El mateix per a l'Instagram, i pel mateix motiu. Aquí el valor desat pot ser
+  // null —no en té— i el camp l'ha de dibuixar buit, no «null».
+  const [igDraft, setIgDraft] = useState<string | null>(null)
   const [picking, setPicking] = useState(false)
   const [saved, setSaved] = useState(false)
 
   const name = draft ?? profile?.nombre ?? ''
+  const instagram = igDraft ?? profile?.instagram ?? ''
 
   const refresh = () => queryClient.invalidateQueries({ queryKey: profileKeys.me(userId) })
 
@@ -84,7 +96,8 @@ export function EditProfileScreen() {
   })
 
   const rename = useMutation({
-    mutationFn: (next: string) => setMyName(userId, next),
+    mutationFn: (next: { nombre: string; instagram: string | null }) =>
+      setMyNameAndInstagram(userId, next.nombre, next.instagram),
     onSuccess: async () => {
       setSaved(true)
       await refresh()
@@ -94,6 +107,12 @@ export function EditProfileScreen() {
   if (isPending) return <EditSkeleton />
 
   const trimmed = name.trim()
+  const igValue = normaliseInstagram(instagram)
+  const igOk = igValue === null || isInstagramHandle(igValue)
+  // Comparat contra el desat i no contra el text del camp: qui hi escrigui una
+  // arrova davant del que ja hi tenia no ha canviat res, i el botó no s'ha
+  // d'encendre per una cosa que desarà igual.
+  const changed = trimmed !== profile?.nombre || igValue !== (profile?.instagram ?? null)
   const school = [
     profile?.escola == null ? null : t(`escolaShort.${profile.escola satisfies Escola}`),
     profile?.curs == null ? null : t(`onboarding.year.${String(profile.curs)}`),
@@ -146,6 +165,44 @@ export function EditProfileScreen() {
         </p>
       </section>
 
+      {/* L'arrova dibuixada davant i no dins del valor: diu què s'hi espera
+          sense que ningú l'hagi d'escriure, i si algú l'escriu igualment
+          `normaliseInstagram` la treu abans d'enviar-la. El que es desa és el
+          nom d'usuari, mai una URL —la construeix `instagramUrl` en un sol
+          lloc, i per això a la columna no hi cap res a injectar. */}
+      <section className={`pt-9 ${GUTTER}`}>
+        <TextField
+          id={igId}
+          label={t('profile.instagram.label')}
+          prefix="@"
+          value={instagram}
+          onChange={(e) => {
+            setIgDraft(e.target.value)
+            setSaved(false)
+          }}
+          autoComplete="off"
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          inputMode="text"
+          enterKeyHint="done"
+          /* Trenta és el màxim del nom, i l'arrova que la gent escriu davant no
+             hi compta: amb `maxLength={30}` un nom de trenta amb arrova es
+             quedaria tallat a l'última lletra sense dir res. */
+          maxLength={INSTAGRAM_MAX + 1}
+          placeholder={t('profile.instagram.placeholder')}
+          aria-invalid={!igOk}
+        />
+        <p
+          className={
+            'mt-5 text-sm-lo leading-[1.4] [text-wrap:pretty] ' +
+            (igOk ? 'text-fg-muted-lo' : 'text-warning')
+          }
+        >
+          {igOk ? t('profile.instagram.hint') : t('profile.instagram.invalid')}
+        </p>
+      </section>
+
       {/* Els camps que no es toquen aquí. En gris i amb el motiu, no amagats:
           qui els vingui a buscar ha de trobar-los i entendre per què no hi són.
           */}
@@ -169,8 +226,10 @@ export function EditProfileScreen() {
       <section className={`pt-14 pb-12 ${GUTTER}`}>
         <Button
           size="lg"
-          disabled={trimmed === '' || trimmed === profile?.nombre || rename.isPending}
-          onClick={() => rename.mutate(trimmed)}
+          disabled={trimmed === '' || !changed || !igOk || rename.isPending}
+          onClick={() => {
+            rename.mutate({ nombre: trimmed, instagram: igValue })
+          }}
         >
           {rename.isPending ? t('state.saving') : t('actions.save')}
         </Button>

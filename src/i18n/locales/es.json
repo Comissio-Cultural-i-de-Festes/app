@@ -1497,6 +1497,12 @@
       "saved": "Guardado",
       "everywhere": "Se verá en todas partes enseguida."
     },
+    "instagram": {
+      "label": "Instagram",
+      "placeholder": "tucuenta",
+      "hint": "Sale en tu perfil para que los demás socios puedan seguirte. Déjalo en blanco si no lo quieres poner.",
+      "invalid": "Esto no es un nombre de usuario. Solo letras, cifras, punto y guion bajo, y sin la dirección entera."
+    },
     "locked": {
       "title": "Esto no se cambia aquí",
       "school": "Escuela, curso y grado",
@@ -1526,6 +1532,8 @@
       "photoSubGoogle": "Ahora mismo, la de Google",
       "photoSubOwn": "La que has subido tú",
       "photoSubNone": "Ahora mismo, las rayas",
+      "instagram": "Instagram",
+      "instagramNone": "Todavía no lo has puesto",
       "public": "Salgo en el ranking público",
       "publicOn": "Sales con nombre y cara.",
       "publicOff": "No sales, pero tus puntos siguen sumando para tu escuela.",

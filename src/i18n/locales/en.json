@@ -1497,6 +1497,12 @@
       "saved": "Saved",
       "everywhere": "It will show everywhere right away."
     },
+    "instagram": {
+      "label": "Instagram",
+      "placeholder": "yourhandle",
+      "hint": "It shows on your profile so other members can follow you. Leave it blank if you would rather not.",
+      "invalid": "That is not a username. Letters, numbers, full stop and underscore only, and not the whole address."
+    },
     "locked": {
       "title": "This is not changed here",
       "school": "School, year and degree",
@@ -1526,6 +1532,8 @@
       "photoSubGoogle": "Right now, the Google one",
       "photoSubOwn": "The one you uploaded",
       "photoSubNone": "Right now, the stripes",
+      "instagram": "Instagram",
+      "instagramNone": "You have not added it yet",
       "public": "Show me in the public ranking",
       "publicOn": "You appear with your name and face.",
       "publicOff": "You do not appear, but your points still count for your school.",

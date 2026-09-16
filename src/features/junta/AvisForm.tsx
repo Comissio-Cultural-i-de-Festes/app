@@ -238,7 +238,14 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
           <p className="mt-4 text-sm text-fg-secondary [text-wrap:pretty]">
             {lectura.punts === 0
               ? t('junta.soci.avis.sureNoPoints', { nombre })
-              : t('junta.soci.avis.surePoints', { nombre, punts: String(lectura.punts) })}
+              : // EN VALOR ABSOLUT. La frase ja porta el «es restaran», i amb el
+                // signe deia «es restaran -25 punts», que és un doble negatiu i
+                // es llegeix com si en sumés vint-i-cinc. Es va veure obrint la
+                // pantalla, no llegint-la.
+                t('junta.soci.avis.surePoints', {
+                  nombre,
+                  punts: String(Math.abs(lectura.punts)),
+                })}
           </p>
           <p className="mt-3 text-sm text-fg-secondary [text-wrap:pretty]">
             {t('junta.soci.avis.sureSeen', { nombre })}

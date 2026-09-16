@@ -49,6 +49,129 @@ describe('points_log is unreachable from a client', () => {
   })
 })
 
+describe('un ajust a mà, pel camí que fa servir la pantalla', () => {
+  /**
+   * Les regles de la migració 69 vistes des de fora, que és l'única vista que
+   * compta: `award_points` té el grant per a `authenticated` sencer, o sigui
+   * que qualsevol de la junta la pot cridar des de la consola del navegador
+   * amb els paràmetres que vulgui. El que la pgTAP prova des de dins, això ho
+   * prova a través de Kong i PostgREST amb un token de debò.
+   *
+   * Cada cas que escriu deixa una fila —`points_log` és append-only i aquesta
+   * suite no desfà res—, així que cap asserció compta files: es llegeix la
+   * fila per l'id que torna la RPC, i la nota porta la marca de temps de la
+   * passada perquè dues execucions no es trepitgin.
+   */
+  const marca = () => `prova rls ${String(Date.now())}`
+
+  it('la junta ajusta amb nota, i la nota arriba a la fila', async () => {
+    const admin = await as('junta_alfa')
+    const nota = marca()
+    const { data: id, error } = await rpc<string>(admin, 'award_points', {
+      p_user_id: F.alfa,
+      p_event_id: null,
+      p_motivo: 'manual',
+      p_puntos: 7,
+      p_nota: `  ${nota}  `,
+    })
+
+    expect(error).toBeNull()
+    expect(id).toBeTruthy()
+
+    const { data } = await admin
+      .from('points_log')
+      .select('motivo, puntos, nota, event_id')
+      .eq('id', id ?? '')
+      .single()
+
+    expect(data?.motivo).toBe('manual')
+    expect(data?.puntos).toBe(7)
+    // Retallada, i sense esdeveniment: `event_id` és nullable a posta.
+    expect(data?.nota).toBe(nota)
+    expect(data?.event_id).toBeNull()
+  })
+
+  it('i sense nota no passa, que és la garantia sencera', async () => {
+    const admin = await as('junta_alfa')
+    const { error } = await rpc(admin, 'award_points', {
+      p_user_id: F.alfa,
+      p_event_id: null,
+      p_motivo: 'manual',
+      p_puntos: 7,
+      p_nota: null,
+    })
+
+    expect(error?.code).toBe('22023')
+  })
+
+  it('ni amb una nota de tres espais', async () => {
+    const admin = await as('junta_alfa')
+    const { error } = await rpc(admin, 'award_points', {
+      p_user_id: F.alfa,
+      p_event_id: null,
+      p_motivo: 'manual',
+      p_puntos: 7,
+      p_nota: '   ',
+    })
+
+    expect(error?.code).toBe('22023')
+  })
+
+  it('un admin resta per manual, i no per un motiu de la porta', async () => {
+    const admin = await as('junta_alfa')
+
+    const resta = await rpc<string>(admin, 'award_points', {
+      p_user_id: F.alfa,
+      p_event_id: null,
+      p_motivo: 'manual',
+      p_puntos: -7,
+      p_nota: marca(),
+    })
+    expect(resta.error).toBeNull()
+
+    // La meitat que hauria de fallar si la verja s'obrís del tot.
+    const porta = await rpc(admin, 'award_points', {
+      p_user_id: F.alfa,
+      p_event_id: null,
+      p_motivo: 'montaje',
+      p_puntos: -7,
+      p_nota: marca(),
+    })
+    expect(porta.error?.code).toBe('42501')
+  })
+
+  it('i qui no és de la junta no ajusta res, encara que porti la nota escrita', async () => {
+    const member = await as('alfa')
+    const { error } = await rpc(member, 'award_points', {
+      p_user_id: F.bravo,
+      p_event_id: null,
+      p_motivo: 'manual',
+      p_puntos: 7,
+      p_nota: marca(),
+    })
+
+    expect(error?.code).toBe('42501')
+  })
+
+  it('el llibre major d’un altre el llegeix la junta i ningú més', async () => {
+    // És la consulta de `/junta/socis/:id`, i el filtre explícit no és
+    // decoració: sense ell, `plog_select_admin` tornaria el llibre major de
+    // l'associació sencera com si fos d'aquesta persona.
+    const admin = await as('junta_alfa')
+    const seus = await admin.from('points_log').select('user_id').eq('user_id', F.alfa)
+    expect(seus.error).toBeNull()
+    expect(seus.data?.length).toBeGreaterThan(0)
+    expect(seus.data?.every((r) => r.user_id === F.alfa)).toBe(true)
+
+    // I el control negatiu, al costat: un soci demanant el mateix no en treu
+    // cap fila. Sense les dues meitats juntes, una política massa ampla
+    // passaria igual.
+    const member = await as('bravo')
+    const alienes = await member.from('points_log').select('user_id').eq('user_id', F.alfa)
+    expect(alienes.data).toEqual([])
+  })
+})
+
 describe('identity cannot be self-assigned', () => {
   it('a member cannot promote themselves', async () => {
     const member = await as('alfa')

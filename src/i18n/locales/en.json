@@ -833,7 +833,12 @@
         "newHint": "The key is the internal name and cannot be changed later; lowercase with underscores. The label is what people read when the key has no translation.",
         "newClau": "Key, e.g. se_en_va_aviat",
         "newEtiqueta": "Label",
-        "newCta": "Add the type"
+        "newCta": "Add the type",
+        "gravetatBad": "Severity runs from {{min}} to {{max}}.",
+        "puntsBad": "A whole number between -{{max}} and 0: a warning never gives points.",
+        "clauBad": "Lower case, no accents or spaces, starting with a letter. Use underscores between words.",
+        "clauTaken": "That key is already in the catalogue.",
+        "added": "Added: {{clau}}."
       },
       "periods": {
         "title": "The ranking periods",
@@ -877,7 +882,11 @@
       "bringBack": "Bring them back",
       "lede": "Who has left, who is back. Signing somebody out deletes nothing: they stop getting into the app and what they did still counts in the history.",
       "rowSub": "{{count}} people. Sign out whoever has left",
-      "rowSubPlain": "Sign out whoever has left"
+      "rowSubPlain": "Sign out whoever has left",
+      "avisos_one": "{{count}} warning",
+      "avisos_other": "{{count}} warnings",
+      "avisosGravetat": "severity {{total}}",
+      "avisosFlag": "Worth a look"
     },
     "soci": {
       "ledger": {
@@ -901,6 +910,42 @@
         "eventNone": "None in particular",
         "save": "Save the adjustment",
         "done": "Recorded: {{punts}} for {{nombre}}."
+      },
+      "avisos": {
+        "title": "Warnings",
+        "live_one": "{{count}} standing",
+        "live_other": "{{count}} standing",
+        "empty": "No warnings. Long may it last.",
+        "withdraw": "Withdraw the warning",
+        "withdrawSure": "The warning stays on the sheet, struck through, and any points it took come back as a new line in the ledger. Write why it is being withdrawn.",
+        "withdrawNote": "Why it is withdrawn",
+        "withdrawPlaceholder": "They had told us, our mistake",
+        "withdrawnOn": "Withdrawn on {{dia}}"
+      },
+      "avis": {
+        "title": "Record a warning",
+        "lede": "It is written down and never deleted. It may take points or not: you can warn somebody without touching the ranking.",
+        "tipus": "What happened",
+        "tipusHint": "The catalogue lives in \"The scale\".",
+        "tipusNone": "Pick one",
+        "gravetatIs": "Severity: {{gravetat}}",
+        "punts": "Points",
+        "puntsHint": "They come from the catalogue and can be changed. Zero means a warning that leaves the ranking alone.",
+        "puntsBad": "A whole number between -{{max}} and 0.",
+        "note": "Why",
+        "noteHint": "Required. {{nombre}} will read it on their profile.",
+        "notePlaceholder": "Did not turn up to the set-up they had offered to do",
+        "noteBad": "A warning with no reason written down cannot be saved.",
+        "event": "Which night",
+        "eventHint": "Optional. If it happened at a junta meeting, the warning stays with it and the points go without an event.",
+        "eventNone": "No particular one",
+        "save": "Record the warning",
+        "sureTitle": "Before recording it",
+        "surePoints": "{{nombre}} will lose {{punts}} points and drop in the ranking.",
+        "sureNoPoints": "No points will be taken: {{nombre}} will not move in the ranking.",
+        "sureSeen": "{{nombre}} will see it on their profile with the reason you wrote, and the row is never deleted.",
+        "sureCta": "Yes, record it",
+        "done": "Recorded: {{tipus}} for {{nombre}}."
       }
     },
     "role": {
@@ -996,9 +1041,9 @@
         "set_hores": "{{actor}} changed an activity's hours",
         "visa_hores": "{{actor}} signed off an activity's hours",
         "hores_persona": "{{actor}} changed somebody's hours at an activity",
-        "reveal_push": "The reveal notice went out",
-        "avis": "{{actor}} recorded a warning against somebody",
-        "retira_avis": "{{actor}} withdrew a warning",
+        "reveal_push": "The reveal notification went out",
+        "avis": "{{actor}} recorded a warning against {{target}}",
+        "retira_avis": "{{actor}} withdrew a warning against {{target}}",
         "set_avis_tipus": "{{actor}} changed the warning catalogue"
       },
       "rowSub": "Who did what"
@@ -1038,6 +1083,9 @@
       "drafts_one": "draft not published",
       "drafts_other": "drafts not published",
       "draftsSub": "Work done that is not doing anything yet",
+      "avisos_one": "is over the warning threshold",
+      "avisos_other": "are over the warning threshold",
+      "avisosSub": "Severity {{total}} or more this course. Worth a look, nothing else",
       "now": "What is happening now",
       "soon": "Coming up",
       "soonCount": "{{count}} on the calendar",
@@ -1405,6 +1453,11 @@
       "mal_gest": "Bad behaviour",
       "va_deixar_ho": "Left it badly",
       "greu": "Serious"
+    },
+    "gravetat": {
+      "1": "Minor",
+      "2": "Serious",
+      "3": "Very serious"
     }
   },
   "nav": {
@@ -1591,6 +1644,11 @@
     },
     "history": {
       "title": "The last thing you did"
+    },
+    "avisos": {
+      "title": "Your warnings",
+      "lede": "What the junta recorded this course and why. A struck-through one has been withdrawn: it no longer counts.",
+      "withdrawn": "Withdrawn"
     },
     "settings": {
       "title": "Settings",

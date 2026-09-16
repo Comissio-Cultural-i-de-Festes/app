@@ -26,6 +26,21 @@
 -- prova que només comprova que una cosa peta passaria igual el dia que peti
 -- sempre.
 --
+-- I CADA REFÚS PORTA TAMBÉ EL SEU MISSATGE, que és la meitat que faltava. Les
+-- vint-i-tres crides a `throws_ok` passaven `null` per missatge, i dins
+-- d'`avisa()` hi ha set `raise` diferents que tornen tots el mateix 22023 —nota
+-- buida, tipus desconegut, punts positius, punts fora de rang, no és de
+-- l'associació, sostre del curs— i dins de `retira_avis()` tres més. Amb el
+-- missatge a null, un sol `raise` que es dispari ABANS que el previst satisfà
+-- unes quantes assercions alhora: la prova del sostre passaria igual el dia que
+-- la crida petés per un tipus mal escrit, i ningú no ho veuria. Amb el missatge,
+-- cada asserció mira la seva verja i no la primera que es tanqui. És el que fa
+-- `460_l_ajust_a_ma_va_amb_nota.test.sql` i el motiu és aquest.
+--
+-- ELS QUATRE REFUSOS DE GRANT també el porten, i allà el missatge el genera
+-- Postgres i diu QUINA taula. Sense ell, «un soci no pot inserir a avisos»
+-- passaria igual el dia que la sentència petés per una altra taula qualsevol.
+--
 -- LA FINESTRA DEL CURS ES FIXA AQUÍ DINS, relativa a `now()`, pel mateix motiu
 -- que a la 440: la que ve de la llavor depèn del mes en què algú faci el reset.
 --
@@ -89,28 +104,40 @@ select tests.authenticate_as('alfa');
 select throws_ok(
   $$ insert into public.avisos (user_id, tipus, gravetat, nota)
      values ('00000000-0000-4000-8000-000000000001', 'no_va_venir', 1, 'per la porta del darrere') $$,
-  '42501', null, 'un soci no pot inserir a avisos'
+  '42501', 'permission denied for table avisos', 'un soci no pot inserir a avisos'
 );
 
 select throws_ok(
   $$ update public.avisos set nota = 'una altra cosa' $$,
-  '42501', null, 'un soci no pot editar cap avis'
+  '42501', 'permission denied for table avisos', 'un soci no pot editar cap avis'
 );
 
 select throws_ok(
   $$ delete from public.avisos $$,
-  '42501', null, 'un soci no pot esborrar cap avis'
+  '42501', 'permission denied for table avisos', 'un soci no pot esborrar cap avis'
 );
 
 select throws_ok(
   $$ update public.avis_tipus set punts_suggerits = 0 $$,
-  '42501', null, 'un soci no pot tocar el cataleg'
+  '42501', 'permission denied for table avis_tipus', 'un soci no pot tocar el cataleg'
 );
 
 -- El control positiu de les quatre: el cataleg SI que es llegeix, que es el que
 -- posa nom al seu propi avis a la seva pantalla.
+--
+-- ELS QUATRE SEMBRATS I NO «EXACTAMENT QUATRE FILES». La junta pot afegir tipus
+-- des de `/junta/barem` sense desplegar —es el proposit de la taula— i aquest
+-- fitxer buida `avisos`, `points_log` i `events` pero no `avis_tipus`, que no
+-- s'ha de buidar: hi ha avisos de cursos passats que hi apunten. Un recompte
+-- exacte convertia una accio normal del producte en una prova vermella, i va
+-- passar: afegint un tipus per la pantalla, aquesta asercio queia. La d'RLS del
+-- costat ja ho te escrit —«mai exactament quatre»— i aquesta deia el contrari.
+--
+-- El que la prova ha de dir es que el soci VEU els quatre que la migracio sembra,
+-- que es el que li posa nom al seu avis. Que n'hi hagi mes no la contradiu.
 select is(
-  (select count(*)::int from public.avis_tipus),
+  (select count(*)::int from public.avis_tipus
+    where clau in ('no_va_venir', 'mal_gest', 'va_deixar_ho', 'greu')),
   4,
   'pero el soci llegeix el cataleg, que es el que li posa nom a l''avis'
 );
@@ -122,7 +149,7 @@ select tests.authenticate_as('alfa');
 
 select throws_ok(
   format($$ select public.avisa(%L, 'no_va_venir', 'jo mateix', 0, null) $$, (select alfa from qui)),
-  '42501', null, 'avisa(): un soci no avisa ningu, ni ell mateix'
+  '42501', 'nomes junta', 'avisa(): un soci no avisa ningu, ni ell mateix'
 );
 
 reset role;
@@ -130,27 +157,27 @@ select tests.authenticate_as('junta_alfa');
 
 select throws_ok(
   format($$ select public.avisa(%L, 'no_va_venir', '   ', 0, null) $$, (select alfa from qui)),
-  '22023', null, 'avisa(): una nota en blanc no es una nota'
+  '22023', 'un avis sense motiu escrit no es un avis', 'avisa(): una nota en blanc no es una nota'
 );
 
 select throws_ok(
   format($$ select public.avisa(%L, 'inventat', 'un motiu escrit', 0, null) $$, (select alfa from qui)),
-  '22023', null, 'avisa(): un tipus que no es al cataleg'
+  '22023', 'tipus d''avis desconegut', 'avisa(): un tipus que no es al cataleg'
 );
 
 select throws_ok(
   format($$ select public.avisa(%L, 'no_va_venir', 'un motiu escrit', 10, null) $$, (select alfa from qui)),
-  '22023', null, 'avisa(): un avis no dona punts'
+  '22023', 'un avis no dona punts', 'avisa(): un avis no dona punts'
 );
 
 select throws_ok(
   format($$ select public.avisa(%L, 'no_va_venir', 'un motiu escrit', -600, null) $$, (select alfa from qui)),
-  '22023', null, 'avisa(): i tampoc no en treu sis-cents'
+  '22023', 'punts fora de rang', 'avisa(): i tampoc no en treu sis-cents'
 );
 
 select throws_ok(
   format($$ select public.avisa(%L, 'no_va_venir', 'un motiu escrit', 0, null) $$, (select pendent from qui)),
-  '22023', null, 'avisa(): un pendent encara no ha entrat a l''associacio'
+  '22023', 'aquesta persona no es de l''associacio', 'avisa(): un pendent encara no ha entrat a l''associacio'
 );
 
 -- El control positiu del pendent: qui ja es de baixa SI que es pot avisar,
@@ -302,7 +329,7 @@ select tests.authenticate_as('alfa');
 
 select throws_ok(
   format($$ select public.retira_avis(%L, 'perque si') $$, (select id from fet where clau='amb_punts')),
-  '42501', null, 'retira_avis(): un soci no retira el seu propi avis'
+  '42501', 'nomes junta', 'retira_avis(): un soci no retira el seu propi avis'
 );
 
 reset role;
@@ -310,12 +337,12 @@ select tests.authenticate_as('junta_alfa');
 
 select throws_ok(
   format($$ select public.retira_avis(%L, '  ') $$, (select id from fet where clau='amb_punts')),
-  '22023', null, 'retira_avis(): retirar tambe demana un motiu escrit'
+  '22023', 'retirar un avis tambe demana un motiu escrit', 'retira_avis(): retirar tambe demana un motiu escrit'
 );
 
 select throws_ok(
   $$ select public.retira_avis('00000000-0000-4000-8000-0000000fffff', 'un motiu') $$,
-  '22023', null, 'retira_avis(): un avis que no existeix'
+  '22023', 'aquest avis no existeix', 'retira_avis(): un avis que no existeix'
 );
 
 select lives_ok(
@@ -326,7 +353,7 @@ select lives_ok(
 
 select throws_ok(
   format($$ select public.retira_avis(%L, 'un altre cop') $$, (select id from fet where clau='amb_punts')),
-  '22023', null, 'retira_avis(): i no dos cops'
+  '22023', 'aquest avis ja esta retirat', 'retira_avis(): i no dos cops'
 );
 
 reset role;
@@ -393,7 +420,7 @@ select tests.authenticate_as('junta_alfa');
 
 select throws_ok(
   format($$ select public.avisa(%L, 'no_va_venir', 'passaria del sostre', -10, null) $$, (select alfa from qui)),
-  '22023', null, 'el sostre del curs atura la resta que el passaria'
+  '22023', 'sostre de punts del curs', 'el sostre del curs atura la resta que el passaria'
 );
 
 select lives_ok(
@@ -459,12 +486,12 @@ select tests.authenticate_as('junta_alfa');
 
 select throws_ok(
   format($$ select public.award_points(%L, null, 'avis', -25, 'per la porta del costat') $$, (select alfa from qui)),
-  '22023', null, 'award_points(): pero no pot posar-hi el motiu d''un avis'
+  '22023', 'motiu invalid', 'award_points(): pero no pot posar-hi el motiu d''un avis'
 );
 
 select throws_ok(
   format($$ select public.award_points(%L, null, 'avis_retirat', 25, 'ni el de la retirada') $$, (select alfa from qui)),
-  '22023', null, 'award_points(): ni el de la retirada'
+  '22023', 'motiu invalid', 'award_points(): ni el de la retirada'
 );
 
 reset role;
@@ -472,7 +499,7 @@ select tests.authenticate_as('alfa');
 
 select throws_ok(
   format($$ select public.award_points(%L, null, 'manual', -5, 'jo mateix') $$, (select alfa from qui)),
-  '42501', null, 'award_points(): i un soci segueix sense poder restar res'
+  '42501', 'nomes junta', 'award_points(): i un soci segueix sense poder restar res'
 );
 
 -- I el control positiu del refús dels dos motius nous: amb un motiu de sempre,
@@ -494,7 +521,7 @@ select tests.authenticate_as('alfa');
 
 select throws_ok(
   $$ select public.admin_set_avis_tipus('provatipus', 1, -5, 9, null, true) $$,
-  '42501', null, 'admin_set_avis_tipus(): un soci no toca el cataleg'
+  '42501', 'nomes junta', 'admin_set_avis_tipus(): un soci no toca el cataleg'
 );
 
 reset role;
@@ -502,17 +529,17 @@ select tests.authenticate_as('junta_alfa');
 
 select throws_ok(
   $$ select public.admin_set_avis_tipus('provatipus', 4, -5, 9, null, true) $$,
-  '22023', null, 'admin_set_avis_tipus(): la gravetat va d''1 a 3'
+  '22023', 'la gravetat va d''1 a 3', 'admin_set_avis_tipus(): la gravetat va d''1 a 3'
 );
 
 select throws_ok(
   $$ select public.admin_set_avis_tipus('provatipus', 1, 5, 9, null, true) $$,
-  '22023', null, 'admin_set_avis_tipus(): els punts suggerits no poden ser positius'
+  '22023', 'els punts suggerits van de -500 a 0', 'admin_set_avis_tipus(): els punts suggerits no poden ser positius'
 );
 
 select throws_ok(
   $$ select public.admin_set_avis_tipus('Prova Tipus', 1, -5, 9, null, true) $$,
-  '22023', null, 'admin_set_avis_tipus(): la clau te la seva forma'
+  '22023', 'clau invalida', 'admin_set_avis_tipus(): la clau te la seva forma'
 );
 
 select lives_ok(
@@ -529,7 +556,7 @@ select lives_ok(
 
 select throws_ok(
   format($$ select public.avisa(%L, 'se_en_va_aviat', 'amb un tipus retirat', 0, null) $$, (select alfa from qui)),
-  '22023', null, 'i un tipus retirat ja no avisa ningu'
+  '22023', 'tipus d''avis desconegut', 'i un tipus retirat ja no avisa ningu'
 );
 
 -- ── 12. el registre ─────────────────────────────────────────────────────────

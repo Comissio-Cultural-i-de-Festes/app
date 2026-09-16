@@ -6,6 +6,14 @@ import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { nomDelTipus } from './avisTipus'
+import {
+  GRAVETAT_MAX,
+  GRAVETAT_MIN,
+  MAX_RESTA,
+  llegeixTipus,
+  problemaDeLaClau,
+  tipusValid,
+} from './avisTipusForm'
 import { avisosKeys, fetchAvisTipus, saveAvisTipus } from './avisosApi'
 import { Field, INPUT } from './formBits'
 
@@ -28,6 +36,23 @@ import { Field, INPUT } from './formBits'
  * formulari; un cop l'avís existeix, els seus són els seus. Re-afinar això al
  * juny no reescriu què va valer una nit d'octubre, i la frase del peu ho diu
  * perquè és la mena de cosa que s'assumeix al revés.
+ *
+ * ELS CAMPS DE PUNTS SÓN `type="text"` I NO `type="number"`. Al teclat numèric
+ * de l'iPhone no hi ha el signe menys, i aquest camp val de -500 a 0: amb un
+ * camp numèric, la meitat útil del catàleg quedava darrere d'un canvi de teclat
+ * en un telèfon, que és on s'obre aquesta app. `AdjustPointsBlock` ja ho havia
+ * trobat i ho havia escrit al costat del seu camp; això és la mateixa solució.
+ * La gravetat sí que es queda numèrica: va d'1 a 3 i mai no és negativa.
+ *
+ * I LA VALIDACIÓ SE'N VA ANAR A `avisTipusForm.ts`. Aquí n'hi havia dues còpies
+ * —una per a la fila que s'edita i una per a la que s'afegeix— amb les mateixes
+ * tres regles escrites dos cops i cap prova a sobre. Dues còpies d'una regla són
+ * dues regles.
+ *
+ * AFEGIR-NE UN TAMBÉ CONFIRMA. Editar una fila deia «Desat» i afegir-ne una no
+ * deia res: el formulari es buidava i el tipus nou apareixia vuit files més
+ * avall, fora de pantalla en un telèfon, o sigui que la resposta a «ha anat bé?»
+ * era baixar a buscar-lo.
  */
 
 interface Draft {
@@ -55,6 +80,7 @@ export function AvisTipusBlock() {
     i18n.exists(`avisos.tipus.${clau}`) ? t(`avisos.tipus.${clau}`) : ''
   const [edits, setEdits] = useState<Record<string, Draft>>({})
   const [saved, setSaved] = useState<string | null>(null)
+  const [afegit, setAfegit] = useState<string | null>(null)
   const [nou, setNou] = useState({ clau: '', etiqueta: '', gravetat: '1', punts: '0' })
 
   const tipus = useQuery({ queryKey: avisosKeys.tipus(), queryFn: fetchAvisTipus })
@@ -74,7 +100,10 @@ export function AvisTipusBlock() {
 
   const create = useMutation({
     mutationFn: saveAvisTipus,
-    onSuccess: async () => {
+    onSuccess: async (_data, v) => {
+      // Fotografiat abans de buidar, com fa la pantalla de socis: el missatge ha
+      // de sobreviure al formulari que l'ha produït.
+      setAfegit(v.clau)
       setNou({ clau: '', etiqueta: '', gravetat: '1', punts: '0' })
       await client.invalidateQueries({ queryKey: avisosKeys.tipus() })
     },
@@ -91,19 +120,12 @@ export function AvisTipusBlock() {
 
   const rows = tipus.data
   const clauNova = nou.clau.trim()
-  const clauValida = /^[a-z][a-z_]{0,23}$/.test(clauNova)
-  const jaHiEs = rows.some((r) => r.clau === clauNova)
-  const gravetatNova = Number(nou.gravetat)
-  const puntsNous = Number(nou.punts)
-  const potCrear =
-    clauValida &&
-    !jaHiEs &&
-    Number.isInteger(gravetatNova) &&
-    gravetatNova >= 1 &&
-    gravetatNova <= 3 &&
-    Number.isInteger(puntsNous) &&
-    puntsNous <= 0 &&
-    puntsNous >= -500
+  const malaClau = problemaDeLaClau(
+    clauNova,
+    rows.map((r) => r.clau),
+  )
+  const lecturaNova = llegeixTipus({ gravetat: nou.gravetat, punts: nou.punts })
+  const potCrear = clauNova !== '' && malaClau === null && tipusValid(lecturaNova)
 
   // La ratlla de dalt separa el catàleg del barem de punts. Sense ella, el
   // títol d'aquí queia enganxat a l'última línia del bloc anterior i les dues
@@ -121,17 +143,8 @@ export function AvisTipusBlock() {
           const gravetat = draft?.gravetat ?? String(row.gravetat)
           const punts = draft?.punts ?? String(row.punts_suggerits)
           const actiu = draft?.actiu ?? row.actiu
-          const g = Number(gravetat)
-          const p = Number(punts)
-          const valid =
-            gravetat !== '' &&
-            punts !== '' &&
-            Number.isInteger(g) &&
-            g >= 1 &&
-            g <= 3 &&
-            Number.isInteger(p) &&
-            p <= 0 &&
-            p >= -500
+          const lectura = llegeixTipus({ gravetat, punts })
+          const valid = tipusValid(lectura)
           const busy = save.isPending && save.variables?.clau === row.clau
 
           const change = (patch: Partial<Draft>) => {
@@ -198,20 +211,31 @@ export function AvisTipusBlock() {
                     {t('junta.config.avisos.punts')}
                   </span>
                   <input
-                    type="number"
+                    type="text"
                     inputMode="numeric"
-                    min={-500}
-                    max={0}
+                    autoComplete="off"
+                    maxLength={5}
                     value={punts}
+                    aria-invalid={lectura === 'punts'}
                     onChange={(e) => {
                       change({ punts: e.target.value })
                     }}
-                    className="mt-2 min-h-[46px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none"
+                    className={
+                      'tabular mt-2 min-h-[46px] w-full border-[1.5px] bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none ' +
+                      (lectura === 'punts' ? 'border-[var(--ds-warning)]' : 'border-surface-7')
+                    }
                   />
                 </label>
 
                 {draft === undefined ? (
-                  <span className="min-h-[46px] w-[90px] flex-none pt-7 text-right text-sm font-bold text-success">
+                  // `role="status"` i no un `<span>` pelat: «Desat» apareix sol
+                  // després d'una acció i un lector de pantalla no en diu res si
+                  // no se li anuncia. El mateix gest que la confirmació de baixa
+                  // de la llista de socis.
+                  <span
+                    role="status"
+                    className="min-h-[46px] w-[90px] flex-none pt-7 text-right text-sm font-bold text-success"
+                  >
                     {saved === row.clau ? t('junta.config.saved') : ''}
                   </span>
                 ) : (
@@ -219,10 +243,11 @@ export function AvisTipusBlock() {
                     type="button"
                     disabled={!valid || busy}
                     onClick={() => {
+                      if (!tipusValid(lectura)) return
                       save.mutate({
                         clau: row.clau,
-                        gravetat: g,
-                        punts_suggerits: p,
+                        gravetat: lectura.gravetat,
+                        punts_suggerits: lectura.punts_suggerits,
                         ordre: row.ordre,
                         etiqueta: row.etiqueta,
                         actiu,
@@ -234,6 +259,18 @@ export function AvisTipusBlock() {
                   </button>
                 )}
               </div>
+
+              {/* Per què no es pot desar, i no només un botó apagat. */}
+              {typeof lectura === 'string' ? (
+                <p role="alert" className="mt-4 text-sm font-bold text-[var(--ds-warning)]">
+                  {lectura === 'gravetat'
+                    ? t('junta.config.avisos.gravetatBad', {
+                        min: GRAVETAT_MIN,
+                        max: GRAVETAT_MAX,
+                      })
+                    : t('junta.config.avisos.puntsBad', { max: MAX_RESTA })}
+                </p>
+              ) : null}
             </li>
           )
         })}
@@ -252,6 +289,7 @@ export function AvisTipusBlock() {
             value={nou.clau}
             onChange={(e) => {
               setNou((p) => ({ ...p, clau: e.target.value }))
+              setAfegit(null)
             }}
             type="text"
             autoComplete="off"
@@ -259,8 +297,19 @@ export function AvisTipusBlock() {
             spellCheck={false}
             aria-label={t('junta.config.avisos.newClau')}
             placeholder={t('junta.config.avisos.newClau')}
-            className={INPUT}
+            aria-invalid={malaClau !== null}
+            className={malaClau === null ? INPUT : `${INPUT} border-[var(--ds-warning)]`}
           />
+          {/* Abans, una clau amb majúscules o accents només apagava el botó. La
+              regla era a la CHECK de la base i al text d'ajuda, i qui escrivia
+              «Se'n va aviat» es quedava amb un botó mort i cap explicació. */}
+          {malaClau === null ? null : (
+            <p role="alert" className="mt-4 text-sm font-bold text-[var(--ds-warning)]">
+              {malaClau === 'forma'
+                ? t('junta.config.avisos.clauBad')
+                : t('junta.config.avisos.clauTaken')}
+            </p>
+          )}
           <input
             value={nou.etiqueta}
             onChange={(e) => {
@@ -283,8 +332,10 @@ export function AvisTipusBlock() {
                 min={1}
                 max={3}
                 value={nou.gravetat}
+                aria-invalid={lecturaNova === 'gravetat'}
                 onChange={(e) => {
                   setNou((p) => ({ ...p, gravetat: e.target.value }))
+                  setAfegit(null)
                 }}
                 className="mt-2 min-h-[46px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none"
               />
@@ -292,15 +343,20 @@ export function AvisTipusBlock() {
             <label className="min-w-0 flex-1">
               <span className="block eyebrow text-fg-muted">{t('junta.config.avisos.punts')}</span>
               <input
-                type="number"
+                type="text"
                 inputMode="numeric"
-                min={-500}
-                max={0}
+                autoComplete="off"
+                maxLength={5}
                 value={nou.punts}
+                aria-invalid={lecturaNova === 'punts'}
                 onChange={(e) => {
                   setNou((p) => ({ ...p, punts: e.target.value }))
+                  setAfegit(null)
                 }}
-                className="mt-2 min-h-[46px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none"
+                className={
+                  'tabular mt-2 min-h-[46px] w-full border-[1.5px] bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none ' +
+                  (lecturaNova === 'punts' ? 'border-[var(--ds-warning)]' : 'border-surface-7')
+                }
               />
             </label>
           </div>
@@ -309,10 +365,11 @@ export function AvisTipusBlock() {
             type="button"
             disabled={!potCrear || create.isPending}
             onClick={() => {
+              if (!tipusValid(lecturaNova)) return
               create.mutate({
                 clau: clauNova,
-                gravetat: gravetatNova,
-                punts_suggerits: puntsNous,
+                gravetat: lecturaNova.gravetat,
+                punts_suggerits: lecturaNova.punts_suggerits,
                 ordre: rows.length + 1,
                 etiqueta: nou.etiqueta.trim() === '' ? null : nou.etiqueta.trim(),
                 actiu: true,
@@ -322,6 +379,12 @@ export function AvisTipusBlock() {
           >
             {create.isPending ? '…' : t('junta.config.avisos.newCta')}
           </button>
+
+          {afegit === null ? null : (
+            <p role="status" className="pt-5 text-md font-bold text-success [text-wrap:pretty]">
+              {t('junta.config.avisos.added', { clau: afegit })}
+            </p>
+          )}
         </Field>
 
         {create.isError ? (

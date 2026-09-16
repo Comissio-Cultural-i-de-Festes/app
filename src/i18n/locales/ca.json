@@ -833,7 +833,12 @@
         "newHint": "La clau és el nom intern i no es pot canviar després; en minúscules i amb guions baixos. L'etiqueta és el que llegirà la gent si la clau no té traducció.",
         "newClau": "Clau, p. ex. se_en_va_aviat",
         "newEtiqueta": "Etiqueta",
-        "newCta": "Afegir el tipus"
+        "newCta": "Afegir el tipus",
+        "gravetatBad": "La gravetat va de {{min}} a {{max}}.",
+        "puntsBad": "Un número enter entre -{{max}} i 0: un avís no dona punts.",
+        "clauBad": "En minúscules, sense accents ni espais, començant per lletra. Els talls van amb guió baix.",
+        "clauTaken": "Aquesta clau ja és al catàleg.",
+        "added": "Afegit: {{clau}}."
       },
       "periods": {
         "title": "Els períodes del rànquing",
@@ -877,7 +882,11 @@
       "bringBack": "Torna a activar",
       "lede": "Qui ha marxat, qui torna. Donar de baixa no esborra res: la persona deixa d'entrar a l'app i el que va fer segueix comptant a la història.",
       "rowSub": "{{count}} persones. Donar de baixa qui ha marxat",
-      "rowSubPlain": "Donar de baixa qui ha marxat"
+      "rowSubPlain": "Donar de baixa qui ha marxat",
+      "avisos_one": "{{count}} avís",
+      "avisos_other": "{{count}} avisos",
+      "avisosGravetat": "gravetat {{total}}",
+      "avisosFlag": "Per mirar"
     },
     "soci": {
       "ledger": {
@@ -901,6 +910,42 @@
         "eventNone": "De cap en concret",
         "save": "Desa l'ajust",
         "done": "Apuntat: {{punts}} per a {{nombre}}."
+      },
+      "avisos": {
+        "title": "Els avisos",
+        "live_one": "{{count}} viu",
+        "live_other": "{{count}} vius",
+        "empty": "Cap avís. Que duri.",
+        "withdraw": "Retira l'avís",
+        "withdrawSure": "L'avís es queda a la fitxa, ratllat, i si va restar punts es tornen amb una línia nova al registre. Escriu per què es retira.",
+        "withdrawNote": "Per què es retira",
+        "withdrawPlaceholder": "Havia avisat, error nostre",
+        "withdrawnOn": "Retirat el {{dia}}"
+      },
+      "avis": {
+        "title": "Registra un avís",
+        "lede": "Queda escrit i no s'esborra mai. Pot restar punts o no: es pot avisar sense tocar el rànquing.",
+        "tipus": "Què ha passat",
+        "tipusHint": "El catàleg es toca a «El barem».",
+        "tipusNone": "Tria'n un",
+        "gravetatIs": "Gravetat: {{gravetat}}",
+        "punts": "Punts",
+        "puntsHint": "Surten del catàleg i es poden canviar. Zero vol dir un avís que no toca el rànquing.",
+        "puntsBad": "Un número enter entre -{{max}} i 0.",
+        "note": "Per què",
+        "noteHint": "Obligatori. Ho llegirà {{nombre}} al seu perfil.",
+        "notePlaceholder": "No va venir al muntatge que havia dit que faria",
+        "noteBad": "Un avís sense motiu escrit no es pot desar.",
+        "event": "De quina nit",
+        "eventHint": "Opcional. Si va ser en una reunió de junta, l'avís s'hi queda i els punts hi van sense esdeveniment.",
+        "eventNone": "De cap en concret",
+        "save": "Registra l'avís",
+        "sureTitle": "Abans de registrar-lo",
+        "surePoints": "Es restaran {{punts}} punts a {{nombre}} i li baixarà la posició al rànquing.",
+        "sureNoPoints": "No es restarà cap punt: {{nombre}} no es mourà del rànquing.",
+        "sureSeen": "{{nombre}} ho veurà al seu perfil amb el motiu que has escrit, i la fila no s'esborra mai.",
+        "sureCta": "Sí, registra'l",
+        "done": "Registrat: {{tipus}} per a {{nombre}}."
       }
     },
     "role": {
@@ -996,9 +1041,9 @@
         "set_hores": "{{actor}} ha canviat les hores d'una activitat",
         "visa_hores": "{{actor}} ha visat les hores d'una activitat",
         "hores_persona": "{{actor}} ha canviat les hores d'algú en una activitat",
-        "reveal_push": "S'ha enviat l'avís d'una revelació",
-        "avis": "{{actor}} ha registrat un avís a algú",
-        "retira_avis": "{{actor}} ha retirat un avís",
+        "reveal_push": "S'ha enviat la notificació d'una revelació",
+        "avis": "{{actor}} ha registrat un avís a {{target}}",
+        "retira_avis": "{{actor}} ha retirat un avís a {{target}}",
         "set_avis_tipus": "{{actor}} ha canviat el catàleg d'avisos"
       },
       "rowSub": "Qui ha fet què"
@@ -1038,6 +1083,9 @@
       "drafts_one": "esborrany sense publicar",
       "drafts_other": "esborranys sense publicar",
       "draftsSub": "Feina feta que encara no serveix de res",
+      "avisos_one": "ha passat el llindar d'avisos",
+      "avisos_other": "han passat el llindar d'avisos",
+      "avisosSub": "Gravetat {{total}} o més aquest curs. Només per mirar-s'ho",
       "now": "El que passa ara",
       "soon": "Els que venen",
       "soonCount": "{{count}} al calendari",
@@ -1405,6 +1453,11 @@
       "mal_gest": "Mal gest",
       "va_deixar_ho": "Ho va deixar malament",
       "greu": "Greu"
+    },
+    "gravetat": {
+      "1": "Lleu",
+      "2": "Greu",
+      "3": "Molt greu"
     }
   },
   "nav": {
@@ -1591,6 +1644,11 @@
     },
     "history": {
       "title": "L'últim que has fet"
+    },
+    "avisos": {
+      "title": "Els teus avisos",
+      "lede": "El que la junta ha registrat aquest curs i per què. Un de ratllat és un avís retirat: ja no compta.",
+      "withdrawn": "Retirat"
     },
     "settings": {
       "title": "Ajustos",

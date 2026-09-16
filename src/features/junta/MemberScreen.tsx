@@ -10,6 +10,7 @@ import { Avatar } from '@/ui/Avatar/Avatar'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { AdjustPointsBlock } from './AdjustPointsBlock'
+import { AvisosBlock } from './AvisosBlock'
 import { JuntaHeader } from './JuntaHeader'
 import { MemberLedgerBlock } from './MemberLedgerBlock'
 
@@ -25,6 +26,12 @@ import { MemberLedgerBlock } from './MemberLedgerBlock'
  * ajusta uns punts sense haver mirat abans d'on surten; posar el formulari a
  * dalt és convidar a escriure un -20 sense haver vist que el +20 ja estava
  * corregit.
+ *
+ * I ELS AVISOS AL FINAL, sota l'ajust i no sobre. Són la cosa més cara que es
+ * pot fer des d'aquí —una fila que no s'esborra mai i que la persona llegirà—,
+ * i el camí fins al formulari passa a propòsit pel llibre major i per l'ajust,
+ * que és la resposta proporcionada a gairebé tot. Qui hi arriba hi arriba havent
+ * descartat les altres dues.
  *
  * QUI HI ARRIBA: la ruta penja de `/junta`, o sigui que passa pel mateix porter
  * que la resta. La barrera de debò, però, no és aquesta —és `plog_select_admin`
@@ -109,6 +116,7 @@ export function MemberScreen() {
 
             <MemberLedgerBlock userId={userId} />
             <AdjustPointsBlock userId={userId} nombre={dades.nombre} />
+            <AvisosBlock userId={userId} nombre={dades.nombre} />
           </>
         )}
       </div>

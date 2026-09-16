@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { nomDelTipus } from './avisTipus'
+import { clauGravetat, nomDelTipus } from './avisTipus'
 import type { AvisTipus } from './avisosApi'
 
 const tipus = (over: Partial<AvisTipus> = {}): AvisTipus => ({
@@ -69,5 +69,22 @@ describe('el nom d’un tipus d’avís', () => {
         'avisos.tipus.se_en_va_aviat',
       ),
     ).toBe("Se'n va abans d'hora")
+  })
+})
+
+describe('el nom d’una gravetat', () => {
+  it('dona la clau dels tres esglaons', () => {
+    expect(clauGravetat(1)).toBe('avisos.gravetat.1')
+    expect(clauGravetat(2)).toBe('avisos.gravetat.2')
+    expect(clauGravetat(3)).toBe('avisos.gravetat.3')
+  })
+
+  it('i null per a un número que la CHECK no deixaria passar', () => {
+    // Torna null i no cadena buida a posta: la pantalla ensenya el número pelat,
+    // que és lleig però cert, en comptes d'un forat que sembla que no hi hagi
+    // gravetat.
+    expect(clauGravetat(0)).toBeNull()
+    expect(clauGravetat(4)).toBeNull()
+    expect(clauGravetat(-1)).toBeNull()
   })
 })

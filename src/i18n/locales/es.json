@@ -833,7 +833,12 @@
         "newHint": "La clave es el nombre interno y no se puede cambiar después; en minúsculas y con guiones bajos. La etiqueta es lo que leerá la gente si la clave no tiene traducción.",
         "newClau": "Clave, p. ej. se_en_va_aviat",
         "newEtiqueta": "Etiqueta",
-        "newCta": "Añadir el tipo"
+        "newCta": "Añadir el tipo",
+        "gravetatBad": "La gravedad va de {{min}} a {{max}}.",
+        "puntsBad": "Un número entero entre -{{max}} y 0: un aviso no da puntos.",
+        "clauBad": "En minúsculas, sin acentos ni espacios, empezando por letra. Los cortes van con guion bajo.",
+        "clauTaken": "Esta clave ya está en el catálogo.",
+        "added": "Añadido: {{clau}}."
       },
       "periods": {
         "title": "Los periodos del ranking",
@@ -877,7 +882,11 @@
       "bringBack": "Vuelve a activar",
       "lede": "Quién se ha ido, quién vuelve. Dar de baja no borra nada: la persona deja de entrar en la app y lo que hizo sigue contando en la historia.",
       "rowSub": "{{count}} personas. Dar de baja a quien se ha ido",
-      "rowSubPlain": "Dar de baja a quien se ha ido"
+      "rowSubPlain": "Dar de baja a quien se ha ido",
+      "avisos_one": "{{count}} aviso",
+      "avisos_other": "{{count}} avisos",
+      "avisosGravetat": "gravedad {{total}}",
+      "avisosFlag": "Para mirar"
     },
     "soci": {
       "ledger": {
@@ -901,6 +910,42 @@
         "eventNone": "De ninguna en concreto",
         "save": "Guarda el ajuste",
         "done": "Apuntado: {{punts}} para {{nombre}}."
+      },
+      "avisos": {
+        "title": "Los avisos",
+        "live_one": "{{count}} vivo",
+        "live_other": "{{count}} vivos",
+        "empty": "Ningún aviso. Que dure.",
+        "withdraw": "Retira el aviso",
+        "withdrawSure": "El aviso se queda en la ficha, tachado, y si restó puntos se devuelven con una línea nueva en el registro. Escribe por qué se retira.",
+        "withdrawNote": "Por qué se retira",
+        "withdrawPlaceholder": "Había avisado, error nuestro",
+        "withdrawnOn": "Retirado el {{dia}}"
+      },
+      "avis": {
+        "title": "Registra un aviso",
+        "lede": "Queda escrito y no se borra nunca. Puede restar puntos o no: se puede avisar sin tocar el ranking.",
+        "tipus": "Qué ha pasado",
+        "tipusHint": "El catálogo se toca en «El baremo».",
+        "tipusNone": "Elige uno",
+        "gravetatIs": "Gravedad: {{gravetat}}",
+        "punts": "Puntos",
+        "puntsHint": "Salen del catálogo y se pueden cambiar. Cero significa un aviso que no toca el ranking.",
+        "puntsBad": "Un número entero entre -{{max}} y 0.",
+        "note": "Por qué",
+        "noteHint": "Obligatorio. Lo leerá {{nombre}} en su perfil.",
+        "notePlaceholder": "No vino al montaje que había dicho que haría",
+        "noteBad": "Un aviso sin motivo escrito no se puede guardar.",
+        "event": "De qué noche",
+        "eventHint": "Opcional. Si fue en una reunión de junta, el aviso se queda ahí y los puntos van sin evento.",
+        "eventNone": "De ninguna en concreto",
+        "save": "Registra el aviso",
+        "sureTitle": "Antes de registrarlo",
+        "surePoints": "Se restarán {{punts}} puntos a {{nombre}} y le bajará la posición en el ranking.",
+        "sureNoPoints": "No se restará ningún punto: {{nombre}} no se moverá del ranking.",
+        "sureSeen": "{{nombre}} lo verá en su perfil con el motivo que has escrito, y la fila no se borra nunca.",
+        "sureCta": "Sí, regístralo",
+        "done": "Registrado: {{tipus}} para {{nombre}}."
       }
     },
     "role": {
@@ -996,9 +1041,9 @@
         "set_hores": "{{actor}} ha cambiado las horas de una actividad",
         "visa_hores": "{{actor}} ha visado las horas de una actividad",
         "hores_persona": "{{actor}} ha cambiado las horas de alguien en una actividad",
-        "reveal_push": "Se ha enviado el aviso de una revelación",
-        "avis": "{{actor}} ha registrado un aviso a alguien",
-        "retira_avis": "{{actor}} ha retirado un aviso",
+        "reveal_push": "Se ha enviado la notificación de una revelación",
+        "avis": "{{actor}} ha registrado un aviso a {{target}}",
+        "retira_avis": "{{actor}} ha retirado un aviso a {{target}}",
         "set_avis_tipus": "{{actor}} ha cambiado el catálogo de avisos"
       },
       "rowSub": "Quién ha hecho qué"
@@ -1038,6 +1083,9 @@
       "drafts_one": "borrador sin publicar",
       "drafts_other": "borradores sin publicar",
       "draftsSub": "Trabajo hecho que todavía no sirve de nada",
+      "avisos_one": "ha pasado el umbral de avisos",
+      "avisos_other": "han pasado el umbral de avisos",
+      "avisosSub": "Gravedad {{total}} o más este curso. Solo para mirarlo",
       "now": "Lo que pasa ahora",
       "soon": "Los que vienen",
       "soonCount": "{{count}} en el calendario",
@@ -1405,6 +1453,11 @@
       "mal_gest": "Mal gesto",
       "va_deixar_ho": "Lo dejó mal",
       "greu": "Grave"
+    },
+    "gravetat": {
+      "1": "Leve",
+      "2": "Grave",
+      "3": "Muy grave"
     }
   },
   "nav": {
@@ -1591,6 +1644,11 @@
     },
     "history": {
       "title": "Lo último que has hecho"
+    },
+    "avisos": {
+      "title": "Tus avisos",
+      "lede": "Lo que la junta ha registrado este curso y por qué. Uno tachado es un aviso retirado: ya no cuenta.",
+      "withdrawn": "Retirado"
     },
     "settings": {
       "title": "Ajustes",

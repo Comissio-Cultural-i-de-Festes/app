@@ -10,6 +10,21 @@
 -- UPDATE que la política filtra torna zero files i 200; el que un CHECK refusa
 -- torna 23514. Comptar files passaria igual el dia que la tanca desaparegués.
 --
+-- I SOBRE EL NOM DE LA RESTRICCIÓ, NO NOMÉS SOBRE EL CODI. El 23514 és
+-- *qualsevol* violació de check de `profiles`, i la taula en té uns quants
+-- (`profiles_curs_check`, `profiles_estat_check`…). Amb el missatge a null, el
+-- dia que algú deixés caure `profiles_instagram_check` i l'UPDATE petés per una
+-- altra raó, aquestes set assercions continuarien verdes mentre la tanca que
+-- diuen que proven ja no hi seria. Per això s'hi compara també el missatge, que
+-- és l'únic lloc on Postgres escriu el nom de la restricció que ha saltat.
+--
+-- El preu és que reanomenar el check trenca el fitxer. Es paga: reanomenar-lo
+-- sense que res se'n queixi és exactament el que no ha de passar en silenci.
+-- L'alternativa —mirar `pg_constraint` per muntar el missatge— tornaria a fer
+-- passar la prova amb el check esborrat, que és el forat que s'està tapant.
+
+\set ig_check 'new row for relation "profiles" violates check constraint "profiles_instagram_check"'
+
 -- Persones inventades, com a tot el repo.
 
 begin;
@@ -53,14 +68,14 @@ select lives_ok(
 select throws_ok(
   $$ update public.profiles set instagram = 'https://instagram.com/algu'
       where id = (select auth.uid()) $$,
-  '23514', null,
+  '23514', :'ig_check',
   'una URL sencera: refusada'
 );
 
 select throws_ok(
   $$ update public.profiles set instagram = 'javascript:alert(1)'
       where id = (select auth.uid()) $$,
-  '23514', null,
+  '23514', :'ig_check',
   'un javascript:, que es el motiu pel qual la tanca es aqui i no al formulari'
 );
 
@@ -69,20 +84,20 @@ select throws_ok(
 -- refia.
 select throws_ok(
   $$ update public.profiles set instagram = '@algu' where id = (select auth.uid()) $$,
-  '23514', null,
+  '23514', :'ig_check',
   'amb l''arrova del davant: refusat'
 );
 
 select throws_ok(
   $$ update public.profiles set instagram = 'dos noms' where id = (select auth.uid()) $$,
-  '23514', null,
+  '23514', :'ig_check',
   'amb un espai al mig: refusat'
 );
 
 select throws_ok(
   $$ update public.profiles set instagram = repeat('a', 31)
       where id = (select auth.uid()) $$,
-  '23514', null,
+  '23514', :'ig_check',
   'trenta-un caracters: refusat'
 );
 
@@ -90,7 +105,7 @@ select throws_ok(
 -- que el nom és res. Treure'l ha d'escriure null, i el client ho fa.
 select throws_ok(
   $$ update public.profiles set instagram = '' where id = (select auth.uid()) $$,
-  '23514', null,
+  '23514', :'ig_check',
   'la cadena buida: refusada, perque treure''l vol dir null'
 );
 
@@ -99,7 +114,7 @@ select throws_ok(
 select throws_ok(
   $$ update public.profiles set instagram = e'algu\nhttps://el-que-sigui'
       where id = (select auth.uid()) $$,
-  '23514', null,
+  '23514', :'ig_check',
   'un salt de linia i una segona ratlla: refusat'
 );
 

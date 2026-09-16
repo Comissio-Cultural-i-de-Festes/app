@@ -58,7 +58,7 @@
     "pointsLede": "Marca qui ha ajudat i toca el motiu. Dos tocs i fora.",
     "whoIsHere": "Qui hi ha fitxat · {{count}}",
     "nobodyHere": "Encara no ha fitxat ningú. Els punts es donen quan la gent ja és dins.",
-    "pointsUndo": "Els punts entren de seguida. Si t'equivoques, els pots treure des del perfil de la persona.",
+    "pointsUndo": "Els punts entren de seguida. Si t'equivoques, es corregeixen des del full de la persona, a Socis: no s'esborra res, s'hi suma la correcció.",
     "chosen_zero": "Ningú marcat encara",
     "chosen_one": "{{count}} persona marcada",
     "chosen_other": "{{count}} persones marcades",

@@ -16,7 +16,15 @@ import type { AvisTipus } from './avisosApi'
  * i no un dibuix.
  */
 export function nomDelTipus(row: AvisTipus, traduit: string): string {
-  if (traduit.trim() !== '') return traduit
+  const net = traduit.trim()
+  // I LA CLAU I18N CRUA COMPTA COM A «NO HI HA TRADUCCIÓ». No és paranoia: el
+  // cridador ha de passar '' quan no n'hi ha, però aquesta app arrenca amb
+  // `returnEmptyString: false` i llavors `t()` torna la clau sencera en comptes
+  // de la cadena buida. Va passar: un tipus afegit per la junta sortia a la
+  // pantalla com «avisos.tipus.se_en_va_aviat». El cridador ho decideix bé amb
+  // `i18n.exists`, i això és la xarxa de sota, perquè el mode de fallada és una
+  // cadena lletja a la cara d'un soci i no un error que es vegi.
+  if (net !== '' && net !== `avisos.tipus.${row.clau}`) return net
   const etiqueta = row.etiqueta?.trim() ?? ''
   if (etiqueta !== '') return etiqueta
   return row.clau

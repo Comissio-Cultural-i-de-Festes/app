@@ -1583,6 +1583,32 @@
       "pendent": "pending"
     }
   },
+  "member": {
+    "gone": {
+      "title": "This member is no longer here",
+      "body": "A profile stops being visible when somebody leaves the comi. What they did stays in the committee's ledger."
+    },
+    "isYou": "This is you",
+    "footer": "This is what any member sees of you. Your phone number and your exit photos are not here.",
+    "standing": {
+      "hidden": "They have asked to stay out of the leaderboard, so their points are not shown here."
+    },
+    "streak": {
+      "none": "no streak running",
+      "never": "No streak yet.",
+      "best": "Their best run: {{best}}",
+      "bestNow": "Their best run, right now."
+    },
+    "badges": {
+      "empty": "None yet. The first one lands on day one."
+    },
+    "nights": {
+      "title": "Where they have been",
+      "count_one": "{{count}} activity",
+      "count_other": "{{count}} activities",
+      "empty": "Not down for any activity yet."
+    }
+  },
   "pending": {
     "eyebrow": "You are not in yet",
     "title": "The committee has to let you in",

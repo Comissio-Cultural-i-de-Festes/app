@@ -1583,6 +1583,32 @@
       "pendent": "pendiente"
     }
   },
+  "member": {
+    "gone": {
+      "title": "Este socio ya no está",
+      "body": "Un perfil deja de verse cuando alguien deja la comi. Lo que hizo se queda en el registro de la junta."
+    },
+    "isYou": "Eres tú",
+    "footer": "Esto es lo que cualquier socio ve de ti. El teléfono y las fotos de salida no salen aquí.",
+    "standing": {
+      "hidden": "Ha pedido no salir en el ranking, así que sus puntos no se dicen aquí."
+    },
+    "streak": {
+      "none": "ninguna racha en marcha",
+      "never": "Todavía no ha hecho ninguna.",
+      "best": "Su mejor marca: {{best}}",
+      "bestNow": "Su mejor marca, ahora mismo."
+    },
+    "badges": {
+      "empty": "Todavía no tiene ninguna. La primera cae el primer día."
+    },
+    "nights": {
+      "title": "Dónde ha estado",
+      "count_one": "{{count}} actividad",
+      "count_other": "{{count}} actividades",
+      "empty": "Todavía no consta en ninguna actividad."
+    }
+  },
   "pending": {
     "eyebrow": "Todavía no estás dentro",
     "title": "La junta te tiene que aceptar",

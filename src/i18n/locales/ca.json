@@ -1583,6 +1583,32 @@
       "pendent": "pendent"
     }
   },
+  "member": {
+    "gone": {
+      "title": "Aquest soci ja no hi és",
+      "body": "Un perfil deixa de veure's quan algú deixa la comi. El que va fer es queda al registre de la junta."
+    },
+    "isYou": "Ets tu",
+    "footer": "Això és el que qualsevol soci veu de tu. El telèfon i les fotos de sortida no hi surten.",
+    "standing": {
+      "hidden": "Ha demanat no sortir al rànquing, així que els seus punts no es diuen aquí."
+    },
+    "streak": {
+      "none": "cap ratxa en marxa",
+      "never": "Encara no n'ha fet cap.",
+      "best": "La seva millor marca: {{best}}",
+      "bestNow": "La seva millor marca, ara mateix."
+    },
+    "badges": {
+      "empty": "Encara no en té cap. La primera cau el primer dia."
+    },
+    "nights": {
+      "title": "On ha estat",
+      "count_one": "{{count}} activitat",
+      "count_other": "{{count}} activitats",
+      "empty": "Encara no consta a cap activitat."
+    }
+  },
   "pending": {
     "eyebrow": "Encara no ets dins",
     "title": "La junta t'ha d'acceptar",

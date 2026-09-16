@@ -817,6 +817,24 @@
     },
     "config": {
       "saved": "Saved.",
+      "avisos": {
+        "nums": "Warnings",
+        "num": {
+          "llindar": "Threshold worth a look",
+          "sostre_curs": "Most points per course"
+        },
+        "heading": "The warning catalogue",
+        "lede": "What each thing weighs. The points here only pre-fill the form: once a warning exists its points are its own, and changing this figure in June does not rewrite what a night in October was worth.",
+        "gravetat": "Severity (1 to 3)",
+        "punts": "Suggested points",
+        "inUse": "In use",
+        "retired": "Retired",
+        "newHeading": "Add one",
+        "newHint": "The key is the internal name and cannot be changed later; lowercase with underscores. The label is what people read when the key has no translation.",
+        "newClau": "Key, e.g. se_en_va_aviat",
+        "newEtiqueta": "Label",
+        "newCta": "Add the type"
+      },
       "periods": {
         "title": "The ranking periods",
         "lede": "Where one term ends the next begins, so there is only one date between any two. They save together: if one is wrong, none of them is saved.",
@@ -978,7 +996,10 @@
         "set_hores": "{{actor}} changed an activity's hours",
         "visa_hores": "{{actor}} signed off an activity's hours",
         "hores_persona": "{{actor}} changed somebody's hours at an activity",
-        "reveal_push": "The reveal notice went out"
+        "reveal_push": "The reveal notice went out",
+        "avis": "{{actor}} recorded a warning against somebody",
+        "retira_avis": "{{actor}} withdrew a warning",
+        "set_avis_tipus": "{{actor}} changed the warning catalogue"
       },
       "rowSub": "Who did what"
     },
@@ -1374,7 +1395,17 @@
     "trajo_gente": "Bringing people",
     "propuso": "Their idea",
     "conduir": "Driving",
-    "manual": "By hand"
+    "manual": "By hand",
+    "avis": "Warning",
+    "avis_retirat": "Warning withdrawn"
+  },
+  "avisos": {
+    "tipus": {
+      "no_va_venir": "Did not turn up",
+      "mal_gest": "Bad behaviour",
+      "va_deixar_ho": "Left it badly",
+      "greu": "Serious"
+    }
   },
   "nav": {
     "home": "Home",

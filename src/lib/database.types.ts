@@ -164,6 +164,138 @@ export type Database = {
           },
         ]
       }
+      avis_tipus: {
+        Row: {
+          actiu: boolean
+          clau: string
+          etiqueta: string | null
+          gravetat: number
+          ordre: number
+          punts_suggerits: number
+        }
+        Insert: {
+          actiu?: boolean
+          clau: string
+          etiqueta?: string | null
+          gravetat: number
+          ordre?: number
+          punts_suggerits?: number
+        }
+        Update: {
+          actiu?: boolean
+          clau?: string
+          etiqueta?: string | null
+          gravetat?: number
+          ordre?: number
+          punts_suggerits?: number
+        }
+        Relationships: []
+      }
+      avisos: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          event_id: string | null
+          gravetat: number
+          id: string
+          nota: string
+          points_log_id: string | null
+          retirat_at: string | null
+          retirat_by: string | null
+          retirat_nota: string | null
+          retirat_points_log_id: string | null
+          tipus: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          event_id?: string | null
+          gravetat: number
+          id?: string
+          nota: string
+          points_log_id?: string | null
+          retirat_at?: string | null
+          retirat_by?: string | null
+          retirat_nota?: string | null
+          retirat_points_log_id?: string | null
+          tipus: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          event_id?: string | null
+          gravetat?: number
+          id?: string
+          nota?: string
+          points_log_id?: string | null
+          retirat_at?: string | null
+          retirat_by?: string | null
+          retirat_nota?: string | null
+          retirat_points_log_id?: string | null
+          tipus?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avisos_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avisos_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avisos_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avisos_points_log_id_fkey"
+            columns: ["points_log_id"]
+            isOneToOne: false
+            referencedRelation: "points_log"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avisos_retirat_by_fkey"
+            columns: ["retirat_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avisos_retirat_points_log_id_fkey"
+            columns: ["retirat_points_log_id"]
+            isOneToOne: false
+            referencedRelation: "points_log"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avisos_tipus_fkey"
+            columns: ["tipus"]
+            isOneToOne: false
+            referencedRelation: "avis_tipus"
+            referencedColumns: ["clau"]
+          },
+          {
+            foreignKeyName: "avisos_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       badges: {
         Row: {
           codi: string
@@ -1584,6 +1716,17 @@ export type Database = {
         Args: { p_gimcana_id: string; p_noms: string[] }
         Returns: Json
       }
+      admin_set_avis_tipus: {
+        Args: {
+          p_actiu?: boolean
+          p_clau: string
+          p_etiqueta?: string
+          p_gravetat: number
+          p_ordre?: number
+          p_punts_suggerits: number
+        }
+        Returns: undefined
+      }
       admin_set_hores: {
         Args: { p_a_la_uni: boolean; p_event_id: string; p_minuts: number }
         Returns: undefined
@@ -1630,6 +1773,16 @@ export type Database = {
       admin_visa_hores: {
         Args: { p_event_id: string; p_visat: boolean }
         Returns: undefined
+      }
+      avisa: {
+        Args: {
+          p_event_id?: string
+          p_nota: string
+          p_punts?: number
+          p_tipus: string
+          p_user_id: string
+        }
+        Returns: string
       }
       award_points: {
         Args: {
@@ -1800,6 +1953,10 @@ export type Database = {
       report_photo: {
         Args: { p_motiu: string; p_photo_id: string }
         Returns: Json
+      }
+      retira_avis: {
+        Args: { p_avis_id: string; p_nota: string }
+        Returns: undefined
       }
       ride_candidates: {
         Args: { p_ride_id: string }

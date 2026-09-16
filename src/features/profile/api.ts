@@ -14,8 +14,24 @@ import type { Streak } from './streak'
  * more thing whose privileges have to be got right.
  */
 
+/**
+ * Els motius que el llibre major admet, i n'hi ha dos que resten.
+ *
+ * `avis` i `avis_retirat` arriben amb la migració 73 i NO els escriu mai
+ * `award_points`: la seva porta és `avisa()` i `retira_avis()`. Aquí són un
+ * motiu com qualsevol altre a posta —`byMotive()` ja documenta que una línia
+ * pot quedar en negatiu i que s'hi queda igualment—, perquè el que el soci ha
+ * de veure al perfil és la resta i la seva devolució, les dues, i no un forat.
+ */
 export type PointMotive =
-  'asistencia' | 'montaje' | 'trajo_gente' | 'propuso' | 'conduir' | 'manual'
+  | 'asistencia'
+  | 'montaje'
+  | 'trajo_gente'
+  | 'propuso'
+  | 'conduir'
+  | 'manual'
+  | 'avis'
+  | 'avis_retirat'
 
 export interface PointRow {
   readonly id: string

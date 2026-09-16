@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useLocation, useParams } from 'react-router'
 
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
+import { instagramUrl } from '@/features/profile/instagram'
 import { fetchProfile, profileKeys } from '@/features/session/profile'
 import { useUserId } from '@/features/session/useUserId'
 import { errorKey } from '@/lib/errors'
@@ -133,6 +134,37 @@ export function MemberScreen() {
           ) : null}
         </div>
       </header>
+
+      {/* L'Instagram, que és l'altra meitat de la columna que va arribar amb la
+          migració 70: es podia omplir i no el veia ningú, perquè aquest era
+          l'únic lloc on té sentit ensenyar el d'una altra persona.
+          SENSE FILA QUAN NO N'HI HA, i tampoc l'espai que ocuparia: la columna
+          és opcional a posta i buit vol dir «no el vull publicar», no «encara
+          no l'he posat». Una fila grisa que digui que no en té convertiria una
+          decisió en una absència.
+          L'URL la fa `instagramUrl()` i no aquesta pantalla. El que es desa és
+          el nom d'usuari sol —ho garanteix el CHECK de la 70— i tenir un sol
+          lloc que el converteix en enllaç és el que fa que no hi hagi res a
+          injectar. Al mòbil amb l'app instal·lada, aquesta adreça l'obre
+          Instagram tot sol; `instagram://` no faria res quan no hi és. */}
+      {soci.instagram === null || soci.instagram === '' ? null : (
+        <a
+          href={instagramUrl(soci.instagram)}
+          target="_blank"
+          rel="noreferrer"
+          className={`mt-6 flex items-center gap-3 border-y border-surface-4 py-[15px] no-underline ${GUTTER}`}
+        >
+          <span className="min-w-0 flex-1">
+            <span className="block text-base font-semibold text-fg">{t('member.instagram')}</span>
+            <span className="mt-[3px] block truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
+              {`@${soci.instagram}`}
+            </span>
+          </span>
+          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
+            ›
+          </span>
+        </a>
+      )}
 
       <MemberStandingBlock userId={userId} />
       <MemberStreakCard userId={userId} />

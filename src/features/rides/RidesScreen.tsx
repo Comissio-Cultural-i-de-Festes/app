@@ -16,6 +16,7 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { type JoinResult, type Ride, fetchRides, joinRide, leaveRide, rideKeys } from './api'
 import { CarDrawing } from './CarDrawing'
+import { rideReward } from './reward'
 
 /**
  * Who is driving, and who is going with whom.
@@ -52,10 +53,7 @@ export function RidesScreen() {
   })
   const values = useQuery({ queryKey: doorKeys.pointValues(), queryFn: fetchPointValues })
 
-  // Vegeu OfferRideScreen: el motiu és `trajo_gente` des de la migració 71, i
-  // el que es premia és la gent que puja, no el viatge.
-  const reward =
-    values.data?.find((v) => v.mena === 'motiu' && v.clau === 'trajo_gente')?.punts ?? null
+  const reward = rideReward(values.data)
   const points = reward === null ? '' : t('units.points', { count: reward })
 
   const join = useMutation({

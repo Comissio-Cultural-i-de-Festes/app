@@ -169,7 +169,9 @@ function Entry({
 
   return (
     <li className={`border-b border-surface-4 py-6 ${GUTTER}`}>
-      <p className="eyebrow text-fg-muted-lo">{formatDateTime(new Date(row.created_at), locale)}</p>
+      <p className="eyebrow text-[var(--ds-text-muted-lo)]">
+        {formatDateTime(new Date(row.created_at), locale)}
+      </p>
       <p className="mt-2 text-md font-bold [text-wrap:pretty]">{sentence}</p>
 
       {row.detall == null ? null : (

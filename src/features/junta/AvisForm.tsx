@@ -169,7 +169,7 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
       </Field>
 
       {triat === undefined ? null : (
-        <p className="-mt-6 pb-9 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
+        <p className="-mt-6 pb-9 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
           {t('junta.soci.avis.gravetatIs', { gravetat: gravetatNom(triat.gravetat) })}
         </p>
       )}

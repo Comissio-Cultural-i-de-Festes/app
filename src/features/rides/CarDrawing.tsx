@@ -164,7 +164,7 @@ function Bubble({
           <span
             className={
               'block w-[76px] text-center text-[9.5px] font-extrabold tracking-[0.1em] uppercase ' +
-              (faded ? 'text-fg-muted-lo' : 'text-brand-accent')
+              (faded ? 'text-[var(--ds-text-muted-lo)]' : 'text-brand-accent')
             }
             style={{ marginLeft: (size - 76) / 2 }}
           >

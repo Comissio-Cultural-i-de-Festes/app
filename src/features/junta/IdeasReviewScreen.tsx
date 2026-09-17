@@ -69,7 +69,7 @@ export function IdeasReviewScreen() {
             inventat es llegeix com un número, i el rebedor de la junta ja
             s'estalvia el seu pel mateix motiu. */}
         {list.isPending ? null : (
-          <p className="mt-3 text-sm text-fg-muted-lo">
+          <p className="mt-3 text-sm text-[var(--ds-text-muted-lo)]">
             {t('ideas.juntaOpen', { count: rows.length })}
           </p>
         )}
@@ -158,7 +158,7 @@ function Row({ proposal }: { readonly proposal: Proposal }) {
         <span className="block text-base font-bold [text-wrap:pretty]">{proposal.titol}</span>
         <span className="mt-2 flex items-center gap-3">
           <Avatar src={proposal.autor?.avatar_url ?? null} size={20} />
-          <span className="min-w-0 truncate text-sm-lo text-fg-muted-lo">
+          <span className="min-w-0 truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
             {proposal.autor?.nombre ?? ''}
           </span>
         </span>
@@ -253,7 +253,7 @@ function Panel({
           down should know the sentence they are writing is the whole of what
           the other person gets. */}
       {accepta ? null : (
-        <p className="mt-4 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
+        <p className="mt-4 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
           {t('ideas.whyNotNote')}
         </p>
       )}

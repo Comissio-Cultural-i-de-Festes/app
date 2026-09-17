@@ -117,7 +117,9 @@ export function RidesScreen() {
         <>
           <p className={`pt-9 text-sm text-fg-muted ${GUTTER}`}>{t('rides.loading')}</p>
           <RidesSkeleton />
-          <p className={`pt-6 text-sm-lo text-fg-muted-lo [text-wrap:pretty] ${GUTTER}`}>
+          <p
+            className={`pt-6 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
+          >
             {t('rides.loadingNote')}
           </p>
         </>
@@ -152,7 +154,9 @@ export function RidesScreen() {
           ))}
 
           {rows.length === 1 && rows[0]?.seats.length === 0 ? (
-            <p className={`pt-6 text-sm-lo text-fg-muted-lo [text-wrap:pretty] ${GUTTER}`}>
+            <p
+              className={`pt-6 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
+            >
               {t('rides.beFirst')}
             </p>
           ) : null}
@@ -298,7 +302,7 @@ function Card({
 function Fact({ label, value }: { readonly label: string; readonly value: string }) {
   return (
     <div>
-      <dt className="eyebrow text-fg-muted-lo">{label}</dt>
+      <dt className="eyebrow text-[var(--ds-text-muted-lo)]">{label}</dt>
       <dd className="mt-2 text-base font-semibold [text-wrap:pretty]">{value}</dd>
     </div>
   )
@@ -328,7 +332,9 @@ function Empty({ points, eventId }: { readonly points: string; readonly eventId:
           {t('rides.emptyFoot', { points })}
         </p>
       )}
-      <p className="mt-8 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">{t('rides.emptyNote')}</p>
+      <p className="mt-8 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        {t('rides.emptyNote')}
+      </p>
     </section>
   )
 }
@@ -370,7 +376,9 @@ function Failed({ error, onRetry }: { readonly error: unknown; readonly onRetry:
         )}
       </div>
 
-      <p className="mt-6 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">{t('rides.failedKeep')}</p>
+      <p className="mt-6 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        {t('rides.failedKeep')}
+      </p>
     </section>
   )
 }

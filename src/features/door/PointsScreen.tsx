@@ -152,7 +152,7 @@ export function PointsScreen() {
                   <Avatar src={null} size={34} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-base font-semibold">{row.nombre}</span>
-                    <span className="mt-[2px] block text-xs-lo font-semibold tracking-[0.05em] text-fg-muted-lo uppercase">
+                    <span className="mt-[2px] block text-xs-lo font-semibold tracking-[0.05em] text-[var(--ds-text-muted-lo)] uppercase">
                       {row.escola === null ? '' : t(`escolaShort.${row.escola}`)}
                     </span>
                   </span>
@@ -163,7 +163,7 @@ export function PointsScreen() {
         </ul>
       )}
 
-      <p className="px-[var(--ds-gutter)] py-8 text-sm text-fg-muted-lo [text-wrap:pretty]">
+      <p className="px-[var(--ds-gutter)] py-8 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
         {t('door.pointsUndo')}
       </p>
 

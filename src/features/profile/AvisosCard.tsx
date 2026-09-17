@@ -73,7 +73,7 @@ export function AvisosCard({ userId }: { readonly userId: string }) {
   return (
     <section className="pt-12 px-[var(--ds-gutter)]">
       <h2 className="eyebrow text-fg-muted">{t('profile.avisos.title')}</h2>
-      <p className="mt-3 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
+      <p className="mt-3 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
         {t('profile.avisos.lede')}
       </p>
 
@@ -95,7 +95,7 @@ export function AvisosCard({ userId }: { readonly userId: string }) {
                 >
                   {nom(row.tipus)}
                 </p>
-                <p className="mt-[3px] text-sm-lo text-fg-muted-lo">
+                <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)]">
                   {retirat ? t('profile.avisos.withdrawn') : gravetatNom(row.gravetat)}
                 </p>
                 <p
@@ -107,7 +107,7 @@ export function AvisosCard({ userId }: { readonly userId: string }) {
                   {row.nota}
                 </p>
                 {row.retirat_nota === null ? null : (
-                  <p className="mt-[5px] text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
+                  <p className="mt-[5px] text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
                     {row.retirat_nota}
                   </p>
                 )}

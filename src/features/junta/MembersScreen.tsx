@@ -196,7 +196,7 @@ export function MembersScreen() {
                         </span>
                       )}
                     </span>
-                    <span className="mt-[2px] block truncate text-sm-lo text-fg-muted-lo">
+                    <span className="mt-[2px] block truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
                       {memberSubtitle({
                         escola: row.escola === null ? null : t(`escolaShort.${row.escola}`),
                         curs: row.curs === null ? null : t(`onboarding.year.${row.curs}`),
@@ -216,7 +216,7 @@ export function MembersScreen() {
                             count: perSoci.get(row.id)?.quants ?? 0,
                           })}
                         </span>
-                        <span className="text-sm-lo text-fg-muted-lo">
+                        <span className="text-sm-lo text-[var(--ds-text-muted-lo)]">
                           {t('junta.members.avisosGravetat', {
                             total: perSoci.get(row.id)?.gravetat ?? 0,
                           })}
@@ -268,7 +268,7 @@ export function MembersScreen() {
                     setConfirming(null)
                   }}
                 >
-                  <p className="text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
+                  <p className="text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
                     {t('junta.members.signOutSure')}
                   </p>
                 </Confirm>

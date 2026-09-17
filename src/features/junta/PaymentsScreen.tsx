@@ -429,7 +429,9 @@ function PaidList({
           tampoc. La línia se'n va sencera en comptes de quedar-se dient una
           feina que ningú no ha de fer. */}
       {head.free ? null : (
-        <p className={`pt-7 text-sm-lo text-fg-muted-lo [text-wrap:pretty] ${GUTTER}`}>
+        <p
+          className={`pt-7 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
+        >
           {t('junta.payments.chaseThem')}
         </p>
       )}
@@ -559,7 +561,9 @@ function GuestRow({ row }: { readonly row: AttendeeRow }) {
             {row.profiles?.nombre ?? '—'}
           </span>
           {line === '' ? null : (
-            <span className="mt-[2px] block truncate text-sm-lo text-fg-muted-lo">{line}</span>
+            <span className="mt-[2px] block truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
+              {line}
+            </span>
           )}
         </span>
         <Chevron />

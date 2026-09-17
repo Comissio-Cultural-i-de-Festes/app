@@ -131,7 +131,9 @@ export function AvisosBlock({
                 >
                   {nom(row.tipus)}
                 </p>
-                <p className="mt-[3px] text-sm-lo text-fg-muted-lo">{gravetatNom(row.gravetat)}</p>
+                <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)]">
+                  {gravetatNom(row.gravetat)}
+                </p>
                 <p
                   className={
                     'mt-[5px] text-sm [text-wrap:pretty] ' +
@@ -142,7 +144,7 @@ export function AvisosBlock({
                 </p>
 
                 {row.retirat_at === null ? null : (
-                  <p className="mt-[6px] text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
+                  <p className="mt-[6px] text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
                     {t('junta.soci.avisos.withdrawnOn', {
                       dia: formatDayMonth(new Date(row.retirat_at), locale),
                     })}
@@ -237,7 +239,7 @@ function Retirada({
       onConfirm={onConfirm}
       onCancel={onCancel}
     >
-      <p className="text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
+      <p className="text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
         {t('junta.soci.avisos.withdrawSure')}
       </p>
       <textarea

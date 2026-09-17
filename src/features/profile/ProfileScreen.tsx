@@ -235,7 +235,7 @@ export function ProfileScreen() {
               <li key={row.motivo} className={ROW}>
                 <div className="min-w-0 flex-1">
                   <p className="text-base font-semibold">{t(`motive.${row.motivo}`)}</p>
-                  <p className="mt-[3px] text-sm-lo text-fg-muted-lo">
+                  <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)]">
                     {t('profile.breakdown.times', { count: row.vegades })}
                   </p>
                 </div>
@@ -286,7 +286,7 @@ export function ProfileScreen() {
         >
           <span className="min-w-0 flex-1">
             <span className="block text-base font-semibold">{t('profile.settings.public')}</span>
-            <span className="mt-[3px] block text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
+            <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
               {hidden ? t('profile.settings.publicOff') : t('profile.settings.publicOn')}
             </span>
           </span>

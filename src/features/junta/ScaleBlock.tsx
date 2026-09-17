@@ -126,7 +126,7 @@ export function ScaleBlock() {
           obrint la pantalla, no llegint-la. */}
       {groups.slice(0, 2).map(group)}
 
-      <p className="pb-9 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
+      <p className="pb-9 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
         {t('junta.config.scale.cantAdd')}
       </p>
 

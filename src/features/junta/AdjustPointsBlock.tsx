@@ -6,6 +6,8 @@ import { profileScreenKeys } from '@/features/profile/api'
 import { formatDayMonth } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
+import { Button } from '@/ui/Button/Button'
+import { DoneLine } from '@/ui/Notice/DoneLine'
 
 import { MAX_AJUST, esValid, llegeixAjust } from './adjust'
 import { Field, INPUT } from './formBits'
@@ -189,25 +191,26 @@ export function AdjustPointsBlock({
         </select>
       </Field>
 
-      <button
-        type="button"
+      <Button
         disabled={!valid || desa.isPending}
         onClick={() => {
           desa.mutate()
         }}
-        className="min-h-[52px] w-full bg-brand-cta px-6 text-md font-bold text-on-brand [text-wrap:balance] disabled:opacity-45"
       >
         {t('junta.soci.adjust.save')}
-      </button>
+      </Button>
 
-      {fet === null ? null : (
-        <p role="status" className="pt-6 text-md font-bold text-success [text-wrap:pretty]">
-          {t('junta.soci.adjust.done', {
-            punts: fet > 0 ? `+${String(fet)}` : String(fet),
-            nombre,
-          })}
-        </p>
-      )}
+      <DoneLine
+        className="pt-6"
+        message={
+          fet === null
+            ? null
+            : t('junta.soci.adjust.done', {
+                punts: fet > 0 ? `+${String(fet)}` : String(fet),
+                nombre,
+              })
+        }
+      />
 
       {desa.isError ? (
         <p role="alert" className="pt-6 text-md font-bold text-error [text-wrap:pretty]">

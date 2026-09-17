@@ -4,6 +4,8 @@ import { useTranslation } from 'react-i18next'
 
 import { doorKeys } from '@/features/door/api'
 import { errorKey } from '@/lib/errors'
+import { Button } from '@/ui/Button/Button'
+import { DoneLine } from '@/ui/Notice/DoneLine'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { setPointValue } from './configApi'
@@ -124,7 +126,7 @@ export function ScaleBlock() {
           obrint la pantalla, no llegint-la. */}
       {groups.slice(0, 2).map(group)}
 
-      <p className="pb-9 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+      <p className="pb-9 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
         {t('junta.config.scale.cantAdd')}
       </p>
 
@@ -200,20 +202,26 @@ function Group({
               />
 
               {typed === undefined ? (
-                <span className="w-[76px] flex-none text-right text-sm font-bold text-success">
-                  {saved === id ? t('junta.config.saved') : ''}
-                </span>
+                // Era un `<span>` verd i prou. Es veia igual que el
+                // `role="status"` del catàleg d'avisos que té al costat i no
+                // deia res a ningú que no mirés la pantalla: qui desa un número
+                // amb el teclat no rebia cap resposta.
+                // La ranura reserva l'amplada encara que estigui buida, o la
+                // fila salta cada cop que el «Desat» apareix i marxa, i `min-w-`
+                // perquè un botó creix, no es retalla.
+                <div className="min-w-[76px] flex-none text-right">
+                  <DoneLine size="sm" message={saved === id ? t('junta.config.saved') : null} />
+                </div>
               ) : (
-                <button
-                  type="button"
+                <Button
+                  className="min-w-[76px] flex-none"
                   disabled={!valid || busy}
                   onClick={() => {
                     onSave({ ...row, punts: parsed })
                   }}
-                  className="min-h-[46px] w-[76px] flex-none bg-brand-cta px-3 text-sm font-bold text-on-brand disabled:opacity-50"
                 >
                   {busy ? '…' : t('actions.save')}
-                </button>
+                </Button>
               )}
             </li>
           )

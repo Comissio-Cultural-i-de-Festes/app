@@ -1,8 +1,10 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { errorKey } from '@/lib/errors'
+import { Button } from '@/ui/Button/Button'
+import { DoneLine } from '@/ui/Notice/DoneLine'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { nomDelTipus } from './avisTipus'
@@ -82,6 +84,11 @@ export function AvisTipusBlock() {
   const [saved, setSaved] = useState<string | null>(null)
   const [afegit, setAfegit] = useState<string | null>(null)
   const [nou, setNou] = useState({ clau: '', etiqueta: '', gravetat: '1', punts: '0' })
+  // Un identificador per fila i un per al formulari de sota: el text que diu
+  // per què no es pot desar penja del camp per `aria-describedby`, no crida.
+  const errFila = useId()
+  const errClau = useId()
+  const errNou = useId()
 
   const tipus = useQuery({ queryKey: avisosKeys.tipus(), queryFn: fetchAvisTipus })
 
@@ -199,6 +206,8 @@ export function AvisTipusBlock() {
                     min={1}
                     max={3}
                     value={gravetat}
+                    aria-invalid={lectura === 'gravetat'}
+                    aria-describedby={lectura === 'gravetat' ? `${errFila}-${row.clau}` : undefined}
                     onChange={(e) => {
                       change({ gravetat: e.target.value })
                     }}
@@ -217,30 +226,31 @@ export function AvisTipusBlock() {
                     maxLength={5}
                     value={punts}
                     aria-invalid={lectura === 'punts'}
+                    aria-describedby={lectura === 'punts' ? `${errFila}-${row.clau}` : undefined}
                     onChange={(e) => {
                       change({ punts: e.target.value })
                     }}
                     className={
                       'tabular mt-2 min-h-[46px] w-full border-[1.5px] bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none ' +
-                      (lectura === 'punts' ? 'border-[var(--ds-warning)]' : 'border-surface-7')
+                      (lectura === 'punts' ? 'border-warning' : 'border-surface-7')
                     }
                   />
                 </label>
 
                 {draft === undefined ? (
-                  // `role="status"` i no un `<span>` pelat: «Desat» apareix sol
-                  // després d'una acció i un lector de pantalla no en diu res si
-                  // no se li anuncia. El mateix gest que la confirmació de baixa
-                  // de la llista de socis.
-                  <span
-                    role="status"
-                    className="min-h-[46px] w-[90px] flex-none pt-7 text-right text-sm font-bold text-success"
-                  >
-                    {saved === row.clau ? t('junta.config.saved') : ''}
-                  </span>
+                  // La ranura es reserva l'amplada encara que no digui res, o la
+                  // fila balla cada cop que apareix i desapareix el «Desat».
+                  // `min-w-` i no `w-`: si un dia el mot és més llarg en una
+                  // llengua, la ranura creix en comptes de tallar-lo.
+                  <div className="min-w-[90px] flex-none pt-7 text-right">
+                    <DoneLine
+                      size="sm"
+                      message={saved === row.clau ? t('junta.config.saved') : null}
+                    />
+                  </div>
                 ) : (
-                  <button
-                    type="button"
+                  <Button
+                    className="min-w-[90px] flex-none"
                     disabled={!valid || busy}
                     onClick={() => {
                       if (!tipusValid(lectura)) return
@@ -253,16 +263,15 @@ export function AvisTipusBlock() {
                         actiu,
                       })
                     }}
-                    className="min-h-[46px] w-[90px] flex-none bg-brand-cta px-3 text-sm font-bold text-on-brand disabled:opacity-50"
                   >
                     {busy ? '…' : t('actions.save')}
-                  </button>
+                  </Button>
                 )}
               </div>
 
               {/* Per què no es pot desar, i no només un botó apagat. */}
               {typeof lectura === 'string' ? (
-                <p role="alert" className="mt-4 text-sm font-bold text-[var(--ds-warning)]">
+                <p id={`${errFila}-${row.clau}`} className="mt-4 text-sm font-bold text-warning">
                   {lectura === 'gravetat'
                     ? t('junta.config.avisos.gravetatBad', {
                         min: GRAVETAT_MIN,
@@ -298,13 +307,14 @@ export function AvisTipusBlock() {
             aria-label={t('junta.config.avisos.newClau')}
             placeholder={t('junta.config.avisos.newClau')}
             aria-invalid={malaClau !== null}
-            className={malaClau === null ? INPUT : `${INPUT} border-[var(--ds-warning)]`}
+            aria-describedby={malaClau === null ? undefined : errClau}
+            className={malaClau === null ? INPUT : `${INPUT} border-warning`}
           />
           {/* Abans, una clau amb majúscules o accents només apagava el botó. La
               regla era a la CHECK de la base i al text d'ajuda, i qui escrivia
               «Se'n va aviat» es quedava amb un botó mort i cap explicació. */}
           {malaClau === null ? null : (
-            <p role="alert" className="mt-4 text-sm font-bold text-[var(--ds-warning)]">
+            <p id={errClau} className="mt-4 text-sm font-bold text-warning">
               {malaClau === 'forma'
                 ? t('junta.config.avisos.clauBad')
                 : t('junta.config.avisos.clauTaken')}
@@ -333,6 +343,7 @@ export function AvisTipusBlock() {
                 max={3}
                 value={nou.gravetat}
                 aria-invalid={lecturaNova === 'gravetat'}
+                aria-describedby={lecturaNova === 'gravetat' ? errNou : undefined}
                 onChange={(e) => {
                   setNou((p) => ({ ...p, gravetat: e.target.value }))
                   setAfegit(null)
@@ -349,20 +360,32 @@ export function AvisTipusBlock() {
                 maxLength={5}
                 value={nou.punts}
                 aria-invalid={lecturaNova === 'punts'}
+                aria-describedby={lecturaNova === 'punts' ? errNou : undefined}
                 onChange={(e) => {
                   setNou((p) => ({ ...p, punts: e.target.value }))
                   setAfegit(null)
                 }}
                 className={
                   'tabular mt-2 min-h-[46px] w-full border-[1.5px] bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none ' +
-                  (lecturaNova === 'punts' ? 'border-[var(--ds-warning)]' : 'border-surface-7')
+                  (lecturaNova === 'punts' ? 'border-warning' : 'border-surface-7')
                 }
               />
             </label>
           </div>
 
-          <button
-            type="button"
+          {/* Per què no es pot crear, i no només un botó apagat. Els dos números
+              tenen la mateixa frase que la fila de dalt i cap dels dos la deia:
+              amb una gravetat de 7, el botó s'apagava i prou. */}
+          {typeof lecturaNova === 'string' ? (
+            <p id={errNou} className="mt-4 text-sm font-bold text-warning">
+              {lecturaNova === 'gravetat'
+                ? t('junta.config.avisos.gravetatBad', { min: GRAVETAT_MIN, max: GRAVETAT_MAX })
+                : t('junta.config.avisos.puntsBad', { max: MAX_RESTA })}
+            </p>
+          ) : null}
+
+          <Button
+            className="mt-6"
             disabled={!potCrear || create.isPending}
             onClick={() => {
               if (!tipusValid(lecturaNova)) return
@@ -375,16 +398,14 @@ export function AvisTipusBlock() {
                 actiu: true,
               })
             }}
-            className="mt-6 min-h-[50px] w-full bg-brand-cta px-5 text-md font-bold text-on-brand disabled:opacity-50"
           >
             {create.isPending ? '…' : t('junta.config.avisos.newCta')}
-          </button>
+          </Button>
 
-          {afegit === null ? null : (
-            <p role="status" className="pt-5 text-md font-bold text-success [text-wrap:pretty]">
-              {t('junta.config.avisos.added', { clau: afegit })}
-            </p>
-          )}
+          <DoneLine
+            className="pt-5"
+            message={afegit === null ? null : t('junta.config.avisos.added', { clau: afegit })}
+          />
         </Field>
 
         {create.isError ? (

@@ -1,11 +1,14 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { profileScreenKeys } from '@/features/profile/api'
 import { formatDayMonth } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
+import { Button } from '@/ui/Button/Button'
+import { Confirm } from '@/ui/Confirm/Confirm'
+import { DoneLine } from '@/ui/Notice/DoneLine'
 
 import { MAX_RESTA, avisValid, llegeixAvis } from './avis'
 import { clauGravetat, nomDelTipus } from './avisTipus'
@@ -50,9 +53,17 @@ import { fetchAjustEvents, memberPointsKeys } from './memberPointsApi'
  * Sense xarxa, React Query la deixa en pausa i el que la junta ha escrit es
  * queda al formulari, que és el que ha de passar quan no hi ha cap lloc on
  * desar-ho.
+ *
+ * LA VALIDACIÓ NO CRIDA, LA DESCRIU, i és la mateixa forma que `AdjustPointsBlock`
+ * va trobar al costat: les dues frases anaven amb `role="alert"` i el que les fa
+ * aparèixer és cada tecla, o sigui que escrivint «-900» el lector de pantalla
+ * interrompia l'usuari al mig de la paraula i se'n tornava a anar al caràcter
+ * següent. Ara pengen del camp per `aria-describedby`, que és el que
+ * `aria-invalid` estava anunciant sense tenir. L'error de desar sí que continua
+ * sent un `alert`: aquell no el produeix teclejar, el produeix apretar.
  */
 
-const BAD = 'border-[var(--ds-warning)]'
+const BAD = 'border-warning'
 
 export function AvisForm({ userId, nombre }: { readonly userId: string; readonly nombre: string }) {
   const { t, i18n } = useTranslation()
@@ -66,6 +77,8 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
   const [eventId, setEventId] = useState('')
   const [confirmant, setConfirmant] = useState(false)
   const [fet, setFet] = useState<string | null>(null)
+  const errPunts = useId()
+  const errNota = useId()
 
   const cataleg = useQuery({ queryKey: avisosKeys.tipus(), queryFn: fetchAvisTipus })
   const events = useQuery({
@@ -156,7 +169,7 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
       </Field>
 
       {triat === undefined ? null : (
-        <p className="-mt-6 pb-9 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        <p className="-mt-6 pb-9 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
           {t('junta.soci.avis.gravetatIs', { gravetat: gravetatNom(triat.gravetat) })}
         </p>
       )}
@@ -176,13 +189,14 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
           placeholder="0"
           aria-label={t('junta.soci.avis.punts')}
           aria-invalid={lectura === 'punts'}
+          aria-describedby={lectura === 'punts' ? errPunts : undefined}
           maxLength={5}
           className={`${INPUT} tabular ${lectura === 'punts' ? BAD : ''}`}
         />
       </Field>
 
       {lectura === 'punts' ? (
-        <p role="alert" className="-mt-6 pb-9 text-sm font-bold text-[var(--ds-warning)]">
+        <p id={errPunts} className="-mt-6 pb-9 text-sm font-bold text-warning">
           {t('junta.soci.avis.puntsBad', { max: MAX_RESTA })}
         </p>
       ) : null}
@@ -199,13 +213,14 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
           placeholder={t('junta.soci.avis.notePlaceholder')}
           aria-label={t('junta.soci.avis.note')}
           aria-invalid={lectura === 'nota'}
+          aria-describedby={lectura === 'nota' ? errNota : undefined}
           maxLength={500}
           className={`${INPUT} resize-y ${lectura === 'nota' ? BAD : ''}`}
         />
       </Field>
 
       {lectura === 'nota' ? (
-        <p role="alert" className="-mt-6 pb-9 text-sm font-bold text-[var(--ds-warning)]">
+        <p id={errNota} className="-mt-6 pb-9 text-sm font-bold text-warning">
           {t('junta.soci.avis.noteBad')}
         </p>
       ) : null}
@@ -230,7 +245,23 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
       </Field>
 
       {confirmant && valid ? (
-        <div className="border border-[var(--ds-warning)] p-7">
+        // El mateix panell que la baixa d'un soci i la retirada d'un avís, i no
+        // una caixa pròpia: el que canvia d'una confirmació a l'altra és què s'hi
+        // diu, i el que ha de ser igual és el parell de botons. La vora ambre es
+        // queda perquè aquest és l'únic dels quatre que s'obre dins d'un
+        // formulari, i sense ella es confon amb un camp més.
+        <Confirm
+          className="border border-warning p-7"
+          cta={t('junta.soci.avis.sureCta')}
+          cancel={t('actions.cancel')}
+          busy={registra.isPending}
+          onConfirm={() => {
+            registra.mutate()
+          }}
+          onCancel={() => {
+            setConfirmant(false)
+          }}
+        >
           {/* Les tres conseqüències, amb nom i número. La dels punts canvia de
               frase quan són zero: «es restaran 0 punts» és una manera de dir
               «cap» que fa dubtar justament quan no cal. */}
@@ -250,46 +281,22 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
           <p className="mt-3 text-sm text-fg-secondary [text-wrap:pretty]">
             {t('junta.soci.avis.sureSeen', { nombre })}
           </p>
-          <div className="mt-6 flex gap-4">
-            <button
-              type="button"
-              disabled={registra.isPending}
-              onClick={() => {
-                registra.mutate()
-              }}
-              className="min-h-[50px] flex-1 border-[1.5px] border-[var(--ds-warning)] px-5 text-md font-bold text-[var(--ds-warning)] [text-wrap:balance] disabled:opacity-60"
-            >
-              {t('junta.soci.avis.sureCta')}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setConfirmant(false)
-              }}
-              className="min-h-[50px] flex-none px-5 text-md font-bold text-fg-muted"
-            >
-              {t('actions.cancel')}
-            </button>
-          </div>
-        </div>
+        </Confirm>
       ) : (
-        <button
-          type="button"
+        <Button
           disabled={!valid}
           onClick={() => {
             setConfirmant(true)
           }}
-          className="min-h-[52px] w-full bg-brand-cta px-6 text-md font-bold text-on-brand [text-wrap:balance] disabled:opacity-45"
         >
           {t('junta.soci.avis.save')}
-        </button>
+        </Button>
       )}
 
-      {fet === null ? null : (
-        <p role="status" className="pt-6 text-md font-bold text-success [text-wrap:pretty]">
-          {t('junta.soci.avis.done', { tipus: fet, nombre })}
-        </p>
-      )}
+      <DoneLine
+        className="pt-6"
+        message={fet === null ? null : t('junta.soci.avis.done', { tipus: fet, nombre })}
+      />
 
       {registra.isError ? (
         <p role="alert" className="pt-6 text-md font-bold text-error [text-wrap:pretty]">

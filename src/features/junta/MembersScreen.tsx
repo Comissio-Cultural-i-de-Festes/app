@@ -6,6 +6,9 @@ import { Link } from 'react-router'
 import { memberSubtitle } from '@/features/member/subtitle'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { Chevron } from '@/ui/Chevron/Chevron'
+import { Confirm } from '@/ui/Confirm/Confirm'
+import { DoneLine } from '@/ui/Notice/DoneLine'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { avisosKeys, fetchAvisComptes } from './avisosApi'
@@ -138,12 +141,14 @@ export function MembersScreen() {
           className="mt-5 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] py-[13px] text-lg font-semibold text-fg outline-none placeholder:font-medium placeholder:text-fg-faint"
         />
 
-        {done === null ? null : (
-          <p role="status" className="pt-6 text-md font-bold text-success [text-wrap:pretty]">
-            {done.nombre} ·{' '}
-            {done.estat === 'baixa' ? t('junta.members.gone') : t('junta.members.active')}
-          </p>
-        )}
+        <DoneLine
+          className="pt-6"
+          message={
+            done === null
+              ? null
+              : `${done.nombre} · ${done.estat === 'baixa' ? t('junta.members.gone') : t('junta.members.active')}`
+          }
+        />
 
         {change.isError ? (
           <p role="alert" className="pt-6 text-md font-bold text-error [text-wrap:pretty]">
@@ -191,7 +196,7 @@ export function MembersScreen() {
                         </span>
                       )}
                     </span>
-                    <span className="mt-[2px] block truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
+                    <span className="mt-[2px] block truncate text-sm-lo text-fg-muted-lo">
                       {memberSubtitle({
                         escola: row.escola === null ? null : t(`escolaShort.${row.escola}`),
                         curs: row.curs === null ? null : t(`onboarding.year.${row.curs}`),
@@ -206,27 +211,25 @@ export function MembersScreen() {
                         expedient de tothom. */}
                     {perSoci.get(row.id) === undefined ? null : (
                       <span className="mt-[3px] flex items-center gap-3">
-                        <span className="text-sm-lo font-semibold text-[var(--ds-warning)]">
+                        <span className="text-sm-lo font-semibold text-warning">
                           {t('junta.members.avisos', {
                             count: perSoci.get(row.id)?.quants ?? 0,
                           })}
                         </span>
-                        <span className="text-sm-lo text-[var(--ds-text-muted-lo)]">
+                        <span className="text-sm-lo text-fg-muted-lo">
                           {t('junta.members.avisosGravetat', {
                             total: perSoci.get(row.id)?.gravetat ?? 0,
                           })}
                         </span>
                         {passaElLlindar(perSoci.get(row.id), llindar) ? (
-                          <span className="eyebrow flex-none border-[1.5px] border-[var(--ds-warning)] px-3 py-[2px] text-[var(--ds-warning)]">
+                          <span className="eyebrow flex-none border-[1.5px] border-warning px-3 py-[2px] text-warning">
                             {t('junta.members.avisosFlag')}
                           </span>
                         ) : null}
                       </span>
                     )}
                   </span>
-                  <span aria-hidden="true" className="flex-none text-lg text-fg-muted">
-                    ›
-                  </span>
+                  <Chevron />
                 </Link>
 
                 {confirming === row.id ? null : (
@@ -253,32 +256,22 @@ export function MembersScreen() {
               {/* What it does, before it is done, and the half everybody gets
                   wrong: this is not a delete. */}
               {confirming === row.id ? (
-                <div className={`pb-7 ${GUTTER}`}>
-                  <p className="text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+                <Confirm
+                  className={`pb-7 ${GUTTER}`}
+                  cta={t('junta.members.signOut')}
+                  cancel={t('actions.cancel')}
+                  busy={change.isPending}
+                  onConfirm={() => {
+                    change.mutate({ row, estat: 'baixa' })
+                  }}
+                  onCancel={() => {
+                    setConfirming(null)
+                  }}
+                >
+                  <p className="text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
                     {t('junta.members.signOutSure')}
                   </p>
-                  <div className="mt-5 flex gap-4">
-                    <button
-                      type="button"
-                      disabled={change.isPending}
-                      onClick={() => {
-                        change.mutate({ row, estat: 'baixa' })
-                      }}
-                      className="min-h-[46px] flex-1 border-[1.5px] border-[var(--ds-warning)] px-5 text-md font-bold text-[var(--ds-warning)] disabled:opacity-60"
-                    >
-                      {t('junta.members.signOut')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setConfirming(null)
-                      }}
-                      className="min-h-[46px] flex-none px-5 text-md font-bold text-fg-muted"
-                    >
-                      {t('actions.cancel')}
-                    </button>
-                  </div>
-                </div>
+                </Confirm>
               ) : null}
             </li>
           ))}

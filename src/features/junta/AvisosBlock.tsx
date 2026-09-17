@@ -6,6 +6,7 @@ import { profileScreenKeys } from '@/features/profile/api'
 import { formatDayMonth } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
+import { Confirm } from '@/ui/Confirm/Confirm'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { notaValida } from './avis'
@@ -131,9 +132,7 @@ export function AvisosBlock({
                 >
                   {nom(row.tipus)}
                 </p>
-                <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)]">
-                  {gravetatNom(row.gravetat)}
-                </p>
+                <p className="mt-[3px] text-sm-lo text-fg-muted-lo">{gravetatNom(row.gravetat)}</p>
                 <p
                   className={
                     'mt-[5px] text-sm [text-wrap:pretty] ' +
@@ -144,7 +143,7 @@ export function AvisosBlock({
                 </p>
 
                 {row.retirat_at === null ? null : (
-                  <p className="mt-[6px] text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+                  <p className="mt-[6px] text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
                     {t('junta.soci.avisos.withdrawnOn', {
                       dia: formatDayMonth(new Date(row.retirat_at), locale),
                     })}
@@ -166,13 +165,17 @@ export function AvisosBlock({
                     }}
                   />
                 ) : (
+                  // Un afordament de fila i no un CTA: obre la confirmació, no
+                  // retira res. El botó de la casa aquí seria un rectangle de
+                  // 56px enmig d'una llista, i prometria que el que fa passa en
+                  // tocar-lo.
                   <button
                     type="button"
                     onClick={() => {
                       setRetirant(row.id)
                       setNota('')
                     }}
-                    className="mt-5 min-h-[44px] px-4 text-sm font-bold text-[var(--ds-warning)] [text-wrap:balance] -ml-4"
+                    className="mt-5 -ml-4 min-h-[44px] px-4 text-sm font-bold text-warning [text-wrap:balance]"
                   >
                     {t('junta.soci.avisos.withdraw')}
                   </button>
@@ -206,11 +209,7 @@ export function AvisosBlock({
 function Punts({ row }: { readonly row: AvisRow }) {
   const punts = row.points_log?.puntos ?? null
   if (punts === null || punts === 0) return null
-  return (
-    <p className="tabular flex-none pt-[2px] text-base font-extrabold text-[var(--ds-warning)]">
-      {punts}
-    </p>
-  )
+  return <p className="tabular flex-none pt-[2px] text-base font-extrabold text-warning">{punts}</p>
 }
 
 function Retirada({
@@ -230,8 +229,16 @@ function Retirada({
   const valid = notaValida(nota)
 
   return (
-    <div className="mt-5">
-      <p className="text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+    <Confirm
+      className="mt-5"
+      cta={t('junta.soci.avisos.withdraw')}
+      cancel={t('actions.cancel')}
+      busy={busy}
+      disabled={!valid}
+      onConfirm={onConfirm}
+      onCancel={onCancel}
+    >
+      <p className="text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
         {t('junta.soci.avisos.withdrawSure')}
       </p>
       <textarea
@@ -245,24 +252,7 @@ function Retirada({
         placeholder={t('junta.soci.avisos.withdrawPlaceholder')}
         className={`${INPUT} resize-y`}
       />
-      <div className="mt-4 flex gap-4">
-        <button
-          type="button"
-          disabled={!valid || busy}
-          onClick={onConfirm}
-          className="min-h-[46px] flex-1 border-[1.5px] border-[var(--ds-warning)] px-5 text-md font-bold text-[var(--ds-warning)] [text-wrap:balance] disabled:opacity-50"
-        >
-          {t('junta.soci.avisos.withdraw')}
-        </button>
-        <button
-          type="button"
-          onClick={onCancel}
-          className="min-h-[46px] flex-none px-5 text-md font-bold text-fg-muted"
-        >
-          {t('actions.cancel')}
-        </button>
-      </div>
-    </div>
+    </Confirm>
   )
 }
 

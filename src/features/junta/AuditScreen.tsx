@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { formatDateTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
+import { Button } from '@/ui/Button/Button'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import {
@@ -133,13 +134,9 @@ function Page({
 
       {last && rows.data.length === PAGE ? (
         <div className={`pt-8 ${GUTTER}`}>
-          <button
-            type="button"
-            onClick={onMore}
-            className="min-h-[50px] w-full border-[1.5px] border-surface-7 px-6 text-md font-bold text-fg-secondary"
-          >
+          <Button variant="secondary" onClick={onMore}>
             {t('junta.audit.more')}
-          </button>
+          </Button>
         </div>
       ) : null}
     </>
@@ -172,9 +169,7 @@ function Entry({
 
   return (
     <li className={`border-b border-surface-4 py-6 ${GUTTER}`}>
-      <p className="eyebrow text-[var(--ds-text-muted-lo)]">
-        {formatDateTime(new Date(row.created_at), locale)}
-      </p>
+      <p className="eyebrow text-fg-muted-lo">{formatDateTime(new Date(row.created_at), locale)}</p>
       <p className="mt-2 text-md font-bold [text-wrap:pretty]">{sentence}</p>
 
       {row.detall == null ? null : (

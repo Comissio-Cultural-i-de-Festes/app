@@ -8,6 +8,7 @@ import { fetchPointValues } from '@/features/junta/eventFormApi'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
 import { errorKey } from '@/lib/errors'
+import { Button } from '@/ui/Button/Button'
 
 import { awardPoints, doorKeys, fetchRoster } from './api'
 import { doorMotives } from './motives'
@@ -151,7 +152,7 @@ export function PointsScreen() {
                   <Avatar src={null} size={34} />
                   <span className="min-w-0 flex-1">
                     <span className="block truncate text-base font-semibold">{row.nombre}</span>
-                    <span className="mt-[2px] block text-xs-lo font-semibold tracking-[0.05em] text-[var(--ds-text-muted-lo)] uppercase">
+                    <span className="mt-[2px] block text-xs-lo font-semibold tracking-[0.05em] text-fg-muted-lo uppercase">
                       {row.escola === null ? '' : t(`escolaShort.${row.escola}`)}
                     </span>
                   </span>
@@ -162,7 +163,7 @@ export function PointsScreen() {
         </ul>
       )}
 
-      <p className="px-[var(--ds-gutter)] py-8 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+      <p className="px-[var(--ds-gutter)] py-8 text-sm text-fg-muted-lo [text-wrap:pretty]">
         {t('door.pointsUndo')}
       </p>
 
@@ -187,25 +188,22 @@ export function PointsScreen() {
         ) : (
           <div className="mt-6 grid grid-cols-2 gap-[9px]">
             {motives.map(({ clau, punts, strong, wide }) => (
-              <button
+              // El botó de la casa, amb el contingut en dues línies: aquests són
+              // els únics CTA de l'app que porten una xifra a sobre de
+              // l'etiqueta, i el que ha de ser igual que la resta és l'alçada
+              // mínima, el cantell quadrat i que creixin amb el text.
+              <Button
                 key={clau}
-                type="button"
+                variant={strong ? 'primary' : 'secondary'}
+                className={`flex-col gap-1 ${wide ? 'col-span-2' : ''}`}
                 disabled={picked.size === 0 || award.isPending}
                 onClick={() => {
                   award.mutate({ motivo: clau, punts })
                 }}
-                className={
-                  'flex min-h-[56px] flex-col items-center justify-center gap-1 px-4 py-5 ' +
-                  '[text-wrap:balance] disabled:opacity-45 ' +
-                  (wide ? 'col-span-2 ' : '') +
-                  (strong
-                    ? 'bg-brand-cta text-on-brand'
-                    : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg')
-                }
               >
                 <span className="display text-d-xs tracking-[-0.04em]">{`+${String(punts)}`}</span>
                 <span className="text-sm font-bold">{t(`motive.${clau}`)}</span>
-              </button>
+              </Button>
             ))}
           </div>
         )}

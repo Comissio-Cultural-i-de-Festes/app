@@ -726,6 +726,7 @@
       "requestsSub": "Nobody has one until you say yes. Anybody you do not confirm stays waiting — that is not the same as being told no.",
       "confirmIn": "Let them in",
       "refuse": "Not this time",
+      "refuseSure": "Saying no takes {{nombre}} off the list for good. Confirming does not send them anything.",
       "noRoomLeft": "No places left. Raise the cap on the event form if you want to fit one more.",
       "gone": "That person is no longer asking."
     },

@@ -726,6 +726,7 @@
       "requestsSub": "Nadie tiene ninguna hasta que le dices que sí. A quien no confirmes se queda esperando, no le dices que no.",
       "confirmIn": "Que entre",
       "refuse": "Esta vez no",
+      "refuseSure": "Si dices que no, {{nombre}} sale de la lista y no vuelve. Confirmarlo no le envía nada.",
       "noRoomLeft": "No quedan plazas. Si quieres meter una más, sube el límite en el formulario del evento.",
       "gone": "Esta persona ya no lo pide."
     },

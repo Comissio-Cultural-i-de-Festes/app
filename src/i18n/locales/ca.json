@@ -726,6 +726,7 @@
       "requestsSub": "Ningú en té cap fins que li dius que sí. Els que no confirmis es queden esperant, no els dius que no.",
       "confirmIn": "Que entri",
       "refuse": "Aquest cop no",
+      "refuseSure": "Si dius que no, {{nombre}} surt de la llista i no hi torna. Confirmar-ho no li envia res.",
       "noRoomLeft": "No queden places. Si en vols encabir un més, puja el límit al formulari de l'esdeveniment.",
       "gone": "Aquesta persona ja no ho demana."
     },

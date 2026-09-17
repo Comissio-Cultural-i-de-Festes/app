@@ -13,6 +13,7 @@ import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { Chevron } from '@/ui/Chevron/Chevron'
+import { Confirm } from '@/ui/Confirm/Confirm'
 import { Notice } from '@/ui/Notice/Notice'
 import { NavRow } from '@/ui/Row/Row'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
@@ -133,6 +134,8 @@ function Requests({ eventId }: { readonly eventId: string }) {
   const { t } = useTranslation()
   const client = useQueryClient()
   const [note, setNote] = useState<Decision | null>(null)
+  // Qui està esperant resposta al «segur?», si n'hi ha cap.
+  const [refusing, setRefusing] = useState<string | null>(null)
 
   const requests = useQuery({
     queryKey: paymentKeys.requests(eventId),
@@ -146,6 +149,7 @@ function Requests({ eventId }: { readonly eventId: string }) {
       // `sense_places` and `no_demanat` are answers, not failures, so they get
       // said out loud instead of arriving as a generic red line.
       setNote(result === 'si' || result === 'rebutjat' ? null : result)
+      setRefusing(null)
       await client.invalidateQueries({ queryKey: paymentKeys.requests(eventId) })
       await client.invalidateQueries({ queryKey: paymentKeys.attendees(eventId) })
     },
@@ -171,34 +175,68 @@ function Requests({ eventId }: { readonly eventId: string }) {
             key={r.id}
             className="flex flex-wrap items-center gap-4 border-b border-surface-4 py-6"
           >
-            <Avatar src={r.profiles?.avatar_url ?? null} size={36} />
-            <span className="min-w-0 flex-1 truncate text-base font-semibold">
-              {r.profiles?.nombre ?? '—'}
-            </span>
-            <span className="flex flex-none items-center gap-3">
-              <button
-                type="button"
-                disabled={decide.isPending}
-                onClick={() => {
-                  setNote(null)
-                  decide.mutate({ userId: r.user_id, accepta: true })
-                }}
-                className="min-h-[44px] bg-brand-cta px-5 text-md font-bold text-on-brand disabled:opacity-70"
-              >
-                {t('junta.payments.confirmIn')}
-              </button>
-              <button
-                type="button"
-                disabled={decide.isPending}
-                onClick={() => {
-                  setNote(null)
+            <MemberLink
+              userId={r.user_id}
+              label={t('junta.payments.title')}
+              className="flex min-w-0 flex-1 items-center gap-4 text-fg no-underline"
+            >
+              <Avatar src={r.profiles?.avatar_url ?? null} size={36} />
+              <span className="min-w-0 flex-1 truncate text-base font-semibold">
+                {r.profiles?.nombre ?? '—'}
+              </span>
+            </MemberLink>
+            {refusing === r.id ? null : (
+              <span className="flex flex-none items-center gap-3">
+                <button
+                  type="button"
+                  disabled={decide.isPending}
+                  onClick={() => {
+                    setNote(null)
+                    decide.mutate({ userId: r.user_id, accepta: true })
+                  }}
+                  className="min-h-[44px] bg-brand-cta px-5 text-md font-bold text-on-brand disabled:opacity-70"
+                >
+                  {t('junta.payments.confirmIn')}
+                </button>
+                <button
+                  type="button"
+                  disabled={decide.isPending}
+                  onClick={() => {
+                    setNote(null)
+                    setRefusing(r.id)
+                  }}
+                  className="min-h-[44px] border-[1.5px] border-surface-7 px-5 text-md font-bold text-fg-secondary disabled:opacity-70"
+                >
+                  {t('junta.payments.refuse')}
+                </button>
+              </span>
+            )}
+
+            {/* DIR QUE NO SÍ QUE PREGUNTA, i dir que sí no. No és simetria mal
+                entesa: acceptar algú es pot desfer traient-lo de la llista, i
+                refusar-lo el treu d'aquesta secció per sempre —no hi ha cap
+                pantalla que torni a posar una petició refusada—. I els dos
+                botons són germans en una fila de 390px.
+                El mateix panell que la baixa d'un soci: s'obre a la fila, sense
+                diàleg i sense atrapar el focus. */}
+            {refusing === r.id ? (
+              <Confirm
+                className="w-full"
+                cta={t('junta.payments.refuse')}
+                cancel={t('actions.cancel')}
+                busy={decide.isPending}
+                onConfirm={() => {
                   decide.mutate({ userId: r.user_id, accepta: false })
                 }}
-                className="min-h-[44px] border-[1.5px] border-surface-7 px-5 text-md font-bold text-fg-secondary disabled:opacity-70"
+                onCancel={() => {
+                  setRefusing(null)
+                }}
               >
-                {t('junta.payments.refuse')}
-              </button>
-            </span>
+                <p className="text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+                  {t('junta.payments.refuseSure', { nombre: r.profiles?.nombre ?? '—' })}
+                </p>
+              </Confirm>
+            ) : null}
           </li>
         ))}
       </ul>
@@ -265,10 +303,16 @@ function Queue({ eventId }: { readonly eventId: string }) {
             <span className="tabular w-[22px] flex-none text-md font-bold text-fg-muted">
               {index + 1}
             </span>
-            <Avatar src={r.profiles?.avatar_url ?? null} size={36} />
-            <span className="min-w-0 flex-1 truncate text-base font-semibold">
-              {r.profiles?.nombre ?? '—'}
-            </span>
+            <MemberLink
+              userId={r.user_id}
+              label={t('junta.payments.title')}
+              className="flex min-w-0 flex-1 items-center gap-4 text-fg no-underline"
+            >
+              <Avatar src={r.profiles?.avatar_url ?? null} size={36} />
+              <span className="min-w-0 flex-1 truncate text-base font-semibold">
+                {r.profiles?.nombre ?? '—'}
+              </span>
+            </MemberLink>
             <button
               type="button"
               disabled={letIn.isPending}

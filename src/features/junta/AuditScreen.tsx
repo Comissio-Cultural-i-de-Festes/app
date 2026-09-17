@@ -167,6 +167,29 @@ function Entry({
     defaultValue: t('junta.audit.other', { actor, accio: row.accio }),
   })
 
+  // ELS NOMS D'AQUÍ NO PORTEN AL PERFIL, i és una decisió i no un oblit.
+  //
+  // A tota la resta de l'app una cara porta a `/soci/:id` —el rànquing, «qui hi
+  // ha dins», els cotxes, les idees, els convidats d'una activitat—, i aquesta
+  // és l'excepció. El motiu és que aquí un nom no és una fila: és una paraula
+  // enmig d'una frase traduïda, «{{actor}} ha donat punts a {{target}}», i
+  // convertir-la en enllaç vol dir passar les onze frases dels tres locales a
+  // `<Trans>` amb interpolació de components. Trenta-tres cadenes reescrites, la
+  // prova de paritat a sobre, i cap de les tres llengües podent moure el nom de
+  // lloc dins de la frase sense tocar el marcatge.
+  //
+  // I no compraria gaire: la meitat de les accions no tenen persona a l'altra
+  // banda —esborrar un esdeveniment, decidir una idea, tancar una reunió— i
+  // `actor_id` és `on delete set null`, així que en un registre de dos cursos
+  // una part dels noms són «algú» i no porten enlloc per definició. El que sí
+  // que calia aquí —saber DE QUI parla la fila— ja hi és des que `targetNom`
+  // posa el nom del destinatari a les frases que en tenen un.
+  //
+  // DESCARTAT TAMBÉ: fer de tota la fila un enllaç cap al destinatari. La fila
+  // ja conté un `<details>` amb el registre cru, i un control dins d'un enllaç
+  // no és HTML vàlid; i la frase parla de dues persones, així que una fila que
+  // portés a una de les dues seria una endevinalla.
+
   return (
     <li className={`border-b border-surface-4 py-6 ${GUTTER}`}>
       <p className="eyebrow text-[var(--ds-text-muted-lo)]">

@@ -1509,7 +1509,8 @@
     },
     "cta": {
       "ready": "Go in",
-      "pickSchool": "Pick a school and you are in"
+      "pickSchool": "Pick a school and you are in",
+      "fix": "Check the phone or the Instagram"
     },
     "later": "You can change all of this later in your profile."
   },

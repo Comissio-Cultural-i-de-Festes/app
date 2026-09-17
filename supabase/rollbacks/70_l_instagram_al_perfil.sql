@@ -1,0 +1,26 @@
+-- Rollback de la migració 70. NO és a `migrations/` a posta: un fitxer aquí
+-- dins el desfaria el mateix `db push` que acaba d'aplicar-lo.
+--
+-- Treu la columna `instagram` de `profiles`, i amb ella el `check` i el
+-- `grant update (instagram)`: els dos pengen de la columna i cauen sols amb el
+-- `drop column`. No cal —ni s'ha de— revocar el grant a part; fer-ho abans del
+-- drop només afegiria una sentència que pot fallar sola i deixar la columna
+-- escrivible a mitges.
+--
+-- AIXÒ ESBORRA DADES DE SOCIS. És l'única cosa d'aquest directori que no és
+-- reversible tornant a aplicar la migració: el nom d'usuari que cadascú hi hagi
+-- desat no és enlloc més, i qui el vulgui altra vegada l'ha de tornar a
+-- escriure. Per això va amb `if exists` i prou, sense cap còpia a una taula de
+-- banda: una taula d'òrfenes amb comptes d'Instagram de socis és exactament la
+-- dada que la 70 volia tenir en un sol lloc i sota el `check`.
+--
+-- ORDRE. Primer el client ha de deixar de demanar la columna —el `select` de
+-- `src/features/session/profile.ts` l'enumera per nom i un `drop column` amb la
+-- versió antiga desplegada torna un 42703 a cada càrrega de perfil— i després
+-- això. A l'inrevés, l'app peta entre el drop i el desplegament.
+--
+-- Desfer-ho vol dir que `/soci/:id` es queda sense la fila per seguir, que
+-- `/perfil` perd la fila d'ajustos i que l'alta torna a demanar quatre coses.
+-- `private.profiles_guard()` no s'ha de tocar: la 70 no l'havia tocat.
+
+alter table public.profiles drop column if exists instagram;

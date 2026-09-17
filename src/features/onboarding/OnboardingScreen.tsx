@@ -31,11 +31,27 @@ import { fetchDegrees, looksLikePhone, onboardingKeys, saveFirstRun } from './ap
  * ja hi havia. Demanar-lo només a `/perfil/editar` voldria dir que la columna
  * neix buida per a tothom qui ja hi és i gairebé buida per als nous.
  *
- * LA PORTA NO ES MOU PERÒ SÍ QUE MIRA SI EL QUE S'HI HA ESCRIT VAL, igual que
- * el telèfon: buit continua sent perfectament vàlid —no és obligatori— i el que
- * s'evita és que prémer «Entrar» amb un nom impossible torni un 23514 que la
- * persona no pot llegir. `escola !== null` continua sent l'única cosa que de
- * debò es demana.
+ * DEPARTURE FROM THE SPEC. L'issue #6 demana dues vegades que el camp nou no
+ * toqui la porta: «la porta no es mou: `ready = escola !== null && phoneOk`
+ * queda igual», i a la taula del que s'ha de tocar, «el cinquè camp, sense
+ * tocar el `ready`». Aquí el `ready` porta un tercer terme, `igOk`, i això és
+ * un canvi d'un criteri d'acceptació, no un detall d'implementació: es declara
+ * aquí perquè cap altre lloc del repo el declarava.
+ *
+ * El que es demanava continua complint-se: l'Instagram NO és obligatori. Buit
+ * val, `igOk` és cert amb el camp en blanc i `escola !== null` segueix sent
+ * l'única cosa que de debò es demana. L'únic estat nou en què el botó s'apaga
+ * és el d'un nom d'usuari impossible —una URL enganxada, un espai, trenta-un
+ * caràcters—, i s'apaga amb la línia de sota explicant per què.
+ *
+ * L'opció descartada era deixar el `ready` literalment com deia l'issue. El
+ * preu hauria estat que prémer «Entrar» amb `https://instagram.com/algu` al
+ * camp envia l'`update` i torna un 23514 de PostgREST: la pantalla dibuixaria
+ * el text d'error genèric, ningú no sabria quin dels cinc camps l'ha provocat i
+ * l'alta —l'única pantalla que no es pot saltar— quedaria encallada fins que
+ * algú endevinés que era l'Instagram. El telèfon ja porta aquesta mateixa
+ * comprovació a `phoneOk` pel mateix motiu; això només fa que el cinquè camp es
+ * comporti com el quart.
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -411,11 +427,21 @@ export function OnboardingScreen() {
               : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-muted')
           }
         >
+          {/* TRES ETIQUETES I NO DUES. Amb «apagat» i «encès» com a únics
+              estats, el botó deia «Tria l'escola i entres» també quan l'escola
+              ja estava triada i el que fallava era el telèfon o l'Instagram:
+              enviava a fer una cosa ja feta, i l'única pista de què passava de
+              debò era la línia de sota d'un camp que pot quedar fora de
+              pantalla. En una pantalla que no es pot saltar, això és un
+              cul-de-sac. Es mira l'escola per separat perquè és l'únic camp
+              obligatori; la resta només pot ser buida —vàlida— o mal escrita. */}
           {save.isPending
             ? t('state.updating')
-            : ready
-              ? t('onboarding.cta.ready')
-              : t('onboarding.cta.pickSchool')}
+            : escola === null
+              ? t('onboarding.cta.pickSchool')
+              : ready
+                ? t('onboarding.cta.ready')
+                : t('onboarding.cta.fix')}
         </button>
 
         {save.isError ? (

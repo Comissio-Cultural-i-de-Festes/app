@@ -1509,7 +1509,8 @@
     },
     "cta": {
       "ready": "Entrar",
-      "pickSchool": "Tria l'escola i entres"
+      "pickSchool": "Tria l'escola i entres",
+      "fix": "Repassa el telèfon o l'Instagram"
     },
     "later": "Tot això ho pots canviar després al teu perfil."
   },

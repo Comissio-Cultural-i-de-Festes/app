@@ -889,6 +889,9 @@
       "avisosFlag": "Para mirar"
     },
     "soci": {
+      "backLabel": "Su ficha",
+      "publicProfile": "Ver su perfil",
+      "publicProfileSub": "Lo que cualquier socio ve de él.",
       "ledger": {
         "title": "El registro de puntos",
         "total": "Total: {{total}}",
@@ -1724,6 +1727,8 @@
     "isYou": "Eres tú",
     "instagram": "Síguelo en Instagram",
     "footer": "Esto es lo que cualquier socio ve de ti. El teléfono y las fotos de salida no salen aquí.",
+    "juntaSheet": "Su registro de puntos",
+    "juntaSheetSub": "Libro mayor, ajustes y avisos. Solo lo ve la junta.",
     "standing": {
       "hidden": "Ha pedido no salir en el ranking, así que sus puntos no se dicen aquí."
     },

@@ -889,6 +889,9 @@
       "avisosFlag": "Worth a look"
     },
     "soci": {
+      "backLabel": "Their sheet",
+      "publicProfile": "See their profile",
+      "publicProfileSub": "What any member sees of them.",
       "ledger": {
         "title": "The points record",
         "total": "Total: {{total}}",
@@ -1724,6 +1727,8 @@
     "isYou": "This is you",
     "instagram": "Follow on Instagram",
     "footer": "This is what any member sees of you. Your phone number and your exit photos are not here.",
+    "juntaSheet": "Their points record",
+    "juntaSheetSub": "Ledger, adjustments and warnings. Only the committee sees it.",
     "standing": {
       "hidden": "They have asked to stay out of the leaderboard, so their points are not shown here."
     },

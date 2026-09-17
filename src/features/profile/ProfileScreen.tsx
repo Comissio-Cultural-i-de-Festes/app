@@ -18,6 +18,9 @@ import { SUPPORTED_LOCALES, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { HERE, IDEAS, PROVES, SCANS, clearAllQueues, count } from '@/lib/queue'
+import { Confirm } from '@/ui/Confirm/Confirm'
+import { PERSON_AVATAR, PersonHead } from '@/ui/PersonHead/PersonHead'
+import { NavRow, ROW } from '@/ui/Row/Row'
 import { SafeTop } from '@/ui/SafeTop/SafeTop'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { supabase } from '@/lib/supabase'
@@ -48,7 +51,6 @@ import {
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
-const ROW = 'flex items-center gap-3 border-b border-surface-4 py-[15px]'
 
 export function ProfileScreen() {
   const { t, i18n } = useTranslation()
@@ -145,39 +147,34 @@ export function ProfileScreen() {
       <SafeTop />
       {/* El títol més gran de l'app i el que està més amunt de tot: sis
           píxels no eren coixí, eren una coincidència. */}
-      <header className={`flex items-center gap-8 pt-6 ${GUTTER}`}>
-        {/* La insígnia de càmera a sobre de la foto, que és on la gent la
-            busca —i la fila d'Ajustos a sota, que és on es busca el nom. Dues
-            entrades a la mateixa pantalla i no una tria: qui ve a canviar-se la
-            cara no pensa «ajustos», i qui ve a corregir-se el nom no pensa
-            «toca la foto». */}
-        <Link
-          to="/perfil/editar"
-          aria-label={t('profile.photo.badge')}
-          className="relative block flex-none no-underline"
-        >
-          <Avatar src={profile?.avatar_url ?? null} size={72} />
-          <span
-            aria-hidden="true"
-            className="absolute -right-[2px] -bottom-[2px] grid size-[26px] place-items-center rounded-full border-2 border-app bg-brand-cta text-on-brand"
+      <PersonHead
+        nombre={profile?.nombre ?? ''}
+        subtitle={subtitle}
+        note={isJunta(profile) ? t('profile.youAreJunta') : undefined}
+        className={`pt-6 ${GUTTER}`}
+        avatar={
+          /* La insígnia de càmera a sobre de la foto, que és on la gent la
+             busca —i la fila d'Ajustos a sota, que és on es busca el nom. Dues
+             entrades a la mateixa pantalla i no una tria: qui ve a canviar-se la
+             cara no pensa «ajustos», i qui ve a corregir-se el nom no pensa
+             «toca la foto». És l'únic dels tres perfils on la cara porta enlloc,
+             i per això la capçalera compartida rep la ranura sencera en comptes
+             d'un booleà: així la mida és la mateixa i la porta és només d'aquí. */
+          <Link
+            to="/perfil/editar"
+            aria-label={t('profile.photo.badge')}
+            className="relative block flex-none no-underline"
           >
-            <CameraIcon size={13} />
-          </span>
-        </Link>
-        <div className="min-w-0 flex-1">
-          <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">
-            {profile?.nombre ?? ''}
-          </h1>
-          {subtitle === '' ? null : (
-            <p className="mt-[3px] text-md-lo font-semibold text-fg-muted">{subtitle}</p>
-          )}
-          {isJunta(profile) ? (
-            <p className="mt-[6px] text-sm-lo font-bold text-brand-label">
-              {t('profile.youAreJunta')}
-            </p>
-          ) : null}
-        </div>
-      </header>
+            <Avatar src={profile?.avatar_url ?? null} size={PERSON_AVATAR} />
+            <span
+              aria-hidden="true"
+              className="absolute -right-[2px] -bottom-[2px] grid size-[26px] place-items-center rounded-full border-2 border-app bg-brand-cta text-on-brand"
+            >
+              <CameraIcon size={13} />
+            </span>
+          </Link>
+        }
+      />
 
       {/* Three numbers, equal weight, hairlines between. Anything with a
           bigger figure next to it stops being read. */}
@@ -318,40 +315,23 @@ export function ProfileScreen() {
           </p>
         ) : null}
 
-        <Link to="/perfil/editar" className={`${ROW} no-underline`}>
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-semibold text-fg">
-              {t('profile.settings.photo')}
-            </span>
-            <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
-              {photoSub}
-            </span>
-          </span>
-          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
-            ›
-          </span>
-        </Link>
+        <NavRow to="/perfil/editar" title={t('profile.settings.photo')} sub={photoSub} />
 
         {/* Una fila pròpia i no una menció a la de dalt: qui ja hi era no
             tornarà a passar per l'alta, i la columna li neix buida. Sense
             aquesta línia, una funció que existeix perquè et trobin viuria
             amagada dins d'una pantalla que es diu «la teva foto i el teu nom».
             Hi és sempre i el que canvia és el subtítol, com la de la foto. */}
-        <Link to="/perfil/editar" className={`${ROW} no-underline`}>
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-semibold text-fg">
-              {t('profile.settings.instagram')}
-            </span>
-            <span className="mt-[3px] block truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
-              {profile?.instagram == null || profile.instagram === ''
-                ? t('profile.settings.instagramNone')
-                : `@${profile.instagram}`}
-            </span>
-          </span>
-          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
-            ›
-          </span>
-        </Link>
+        <NavRow
+          to="/perfil/editar"
+          title={t('profile.settings.instagram')}
+          sub={
+            profile?.instagram == null || profile.instagram === ''
+              ? t('profile.settings.instagramNone')
+              : `@${profile.instagram}`
+          }
+          truncate
+        />
 
         <div className={ROW}>
           <span className="flex-1 text-base font-semibold">{t('language.label')}</span>
@@ -380,62 +360,26 @@ export function ProfileScreen() {
         {/* Es filtra ella sola: sense res a què hagis dit que sí, no hi surt. */}
         <MyCalendarRow />
 
-        <Link to="/perfil/nits" className={`${ROW} no-underline`}>
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-semibold text-fg">
-              {t('profile.settings.nights')}
-            </span>
-            <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
-              {t('profile.settings.nightsSub')}
-            </span>
-          </span>
-          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
-            ›
-          </span>
-        </Link>
+        <NavRow
+          to="/perfil/nits"
+          title={t('profile.settings.nights')}
+          sub={t('profile.settings.nightsSub')}
+        />
 
         {isJunta(profile) ? (
-          <Link to="/junta" className={`${ROW} no-underline`}>
-            <span className="min-w-0 flex-1">
-              <span className="block text-base font-semibold text-fg">
-                {t('profile.settings.junta')}
-              </span>
-              <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
-                {t('profile.settings.juntaSub')}
-              </span>
-            </span>
-            <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
-              ›
-            </span>
-          </Link>
+          <NavRow
+            to="/junta"
+            title={t('profile.settings.junta')}
+            sub={t('profile.settings.juntaSub')}
+          />
         ) : null}
 
         {/* Aquí a baix i no a la capçalera: al perfil s'hi arriba quan ja s'ha
             entrat, i qui vulgui llegir-ho abans de donar res ho té a la porta i
             a l'alta. Aquestes dues files són perquè es pugui rellegir. */}
-        <Link to={PRIVACY_PATH} className={`${ROW} no-underline`}>
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-semibold text-fg">{t('legal.privacy')}</span>
-            <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
-              {t('legal.privacySub')}
-            </span>
-          </span>
-          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
-            ›
-          </span>
-        </Link>
+        <NavRow to={PRIVACY_PATH} title={t('legal.privacy')} sub={t('legal.privacySub')} />
 
-        <Link to={TERMS_PATH} className={`${ROW} no-underline`}>
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-semibold text-fg">{t('legal.terms')}</span>
-            <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
-              {t('legal.termsSub')}
-            </span>
-          </span>
-          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
-            ›
-          </span>
-        </Link>
+        <NavRow to={TERMS_PATH} title={t('legal.terms')} sub={t('legal.termsSub')} />
 
         {pending === null ? (
           <button
@@ -446,29 +390,22 @@ export function ProfileScreen() {
             {t('actions.signOut')}
           </button>
         ) : (
-          <div className="pt-9 pb-4">
+          // El mateix panell que la baixa d'un soci i la retirada d'un avís:
+          // s'obre on s'era, no atrapa el focus i el botó de fugir fa la mateixa
+          // alçada que el de fer. Abans eren dos botons de 46px escrits a mà.
+          <Confirm
+            className="pt-9 pb-4"
+            cta={t('profile.signOutPending.anyway')}
+            cancel={t('profile.signOutPending.wait')}
+            onConfirm={() => void signOut()}
+            onCancel={() => {
+              setPending(null)
+            }}
+          >
             <p className="text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
               {t('profile.signOutPending.warn', { count: pending })}
             </p>
-            <div className="mt-5 flex gap-4">
-              <button
-                type="button"
-                onClick={() => void signOut()}
-                className="min-h-[46px] flex-1 border-[1.5px] border-warning px-5 text-md font-bold text-warning"
-              >
-                {t('profile.signOutPending.anyway')}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setPending(null)
-                }}
-                className="min-h-[46px] flex-none px-5 text-md font-bold text-fg-muted"
-              >
-                {t('profile.signOutPending.wait')}
-              </button>
-            </div>
-          </div>
+          </Confirm>
         )}
 
         <p className="pb-6 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">{t('profile.footer')}</p>

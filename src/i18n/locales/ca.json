@@ -889,6 +889,9 @@
       "avisosFlag": "Per mirar"
     },
     "soci": {
+      "backLabel": "La seva fitxa",
+      "publicProfile": "Veure el seu perfil",
+      "publicProfileSub": "El que qualsevol soci veu d'ell.",
       "ledger": {
         "title": "El registre de punts",
         "total": "Total: {{total}}",
@@ -1724,6 +1727,8 @@
     "isYou": "Ets tu",
     "instagram": "Segueix-lo a Instagram",
     "footer": "Això és el que qualsevol soci veu de tu. El telèfon i les fotos de sortida no hi surten.",
+    "juntaSheet": "El seu registre de punts",
+    "juntaSheetSub": "Llibre major, ajustos i avisos. Només ho veu la junta.",
     "standing": {
       "hidden": "Ha demanat no sortir al rànquing, així que els seus punts no es diuen aquí."
     },

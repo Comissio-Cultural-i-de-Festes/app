@@ -2,12 +2,14 @@ import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
+import { MemberLink } from '@/features/member/MemberLink'
 import { memberSubtitle } from '@/features/member/subtitle'
 import { fetchProfile, profileKeys } from '@/features/session/profile'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
-import { Avatar } from '@/ui/Avatar/Avatar'
-import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
+import { Chevron } from '@/ui/Chevron/Chevron'
+import { PersonHead, PersonHeadSkeleton } from '@/ui/PersonHead/PersonHead'
+import { ROW, RowBody } from '@/ui/Row/Row'
 
 import { AdjustPointsBlock } from './AdjustPointsBlock'
 import { AvisosBlock } from './AvisosBlock'
@@ -44,6 +46,13 @@ import { MemberLedgerBlock } from './MemberLedgerBlock'
  * marxat continua sent una cosa que s'ha de poder fer. Per això la baixa surt
  * a la línia de sota el nom i no tanca la pantalla, que és el contrari del que
  * fa `/soci/:id`: allà el perfil és públic i qui ha plegat no en té.
+ *
+ * LA CAPÇALERA ÉS LA MATEIXA QUE LES ALTRES DUES. `ui/PersonHead` pinta la
+ * cara, el nom i la línia de sota al teu perfil, al perfil públic d'un soci i
+ * aquí; el que canvia és el final de la línia —allà «soci des de 2024», aquí
+ * «De baixa»— i el rètol del càrrec, que només surt en aquesta. La cara feia
+ * 56px aquí i 72 a les altres dues, i qui obre aquesta fitxa ve gairebé sempre
+ * de veure la mateixa persona a l'altra pantalla.
  *
  * LA FILA ES DEMANA AMB `fetchProfile` I NO AMB UNA CONSULTA PRÒPIA. Aquesta
  * pantalla en tenia una —`fetchMemberProfile`, sota `['junta','soci',id]`— que
@@ -83,7 +92,7 @@ export function MemberScreen() {
 
       <div className={`pt-8 ${GUTTER}`}>
         {soci.isPending ? (
-          <HeadSkeleton />
+          <PersonHeadSkeleton />
         ) : soci.isError ? (
           <p role="alert" className="text-md font-bold text-error [text-wrap:pretty]">
             {t(errorKey(soci.error))}
@@ -97,22 +106,40 @@ export function MemberScreen() {
           </p>
         ) : (
           <>
-            <div className="flex items-center gap-6">
-              <Avatar src={dades.avatar_url} size={56} />
-              <div className="min-w-0 flex-1">
-                <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">
-                  {dades.nombre}
-                </h1>
-                {subtitle === '' ? null : (
-                  <p className="mt-2 text-sm-lo text-[var(--ds-text-muted-lo)]">{subtitle}</p>
-                )}
-              </div>
-              {dades.role === 'member' ? null : (
-                <span className="eyebrow flex-none text-brand-label">
-                  {t(`junta.role.${dades.role}`)}
-                </span>
-              )}
-            </div>
+            <PersonHead
+              src={dades.avatar_url}
+              nombre={dades.nombre}
+              subtitle={subtitle}
+              aside={
+                dades.role === 'member' ? null : (
+                  <span className="eyebrow flex-none text-brand-label">
+                    {t(`junta.role.${dades.role}`)}
+                  </span>
+                )
+              }
+            />
+
+            {/* LA PORTA CAP AL PERFIL PÚBLIC. Aquesta fitxa i `/soci/:id` parlen
+                de la mateixa persona i no s'enllaçaven en cap direcció: qui
+                acaba de restar-li vint punts a algú no tenia manera de veure què
+                en veu la resta de socis sense escriure la ruta a mà.
+                VA A DALT i no al final, al contrari que la porta de tornada: el
+                que hi ha sota d'aquesta línia són tres blocs de coses que es
+                fan a algú, i «mira primer qui és» és una fila que val la pena
+                llegir abans i no després.
+                ÉS UN `MemberLink` i no un `<Link>`: allà la fletxa de tornar ha
+                de dir d'on s'ha vingut, i qui ho sap fer és aquell component. */}
+            <MemberLink
+              userId={userId}
+              label={t('junta.soci.backLabel')}
+              className={`${ROW} mt-9 border-t border-surface-4 no-underline`}
+            >
+              <RowBody
+                title={t('junta.soci.publicProfile')}
+                sub={t('junta.soci.publicProfileSub')}
+              />
+              <Chevron />
+            </MemberLink>
 
             <MemberLedgerBlock userId={userId} />
             <AdjustPointsBlock userId={userId} nombre={dades.nombre} />
@@ -121,19 +148,5 @@ export function MemberScreen() {
         )}
       </div>
     </main>
-  )
-}
-
-function HeadSkeleton() {
-  return (
-    <Skeleton>
-      <div className="flex items-center gap-6">
-        <SkeletonBar w="w-[56px]" h="h-[56px]" className="flex-none rounded-round" />
-        <div className="min-w-0 flex-1">
-          <SkeletonBar w="w-[58%]" h="h-[26px]" />
-          <SkeletonBar w="w-[40%]" h="h-[11px]" className="mt-4" />
-        </div>
-      </div>
-    </Skeleton>
   )
 }

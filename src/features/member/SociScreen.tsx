@@ -5,11 +5,12 @@ import { useLocation, useParams } from 'react-router'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { instagramUrl } from '@/features/profile/instagram'
 import { fetchProfile, profileKeys } from '@/features/session/profile'
+import { isJunta, useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
-import { Avatar } from '@/ui/Avatar/Avatar'
-import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
+import { PersonHead, PersonHeadSkeleton } from '@/ui/PersonHead/PersonHead'
+import { NavRow } from '@/ui/Row/Row'
 
 import { MemberBadgesBlock } from './MemberBadgesBlock'
 import { MemberNightsBlock } from './MemberNightsBlock'
@@ -25,7 +26,11 @@ import { memberSubtitle } from './subtitle'
  * és la fitxa de junta d'un soci —el llibre major de punts, a
  * `/junta/socis/:id`— i dues pantalles amb el mateix nom dins de la mateixa
  * app és una trampa per a qui les cerqui i un error de compilació el dia que
- * totes dues entren a `App.tsx`. El nom d'aquesta és el de la seva ruta.
+ * totes dues entren a `App.tsx`. El nom d'aquesta és el de la seva ruta. La
+ * capçalera que comparteixen no es diu com cap de les dues, pel mateix motiu:
+ * és `ui/PersonHead`, i la pinta igual aquí, a `/perfil` i a la fitxa de la
+ * junta. El que li canvia és el final de la línia de sota el nom, que arriba
+ * fet des d'aquí.
  *
  * PER QUÈ EXISTEIX. L'app ensenya la cara i el nom d'altra gent a cinc llocs
  * —el rànquing, qui hi ha dins, els cotxes, les idees, la tira d'insígnies— i
@@ -67,6 +72,10 @@ export function SociScreen() {
   const { id } = useParams()
   const userId = id ?? ''
   const meId = useUserId()
+  // Qui mira, no qui es mira: decideix si la porta cap al registre de punts hi
+  // surt. És la mateixa clau que tota la resta de l'app, o sigui cache i cap
+  // consulta nova.
+  const { data: jo } = useMyProfile()
   // `location.state` és `any` per a TypeScript, i `readFrom` és precisament qui
   // el converteix en una cosa de la qual es pot dir alguna cosa.
   const back = readFrom(useLocation().state as unknown)
@@ -87,22 +96,13 @@ export function SociScreen() {
     return (
       <main className={SHELL}>
         {header}
-        {/* LA SILUETA DE LA CAPÇALERA, i no «Un segon…», que és el que hi havia i
-            el que feia que aquesta fos l'única pantalla nova sense esquelet. La
-            diferència no és decorativa: una frase ocupa una línia i la capçalera
-            de debò ocupa 72px d'avatar, o sigui que el nom de la persona
-            apareixia 60px més avall d'on s'havia mirat. La silueta té la mida
-            exacta del que ve, i el que ve no mou res.
+        {/* La silueta de la capçalera, i no «Un segon…», que és el que hi havia.
+            Viu al costat de la capçalera que imita —`ui/PersonHead`— perquè les
+            mides han de ser les mateixes o la pantalla torna a saltar.
             No s'hi posa la d'un bloc: cada bloc ja duu la seva —vegeu
             `MemberStreakCard`— i dibuixar-les aquí voldria dir tenir-ne dues
             versions de cadascuna. */}
-        <Skeleton className={`flex items-center gap-8 pt-6 ${GUTTER}`}>
-          <SkeletonBar w="w-[72px]" h="h-[72px]" className="flex-none rounded-full" />
-          <span className="min-w-0 flex-1">
-            <SkeletonBar w="w-[70%]" h="h-[22px]" />
-            <SkeletonBar w="w-[50%]" h="h-[13px]" className="mt-[6px]" />
-          </span>
-        </Skeleton>
+        <PersonHeadSkeleton className={`pt-6 ${GUTTER}`} />
       </main>
     )
   }
@@ -151,23 +151,16 @@ export function SociScreen() {
     <main className={SHELL}>
       {header}
 
-      <header className={`flex items-center gap-8 pt-6 ${GUTTER}`}>
-        <Avatar src={soci.avatar_url} size={72} />
-        <div className="min-w-0 flex-1">
-          <h1 className="display text-d-s tracking-[-0.045em] [text-wrap:balance]">
-            {soci.nombre}
-          </h1>
-          {subtitle === '' ? null : (
-            <p className="mt-[3px] text-md-lo font-semibold text-fg-muted">{subtitle}</p>
-          )}
-          {/* Qui obre el seu propi perfil des d'una llista hi ha d'arribar i
-              trobar-hi la porta de tornada al seu, que és on hi ha els botons.
-              Sense això, la pantalla és una còpia muda i més pobra de la seva. */}
-          {userId === meId ? (
-            <p className="mt-[6px] text-sm-lo font-bold text-brand-label">{t('member.isYou')}</p>
-          ) : null}
-        </div>
-      </header>
+      <PersonHead
+        src={soci.avatar_url}
+        nombre={soci.nombre}
+        subtitle={subtitle}
+        /* Qui obre el seu propi perfil des d'una llista hi ha d'arribar i
+           trobar-hi la porta de tornada al seu, que és on hi ha els botons.
+           Sense això, la pantalla és una còpia muda i més pobra de la seva. */
+        note={userId === meId ? t('member.isYou') : undefined}
+        className={`pt-6 ${GUTTER}`}
+      />
 
       {/* L'Instagram, que és l'altra meitat de la columna que va arribar amb la
           migració 70: es podia omplir i no el veia ningú, perquè aquest era
@@ -180,30 +173,45 @@ export function SociScreen() {
           el nom d'usuari sol —ho garanteix el CHECK de la 70— i tenir un sol
           lloc que el converteix en enllaç és el que fa que no hi hagi res a
           injectar. Al mòbil amb l'app instal·lada, aquesta adreça l'obre
-          Instagram tot sol; `instagram://` no faria res quan no hi és. */}
+          Instagram tot sol; `instagram://` no faria res quan no hi és.
+          `border-t` a part: la fila és la primera de la pantalla i sense ratlla
+          de dalt queda enganxada al nom. */}
       {soci.instagram === null || soci.instagram === '' ? null : (
-        <a
+        <NavRow
           href={instagramUrl(soci.instagram)}
-          target="_blank"
-          rel="noreferrer"
-          className={`mt-6 flex items-center gap-3 border-y border-surface-4 py-[15px] no-underline ${GUTTER}`}
-        >
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-semibold text-fg">{t('member.instagram')}</span>
-            <span className="mt-[3px] block truncate text-sm-lo text-fg-muted-lo">
-              {`@${soci.instagram}`}
-            </span>
-          </span>
-          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
-            ›
-          </span>
-        </a>
+          title={t('member.instagram')}
+          sub={`@${soci.instagram}`}
+          truncate
+          className={`mt-6 border-t border-surface-4 ${GUTTER}`}
+        />
       )}
 
       <MemberStandingBlock userId={userId} />
       <MemberStreakCard userId={userId} />
       <MemberBadgesBlock userId={userId} />
       <MemberNightsBlock userId={userId} />
+
+      {/* LA PORTA CAP A LA FITXA DE LA JUNTA, i només per a qui és de la junta.
+          Les dues pantalles parlen de la mateixa persona i fins ara no
+          s'enllaçaven en cap direcció: de la fitxa de la junta no es podia
+          arribar al que veu tothom, i d'aquí no es podia arribar al registre de
+          punts. Un admin que veu un nom al rànquing i vol corregir-li un +20
+          havia de recordar que existeix `/junta/socis`, buscar-lo en una llista
+          de quaranta i tornar a entrar.
+          VA AL FINAL i no a dalt: aquesta pantalla és el perfil públic i ha de
+          semblar-ho també per a qui té permisos. A dalt, el primer que llegiria
+          un admin de qualsevol soci seria una porta cap a treure-li punts.
+          I EL SUBTÍTOL DIU QUE ÉS PRIVADA. La fila només la veu la junta, però
+          qui la veu ha de saber que la persona del nom no la veu: és la
+          diferència entre «aquí hi ha més coses» i «aquí hi ha coses teves». */}
+      {isJunta(jo) ? (
+        <NavRow
+          to={`/junta/socis/${userId}`}
+          title={t('member.juntaSheet')}
+          sub={t('member.juntaSheetSub')}
+          className={`mt-12 border-t border-surface-4 ${GUTTER}`}
+        />
+      ) : null}
 
       {/* Només al teu. «Això és el que qualsevol soci veu de tu» sota el perfil
           d'una altra persona és una frase que parla de tu en una pantalla que

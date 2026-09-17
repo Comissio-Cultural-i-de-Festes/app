@@ -46,9 +46,17 @@ const VARIANTS: Record<ButtonVariant, string> = {
   // brand-cta, not brand: the identity red fails AA behind a label. See tokens.css.
   primary: 'bg-brand-cta text-on-brand hover:bg-[var(--ds-brand-hover)]',
   secondary: 'bg-surface-2 text-fg shadow-[inset_0_0_0_1px_var(--ds-border-strong)]',
-  ghost: 'bg-transparent text-fg-secondary',
+  ghost: 'bg-transparent text-fg-muted',
   // Amber, not red. Red is the association, not danger.
-  destructive: 'bg-transparent text-warning',
+  //
+  // El contorn hi ha arribat tard. `destructive` no l'havia fet servir ningú:
+  // les cinc confirmacions del repositori s'havien escrit a mà i les cinc
+  // s'havien dibuixat el mateix contorn ambre, perquè sense ell el botó que fa
+  // la cosa i el de fugir són dos textos de color l'un al costat de l'altre i
+  // no es distingeix quin és quin. `inset ring` i no `border`, com el
+  // secundari: una vora de debò se sumaria a `min-height` i aquest botó ha de
+  // fer la mateixa alçada que el seu company.
+  destructive: 'bg-transparent text-warning shadow-[inset_0_0_0_1.5px_var(--ds-warning)]',
 }
 
 export function Button({ variant = 'primary', size = 'md', className, ...rest }: ButtonProps) {

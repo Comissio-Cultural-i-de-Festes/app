@@ -196,7 +196,7 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
       </Field>
 
       {lectura === 'punts' ? (
-        <p id={errPunts} className="-mt-6 pb-9 text-sm font-bold text-warning">
+        <p id={errPunts} aria-live="polite" className="-mt-6 pb-9 text-sm font-bold text-warning">
           {t('junta.soci.avis.puntsBad', { max: MAX_RESTA })}
         </p>
       ) : null}
@@ -220,7 +220,7 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
       </Field>
 
       {lectura === 'nota' ? (
-        <p id={errNota} className="-mt-6 pb-9 text-sm font-bold text-warning">
+        <p id={errNota} aria-live="polite" className="-mt-6 pb-9 text-sm font-bold text-warning">
           {t('junta.soci.avis.noteBad')}
         </p>
       ) : null}

@@ -46,7 +46,9 @@ import { adjustPoints, fetchAjustEvents, memberPointsKeys } from './memberPoints
  * el número no val, i se'n tornava a anar en escriure el caràcter següent. Ara
  * pengen del camp per `aria-describedby`, que és el que `aria-invalid` estava
  * anunciant sense tenir —«no vàlid» i cap manera de saber per què—. Es
- * llegeixen en arribar al camp i en sortir-ne, que és quan serveixen.
+ * llegeixen en arribar al camp i en sortir-ne, que és quan serveixen, i
+ * `aria-live="polite"` les deixa dir-se soles sense tallar ningú: la diferència
+ * amb `alert` no és si s'anuncien, és si esperen torn.
  *
  * L'ERROR DE DESAR SÍ QUE ÉS UN `alert`: aquell no el produeix teclejar, el
  * produeix apretar, i és la resposta a una acció que la persona ja ha acabat.
@@ -142,7 +144,7 @@ export function AdjustPointsBlock({
       </Field>
 
       {lectura === 'punts' ? (
-        <p id={errPunts} className="-mt-6 pb-9 text-sm font-bold text-warning">
+        <p id={errPunts} aria-live="polite" className="-mt-6 pb-9 text-sm font-bold text-warning">
           {t('junta.soci.adjust.pointsBad', { max: MAX_AJUST })}
         </p>
       ) : null}
@@ -165,7 +167,7 @@ export function AdjustPointsBlock({
       </Field>
 
       {lectura === 'nota' ? (
-        <p id={errNota} className="-mt-6 pb-9 text-sm font-bold text-warning">
+        <p id={errNota} aria-live="polite" className="-mt-6 pb-9 text-sm font-bold text-warning">
           {t('junta.soci.adjust.noteBad')}
         </p>
       ) : null}

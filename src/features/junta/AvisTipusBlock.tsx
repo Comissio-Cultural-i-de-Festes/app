@@ -249,29 +249,37 @@ export function AvisTipusBlock() {
                     />
                   </div>
                 ) : (
-                  <Button
-                    className="min-w-[90px] flex-none"
-                    disabled={!valid || busy}
-                    onClick={() => {
-                      if (!tipusValid(lectura)) return
-                      save.mutate({
-                        clau: row.clau,
-                        gravetat: lectura.gravetat,
-                        punts_suggerits: lectura.punts_suggerits,
-                        ordre: row.ordre,
-                        etiqueta: row.etiqueta,
-                        actiu,
-                      })
-                    }}
-                  >
-                    {busy ? '…' : t('actions.save')}
-                  </Button>
+                  // Dins d'una ranura, com el barem del costat: `<Button>` porta
+                  // `w-full` i com a fill directe de la fila s'enduia l'amplada
+                  // sencera.
+                  <div className="min-w-[90px] flex-none">
+                    <Button
+                      disabled={!valid || busy}
+                      onClick={() => {
+                        if (!tipusValid(lectura)) return
+                        save.mutate({
+                          clau: row.clau,
+                          gravetat: lectura.gravetat,
+                          punts_suggerits: lectura.punts_suggerits,
+                          ordre: row.ordre,
+                          etiqueta: row.etiqueta,
+                          actiu,
+                        })
+                      }}
+                    >
+                      {busy ? '…' : t('actions.save')}
+                    </Button>
+                  </div>
                 )}
               </div>
 
               {/* Per què no es pot desar, i no només un botó apagat. */}
               {typeof lectura === 'string' ? (
-                <p id={`${errFila}-${row.clau}`} className="mt-4 text-sm font-bold text-warning">
+                <p
+                  id={`${errFila}-${row.clau}`}
+                  aria-live="polite"
+                  className="mt-4 text-sm font-bold text-warning"
+                >
                   {lectura === 'gravetat'
                     ? t('junta.config.avisos.gravetatBad', {
                         min: GRAVETAT_MIN,
@@ -314,7 +322,7 @@ export function AvisTipusBlock() {
               regla era a la CHECK de la base i al text d'ajuda, i qui escrivia
               «Se'n va aviat» es quedava amb un botó mort i cap explicació. */}
           {malaClau === null ? null : (
-            <p id={errClau} className="mt-4 text-sm font-bold text-warning">
+            <p id={errClau} aria-live="polite" className="mt-4 text-sm font-bold text-warning">
               {malaClau === 'forma'
                 ? t('junta.config.avisos.clauBad')
                 : t('junta.config.avisos.clauTaken')}
@@ -377,7 +385,7 @@ export function AvisTipusBlock() {
               tenen la mateixa frase que la fila de dalt i cap dels dos la deia:
               amb una gravetat de 7, el botó s'apagava i prou. */}
           {typeof lecturaNova === 'string' ? (
-            <p id={errNou} className="mt-4 text-sm font-bold text-warning">
+            <p id={errNou} aria-live="polite" className="mt-4 text-sm font-bold text-warning">
               {lecturaNova === 'gravetat'
                 ? t('junta.config.avisos.gravetatBad', { min: GRAVETAT_MIN, max: GRAVETAT_MAX })
                 : t('junta.config.avisos.puntsBad', { max: MAX_RESTA })}

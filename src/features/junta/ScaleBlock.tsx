@@ -213,15 +213,21 @@ function Group({
                   <DoneLine size="sm" message={saved === id ? t('junta.config.saved') : null} />
                 </div>
               ) : (
-                <Button
-                  className="min-w-[76px] flex-none"
-                  disabled={!valid || busy}
-                  onClick={() => {
-                    onSave({ ...row, punts: parsed })
-                  }}
-                >
-                  {busy ? '…' : t('actions.save')}
-                </Button>
+                // EL BOTÓ DINS D'UNA RANURA I NO SOLT. `<Button>` porta
+                // `w-full` —és el que fa que un CTA ocupi la pantalla— i com a
+                // fill directe d'aquesta fila aquell 100% s'emportava l'amplada
+                // sencera i empenyia el nom i la caixeta fora. La ranura es mida
+                // pel contingut, i el 100% del botó és el 100% d'ella.
+                <div className="min-w-[76px] flex-none">
+                  <Button
+                    disabled={!valid || busy}
+                    onClick={() => {
+                      onSave({ ...row, punts: parsed })
+                    }}
+                  >
+                    {busy ? '…' : t('actions.save')}
+                  </Button>
+                </div>
               )}
             </li>
           )

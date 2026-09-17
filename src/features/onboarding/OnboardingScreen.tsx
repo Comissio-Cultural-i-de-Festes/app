@@ -413,6 +413,22 @@ export function OnboardingScreen() {
       </section>
 
       <section className={`mt-[26px] pb-4 ${GUTTER}`}>
+        {/* L'ÚNIC CTA DE L'APP QUE NO ÉS EL `<Button>` DE LA CASA, i queda
+            escrit aquí perquè la propera persona no ho prengui per un descuit.
+            Tots els altres hi han passat: cantell quadrat, `min-height` i el
+            text que creix. Aquest no hi encaixa per una cosa concreta —el seu
+            estat DESACTIVAT diu alguna cosa—. `<Button>` apaga un botó al 45%
+            d'opacitat, que és el gest de «ara no toca»; aquí, apagat vol dir
+            «et falta l'escola» o «revisa el telèfon», amb tres etiquetes i una
+            cara pròpia —contorn en comptes de ple— perquè és l'única pantalla
+            que no es pot saltar i quedar-s'hi encallat és el pitjor que pot
+            passar-hi.
+            DESCARTAT: una quarta variant al `<Button>`. Seria una variant per a
+            un sol lloc, i portaria a sobre una mida que tampoc és cap de les
+            tres —60px, entre `md` i `lg`— i un `text-2xl` que cap altra CTA no
+            fa servir. Tres excepcions dins del component per no tenir-ne una a
+            fora. El que sí que comparteix és el que importa: `min-height` i no
+            `height`, cantell zero i `[text-wrap:balance]`. */}
         <button
           type="button"
           disabled={!ready || save.isPending}

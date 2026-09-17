@@ -11,6 +11,7 @@ import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { Button } from '@/ui/Button/Button'
+import { DoneLine } from '@/ui/Notice/DoneLine'
 import { ROW } from '@/ui/Row/Row'
 import { TextField } from '@/ui/Field/Field'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
@@ -238,8 +239,9 @@ export function EditProfileScreen() {
         >
           {rename.isPending ? t('state.saving') : t('actions.save')}
         </Button>
-        {/* Una línia i no una caixa, com les quatre confirmacions de la junta.
-            `role="status"` perquè apareix mentre algú mira la pantalla. */}
+        {/* Una línia i no una caixa, com les quatre confirmacions de la junta;
+            i la línia la pinta `DoneLine`, que és qui sap que ha de ser una
+            regió viva. Escrita a mà aquí, era la cinquena còpia. */}
         {rename.isError ? (
           <p
             role="alert"
@@ -248,9 +250,7 @@ export function EditProfileScreen() {
             {t(errorKey(rename.error))}
           </p>
         ) : saved ? (
-          <p role="status" className="mt-5 text-center text-md font-bold text-success">
-            {t('profile.name.saved')}
-          </p>
+          <DoneLine className="mt-5 text-center" message={t('profile.name.saved')} />
         ) : (
           <p className="mt-5 text-center text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
             {t('profile.name.everywhere')}

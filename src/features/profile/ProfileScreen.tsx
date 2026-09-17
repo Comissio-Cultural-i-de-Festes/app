@@ -19,7 +19,7 @@ import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { HERE, IDEAS, PROVES, SCANS, clearAllQueues, count } from '@/lib/queue'
 import { Confirm } from '@/ui/Confirm/Confirm'
-import { PERSON_AVATAR, PersonHead } from '@/ui/PersonHead/PersonHead'
+import { PERSON_AVATAR, PersonHead, PersonHeadSkeleton } from '@/ui/PersonHead/PersonHead'
 import { NavRow, ROW } from '@/ui/Row/Row'
 import { SafeTop } from '@/ui/SafeTop/SafeTop'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
@@ -57,7 +57,7 @@ export function ProfileScreen() {
   const locale = toLocale(i18n.resolvedLanguage)
   const userId = useUserId()
   const client = useQueryClient()
-  const { data: profile } = useMyProfile()
+  const { data: profile, isPending: profilePending } = useMyProfile()
 
   const periods = usePeriods()
   const bounds = periodBounds(defaultPeriod(periods.data))
@@ -146,35 +146,44 @@ export function ProfileScreen() {
     <main className="with-tabbar min-h-dvh bg-app">
       <SafeTop />
       {/* El títol més gran de l'app i el que està més amunt de tot: sis
-          píxels no eren coixí, eren una coincidència. */}
-      <PersonHead
-        nombre={profile?.nombre ?? ''}
-        subtitle={subtitle}
-        note={isJunta(profile) ? t('profile.youAreJunta') : undefined}
-        className={`pt-6 ${GUTTER}`}
-        avatar={
-          /* La insígnia de càmera a sobre de la foto, que és on la gent la
+          píxels no eren coixí, eren una coincidència.
+          I MENTRE LA FILA NO ARRIBA, LA SEVA SILUETA. Amb `?? ''` la capçalera
+          es dibuixava amb el nom buit i la línia de sota absent, o sigui 72px
+          de cara amb un forat al costat, i el nom hi queia després. És la
+          mateixa silueta que `/soci/:id` i la fitxa de la junta, que és el que
+          fa que els tres perfils es carreguin igual. */}
+      {profilePending ? (
+        <PersonHeadSkeleton className={`pt-6 ${GUTTER}`} />
+      ) : (
+        <PersonHead
+          nombre={profile?.nombre ?? ''}
+          subtitle={subtitle}
+          note={isJunta(profile) ? t('profile.youAreJunta') : undefined}
+          className={`pt-6 ${GUTTER}`}
+          avatar={
+            /* La insígnia de càmera a sobre de la foto, que és on la gent la
              busca —i la fila d'Ajustos a sota, que és on es busca el nom. Dues
              entrades a la mateixa pantalla i no una tria: qui ve a canviar-se la
              cara no pensa «ajustos», i qui ve a corregir-se el nom no pensa
              «toca la foto». És l'únic dels tres perfils on la cara porta enlloc,
              i per això la capçalera compartida rep la ranura sencera en comptes
              d'un booleà: així la mida és la mateixa i la porta és només d'aquí. */
-          <Link
-            to="/perfil/editar"
-            aria-label={t('profile.photo.badge')}
-            className="relative block flex-none no-underline"
-          >
-            <Avatar src={profile?.avatar_url ?? null} size={PERSON_AVATAR} />
-            <span
-              aria-hidden="true"
-              className="absolute -right-[2px] -bottom-[2px] grid size-[26px] place-items-center rounded-full border-2 border-app bg-brand-cta text-on-brand"
+            <Link
+              to="/perfil/editar"
+              aria-label={t('profile.photo.badge')}
+              className="relative block flex-none no-underline"
             >
-              <CameraIcon size={13} />
-            </span>
-          </Link>
-        }
-      />
+              <Avatar src={profile?.avatar_url ?? null} size={PERSON_AVATAR} />
+              <span
+                aria-hidden="true"
+                className="absolute -right-[2px] -bottom-[2px] grid size-[26px] place-items-center rounded-full border-2 border-app bg-brand-cta text-on-brand"
+              >
+                <CameraIcon size={13} />
+              </span>
+            </Link>
+          }
+        />
+      )}
 
       {/* Three numbers, equal weight, hairlines between. Anything with a
           bigger figure next to it stops being read. */}

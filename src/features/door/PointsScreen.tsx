@@ -9,6 +9,7 @@ import { Avatar } from '@/ui/Avatar/Avatar'
 
 import { errorKey } from '@/lib/errors'
 import { Button } from '@/ui/Button/Button'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { awardPoints, doorKeys, fetchRoster } from './api'
 import { doorMotives } from './motives'
@@ -100,7 +101,7 @@ export function PointsScreen() {
       </div>
 
       {roster.isPending ? (
-        <p className="px-[var(--ds-gutter)] pt-10 text-fg-muted">{t('state.loading')}</p>
+        <RosterSkeleton />
       ) : roster.isError ? (
         <p
           role="alert"
@@ -184,7 +185,17 @@ export function PointsScreen() {
           // Sense escala no hi ha botons, i no tres botons apagats amb un punt
           // a dins: un botó que no es pot prémer i un botó que no hi és diuen
           // la mateixa cosa, i el primer convida a prémer-lo.
-          <p className="mt-6 text-sm text-fg-muted">{values.isError ? '' : t('state.loading')}</p>
+          //
+          // MENTRE ARRIBA, LA SEVA SILUETA. Aquí hi havia «Un segon…», i la
+          // frase ocupa una línia mentre la graella n'ocupa dues de 56px: la
+          // barra de baix creixia de cop just quan la mà ja hi era a sobre. I
+          // quan la consulta fallava —o quan el barem no té cap motiu— la frase
+          // es quedava per sempre dient que encara arribava alguna cosa; ara la
+          // silueta només surt mentre de debò s'espera, i l'error el diu
+          // l'avís de sota.
+          values.isPending ? (
+            <MotivesSkeleton />
+          ) : null
         ) : (
           <div className="mt-6 grid grid-cols-2 gap-[9px]">
             {motives.map(({ clau, punts, strong, wide }) => (
@@ -221,5 +232,41 @@ export function PointsScreen() {
         ) : null}
       </div>
     </main>
+  )
+}
+
+/**
+ * Cinc files amb la forma de les de debò: el rodó de marcar, la cara, el nom i
+ * l'escola. Les classes són les de la fila de dalt, copiades — una silueta que
+ * s'assembla de lluny torna a moure-ho tot quan arriben les dades.
+ */
+function RosterSkeleton() {
+  return (
+    <Skeleton>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          className="flex min-h-[56px] items-center gap-4 border-b border-surface-4 px-[var(--ds-gutter)] py-5"
+        >
+          <SkeletonBar w="w-[26px]" h="h-[26px]" className="flex-none rounded-full" />
+          <SkeletonBar w="w-[34px]" h="h-[34px]" className="flex-none rounded-round" />
+          <div className="min-w-0 flex-1">
+            <SkeletonBar w="w-[52%]" h="h-[15px]" />
+            <SkeletonBar w="w-[30%]" h="h-[10px]" className="mt-[2px]" />
+          </div>
+        </div>
+      ))}
+    </Skeleton>
+  )
+}
+
+/** Els quatre botons del barem, amb la seva alçada i la seva graella. */
+function MotivesSkeleton() {
+  return (
+    <Skeleton className="mt-6 grid grid-cols-2 gap-[9px]">
+      {[0, 1, 2, 3].map((i) => (
+        <SkeletonBar key={i} w="w-full" h="h-[56px]" />
+      ))}
+    </Skeleton>
   )
 }

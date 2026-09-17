@@ -59,6 +59,7 @@ export function CheckinsScreen() {
         to={`/junta/esdeveniment/${eventId}`}
         label={event.data?.titulo ?? t('actions.back')}
         title={t('junta.checkins.title')}
+        className="lg:hidden"
       />
 
       <p className={`pt-7 text-sm text-fg-secondary [text-wrap:pretty] ${GUTTER}`}>

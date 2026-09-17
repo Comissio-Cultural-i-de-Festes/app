@@ -109,7 +109,12 @@ export function JuntaHome() {
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+24px)]">
-      <JuntaHeader to="/perfil" label={t('nav.profile')} title={t('junta.title')} />
+      <JuntaHeader
+        to="/perfil"
+        label={t('nav.profile')}
+        title={t('junta.title')}
+        className="lg:hidden"
+      />
 
       {home.isPending ? (
         <DoorLoading />

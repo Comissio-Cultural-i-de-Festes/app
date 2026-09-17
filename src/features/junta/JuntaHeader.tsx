@@ -28,7 +28,15 @@ export function JuntaHeader({
   readonly label: string
   readonly title?: string
   readonly aside?: ReactNode
-  /** `lg:hidden` on the screens that grow a top bar instead. */
+  /**
+   * `lg:hidden` on the screens that grow a top bar instead.
+   *
+   * QUE ES A DIR: TOTES LES DE `/junta`. `JuntaLayout` munta `JuntaNav` a
+   * partir de `lg`, o sigui que sense aquesta classe una pantalla de la junta
+   * ensenya la barra de dalt i, a sota, una fletxa de tornar cap al mateix lloc
+   * on aquella barra ja porta. Set de les vint-i-una no la passaven i era prou
+   * visible: dues navegacions, una sobre l'altra, a mig ample de portatil.
+   */
   readonly className?: string
 }) {
   return (

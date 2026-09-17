@@ -55,7 +55,12 @@ export function IdeasReviewScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
-      <JuntaHeader to="/junta" label={t('junta.back')} title={t('ideas.juntaTitle')} />
+      <JuntaHeader
+        to="/junta"
+        label={t('junta.back')}
+        title={t('ideas.juntaTitle')}
+        className="lg:hidden"
+      />
 
       <div className={`pt-8 ${GUTTER}`}>
         <p className="text-md text-fg-secondary [text-wrap:pretty]">{t('ideas.juntaLede')}</p>

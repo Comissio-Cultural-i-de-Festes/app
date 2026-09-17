@@ -87,6 +87,7 @@ export function GimcanaValidateScreen() {
             </span>
           ) : null
         }
+        className="lg:hidden"
       />
 
       <div className={`pt-7 ${GUTTER}`}>

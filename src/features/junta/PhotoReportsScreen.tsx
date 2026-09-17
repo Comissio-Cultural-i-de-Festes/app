@@ -47,7 +47,7 @@ export function PhotoReportsScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-10">
-      <JuntaHeader to="/junta" label={t('junta.back')} />
+      <JuntaHeader to="/junta" label={t('junta.back')} className="lg:hidden" />
 
       <div className={`pt-2 ${GUTTER}`}>
         <div className="flex items-baseline justify-between gap-5">

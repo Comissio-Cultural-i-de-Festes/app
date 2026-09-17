@@ -205,7 +205,7 @@ export function OnboardingScreen() {
                   <span
                     className={
                       'mt-[5px] block text-sm-lo font-semibold ' +
-                      (on ? 'text-on-brand' : 'text-[var(--ds-text-muted-lo)]')
+                      (on ? 'text-on-brand' : 'text-fg-muted-lo')
                     }
                   >
                     {row
@@ -357,7 +357,7 @@ export function OnboardingScreen() {
             }
           />
         </div>
-        <p className="mt-4 text-sm-lo font-medium text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        <p className="mt-4 text-sm-lo font-medium text-fg-muted-lo [text-wrap:pretty]">
           {phoneOk ? t('onboarding.phone.why') : t('onboarding.phone.invalid')}
         </p>
       </section>
@@ -407,7 +407,7 @@ export function OnboardingScreen() {
             }
           />
         </div>
-        <p className="mt-4 text-sm-lo font-medium text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        <p className="mt-4 text-sm-lo font-medium text-fg-muted-lo [text-wrap:pretty]">
           {igOk ? t('onboarding.instagram.why') : t('onboarding.instagram.invalid')}
         </p>
       </section>

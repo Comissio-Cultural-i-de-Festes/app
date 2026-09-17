@@ -69,12 +69,12 @@ export function IdeasReviewScreen() {
             inventat es llegeix com un número, i el rebedor de la junta ja
             s'estalvia el seu pel mateix motiu. */}
         {list.isPending ? null : (
-          <p className="mt-3 text-sm text-[var(--ds-text-muted-lo)]">
+          <p className="mt-3 text-sm text-fg-muted-lo">
             {t('ideas.juntaOpen', { count: rows.length })}
           </p>
         )}
         {note === null ? null : (
-          <p role="status" className="pt-6 text-md font-bold text-[var(--ds-warning)]">
+          <p role="status" className="pt-6 text-md font-bold text-warning">
             {note}
           </p>
         )}
@@ -158,7 +158,7 @@ function Row({ proposal }: { readonly proposal: Proposal }) {
         <span className="block text-base font-bold [text-wrap:pretty]">{proposal.titol}</span>
         <span className="mt-2 flex items-center gap-3">
           <Avatar src={proposal.autor?.avatar_url ?? null} size={20} />
-          <span className="min-w-0 truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
+          <span className="min-w-0 truncate text-sm-lo text-fg-muted-lo">
             {proposal.autor?.nombre ?? ''}
           </span>
         </span>
@@ -215,9 +215,7 @@ function Panel({
             {t('ideas.pickEvent')}
           </label>
           {events.length === 0 ? (
-            <p className="mt-4 text-md text-[var(--ds-warning)] [text-wrap:pretty]">
-              {t('ideas.noEvents')}
-            </p>
+            <p className="mt-4 text-md text-warning [text-wrap:pretty]">{t('ideas.noEvents')}</p>
           ) : (
             <select
               id="idea-event"
@@ -255,7 +253,7 @@ function Panel({
           down should know the sentence they are writing is the whole of what
           the other person gets. */}
       {accepta ? null : (
-        <p className="mt-4 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        <p className="mt-4 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
           {t('ideas.whyNotNote')}
         </p>
       )}
@@ -267,9 +265,7 @@ function Panel({
           onClick={onSend}
           className={
             'min-h-[46px] flex-1 px-5 text-md font-bold [text-wrap:balance] disabled:opacity-50 ' +
-            (accepta
-              ? 'bg-brand-cta text-on-brand'
-              : 'border-[1.5px] border-[var(--ds-warning)] text-[var(--ds-warning)]')
+            (accepta ? 'bg-brand-cta text-on-brand' : 'border-[1.5px] border-warning text-warning')
           }
         >
           {busy ? t('state.updating') : accepta ? t('ideas.accept') : t('ideas.discard')}

@@ -52,7 +52,7 @@ export function PhotoReportsScreen() {
       <div className={`pt-2 ${GUTTER}`}>
         <div className="flex items-baseline justify-between gap-5">
           <h1 className="display text-d-s tracking-[-0.045em]">{t('junta.photos.title')}</h1>
-          <span className="tabular text-sm-lo font-bold text-[var(--ds-warning)]">
+          <span className="tabular text-sm-lo font-bold text-warning">
             {rows.length > 0 ? String(rows.length) : ''}
           </span>
         </div>
@@ -88,7 +88,7 @@ export function PhotoReportsScreen() {
                       {t('junta.photos.by', { event: r.titol, name: r.pujada_per })}
                     </p>
                     {r.quantes > 1 ? (
-                      <p className="tabular mt-[3px] text-sm-lo font-bold text-[var(--ds-warning)]">
+                      <p className="tabular mt-[3px] text-sm-lo font-bold text-warning">
                         {t('junta.photos.times', { count: r.quantes })}
                       </p>
                     ) : null}
@@ -102,7 +102,7 @@ export function PhotoReportsScreen() {
                     onClick={() => {
                       decide.mutate({ id: r.photo_id, hide: true })
                     }}
-                    className="flex min-h-[46px] items-center justify-center border-[1.5px] border-[var(--ds-warning)] px-6 py-4 text-md font-bold text-warning [text-wrap:balance] disabled:opacity-60"
+                    className="flex min-h-[46px] items-center justify-center border-[1.5px] border-warning px-6 py-4 text-md font-bold text-warning [text-wrap:balance] disabled:opacity-60"
                   >
                     {t('junta.photos.hide')}
                   </button>

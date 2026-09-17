@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 
 import { formatDateLong } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { EventType } from '@/lib/model'
+import { NavRow, ROW } from '@/ui/Row/Row'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { fetchMemberNights, sociKeys } from './api'
@@ -58,7 +58,7 @@ export function MemberNightsBlock({ userId }: { readonly userId: string }) {
         // files és el que hi cap a la primera pantalla d'un mòbil.
         <Skeleton className="mt-2">
           {[0, 1, 2].map((i) => (
-            <span key={i} className="block border-b border-surface-4 py-[15px]">
+            <span key={i} className={`${ROW} block`}>
               <SkeletonBar w="w-[65%]" h="h-[13px]" />
               <SkeletonBar w="w-[40%]" h="h-[11px]" className="mt-[6px]" />
             </span>
@@ -74,25 +74,14 @@ export function MemberNightsBlock({ userId }: { readonly userId: string }) {
         <ul className="mt-2">
           {rows.map((night) => (
             <li key={night.event_id}>
-              <Link
+              {/* Sense títol vol dir que la revelació encara el tapa, cosa que a
+                  una activitat passada no passa —però una fila muda és pitjor
+                  que la mena de cosa que era. */}
+              <NavRow
                 to={`/esdeveniment/${night.event_id}`}
-                className="flex items-center gap-3 border-b border-surface-4 py-[15px] no-underline"
-              >
-                <span className="min-w-0 flex-1">
-                  {/* Sense títol vol dir que la revelació encara el tapa, cosa
-                      que a una activitat passada no passa —però una fila muda
-                      és pitjor que la mena de cosa que era. */}
-                  <span className="block text-base font-semibold text-fg [text-wrap:pretty]">
-                    {night.titol ?? t(`eventType.${night.tipo satisfies EventType}`)}
-                  </span>
-                  <span className="mt-[3px] block text-sm-lo text-fg-muted-lo">
-                    {formatDateLong(new Date(night.starts_at), locale)}
-                  </span>
-                </span>
-                <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
-                  ›
-                </span>
-              </Link>
+                title={night.titol ?? t(`eventType.${night.tipo satisfies EventType}`)}
+                sub={formatDateLong(new Date(night.starts_at), locale)}
+              />
             </li>
           ))}
         </ul>

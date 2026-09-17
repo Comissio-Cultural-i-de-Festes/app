@@ -11,6 +11,7 @@ import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { Button } from '@/ui/Button/Button'
+import { ROW } from '@/ui/Row/Row'
 import { TextField } from '@/ui/Field/Field'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
@@ -212,7 +213,7 @@ export function EditProfileScreen() {
           */}
       <section className={`pt-14 ${GUTTER}`}>
         <h2 className="eyebrow text-fg-muted">{t('profile.locked.title')}</h2>
-        <div className="flex items-center gap-3 border-b border-surface-4 py-[15px]">
+        <div className={ROW}>
           <span className="min-w-0 flex-1">
             <span className="block text-base font-semibold text-fg-muted">
               {t('profile.locked.school')}

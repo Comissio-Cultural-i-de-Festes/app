@@ -47,9 +47,7 @@ export function LedgerRow({ row }: { readonly row: PointRow }) {
             revelat: la política deixa la fila fora i el nom arriba null. */}
         <p className="text-base [text-wrap:pretty]">{titol ?? t(`motive.${row.motivo}`)}</p>
         {titol === null ? null : (
-          <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)]">
-            {t(`motive.${row.motivo}`)}
-          </p>
+          <p className="mt-[3px] text-sm-lo text-fg-muted-lo">{t(`motive.${row.motivo}`)}</p>
         )}
         {row.nota === null || row.nota === '' ? null : (
           <p className="mt-[5px] text-sm text-fg-secondary [text-wrap:pretty]">{row.nota}</p>

@@ -82,7 +82,7 @@ export function GimcanaValidateScreen() {
         title={t('junta.gimcana.validateTitle')}
         aside={
           rows.length > 0 ? (
-            <span className="tabular text-sm-lo font-bold text-[var(--ds-warning)]">
+            <span className="tabular text-sm-lo font-bold text-warning">
               {t('junta.gimcana.inQueue', { count: rows[0]?.a_la_cua ?? rows.length })}
             </span>
           ) : null

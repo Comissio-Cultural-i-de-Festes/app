@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { profileScreenKeys } from '@/features/profile/api'
+import { LEDGER_ROW } from '@/features/profile/ledger'
 import { formatDayMonth } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
@@ -42,8 +43,6 @@ import { INPUT } from './formBits'
  * perquè un 22023 es tradueix a «alguna cosa ha anat malament» i no a «falta
  * dir per què».
  */
-
-const ROW = 'flex items-start gap-4 border-b border-surface-4 py-[15px]'
 
 export function AvisosBlock({
   userId,
@@ -119,7 +118,7 @@ export function AvisosBlock({
       ) : (
         <ul className="mt-2">
           {rows.map((row) => (
-            <li key={row.id} className={ROW}>
+            <li key={row.id} className={LEDGER_ROW}>
               <p className="w-[52px] flex-none pt-[2px] text-sm-lo font-semibold text-fg-dim">
                 {formatDayMonth(new Date(row.created_at), locale)}
               </p>
@@ -260,7 +259,7 @@ function AvisosSkeleton() {
   return (
     <Skeleton className="mt-2">
       {[0, 1].map((i) => (
-        <div key={i} className={ROW}>
+        <div key={i} className={LEDGER_ROW}>
           <SkeletonBar w="w-[42px]" h="h-[11px]" className="mt-[2px] flex-none" />
           <div className="min-w-0 flex-1">
             <SkeletonBar w="w-[46%]" h="h-[14px]" />

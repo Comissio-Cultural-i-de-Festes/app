@@ -148,7 +148,7 @@ export function JuntaHome() {
           <button
             type="button"
             onClick={() => void home.refetch()}
-            className="min-h-[44px] flex-none border-[1.5px] border-[var(--ds-warning)] px-4 text-sm font-bold text-[var(--ds-warning)]"
+            className="min-h-[44px] flex-none border-[1.5px] border-warning px-4 text-sm font-bold text-warning"
           >
             {t('actions.retry')}
           </button>
@@ -276,7 +276,7 @@ export function JuntaHome() {
         <CalendarSkeleton />
       ) : events.isError ? (
         <div className={`pt-6 ${GUTTER}`}>
-          <p role="alert" className="text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]">
+          <p role="alert" className="text-md font-bold text-warning [text-wrap:pretty]">
             {t('junta.home.soonFailed')}
           </p>
           <p className="mt-2 text-sm text-fg-muted [text-wrap:pretty]">
@@ -285,7 +285,7 @@ export function JuntaHome() {
           <button
             type="button"
             onClick={() => void events.refetch()}
-            className="mt-5 min-h-[46px] border-[1.5px] border-[var(--ds-warning)] px-5 text-md font-bold text-[var(--ds-warning)]"
+            className="mt-5 min-h-[46px] border-[1.5px] border-warning px-5 text-md font-bold text-warning"
           >
             {t('actions.retry')}
           </button>
@@ -305,7 +305,7 @@ export function JuntaHome() {
           {events.data.map((e) => (
             <Link key={e.id} to={`/junta/esdeveniment/${e.id}`} className={ROW}>
               <span className="w-[42px] flex-none text-center">
-                <span className="eyebrow block text-[var(--ds-text-muted-lo)]">
+                <span className="eyebrow block text-fg-muted-lo">
                   {formatMonthShort(new Date(e.starts_at), locale).replace('.', '')}
                 </span>
                 <span className="display mt-[1px] block text-d-sm leading-none tracking-[-0.05em] text-fg">
@@ -315,7 +315,7 @@ export function JuntaHome() {
               <span className="min-w-0 flex-1 text-base font-bold text-fg [text-wrap:pretty]">
                 {eventTitle(e.titulo)}
                 {e.published ? null : (
-                  <span className="font-semibold text-[var(--ds-text-muted-lo)]">
+                  <span className="font-semibold text-fg-muted-lo">
                     {' · '}
                     {t('junta.draft')}
                   </span>
@@ -353,7 +353,7 @@ export function JuntaHome() {
         <Row to="/junta/registre" title={t('junta.audit.title')} sub={t('junta.audit.rowSub')} />
       </div>
 
-      <p className={`pt-12 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}>
+      <p className={`pt-12 text-sm text-fg-muted-lo [text-wrap:pretty] ${GUTTER}`}>
         {profile?.role === 'owner' ? t('junta.youAreOwner') : t('junta.youAreAdmin')}
       </p>
     </main>
@@ -474,7 +474,7 @@ function Door({ porta, locale }: { readonly porta: DoorNow; readonly locale: Loc
         </Link>
       )}
 
-      <p className="mt-5 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+      <p className="mt-5 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
         {t('junta.home.doorHint')}
       </p>
     </section>
@@ -485,7 +485,7 @@ function Stat({ n, label }: { readonly n: number | null; readonly label: string 
   return (
     <div className="bg-[var(--ds-bg-door-panel)] px-6 py-6">
       <p className="display tabular text-d-s leading-[0.9] tracking-[-0.05em]">{n ?? '—'}</p>
-      <p className="eyebrow mt-3 text-[var(--ds-text-muted-lo)]">{label}</p>
+      <p className="eyebrow mt-3 text-fg-muted-lo">{label}</p>
     </div>
   )
 }
@@ -519,7 +519,7 @@ function DoorFailed({ onRetry }: { readonly onRetry: () => void }) {
   const { t } = useTranslation()
   return (
     <section className="border-b border-surface-5 bg-surface-1 px-[var(--ds-gutter)] py-9">
-      <p role="alert" className="text-lg font-bold text-[var(--ds-warning)] [text-wrap:balance]">
+      <p role="alert" className="text-lg font-bold text-warning [text-wrap:balance]">
         {t('junta.home.doorFailed')}
       </p>
       <p className="mt-4 text-base text-fg-secondary [text-wrap:pretty]">
@@ -529,7 +529,7 @@ function DoorFailed({ onRetry }: { readonly onRetry: () => void }) {
         <button
           type="button"
           onClick={onRetry}
-          className="min-h-[50px] flex-1 border-[1.5px] border-[var(--ds-warning)] px-6 text-md font-bold text-[var(--ds-warning)]"
+          className="min-h-[50px] flex-1 border-[1.5px] border-warning px-6 text-md font-bold text-warning"
         >
           {t('actions.retry')}
         </button>
@@ -540,7 +540,7 @@ function DoorFailed({ onRetry }: { readonly onRetry: () => void }) {
           {t('junta.home.openScanner')}
         </Link>
       </div>
-      <p className="mt-5 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+      <p className="mt-5 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
         {t('junta.home.doorFailedNote')}
       </p>
     </section>
@@ -631,19 +631,17 @@ function Heading({
           className={
             display
               ? 'display text-d-sm leading-none tracking-[-0.045em]'
-              : `eyebrow ${amber ? 'text-[var(--ds-warning)]' : 'text-fg-muted'}`
+              : `eyebrow ${amber ? 'text-warning' : 'text-fg-muted'}`
           }
         >
           {title}
         </h2>
         {aside === undefined ? null : (
-          <span className="flex-none text-sm-lo font-bold text-[var(--ds-text-muted-lo)]">
-            {aside}
-          </span>
+          <span className="flex-none text-sm-lo font-bold text-fg-muted-lo">{aside}</span>
         )}
       </div>
       {sub === undefined ? null : (
-        <p className="mt-4 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">{sub}</p>
+        <p className="mt-4 text-sm text-fg-muted-lo [text-wrap:pretty]">{sub}</p>
       )}
     </div>
   )
@@ -663,14 +661,12 @@ function Count({
 }) {
   return (
     <Link to={to} className={`${ROW} min-h-[64px]`}>
-      <span className="display tabular min-w-[50px] flex-none text-d-s leading-[0.9] tracking-[-0.05em] text-[var(--ds-warning)]">
+      <span className="display tabular min-w-[50px] flex-none text-d-s leading-[0.9] tracking-[-0.05em] text-warning">
         {n}
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-base font-bold text-fg [text-wrap:pretty]">{title}</span>
-        <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-          {sub}
-        </span>
+        <span className="mt-[3px] block text-sm-lo text-fg-muted-lo [text-wrap:pretty]">{sub}</span>
       </span>
       <Chevron />
     </Link>
@@ -697,16 +693,14 @@ function Row({
         <span
           className={
             'mt-[3px] block text-sm-lo [text-wrap:pretty] ' +
-            (warn ? 'text-[var(--ds-warning)]' : 'text-[var(--ds-text-muted-lo)]')
+            (warn ? 'text-warning' : 'text-fg-muted-lo')
           }
         >
           {sub}
         </span>
       </span>
       {badge === undefined || badge === 0 ? null : (
-        <span className="tabular flex-none text-md font-bold text-[var(--ds-warning)]">
-          {badge}
-        </span>
+        <span className="tabular flex-none text-md font-bold text-warning">{badge}</span>
       )}
       <Chevron />
     </Link>
@@ -715,7 +709,7 @@ function Row({
 
 function Chevron(): ReactNode {
   return (
-    <span aria-hidden="true" className="flex-none text-2xl text-[var(--ds-text-muted-lo)]">
+    <span aria-hidden="true" className="flex-none text-2xl text-fg-muted-lo">
       ›
     </span>
   )
@@ -777,7 +771,7 @@ function Meetings() {
                 className={ROW}
               >
                 <span className="w-[42px] flex-none text-center">
-                  <span className="eyebrow block text-[var(--ds-text-muted-lo)]">
+                  <span className="eyebrow block text-fg-muted-lo">
                     {formatMonthShort(starts, locale).replace('.', '')}
                   </span>
                   <span
@@ -799,7 +793,7 @@ function Meetings() {
                     {eventTitle(m.titulo)}
                   </span>
                   {sub === '' ? null : (
-                    <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+                    <span className="mt-[3px] block text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
                       {sub}
                     </span>
                   )}

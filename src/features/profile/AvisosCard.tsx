@@ -6,6 +6,8 @@ import { avisosKeys, fetchAvisTipus, fetchAvisos } from '@/features/junta/avisos
 import { formatDayMonth } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 
+import { LEDGER_ROW } from './ledger'
+
 /**
  * Els teus avisos, al teu perfil.
  *
@@ -34,8 +36,6 @@ import { toLocale } from '@/i18n/locales'
  * mateixa taula, i la política decideix qui en veu què. Duplicar-la aquí serien
  * dues consultes amb la seva pròpia edat i el mateix `select`.
  */
-
-const ROW = 'flex items-start gap-3 border-b border-surface-4 py-[15px]'
 
 export function AvisosCard({ userId }: { readonly userId: string }) {
   const { t, i18n } = useTranslation()
@@ -73,7 +73,7 @@ export function AvisosCard({ userId }: { readonly userId: string }) {
   return (
     <section className="pt-12 px-[var(--ds-gutter)]">
       <h2 className="eyebrow text-fg-muted">{t('profile.avisos.title')}</h2>
-      <p className="mt-3 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+      <p className="mt-3 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
         {t('profile.avisos.lede')}
       </p>
 
@@ -82,7 +82,7 @@ export function AvisosCard({ userId }: { readonly userId: string }) {
           const retirat = row.retirat_at !== null
           const punts = row.points_log?.puntos ?? null
           return (
-            <li key={row.id} className={ROW}>
+            <li key={row.id} className={LEDGER_ROW}>
               <p className="w-[52px] flex-none pt-[2px] text-sm-lo font-semibold text-fg-dim">
                 {formatDayMonth(new Date(row.created_at), locale)}
               </p>
@@ -95,7 +95,7 @@ export function AvisosCard({ userId }: { readonly userId: string }) {
                 >
                   {nom(row.tipus)}
                 </p>
-                <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)]">
+                <p className="mt-[3px] text-sm-lo text-fg-muted-lo">
                   {retirat ? t('profile.avisos.withdrawn') : gravetatNom(row.gravetat)}
                 </p>
                 <p
@@ -107,13 +107,13 @@ export function AvisosCard({ userId }: { readonly userId: string }) {
                   {row.nota}
                 </p>
                 {row.retirat_nota === null ? null : (
-                  <p className="mt-[5px] text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+                  <p className="mt-[5px] text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
                     {row.retirat_nota}
                   </p>
                 )}
               </div>
               {punts === null || punts === 0 ? null : (
-                <p className="tabular flex-none pt-[2px] text-base font-extrabold text-[var(--ds-warning)]">
+                <p className="tabular flex-none pt-[2px] text-base font-extrabold text-warning">
                   {punts}
                 </p>
               )}

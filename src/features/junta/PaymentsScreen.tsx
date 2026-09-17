@@ -1,17 +1,20 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 
 import { formatMoney, formatPrice } from '@/features/event/api'
 import { horizonIso } from '@/features/home/api'
+import { MemberLink } from '@/features/member/MemberLink'
 import { memberSubtitle } from '@/features/member/subtitle'
 import { formatDayMonth } from '@/i18n/format'
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { Chevron } from '@/ui/Chevron/Chevron'
 import { Notice } from '@/ui/Notice/Notice'
+import { NavRow } from '@/ui/Row/Row'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
@@ -201,10 +204,7 @@ function Requests({ eventId }: { readonly eventId: string }) {
       </ul>
 
       {note === null ? null : (
-        <p
-          role="alert"
-          className="pt-6 text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]"
-        >
+        <p role="alert" className="pt-6 text-md font-bold text-warning [text-wrap:pretty]">
           {t(note === 'sense_places' ? 'junta.payments.noRoomLeft' : 'junta.payments.gone')}
         </p>
       )}
@@ -429,9 +429,7 @@ function PaidList({
           tampoc. La línia se'n va sencera en comptes de quedar-se dient una
           feina que ningú no ha de fer. */}
       {head.free ? null : (
-        <p
-          className={`pt-7 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
-        >
+        <p className={`pt-7 text-sm-lo text-fg-muted-lo [text-wrap:pretty] ${GUTTER}`}>
           {t('junta.payments.chaseThem')}
         </p>
       )}
@@ -496,7 +494,7 @@ function PaidRow({
           <span
             className={
               'mt-[2px] block text-sm-lo font-bold tracking-[0.06em] uppercase ' +
-              (row.pagado ? 'text-success' : 'text-[var(--ds-warning-deep)]')
+              (row.pagado ? 'text-success' : 'text-warning-deep')
             }
           >
             {row.pagado ? t('junta.payments.paid') : t('junta.payments.pending')}
@@ -539,22 +537,33 @@ function GuestRow({ row }: { readonly row: AttendeeRow }) {
     cua: null,
   })
 
+  // LA CARA PORTA AL PERFIL, com al rànquing, a «qui hi ha dins», als cotxes i a
+  // les idees. Aquesta fila era l'excepció i no per cap motiu: és l'única del
+  // repositori que pinta un soci sencer —cara, nom, escola i curs— i el deixava
+  // com a text mort. La fila de qui ha pagat no pot fer-ho, perquè aquella fila
+  // JA és un botó —marcar el pagament— i un enllaç a dins d'un botó el navegador
+  // el treu de dins; aquesta no fa res, i per això pot ser una porta.
   return (
-    <li
-      className={
-        `flex min-h-[56px] items-center gap-4 border-b border-surface-4 ` +
-        `px-[var(--ds-gutter)] py-[11px]`
-      }
-    >
-      <Avatar src={row.profiles?.avatar_url ?? null} size={36} />
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-base font-semibold">
-          {row.profiles?.nombre ?? '—'}
+    <li>
+      <MemberLink
+        userId={row.user_id}
+        label={t('junta.payments.title')}
+        className={
+          `flex min-h-[56px] items-center gap-4 border-b border-surface-4 ` +
+          `px-[var(--ds-gutter)] py-[11px] text-fg no-underline`
+        }
+      >
+        <Avatar src={row.profiles?.avatar_url ?? null} size={36} />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-base font-semibold">
+            {row.profiles?.nombre ?? '—'}
+          </span>
+          {line === '' ? null : (
+            <span className="mt-[2px] block truncate text-sm-lo text-fg-muted-lo">{line}</span>
+          )}
         </span>
-        {line === '' ? null : (
-          <span className="mt-[2px] block text-sm-lo text-[var(--ds-text-muted-lo)]">{line}</span>
-        )}
-      </span>
+        <Chevron />
+      </MemberLink>
     </li>
   )
 }
@@ -629,20 +638,12 @@ function WhoRuns() {
         <h2 className="display text-d-sm leading-none tracking-[-0.045em]">
           {t('junta.payments.whoRuns')}
         </h2>
-        <Link
+        <NavRow
           to="/junta/rols"
-          className="mt-7 flex items-center gap-3 border-b border-surface-4 py-[15px] no-underline"
-        >
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-bold text-fg">{t('junta.roles.title')}</span>
-            <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-              {t('junta.roles.rowSub')}
-            </span>
-          </span>
-          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
-            ›
-          </span>
-        </Link>
+          title={t('junta.roles.title')}
+          sub={t('junta.roles.rowSub')}
+          className="mt-7"
+        />
       </div>
     </section>
   )

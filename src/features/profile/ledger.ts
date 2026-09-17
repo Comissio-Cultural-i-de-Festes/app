@@ -11,7 +11,19 @@
  * quedar en negatiu, i «Avís · 1 vegada · −25» sortia en verd d'encert.
  */
 
-/** La mateixa alçada i la mateixa vora a les dues pantalles que la pinten. */
+/**
+ * La forma d'una fila apilada: data a l'esquerra, cos al mig, xifra a la dreta.
+ *
+ * QUATRE LLOCS I NO DOS. Va néixer per al llibre major del perfil i el de la
+ * junta; els avisos —la fitxa de la junta i la targeta del perfil— dibuixen
+ * exactament la mateixa cosa i se l'havien escrita cadascun a la seva manera,
+ * una amb `gap-4` i l'altra amb `gap-3`. Dotze píxels de diferència entre dues
+ * llistes que surten a la mateixa pantalla, una sobre l'altra.
+ *
+ * NO ÉS LA FILA DE `ui/Row`. Aquella és la de navegar —centrada, amb xebró, i
+ * porta a un altre lloc—; aquesta s'alinea a dalt perquè creix cap avall quan hi
+ * ha una nota, i no porta enlloc.
+ */
 export const LEDGER_ROW = 'flex items-start gap-4 border-b border-surface-4 py-[15px]'
 
 /**

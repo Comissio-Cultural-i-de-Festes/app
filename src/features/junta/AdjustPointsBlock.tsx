@@ -53,7 +53,7 @@ import { adjustPoints, fetchAjustEvents, memberPointsKeys } from './memberPoints
  */
 
 const BOX = 'mt-10 border border-surface-8 bg-surface-2 p-9'
-const BAD = 'border-[var(--ds-warning)]'
+const BAD = 'border-warning'
 
 export function AdjustPointsBlock({
   userId,
@@ -142,7 +142,7 @@ export function AdjustPointsBlock({
       </Field>
 
       {lectura === 'punts' ? (
-        <p id={errPunts} className="-mt-6 pb-9 text-sm font-bold text-[var(--ds-warning)]">
+        <p id={errPunts} className="-mt-6 pb-9 text-sm font-bold text-warning">
           {t('junta.soci.adjust.pointsBad', { max: MAX_AJUST })}
         </p>
       ) : null}
@@ -165,7 +165,7 @@ export function AdjustPointsBlock({
       </Field>
 
       {lectura === 'nota' ? (
-        <p id={errNota} className="-mt-6 pb-9 text-sm font-bold text-[var(--ds-warning)]">
+        <p id={errNota} className="-mt-6 pb-9 text-sm font-bold text-warning">
           {t('junta.soci.adjust.noteBad')}
         </p>
       ) : null}

@@ -30,7 +30,9 @@ export const IN_PROGRESS_MS = 6 * HOUR_MS
 
 /** L'instant en què la nit es va acabar, suposant-lo si cal. */
 export function endOfEvent(startsAt: string, endsAt: string | null): number {
-  return endsAt === null ? new Date(startsAt).getTime() + IN_PROGRESS_MS : new Date(endsAt).getTime()
+  return endsAt === null
+    ? new Date(startsAt).getTime() + IN_PROGRESS_MS
+    : new Date(endsAt).getTime()
 }
 
 /**

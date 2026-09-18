@@ -318,9 +318,7 @@ export function EventScreen() {
         {isMeeting ? (
           <Fact
             label={t('junta.form.points')}
-            value={
-              e.puntos > 0 ? t('meeting.points', { punts: e.puntos }) : t('meeting.noPoints')
-            }
+            value={e.puntos > 0 ? t('meeting.points', { punts: e.puntos }) : t('meeting.noPoints')}
           />
         ) : (
           <Fact

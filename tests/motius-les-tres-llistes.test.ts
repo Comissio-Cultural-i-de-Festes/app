@@ -101,7 +101,10 @@ describe('les tres llistes de motius, i l’etiqueta', () => {
   it('tot botó de l’escala es pot donar: cap fila fora de l’allowlist', () => {
     const allowlist = allowlistDAwardPoints()
     const orfes = motiusDeLEscala().filter((clau) => !allowlist.includes(clau))
-    expect(orfes, 'una fila a point_values sense entrada a l’allowlist dibuixa un botó que peta amb 22023').toEqual([])
+    expect(
+      orfes,
+      'una fila a point_values sense entrada a l’allowlist dibuixa un botó que peta amb 22023',
+    ).toEqual([])
   })
 
   it('i tot el que es pot donar pot existir: l’allowlist cap dins del CHECK', () => {
@@ -112,9 +115,16 @@ describe('les tres llistes de motius, i l’etiqueta', () => {
 
   it('cada botó de l’escala té etiqueta als tres idiomes', () => {
     for (const clau of motiusDeLEscala()) {
-      for (const [nom, loc] of [['ca', ca], ['es', es], ['en', en]] as const) {
+      for (const [nom, loc] of [
+        ['ca', ca],
+        ['es', es],
+        ['en', en],
+      ] as const) {
         const motius = (loc as { motive: Record<string, string> }).motive
-        expect(motius[clau], `falta motive.${clau} a ${nom}.json: el botó sortiria amb la clau crua`).toBeTruthy()
+        expect(
+          motius[clau],
+          `falta motive.${clau} a ${nom}.json: el botó sortiria amb la clau crua`,
+        ).toBeTruthy()
       }
     }
   })
@@ -123,7 +133,11 @@ describe('les tres llistes de motius, i l’etiqueta', () => {
     // `conduir` no és a l'escala des de la 71 i no es pot crear des de la 76,
     // però hi ha files de desembre al llibre major i el perfil les pinta amb
     // ``t(`motive.${row.motivo}`)``. Treure la clau les deixaria en majúscules.
-    for (const [nom, loc] of [['ca', ca], ['es', es], ['en', en]] as const) {
+    for (const [nom, loc] of [
+      ['ca', ca],
+      ['es', es],
+      ['en', en],
+    ] as const) {
       const motius = (loc as { motive: Record<string, string> }).motive
       expect(motius.conduir, `falta motive.conduir a ${nom}.json`).toBeTruthy()
     }

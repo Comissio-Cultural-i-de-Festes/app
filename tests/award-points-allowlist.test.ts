@@ -64,7 +64,9 @@ describe("l'allowlist d'award_points, tal com es desplega", () => {
   })
 
   it('i el CHECK de points_log continua acceptant `conduir`: l’històric no es reescriu', () => {
-    const touching = MIGRATIONS.filter((f) => /points_log_motivo_check|motivo\s+text\s/.test(readFileSync(f, 'utf8')))
+    const touching = MIGRATIONS.filter((f) =>
+      /points_log_motivo_check|motivo\s+text\s/.test(readFileSync(f, 'utf8')),
+    )
     const last = touching.at(-1)
     expect(last, 'cap migració defineix el CHECK de motivo').toBeDefined()
     expect(readFileSync(last!, 'utf8')).toContain('conduir')

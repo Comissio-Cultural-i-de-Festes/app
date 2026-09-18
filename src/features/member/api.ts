@@ -29,6 +29,8 @@ import type { Streak } from '@/features/profile/streak'
 export interface MemberNight {
   readonly event_id: string
   readonly starts_at: string
+  /** Gairebé sempre null: qui crea una activitat no l'omple. Vegeu `pastNights`. */
+  readonly ends_at: string | null
   readonly tipo: EventType
   /** Null mentre la revelació tapi el nom, que a una activitat passada no passa. */
   readonly titol: string | null
@@ -62,13 +64,33 @@ export const sociKeys = {
 /**
  * A què ha vingut.
  *
- * Sense cap filtre de data: `asistio` només el posa la porta, o sigui que una
- * fila amb aquell estat és una activitat on la persona hi va ser. Afegir-hi
- * «i que ja hagi passat» seria una segona còpia d'aquella regla, i la que
- * s'està celebrant ara mateix és exactament la que val la pena que hi surti.
+ * `ends_at` VE PERQUÈ EL FUTUR S'HA DE PODER TREURE. Aquesta consulta deia que
+ * no li calia cap filtre de data —«`asistio` només el posa la porta, o sigui
+ * que una fila amb aquell estat és una activitat on la persona hi va ser»— i
+ * el supòsit no el garanteix la base: `public.close_meeting()` escriu
+ * `asistio` a tothom que consta a una reunió sense mirar-ne la data, i a les
+ * dades de demostració ja n'hi ha un cas. El resultat era un encapçalament que
+ * mentia, «ON HA ESTAT» amb una activitat d'aquí a tres dies. El tall el fa
+ * `pastNights`, al costat de la seva prova, amb el mateix criteri que fa servir
+ * la resta de l'app: vegeu `@/lib/eventEnd`.
  *
- * L'ordre es fa al client. PostgREST sap ordenar per una taula incrustada,
- * però són deu files i la sintaxi és la que es trenca en silenci quan algú
+ * I VE D'`event_details`, NO D'`events`, que és on el posaria qui se'l mira des
+ * d'aquí: `events` no té cap `ends_at` i demanar-l'hi és un 42703 —«column
+ * events_1.ends_at does not exist»— que no es veu ni compilant ni des de
+ * pgTAP, només per PostgREST. Viu a la filla que la revelació tapa, al costat
+ * d'`event_title`, i per això arriba null mentre l'activitat no estigui
+ * revelada. No cal cap branca per aquest cas: una activitat sense revelar és
+ * del futur, i sense `ends_at` el tall li suposa les sis hores, que també cauen
+ * al futur. El que la tapa la deixa fora igualment.
+ *
+ * EL TALL NO EL POT FER POSTGREST. Seria `coalesce(ends_at, starts_at + 6h) <=
+ * now()`, que no és cap `.lt()` sobre una columna, i un filtre sobre una taula
+ * incrustada no treu la fila del pare sinó que li buida l'incrustat: hauria
+ * calgut `!inner` i una columna calculada a la vista. Són deu files, igual que
+ * per l'ordre.
+ *
+ * L'ordre també es fa al client. PostgREST sap ordenar per una taula
+ * incrustada, però la sintaxi és la que es trenca en silenci quan algú
  * reanomena una clau forana.
  */
 export async function fetchMemberNights(userId: string): Promise<MemberNight[]> {
@@ -78,13 +100,16 @@ export async function fetchMemberNights(userId: string): Promise<MemberNight[]> 
       events: {
         starts_at: string
         tipo: EventType
+        event_details: { ends_at: string | null } | null
         event_title: { titulo: string } | null
       } | null
     }[]
   >(
     supabase
       .from('attendances')
-      .select('event_id, events!attendances_event_id_fkey(starts_at, tipo, event_title(titulo))')
+      .select(
+        'event_id, events!attendances_event_id_fkey(starts_at, tipo, event_details(ends_at), event_title(titulo))',
+      )
       .eq('user_id', userId)
       .eq('estado', 'asistio'),
   )
@@ -96,6 +121,7 @@ export async function fetchMemberNights(userId: string): Promise<MemberNight[]> 
     .map((r) => ({
       event_id: r.event_id,
       starts_at: r.events?.starts_at ?? '',
+      ends_at: r.events?.event_details?.ends_at ?? null,
       tipo: r.events?.tipo ?? 'actividad',
       titol: r.events?.event_title?.titulo ?? null,
     }))

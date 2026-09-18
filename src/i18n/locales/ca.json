@@ -915,6 +915,7 @@
         "eventHint": "Opcional. Sense esdeveniment també és una línia vàlida.",
         "eventNone": "De cap en concret",
         "save": "Desa l'ajust",
+        "paused": "Sense connexió. L'ajust espera aquí i sortirà quan torni la xarxa: no tanquis la pantalla.",
         "done": "Apuntat: {{punts}} per a {{nombre}}."
       },
       "avisos": {

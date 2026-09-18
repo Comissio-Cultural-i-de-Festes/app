@@ -915,6 +915,7 @@
         "eventHint": "Opcional. Sin evento también es una línea válida.",
         "eventNone": "De ninguna en concreto",
         "save": "Guarda el ajuste",
+        "paused": "Sin conexión. El ajuste espera aquí y saldrá cuando vuelva la red: no cierres la pantalla.",
         "done": "Apuntado: {{punts}} para {{nombre}}."
       },
       "avisos": {

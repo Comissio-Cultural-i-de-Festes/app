@@ -47,7 +47,7 @@
 -- Persones i fets inventats, com a tot el repo.
 
 begin;
-select plan(57);
+select plan(62);
 
 reset role;
 
@@ -399,6 +399,55 @@ select is(
   (select count(*)::int from public.avisos where id = (select id from fet where clau='amb_punts')),
   1,
   'retirar no esborra la fila, que es el que explica els dos moviments'
+);
+
+-- ── 7b. retirar el que no en va restar cap ──────────────────────────────────
+-- EL PRIMER AVIS NORMAL ES EL DE ZERO PUNTS —es el cas que la 73 defensa— i
+-- retirar-ne un era l'unica branca de `retira_avis()` que no tocava cap prova
+-- de cap capa: la seccio 7 nomes retira el que va restar punts i la suite
+-- d'RLS no en retira cap. La branca es un `if points_log_id is not null`, o
+-- sigui que el dia que algu la simplifiqui malament, el que passaria es un
+-- `-null` o una compensacio de zero punts al llibre major de tothom que hagi
+-- tingut un primer avis, i no ho veuria ningu fins a la seguent lectura del
+-- perfil.
+--
+-- Les quatre assercions van juntes: que la retirada passi no diu res si no es
+-- comprova a la vegada que el llibre major segueix sense tocar.
+
+reset role;
+select tests.authenticate_as('junta_alfa');
+
+select lives_ok(
+  format($$ select public.retira_avis(%L, 'ho vam parlar i estava mal apuntat') $$,
+         (select id from fet where clau='sense_punts')),
+  'retira_avis(): un avis que no va restar punts tambe es pot retirar'
+);
+
+reset role;
+
+select isnt(
+  (select a.retirat_at from public.avisos a where a.id = (select id from fet where clau='sense_punts')),
+  null,
+  'i queda marcat com a retirat igualment'
+);
+
+select is(
+  (select a.retirat_nota from public.avisos a where a.id = (select id from fet where clau='sense_punts')),
+  'ho vam parlar i estava mal apuntat',
+  'amb el motiu escrit, que tambe hi es obligatori'
+);
+
+select is(
+  (select a.retirat_points_log_id from public.avisos a
+    where a.id = (select id from fet where clau='sense_punts')),
+  null,
+  'i sense compensatoria: no hi havia res a tornar'
+);
+
+select is(
+  (select count(*)::int from public.points_log where user_id = (select bravo from qui)),
+  0,
+  'el llibre major del bravo segueix sense una sola fila'
 );
 
 -- ── 8. el sostre del curs ───────────────────────────────────────────────────

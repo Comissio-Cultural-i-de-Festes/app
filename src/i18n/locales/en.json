@@ -895,7 +895,9 @@
       "publicProfileSub": "What any member sees of them.",
       "ledger": {
         "title": "The points record",
-        "total": "Total: {{total}}",
+        "total": "All-time total: {{total}}",
+        "totalSub": "It adds up every line. The ranking counts by period, so the number there can differ.",
+        "totalCapped": "Only the last {{linies}} lines fit, and the total is theirs alone.",
         "empty": "No points yet."
       },
       "adjust": {
@@ -913,6 +915,7 @@
         "eventHint": "Optional. No event at all is a valid line too.",
         "eventNone": "None in particular",
         "save": "Save the adjustment",
+        "paused": "No connection. The adjustment waits here and will go when the network is back: keep this screen open.",
         "done": "Recorded: {{punts}} for {{nombre}}."
       },
       "avisos": {

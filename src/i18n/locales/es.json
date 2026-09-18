@@ -895,7 +895,9 @@
       "publicProfileSub": "Lo que cualquier socio ve de él.",
       "ledger": {
         "title": "El registro de puntos",
-        "total": "Total: {{total}}",
+        "total": "Total de siempre: {{total}}",
+        "totalSub": "Es la suma de todas las líneas. El ranking cuenta por periodos, y allí el número puede ser otro.",
+        "totalCapped": "Solo caben las últimas {{linies}} líneas, y el total es el de estas.",
         "empty": "Todavía no tiene ningún punto."
       },
       "adjust": {
@@ -913,6 +915,7 @@
         "eventHint": "Opcional. Sin evento también es una línea válida.",
         "eventNone": "De ninguna en concreto",
         "save": "Guarda el ajuste",
+        "paused": "Sin conexión. El ajuste espera aquí y saldrá cuando vuelva la red: no cierres la pantalla.",
         "done": "Apuntado: {{punts}} para {{nombre}}."
       },
       "avisos": {

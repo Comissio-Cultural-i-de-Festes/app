@@ -14,10 +14,22 @@
  * que passa és un error lleig; si només hi hagués aquesta, el pitjor que passa
  * és un enllaç tocable cap on vulgui qui l'hi hagi desat.
  *
- * EL PATRÓ NO PORTA `^…$` SINÓ `^…$` AMB ELS SALTS FORA. En JavaScript `$` casa
- * abans d'un salt de línia final, així que `/^[A-Za-z0-9._]{1,30}$/` diria que
- * sí a `"algu\n"` mentre el `~` de Postgres el refusa. Es tanca comparant la
- * llargada del que casa amb la del text.
+ * EL PATRÓ NO PORTA LA BANDERA `m`, I AQUESTA ÉS TOTA LA PRECAUCIÓ QUE CAL.
+ * Aquí hi havia hagut un guard que comparava la llargada del que casa amb la
+ * del text, i la raó escrita era que en JavaScript `$` casa abans d'un salt de
+ * línia final. És falsa: això és Python, i sense `m` el `$` de JavaScript només
+ * casa al final del text —`/^[A-Za-z0-9._]{1,30}$/.test('la_comi\n')` torna
+ * `false`—. El guard, doncs, no podia canviar cap resultat: amb `^…$` i sense
+ * `m` el que casa és sempre el text sencer o no hi ha match. S'ha tret i es
+ * deixa dit, perquè una raó escrita que és falsa és pitjor que cap raó: qui la
+ * llegís en trauria una conclusió equivocada sobre les expressions regulars
+ * d'aquesta casa i la tornaria a posar.
+ *
+ * El que sí que importa és la bandera. Amb `m`, `$` casaria al final de la
+ * PRIMERA línia i `algu\nhttps://el-que-sigui` passaria per aquí mentre el `~`
+ * de Postgres el refusa amb un 23514 —el seu `$` tampoc no és sensible a les
+ * línies si no li ho demanes—. Els dos casos amb salt de línia de la prova són
+ * exactament això: no vigilen un salt final, vigilen que ningú afegeixi la `m`.
  */
 
 /** El màxim que accepta Instagram, i el que diu el `CHECK` de la migració 70. */
@@ -42,7 +54,7 @@ export function normaliseInstagram(raw: string): string | null {
 
 /** El mateix que el `CHECK` de la columna, ni més estret ni més ample. */
 export function isInstagramHandle(value: string): boolean {
-  return HANDLE.exec(value)?.[0].length === value.length
+  return HANDLE.test(value)
 }
 
 /**

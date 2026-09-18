@@ -69,9 +69,9 @@ function motiusDeLEscala(): readonly string[] {
   // La xifra del final és el que separa una FILA —`('motiu', 'montaje', 20, 1)`—
   // del CHECK de la columna, que és `mena in ('motiu', 'tipus_esdeveniment')` i
   // encaixaria igual de bé amb un patró que només mirés les dues cometes.
-  for (const m of text.matchAll(/\('motiu',\s*'([a-z_]+)',\s*\d+/g)) posats.add(m[1])
+  for (const m of text.matchAll(/\('motiu',\s*'([a-z_]+)',\s*\d+/g)) posats.add(m[1] ?? '')
   for (const m of text.matchAll(/delete from public\.point_values[^;]*clau\s*=\s*'([a-z_]+)'/g)) {
-    posats.delete(m[1])
+    posats.delete(m[1] ?? '')
   }
   return [...posats]
 }
@@ -79,7 +79,7 @@ function motiusDeLEscala(): readonly string[] {
 function allowlistDAwardPoints(): readonly string[] {
   const body = lastBodyOf('award_points')
   const llista = /p_motivo not in \(([^)]*)\)/.exec(body)?.[1] ?? ''
-  return [...llista.matchAll(/'([a-z_]+)'/g)].map((m) => m[1])
+  return [...llista.matchAll(/'([a-z_]+)'/g)].flatMap((m) => (m[1] === undefined ? [] : [m[1]]))
 }
 
 function checkDePointsLog(): readonly string[] {
@@ -90,7 +90,7 @@ function checkDePointsLog(): readonly string[] {
   if (last === undefined) throw new Error('cap migració defineix el CHECK de motivo')
   const body = readFileSync(last, 'utf8')
   const llista = /motivo[^;]*?in \(([^)]*)\)/.exec(body)?.[1] ?? ''
-  return [...llista.matchAll(/'([a-z_]+)'/g)].map((m) => m[1])
+  return [...llista.matchAll(/'([a-z_]+)'/g)].flatMap((m) => (m[1] === undefined ? [] : [m[1]]))
 }
 
 describe('les tres llistes de motius, i l’etiqueta', () => {
@@ -125,7 +125,7 @@ describe('les tres llistes de motius, i l’etiqueta', () => {
     // ``t(`motive.${row.motivo}`)``. Treure la clau les deixaria en majúscules.
     for (const [nom, loc] of [['ca', ca], ['es', es], ['en', en]] as const) {
       const motius = (loc as { motive: Record<string, string> }).motive
-      expect(motius['conduir'], `falta motive.conduir a ${nom}.json`).toBeTruthy()
+      expect(motius.conduir, `falta motive.conduir a ${nom}.json`).toBeTruthy()
     }
     expect(checkDePointsLog()).toContain('conduir')
   })

@@ -17,11 +17,15 @@ import type { AvisCompte, AvisPeriode } from './avisosApi'
  *
  *   LA FINESTRA JA ÉS AL CLIENT. L'argument fort de la RPC era que
  *   `private.periode_curs()` no l'exposa PostgREST i que comptar aquí
- *   obligaria a tornar a derivar quin és el curs actual. És fals: la fila
- *   `mena = 'global'` de `ranking_periods` és la primera per `ordre`, o sigui
- *   que `defaultPeriod(usePeriods())` ÉS `private.periode_curs()`, i el perfil i
- *   el rànquing ja la fan servir des de fa mesos. La regla no es duplica; ja
- *   vivia aquí.
+ *   obligaria a tornar a derivar quin és el curs actual. Les files ja hi són:
+ *   `ranking_periods` es llegeix des del rànquing i del perfil des de fa mesos.
+ *   El que sí que calia era derivar-les amb la mateixa regla, i no amb una que
+ *   s'hi assembli: `cursPeriod` fa `mena = 'global'` ordenat per `ordre` i
+ *   `codi`, que és la frase de `private.periode_curs()` paraula per paraula.
+ *   La primera versió d'aquest bloc deia que `defaultPeriod` ja ho feia i no
+ *   era veritat —aquell no mira la `mena`—; coincidien per com estan sembrades
+ *   les quatre files d'avui, que és la mena de coincidència que es trenca un
+ *   setembre sense que ningú ho vegi.
  *
  *   I EL REGISTRE NO BAIXA. L'altre argument era no descarregar-se les notes de
  *   tothom a un telèfon per pintar un «2». També es resol sense RPC:

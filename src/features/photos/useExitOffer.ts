@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { IN_PROGRESS_MS } from '@/features/home/api'
+import { endOfEvent } from '@/lib/eventEnd'
 import type { EventRow } from '@/lib/schema'
 
 import { type Night, fetchNights, photoKeys } from './api'
@@ -50,5 +50,5 @@ export function useExitOffer(event: EventRow | null): ExitOffer | null {
 
 /** When the party was over, which is not when it started. */
 function endOf(event: EventRow): Date {
-  return new Date(event.ends_at ?? new Date(event.starts_at).getTime() + IN_PROGRESS_MS)
+  return new Date(endOfEvent(event.starts_at, event.ends_at))
 }

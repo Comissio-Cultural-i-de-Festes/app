@@ -4,11 +4,11 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
-import { IN_PROGRESS_MS } from '@/features/home/api'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { MemberLink } from '@/features/member/MemberLink'
 import { useUserId } from '@/features/session/useUserId'
 import { errorKey } from '@/lib/errors'
+import { hasEnded } from '@/lib/eventEnd'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
 import { fetchInside, insideKeys } from './insideApi'
@@ -86,11 +86,7 @@ export function InsideScreen() {
   // "Right now" has to stop being true when the party ends. Deep-linked from
   // a chat weeks later, the same screen says "that night" and the dot is off.
   const e = event.data
-  const ends =
-    e == null
-      ? null
-      : new Date(e.ends_at ?? new Date(e.starts_at).getTime() + IN_PROGRESS_MS).getTime()
-  const live = ends === null || now < ends
+  const live = e == null || !hasEnded(e.starts_at, e.ends_at, now)
 
   const rows = inside.data ?? []
   // Mine first, so somebody looking for themselves finds themselves, then the

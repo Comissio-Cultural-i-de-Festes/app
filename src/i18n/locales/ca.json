@@ -716,6 +716,7 @@
       "paid": "Pagat",
       "pending": "Pendent",
       "nobody": "Encara no s'hi ha apuntat ningú. Quan diguin que sí sortiran aquí.",
+      "notInList": "Aquest esdeveniment ja no surt a la llista de la junta. Tria'n un del selector de dalt.",
       "chaseThem": "Els que no han pagat el divendres al matí, avisa'ls tu al privat. Al grup no funciona.",
       "whoRuns": "Qui manega això",
       "queue_one": "Llista d'espera · {{count}}",

@@ -97,8 +97,14 @@ export function PaymentsScreen() {
               {t(errorKey(events.error))}
             </p>
           ) : event === null ? (
+            // DUES BUIDORS DIFERENTS. «Encara no hi ha res al calendari» amb el
+            // selector de set esdeveniments dibuixat just a sobre era la frase
+            // que es llegia quan l'id de la URL no era a la llista, i deia una
+            // cosa que la mateixa pantalla desmentia. Qui hi arriba així ve
+            // d'una fila del rebedor, o sigui que el que li falta és per on
+            // continuar, no que se li digui que creï el primer esdeveniment.
             <p className={`pt-10 text-md text-fg-muted [text-wrap:pretty] ${GUTTER}`}>
-              {t('junta.noEvents')}
+              {t(list.length === 0 ? 'junta.noEvents' : 'junta.payments.notInList')}
             </p>
           ) : (
             <PaidList

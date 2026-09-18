@@ -716,6 +716,7 @@
       "paid": "Pagado",
       "pending": "Pendiente",
       "nobody": "Todavía no se ha apuntado nadie. Cuando digan que sí saldrán aquí.",
+      "notInList": "Este evento ya no sale en la lista de la junta. Elige uno del selector de arriba.",
       "chaseThem": "A los que no han pagado el viernes por la mañana, avísalos tú por privado. En el grupo no funciona.",
       "whoRuns": "Quién lleva esto",
       "queue_one": "Lista de espera · {{count}}",

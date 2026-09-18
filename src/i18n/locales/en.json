@@ -716,6 +716,7 @@
       "paid": "Paid",
       "pending": "Pending",
       "nobody": "Nobody has signed up yet. They appear here once they say yes.",
+      "notInList": "This event is no longer on the junta list. Pick one from the selector above.",
       "chaseThem": "Anyone still unpaid on Friday morning, message them yourself. The group chat does not work.",
       "whoRuns": "Who runs this",
       "queue_one": "Waiting list · {{count}}",

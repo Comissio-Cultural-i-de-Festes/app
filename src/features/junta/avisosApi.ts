@@ -79,6 +79,11 @@ export interface AvisCompte {
 export const avisosKeys = {
   tipus: () => ['junta', 'avisos', 'tipus'] as const,
   ofMember: (userId: string) => ['junta', 'avisos', 'soci', userId] as const,
+  // Penja de `ofMember` a posta: qui avisa o retira invalida l'arrel i se'n van
+  // les dues, la sencera de la fitxa i la del curs del perfil. Amb dues claus
+  // germanes, invalidar-ne una deixaria l'altra dient el que deia.
+  ofMemberPeriode: (userId: string, desDe: string | null, finsA: string | null) =>
+    ['junta', 'avisos', 'soci', userId, 'periode', desDe, finsA] as const,
   comptes: (desDe: string | null) => ['junta', 'avisos', 'comptes', desDe] as const,
   // L'arrel, per invalidar. Hi ha una entrada de cache per finestra i qui acaba
   // d'avisar algú les ha de tornar a demanar totes: amb la clau sencera
@@ -106,14 +111,50 @@ export async function fetchAvisTipus(): Promise<AvisTipus[]> {
   )
 }
 
-export async function fetchAvisos(userId: string): Promise<AvisRow[]> {
-  return unwrapAs<AvisRow[]>(
-    supabase
-      .from('avisos')
-      .select(AVIS_COLS)
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false }),
-  )
+/**
+ * Els avisos d'una persona, opcionalment només els d'una finestra.
+ *
+ * DOS CRIDADORS AMB DUES NECESSITATS OPOSADES, i per això la finestra és un
+ * paràmetre i no una decisió d'aquí dins:
+ *
+ *   LA FITXA DE LA JUNTA ELS VOL TOTS. És la pantalla on algú va a entendre què
+ *   porta una persona abans de registrar-li res, i «què porta» inclou el que va
+ *   passar fa dos cursos. Qui la mira ha de poder veure que això ja va passar
+ *   un cop. El que la fitxa NO fa és comptar-los tots a la capçalera: el
+ *   número és el del curs, com el de la llista de socis, i qui ho decideix és
+ *   `compta()`.
+ *
+ *   EL PERFIL DEL SOCI ELS VOL DEL CURS. La targeta diu «el que la junta ha
+ *   registrat aquest curs» i l'issue demanava «els avisos del període». Sense
+ *   la finestra, una fila de fa tres cursos sortia la primera sota aquella
+ *   frase, i com que la columna de la data no porta l'any, es llegia com si
+ *   fos d'ara.
+ *
+ * `desDe` NUL VOL DIR SENSE FITAR, com a `fetchAvisComptes`. Qui vulgui la
+ * finestra del curs no hi ha de passar un null «perquè encara no ho sap»:
+ * `useCurs().llest` diu quan la resposta és de debò.
+ *
+ * SENSE `limit` I AMB MOTIU. `max_rows = 1000` de PostgREST trunca en silenci,
+ * i per això `fetchAvisComptes` va fitada: aquella baixa els avisos de TOTHOM.
+ * Aquesta és d'una sola persona, i mil avisos a una sola persona no és un
+ * escenari que calgui defensar —si hi arribéssim, el problema no seria la
+ * consulta.
+ */
+export async function fetchAvisos(
+  userId: string,
+  desDe: string | null = null,
+  finsA: string | null = null,
+): Promise<AvisRow[]> {
+  let q = supabase
+    .from('avisos')
+    .select(AVIS_COLS)
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false })
+  if (desDe !== null) q = q.gte('created_at', desDe)
+  // Final exclusiu, com el `<` de `periode_curs()`: el primer instant del curs
+  // que ve és del curs que ve.
+  if (finsA !== null) q = q.lt('created_at', finsA)
+  return unwrapAs<AvisRow[]>(q)
 }
 
 /**

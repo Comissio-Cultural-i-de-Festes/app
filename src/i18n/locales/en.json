@@ -952,6 +952,7 @@
         "sureNoPoints": "No points will be taken: {{nombre}} will not move in the ranking.",
         "sureSeen": "{{nombre}} will see it on their profile with the reason you wrote, and the row is never deleted.",
         "sureCta": "Yes, record it",
+        "paused": "No connection. It will be recorded on its own once it is back.",
         "done": "Recorded: {{tipus}} for {{nombre}}."
       }
     },

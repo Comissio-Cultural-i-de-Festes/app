@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { AvisPeriode } from './avisosApi'
-import { compta, passaElLlindar, quantsPassen } from './avisosCompte'
+import { compta, dinsDelCurs, passaElLlindar, quantsPassen } from './avisosCompte'
 
 /**
  * El comptador que el llindar comparava contra res.
@@ -133,5 +133,31 @@ describe('el llindar', () => {
     expect(quantsPassen(comptes, 4)).toBe(2)
     expect(quantsPassen(comptes, 7)).toBe(0)
     expect(quantsPassen(comptes, 0)).toBe(0)
+  })
+})
+
+describe('si una fila es d’aquest curs', () => {
+  // La fitxa d'un soci la fa servir per decidir quines dates porten l'any, i
+  // `compta()` per decidir què suma: les dues respostes han de sortir d'aquí.
+  it('ho és la que hi cau dins', () => {
+    expect(dinsDelCurs('2026-10-14T20:00:00+00:00', CURS_DES_DE, CURS_FINS_A)).toBe(true)
+  })
+
+  it('no ho és la d’un curs anterior', () => {
+    expect(dinsDelCurs('2023-11-04T21:00:00+00:00', CURS_DES_DE, CURS_FINS_A)).toBe(false)
+  })
+
+  it('el primer instant del curs que ve ja no hi és', () => {
+    expect(dinsDelCurs(CURS_FINS_A, CURS_DES_DE, CURS_FINS_A)).toBe(false)
+  })
+
+  it('i el primer del curs sí', () => {
+    expect(dinsDelCurs(CURS_DES_DE, CURS_DES_DE, CURS_FINS_A)).toBe(true)
+  })
+
+  it('amb la finestra oberta pels dos costats hi cau tot', () => {
+    // Sense períodes configurats no hi ha curs, i llavors «fora del curs» no
+    // vol dir res: la data es pinta com sempre i el comptador compta tot.
+    expect(dinsDelCurs('2019-01-01T00:00:00+00:00', null, null)).toBe(true)
   })
 })

@@ -1,8 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import { doorKeys } from '@/features/door/api'
-import { fetchPeriods, periodBounds, rankingKeys } from '@/features/ranking/api'
-import { defaultPeriod } from '@/features/ranking/useRanking'
+import { useCurs } from '@/features/ranking/useRanking'
 
 import { SENSE_LLINDAR } from './avisosCompte'
 import { fetchPointValues } from './eventFormApi'
@@ -15,11 +14,14 @@ import { fetchPointValues } from './eventFormApi'
  * escrites dues vegades, n'hi hauria prou que una es deixés `defaultPeriod` per
  * tenir dos comptadors que no quadren i cap manera de saber quin s'equivoca.
  *
- * LA FINESTRA ÉS LA DEL CURS I NO LA DEL TRIMESTRE. `defaultPeriod` torna la
- * primera fila de `ranking_periods` per `ordre`, que és la de `mena = 'global'`;
- * és literalment la mateixa que tria `private.periode_curs()`, que és qui
- * decideix el sostre de punts dins d'`avisa()`. Les dues bandes de
- * l'aplicació compten el mateix curs perquè llegeixen la mateixa fila.
+ * LA FINESTRA ÉS LA DEL CURS I NO LA DEL TRIMESTRE, i qui la tria és
+ * `useCurs`, que filtra per `mena = 'global'`. La primera versió d'aquest fitxer
+ * es recolzava en `defaultPeriod` i deia que era literalment la mateixa fila que
+ * tria `private.periode_curs()`: era fals. Aquell és el primer per `ordre` sense
+ * mirar la `mena` —una preferència de pantalla— i la funció de la base fa
+ * `where mena = 'global' order by ordre, codi limit 1`. Coincidien només perquè
+ * la fila sembrada `curs` és global i té `ordre` 0, i `admin_save_periods` no
+ * exigeix ni que n'hi hagi cap de global ni que vagi primera.
  *
  * LES DUES CONSULTES JA SÓN A LA CACHE gairebé sempre: els períodes els comparteix
  * amb el rànquing i els valors amb la porta. Aquest ganxo no n'afegeix cap de
@@ -46,15 +48,9 @@ export function useLlindar(): {
   readonly llest: boolean
 } {
   const values = useQuery({ queryKey: doorKeys.pointValues(), queryFn: fetchPointValues })
-  const periods = useQuery({ queryKey: rankingKeys.periods(), queryFn: fetchPeriods })
+  const curs = useCurs()
 
   const fila = values.data?.find((v) => v.mena === 'avisos' && v.clau === 'llindar')
-  const bounds = periodBounds(defaultPeriod(periods.data))
 
-  return {
-    llindar: fila?.punts ?? SENSE_LLINDAR,
-    des_de: bounds.from,
-    fins_a: bounds.to,
-    llest: periods.isSuccess,
-  }
+  return { llindar: fila?.punts ?? SENSE_LLINDAR, ...curs }
 }

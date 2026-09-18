@@ -54,6 +54,17 @@ import { fetchAjustEvents, memberPointsKeys } from './memberPointsApi'
  * queda al formulari, que és el que ha de passar quan no hi ha cap lloc on
  * desar-ho.
  *
+ * PERÒ SÍ QUE HO HA DE DIR. Una pausa sense veu és un botó que no contesta: qui
+ * premia «Sí, registra'l» sota terra veia el botó quedar-se ocupat i res més,
+ * cap error, cap frase, i minuts després la fila apareixia sola quan tornava la
+ * cobertura. No es perdia res —és el disseny— però l'única cosa que la junta
+ * veia era una pantalla espatllada, i el remei que se li acut a qualsevol és
+ * tornar-hi, que és com es registra dos cops el mateix. `isPaused` ho diu amb
+ * una línia. La cua no hi entra: aquesta mutació no n'escriu cap i posar-n'hi
+ * una voldria dir un cinquè magatzem a `queue.ts`, un `client_request_id` i una
+ * RPC idempotent, que és molta màquina per a una pantalla que la junta fa
+ * servir asseguda.
+ *
  * LA VALIDACIÓ NO CRIDA, LA DESCRIU, i és la mateixa forma que `AdjustPointsBlock`
  * va trobar al costat: les dues frases anaven amb `role="alert"` i el que les fa
  * aparèixer és cada tecla, o sigui que escrivint «-900» el lector de pantalla
@@ -292,6 +303,16 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
           {t('junta.soci.avis.save')}
         </Button>
       )}
+
+      {/* En pausa i no fallada: `role="status"` i no `alert`, i en ambre i no
+          en vermell. No ha anat res malament —quan torni la cobertura es desa
+          sola— i interrompre un lector de pantalla per dir-ho seria dir-ho
+          malament. */}
+      {registra.isPaused ? (
+        <p role="status" className="pt-6 text-sm font-bold text-warning [text-wrap:pretty]">
+          {t('junta.soci.avis.paused')}
+        </p>
+      ) : null}
 
       <DoneLine
         className="pt-6"

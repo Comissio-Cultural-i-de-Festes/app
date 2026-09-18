@@ -50,9 +50,10 @@ describe('el nom d’un tipus d’avís', () => {
     // ensenyava la clau crua.
     //
     // Aquesta funció sempre ha estat correcta i aquesta prova sempre ha passat:
-    // el defecte era la PREMISSA de qui la cridava. És el cas que el CLAUDE.md
-    // descriu quan diu que una prova pot passar per sempre mentre la cosa està
-    // trencada, i per això es deixa escrit aquí i no només al bloc.
+    // el defecte era la PREMISSA de qui la cridava: el cas de manual d'aquesta
+    // casa on una prova passa per sempre mentre la cosa està trencada, perquè
+    // afirma sobre la funció i el defecte és a qui la crida. Per això es deixa
+    // escrit aquí i no només al bloc.
     //
     // Qui truqui aquesta funció ha de decidir si hi ha traducció amb
     // `i18n.exists`, que és el que fa `AvisTipusBlock` des del 2026-09-16.

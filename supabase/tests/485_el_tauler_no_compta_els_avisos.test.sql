@@ -1,23 +1,24 @@
--- «D'on surten els punts» del tauler compta mitja columna del llibre major.
+-- «D'on surten els punts» del tauler comptava mitja columna del llibre major.
 --
--- AQUEST FITXER ÉS VERMELL A POSTA. No prova cap regla que la base ja
--- compleixi: prova la que hauria de complir, i falla. Es deixa escrit i en
--- vermell perquè el forat quedi demostrat i no descrit — l'arreglament no és
--- d'aquesta feina i és d'una línia, que va anotada al final.
+-- AQUEST FITXER VA NÉIXER VERMELL, a posta: no provava cap regla que la base
+-- complís, sinó la que hauria de complir, i fallava. Es va deixar escrit i en
+-- vermell perquè el forat quedés demostrat i no descrit. La migració 80 el
+-- tanca i avui passa; cap asserció no s'ha tocat per aconseguir-ho, que és
+-- l'única manera que una prova escrita abans de l'arreglament serveixi de res.
 --
--- QUÈ PASSA. `admin_dashboard` munta `punts_per_motiu` amb un
+-- QUÈ PASSAVA. `admin_dashboard` muntava `punts_per_motiu` amb un
 -- `where l.puntos > 0` (migració 48). Quan es va escriure, cap motiu no podia
 -- ser negatiu i el filtre no treia res; la 73 va afegir `avis` (negatiu) i
--- `avis_retirat` (positiu, que el desfà) i, des d'aleshores, el filtre fa dues
--- coses alhora:
+-- `avis_retirat` (positiu, que el desfà) i, des d'aleshores, el filtre feia
+-- dues coses alhora:
 --
---   · amaga les files negatives senceres —els `avis` i els ajustos a mà que
---     resten—, o sigui que el motiu `avis` no surt al panell ni existint;
---   · i deixa passar el seu `avis_retirat`, que és la RETIRADA d'un càstig,
+--   · amagava les files negatives senceres —els `avis` i els ajustos a mà que
+--     resten—, o sigui que el motiu `avis` no sortia al panell ni existint;
+--   · i deixava passar el seu `avis_retirat`, que és la RETIRADA d'un càstig,
 --     pintada com si fos una font de punts guanyats.
 --
 -- Un avís posat i retirat suma zero al soci —el seu perfil ho fa bé— i al
--- panell suma +25. El panell i el perfil expliquen dos cursos diferents.
+-- panell sumava +25. El panell i el perfil explicaven dos cursos diferents.
 --
 -- PER QUÈ AQUÍ I NO A LA ISSUE #2. No en forma part: la #2 toca `conduir` i
 -- l'escala. Però el llibre que aquest panell llegeix és el que la 71 i la 76
@@ -81,22 +82,31 @@ select is(
   'i `avis_retirat` no es presenta com una font de punts guanyats'
 );
 
--- ── ON VA L'ARREGLAMENT ─────────────────────────────────────────────────────
+-- ── ON VA ANAR L'ARREGLAMENT ────────────────────────────────────────────────
 --
--- A `admin_dashboard`, al bloc `v_motius`: el `where l.puntos > 0` ha de
--- caure. La suma per motiu ja és un `sum()`, o sigui que amb el filtre fora
--- `avis` surt amb el seu signe i `avis_retirat` amb el seu, i els dos es
--- veuen l'un al costat de l'altre, que és el que explica el vespre.
+-- A `admin_dashboard`, al bloc `v_motius`, per la migració 80.
 --
--- El percentatge de `DashboardScreen.tsx:249` és l'altra meitat: amb números
+-- AQUEST PEU DEIA QUE ERA D'UNA LÍNIA I ES VA EQUIVOCAR, i val la pena deixar
+-- escrit per què. Deia: que caigui el `where l.puntos > 0` i llestos, que
+-- `avis` sortirà amb el seu signe i `avis_retirat` amb el seu. Les dues
+-- primeres assercions passen així; la quarta no. Treure el filtre tapa el
+-- primer dels dos símptomes que la capçalera enumera —les files negatives
+-- amagades— i deixa el segon sencer: `avis_retirat` continua sent una fila
+-- pròpia de +25 al gràfic de d'on surten els punts, que és exactament la
+-- retirada d'un càstig pintada com a punts guanyats.
+--
+-- Per això la 80 fa les dues coses: treu el filtre i agrupa `avis_retirat`
+-- sota `avis`. La fila `avis` passa a ser el net del període —un avís posat i
+-- retirat és un 0 que existeix— i el total de la llista torna a ser el del
+-- llibre major. Al perfil les dues línies segueixen separades, que és on la
+-- 73 les volia i on la pregunta és una altra: què va passar i quan.
+--
+-- El percentatge de `DashboardScreen.tsx` era l'altra meitat: amb números
 -- negatius al conjunt, `r.punts / totalPoints` deixa de ser una proporció i
--- una barra pot sortir negativa. La decisió de com es pinta una sanció —barra
--- cap a l'altra banda, secció a part, o fora del gràfic i en una línia de
--- text— és de producte i no d'aquest fitxer.
---
--- Com que canvia el cos d'una funció, va en una migració nova amb el seu
--- rollback, i la signatura no es toca: un paràmetre nou amb valor per defecte
--- crearia una sobrecàrrega i PostgREST contestaria PGRST203.
+-- una barra pot sortir negativa —i una amplada CSS negativa no encongeix la
+-- barra, la descarta i la deixa al 100%—. La decisió és de producte i està
+-- escrita allà: els motius que no sumen surten del gràfic i van a una línia de
+-- text a sota.
 
 select * from finish();
 rollback;

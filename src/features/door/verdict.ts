@@ -22,6 +22,12 @@ import type { CheckInResult } from './api'
  * capçalera d'estat, que ve del servidor i no depèn d'aquesta consulta, i
  * aquesta línia és informativa. Inventar-se un deute per si de cas és
  * exactament el que aquest fitxer arregla.
+ *
+ * I LA REGLA VAL TAMBÉ PER A LA CAPÇALERA, que és on no valia. El `null` es
+ * quedava la còpia de diners —«ni ha pagat», «mira que pagui abans d'entrar»—
+ * perquè la tria només mirava `priceCents === 0`: dins del mateix fitxer, la
+ * línia de detall callava i la frase de sobre acusava. Amb la xarxa lenta a una
+ * activitat de franc, això és el deute inventat per una altra porta.
  */
 
 export interface DetailPart {
@@ -39,21 +45,55 @@ export interface VerdictText {
   readonly detail: readonly DetailPart[]
 }
 
+/** Què se sap del preu, que són tres coses i no dues. */
+type PriceCase = 'paid' | 'free' | 'unknown'
+
+function priceCase(priceCents: number | null): PriceCase {
+  if (priceCents === null) return 'unknown'
+  return priceCents > 0 ? 'paid' : 'free'
+}
+
 /**
- * La còpia d'un estat quan l'activitat no costa res.
+ * La còpia d'un estat segons el que se sap del preu.
  *
  * Només `ok_walkin_review` en té: és l'estat de qui es presenta sense estar
  * apuntat en una activitat amb places comptades O amb preu, i quan és gratuïta
  * el que la fa saltar són les places. La frase de sempre parla de diners —«ni
- * ha pagat», «mira que pagui abans d'entrar»— i en aquest cas parla del que
+ * ha pagat», «mira que pagui abans d'entrar»— i quan és de franc parla del que
  * toca, que és que el número de places quadri.
+ *
+ * AMB EL PREU DESCONEGUT NO ES DIU NI L'UNA NI L'ALTRA. L'única cosa que se sap
+ * del cert és la que ve del servidor —aquesta persona no estava apuntada—, i
+ * és exactament el que diu `scanner.okWalkinReviewFree`: la frase no parla de
+ * diners però tampoc no parla de places, o sigui que és certa als dos casos.
+ * L'acció sí que en necessita una de pròpia, perquè les altres dues afirmen un
+ * fet de l'esdeveniment. «Apunta-ho» és el que tenen en comú i el que la junta
+ * pot fer sense saber res més.
+ *
+ * L'opció descartada era deixar-hi la còpia de diners mentre no se sabés el
+ * preu, per no amagar mai un cobrament de debò. Costava el mateix que arregla
+ * la línia de detall: a una activitat gratuïta amb la consulta en vol, algú que
+ * no estava apuntat sortia amb un deute sota el nom que ningú no pot respondre.
  */
-const FREE_COPY: Partial<Record<CheckInStatus, Omit<VerdictText, 'detail'>>> = {
-  ok_walkin_review: {
+const WALKIN_REVIEW_COPY: Record<PriceCase, Omit<VerdictText, 'detail'>> = {
+  paid: {
+    headlineKey: 'scanner.okWalkinReview',
+    actionKey: 'scanner.action.okWalkinReview',
+  },
+  free: {
     headlineKey: 'scanner.okWalkinReviewFree',
     actionKey: 'scanner.action.okWalkinReviewFree',
   },
+  unknown: {
+    headlineKey: 'scanner.okWalkinReviewFree',
+    actionKey: 'scanner.action.okWalkinReviewUnknown',
+  },
 }
+
+const PRICED_COPY: Partial<Record<CheckInStatus, Record<PriceCase, Omit<VerdictText, 'detail'>>>> =
+  {
+    ok_walkin_review: WALKIN_REVIEW_COPY,
+  }
 
 export function verdictText(
   shown: ScanPresentation,
@@ -67,8 +107,12 @@ export function verdictText(
     readonly priceCents: number | null
   },
 ): VerdictText {
-  // Zero és de franc; null és «encara no se sap», que no és el mateix.
-  const override = opts.priceCents === 0 && result !== null ? FREE_COPY[result.status] : undefined
+  // LA TRIA VA PER `result.status` I NO PER `shown`. Un escaneig encuat es
+  // dibuixa amb la presentació d'`ok_walkin_review` manllevada, o sigui que
+  // mirar-se `shown` acabaria triant la còpia d'un estat que el servidor no ha
+  // dit mai. Sense `result` no hi ha estat i no hi ha res a substituir.
+  const override =
+    result === null ? undefined : PRICED_COPY[result.status]?.[priceCase(opts.priceCents)]
   const words = override ?? { headlineKey: shown.messageKey, actionKey: shown.actionKey }
 
   return {

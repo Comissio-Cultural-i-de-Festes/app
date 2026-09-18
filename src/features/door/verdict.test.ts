@@ -85,9 +85,14 @@ describe('la capçalera de qui es presenta sense estar apuntat', () => {
     expect(w.actionKey).toBe('scanner.action.okWalkinReviewFree')
   })
 
-  it('i no canvia de frase mentre no se sap el preu', () => {
+  // El cas que aquest fitxer fixava al revés: mentre no se sap el preu es
+  // quedava la còpia de diners, o sigui que el `null` es tractava com «de
+  // pagament» just a l'inrevés del que fa la línia de detall, tres proves més
+  // amunt. La frase que hi va és la que no afirma res de l'esdeveniment.
+  it('i mentre no se sap el preu no parla ni de diners ni de places', () => {
     const w = verdictText(SCAN_PRESENTATION.ok_walkin_review, walkin, { ...PLA, priceCents: null })
-    expect(w.headlineKey).toBe('scanner.okWalkinReview')
+    expect(w.headlineKey).toBe('scanner.okWalkinReviewFree')
+    expect(w.actionKey).toBe('scanner.action.okWalkinReviewUnknown')
   })
 
   it('cap altre estat no té versió gratuïta', () => {

@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
 
 import { formatMoney, formatPrice } from '@/features/event/api'
-import { horizonIso } from '@/features/home/api'
 import { MemberLink } from '@/features/member/MemberLink'
 import { memberSubtitle } from '@/features/member/subtitle'
 import { formatDayMonth } from '@/i18n/format'
@@ -19,7 +18,7 @@ import { NavRow } from '@/ui/Row/Row'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
-import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
+import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
 import { paidHeader } from './payments'
 import {
   type AttendeeRow,
@@ -54,7 +53,7 @@ export function PaymentsScreen() {
   const { t } = useTranslation()
   const { eventId } = useParams()
 
-  const horizon = horizonIso()
+  const horizon = juntaHorizonIso()
   const events = useQuery({
     queryKey: juntaEventKeys.list(horizon),
     queryFn: () => fetchJuntaEvents(horizon),
@@ -98,8 +97,14 @@ export function PaymentsScreen() {
               {t(errorKey(events.error))}
             </p>
           ) : event === null ? (
+            // DUES BUIDORS DIFERENTS. «Encara no hi ha res al calendari» amb el
+            // selector de set esdeveniments dibuixat just a sobre era la frase
+            // que es llegia quan l'id de la URL no era a la llista, i deia una
+            // cosa que la mateixa pantalla desmentia. Qui hi arriba així ve
+            // d'una fila del rebedor, o sigui que el que li falta és per on
+            // continuar, no que se li digui que creï el primer esdeveniment.
             <p className={`pt-10 text-md text-fg-muted [text-wrap:pretty] ${GUTTER}`}>
-              {t('junta.noEvents')}
+              {t(list.length === 0 ? 'junta.noEvents' : 'junta.payments.notInList')}
             </p>
           ) : (
             <PaidList
@@ -403,6 +408,15 @@ function PaidList({
   const each = formatPrice(priceCents, INTL_LOCALE[locale])
   const total = each === null ? null : formatMoney(head.n * priceCents, INTL_LOCALE[locale])
 
+  // EL NÚMERO GRAN NOMÉS SURT QUAN ESTÀ COMPTAT. `rows` arriba buit mentre la
+  // consulta d'apuntats vola i també quan ha petat, i a la branca de franc
+  // aquell número ÉS la gent: es llegia «QUI VE / 0 / que han dit que sí», un
+  // zero indistingible de la veritat, amb la silueta de la llista a sota i cap
+  // avís. El títol i l'avís sí que es queden: els decideix el preu, que ja ha
+  // tornat amb l'esdeveniment.
+  // Amb error no hi va silueta: la silueta promet que allò arribarà, i no
+  // arribarà. Hi va el buit, i l'avís de sota diu què ha passat.
+
   const toggle = useMutation({
     mutationFn: ({ id, pagado }: { id: string; pagado: boolean }) => setPaid(id, pagado),
     onSuccess: async () => {
@@ -415,24 +429,30 @@ function PaidList({
       <section className={`pt-8 ${GUTTER}`}>
         <h1 className="display text-d-md leading-[0.9] tracking-[-0.05em]">{t(head.titleKey)}</h1>
 
-        <div className="mt-7 flex items-end gap-7">
-          <div>
-            <p className="display text-d-xl leading-[0.95] tracking-[-0.055em] tabular-nums">
-              {head.n}
-            </p>
-            <p className="mt-1 text-sm font-bold text-fg-muted">
-              {t(head.subKey, { count: head.subCount })}
-            </p>
-          </div>
-          {each === null || total === null ? null : (
-            <div className="flex-1 pb-2">
-              <p className="text-xl font-extrabold tracking-[-0.02em] text-success">{total}</p>
-              <p className="mt-1 text-sm font-semibold text-fg-muted [text-wrap:pretty]">
-                {t('junta.payments.eachOne', { price: each })}
+        {loading ? (
+          <Skeleton>
+            <CountSkeleton money={each !== null} />
+          </Skeleton>
+        ) : error !== null ? null : (
+          <div className="mt-7 flex items-end gap-7">
+            <div>
+              <p className="display text-d-xl leading-[0.95] tracking-[-0.055em] tabular-nums">
+                {head.n}
+              </p>
+              <p className="mt-1 text-sm font-bold text-fg-muted">
+                {t(head.subKey, { count: head.subCount })}
               </p>
             </div>
-          )}
-        </div>
+            {each === null || total === null ? null : (
+              <div className="flex-1 pb-2">
+                <p className="text-xl font-extrabold tracking-[-0.02em] text-success">{total}</p>
+                <p className="mt-1 text-sm font-semibold text-fg-muted [text-wrap:pretty]">
+                  {t('junta.payments.eachOne', { price: each })}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         <Notice tone="neutral" size="tight" className="mt-8 font-medium">
           {t(head.noticeKey)}
@@ -617,6 +637,32 @@ function GuestRow({ row }: { readonly row: AttendeeRow }) {
 }
 
 /**
+ * El número gran mentre encara s'està comptant.
+ *
+ * La mateixa silueta que porta `PaidSkeleton head` a dins, treta fora perquè
+ * aquí es fa servir sola: el títol i l'avís ja se saben —els decideix el preu—
+ * i l'únic que falta és el recompte. La meitat dels diners hi surt o no segons
+ * si n'hi ha, perquè una barra verda a una activitat de franc prometria un
+ * import que no arribarà mai.
+ */
+function CountSkeleton({ money }: { readonly money: boolean }) {
+  return (
+    <div className="mt-7 flex items-end gap-7">
+      <div>
+        <SkeletonBar w="w-[54px]" h="h-[51px]" />
+        <SkeletonBar w="w-[80px]" h="h-[12px]" className="mt-1" />
+      </div>
+      {money ? (
+        <div className="flex-1 pb-2">
+          <SkeletonBar w="w-[45%]" h="h-[20px]" />
+          <SkeletonBar w="w-[70%]" h="h-[12px]" className="mt-1" />
+        </div>
+      ) : null}
+    </div>
+  )
+}
+
+/**
  * Els qui han pagat, i —amb `head`— també la capçalera que hi va a sobre.
  *
  * Són dos estats de càrrega diferents amb la mateixa silueta a sota: el de
@@ -630,16 +676,9 @@ function PaidSkeleton({ head = false }: { readonly head?: boolean }) {
       {head ? (
         <div className={`pt-8 ${GUTTER}`}>
           <SkeletonBar w="w-[72%]" h="h-[38px]" />
-          <div className="mt-7 flex items-end gap-7">
-            <div>
-              <SkeletonBar w="w-[54px]" h="h-[51px]" />
-              <SkeletonBar w="w-[80px]" h="h-[12px]" className="mt-1" />
-            </div>
-            <div className="flex-1 pb-2">
-              <SkeletonBar w="w-[45%]" h="h-[20px]" />
-              <SkeletonBar w="w-[70%]" h="h-[12px]" className="mt-1" />
-            </div>
-          </div>
+          {/* Amb diners: d'aquí encara no se sap ni el preu, i una silueta no
+              afirma cap import — només que allà hi anirà alguna cosa. */}
+          <CountSkeleton money />
           <SkeletonBar w="w-full" h="h-[62px]" className="mt-8" />
         </div>
       ) : null}

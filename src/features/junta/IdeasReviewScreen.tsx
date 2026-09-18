@@ -7,9 +7,8 @@ import { eventTitle } from '@/features/event/title'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
-import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
+import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
 import { INPUT } from './formBits'
-import { horizonIso } from '@/features/home/api'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { JuntaHeader } from './JuntaHeader'
 
@@ -35,8 +34,8 @@ export function IdeasReviewScreen() {
 
   const list = useQuery({ queryKey: proposalKeys.list(), queryFn: fetchProposals })
   const events = useQuery({
-    queryKey: juntaEventKeys.list(horizonIso()),
-    queryFn: () => fetchJuntaEvents(horizonIso()),
+    queryKey: juntaEventKeys.list(juntaHorizonIso()),
+    queryFn: () => fetchJuntaEvents(juntaHorizonIso()),
   })
 
   const send = useMutation({

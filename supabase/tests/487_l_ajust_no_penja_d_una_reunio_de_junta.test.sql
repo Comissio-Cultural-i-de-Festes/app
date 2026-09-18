@@ -45,7 +45,20 @@
 begin;
 select plan(2);
 
+-- LA REUNIÓ SE LA FA AQUEST FITXER I NO LA DEMANA A LA LLAVOR. L'única reunió
+-- de junta sembrada («Junta de dimarts») és `now() + 2 days`, i les dues
+-- assercions parlen de la llista del formulari, que només ofereix el que ja ha
+-- passat. Demanar-la a la llavor feia passar el fitxer en una base on algú
+-- n'hagués creat una de passada des de la pantalla, i caure en una de nova
+-- —que és el que fa la integració contínua a cada execució.
 reset role;
+insert into public.events (id, tipo, abast, starts_at, plazas, precio_cents, puntos, published, created_by)
+values ('00000000-0000-4000-8000-0000000000f7', 'reunio', 'junta',
+        now() - interval '2 days', null, 0, 0, true,
+        '00000000-0000-4000-8000-0000000000a1');
+insert into public.event_title (event_id, titulo)
+values ('00000000-0000-4000-8000-0000000000f7', 'Junta inventada de fa dos dies');
+
 select tests.authenticate_as('junta_alfa');
 
 -- La regla, tal com és avui.

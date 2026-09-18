@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from 'vitest'
 
-import { type Client, as, rpc } from './helpers'
+import { type Client, as, rpc, serviceClient } from './helpers'
 
 /**
  * El desplegable «De quina nit» de l'ajust a mà, tal com arriba.
@@ -26,8 +26,18 @@ import { type Client, as, rpc } from './helpers'
  * falla no deixa fila: es pot tornar a executar tantes vegades com calgui.
  */
 
-/** «Junta de dimarts»: `abast = 'junta'`, ja passada. */
-const REUNIO_DE_JUNTA = '00000000-0000-4000-8000-0000000000e9'
+/**
+ * LA REUNIÓ SE LA FA AQUESTA PROVA, I NO LA DEMANA A LA LLAVOR. La reunió de
+ * junta sembrada neix `now() + 2 days`, o sigui que és futura el dia que es
+ * sembra i passada dos dies després. Les tres assercions parlen de la llista
+ * del formulari, que només ofereix el que ja ha passat: agafant-la de la
+ * llavor, la prova passava en una base de fa dies i queia en una de nova —que
+ * és la que fa la integració contínua a cada execució—.
+ *
+ * L'identificador porta el rellotge a dins perquè aquesta suite escriu i no
+ * desfà res: cada execució es fa la seva i no es troba la de l'anterior.
+ */
+const REUNIO_DE_JUNTA = `00000000-0000-4000-8000-${String(Date.now()).slice(-12)}`
 
 const ARA = () => new Date().toISOString()
 
@@ -35,6 +45,25 @@ let junta: Client
 
 beforeAll(async () => {
   junta = await as('junta_alfa')
+
+  const service = serviceClient()
+  const { error } = await service.from('events').insert({
+    id: REUNIO_DE_JUNTA,
+    tipo: 'reunio',
+    abast: 'junta',
+    starts_at: new Date(Date.now() - 2 * 24 * 3600 * 1000).toISOString(),
+    plazas: null,
+    precio_cents: 0,
+    puntos: 0,
+    published: true,
+    created_by: '00000000-0000-4000-8000-0000000000a1',
+  })
+  if (error) throw error
+
+  const titol = await service
+    .from('event_title')
+    .insert({ event_id: REUNIO_DE_JUNTA, titulo: 'Junta inventada de fa dos dies' })
+  if (titol.error) throw titol.error
 })
 
 describe('la llista «De quina nit» de l’ajust a mà', () => {

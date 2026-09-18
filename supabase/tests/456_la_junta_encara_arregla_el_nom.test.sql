@@ -1,4 +1,4 @@
--- L'altra meitat del 455: què NO s'endú la tanca de la 77.
+-- L'altra meitat del 455: què NO s'endú la tanca de la 79.
 --
 -- El 455 diu que la junta no escriu l'Instagram d'un altre soci. Sol, això
 -- passaria igual amb una tanca massa ampla —treure'ls l'UPDATE sobre la fila
@@ -7,7 +7,7 @@
 -- nom mal escrit. Una prova que només mira el que ha de fallar deixa passar
 -- una tanca que ho falla tot.
 --
--- LA SEGONA ASSERCIÓ ÉS LA DECISIÓ DE LA 77 FETA EXECUTABLE. La 77 fixa el
+-- LA SEGONA ASSERCIÓ ÉS LA DECISIÓ DE LA 79 FETA EXECUTABLE. La 79 fixa el
 -- valor vell en comptes de petar, i el que això vol dir és exactament això: en
 -- una sola sentència amb el nom i l'Instagram, el nom arriba i l'Instagram no
 -- es mou. Amb un `raise` hi hauria zero canvis i aquesta prova seria vermella;

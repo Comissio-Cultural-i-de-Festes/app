@@ -1,10 +1,10 @@
--- Rollback de la migració 77. NO és a `migrations/` a posta: un fitxer aquí
+-- Rollback de la migració 79. NO és a `migrations/` a posta: un fitxer aquí
 -- dins el desfaria el mateix `db push` que acaba d'aplicar-lo.
 --
 -- Torna `private.profiles_guard()` a la versió del 07: només els quatre camps
 -- que van per RPC (`id`, `role`, `estat`, `created_at`). Desfer-ho vol dir
 -- tornar a deixar que qualsevol membre de la junta posi i tregui l'Instagram
--- d'un altre soci per PostgREST, que és el forat que la 77 tapa. Es deixa
+-- d'un altre soci per PostgREST, que és el forat que la 79 tapa. Es deixa
 -- escrit aquí i no en un comentari amable: qui apliqui aquest fitxer ha de
 -- saber què torna a obrir.
 --
@@ -12,7 +12,7 @@
 -- comportament, però un comentari que descriu una garantia que ja no hi és és
 -- pitjor que cap comentari.
 --
--- Les files ja escrites no es toquen: la 77 no en va moure cap, només va
+-- Les files ja escrites no es toquen: la 79 no en va moure cap, només va
 -- decidir qui les pot moure d'ara endavant.
 
 create or replace function private.profiles_guard()

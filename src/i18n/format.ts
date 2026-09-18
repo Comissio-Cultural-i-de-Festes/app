@@ -195,3 +195,30 @@ export function formatHores(minuts: number, l: Locale): string {
   const { xifra, unitat } = horesParts(minuts, l)
   return `${xifra} ${unitat}`
 }
+
+const sfCache = new Map<Locale, Intl.NumberFormat>()
+
+function sf(locale: Locale): Intl.NumberFormat {
+  const hit = sfCache.get(locale)
+  if (hit) return hit
+  const made = new Intl.NumberFormat(INTL_LOCALE[locale], { signDisplay: 'exceptZero' })
+  sfCache.set(locale, made)
+  return made
+}
+
+/**
+ * Un número que ha de dir el seu signe: «−25», «0», «+25».
+ *
+ * Per a una columna on hi conviuen números que resten i números que no mouen
+ * res. Sense el signe, un «25» en una llista de coses que no sumen es llegeix
+ * com si sumés, que és exactament el malentès que el tauler arrossegava.
+ *
+ * `exceptZero` i no `always` a posta: el zero no té signe. «+0» és el que
+ * sortiria d'un avís posat i retirat, i llegir-lo com un guany és el mateix
+ * error amb una altra cara.
+ *
+ * Per Intl com tota la resta de números de l'app, i no amb un `'-' + n`: el
+ * separador de milers és el de l'idioma, i el signe el que la llengua escrigui
+ * —avui un guionet a les tres, però això és de la llengua i no nostre—.
+ */
+export const formatSigned = (n: number, l: Locale): string => sf(l).format(n)

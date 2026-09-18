@@ -5,6 +5,7 @@ import {
   type Period,
   type RankingRow,
   type SchoolRow,
+  cursPeriod,
   fetchPeriods,
   fetchRanking,
   fetchSchools,
@@ -31,9 +32,39 @@ export function usePeriods() {
   })
 }
 
-/** The first row by `ordre`, which is the whole course unless the junta says otherwise. */
+/**
+ * The first row by `ordre`, which is the tab the ranking opens on.
+ *
+ * This is a screen preference and nothing else: the junta reorders the rows and
+ * the ranking opens where they put them. Anything that has to agree with
+ * `private.periode_curs()` — the warnings counter, the warnings ceiling — wants
+ * `cursPeriod` instead, which filters by `mena`. The two used to be described
+ * as the same function and they never were.
+ */
 export function defaultPeriod(periods: readonly Period[] | undefined): Period | null {
   return periods?.[0] ?? null
+}
+
+/**
+ * La finestra del curs, i si ja se sap quina és.
+ *
+ * DOS BLOCS LA DEMANEN des de dues bandes de l'aplicació —el comptador d'avisos
+ * de la junta i la targeta d'avisos del perfil— i han de respondre el mateix.
+ * És la mateixa raó per la qual `useLlindar` existeix, un pis més avall.
+ *
+ * `llest` NO ÉS COSMÈTIC. Amb els períodes encara a mig arribar, `des_de` és
+ * null, i null vol dir «sense fitar»: una consulta llançada abans d'hora baixa
+ * l'històric sencer i el pinta sota una frase que diu «aquest curs». Qui fita
+ * per aquesta finestra espera `llest`.
+ */
+export function useCurs(): {
+  readonly des_de: string | null
+  readonly fins_a: string | null
+  readonly llest: boolean
+} {
+  const periods = usePeriods()
+  const bounds = periodBounds(cursPeriod(periods.data))
+  return { des_de: bounds.from, fins_a: bounds.to, llest: periods.isSuccess }
 }
 
 export interface Board {

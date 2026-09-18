@@ -59,13 +59,36 @@ import type { AvisCompte, AvisPeriode } from './avisosApi'
 export const SENSE_LLINDAR = 0
 
 /**
- * Les files agrupades per persona, dins de la finestra.
+ * Si una fila és d'aquest curs.
+ *
+ * ESTÀ A PART PERQUÈ LA DEMANEN DOS. `compta()` la necessita per saber què suma
+ * i la fitxa d'un soci la necessita per saber quines files ha de datar amb
+ * l'any: allà la llista es baixa sencera —la junta hi ha de veure l'històric—
+ * i el comptador de la capçalera només compta les d'aquest curs, o sigui que
+ * les dues coses han de partir exactament de la mateixa condició. Amb la
+ * condició escrita dues vegades, un `<` que es tornés `<=` en una de les dues
+ * donaria un comptador i una llista que no quadren i cap manera de saber quin
+ * s'equivoca. És el mateix motiu pel qual `useLlindar` existeix.
  *
  * `des_de` i `fins_a` són les del curs, i qualsevol dels dos pot ser null —una
  * finestra oberta per aquell costat—, que és exactament el que fa
  * `private.periode_curs()` quan `ranking_periods` no té data de final. Un curs
  * que encara no s'ha acabat no és un error de configuració.
+ *
+ * FINAL EXCLUSIU, com el `<` de `periode_curs()` a `avisa()`: el primer instant
+ * del curs que ve és del curs que ve.
  */
+export function dinsDelCurs(
+  created_at: string,
+  des_de: string | null,
+  fins_a: string | null,
+): boolean {
+  if (des_de !== null && created_at < des_de) return false
+  if (fins_a !== null && created_at >= fins_a) return false
+  return true
+}
+
+/** Les files agrupades per persona, dins de la finestra. */
 export function compta(
   files: readonly AvisPeriode[],
   des_de: string | null,
@@ -75,10 +98,7 @@ export function compta(
 
   for (const fila of files) {
     if (fila.retirat_at !== null) continue
-    if (des_de !== null && fila.created_at < des_de) continue
-    // Final exclusiu, com el `<` de `periode_curs()` a `avisa()`: el primer
-    // instant del curs que ve és del curs que ve.
-    if (fins_a !== null && fila.created_at >= fins_a) continue
+    if (!dinsDelCurs(fila.created_at, des_de, fins_a)) continue
 
     const abans = out.get(fila.user_id)
     out.set(fila.user_id, {

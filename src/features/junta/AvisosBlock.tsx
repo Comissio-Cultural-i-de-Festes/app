@@ -4,8 +4,9 @@ import { useTranslation } from 'react-i18next'
 
 import { profileScreenKeys } from '@/features/profile/api'
 import { LEDGER_ROW } from '@/features/profile/ledger'
-import { formatDayMonth } from '@/i18n/format'
-import { toLocale } from '@/i18n/locales'
+import { useCurs } from '@/features/ranking/useRanking'
+import { formatDayMonth, formatMonthYear } from '@/i18n/format'
+import { type Locale, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { Confirm } from '@/ui/Confirm/Confirm'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
@@ -14,6 +15,7 @@ import { notaValida } from './avis'
 import { AvisForm } from './AvisForm'
 import { clauGravetat, nomDelTipus } from './avisTipus'
 import { type AvisRow, avisosKeys, fetchAvisTipus, fetchAvisos, retiraAvis } from './avisosApi'
+import { compta, dinsDelCurs } from './avisosCompte'
 import { INPUT } from './formBits'
 
 /**
@@ -33,6 +35,19 @@ import { INPUT } from './formBits'
  * el que explica el `-25` i el `+25` que hi ha al llibre major just a sobre, i
  * una retirada que s'endugués la fila deixaria els dos moviments orfes. Ratllat
  * vol dir «això ja no compta», que és diferent de «això no va passar».
+ *
+ * LA LLISTA ÉS L'HISTÒRIC I EL NÚMERO ÉS EL DEL CURS, i no és cap descuit. Qui
+ * obre una fitxa hi ve a entendre què porta una persona abans de registrar-li
+ * res, i «què porta» inclou el que va passar fa dos cursos: fitar la llista pel
+ * curs amagaria justament el que aquesta pantalla existeix per ensenyar. El
+ * comptador de la capçalera, en canvi, ha de dir el mateix que el de
+ * `/junta/socis`, que és el del curs —«al setembre torna a zero tot sol»—, i per
+ * això el fa `compta()` i no un `filter` escrit aquí. Abans n'hi havia un, sobre
+ * la lectura sencera: les dues pantalles deien «avisos» i comptaven coses
+ * diferents, i quadraven només perquè cap fila no era d'abans d'aquest curs.
+ *
+ * I LES FILES DE FORA DEL CURS PORTEN L'ANY. Amb el número acotat i la llista
+ * no, una fila vella datada «4 de nov.» és una trampa. Ho fa `Data`, a baix.
  *
  * EL CATÀLEG ES BAIXA SENCER, retirats inclosos, i per això no es reaprofita la
  * llista del formulari. Un avís de fa dos cursos pot fer servir un tipus que
@@ -57,6 +72,8 @@ export function AvisosBlock({
 
   const [retirant, setRetirant] = useState<string | null>(null)
   const [nota, setNota] = useState('')
+
+  const { des_de, fins_a, llest } = useCurs()
 
   const avisos = useQuery({
     queryKey: avisosKeys.ofMember(userId),
@@ -92,13 +109,18 @@ export function AvisosBlock({
   })
 
   const rows = avisos.data ?? []
-  const vius = rows.filter((row) => row.retirat_at === null).length
+  // El MATEIX recompte que la llista de socis, i per la mateixa funcio: vius i
+  // d'aquest curs. Aqui hi havia un rows.filter(retirat_at === null).length
+  // sobre una lectura sense finestra, o sigui que les dues pantalles deien
+  // «avisos» i comptaven coses diferents. Quadraven per les dades d'avui i el
+  // setembre que ve el de la llista tornaria a zero i el d'aqui no.
+  const vius = compta(rows, des_de, fins_a).get(userId)?.quants ?? 0
 
   return (
     <section className="pt-10">
       <div className="flex items-baseline justify-between gap-6">
         <h2 className="eyebrow text-fg-muted">{t('junta.soci.avisos.title')}</h2>
-        {avisos.isSuccess ? (
+        {avisos.isSuccess && llest ? (
           <p className="tabular text-lg font-extrabold">
             {t('junta.soci.avisos.live', { count: vius })}
           </p>
@@ -119,9 +141,7 @@ export function AvisosBlock({
         <ul className="mt-2">
           {rows.map((row) => (
             <li key={row.id} className={LEDGER_ROW}>
-              <p className="w-[52px] flex-none pt-[2px] text-sm-lo font-semibold text-fg-dim">
-                {formatDayMonth(new Date(row.created_at), locale)}
-              </p>
+              <Data quan={row.created_at} desDe={des_de} finsA={fins_a} locale={locale} />
               <div className="min-w-0 flex-1">
                 <p
                   className={
@@ -196,6 +216,42 @@ export function AvisosBlock({
 
       <AvisForm userId={userId} nombre={nombre} />
     </section>
+  )
+}
+
+/**
+ * La data de la fila, amb l'any quan no és d'aquest curs.
+ *
+ * «4 de nov.» AL COSTAT D'UN «12 de set.» es llegeix com el novembre que ve,
+ * i aquesta llista baixa l'històric sencer: una fila de fa tres cursos hi
+ * sortia amb la mateixa pinta que la d'ahir, just a sota d'un comptador que
+ * ara només compta les d'aquest curs. Amb el número acotat i la llista no,
+ * dir de quin any és cada fila deixa de ser un detall.
+ *
+ * L'ANY ARRIBA I EL DIA SE'N VA. La columna fa 52px i el dia, el mes i l'any
+ * no hi caben en una línia; de les tres coses, la que importa d'un avís vell
+ * és de quin curs era. El dia exacte continua a la base i a l'auditoria.
+ *
+ * LA CONDICIÓ ÉS `dinsDelCurs`, la mateixa que decideix què compta el número
+ * de la capçalera. Escrita dues vegades, hi hauria files datades amb l'any que
+ * el comptador sí que compta, o al revés.
+ */
+function Data({
+  quan,
+  desDe,
+  finsA,
+  locale,
+}: {
+  readonly quan: string
+  readonly desDe: string | null
+  readonly finsA: string | null
+  readonly locale: Locale
+}) {
+  const d = new Date(quan)
+  return (
+    <p className="w-[52px] flex-none pt-[2px] text-sm-lo font-semibold text-fg-dim">
+      {dinsDelCurs(quan, desDe, finsA) ? formatDayMonth(d, locale) : formatMonthYear(d, locale)}
+    </p>
   )
 }
 

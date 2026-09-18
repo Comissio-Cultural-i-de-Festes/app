@@ -29,6 +29,18 @@ function dtf(locale: Locale, options: Intl.DateTimeFormatOptions): Intl.DateTime
 export const formatDayMonth = (d: Date, l: Locale): string =>
   dtf(l, { day: 'numeric', month: 'short' }).format(d)
 
+/**
+ * "nov. 2023". For a date that is not from the current course.
+ *
+ * The day goes and the year arrives on purpose. A warning from three courses
+ * back rendered as "4 de nov." next to one from last week reads as last
+ * November, and the column is 52px wide — day, month and year in it wrap to
+ * three lines. Which year it was is the thing that matters about an old row;
+ * which day of November it was, is not.
+ */
+export const formatMonthYear = (d: Date, l: Locale): string =>
+  dtf(l, { month: 'short', year: 'numeric' }).format(d)
+
 export const formatTime = (d: Date, l: Locale): string =>
   dtf(l, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(d)
 

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 
 import { clauGravetat, nomDelTipus } from '@/features/junta/avisTipus'
 import { avisosKeys, fetchAvisTipus, fetchAvisos } from '@/features/junta/avisosApi'
+import { useCurs } from '@/features/ranking/useRanking'
 import { formatDayMonth } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 
@@ -27,9 +28,27 @@ import { LEDGER_ROW } from './ledger'
  * va haver un avís i que consti que es va retirar: si desaparegués, la persona
  * que va demanar que es revisés no tindria manera de saber que algú ho va fer.
  *
+ * ELS D'AQUEST CURS I NO ELS DE SEMPRE. La frase de sota el títol diu «el que la
+ * junta ha registrat aquest curs», i la primera versió d'aquesta targeta
+ * ensenyava l'històric sencer sota aquella frase. Amb la columna de la data
+ * sense any —«4 de nov.»—, un avís de fa tres cursos es llegia com si fos
+ * d'aquest novembre i no hi havia manera de saber-ho des de la pantalla. O es
+ * canviava la frase, o es fitava la lectura: es fita, perquè el comptador que
+ * la junta mira a `/junta/socis` també és del curs i les dues bandes han de dir
+ * el mateix número de la mateixa persona.
+ *
+ * QUÈ ES PERD I PER QUÈ NO PASSA RES. Un avís d'un curs anterior deixa de
+ * sortir al perfil. Continua existint, la fitxa de la junta el continua
+ * ensenyant amb l'any a la data, i el `-25` que va restar continua al llibre
+ * major de just a sobre. El que desapareix és el recordatori permanent d'una
+ * cosa que el comptador ja no compta.
+ *
  * SENSE CAP, NO HI HA TARGETA. Un bloc buit que digui «cap avís» al perfil de
  * tothom és recordar-li cada dia a qui no n'ha tingut mai que això existeix.
- * Mateix criteri que la secció d'historial del costat.
+ * Mateix criteri que la secció d'historial del costat. També és el que es veu
+ * mentre els períodes no han arribat: sense ells, `des_de` és null i «sense
+ * finestra» seria indistingible de «encara no ho sé», o sigui que la consulta
+ * no surt fins que `useCurs().llest`.
  *
  * LES DADES VÉNEN DE `features/junta/avisosApi`, i el nom del fitxer enganya una
  * mica. Aquella lectura no és de la junta: és la mateixa consulta sobre la
@@ -41,10 +60,12 @@ export function AvisosCard({ userId }: { readonly userId: string }) {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
 
+  const { des_de, fins_a, llest } = useCurs()
+
   const avisos = useQuery({
-    queryKey: avisosKeys.ofMember(userId),
-    queryFn: () => fetchAvisos(userId),
-    enabled: userId !== '',
+    queryKey: avisosKeys.ofMemberPeriode(userId, des_de, fins_a),
+    queryFn: () => fetchAvisos(userId, des_de, fins_a),
+    enabled: userId !== '' && llest,
   })
   const cataleg = useQuery({
     queryKey: avisosKeys.tipus(),

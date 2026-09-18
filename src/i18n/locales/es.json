@@ -949,6 +949,7 @@
         "sureNoPoints": "No se restará ningún punto: {{nombre}} no se moverá del ranking.",
         "sureSeen": "{{nombre}} lo verá en su perfil con el motivo que has escrito, y la fila no se borra nunca.",
         "sureCta": "Sí, regístralo",
+        "paused": "Sin conexión. Se registrará solo cuando vuelva.",
         "done": "Registrado: {{tipus}} para {{nombre}}."
       }
     },

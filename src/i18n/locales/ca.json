@@ -949,6 +949,7 @@
         "sureNoPoints": "No es restarà cap punt: {{nombre}} no es mourà del rànquing.",
         "sureSeen": "{{nombre}} ho veurà al seu perfil amb el motiu que has escrit, i la fila no s'esborra mai.",
         "sureCta": "Sí, registra'l",
+        "paused": "Sense connexió. Es registrarà tot sol quan torni.",
         "done": "Registrat: {{tipus}} per a {{nombre}}."
       }
     },

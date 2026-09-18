@@ -100,6 +100,17 @@ export async function fetchHores(): Promise<Hores> {
  * còpies voldrien dir que el dia que el filtre s'hagi de tocar només se'n
  * toqui una.
  */
+/**
+ * Quantes files baixa com a màxim.
+ *
+ * S'exporta perquè qui les SUMA ha de poder saber que n'hi podria haver més:
+ * un total fet sobre una llista retallada és un número fals, i callar-ho a la
+ * pantalla que existeix precisament per quadrar els punts seria pitjor que no
+ * ensenyar-ne cap. Amb `rows.length === LIMIT_PUNTS` no se sap si n'hi ha 200
+ * o 400, i és exactament el que la nota diu: que la llista s'ha acabat aquí.
+ */
+export const LIMIT_PUNTS = 200
+
 export async function fetchPointsOf(userId: string): Promise<PointRow[]> {
   return unwrapAs<PointRow[]>(
     supabase
@@ -107,7 +118,7 @@ export async function fetchPointsOf(userId: string): Promise<PointRow[]> {
       .select('id, motivo, puntos, created_at, nota, events(event_title(titulo))')
       .eq('user_id', userId)
       .order('created_at', { ascending: false })
-      .limit(200),
+      .limit(LIMIT_PUNTS),
   )
 }
 

@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
-import { fetchPointsOf, profileScreenKeys } from '@/features/profile/api'
+import { LIMIT_PUNTS, fetchPointsOf, profileScreenKeys } from '@/features/profile/api'
 import { LEDGER_ROW } from '@/features/profile/ledger'
 import { LedgerRow } from '@/features/profile/LedgerRow'
 import { errorKey } from '@/lib/errors'
@@ -19,6 +19,20 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
  * ve a buscar UNA fila, la del 14 de març, i un «muntatge · 4 vegades» no la
  * conté. El total sí que hi és, a dalt, perquè és el número que algú acaba de
  * llegir al rànquing i l'ha fet venir.
+ *
+ * I PER AIXÒ EL TOTAL DIU DE QUÈ ÉS. Aquest és la suma de TOTES les files, i
+ * el del rànquing és el del període —«Tot el curs» no inclou l'agost—. Qui ve
+ * aquí ve amb un número al cap, i trobar-ne un altre sense cap etiqueta fa
+ * pensar que l'app es contradiu quan el que passa és que compten coses
+ * diferents. DESCARTAT: retallar aquest total al període del rànquing, que
+ * hauria fet quadrar els dos números a canvi de deixar-ne un que no és la suma
+ * de les files que hi ha a sota —la contradicció seria la mateixa, dins d'una
+ * sola pantalla i sense cap manera de veure-la.
+ *
+ * I DIU TAMBÉ QUAN NO HI CAPEN. `fetchPointsOf` en baixa 200 com a màxim, i
+ * una suma de 200 files quan n'hi ha 300 és un número fals a la pantalla que
+ * serveix per quadrar-los. Mentre no hi hagi paginació, quan la llista arriba
+ * al topall es diu.
  *
  * LA CLAU DE CACHE ÉS LA DEL PERFIL i no una de `['junta', …]`. És la mateixa
  * consulta sobre la mateixa persona, i compartir-la vol dir que un ajust fet
@@ -46,6 +60,7 @@ export function MemberLedgerBlock({ userId }: { readonly userId: string }) {
 
   const rows = points.data ?? []
   const total = rows.reduce((sum, row) => sum + row.puntos, 0)
+  const retallat = rows.length >= LIMIT_PUNTS
 
   return (
     <section className="pt-10">
@@ -57,6 +72,14 @@ export function MemberLedgerBlock({ userId }: { readonly userId: string }) {
           </p>
         ) : null}
       </div>
+
+      {points.isSuccess && rows.length > 0 ? (
+        <p className="pt-3 text-sm text-fg-muted [text-wrap:pretty]">
+          {retallat
+            ? t('junta.soci.ledger.totalCapped', { linies: LIMIT_PUNTS })
+            : t('junta.soci.ledger.totalSub')}
+        </p>
+      ) : null}
 
       {points.isPending ? (
         <LedgerSkeleton />

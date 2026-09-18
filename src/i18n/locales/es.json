@@ -895,7 +895,9 @@
       "publicProfileSub": "Lo que cualquier socio ve de él.",
       "ledger": {
         "title": "El registro de puntos",
-        "total": "Total: {{total}}",
+        "total": "Total de siempre: {{total}}",
+        "totalSub": "Es la suma de todas las líneas. El ranking cuenta por periodos, y allí el número puede ser otro.",
+        "totalCapped": "Solo caben las últimas {{linies}} líneas, y el total es el de estas.",
         "empty": "Todavía no tiene ningún punto."
       },
       "adjust": {

@@ -895,7 +895,9 @@
       "publicProfileSub": "El que qualsevol soci veu d'ell.",
       "ledger": {
         "title": "El registre de punts",
-        "total": "Total: {{total}}",
+        "total": "Total de sempre: {{total}}",
+        "totalSub": "És la suma de totes les línies. El rànquing compta per períodes, i allà el número pot ser un altre.",
+        "totalCapped": "Només hi caben les últimes {{linies}} línies, i el total és el d'aquestes.",
         "empty": "Encara no té cap punt."
       },
       "adjust": {

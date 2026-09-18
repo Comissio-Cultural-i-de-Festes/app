@@ -175,7 +175,14 @@ export function SociScreen() {
           injectar. Al mòbil amb l'app instal·lada, aquesta adreça l'obre
           Instagram tot sol; `instagram://` no faria res quan no hi és.
           `border-t` a part: la fila és la primera de la pantalla i sense ratlla
-          de dalt queda enganxada al nom. */}
+          de dalt queda enganxada al nom.
+          EL RÈTOL NO PARLA DE NINGÚ, i abans deia «Segueix-lo a Instagram».
+          Aquesta és l'única pantalla on veus el teu propi Instagram —just sota
+          «Ets tu»— i allà la frase et parlava de tu en tercera persona; i quan
+          és d'algú altre, el masculí era fix per a tothom. Un rètol per cada
+          cas serien dues claus en tres idiomes i el masculí seguiria fix en una
+          de les dues. Un nom de fila en comptes d'una ordre val per als dos
+          casos i no li cal saber de qui és el perfil. */}
       {soci.instagram === null || soci.instagram === '' ? null : (
         <NavRow
           href={instagramUrl(soci.instagram)}

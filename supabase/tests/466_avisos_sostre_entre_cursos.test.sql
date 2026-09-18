@@ -86,16 +86,32 @@ select is(
   'i el saldo d''avisos DINS d''aquest curs passa a +200, punts que aquest curs no ha gastat mai'
 );
 
--- ── i el sostre d'aquest curs s'ha doblat ──────────────────────────────────
--- 400 = el sostre escrit (200) mes la compensacio d'un avis d'un altre curs
--- (200). Amb la finestra ben tancada aixo hauria de petar amb 22023.
+-- ── i el sostre d'aquest curs NO s'ha mogut ────────────────────────────────
+-- AQUESTA ASSERCIO S'HA INVERTIT, i es l'unic que s'ha tocat d'aquest fitxer.
+-- Tal com es va escriure afirmava el comportament d'aquell dia: que una resta
+-- de -400 hi passava amb el sostre escrit a 200, perque la compensacio d'un
+-- avis d'un altre curs havia obert marge en aquest. El capcal ja deia que el
+-- fitxer no afirmava quin dels dos comportaments era el correcte, nomes quin
+-- era el d'avui.
+--
+-- La migracio 77 decideix quin es el correcte: el sostre compta cada moviment
+-- pel curs de l'AVIS que l'explica, no pel de la seva propia data. Amb aixo, ni
+-- el -200 del curs passat ni el seu +200 d'avui son d'aquest curs, el gastat
+-- d'aquest curs continua sent 0, i una resta de -400 passa del sostre de 200 i
+-- peta amb el mateix 22023 que ja petava a l'asercio 1.
+--
+-- Les altres tres no canvien de sentit. La 3 segueix dient +200 a posta: la
+-- compensatoria s'escriu amb `now()` i continua caient-hi dins, que es el fet
+-- que feia el forat. El que ha canviat es que `avisa()` ja no la compta com a
+-- marge d'aquest curs.
 reset role;
 select tests.authenticate_as('junta_alfa');
 
-select lives_ok(
+select throws_ok(
   format($$ select public.avisa(%L, 'greu', 'i ara hi caben el doble', -400, null) $$,
          (select alfa from qui)),
-  'ara hi cap una resta de 400 amb el sostre escrit a 200: la compensacio d''un altre curs ha obert marge en aquest'
+  '22023', 'sostre de punts del curs',
+  'i una resta de 400 continua petant amb el sostre escrit a 200: la compensacio d''un altre curs no obre marge en aquest'
 );
 
 select * from finish();

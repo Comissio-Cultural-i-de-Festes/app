@@ -71,10 +71,18 @@ select is(
   'and moved when something was'
 );
 
+-- La fila que es mira ha de ser LA D'AQUESTA TRANSACCIÓ. `order by created_at
+-- limit 1` sobre tot `audit_log` agafa la més vella de la taula, que en una
+-- base viva és la d'algú altre: desar el barem des de `/junta/barem` també
+-- escriu `set_point_value`, i aquelles files no se'n van. Es notava com un
+-- `have: 35→35` —el valor d'una altra clau, ja igualada— i a CI no surt mai,
+-- perquè allà la base neix a cada execució.
 select is(
   (select detall->>'abans' || '→' || (detall->>'ara')
      from public.audit_log
     where accio = 'set_point_value'
+      and detall->>'clau' = 'montaje'
+      and created_at >= transaction_timestamp()
     order by created_at limit 1),
   '20→35',
   'the trail says what it was worth before, which is the question asked in March'

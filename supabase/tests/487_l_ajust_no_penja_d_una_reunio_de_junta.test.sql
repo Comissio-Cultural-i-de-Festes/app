@@ -22,8 +22,23 @@
 -- tornar-hi tornarà a fallar. Els punts no s'escriuen i el formulari es queda
 -- ple sense dir què s'ha de canviar.
 --
--- LES DUES ASSERCIONS. La primera PASSA i escriu la regla; la segona FALLA i
--- és el forat. Quan `fetchAjustEvents` filtri, la segona ha de passar.
+-- LES DUES ASSERCIONS, I PER QUÈ LA SEGONA NO ÉS LA QUE ES VA ESCRIURE PRIMER.
+-- La primera escriu la regla: la base refusa l'ajust. La segona, tal com va
+-- néixer, afirmava que `events_public` no havia de servir CAP esdeveniment amb
+-- `abast = 'junta'`, i això no es pot demanar: `/junta/reunions` llegeix
+-- aquesta mateixa vista per dibuixar les reunions (`meetingsApi.ts`), i
+-- `tests/rls/policies.test.ts`, cas «and the junta sees all of it», afirma que
+-- la junta SÍ que hi ha de veure la reunió. Buidar-la trencaria les dues coses.
+--
+-- La correcció va al client —`.neq('abast', 'junta')` a `fetchAjustEvents`— i
+-- una consulta de client no es pot provar des d'aquí. Qui la prova és
+-- `tests/rls/junta_ajust.test.ts`, que la fa per Kong amb un token de debò i
+-- porta els tres casos junts: que sense el filtre la vista sí que la serviria,
+-- que amb el filtre no, i que si s'hi pengés un ajust la base el refusaria.
+--
+-- El que sí que pertoca a aquest fitxer és la tanca de l'altra banda: que
+-- ningú no «arregli» això buidant la vista. Per això la segona asserció afirma
+-- el contrari del que afirmava, i amb la raó escrita al costat.
 --
 -- Persones i esdeveniments inventats, com a tot el repo.
 
@@ -46,15 +61,17 @@ select throws_ok(
   'la base refusa un ajust penjat d''una reunio de junta'
 );
 
--- I la llista que el formulari dibuixa, que és exactament aquesta consulta.
+-- I la tanca de l'altra banda: la vista ha de CONTINUAR servint-les, que és
+-- d'on `/junta/reunions` les treu. Si això es buida, el filtre del client
+-- sobra i mitja pantalla de la junta es queda sense reunions.
 reset role;
-select is_empty(
+select isnt_empty(
   $$ select id from public.events_public
       where starts_at <= now()
         and abast = 'junta'
       order by starts_at desc
       limit 25 $$,
-  'la llista «De quina nit» no ofereix cap reunio de junta'
+  'la vista continua servint les reunions de junta: qui les treu es el client'
 );
 
 select * from finish();

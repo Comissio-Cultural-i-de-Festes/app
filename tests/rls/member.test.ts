@@ -207,7 +207,9 @@ describe('la capçalera i les nits del perfil, sense cap migració al darrere', 
     // concatenació la deixa com una fila de forma desconeguda.
     const { data, error } = await member
       .from('attendances')
-      .select('event_id, events!attendances_event_id_fkey(starts_at, tipo, event_title(titulo))')
+      .select(
+        'event_id, events!attendances_event_id_fkey(starts_at, tipo, event_details(ends_at), event_title(titulo))',
+      )
       .eq('user_id', F.alfa)
       .eq('estado', 'asistio')
 
@@ -220,15 +222,27 @@ describe('la capçalera i les nits del perfil, sense cap migració al darrere', 
         ambActivitat += 1
         expect(typeof row.events.starts_at).toBe('string')
         expect(Array.isArray(row.events.event_title)).toBe(false)
+        // `ends_at` no és a `events`, és a la filla que la revelació tapa.
+        // Demanar-l'ho a `events` compila i passa per pgTAP i contesta 42703
+        // aquí, que és l'únic lloc on es veu.
+        expect(Array.isArray(row.events.event_details)).toBe(false)
       }
     }
 
     // El mateix forat que a les insígnies, i aquí doble: un `for` sobre `data ??
     // []` no falla mai quan no hi ha files, i l’`if` de dins tampoc quan
-    // l’incrustat arriba buit. Alfa té assistències al seed —una de les quals és
-    // una reunió de junta, que la política deixa fora abans d’arribar aquí— i el
-    // que això fixa és que en quedi alguna: sense cap, el fitxer diria que la
-    // forma de l’incrustat és correcta sense haver-ne vist cap.
+    // l’incrustat arriba buit. Alfa té assistències al seed i el que això fixa
+    // és que en quedi alguna: sense cap, el fitxer diria que la forma de
+    // l’incrustat és correcta sense haver-ne vist cap.
+    //
+    // AQUEST CAS NO COBREIX L’EXCLUSIÓ DE LES REUNIONS DE JUNTA, i abans deia
+    // que sí: les quatre assistències d’Alfa són d’esdeveniments `abast =
+    // 'comi'` —una és una reunió, però de la comi— o sigui que cap fila no
+    // arriba mai amb `events` a null i la branca que això descrivia no es
+    // recorre. Qui comprova aquella regla, amb el seu control positiu al
+    // costat, és `supabase/tests/475_les_nits_del_perfil.test.sql`. Una nota
+    // que diu «això ja hi és cobert» dins d’un fitxer que existeix per cobrir
+    // és exactament el que fa que ningú no hi torni.
     expect(ambActivitat).toBeGreaterThan(0)
   })
 

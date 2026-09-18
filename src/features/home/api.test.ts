@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
+import { IN_PROGRESS_MS } from '@/lib/eventEnd'
 import type { EventRow } from '@/lib/schema'
 
 import {
   type AttendanceRow,
-  IN_PROGRESS_MS,
   goingRows,
   horizonIso,
   myAnswer,

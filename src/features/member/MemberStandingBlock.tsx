@@ -25,8 +25,11 @@ import { errorKey } from '@/lib/errors'
  *
  * QUI S'AMAGA DEL RÀNQUING NO HI SURT, I EL PERFIL S'OBRE IGUAL. `ranking_period()`
  * deixa fora tota fila amb `hide_from_ranking`, o sigui que no ser-hi és
- * exactament el senyal —no cal preguntar-ho a `profiles`, i tampoc es podria,
- * perquè no hi ha manera de distingir amagat d'absent des de fora. El criteri és
+ * exactament el senyal i no cal preguntar-ho a `profiles`. Preguntar-ho sí que
+ * es podria —el grant de `profiles` és de tota la taula i la columna es
+ * llegeix—, però seria una segona font per a la mateixa decisió, i la que mana
+ * és la funció: qui no surt de `ranking_period()` no surt, amagat o donat de
+ * baixa o encara sense punts, i el bloc els tracta igual a tots tres. El criteri és
  * el de `badge_holders()`: la persona compta i el número no es diu. L'altra
  * opció era que la ruta no obrís, i vol dir que no poder sortir al rànquing
  * passa a ser també no poder ser conegut.

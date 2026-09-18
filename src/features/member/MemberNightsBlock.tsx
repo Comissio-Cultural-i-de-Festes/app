@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { formatDateLong } from '@/i18n/format'
@@ -9,7 +10,7 @@ import { NavRow, ROW } from '@/ui/Row/Row'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { fetchMemberNights, sociKeys } from './api'
-import { sortNights } from './nights'
+import { pastNights, sortNights } from './nights'
 
 /**
  * A què ha vingut.
@@ -25,7 +26,15 @@ import { sortNights } from './nights'
  * LES REUNIONS DE JUNTA NO HI SURTEN, i no hi ha cap `if` que ho faci: la
  * política les deixa fora abans que arribin aquí. Un filtre al client seria una
  * segona còpia d'aquella regla, i el dia que divergissin guanyaria la còpia
- * equivocada.
+ * equivocada. Qui ho comprova és `supabase/tests/475_les_nits_del_perfil.test.sql`,
+ * amb el control positiu al costat: una reunió de la comi amb la mateixa fila
+ * SÍ que hi surt, perquè si no, el dia que la política deixés de publicar res
+ * la prova seguiria verda dient que la junta està tapada.
+ *
+ * EL FUTUR TAMPOC, i això sí que és un filtre al client: `pastNights`. No és
+ * una còpia de cap regla de la base, perquè la base no en té cap —
+ * `close_meeting()` escriu `asistio` sense mirar la data— i el criteri de què
+ * és «acabat» és el compartit de `@/lib/eventEnd`.
  *
  * NO HI HA FOTOS. Les de sortida de `/perfil/nits` són teves i es queden allà:
  * això és una llista d'on ha estat algú, no un àlbum seu.
@@ -33,13 +42,17 @@ import { sortNights } from './nights'
 export function MemberNightsBlock({ userId }: { readonly userId: string }) {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
+  // Congelat al muntatge, com fan `InsideScreen` i `EventScreen`: una llista
+  // que es retalla sola mentre la mires perquè un `Date.now()` nou ha creuat
+  // el tall és pitjor que una que es queda com estava fins que hi tornes.
+  const [now] = useState(() => Date.now())
 
   const nights = useQuery({
     queryKey: sociKeys.nights(userId),
     queryFn: () => fetchMemberNights(userId),
   })
 
-  const rows = sortNights(nights.data ?? [])
+  const rows = sortNights(pastNights(nights.data ?? [], now))
 
   return (
     <section className="px-[var(--ds-gutter)] pt-12">

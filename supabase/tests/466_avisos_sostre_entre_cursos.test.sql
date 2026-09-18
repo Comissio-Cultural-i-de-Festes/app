@@ -94,7 +94,7 @@ select is(
 -- fitxer no afirmava quin dels dos comportaments era el correcte, nomes quin
 -- era el d'avui.
 --
--- La migracio 77 decideix quin es el correcte: el sostre compta cada moviment
+-- La migracio 78 decideix quin es el correcte: el sostre compta cada moviment
 -- pel curs de l'AVIS que l'explica, no pel de la seva propia data. Amb aixo, ni
 -- el -200 del curs passat ni el seu +200 d'avui son d'aquest curs, el gastat
 -- d'aquest curs continua sent 0, i una resta de -400 passa del sostre de 200 i

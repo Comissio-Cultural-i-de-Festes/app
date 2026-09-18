@@ -1,4 +1,4 @@
--- Rollback de la migració 77. NO és a `migrations/` a posta: un fitxer aquí
+-- Rollback de la migració 78. NO és a `migrations/` a posta: un fitxer aquí
 -- dins el desfaria el mateix `db push` que acaba d'aplicar-lo.
 --
 -- Torna `avisa()` a la versió de la 73: el sostre del curs torna a comptar cada

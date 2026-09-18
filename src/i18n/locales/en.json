@@ -1912,6 +1912,7 @@
       "okWalkin": "They were not signed up. It is recorded now.",
       "okWalkinReview": "Check they pay on the way in, or note it down.",
       "okWalkinReviewFree": "Places are capped. Note it down so the count adds up.",
+      "okWalkinReviewUnknown": "Note it down so the junta can square it up.",
       "alreadyCheckedIn": "They already came through. If they insist, check the manual list.",
       "notAMember": "Ask their name and find them by hand. Do not wave them through unrecorded.",
       "memberInactive": "Have them ask to join. You approve it tomorrow from the junta area.",

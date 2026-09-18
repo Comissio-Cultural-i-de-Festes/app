@@ -1912,6 +1912,7 @@
       "okWalkin": "No estava apuntat. Ja consta que ha vingut.",
       "okWalkinReview": "Mira que pagui abans d’entrar, o apunta-ho.",
       "okWalkinReviewFree": "Hi ha places comptades. Apunta-ho perquè el número quadri.",
+      "okWalkinReviewUnknown": "Apunta-ho perquè la junta ho pugui quadrar.",
       "alreadyCheckedIn": "Ja havia passat. Si insisteix, mira-ho a l’alta manual.",
       "notAMember": "Que et digui el nom i el busques a mà. No el deixis passar sense apuntar-lo.",
       "memberInactive": "Que demani entrar. L’aproveu demà des de la zona junta.",

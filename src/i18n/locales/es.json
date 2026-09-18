@@ -1912,6 +1912,7 @@
       "okWalkin": "No estaba apuntado. Ya consta que ha venido.",
       "okWalkinReview": "Mira que pague antes de entrar, o apúntalo.",
       "okWalkinReviewFree": "Hay plazas contadas. Apúntalo para que el número cuadre.",
+      "okWalkinReviewUnknown": "Apúntalo para que la junta lo pueda cuadrar.",
       "alreadyCheckedIn": "Ya había pasado. Si insiste, míralo en el alta manual.",
       "notAMember": "Que te diga el nombre y lo buscas a mano. No lo dejes pasar sin apuntarlo.",
       "memberInactive": "Que pida entrar. Lo aprobáis mañana desde la zona junta.",

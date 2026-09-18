@@ -548,6 +548,19 @@ describe('the Instagram handle is public on purpose, and is only a handle', () =
   })
 
   it('and a member cannot write somebody else’s', async () => {
+    // EL VALOR D'ABANS, CAPTURAT. Deia `not.toBe('segrestat')`, i això passava
+    // de dues maneres sense provar res: si la lectura de servei fallava,
+    // `theirs` quedava a `undefined` i `undefined` tampoc no és 'segrestat';
+    // i encara que anés bé, descartar UN valor concret no és comprovar que la
+    // fila no s'ha mogut —hi cabria qualsevol altra escriptura—. El pgTAP 450
+    // ja ho fa així amb una taula temporal; aquí faltava.
+    const { data: abans, error: errAbans } = await serviceClient()
+      .from('profiles')
+      .select('instagram')
+      .eq('id', F.bravo)
+      .single()
+    expect(errAbans).toBeNull()
+
     const member = await as('alfa')
     const { data, error } = await member
       .from('profiles')
@@ -560,12 +573,13 @@ describe('the Instagram handle is public on purpose, and is only a handle', () =
     expect(error).toBeNull()
     expect(data).toEqual([])
 
-    const { data: theirs } = await serviceClient()
+    const { data: theirs, error: errTheirs } = await serviceClient()
       .from('profiles')
       .select('instagram')
       .eq('id', F.bravo)
       .single()
-    expect(theirs?.instagram).not.toBe('segrestat')
+    expect(errTheirs).toBeNull()
+    expect(theirs?.instagram).toBe(abans?.instagram ?? null)
   })
 })
 

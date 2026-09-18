@@ -68,6 +68,7 @@ export function EditProfileScreen() {
   const queryClient = useQueryClient()
   const nameId = useId()
   const igId = useId()
+  const igMsgId = useId()
   const { data: profile, isPending } = useMyProfile()
 
   // El nom desat és el valor per defecte del camp, i l'estat només guarda el
@@ -198,8 +199,24 @@ export function EditProfileScreen() {
           maxLength={INSTAGRAM_MAX + 1}
           placeholder={t('profile.instagram.placeholder')}
           aria-invalid={!igOk}
+          aria-describedby={igMsgId}
         />
+        {/* LA LÍNIA DE SOTA ÉS LA DESCRIPCIÓ DEL CAMP, I HO DIU. `aria-invalid`
+            sol anuncia «no vàlid» i cap manera de saber per què; és el mateix
+            que van corregir les tres pantalles de junta d'aquest lot, i aquesta
+            s'hi havia deixat.
+
+            APUNTA-HI SEMPRE, no només quan falla: aquest `<p>` és la descripció
+            del camp en els dos estats —què s'hi espera quan va bé, per què no
+            val quan no—, i penjar-l'hi només en el cas dolent voldria dir que
+            qui hi arribi amb el camp buit no sent res. `aria-live="polite"` i
+            no `role="alert"` perquè el que el fa canviar és cada tecla: un
+            `alert` interromp al mig de la paraula i se'n torna a anar a la tecla
+            següent. Amb `polite` es diu sola quan el text canvia de debò —que
+            és només en creuar la frontera— i espera torn. */}
         <p
+          id={igMsgId}
+          aria-live="polite"
           className={
             'mt-5 text-sm-lo leading-[1.4] [text-wrap:pretty] ' +
             (igOk ? 'text-fg-muted-lo' : 'text-warning')
@@ -248,6 +265,28 @@ export function EditProfileScreen() {
             className="mt-5 text-center text-md font-bold text-error [text-wrap:pretty]"
           >
             {t(errorKey(rename.error))}
+          </p>
+        ) : rename.isPaused ? (
+          /* SENSE XARXA, REACT QUERY NO FALLA: PAUSA. El botó es queda a
+             «Desant…» i desactivat fins que torni la cobertura, i abans d'això
+             la pantalla no deia absolutament res —un botó apagat per sempre,
+             sense cap `alert` ni cap `status`—.
+
+             EL QUE NO ES FA ÉS `networkMode: 'always'`: aquesta mutació no
+             escriu a cap cua —és un `update` directe a `profiles`— i amb
+             `always` la crida sortiria igualment, petaria amb un error de xarxa
+             i el que la persona ha escrit s'hauria perdut darrere d'un missatge
+             genèric. La regla del repo és per a les mutacions que SÍ que
+             escriuen a una cua, perquè allà la pausa amaga una feina ja feta;
+             aquí la pausa és el comportament correcte i el que faltava era
+             dir-ho.
+
+             `role="status"` i no `alert`: no és cap error, és una espera. */
+          <p
+            role="status"
+            className="mt-5 text-center text-sm-lo text-fg-muted-lo [text-wrap:pretty]"
+          >
+            {t('profile.name.waiting')}
           </p>
         ) : saved ? (
           <DoneLine className="mt-5 text-center" message={t('profile.name.saved')} />

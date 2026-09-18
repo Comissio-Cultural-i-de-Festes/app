@@ -92,6 +92,7 @@ export function OnboardingScreen() {
   const grauId = useId()
   const phoneId = useId()
   const igId = useId()
+  const igMsgId = useId()
 
   const [escola, setEscola] = useState<Escola | null>(null)
   const [grau, setGrau] = useState('')
@@ -365,7 +366,15 @@ export function OnboardingScreen() {
       {/* Al costat del telèfon perquè són les dues maneres de trobar algú, i
           just després perquè aquesta és pública i l'altra no: llegides
           seguides, les dues línies de sota ho diuen sense haver-ho d'explicar.
-          L'arrova va dibuixada i no escrita, com el `+34`. */}
+          L'arrova va dibuixada i no escrita, com el `+34`.
+
+          AQUEST CAMP DIU EL SEU REFÚS COM EL DIUEN LES PANTALLES DE JUNTA
+          —vora en ambre, frase en ambre i `aria-describedby`— i el del telèfon
+          de sobre encara no: només se li encén la vora. No és un descuit, és
+          on s'ha posat la ratlla. Portar-hi el telèfon voldria dir tocar-li
+          també l'`aria-invalid` que no té, i és un camp d'una altra decisió;
+          pintar-li només el color el deixaria dient a l'ull una cosa que no diu
+          al lector de pantalla, que és pitjor que el que hi ha ara. */}
       <section className={`mt-9 ${GUTTER}`}>
         <label htmlFor={igId} className="block eyebrow text-fg-muted">
           {t('onboarding.instagram.label')}
@@ -399,6 +408,13 @@ export function OnboardingScreen() {
             // no hi compta, així que el camp n'admet una més.
             maxLength={INSTAGRAM_MAX + 1}
             aria-invalid={!igOk}
+            // La línia de sota és la descripció del camp en els dos estats —per
+            // què el demanem quan va bé, per què no val quan no—, així que hi
+            // apunta sempre i no només quan falla: `aria-invalid` tot sol diu
+            // «no vàlid» i cap manera de saber per què. `aria-live="polite"` i
+            // no `role="alert"` perquè el que la fa canviar és cada tecla, i un
+            // `alert` interrompria al mig de la paraula.
+            aria-describedby={igMsgId}
             placeholder={t('onboarding.instagram.placeholder')}
             className={
               'w-full flex-1 border-0 bg-transparent p-0 text-lg font-semibold tracking-[0.02em] ' +
@@ -407,7 +423,14 @@ export function OnboardingScreen() {
             }
           />
         </div>
-        <p className="mt-4 text-sm-lo font-medium text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        <p
+          id={igMsgId}
+          aria-live="polite"
+          className={
+            'mt-4 text-sm-lo font-medium [text-wrap:pretty] ' +
+            (igOk ? 'text-[var(--ds-text-muted-lo)]' : 'text-warning')
+          }
+        >
           {igOk ? t('onboarding.instagram.why') : t('onboarding.instagram.invalid')}
         </p>
       </section>

@@ -1514,7 +1514,7 @@
       "label": "Instagram",
       "placeholder": "tucuenta",
       "why": "Para que puedan seguirte. Este sí que sale en tu perfil y lo ven los demás socios.",
-      "invalid": "Esto no es un nombre de usuario. Solo letras, cifras, punto y guion bajo."
+      "invalid": "Esto no es un nombre de usuario. Solo letras, cifras, punto y guion bajo, y sin la dirección entera."
     },
     "cta": {
       "ready": "Entrar",
@@ -1624,6 +1624,7 @@
       "label": "Cómo te llamas",
       "hint": "Como te llaman de verdad, no un alias: la junta te tiene que encontrar en la lista de pagos.",
       "saved": "Guardado",
+      "waiting": "Sin cobertura. Se guarda solo cuando vuelva la red: no hace falta que lo vuelvas a pulsar.",
       "everywhere": "Se verá en todas partes enseguida."
     },
     "instagram": {

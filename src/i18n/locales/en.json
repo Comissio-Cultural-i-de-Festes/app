@@ -1514,7 +1514,7 @@
       "label": "Instagram",
       "placeholder": "yourhandle",
       "why": "So people can follow you. This one does show on your profile and other members see it.",
-      "invalid": "That is not a username. Letters, numbers, full stop and underscore only."
+      "invalid": "That is not a username. Letters, numbers, full stop and underscore only, and not the whole address."
     },
     "cta": {
       "ready": "Go in",
@@ -1624,6 +1624,7 @@
       "label": "What you are called",
       "hint": "What people actually call you, not a nickname: the committee has to find you on the payments list.",
       "saved": "Saved",
+      "waiting": "No signal. It saves itself when the network is back: no need to press again.",
       "everywhere": "It will show everywhere right away."
     },
     "instagram": {

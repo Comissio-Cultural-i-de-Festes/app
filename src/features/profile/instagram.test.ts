@@ -29,6 +29,17 @@ describe('normaliseInstagram', () => {
     )
     expect(normaliseInstagram('dos noms')).toBe('dos noms')
   })
+
+  it('i un salt de línia interior sobreviu al trim, que és el que el fa perillós', () => {
+    // El `trim` es menja els salts de les vores, o sigui que un salt FINAL no
+    // arriba mai a `isInstagramHandle` des del camp. L'interior sí, i és el que
+    // portaria una segona ratlla dins del valor. Aquesta prova és la que lliga
+    // les dues funcions: el que la normalització deixa passar, la validació ho
+    // ha de refusar.
+    const amb = normaliseInstagram(' la_comi\nhttps://el-que-sigui ')
+    expect(amb).toBe('la_comi\nhttps://el-que-sigui')
+    expect(isInstagramHandle(amb!)).toBe(false)
+  })
 })
 
 describe('isInstagramHandle', () => {
@@ -49,9 +60,10 @@ describe('isInstagramHandle', () => {
   })
 
   it('i una segona ratlla, que és per on se n’escapen les expressions regulars', () => {
-    // Amb `/^…$/` sense `\n` a la classe això passaria en JavaScript —`$`
-    // casa abans d'un salt final— i llavors el client diria que sí a una cosa
-    // que la base de dades refusa amb un 23514.
+    // El que vigila això és la BANDERA del patró, no cap salt final: sense `m`
+    // el `$` de JavaScript ja només casa al final del text. Afegir-hi `m` faria
+    // que casés al final de la primera línia, i llavors el segon cas passaria
+    // per aquí mentre la columna el refusa amb un 23514.
     expect(isInstagramHandle('la_comi\n')).toBe(false)
     expect(isInstagramHandle('la_comi\nhttps://el-que-sigui')).toBe(false)
   })

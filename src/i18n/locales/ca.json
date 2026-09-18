@@ -1509,7 +1509,7 @@
       "label": "Instagram",
       "placeholder": "elteucompte",
       "why": "Perquè et puguin seguir. Aquest sí que surt al teu perfil i el veuen els altres socis.",
-      "invalid": "Això no és un nom d'usuari. Només lletres, xifres, punt i guió baix."
+      "invalid": "Això no és un nom d'usuari. Només lletres, xifres, punt i guió baix, i sense l'adreça sencera."
     },
     "cta": {
       "ready": "Entrar",

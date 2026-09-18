@@ -1509,7 +1509,7 @@
       "label": "Instagram",
       "placeholder": "tucuenta",
       "why": "Para que puedan seguirte. Este sí que sale en tu perfil y lo ven los demás socios.",
-      "invalid": "Esto no es un nombre de usuario. Solo letras, cifras, punto y guion bajo."
+      "invalid": "Esto no es un nombre de usuario. Solo letras, cifras, punto y guion bajo, y sin la dirección entera."
     },
     "cta": {
       "ready": "Entrar",

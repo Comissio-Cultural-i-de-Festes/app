@@ -1509,7 +1509,7 @@
       "label": "Instagram",
       "placeholder": "yourhandle",
       "why": "So people can follow you. This one does show on your profile and other members see it.",
-      "invalid": "That is not a username. Letters, numbers, full stop and underscore only."
+      "invalid": "That is not a username. Letters, numbers, full stop and underscore only, and not the whole address."
     },
     "cta": {
       "ready": "Go in",

@@ -249,6 +249,28 @@ export function EditProfileScreen() {
           >
             {t(errorKey(rename.error))}
           </p>
+        ) : rename.isPaused ? (
+          /* SENSE XARXA, REACT QUERY NO FALLA: PAUSA. El botó es queda a
+             «Desant…» i desactivat fins que torni la cobertura, i abans d'això
+             la pantalla no deia absolutament res —un botó apagat per sempre,
+             sense cap `alert` ni cap `status`—.
+
+             EL QUE NO ES FA ÉS `networkMode: 'always'`: aquesta mutació no
+             escriu a cap cua —és un `update` directe a `profiles`— i amb
+             `always` la crida sortiria igualment, petaria amb un error de xarxa
+             i el que la persona ha escrit s'hauria perdut darrere d'un missatge
+             genèric. La regla del repo és per a les mutacions que SÍ que
+             escriuen a una cua, perquè allà la pausa amaga una feina ja feta;
+             aquí la pausa és el comportament correcte i el que faltava era
+             dir-ho.
+
+             `role="status"` i no `alert`: no és cap error, és una espera. */
+          <p
+            role="status"
+            className="mt-5 text-center text-sm-lo text-fg-muted-lo [text-wrap:pretty]"
+          >
+            {t('profile.name.waiting')}
+          </p>
         ) : saved ? (
           <DoneLine className="mt-5 text-center" message={t('profile.name.saved')} />
         ) : (

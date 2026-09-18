@@ -1619,6 +1619,7 @@
       "label": "What you are called",
       "hint": "What people actually call you, not a nickname: the committee has to find you on the payments list.",
       "saved": "Saved",
+      "waiting": "No signal. It saves itself when the network is back: no need to press again.",
       "everywhere": "It will show everywhere right away."
     },
     "instagram": {

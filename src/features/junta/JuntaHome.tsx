@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { warmDecoder } from '@/features/door/decoder'
-import { horizonIso } from '@/features/home/api'
 import { fetchPeriods, rankingKeys } from '@/features/ranking/api'
 import { useMyProfile } from '@/features/session/useMyProfile'
 import {
@@ -21,7 +20,7 @@ import { eventTitle } from '@/features/event/title'
 
 import { avisosKeys, fetchAvisComptes } from './avisosApi'
 import { compta, quantsPassen } from './avisosCompte'
-import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
+import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
 import { fetchHoresPendents, horesKeys } from './horesApi'
 import { fetchMeetings, meetingListKeys } from './meetingsApi'
@@ -59,7 +58,7 @@ export function JuntaHome() {
 
   const home = useQuery({ queryKey: juntaHomeKeys.home(), queryFn: fetchJuntaHome })
 
-  const horizon = horizonIso()
+  const horizon = juntaHorizonIso()
   const events = useQuery({
     queryKey: juntaEventKeys.list(horizon),
     queryFn: () => fetchJuntaEvents(horizon),

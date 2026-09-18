@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
 
 import { formatMoney, formatPrice } from '@/features/event/api'
-import { horizonIso } from '@/features/home/api'
 import { MemberLink } from '@/features/member/MemberLink'
 import { memberSubtitle } from '@/features/member/subtitle'
 import { formatDayMonth } from '@/i18n/format'
@@ -19,7 +18,7 @@ import { NavRow } from '@/ui/Row/Row'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
-import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
+import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
 import { paidHeader } from './payments'
 import {
   type AttendeeRow,
@@ -54,7 +53,7 @@ export function PaymentsScreen() {
   const { t } = useTranslation()
   const { eventId } = useParams()
 
-  const horizon = horizonIso()
+  const horizon = juntaHorizonIso()
   const events = useQuery({
     queryKey: juntaEventKeys.list(horizon),
     queryFn: () => fetchJuntaEvents(horizon),

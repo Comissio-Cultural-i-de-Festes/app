@@ -57,6 +57,14 @@ import { INPUT } from './formBits'
  * viu a `retira_avis()` —una nota en blanc torna 22023— i aquí es repeteix
  * perquè un 22023 es tradueix a «alguna cosa ha anat malament» i no a «falta
  * dir per què».
+ *
+ * I LA PAUSA TÉ VEU, com al formulari de sota. Sense xarxa, React Query no
+ * crida `mutationFn` i no falla: deixa la mutació aturada fins que torni la
+ * cobertura. `Confirm` desactiva els dos botons amb `busy`, o sigui que sense
+ * dir-ho el panell es quedava obert i mort, i el remei que se li acut a
+ * qualsevol davant d'un botó que no contesta és tornar-hi. Aquesta mutació
+ * tampoc no escriu a cap cua —no li cal `networkMode: 'always'`—, i per això el
+ * que ha de dir és que espera, no que ha fallat.
  */
 
 export function AvisosBlock({
@@ -207,6 +215,18 @@ export function AvisosBlock({
           ))}
         </ul>
       )}
+
+      {/* En pausa i no fallada, com al formulari de sota: `role="status"` i no
+          `alert`, i en ambre i no en vermell. React Query atura la mutació
+          sense xarxa —no crida `mutationFn`, no falla, no fa res—, o sigui que
+          prémer «Retira l'avís» sota terra deixava el botó ocupat i cap frase
+          enlloc. No es perd res, però l'únic remei que se li acut a ningú
+          davant d'un botó que no contesta és tornar-hi. */}
+      {retira.isPaused ? (
+        <p role="status" className="pt-6 text-sm font-bold text-warning [text-wrap:pretty]">
+          {t('junta.soci.avisos.withdrawPaused')}
+        </p>
+      ) : null}
 
       {retira.isError ? (
         <p role="alert" className="pt-6 text-md font-bold text-error [text-wrap:pretty]">

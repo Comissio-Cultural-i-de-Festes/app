@@ -134,7 +134,9 @@
     "notFound": "That's not there any more.",
     "notAnImage": "I cannot read that photo. Try another one, or take it with the camera.",
     "rateLimited": "Too many tries in a row. Give it a couple of minutes.",
-    "behindServer": "This is not on the server yet: the app was deployed ahead of the database. If you are on the committee, push the migrations; if not, tell them."
+    "behindServer": "This is not on the server yet: the app was deployed ahead of the database. If you are on the committee, push the migrations; if not, tell them.",
+    "avisSostre": "This course has already taken every point the cap allows for this person. Raise “Most points per course” on The scale, or log the warning with no points.",
+    "avisForaDelCurs": "Today falls inside no course, and with no course there is no cap to count. Open the course under “The ranking periods”, or log the warning with no points."
   },
   "escola": {
     "politecnica": "Polytechnic",
@@ -928,6 +930,7 @@
         "withdrawSure": "The warning stays on the sheet, struck through, and any points it took come back as a new line in the ledger. Write why it is being withdrawn.",
         "withdrawNote": "Why it is withdrawn",
         "withdrawPlaceholder": "They had told us, our mistake",
+        "withdrawPaused": "No connection. The withdrawal waits here and will go when the network is back: keep this screen open.",
         "withdrawnOn": "Withdrawn on {{dia}}"
       },
       "avis": {

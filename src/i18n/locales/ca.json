@@ -134,7 +134,9 @@
     "notFound": "Això ja no hi és.",
     "notAnImage": "Aquesta foto no la sé llegir. Prova amb una altra, o fes-la des de la càmera.",
     "rateLimited": "Massa intents seguits. Espera un parell de minuts i torna-hi.",
-    "behindServer": "Això encara no hi és al servidor: l'app s'ha actualitzat abans que la base de dades. Si ets de la junta, apuja les migracions; si no, avisa'ls."
+    "behindServer": "Això encara no hi és al servidor: l'app s'ha actualitzat abans que la base de dades. Si ets de la junta, apuja les migracions; si no, avisa'ls.",
+    "avisSostre": "Aquest curs ja s'han restat a aquesta persona tots els punts que el sostre permet. Puja «Màxim de punts per curs» a El barem, o registra l'avís sense punts.",
+    "avisForaDelCurs": "Avui no cau dins de cap curs, i sense curs no hi ha cap sostre a comptar. Obre el curs a «Els períodes del rànquing», o registra l'avís sense punts."
   },
   "escola": {
     "politecnica": "Politècnica",
@@ -928,6 +930,7 @@
         "withdrawSure": "L'avís es queda a la fitxa, ratllat, i si va restar punts es tornen amb una línia nova al registre. Escriu per què es retira.",
         "withdrawNote": "Per què es retira",
         "withdrawPlaceholder": "Havia avisat, error nostre",
+        "withdrawPaused": "Sense connexió. La retirada espera aquí i sortirà quan torni la xarxa: no tanquis la pantalla.",
         "withdrawnOn": "Retirat el {{dia}}"
       },
       "avis": {

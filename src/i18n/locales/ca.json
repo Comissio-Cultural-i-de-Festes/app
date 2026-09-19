@@ -1145,6 +1145,8 @@
       "points": {
         "title": "D’on surten els punts",
         "notSources": "No són punts guanyats",
+        "cases_one": "{{count}} cas",
+        "cases_other": "{{count}} casos",
         "notSourcesNote": "Resten o es compensen, i per això queden fora del gràfic. Un avís retirat surt a zero: hi va ser i no ha costat res.",
         "action": "→ Muntar i portar gent són punts fàcils de repartir al gener: anuncieu-los abans de cada pla."
       },

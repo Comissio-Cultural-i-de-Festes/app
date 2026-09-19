@@ -1145,6 +1145,8 @@
       "points": {
         "title": "Where the points come from",
         "notSources": "Not points anyone earned",
+        "cases_one": "{{count}} case",
+        "cases_other": "{{count}} cases",
         "notSourcesNote": "They take points away or cancel out, so they stay off the chart. A withdrawn warning shows as zero: it happened and it cost nothing.",
         "action": "→ Setting up and bringing people are easy points to hand out in January: announce them before each plan."
       },

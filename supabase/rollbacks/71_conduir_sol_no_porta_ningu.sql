@@ -11,6 +11,12 @@
 -- s'executés abans, hi hauria un moment amb el botó dibuixat i la RPC
 -- refusant-lo amb 22023 a qui el premés. L'ordre és 76 i després 71.
 --
+-- I NO HI HA CAP ALTRA DEPENDÈNCIA. Aquest fitxer no reescriu cap funció —només
+-- toca files de `point_values`— o sigui que no pot desfer en silenci cap
+-- migració posterior, que és el defecte que el rollback de la 76 va portar una
+-- temporada. `tests/rollbacks-cos-al-dia.test.ts` ho comprova per a tot el
+-- directori.
+--
 -- EL QUE AQUEST FITXER NO POT TORNAR, i és l'única part que perd informació:
 -- els punts que la junta hi hagués posat. La 71 fa un `delete` de la fila de
 -- `conduir` —o sigui que el seu valor ja no existeix enlloc— i un `update`

@@ -14,6 +14,13 @@
 --
 -- Les files ja escrites no es toquen: la 79 no en va moure cap, només va
 -- decidir qui les pot moure d'ara endavant.
+--
+-- ORDRE: NO DEPÈN DE RES I NO EN DESFÀ RES. `private.profiles_guard()` l'han
+-- escrita dues migracions —la 07 i la 79— i cap altra, o sigui que el cos
+-- d'aquí no pot passar per sobre de cap correcció posterior; el comentari de la
+-- columna tampoc l'ha tocat ningú després de la 79. És el defecte que el
+-- rollback de la 76 va portar una temporada, i aquí no hi és.
+-- `tests/rollbacks-cos-al-dia.test.ts` ho comprova per a tot el directori.
 
 create or replace function private.profiles_guard()
 returns trigger

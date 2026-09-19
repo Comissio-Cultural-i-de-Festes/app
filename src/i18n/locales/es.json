@@ -1910,6 +1910,7 @@
     "okWalkin": "No estaba apuntado, pero adelante",
     "okWalkinReview": "Entra, pero no estaba apuntado ni ha pagado",
     "okWalkinReviewFree": "Entra, pero no estaba apuntado",
+    "okWalkinReviewUnknown": "Entra, pero no estaba apuntado. Mira si la actividad se paga",
     "alreadyCheckedIn": "Este QR ya se ha usado",
     "notAMember": "Este QR no es de la comi",
     "memberInactive": "Todavía no está dado de alta",

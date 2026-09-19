@@ -1910,6 +1910,7 @@
     "okWalkin": "Not on the list, but come on in",
     "okWalkinReview": "Let them in — not signed up and not paid",
     "okWalkinReviewFree": "Let them in — not signed up",
+    "okWalkinReviewUnknown": "Let them in — not signed up. Check whether this one is paid for",
     "alreadyCheckedIn": "This QR has already been used",
     "notAMember": "This QR isn't one of ours",
     "memberInactive": "This account isn't active yet",

@@ -7,13 +7,17 @@
 -- firma, cap grant, cap fila—, o sigui que això es pot aplicar sol i en
 -- qualsevol moment.
 --
--- ORDRE: NO DEPÈN DE RES I NO EN DESFÀ RES. La 78 és, ara mateix, l'última
--- migració que escriu `avisa()`, o sigui que el cos d'aquí no pot passar per
--- sobre de cap correcció posterior —que és el defecte que el rollback de la 76
--- va portar una temporada—. El `btrim` d'un sol argument de la nota és el que
--- la base té avui a `avisa()`: la 77 el va corregir a `award_points` i deixa
--- escrit que aquesta és una de les quatre que queden. Aquest fitxer no el pot
--- arreglar, perquè no el desfà ell. `tests/rollbacks-cos-al-dia.test.ts`
+-- ORDRE: LA 81 VA DESPRÉS I TAMBÉ ESCRIU `avisa()`. Quan es va escriure aquest
+-- fitxer, la 78 era l'última que la tocava; ja no ho és. La 81 hi posa dues
+-- coses —que la resta es refusi quan avui no cau dins de cap curs, i que la
+-- nota passi per `private.nota_neta`— i aplicar això sol les desfà totes dues
+-- en silenci, que és exactament el defecte que el rollback de la 76 va portar
+-- una temporada. **Desfés abans la 81**, o no apliquis aquest fitxer.
+--
+-- El que sí que s'arregla aquí, perquè es pot: la neteja de la nota no es torna
+-- a copiar. `private.nota_neta` existeix des de la 77 —anterior a aquesta—, o
+-- sigui que cridar-la és segur en qualsevol ordre, i així desfer el sostre no
+-- reobre mai el forat del tabulador. `tests/rollbacks-cos-al-dia.test.ts`
 -- comprova les dues coses per a tot el directori.
 --
 -- QUÈ ÉS INDEPENDENT I QUÈ NO. La 82 llegeix la parella avís/retirada amb la
@@ -42,7 +46,7 @@ as $fn$
 declare
   v_id            uuid;
   v_gravetat      int;
-  v_nota          text := btrim(coalesce(p_nota, ''));
+  v_nota          text := private.nota_neta(coalesce(p_nota, ''));
   v_punts         int  := coalesce(p_punts, 0);
   v_punts_event   uuid;
   v_points_log_id uuid;

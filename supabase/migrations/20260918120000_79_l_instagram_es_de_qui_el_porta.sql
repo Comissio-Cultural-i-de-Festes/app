@@ -54,10 +54,17 @@
 --      cau exactament el camp que no els pertoca i la resta de la sentència
 --      arriba.
 --
--- El preu, escrit perquè es vegi: qui ho intenti rep un 200 i no s'assabenta
--- fins que rellegeix la fila. S'accepta perquè avui no hi ha cap pantalla que
--- ho ofereixi, i el dia que la junta en tingui una per editar el perfil d'algú
--- es construirà sabent aquesta regla, no ensopegant-hi.
+-- El preu, escrit perquè es vegi, i és més petit del que sembla. Com que el
+-- `RETURNING` de PostgREST corre DESPRÉS d'un disparador `before`, qui demana
+-- la representació —`.update(…).select(…)`, que és `Prefer: return=representation`—
+-- rep un 200 amb el valor vell ja corregit a dins: se n'assabenta a la mateixa
+-- resposta, sense rellegir res. Qui no la demana —un `.update(…)` pelat, que és
+-- `return=minimal`— rep un 204 sense cos i no se n'assabenta fins que torni a
+-- llegir la fila. O sigui que el punt cec és el 204, no el 200. S'accepta perquè
+-- avui no hi ha cap pantalla que ofereixi editar l'Instagram d'un altre, i el
+-- dia que la junta en tingui una per editar el perfil d'algú es construirà
+-- sabent aquesta regla, no ensopegant-hi. Ho assereix
+-- `tests/rls/instagram_junta.test.ts`, que és l'única capa que veu la resposta.
 --
 -- Res de tot això toca les RPC: el primer `if` de la funció deixa passar tot el
 -- que no ve directament del client, i `redeem_invite()` i companyia hi entren
@@ -99,7 +106,11 @@ end $$;
 comment on column public.profiles.instagram is
   'Nom d''usuari d''Instagram, sense @ i sense URL. Públic per a tot soci actiu: '
   'la columna és llegible pel grant de taula sencera de 03_grants.sql. Buit vol '
-  'dir que no surt enlloc. L''escriu només el soci de qui és la fila: el grant '
-  'de columna és per a `authenticated` i la junta hi és a dins, i qui ho separa '
-  'és `private.profiles_guard()`, que fixa el valor vell quan el qui escriu no '
-  'és el titular.';
+  'dir que no surt enlloc. QUI LA POT ESCRIURE: la frontera només mira les '
+  'escriptures que arriben com a `authenticated`, és a dir les directes del '
+  'client per PostgREST, i d''aquelles només en deixa passar les del soci de qui '
+  'és la fila —el grant de columna és per a `authenticated` i la junta hi és a '
+  'dins, i qui els separa és `private.profiles_guard()`, que fixa el valor vell '
+  'quan el qui escriu no és el titular. NO és una frontera per a `service_role` '
+  'ni per a les RPC `security definer`: la guarda es retira pel `current_user` i '
+  'les deixa escriure qualsevol fila.';

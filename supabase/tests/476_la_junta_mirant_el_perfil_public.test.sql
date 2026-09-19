@@ -10,6 +10,20 @@
 -- junta torna sencera —amb el títol— per la consulta literal de
 -- `fetchMemberNights()`.
 --
+-- I AQUÍ ES MESURA EL CONTRARI DEL QUE AQUEST FITXER VA AFIRMAR PRIMER. Les
+-- dues assercions de la junta demanaven que la base NO servís aquelles files a
+-- un admin. Provat: l'única implementació que les torna verdes és treure
+-- `att_select_admin`, `events_select_admin` i `etitle_select_admin`, i llavors
+-- `/junta/reunions` es queda sense cap reunió, que és d'on les treu. La regla
+-- que es volia fixar és certa i és de la PANTALLA: el filtre viu a
+-- `fetchMemberNights()`, i qui el prova és `tests/rls/member.test.ts`, que el
+-- demana per Kong amb un token de debò.
+--
+-- El que pertoca a aquest fitxer és la tanca de l'altra banda: que ningú no
+-- «arregli» el perfil públic buidant les polítiques d'admin. Si un dia la regla
+-- baixa a la base —una funció `definer` com `member_badges()`—, aquestes dues
+-- assercions han de tornar a canviar de sentit, i llavors es veurà.
+--
 -- QUÈ AFIRMA AQUEST FITXER. Que la regla és de la pantalla i no del qui mira:
 -- `/soci/:id` és el perfil públic, i la frase que duu a sota quan és el teu
 -- —«això és el que qualsevol soci veu de tu»— només és certa si la llista és
@@ -98,8 +112,8 @@ select is(
     where a.user_id = (select vist from qui476)
       and a.estado = 'asistio'
       and e.abast = 'junta'),
-  0,
-  'i algu de la junta tampoc, mirant el perfil public d''un altre'
+  1,
+  'la base SI que li serveix la reunio de junta: per aixo el filtre es del client'
 );
 
 select is(
@@ -122,8 +136,8 @@ select is(
      left join public.event_title t on t.event_id = e.id
     where a.user_id = (select vist from qui476)
       and e.abast = 'junta'),
-  null::text,
-  'el titol d''una reunio de junta no surt per la llista de nits, com no surt per member_badges()'
+  'Reunio tancada inventada',
+  'i el titol tambe: qui el vulgui tapar ha de fer-ho on es dibuixa'
 );
 
 select is(

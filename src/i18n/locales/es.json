@@ -706,6 +706,7 @@
     "payments": {
       "title": "Pagos y junta",
       "pickEvent": "De qué evento",
+      "pickPrompt": "Elige un evento",
       "whoPaid": "Quién ha pagado",
       "whoComes": "Quién viene",
       "ofSignedUp_one": "de {{count}} apuntado",
@@ -1915,6 +1916,7 @@
     "okWalkin": "No estaba apuntado, pero adelante",
     "okWalkinReview": "Entra, pero no estaba apuntado ni ha pagado",
     "okWalkinReviewFree": "Entra, pero no estaba apuntado",
+    "okWalkinReviewUnknown": "Entra, pero no estaba apuntado. Mira si la actividad se paga",
     "alreadyCheckedIn": "Este QR ya se ha usado",
     "notAMember": "Este QR no es de la comi",
     "memberInactive": "Todavía no está dado de alta",

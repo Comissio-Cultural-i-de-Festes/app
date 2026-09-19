@@ -706,6 +706,7 @@
     "payments": {
       "title": "Payments and committee",
       "pickEvent": "Which event",
+      "pickPrompt": "Pick an event",
       "whoPaid": "Who has paid",
       "whoComes": "Who is coming",
       "ofSignedUp_one": "of {{count}} signed up",
@@ -1915,6 +1916,7 @@
     "okWalkin": "Not on the list, but come on in",
     "okWalkinReview": "Let them in — not signed up and not paid",
     "okWalkinReviewFree": "Let them in — not signed up",
+    "okWalkinReviewUnknown": "Let them in — not signed up. Check whether this one is paid for",
     "alreadyCheckedIn": "This QR has already been used",
     "notAMember": "This QR isn't one of ours",
     "memberInactive": "This account isn't active yet",

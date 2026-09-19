@@ -28,6 +28,19 @@ import type { CheckInResult } from './api'
  * perquè la tria només mirava `priceCents === 0`: dins del mateix fitxer, la
  * línia de detall callava i la frase de sobre acusava. Amb la xarxa lenta a una
  * activitat de franc, això és el deute inventat per una altra porta.
+ *
+ * PERÒ CALLAR NO ÉS LA RESPOSTA A NO SABER-HO. El primer intent d'això va
+ * deixar el desconegut amb la frase de la gratuïta, i llavors una porta DE
+ * PAGAMENT amb la consulta de l'esdeveniment caiguda deixava de dir que s'ha
+ * de cobrar: es va tapar el fals positiu obrint el fals negatiu. El que se sap
+ * quan no se sap el preu és precisament que no se sap, i això és el que diu la
+ * frase pròpia del cas: no acusa ningú de deure res i tampoc no deixa passar
+ * un cobrament sense avisar, perquè demana mirar-ho.
+ *
+ * Aquestes paraules també són les de l'alta pel nom: `ManualScreen` les
+ * demana amb `statusWords`. Abans llegia `presentationOf(outcome).messageKey`
+ * tal qual i per això la pantalla del costat de l'escàner encara acusava d'un
+ * deute inexistent a una activitat de franc.
  */
 
 export interface DetailPart {
@@ -62,18 +75,25 @@ function priceCase(priceCents: number | null): PriceCase {
  * ha pagat», «mira que pagui abans d'entrar»— i quan és de franc parla del que
  * toca, que és que el número de places quadri.
  *
- * AMB EL PREU DESCONEGUT NO ES DIU NI L'UNA NI L'ALTRA. L'única cosa que se sap
- * del cert és la que ve del servidor —aquesta persona no estava apuntada—, i
- * és exactament el que diu `scanner.okWalkinReviewFree`: la frase no parla de
- * diners però tampoc no parla de places, o sigui que és certa als dos casos.
- * L'acció sí que en necessita una de pròpia, perquè les altres dues afirmen un
- * fet de l'esdeveniment. «Apunta-ho» és el que tenen en comú i el que la junta
- * pot fer sense saber res més.
+ * AMB EL PREU DESCONEGUT NO ES DIU CAP DE LES DUES, SINÓ UNA TERCERA. Les dues
+ * de sempre afirmen un fet de l'esdeveniment que aquí no consta: l'una que hi
+ * ha un import per cobrar, l'altra que el que està comptat són les places. La
+ * del desconegut només afirma el que ve del servidor —aquesta persona no
+ * estava apuntada— i afegeix la feina que queda, que és mirar si allò es paga.
  *
- * L'opció descartada era deixar-hi la còpia de diners mentre no se sabés el
- * preu, per no amagar mai un cobrament de debò. Costava el mateix que arregla
- * la línia de detall: a una activitat gratuïta amb la consulta en vol, algú que
- * no estava apuntat sortia amb un deute sota el nom que ningú no pot respondre.
+ * LES DUES MEITATS HAN DE SER CERTES ALHORA. Prestar-li la frase de la
+ * gratuïta —que és el que es va fer primer— tapava el fals positiu (dir «ni ha
+ * pagat» on no hi ha res a pagar) obrint-ne el fals negatiu: a una porta DE
+ * PAGAMENT amb la consulta de l'esdeveniment caiguda, la targeta deixava de
+ * dir que s'ha de cobrar i ningú no ho sabia fins a dilluns. Una pregunta no
+ * és una acusació: «mira si l'activitat es paga» és certa a les dues portes, i
+ * cap de les altres dues no ho és.
+ *
+ * L'altra opció descartada era quedar-se la còpia de diners mentre no se sabés
+ * el preu, per no amagar mai un cobrament de debò. Costava el mateix que
+ * arregla la línia de detall: a una activitat gratuïta amb la consulta en vol,
+ * algú que no estava apuntat sortia amb un deute sota el nom que ningú no pot
+ * respondre.
  */
 const WALKIN_REVIEW_COPY: Record<PriceCase, Omit<VerdictText, 'detail'>> = {
   paid: {
@@ -85,7 +105,7 @@ const WALKIN_REVIEW_COPY: Record<PriceCase, Omit<VerdictText, 'detail'>> = {
     actionKey: 'scanner.action.okWalkinReviewFree',
   },
   unknown: {
-    headlineKey: 'scanner.okWalkinReviewFree',
+    headlineKey: 'scanner.okWalkinReviewUnknown',
     actionKey: 'scanner.action.okWalkinReviewUnknown',
   },
 }
@@ -94,6 +114,30 @@ const PRICED_COPY: Partial<Record<CheckInStatus, Record<PriceCase, Omit<VerdictT
   {
     ok_walkin_review: WALKIN_REVIEW_COPY,
   }
+
+/**
+ * Quina frase i quina acció van amb aquest estat, sabent el que se sap del preu.
+ *
+ * Exportada perquè hi ha dues portes i no una. `ScannerScreen` hi arriba per
+ * `verdictText`, que hi afegeix el desfer i la línia de detall; `ManualScreen`
+ * no té ni l'una ni l'altra —la tira de l'últim fitxat porta el seu propi
+ * desfer i la fila de la llista només té lloc per a tres paraules— i el que
+ * necessita és exactament això. Que la tria visqui en un sol lloc és el que
+ * evita que la meitat de les portes quedi arreglada, que és el que va passar.
+ *
+ * LA TRIA VA PER `result.status` I NO PER `shown`. Un escaneig encuat es
+ * dibuixa amb la presentació d'`ok_walkin_review` manllevada, o sigui que
+ * mirar-se `shown` acabaria triant la còpia d'un estat que el servidor no ha
+ * dit mai. Sense `result` no hi ha estat i no hi ha res a substituir.
+ */
+export function statusWords(
+  shown: ScanPresentation,
+  result: CheckInResult | null,
+  priceCents: number | null,
+): Omit<VerdictText, 'detail'> {
+  const override = result === null ? undefined : PRICED_COPY[result.status]?.[priceCase(priceCents)]
+  return override ?? { headlineKey: shown.messageKey, actionKey: shown.actionKey }
+}
 
 export function verdictText(
   shown: ScanPresentation,
@@ -107,13 +151,7 @@ export function verdictText(
     readonly priceCents: number | null
   },
 ): VerdictText {
-  // LA TRIA VA PER `result.status` I NO PER `shown`. Un escaneig encuat es
-  // dibuixa amb la presentació d'`ok_walkin_review` manllevada, o sigui que
-  // mirar-se `shown` acabaria triant la còpia d'un estat que el servidor no ha
-  // dit mai. Sense `result` no hi ha estat i no hi ha res a substituir.
-  const override =
-    result === null ? undefined : PRICED_COPY[result.status]?.[priceCase(opts.priceCents)]
-  const words = override ?? { headlineKey: shown.messageKey, actionKey: shown.actionKey }
+  const words = statusWords(shown, result, opts.priceCents)
 
   return {
     headlineKey: opts.gone && opts.undoNote !== null ? opts.undoNote : words.headlineKey,

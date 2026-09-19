@@ -14,6 +14,13 @@
 --
 -- Les files ja escrites no es toquen: la 79 no en va moure cap, només va
 -- decidir qui les pot moure d'ara endavant.
+--
+-- SI EL QUE VOLS ÉS TREURE LA COLUMNA SENCERA, aquest fitxer no et cal:
+-- `rollbacks/70_l_instagram_al_perfil.sql` ja torna la guarda a la versió del
+-- 07 abans de fer el `drop column`, perquè amb la guarda de la 79 posada la
+-- columna no es pot esborrar sense deixar `profiles` inescrivible des del
+-- client. I si els apliques tots dos, aquest va PRIMER: el `comment on column`
+-- d'aquí sota peta amb un 42703 si la columna ja no hi és.
 
 create or replace function private.profiles_guard()
 returns trigger

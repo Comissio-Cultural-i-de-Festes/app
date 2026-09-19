@@ -59,6 +59,29 @@ describe('el que falta', () => {
   it('una nota de tres espais és una nota buida amb una altra cara', () => {
     expect(llegeixAjust({ punts: '20', nota: '   ' })).toBe('nota')
   })
+
+  /**
+   * ELS BLANCS QUE `trim()` NO VEU, mirats des d'aquí i no només des de
+   * `notaNeta.test.ts`: el que es va separar de la base no va ser la llista,
+   * va ser aquesta crida. Amb `camps.nota.trim()` les tres passen el formulari
+   * i és `award_points` qui les refusa amb 22023 —a la pantalla, «Torna-ho a
+   * provar d'aquí un moment»—, i aquest fitxer es quedava verd.
+   */
+  it.each([
+    ['l’espai d’amplada zero', String.fromCodePoint(0x200b)],
+    ['el salt de línia dels terminals', String.fromCodePoint(0x0085)],
+    ['el separador d’unitat', String.fromCodePoint(0x001f)],
+  ])('ni una nota que només és %s, que és el que la base refusa', (_nom, blanc) => {
+    expect(llegeixAjust({ punts: '20', nota: blanc })).toBe('nota')
+  })
+
+  it('i la nota que s’envia és la que la base desarà, sense els extrems', () => {
+    const enganxada = `${String.fromCodePoint(0xfeff)}quota de setembre${String.fromCodePoint(0x3000)}`
+    expect(llegeixAjust({ punts: '-3', nota: enganxada })).toEqual({
+      punts: -3,
+      nota: 'quota de setembre',
+    })
+  })
 })
 
 describe('el que no és un número', () => {

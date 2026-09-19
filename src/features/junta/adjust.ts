@@ -19,7 +19,16 @@
  *
  * ZERO NO ÉS UN AJUST. La RPC el refusa des de la 15 i aquí també: una fila de
  * zero punts al llibre major és soroll amb data.
+ *
+ * LA NOTA ES RETALLA AMB `notaNeta` I NO AMB `trim()`. Duplicar la comprovació
+ * només serveix si duplica la mateixa: des de la migració 77 la base retalla
+ * amb `private.nota_neta`, que cobreix més caràcters que `String.trim()`, i
+ * amb `trim()` aquí hi havia notes que el formulari acceptava i la base
+ * refusava amb un 22023 que a la pantalla es llegeix «Torna-ho a provar d'aquí
+ * un moment». `notaNeta` explica quins són i què els manté lligats.
  */
+
+import { notaNeta } from './notaNeta'
 
 /** El sostre per crida que posa `award_points` des de la migració 15. */
 export const MAX_AJUST = 500
@@ -49,7 +58,7 @@ export interface AjustValid {
  */
 export function llegeixAjust(camps: CampsAjust): AjustValid | ProblemaAjust | null {
   const punts = Number(camps.punts.trim())
-  const nota = camps.nota.trim()
+  const nota = notaNeta(camps.nota)
 
   if (camps.punts.trim() === '') return nota === '' ? null : 'punts'
   if (!Number.isInteger(punts) || punts === 0 || Math.abs(punts) > MAX_AJUST) return 'punts'

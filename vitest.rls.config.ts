@@ -1,3 +1,5 @@
+import { fileURLToPath, URL } from 'node:url'
+
 import { defineConfig } from 'vitest/config'
 
 /**
@@ -9,6 +11,7 @@ import { defineConfig } from 'vitest/config'
  * deliberately mutate rows so they can assert what the second scan does.
  */
 export default defineConfig({
+  resolve: { alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) } },
   test: {
     environment: 'node',
     globals: true,

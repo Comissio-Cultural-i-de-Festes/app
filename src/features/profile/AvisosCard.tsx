@@ -4,9 +4,10 @@ import { useTranslation } from 'react-i18next'
 import { clauGravetat, nomDelTipus } from '@/features/junta/avisTipus'
 import { avisosKeys, fetchAvisTipus, fetchAvisos } from '@/features/junta/avisosApi'
 import { useCurs } from '@/features/ranking/useRanking'
-import { formatDayMonth } from '@/i18n/format'
+import { formatDayMonth, formatMonthYear } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 
+import { volAny } from './avisData'
 import { LEDGER_ROW } from './ledger'
 
 /**
@@ -30,12 +31,18 @@ import { LEDGER_ROW } from './ledger'
  *
  * ELS D'AQUEST CURS I NO ELS DE SEMPRE. La frase de sota el títol diu «el que la
  * junta ha registrat aquest curs», i la primera versió d'aquesta targeta
- * ensenyava l'històric sencer sota aquella frase. Amb la columna de la data
- * sense any —«4 de nov.»—, un avís de fa tres cursos es llegia com si fos
- * d'aquest novembre i no hi havia manera de saber-ho des de la pantalla. O es
- * canviava la frase, o es fitava la lectura: es fita, perquè el comptador que
- * la junta mira a `/junta/socis` també és del curs i les dues bandes han de dir
- * el mateix número de la mateixa persona.
+ * ensenyava l'històric sencer sota aquella frase. O es canviava la frase, o es
+ * fitava la lectura: es fita, perquè el comptador que la junta mira a
+ * `/junta/socis` també és del curs i les dues bandes han de dir el mateix
+ * número de la mateixa persona.
+ *
+ * I FITAR LA LECTURA NO BASTA PER A LA DATA, que és el que aquest bloc deia i
+ * era fals. La finestra surt de `ranking_periods` i el període `global` no té
+ * mai final —`periodsFromChain` hi escriu `ends_at: null`—, o sigui que el que
+ * es llegeix és `[inici, ∞)` i no un curs. El setembre que ningú no toqui les
+ * dates hi caben dos novembres, i amb «4 de nov.» a la columna els dos es
+ * pinten igual. Qui decideix quines files porten l'any és `volAny`, al costat,
+ * amb el motiu escrit i la regla d'un any.
  *
  * QUÈ ES PERD I PER QUÈ NO PASSA RES. Un avís d'un curs anterior deixa de
  * sortir al perfil. Continua existint, la fitxa de la junta el continua
@@ -78,6 +85,12 @@ export function AvisosCard({ userId }: { readonly userId: string }) {
   // apareix. Una silueta aquí anunciaria que hi ha alguna cosa a punt d'arribar.
   if (rows.length === 0) return null
 
+  // Un sol rellotge per a totes les files: amb un `new Date()` per fila, dues
+  // files del mateix render es podrien comparar contra instants diferents. Que
+  // no s'actualitzi sol no importa —el llindar és d'un any— i posar-lo a un
+  // estat voldria dir un temporitzador per a una columna de 52px.
+  const ara = new Date()
+
   const traduccio = (clau: string): string =>
     i18n.exists(`avisos.tipus.${clau}`) ? t(`avisos.tipus.${clau}`) : ''
 
@@ -105,7 +118,12 @@ export function AvisosCard({ userId }: { readonly userId: string }) {
           return (
             <li key={row.id} className={LEDGER_ROW}>
               <p className="w-[52px] flex-none pt-[2px] text-sm-lo font-semibold text-fg-dim">
-                {formatDayMonth(new Date(row.created_at), locale)}
+                {/* L'any arriba i el dia se'n va, com a la fitxa de la junta:
+                    la columna fa 52px i les tres coses no hi caben. D'un avís
+                    vell, el que importa és de quin curs era. */}
+                {volAny(row.created_at, ara)
+                  ? formatMonthYear(new Date(row.created_at), locale)
+                  : formatDayMonth(new Date(row.created_at), locale)}
               </p>
               <div className="min-w-0 flex-1">
                 <p

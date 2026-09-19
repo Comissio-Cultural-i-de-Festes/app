@@ -8,6 +8,33 @@
 -- Les files ja escrites es queden: `points_log` és append-only per disparador
 -- i un ajust amb nota continua sent una fila vàlida. El que desfà això és la
 -- garantia cap endavant, no el passat.
+--
+-- ── ORDRE: LA 76 I LA 77 VAN PRIMER, TOTES DUES ─────────────────────────────
+--
+-- El cos d'aquí és el de la 15 i després de la 72 hi ha hagut dues migracions
+-- més sobre `award_points`. Aplicat tal qual sobre una base amb les tres, les
+-- desfà les tres i només una era la intenció:
+--
+--   · la 76 tornaria: `conduir` un altre cop creable per una crida a mà, que és
+--     el tercer forat de la issue #2 i el que la 71 va deixar obert a posta;
+--   · la 77 tornaria: la nota es netejaria amb el `btrim` d'un sol argument, que
+--     només treu U+0020. Aquí no hi ha cap verja de nota a desfer —és el cos de
+--     la 15, que no en té— però el que se'n va amb ella és la funció que ho
+--     decideix, i qualsevol cosa que després es reescrigui sobre aquest cos se
+--     l'endurà.
+--
+-- La 76 i la 77 es van escriure totes dues sobre el cos de la 72, o sigui que
+-- desfer-les abans és l'ordre natural i no un apedaçat. No hi ha un rollback de
+-- la 77 a aquest directori i és a posta: no és el desfer d'una decisió de
+-- producte, és una correcció de seguretat, i qui la vulgui desfer ha d'escriure
+-- ell el fitxer i signar-lo.
+--
+-- Això no és una precaució teòrica: el rollback de la 76 va portar exactament
+-- aquest defecte durant una revisió —el cos de la 72, que desfeia la 77 sense
+-- dir-ho— i el va tapar posant-hi el cos de la 77 amb l'allowlist tornada
+-- enrere. Aquí aquella sortida no serveix, perquè el que aquest fitxer desfà és
+-- justament la nota obligatòria. `tests/rollbacks-cos-al-dia.test.ts` comprova
+-- que aquest avís hi sigui.
 
 create or replace function public.award_points(
   p_user_id uuid,

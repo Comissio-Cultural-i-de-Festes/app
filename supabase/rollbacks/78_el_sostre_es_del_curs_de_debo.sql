@@ -7,6 +7,22 @@
 -- firma, cap grant, cap fila—, o sigui que això es pot aplicar sol i en
 -- qualsevol moment.
 --
+-- ORDRE: NO DEPÈN DE RES I NO EN DESFÀ RES. La 78 és, ara mateix, l'última
+-- migració que escriu `avisa()`, o sigui que el cos d'aquí no pot passar per
+-- sobre de cap correcció posterior —que és el defecte que el rollback de la 76
+-- va portar una temporada—. El `btrim` d'un sol argument de la nota és el que
+-- la base té avui a `avisa()`: la 77 el va corregir a `award_points` i deixa
+-- escrit que aquesta és una de les quatre que queden. Aquest fitxer no el pot
+-- arreglar, perquè no el desfà ell. `tests/rollbacks-cos-al-dia.test.ts`
+-- comprova les dues coses per a tot el directori.
+--
+-- QUÈ ÉS INDEPENDENT I QUÈ NO. La 82 llegeix la parella avís/retirada amb la
+-- mateixa regla que aquesta migració, però des d'`admin_dashboard` i no des
+-- d'`avisa()`: són dues funcions diferents i cap dels dos rollbacks no toca la
+-- de l'altre. Es poden aplicar en qualsevol ordre, o un sol. El que sí que
+-- passa és que, amb aquest aplicat i la 82 no, el sostre i el panell tornaran a
+-- comptar els avisos de dues maneres diferents.
+--
 -- Les files ja escrites no es toquen ni es poden tocar: `points_log` és
 -- append-only per disparador. El que desfà això és la regla cap endavant.
 

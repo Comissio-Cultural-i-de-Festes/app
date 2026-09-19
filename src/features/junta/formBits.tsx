@@ -17,10 +17,28 @@ export const INPUT =
 export function Field({
   label,
   hint,
+  hintId,
   children,
 }: {
   readonly label: string
   readonly hint?: string
+  /**
+   * L'identificador del `<p>` de la pista, quan qui crida vol que el seu camp
+   * hi apunti amb `aria-describedby`.
+   *
+   * SENSE AIXÒ LA PISTA NO ARRIBA A QUI NO LA VEU. És un germà del grup, o
+   * sigui que no entra al nom accessible del camp ni a la seva descripció: qui
+   * navega amb lector de pantalla sent «Per què» i prou, i la frase que diu
+   * que allò es publicarà al perfil del soci —la decisió més delicada
+   * d'aquesta pantalla— no es diu enlloc.
+   *
+   * ÉS OPCIONAL I NO OBLIGATORI perquè `Field` el fan servir deu pantalles i
+   * la majoria hi posen un únic control amb `aria-label` propi; obligar-les
+   * totes a passar un id per fer-hi apuntar un `aria-describedby` que no
+   * escriuen hauria estat tocar-ne deu per arreglar-ne una. Qui vulgui la
+   * pista descrita, la demana.
+   */
+  readonly hintId?: string
   readonly children: ReactNode
 }) {
   // Not `<label htmlFor>`: the id was landing on the wrapper div, which is not
@@ -37,7 +55,12 @@ export function Field({
         {children}
       </div>
       {hint === undefined ? null : (
-        <p className="mt-4 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">{hint}</p>
+        <p
+          id={hintId}
+          className="mt-4 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]"
+        >
+          {hint}
+        </p>
       )}
     </div>
   )

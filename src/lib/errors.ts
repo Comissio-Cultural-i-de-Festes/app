@@ -2,6 +2,32 @@ import { DbError } from './db'
 import { UnreadableImage } from './storage'
 
 /**
+ * Els refusos que es diuen pel seu nom.
+ *
+ * TOT UN GRAPAT DE REFUSOS COMPARTEIXEN UN SOL CODI. Les migracions aixequen
+ * 22023 cinquanta-quatre vegades i volen dir coses ben diferents: «aquesta
+ * persona no és de l'associació», «punts fora de rang», «sostre de punts del
+ * curs». La branca de la classe 22 els dóna a tots la mateixa frase —«No ha
+ * sortit bé. Torna-ho a provar d'aquí un moment»— i per als que tenen remei
+ * aquell consell és fals: tornar-hi torna a passar pel mateix sostre.
+ *
+ * Canviar-los el codi no era una opció: el SQLSTATE d'una RPC és part del seu
+ * contracte i tres fitxers de proves l'asseguren. El que fa la migració 81 és
+ * posar-hi un token al camp HINT, que era buit a tot el repositori, i aquí hi
+ * ha la taula que el tradueix. Un refús sense token continua avall i es
+ * classifica pel codi, com sempre.
+ *
+ * NO ES MIRA EL MISSATGE. També arriba, i també distingiria els casos, però és
+ * prosa catalana escrita dins d'una migració: es reescriu el dia que algú la
+ * troba poc clara, i aquell dia la pantalla tornaria a dir «torna-ho a provar»
+ * sense que res es posés vermell.
+ */
+const HINTS: Readonly<Record<string, string>> = {
+  avis_sostre: 'errors.avisSostre',
+  avis_fora_del_curs: 'errors.avisForaDelCurs',
+}
+
+/**
  * Which sentence a failure gets.
  *
  * The locale files have had an honest vocabulary since the first commit —
@@ -23,6 +49,10 @@ export function errorKey(error: unknown, online = navigator.onLine): string {
   if (!online) return 'errors.offline'
 
   if (error instanceof DbError) {
+    // Abans que el codi: un refús que porta el seu nom sap més de si mateix
+    // que la classe a la qual pertany.
+    const named = HINTS[error.hint]
+    if (named !== undefined) return named
     // 42501 insufficient_privilege — a policy said no. Retrying never helps.
     if (error.code === '42501') return 'errors.forbidden'
     // Class 42 is the rest of privileges and undefined objects, 22 bad input,

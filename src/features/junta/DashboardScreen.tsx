@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { type Bounds, periodBounds } from '@/features/ranking/api'
 import { defaultPeriod, usePeriods } from '@/features/ranking/useRanking'
-import { formatMonthShort } from '@/i18n/format'
+import { formatMonthShort, formatSigned } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
@@ -18,6 +18,7 @@ import {
   fetchDashboard,
   whatsappHref,
 } from './dashboardApi'
+import { splitPoints } from './dashboardPoints'
 import { JuntaHeader } from './JuntaHeader'
 
 /**
@@ -109,10 +110,36 @@ function Cards({
   const { t } = useTranslation()
   const maxAttendance = Math.max(1, ...data.assistencia.map((a) => a.quants))
   const maxType = Math.max(1, ...data.per_tipus.map((r) => r.mitjana))
-  const totalPoints = Math.max(
-    1,
-    data.punts_per_motiu.reduce((n, r) => n + r.punts, 0),
-  )
+
+  /*
+   * D'on surten els punts, i el que no en surt.
+   *
+   * Des de la migració 80 aquesta llista porta motius que NO sumen: un `avis`
+   * que es manté és negatiu, un ajust a mà pot baixar-li a algú, i un avís
+   * posat i retirat surt com un zero que existeix. Abans no en portava cap
+   * —la funció els filtrava— i el gràfic donava per fet que tot el que hi
+   * arribava sumava.
+   *
+   * ELS QUE NO SUMEN SURTEN DEL GRÀFIC I VAN A UNA LÍNIA DE TEXT A SOTA. La
+   * targeta contesta «d'on surten els punts d'aquest curs» d'un cop d'ull, i
+   * una sanció no és una font de punts: dibuixar-la al costat del muntatge la
+   * posaria a competir amb la resposta. Fora del gràfic es veu que existeix
+   * —amb el seu número i el seu signe— sense reclamar l'ull.
+   *
+   * LES DUES DESCARTADES. Una barra cap a l'altra banda demana un eix al mig,
+   * o sigui partir l'amplada en dues meitats i deixar la de «venir» a la
+   * meitat del que ocupa avui per fer lloc a una fila que gairebé sempre serà
+   * zero; i a sobre el zero no es pot dibuixar. Una secció a part dins la
+   * targeta costava un títol, un eyebrow i una segona graella per dir una
+   * xifra, i partia en dues una targeta que es llegeix d'una tirada.
+   *
+   * LA PARTICIÓ I ELS PERCENTATGES VIUEN A `dashboardPoints.ts`, amb la seva
+   * prova al costat. Escrits aquí dins no es podien provar sense muntar la
+   * pantalla sencera, i les dues coses que hi van fallar —que el signe no
+   * decideix què és una font, i que arrodonir cada fila pel seu compte no suma
+   * 100— són lògica pura que una prova de quatre línies hauria vist.
+   */
+  const { sources, notSources } = splitPoints(data.punts_per_motiu)
 
   return (
     <>
@@ -245,21 +272,54 @@ function Cards({
         <section className={CARD}>
           <h2 className="eyebrow text-fg-muted">{t('junta.dashboard.points.title')}</h2>
           <div className="mt-8 grid gap-6">
-            {data.punts_per_motiu.map((r) => {
-              const pct = Math.round((r.punts / totalPoints) * 100)
-              return (
-                <div key={r.motivo} className="grid grid-cols-[110px_1fr_60px] items-center gap-6">
-                  <span className="text-md-lo font-bold">{t(`motive.${r.motivo}`)}</span>
-                  <div className="h-[10px] bg-surface-3">
-                    <div className="h-[10px] bg-surface-9" style={{ width: `${String(pct)}%` }} />
-                  </div>
-                  <span className="tabular text-right text-sm font-bold text-fg-secondary">
-                    {pct}%
-                  </span>
+            {sources.map((r) => (
+              <div key={r.motivo} className="grid grid-cols-[110px_1fr_60px] items-center gap-6">
+                <span className="text-md-lo font-bold">{t(`motive.${r.motivo}`)}</span>
+                <div className="h-[10px] bg-surface-3">
+                  <div className="h-[10px] bg-surface-9" style={{ width: `${String(r.pct)}%` }} />
                 </div>
-              )
-            })}
+                <span className="tabular text-right text-sm font-bold text-fg-secondary">
+                  {r.pct}%
+                </span>
+              </div>
+            ))}
           </div>
+
+          {notSources.length === 0 ? null : (
+            <div className="mt-9 border-t border-surface-4 pt-7">
+              <h3 className="eyebrow-sm text-fg-dim">{t('junta.dashboard.points.notSources')}</h3>
+              <ul className="mt-5 grid gap-4">
+                {notSources.map((r) => (
+                  <li
+                    key={r.motivo}
+                    className="flex items-baseline justify-between gap-6 text-sm text-fg-secondary"
+                  >
+                    {/* Quantes vegades, al costat del número. La migració 80 el
+                        calcula i el filtra amb cura —un avís retirat són dues
+                        files i un sol avís— i fins ara no el mirava ningú. Va
+                        aquí i no a les barres perquè aquí és on desfà una
+                        lectura ambigua: «avisos −25» pot ser un avís gros o
+                        cinc de petits, i la junta que llegeix això vol saber a
+                        quantes persones ha d'escriure. */}
+                    <span className="[text-wrap:pretty]">
+                      {t(`motive.${r.motivo}`)}
+                      <span className="text-fg-dim">
+                        {' · '}
+                        {t('junta.dashboard.points.cases', { count: r.vegades })}
+                      </span>
+                    </span>
+                    <span className="tabular flex-none font-bold">
+                      {formatSigned(r.punts, locale)}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-5 text-xs text-fg-muted-lo [text-wrap:pretty]">
+                {t('junta.dashboard.points.notSourcesNote')}
+              </p>
+            </div>
+          )}
+
           <p className={ACTION}>{t('junta.dashboard.points.action')}</p>
         </section>
 

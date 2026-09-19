@@ -256,11 +256,22 @@ export async function awardPoints(
  * a failure either, because the person is through the door. `ok_walkin_review`
  * already means exactly that, so it gets the same tick with a mark beside it
  * and the same double buzz.
+ *
+ * IT BORROWS THE SIGNAL, NOT THE WORDS. What was borrowed whole also carried
+ * `actionKey`, which for `ok_walkin_review` reads "make sure they pay before
+ * they come in" — said about somebody the server has never answered for, at a
+ * door where the activity may well be free. `messageKey` was already being
+ * replaced for the same reason and the line under it was missed.
+ *
+ * It goes to null rather than to a queued sentence of its own: the action line
+ * is what the person holding the phone should do now, and with the scan safe
+ * in the queue there is nothing. Inventing one would have repeated the
+ * headline, which already says it is saved and will go when the signal does.
  */
 export function presentationOf(outcome: DoorOutcome): ScanPresentation {
   if (outcome.kind === 'sent') return SCAN_PRESENTATION[outcome.result.status]
   if (outcome.kind === 'queued') {
-    return { ...SCAN_PRESENTATION.ok_walkin_review, messageKey: 'scanner.queued' }
+    return { ...SCAN_PRESENTATION.ok_walkin_review, messageKey: 'scanner.queued', actionKey: null }
   }
   return SCAN_PRESENTATION.error
 }

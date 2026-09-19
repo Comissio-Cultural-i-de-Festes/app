@@ -1,5 +1,4 @@
 import { DbError, unwrapAs } from '@/lib/db'
-import type { Escola, MemberRole } from '@/lib/model'
 import { rpc, supabase } from '@/lib/supabase'
 
 /**
@@ -11,6 +10,12 @@ import { rpc, supabase } from '@/lib/supabase'
  * `features/profile/api`, que és la mateixa consulta amb el mateix filtre
  * explícit: no n'hi ha dues, n'hi ha una i dues pantalles que la criden.
  *
+ * I LA FILA DE LA PERSONA TAMPOC ÉS D'AQUÍ. Hi va haver un `fetchMemberProfile`
+ * amb la seva clau `['junta','soci',id]` que demanava vuit columnes de
+ * `profiles`; `fetchProfile` de `features/session/profile` ja en demana onze,
+ * de la mateixa taula i amb el mateix filtre. Dues entrades de cache per a la
+ * mateixa fila és una que es queda vella sense que res ho digui.
+ *
  * L'ESCRIPTURA VA PER `award_points` amb `motivo = 'manual'`, i no hi ha cap
  * altra porta: `points_log` no té ni grant ni política d'INSERT per a
  * `authenticated`, ni per a la junta. La RPC és definer i és l'única entrada.
@@ -21,17 +26,6 @@ import { rpc, supabase } from '@/lib/supabase'
  * una limitació que s'aguanti: és el que fa que el registre serveixi de res.
  */
 
-export interface MemberProfile {
-  readonly id: string
-  readonly nombre: string
-  readonly avatar_url: string | null
-  readonly escola: Escola | null
-  readonly curs: number | null
-  readonly grau: string | null
-  readonly estat: string
-  readonly role: MemberRole
-}
-
 /** Un esdeveniment al qual es pot penjar l'ajust, si es vol penjar a algun. */
 export interface AjustEvent {
   readonly id: string
@@ -40,18 +34,7 @@ export interface AjustEvent {
 }
 
 export const memberPointsKeys = {
-  profile: (userId: string) => ['junta', 'soci', userId] as const,
   events: () => ['junta', 'soci', 'esdeveniments'] as const,
-}
-
-export async function fetchMemberProfile(userId: string): Promise<MemberProfile> {
-  return unwrapAs<MemberProfile>(
-    supabase
-      .from('profiles')
-      .select('id, nombre, avatar_url, escola, curs, grau, estat, role')
-      .eq('id', userId)
-      .single(),
-  )
 }
 
 /**
@@ -64,7 +47,23 @@ export async function fetchMemberProfile(userId: string): Promise<MemberProfile>
  *
  * SENSE EXCLOURE LES REUNIONS, tampoc al revés que aquella: allà s'exclouen
  * perquè una reunió no es cobra ni es proposa, i aquí sí que s'hi pot haver
- * fet una cosa que valgui punts.
+ * fet una cosa que valgui punts. Una assemblea és una reunió i s'hi munta,
+ * s'hi porta gent i s'hi recull.
+ *
+ * PERÒ SÍ EXCLOENT LES D'ÀMBIT JUNTA, que no és el mateix eix i és el que
+ * aquesta llista es mirava malament. `private.no_points_from_junta_meetings`
+ * —disparador BEFORE INSERT de `points_log` des de la migració 48— refusa amb
+ * 22023 qualsevol fila penjada d'un esdeveniment amb `abast = 'junta'`. El
+ * que mira no és `tipo = 'reunio'`: «Assemblea de setembre» és una reunió i sí
+ * que reparteix punts; «Junta de dimarts» no. Oferir-la era oferir una opció
+ * que la base refusa sempre, i el 22023 arriba a `errorKey` com a classe 22 i
+ * es llegeix «Torna-ho a provar d'aquí un moment» —un consell que no pot
+ * funcionar mai, perquè tornar-hi torna a fallar.
+ *
+ * ES FILTRA AQUÍ I NO A LA VISTA: `events_public` ha de continuar servint les
+ * reunions de junta, que és d'on les treu la pantalla de reunions
+ * (`fetchMeetings`). El que no pot passar és que aquest desplegable les
+ * ofereixi.
  *
  * `titulo` pot arribar null —un esdeveniment que encara no s'ha revelat—, i la
  * pantalla hi posa la data. Filtrar-los seria amagar-li a la junta un
@@ -76,6 +75,7 @@ export async function fetchAjustEvents(limit = 25): Promise<AjustEvent[]> {
       .from('events_public')
       .select('id, titulo, starts_at')
       .lte('starts_at', new Date().toISOString())
+      .neq('abast', 'junta')
       .order('starts_at', { ascending: false })
       .limit(limit),
   )

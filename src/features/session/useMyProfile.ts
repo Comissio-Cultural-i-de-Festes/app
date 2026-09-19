@@ -20,7 +20,7 @@ export function useMyProfile() {
   const userId = useUserId()
 
   return useQuery({
-    queryKey: profileKeys.me(userId),
+    queryKey: profileKeys.of(userId),
     queryFn: () => fetchProfile(userId),
   })
 }

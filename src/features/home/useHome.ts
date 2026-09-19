@@ -49,7 +49,7 @@ export function useHome(): Home {
   const horizon = horizonIso()
 
   const profile = useQuery({
-    queryKey: profileKeys.me(userId),
+    queryKey: profileKeys.of(userId),
     queryFn: () => fetchProfile(userId),
   })
   const upcoming = useQuery({

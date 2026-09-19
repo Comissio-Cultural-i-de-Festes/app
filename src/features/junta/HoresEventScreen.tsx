@@ -83,10 +83,7 @@ export function HoresEventScreen() {
   // continuarà movent-se: les hores es calculen a cada lectura, i qui fitxi
   // després apareixeria com a visat sense que ningú ho hagi mirat. La marca no
   // congela res, i per això la porta és el temps i no un candau.
-  const acabada =
-    dades === undefined
-      ? false
-      : ara >= Date.parse(dades.ends_at ?? dades.starts_at)
+  const acabada = dades === undefined ? false : ara >= Date.parse(dades.ends_at ?? dades.starts_at)
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
@@ -94,6 +91,7 @@ export function HoresEventScreen() {
         to={`/junta/esdeveniment/${eventId}`}
         label={dades?.titol ?? t('actions.back')}
         title={t('junta.hores.title')}
+        className="lg:hidden"
       />
 
       <p className={`pt-7 text-sm text-fg-secondary [text-wrap:pretty] ${GUTTER}`}>
@@ -101,7 +99,10 @@ export function HoresEventScreen() {
       </p>
 
       {hores.isError ? (
-        <p role="alert" className={`pt-10 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}>
+        <p
+          role="alert"
+          className={`pt-10 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}
+        >
           {t(errorKey(hores.error))}
         </p>
       ) : dades === undefined ? (
@@ -110,18 +111,14 @@ export function HoresEventScreen() {
         <>
           <section className="mt-8 border-y border-surface-7 bg-surface-1">
             <div className={`pt-8 ${GUTTER}`}>
-              <p
-                className={`eyebrow-sm ${visat === null ? 'text-warning-deep' : 'text-success'}`}
-              >
+              <p className={`eyebrow-sm ${visat === null ? 'text-warning-deep' : 'text-success'}`}>
                 {/* Aquí només l'estat: la data i qui el va posar viuen a l'avís
                     del final, al costat del botó de desfer-lo. */}
                 {visat === null ? t('junta.hores.unsigned') : t('junta.hores.signed')}
               </p>
               <p className="mt-4 text-base font-semibold text-fg-secondary [text-wrap:pretty]">
                 {formatDateLong(new Date(dades.starts_at), locale)}
-                {dades.ends_at === null
-                  ? ''
-                  : ` → ${formatTime(new Date(dades.ends_at), locale)}`}
+                {dades.ends_at === null ? '' : ` → ${formatTime(new Date(dades.ends_at), locale)}`}
               </p>
             </div>
             <div className="mt-7 grid grid-cols-3 border-t border-surface-4">
@@ -380,9 +377,7 @@ function Marques({ persona }: { readonly persona: HoresPersona }) {
       {entra === null && surt === null ? null : (
         <span className="tabular">
           {entra ?? '—'} →{' '}
-          {surt ?? (
-            <span className="font-bold text-warning-deep">{t('junta.hores.noExit')}</span>
-          )}
+          {surt ?? <span className="font-bold text-warning-deep">{t('junta.hores.noExit')}</span>}
         </span>
       )}
       {persona.excepcio && persona.minuts_calcul !== null ? (

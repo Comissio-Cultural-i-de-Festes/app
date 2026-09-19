@@ -16,6 +16,7 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { type JoinResult, type Ride, fetchRides, joinRide, leaveRide, rideKeys } from './api'
 import { CarDrawing } from './CarDrawing'
+import { rideReward } from './reward'
 
 /**
  * Who is driving, and who is going with whom.
@@ -52,10 +53,7 @@ export function RidesScreen() {
   })
   const values = useQuery({ queryKey: doorKeys.pointValues(), queryFn: fetchPointValues })
 
-  // Vegeu OfferRideScreen: el motiu és `trajo_gente` des de la migració 71, i
-  // el que es premia és la gent que puja, no el viatge.
-  const reward =
-    values.data?.find((v) => v.mena === 'motiu' && v.clau === 'trajo_gente')?.punts ?? null
+  const reward = rideReward(values.data)
   const points = reward === null ? '' : t('units.points', { count: reward })
 
   const join = useMutation({
@@ -104,10 +102,7 @@ export function RidesScreen() {
         </Link>
 
         {note === null ? null : (
-          <p
-            role="status"
-            className="pt-7 text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]"
-          >
+          <p role="status" className="pt-7 text-md font-bold text-warning [text-wrap:pretty]">
             {t(`rides.${noteKey(note)}`)}
           </p>
         )}
@@ -355,7 +350,7 @@ function Failed({ error, onRetry }: { readonly error: unknown; readonly onRetry:
   const { t } = useTranslation()
   return (
     <section className={`pt-9 ${GUTTER}`}>
-      <p role="alert" className="eyebrow text-[var(--ds-warning)]">
+      <p role="alert" className="eyebrow text-warning">
         {t('rides.failed')}
       </p>
       <p className="mt-5 text-md text-fg-secondary [text-wrap:pretty]">{t('rides.failedSub')}</p>
@@ -365,7 +360,7 @@ function Failed({ error, onRetry }: { readonly error: unknown; readonly onRetry:
         <button
           type="button"
           onClick={onRetry}
-          className="min-h-[50px] flex-1 border-[1.5px] border-[var(--ds-warning)] px-6 text-md font-bold text-[var(--ds-warning)]"
+          className="min-h-[50px] flex-1 border-[1.5px] border-warning px-6 text-md font-bold text-warning"
         >
           {t('actions.retry')}
         </button>

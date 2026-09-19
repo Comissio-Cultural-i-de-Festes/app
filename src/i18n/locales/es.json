@@ -134,7 +134,9 @@
     "notFound": "Esto ya no está.",
     "notAnImage": "Esta foto no la sé leer. Prueba con otra, o hazla desde la cámara.",
     "rateLimited": "Demasiados intentos seguidos. Espera un par de minutos y vuelve.",
-    "behindServer": "Esto todavía no está en el servidor: la app se ha actualizado antes que la base de datos. Si eres de la junta, sube las migraciones; si no, avísalos."
+    "behindServer": "Esto todavía no está en el servidor: la app se ha actualizado antes que la base de datos. Si eres de la junta, sube las migraciones; si no, avísalos.",
+    "avisSostre": "Este curso ya se le han restado a esta persona todos los puntos que el tope permite. Sube «Máximo de puntos por curso» en El baremo, o registra el aviso sin puntos.",
+    "avisForaDelCurs": "Hoy no cae dentro de ningún curso, y sin curso no hay ningún tope que contar. Abre el curso en «Los periodos del ranking», o registra el aviso sin puntos."
   },
   "escola": {
     "politecnica": "Politécnica",
@@ -704,6 +706,7 @@
     "payments": {
       "title": "Pagos y junta",
       "pickEvent": "De qué evento",
+      "pickPrompt": "Elige un evento",
       "whoPaid": "Quién ha pagado",
       "whoComes": "Quién viene",
       "ofSignedUp_one": "de {{count}} apuntado",
@@ -716,6 +719,7 @@
       "paid": "Pagado",
       "pending": "Pendiente",
       "nobody": "Todavía no se ha apuntado nadie. Cuando digan que sí saldrán aquí.",
+      "notInList": "Este evento ya no sale en la lista de la junta. Elige uno del selector de arriba.",
       "chaseThem": "A los que no han pagado el viernes por la mañana, avísalos tú por privado. En el grupo no funciona.",
       "whoRuns": "Quién lleva esto",
       "queue_one": "Lista de espera · {{count}}",
@@ -726,6 +730,7 @@
       "requestsSub": "Nadie tiene ninguna hasta que le dices que sí. A quien no confirmes se queda esperando, no le dices que no.",
       "confirmIn": "Que entre",
       "refuse": "Esta vez no",
+      "refuseSure": "Si dices que no, {{nombre}} sale de la lista y no vuelve. Confirmarlo no le envía nada.",
       "noRoomLeft": "No quedan plazas. Si quieres meter una más, sube el límite en el formulario del evento.",
       "gone": "Esta persona ya no lo pide."
     },
@@ -833,7 +838,12 @@
         "newHint": "La clave es el nombre interno y no se puede cambiar después; en minúsculas y con guiones bajos. La etiqueta es lo que leerá la gente si la clave no tiene traducción.",
         "newClau": "Clave, p. ej. se_en_va_aviat",
         "newEtiqueta": "Etiqueta",
-        "newCta": "Añadir el tipo"
+        "newCta": "Añadir el tipo",
+        "gravetatBad": "La gravedad va de {{min}} a {{max}}.",
+        "puntsBad": "Un número entero entre -{{max}} y 0: un aviso no da puntos.",
+        "clauBad": "En minúsculas, sin acentos ni espacios, empezando por letra. Los cortes van con guion bajo.",
+        "clauTaken": "Esta clave ya está en el catálogo.",
+        "added": "Añadido: {{clau}}."
       },
       "periods": {
         "title": "Los periodos del ranking",
@@ -877,12 +887,21 @@
       "bringBack": "Vuelve a activar",
       "lede": "Quién se ha ido, quién vuelve. Dar de baja no borra nada: la persona deja de entrar en la app y lo que hizo sigue contando en la historia.",
       "rowSub": "{{count}} personas. Dar de baja a quien se ha ido",
-      "rowSubPlain": "Dar de baja a quien se ha ido"
+      "rowSubPlain": "Dar de baja a quien se ha ido",
+      "avisos_one": "{{count}} aviso",
+      "avisos_other": "{{count}} avisos",
+      "avisosGravetat": "gravedad {{total}}",
+      "avisosFlag": "Para mirar"
     },
     "soci": {
+      "backLabel": "Su ficha",
+      "publicProfile": "Ver su perfil",
+      "publicProfileSub": "Lo que cualquier socio ve de él.",
       "ledger": {
         "title": "El registro de puntos",
-        "total": "Total: {{total}}",
+        "total": "Total de siempre: {{total}}",
+        "totalSub": "Es la suma de todas las líneas. El ranking cuenta por periodos, y allí el número puede ser otro.",
+        "totalCapped": "Solo caben las últimas {{linies}} líneas, y el total es el de estas.",
         "empty": "Todavía no tiene ningún punto."
       },
       "adjust": {
@@ -900,7 +919,46 @@
         "eventHint": "Opcional. Sin evento también es una línea válida.",
         "eventNone": "De ninguna en concreto",
         "save": "Guarda el ajuste",
+        "paused": "Sin conexión. El ajuste espera aquí y saldrá cuando vuelva la red: no cierres la pantalla.",
         "done": "Apuntado: {{punts}} para {{nombre}}."
+      },
+      "avisos": {
+        "title": "Los avisos",
+        "live_one": "{{count}} vivo",
+        "live_other": "{{count}} vivos",
+        "empty": "Ningún aviso. Que dure.",
+        "withdraw": "Retira el aviso",
+        "withdrawSure": "El aviso se queda en la ficha, tachado, y si restó puntos se devuelven con una línea nueva en el registro. Escribe por qué se retira.",
+        "withdrawNote": "Por qué se retira",
+        "withdrawPlaceholder": "Había avisado, error nuestro",
+        "withdrawPaused": "Sin conexión. La retirada espera aquí y saldrá cuando vuelva la red: no cierres la pantalla.",
+        "withdrawnOn": "Retirado el {{dia}}"
+      },
+      "avis": {
+        "title": "Registra un aviso",
+        "lede": "Queda escrito y no se borra nunca. Puede restar puntos o no: se puede avisar sin tocar el ranking.",
+        "tipus": "Qué ha pasado",
+        "tipusHint": "El catálogo se toca en «El baremo».",
+        "tipusNone": "Elige uno",
+        "gravetatIs": "Gravedad: {{gravetat}}",
+        "punts": "Puntos",
+        "puntsHint": "Salen del catálogo y se pueden cambiar. Cero significa un aviso que no toca el ranking.",
+        "puntsBad": "Un número entero entre -{{max}} y 0.",
+        "note": "Por qué",
+        "noteHint": "Obligatorio. Lo leerá {{nombre}} en su perfil.",
+        "notePlaceholder": "No vino al montaje que había dicho que haría",
+        "noteBad": "Un aviso sin motivo escrito no se puede guardar.",
+        "event": "De qué noche",
+        "eventHint": "Opcional. Si fue en una reunión de junta, el aviso se queda ahí y los puntos van sin evento.",
+        "eventNone": "De ninguna en concreto",
+        "save": "Registra el aviso",
+        "sureTitle": "Antes de registrarlo",
+        "surePoints": "Se restarán {{punts}} puntos a {{nombre}} y le bajará la posición en el ranking.",
+        "sureNoPoints": "No se restará ningún punto: {{nombre}} no se moverá del ranking.",
+        "sureSeen": "{{nombre}} lo verá en su perfil con el motivo que has escrito, y la fila no se borra nunca.",
+        "sureCta": "Sí, regístralo",
+        "paused": "Sin conexión. Se registrará solo cuando vuelva.",
+        "done": "Registrado: {{tipus}} para {{nombre}}."
       }
     },
     "role": {
@@ -996,9 +1054,9 @@
         "set_hores": "{{actor}} ha cambiado las horas de una actividad",
         "visa_hores": "{{actor}} ha visado las horas de una actividad",
         "hores_persona": "{{actor}} ha cambiado las horas de alguien en una actividad",
-        "reveal_push": "Se ha enviado el aviso de una revelación",
-        "avis": "{{actor}} ha registrado un aviso a alguien",
-        "retira_avis": "{{actor}} ha retirado un aviso",
+        "reveal_push": "Se ha enviado la notificación de una revelación",
+        "avis": "{{actor}} ha registrado un aviso a {{target}}",
+        "retira_avis": "{{actor}} ha retirado un aviso a {{target}}",
         "set_avis_tipus": "{{actor}} ha cambiado el catálogo de avisos"
       },
       "rowSub": "Quién ha hecho qué"
@@ -1038,6 +1096,9 @@
       "drafts_one": "borrador sin publicar",
       "drafts_other": "borradores sin publicar",
       "draftsSub": "Trabajo hecho que todavía no sirve de nada",
+      "avisos_one": "ha pasado el umbral de avisos",
+      "avisos_other": "han pasado el umbral de avisos",
+      "avisosSub": "Gravedad {{total}} o más este curso. Solo para mirarlo",
       "now": "Lo que pasa ahora",
       "soon": "Los que vienen",
       "soonCount": "{{count}} en el calendario",
@@ -1084,6 +1145,10 @@
       },
       "points": {
         "title": "De dónde salen los puntos",
+        "notSources": "No son puntos ganados",
+        "cases_one": "{{count}} caso",
+        "cases_other": "{{count}} casos",
+        "notSourcesNote": "Restan o se compensan, y por eso quedan fuera del gráfico. Un aviso retirado sale a cero: existió y no ha costado nada.",
         "action": "→ Montar y traer gente son puntos fáciles de repartir en enero: anunciadlos antes de cada plan."
       },
       "limits": {
@@ -1405,6 +1470,11 @@
       "mal_gest": "Mal gesto",
       "va_deixar_ho": "Lo dejó mal",
       "greu": "Grave"
+    },
+    "gravetat": {
+      "1": "Leve",
+      "2": "Grave",
+      "3": "Muy grave"
     }
   },
   "nav": {
@@ -1452,11 +1522,12 @@
       "label": "Instagram",
       "placeholder": "tucuenta",
       "why": "Para que puedan seguirte. Este sí que sale en tu perfil y lo ven los demás socios.",
-      "invalid": "Esto no es un nombre de usuario. Solo letras, cifras, punto y guion bajo."
+      "invalid": "Esto no es un nombre de usuario. Solo letras, cifras, punto y guion bajo, y sin la dirección entera."
     },
     "cta": {
       "ready": "Entrar",
-      "pickSchool": "Elige la escuela y entras"
+      "pickSchool": "Elige la escuela y entras",
+      "fix": "Repasa el teléfono o el Instagram"
     },
     "later": "Todo esto lo puedes cambiar después en tu perfil."
   },
@@ -1561,6 +1632,7 @@
       "label": "Cómo te llamas",
       "hint": "Como te llaman de verdad, no un alias: la junta te tiene que encontrar en la lista de pagos.",
       "saved": "Guardado",
+      "waiting": "Sin cobertura. Se guarda solo cuando vuelva la red: no hace falta que lo vuelvas a pulsar.",
       "everywhere": "Se verá en todas partes enseguida."
     },
     "instagram": {
@@ -1591,6 +1663,11 @@
     },
     "history": {
       "title": "Lo último que has hecho"
+    },
+    "avisos": {
+      "title": "Tus avisos",
+      "lede": "Lo que la junta ha registrado este curso y por qué. Uno tachado es un aviso retirado: ya no cuenta.",
+      "withdrawn": "Retirado"
     },
     "settings": {
       "title": "Ajustes",
@@ -1663,8 +1740,10 @@
       "body": "Un perfil deja de verse cuando alguien deja la comi. Lo que hizo se queda en el registro de la junta."
     },
     "isYou": "Eres tú",
-    "instagram": "Síguelo en Instagram",
+    "instagram": "Perfil de Instagram",
     "footer": "Esto es lo que cualquier socio ve de ti. El teléfono y las fotos de salida no salen aquí.",
+    "juntaSheet": "Su registro de puntos",
+    "juntaSheetSub": "Libro mayor, ajustes y avisos. Solo lo ve la junta.",
     "standing": {
       "hidden": "Ha pedido no salir en el ranking, así que sus puntos no se dicen aquí."
     },
@@ -1790,7 +1869,7 @@
     "notes": "Algo más",
     "notesPlaceholder": "Si fumas en el coche, si el maletero va lleno, si vuelves el domingo por la tarde… cuatro palabras.",
     "phoneNote": "Verás el teléfono de quien suba, por si tienes que esperar cinco minutos. Ellos no ven el tuyo.",
-      "phoneToDriver": "Si te subes, el conductor verá tu teléfono por si tiene que esperarte. El resto de pasajeros, no.",
+    "phoneToDriver": "Si te subes, el conductor verá tu teléfono por si tiene que esperarte. El resto de pasajeros, no.",
     "offerCta": "Ofrece el coche",
     "pointsLater": "Los {{points}} son por la gente que subes, y te los ponemos cuando volváis.",
     "onlyOne": "De momento hay uno. Ya aparecerán más, pero este ya va seguro.",
@@ -1837,6 +1916,7 @@
     "okWalkin": "No estaba apuntado, pero adelante",
     "okWalkinReview": "Entra, pero no estaba apuntado ni ha pagado",
     "okWalkinReviewFree": "Entra, pero no estaba apuntado",
+    "okWalkinReviewUnknown": "Entra, pero no estaba apuntado. Mira si la actividad se paga",
     "alreadyCheckedIn": "Este QR ya se ha usado",
     "notAMember": "Este QR no es de la comi",
     "memberInactive": "Todavía no está dado de alta",
@@ -1847,6 +1927,7 @@
       "okWalkin": "No estaba apuntado. Ya consta que ha venido.",
       "okWalkinReview": "Mira que pague antes de entrar, o apúntalo.",
       "okWalkinReviewFree": "Hay plazas contadas. Apúntalo para que el número cuadre.",
+      "okWalkinReviewUnknown": "Apúntalo para que la junta lo pueda cuadrar.",
       "alreadyCheckedIn": "Ya había pasado. Si insiste, míralo en el alta manual.",
       "notAMember": "Que te diga el nombre y lo buscas a mano. No lo dejes pasar sin apuntarlo.",
       "memberInactive": "Que pida entrar. Lo aprobáis mañana desde la zona junta.",

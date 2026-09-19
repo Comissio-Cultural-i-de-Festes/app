@@ -92,7 +92,12 @@ export function RolesScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-14">
-      <JuntaHeader to="/junta" label={t('junta.back')} title={t('junta.roles.title')} />
+      <JuntaHeader
+        to="/junta"
+        label={t('junta.back')}
+        title={t('junta.roles.title')}
+        className="lg:hidden"
+      />
 
       <div className={`pt-8 ${GUTTER}`}>
         <p className="text-md text-fg-secondary [text-wrap:pretty]">{t('junta.roles.what')}</p>
@@ -374,10 +379,7 @@ function RecentChanges({
       ) : (
         <ul className="mt-1">
           {rows.map((row) => (
-            <li
-              key={row.id}
-              className="flex items-start gap-5 border-b border-surface-4 py-[13px]"
-            >
+            <li key={row.id} className="flex items-start gap-5 border-b border-surface-4 py-[13px]">
               <p className="w-[52px] flex-none text-sm-lo font-semibold text-fg-dim">
                 {formatDayMonth(new Date(row.created_at), locale)}
               </p>
@@ -466,9 +468,7 @@ function MemberPicker({
           ))}
         </Skeleton>
       ) : shown.length === 0 ? (
-        <p className="p-7 text-md text-fg-muted [text-wrap:pretty]">
-          {t('junta.roles.noMembers')}
-        </p>
+        <p className="p-7 text-md text-fg-muted [text-wrap:pretty]">{t('junta.roles.noMembers')}</p>
       ) : (
         <ul className="max-h-[320px] overflow-y-auto">
           {shown.map((r) => (

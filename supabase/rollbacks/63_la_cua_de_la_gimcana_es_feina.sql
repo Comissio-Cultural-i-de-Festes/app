@@ -4,6 +4,15 @@
 -- Treu `gimcana_cua` de `porta`. La pantalla la llegeix amb `?? null`, així que
 -- el botó cap a la cua de validació desapareix i el comptador de «coses» torna
 -- a deixar-la fora. Només val la pena si la 63 trenca una altra cosa.
+--
+-- ORDRE: LA 69 VA PRIMER, i no és un detall. El cos d'aquí és el de la 63 i la
+-- 69 va tornar a escriure `junta_home()` per una raó que no té res a veure amb
+-- la gimcana: `no_pagats` es comptava sense mirar el preu, i una activitat
+-- gratuïta sortia al panell amb dotze persones a qui reclamar res. Aplicar
+-- aquest fitxer sobre una base amb la 69 la desfà en silenci —`create or
+-- replace` no avisa de res— i el rebedor torna a reclamar diners d'una festa de
+-- franc. Desfés la 69 abans, o reescriu aquest cos sobre el seu i deixa-hi
+-- només el que la 63 va afegir.
 
 create or replace function public.junta_home()
 returns jsonb

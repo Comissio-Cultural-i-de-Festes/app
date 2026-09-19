@@ -3,12 +3,19 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
+import { memberSubtitle } from '@/features/member/subtitle'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { Chevron } from '@/ui/Chevron/Chevron'
+import { Confirm } from '@/ui/Confirm/Confirm'
+import { DoneLine } from '@/ui/Notice/DoneLine'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
+import { avisosKeys, fetchAvisComptes } from './avisosApi'
+import { compta, passaElLlindar } from './avisosCompte'
 import { JuntaHeader } from './JuntaHeader'
 import { type MemberRow, fetchAllMembers, memberKeys, setMemberEstat } from './membersApi'
+import { useLlindar } from './useLlindar'
 
 /**
  * Who is in the association.
@@ -26,6 +33,22 @@ import { type MemberRow, fetchAllMembers, memberKeys, setMemberEstat } from './m
  *
  * `pendent` is not shown. Approving somebody is the invitations screen's whole
  * purpose, and two places to approve from is two behaviours that drift.
+ *
+ * EL COMPTADOR D'AVISOS I LA MARCA DEL LLINDAR. Fins ara `point_values` tenia
+ * una fila `avisos.llindar` que la junta podia moure, amb l'etiqueta «Llindar
+ * per mirar-s'ho», i no la llegia ningú: un número que prometia una cosa i no en
+ * feia cap. Aquesta és la pantalla que la promet, i per això és aquí que es
+ * compleix.
+ *
+ * LA MARCA NO FA RES, i això s'ha de poder llegir de la pantalla. No dona de
+ * baixa, no bloqueja, no envia res: diu «mira-t'ho». Donar de baixa continua sent
+ * el botó del costat, amb la seva confirmació i el seu registre, i han de
+ * continuar semblant dues coses diferents perquè ho són.
+ *
+ * I ELS DOS NÚMEROS NO ATUREN LA LLISTA. Els comptadors i el llindar són dues
+ * consultes més, i si triguen o fallen la llista surt igual sense la marca. Qui
+ * ve a buscar una persona no ha d'esperar un número que no ha demanat — és la
+ * mateixa regla que el rebedor de `/junta` es va escriure per a les seves files.
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -39,6 +62,14 @@ export function MembersScreen() {
   const [done, setDone] = useState<{ nombre: string; estat: 'actiu' | 'baixa' } | null>(null)
 
   const members = useQuery({ queryKey: memberKeys.list(), queryFn: fetchAllMembers })
+  const { llindar, des_de, fins_a, llest } = useLlindar()
+  const comptes = useQuery({
+    queryKey: avisosKeys.comptes(des_de),
+    queryFn: () => fetchAvisComptes(des_de),
+    enabled: llest,
+  })
+
+  const perSoci = compta(comptes.data ?? [], des_de, fins_a)
 
   const change = useMutation({
     mutationFn: (v: { readonly row: MemberRow; readonly estat: 'actiu' | 'baixa' }) =>
@@ -110,12 +141,14 @@ export function MembersScreen() {
           className="mt-5 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] py-[13px] text-lg font-semibold text-fg outline-none placeholder:font-medium placeholder:text-fg-faint"
         />
 
-        {done === null ? null : (
-          <p role="status" className="pt-6 text-md font-bold text-success [text-wrap:pretty]">
-            {done.nombre} ·{' '}
-            {done.estat === 'baixa' ? t('junta.members.gone') : t('junta.members.active')}
-          </p>
-        )}
+        <DoneLine
+          className="pt-6"
+          message={
+            done === null
+              ? null
+              : `${done.nombre} · ${done.estat === 'baixa' ? t('junta.members.gone') : t('junta.members.active')}`
+          }
+        />
 
         {change.isError ? (
           <p role="alert" className="pt-6 text-md font-bold text-error [text-wrap:pretty]">
@@ -164,18 +197,39 @@ export function MembersScreen() {
                       )}
                     </span>
                     <span className="mt-[2px] block truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
-                      {[
-                        row.escola === null ? null : t(`escolaShort.${row.escola}`),
-                        row.curs === null ? null : t(`onboarding.year.${row.curs}`),
-                        row.grau,
-                      ]
-                        .filter((s): s is string => s !== null && s !== '')
-                        .join(' · ')}
+                      {memberSubtitle({
+                        escola: row.escola === null ? null : t(`escolaShort.${row.escola}`),
+                        curs: row.curs === null ? null : t(`onboarding.year.${row.curs}`),
+                        grau: row.grau,
+                        // La pestanya ja diu si són els actius o els de baixa;
+                        // repetir-ho a cada fila seria dir-ho quaranta vegades.
+                        cua: null,
+                      })}
                     </span>
+                    {/* El comptador del curs, i només quan n'hi ha. «0 avisos»
+                        sota cada nom convertiria una llista de socis en un
+                        expedient de tothom. */}
+                    {perSoci.get(row.id) === undefined ? null : (
+                      <span className="mt-[3px] flex items-center gap-3">
+                        <span className="text-sm-lo font-semibold text-warning">
+                          {t('junta.members.avisos', {
+                            count: perSoci.get(row.id)?.quants ?? 0,
+                          })}
+                        </span>
+                        <span className="text-sm-lo text-[var(--ds-text-muted-lo)]">
+                          {t('junta.members.avisosGravetat', {
+                            total: perSoci.get(row.id)?.gravetat ?? 0,
+                          })}
+                        </span>
+                        {passaElLlindar(perSoci.get(row.id), llindar) ? (
+                          <span className="eyebrow flex-none border-[1.5px] border-warning px-3 py-[2px] text-warning">
+                            {t('junta.members.avisosFlag')}
+                          </span>
+                        ) : null}
+                      </span>
+                    )}
                   </span>
-                  <span aria-hidden="true" className="flex-none text-lg text-fg-muted">
-                    ›
-                  </span>
+                  <Chevron />
                 </Link>
 
                 {confirming === row.id ? null : (
@@ -202,32 +256,22 @@ export function MembersScreen() {
               {/* What it does, before it is done, and the half everybody gets
                   wrong: this is not a delete. */}
               {confirming === row.id ? (
-                <div className={`pb-7 ${GUTTER}`}>
+                <Confirm
+                  className={`pb-7 ${GUTTER}`}
+                  cta={t('junta.members.signOut')}
+                  cancel={t('actions.cancel')}
+                  busy={change.isPending}
+                  onConfirm={() => {
+                    change.mutate({ row, estat: 'baixa' })
+                  }}
+                  onCancel={() => {
+                    setConfirming(null)
+                  }}
+                >
                   <p className="text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
                     {t('junta.members.signOutSure')}
                   </p>
-                  <div className="mt-5 flex gap-4">
-                    <button
-                      type="button"
-                      disabled={change.isPending}
-                      onClick={() => {
-                        change.mutate({ row, estat: 'baixa' })
-                      }}
-                      className="min-h-[46px] flex-1 border-[1.5px] border-[var(--ds-warning)] px-5 text-md font-bold text-[var(--ds-warning)] disabled:opacity-60"
-                    >
-                      {t('junta.members.signOut')}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setConfirming(null)
-                      }}
-                      className="min-h-[46px] flex-none px-5 text-md font-bold text-fg-muted"
-                    >
-                      {t('actions.cancel')}
-                    </button>
-                  </div>
-                </div>
+                </Confirm>
               ) : null}
             </li>
           ))}

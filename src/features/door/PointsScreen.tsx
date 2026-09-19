@@ -8,35 +8,24 @@ import { fetchPointValues } from '@/features/junta/eventFormApi'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
 import { errorKey } from '@/lib/errors'
+import { Button } from '@/ui/Button/Button'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { awardPoints, doorKeys, fetchRoster } from './api'
+import { doorMotives } from './motives'
 
 /**
  * Giving points to the people who did the work.
  *
  * Two taps, as the brief asks: mark the four who carried the speakers, then
- * tap the reason. The amounts come from `point_values` rather than from here,
- * so the scale can be re-tuned in June without a deploy.
+ * tap the reason. Which reasons exist, what each is worth and in what order
+ * they sit all come from `point_values` — see `motives.ts` for why the list is
+ * not written here — so the scale can be re-tuned in June without a deploy.
  *
  * The list is who actually turned up — not who said yes — because this is used
  * while stacking chairs at the end, and the people who helped are by
  * definition the ones who were there.
  */
-
-/**
- * Els botons, en l'ordre en què es premen.
- *
- * `conduir` va sortir d'aquí amb la migració 71: conduir sol no és cap servei
- * al grup, i tenir-lo al costat de «portar gent» volia dir que la mateixa nit
- * es podia pagar 25 a qui hi va anar sol o 40 a qui va portar gent, segons qui
- * hi hagués a la porta. La clau no desapareix del tot —el registre de desembre
- * la conserva, i l'i18n també, perquè una fila vella no es quedi sense etiqueta.
- *
- * L'ordre és el de `point_values.ordre`, escrit aquí perquè el que es dibuixa a
- * la porta no ha de canviar de lloc el dia que algú reordeni l'escala mentre
- * hi ha cua.
- */
-const MOTIVES = ['montaje', 'trajo_gente', 'propuso'] as const
 
 export function PointsScreen() {
   const { t } = useTranslation()
@@ -60,6 +49,7 @@ export function PointsScreen() {
   const values = useQuery({ queryKey: doorKeys.pointValues(), queryFn: fetchPointValues })
 
   const here = (roster.data ?? []).filter((r) => r.checked_in)
+  const motives = doorMotives(values.data)
 
   const award = useMutation({
     mutationFn: ({ motivo, punts }: { motivo: string; punts: number }) =>
@@ -77,10 +67,6 @@ export function PointsScreen() {
       if (!next.delete(userId)) next.add(userId)
       return next
     })
-  }
-
-  function pointsFor(clau: string): number | null {
-    return values.data?.find((v) => v.mena === 'motiu' && v.clau === clau)?.punts ?? null
   }
 
   return (
@@ -115,7 +101,7 @@ export function PointsScreen() {
       </div>
 
       {roster.isPending ? (
-        <p className="px-[var(--ds-gutter)] pt-10 text-fg-muted">{t('state.loading')}</p>
+        <RosterSkeleton />
       ) : roster.isError ? (
         <p
           role="alert"
@@ -195,40 +181,43 @@ export function PointsScreen() {
           <p className="text-sm text-fg-muted">{t('door.tapReason')}</p>
         </div>
 
-        <div className="mt-6 grid grid-cols-2 gap-[9px]">
-          {MOTIVES.map((clau, index) => {
-            const punts = pointsFor(clau)
-            const strong = index < 2
-            // Amb un nombre senar de motius l'últim queda tot sol a la segona
-            // fila, mig forat al costat. S'estén en comptes de deixar-lo:
-            // l'alternativa era passar a tres columnes, i «Proposta seva» en un
-            // terç d'amplada són tres línies en català.
-            const wide = index === MOTIVES.length - 1 && MOTIVES.length % 2 === 1
-            return (
-              <button
+        {motives.length === 0 ? (
+          // Sense escala no hi ha botons, i no tres botons apagats amb un punt
+          // a dins: un botó que no es pot prémer i un botó que no hi és diuen
+          // la mateixa cosa, i el primer convida a prémer-lo.
+          //
+          // MENTRE ARRIBA, LA SEVA SILUETA. Aquí hi havia «Un segon…», i la
+          // frase ocupa una línia mentre la graella n'ocupa dues de 56px: la
+          // barra de baix creixia de cop just quan la mà ja hi era a sobre. I
+          // quan la consulta fallava —o quan el barem no té cap motiu— la frase
+          // es quedava per sempre dient que encara arribava alguna cosa; ara la
+          // silueta només surt mentre de debò s'espera, i l'error el diu
+          // l'avís de sota.
+          values.isPending ? (
+            <MotivesSkeleton />
+          ) : null
+        ) : (
+          <div className="mt-6 grid grid-cols-2 gap-[9px]">
+            {motives.map(({ clau, punts, strong, wide }) => (
+              // El botó de la casa, amb el contingut en dues línies: aquests són
+              // els únics CTA de l'app que porten una xifra a sobre de
+              // l'etiqueta, i el que ha de ser igual que la resta és l'alçada
+              // mínima, el cantell quadrat i que creixin amb el text.
+              <Button
                 key={clau}
-                type="button"
-                disabled={picked.size === 0 || punts === null || award.isPending}
+                variant={strong ? 'primary' : 'secondary'}
+                className={`flex-col gap-1 ${wide ? 'col-span-2' : ''}`}
+                disabled={picked.size === 0 || award.isPending}
                 onClick={() => {
-                  if (punts !== null) award.mutate({ motivo: clau, punts })
+                  award.mutate({ motivo: clau, punts })
                 }}
-                className={
-                  'flex min-h-[56px] flex-col items-center justify-center gap-1 px-4 py-5 ' +
-                  '[text-wrap:balance] disabled:opacity-45 ' +
-                  (wide ? 'col-span-2 ' : '') +
-                  (strong
-                    ? 'bg-brand-cta text-on-brand'
-                    : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg')
-                }
               >
-                <span className="display text-d-xs tracking-[-0.04em]">
-                  {punts === null ? '·' : `+${String(punts)}`}
-                </span>
+                <span className="display text-d-xs tracking-[-0.04em]">{`+${String(punts)}`}</span>
                 <span className="text-sm font-bold">{t(`motive.${clau}`)}</span>
-              </button>
-            )
-          })}
-        </div>
+              </Button>
+            ))}
+          </div>
+        )}
 
         {values.isError ? (
           <p role="alert" className="mt-4 text-md font-bold text-error [text-wrap:pretty]">
@@ -243,5 +232,41 @@ export function PointsScreen() {
         ) : null}
       </div>
     </main>
+  )
+}
+
+/**
+ * Cinc files amb la forma de les de debò: el rodó de marcar, la cara, el nom i
+ * l'escola. Les classes són les de la fila de dalt, copiades — una silueta que
+ * s'assembla de lluny torna a moure-ho tot quan arriben les dades.
+ */
+function RosterSkeleton() {
+  return (
+    <Skeleton>
+      {[0, 1, 2, 3, 4].map((i) => (
+        <div
+          key={i}
+          className="flex min-h-[56px] items-center gap-4 border-b border-surface-4 px-[var(--ds-gutter)] py-5"
+        >
+          <SkeletonBar w="w-[26px]" h="h-[26px]" className="flex-none rounded-full" />
+          <SkeletonBar w="w-[34px]" h="h-[34px]" className="flex-none rounded-round" />
+          <div className="min-w-0 flex-1">
+            <SkeletonBar w="w-[52%]" h="h-[15px]" />
+            <SkeletonBar w="w-[30%]" h="h-[10px]" className="mt-[2px]" />
+          </div>
+        </div>
+      ))}
+    </Skeleton>
+  )
+}
+
+/** Els quatre botons del barem, amb la seva alçada i la seva graella. */
+function MotivesSkeleton() {
+  return (
+    <Skeleton className="mt-6 grid grid-cols-2 gap-[9px]">
+      {[0, 1, 2, 3].map((i) => (
+        <SkeletonBar key={i} w="w-full" h="h-[56px]" />
+      ))}
+    </Skeleton>
   )
 }

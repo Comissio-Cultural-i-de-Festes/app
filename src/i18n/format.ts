@@ -29,6 +29,18 @@ function dtf(locale: Locale, options: Intl.DateTimeFormatOptions): Intl.DateTime
 export const formatDayMonth = (d: Date, l: Locale): string =>
   dtf(l, { day: 'numeric', month: 'short' }).format(d)
 
+/**
+ * "nov. 2023". For a date that is not from the current course.
+ *
+ * The day goes and the year arrives on purpose. A warning from three courses
+ * back rendered as "4 de nov." next to one from last week reads as last
+ * November, and the column is 52px wide — day, month and year in it wrap to
+ * three lines. Which year it was is the thing that matters about an old row;
+ * which day of November it was, is not.
+ */
+export const formatMonthYear = (d: Date, l: Locale): string =>
+  dtf(l, { month: 'short', year: 'numeric' }).format(d)
+
 export const formatTime = (d: Date, l: Locale): string =>
   dtf(l, { hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).format(d)
 
@@ -183,3 +195,30 @@ export function formatHores(minuts: number, l: Locale): string {
   const { xifra, unitat } = horesParts(minuts, l)
   return `${xifra} ${unitat}`
 }
+
+const sfCache = new Map<Locale, Intl.NumberFormat>()
+
+function sf(locale: Locale): Intl.NumberFormat {
+  const hit = sfCache.get(locale)
+  if (hit) return hit
+  const made = new Intl.NumberFormat(INTL_LOCALE[locale], { signDisplay: 'exceptZero' })
+  sfCache.set(locale, made)
+  return made
+}
+
+/**
+ * Un número que ha de dir el seu signe: «−25», «0», «+25».
+ *
+ * Per a una columna on hi conviuen números que resten i números que no mouen
+ * res. Sense el signe, un «25» en una llista de coses que no sumen es llegeix
+ * com si sumés, que és exactament el malentès que el tauler arrossegava.
+ *
+ * `exceptZero` i no `always` a posta: el zero no té signe. «+0» és el que
+ * sortiria d'un avís posat i retirat, i llegir-lo com un guany és el mateix
+ * error amb una altra cara.
+ *
+ * Per Intl com tota la resta de números de l'app, i no amb un `'-' + n`: el
+ * separador de milers és el de l'idioma, i el signe el que la llengua escrigui
+ * —avui un guionet a les tres, però això és de la llengua i no nostre—.
+ */
+export const formatSigned = (n: number, l: Locale): string => sf(l).format(n)

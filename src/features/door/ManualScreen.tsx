@@ -20,6 +20,7 @@ import {
 import { ScanGlyph } from './icons'
 import { useQueue } from './useQueue'
 import { type Undo, undoNoteKey, useUndo } from './useUndo'
+import { statusWords } from './verdict'
 
 /**
  * Checking somebody in by name.
@@ -38,6 +39,17 @@ import { type Undo, undoNoteKey, useUndo } from './useUndo'
  * not on the junta rather than an error, so an empty list here can mean "you
  * are not allowed to ask". The screen says "nobody is coming" only when the
  * request actually succeeded and the event genuinely has nobody.
+ *
+ * LES PARAULES DEL VEREDICTE VÉNEN DE `verdict.ts`, LES MATEIXES QUE LES DE
+ * L'ESCÀNER. Aquesta pantalla llegia `presentationOf(outcome).messageKey` tal
+ * qual, i per a `ok_walkin_review` aquella clau parla de cobrar: a una
+ * activitat de franc —on el que fa saltar l'estat són les places, no el preu—
+ * l'alta pel nom acusava d'un deute que no existeix, dues vegades, a la tira
+ * de l'últim fitxat i a la fila que s'acaba de tocar. L'escàner ja ho tenia
+ * arreglat i aquesta pantalla, que és la del costat, no.
+ *
+ * Per això `fetchEvent` ja no serveix només per al títol: el preu hi baixa
+ * fins als dos llocs que diuen alguna cosa sobre algú.
  */
 
 interface LastIn {
@@ -66,6 +78,10 @@ export function ManualScreen() {
     queryFn: () => fetchRoster(id),
     enabled: id !== '',
   })
+
+  // Null mentre la consulta de l'esdeveniment no ha tornat o ha petat, que no
+  // és el mateix que zero: `verdict.ts` en fa tres casos i no dos.
+  const priceCents = event.data?.precio_cents ?? null
 
   const needle = query.trim().toLowerCase()
   const rows = roster.data ?? []
@@ -169,7 +185,7 @@ export function ManualScreen() {
         />
       </header>
 
-      {last === null ? null : <LastInStrip last={last} undo={undoLast} />}
+      {last === null ? null : <LastInStrip last={last} undo={undoLast} priceCents={priceCents} />}
 
       {roster.isPending ? (
         <p className="px-[var(--ds-gutter)] pt-10 text-fg-muted">{t('state.loading')}</p>
@@ -236,7 +252,13 @@ export function ManualScreen() {
                       ? already
                         ? t('door.alreadyIn')
                         : t('door.letIn')
-                      : t(presentationOf(outcome).messageKey)}
+                      : t(
+                          statusWords(
+                            presentationOf(outcome),
+                            outcome.kind === 'sent' ? outcome.result : null,
+                            priceCents,
+                          ).headlineKey,
+                        )}
                   </span>
                 </button>
               </li>
@@ -256,7 +278,16 @@ export function ManualScreen() {
  * list, and it has about four seconds to be noticed before the next name is
  * tapped.
  */
-function LastInStrip({ last, undo }: { readonly last: LastIn; readonly undo: Undo }) {
+function LastInStrip({
+  last,
+  undo,
+  priceCents,
+}: {
+  readonly last: LastIn
+  readonly undo: Undo
+  /** Cèntims de l'esdeveniment, o null mentre no se sàpiga. */
+  readonly priceCents: number | null
+}) {
   const { t } = useTranslation()
   const shown = presentationOf(last.outcome)
   const noteKey = undoNoteKey(undo.state, undo.error)
@@ -266,8 +297,12 @@ function LastInStrip({ last, undo }: { readonly last: LastIn; readonly undo: Und
   const gone = undo.state === 'undone' || undo.state === 'dropped'
   const tone = gone ? 'var(--ds-text-muted)' : toneVar(shown.tone)
 
-  const points = last.outcome.kind === 'sent' ? (last.outcome.result.points_awarded ?? 0) : 0
-  const detail = [t(shown.messageKey), points > 0 ? t('units.points', { count: points }) : null]
+  const result = last.outcome.kind === 'sent' ? last.outcome.result : null
+  const points = result?.points_awarded ?? 0
+  // La frase surt de `verdict.ts` i no de `shown.messageKey`: és el mateix
+  // estat i el mateix preu que a l'escàner, i per tant les mateixes paraules.
+  const words = statusWords(shown, result, priceCents)
+  const detail = [t(words.headlineKey), points > 0 ? t('units.points', { count: points }) : null]
     .filter((s): s is string => s !== null)
     .join(' · ')
 

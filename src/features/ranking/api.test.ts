@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   type Period,
   type RankingRow,
+  cursPeriod,
   periodBounds,
   periodIsCurrent,
   positionDeltas,
@@ -12,7 +13,15 @@ import {
 const NOW = Date.UTC(2026, 10, 15, 12, 0, 0)
 
 function period(over: Partial<Period> = {}): Period {
-  return { codi: 't1', etiqueta: null, mena: 'tram', starts_at: null, ends_at: null, ordre: 1, ...over }
+  return {
+    codi: 't1',
+    etiqueta: null,
+    mena: 'tram',
+    starts_at: null,
+    ends_at: null,
+    ordre: 1,
+    ...over,
+  }
 }
 
 function row(user_id: string, posicio: number): RankingRow {
@@ -27,6 +36,35 @@ describe('period bounds', () => {
   it('passes an open end through as open', () => {
     const p = period({ starts_at: '2026-09-01T00:00:00Z', ends_at: null })
     expect(periodBounds(p)).toEqual({ from: '2026-09-01T00:00:00Z', to: null })
+  })
+})
+
+describe('la fila del curs', () => {
+  // La finestra del comptador d'avisos i la del sostre d'`avisa()` han de ser
+  // la mateixa. La de la base és `where mena = 'global' order by ordre, codi
+  // limit 1`, i aquestes quatre proves són aquella frase.
+  const curs = period({ codi: 'curs', mena: 'global', ordre: 0 })
+  const t1 = period({ codi: 't1', mena: 'tram', ordre: 1 })
+
+  it('és la global encara que un trimestre vagi primer', () => {
+    const davant = period({ codi: 't0', mena: 'tram', ordre: -1 })
+    expect(cursPeriod([davant, curs, t1])?.codi).toBe('curs')
+  })
+
+  it('no és cap quan no hi ha cap fila global', () => {
+    // Sense curs configurat, finestra oberta i que ho digui la pantalla: és el
+    // que fa `private.periode_curs()` i no inventar-se el primer tram.
+    expect(cursPeriod([t1])).toBe(null)
+  })
+
+  it('no és cap quan encara no han arribat', () => {
+    expect(cursPeriod(undefined)).toBe(null)
+  })
+
+  it('desempata per codi, com la funció de la base', () => {
+    const b = period({ codi: 'curs_b', mena: 'global', ordre: 0 })
+    const a = period({ codi: 'curs_a', mena: 'global', ordre: 0 })
+    expect(cursPeriod([b, a])?.codi).toBe('curs_a')
   })
 })
 

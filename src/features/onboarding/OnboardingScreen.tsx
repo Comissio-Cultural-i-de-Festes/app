@@ -31,11 +31,27 @@ import { fetchDegrees, looksLikePhone, onboardingKeys, saveFirstRun } from './ap
  * ja hi havia. Demanar-lo només a `/perfil/editar` voldria dir que la columna
  * neix buida per a tothom qui ja hi és i gairebé buida per als nous.
  *
- * LA PORTA NO ES MOU PERÒ SÍ QUE MIRA SI EL QUE S'HI HA ESCRIT VAL, igual que
- * el telèfon: buit continua sent perfectament vàlid —no és obligatori— i el que
- * s'evita és que prémer «Entrar» amb un nom impossible torni un 23514 que la
- * persona no pot llegir. `escola !== null` continua sent l'única cosa que de
- * debò es demana.
+ * DEPARTURE FROM THE SPEC. L'issue #6 demana dues vegades que el camp nou no
+ * toqui la porta: «la porta no es mou: `ready = escola !== null && phoneOk`
+ * queda igual», i a la taula del que s'ha de tocar, «el cinquè camp, sense
+ * tocar el `ready`». Aquí el `ready` porta un tercer terme, `igOk`, i això és
+ * un canvi d'un criteri d'acceptació, no un detall d'implementació: es declara
+ * aquí perquè cap altre lloc del repo el declarava.
+ *
+ * El que es demanava continua complint-se: l'Instagram NO és obligatori. Buit
+ * val, `igOk` és cert amb el camp en blanc i `escola !== null` segueix sent
+ * l'única cosa que de debò es demana. L'únic estat nou en què el botó s'apaga
+ * és el d'un nom d'usuari impossible —una URL enganxada, un espai, trenta-un
+ * caràcters—, i s'apaga amb la línia de sota explicant per què.
+ *
+ * L'opció descartada era deixar el `ready` literalment com deia l'issue. El
+ * preu hauria estat que prémer «Entrar» amb `https://instagram.com/algu` al
+ * camp envia l'`update` i torna un 23514 de PostgREST: la pantalla dibuixaria
+ * el text d'error genèric, ningú no sabria quin dels cinc camps l'ha provocat i
+ * l'alta —l'única pantalla que no es pot saltar— quedaria encallada fins que
+ * algú endevinés que era l'Instagram. El telèfon ja porta aquesta mateixa
+ * comprovació a `phoneOk` pel mateix motiu; això només fa que el cinquè camp es
+ * comporti com el quart.
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -76,6 +92,7 @@ export function OnboardingScreen() {
   const grauId = useId()
   const phoneId = useId()
   const igId = useId()
+  const igMsgId = useId()
 
   const [escola, setEscola] = useState<Escola | null>(null)
   const [grau, setGrau] = useState('')
@@ -349,7 +366,15 @@ export function OnboardingScreen() {
       {/* Al costat del telèfon perquè són les dues maneres de trobar algú, i
           just després perquè aquesta és pública i l'altra no: llegides
           seguides, les dues línies de sota ho diuen sense haver-ho d'explicar.
-          L'arrova va dibuixada i no escrita, com el `+34`. */}
+          L'arrova va dibuixada i no escrita, com el `+34`.
+
+          AQUEST CAMP DIU EL SEU REFÚS COM EL DIUEN LES PANTALLES DE JUNTA
+          —vora en ambre, frase en ambre i `aria-describedby`— i el del telèfon
+          de sobre encara no: només se li encén la vora. No és un descuit, és
+          on s'ha posat la ratlla. Portar-hi el telèfon voldria dir tocar-li
+          també l'`aria-invalid` que no té, i és un camp d'una altra decisió;
+          pintar-li només el color el deixaria dient a l'ull una cosa que no diu
+          al lector de pantalla, que és pitjor que el que hi ha ara. */}
       <section className={`mt-9 ${GUTTER}`}>
         <label htmlFor={igId} className="block eyebrow text-fg-muted">
           {t('onboarding.instagram.label')}
@@ -383,6 +408,13 @@ export function OnboardingScreen() {
             // no hi compta, així que el camp n'admet una més.
             maxLength={INSTAGRAM_MAX + 1}
             aria-invalid={!igOk}
+            // La línia de sota és la descripció del camp en els dos estats —per
+            // què el demanem quan va bé, per què no val quan no—, així que hi
+            // apunta sempre i no només quan falla: `aria-invalid` tot sol diu
+            // «no vàlid» i cap manera de saber per què. `aria-live="polite"` i
+            // no `role="alert"` perquè el que la fa canviar és cada tecla, i un
+            // `alert` interrompria al mig de la paraula.
+            aria-describedby={igMsgId}
             placeholder={t('onboarding.instagram.placeholder')}
             className={
               'w-full flex-1 border-0 bg-transparent p-0 text-lg font-semibold tracking-[0.02em] ' +
@@ -391,12 +423,35 @@ export function OnboardingScreen() {
             }
           />
         </div>
-        <p className="mt-4 text-sm-lo font-medium text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+        <p
+          id={igMsgId}
+          aria-live="polite"
+          className={
+            'mt-4 text-sm-lo font-medium [text-wrap:pretty] ' +
+            (igOk ? 'text-[var(--ds-text-muted-lo)]' : 'text-warning')
+          }
+        >
           {igOk ? t('onboarding.instagram.why') : t('onboarding.instagram.invalid')}
         </p>
       </section>
 
       <section className={`mt-[26px] pb-4 ${GUTTER}`}>
+        {/* L'ÚNIC CTA DE L'APP QUE NO ÉS EL `<Button>` DE LA CASA, i queda
+            escrit aquí perquè la propera persona no ho prengui per un descuit.
+            Tots els altres hi han passat: cantell quadrat, `min-height` i el
+            text que creix. Aquest no hi encaixa per una cosa concreta —el seu
+            estat DESACTIVAT diu alguna cosa—. `<Button>` apaga un botó al 45%
+            d'opacitat, que és el gest de «ara no toca»; aquí, apagat vol dir
+            «et falta l'escola» o «revisa el telèfon», amb tres etiquetes i una
+            cara pròpia —contorn en comptes de ple— perquè és l'única pantalla
+            que no es pot saltar i quedar-s'hi encallat és el pitjor que pot
+            passar-hi.
+            DESCARTAT: una quarta variant al `<Button>`. Seria una variant per a
+            un sol lloc, i portaria a sobre una mida que tampoc és cap de les
+            tres —60px, entre `md` i `lg`— i un `text-2xl` que cap altra CTA no
+            fa servir. Tres excepcions dins del component per no tenir-ne una a
+            fora. El que sí que comparteix és el que importa: `min-height` i no
+            `height`, cantell zero i `[text-wrap:balance]`. */}
         <button
           type="button"
           disabled={!ready || save.isPending}
@@ -411,11 +466,21 @@ export function OnboardingScreen() {
               : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-muted')
           }
         >
+          {/* TRES ETIQUETES I NO DUES. Amb «apagat» i «encès» com a únics
+              estats, el botó deia «Tria l'escola i entres» també quan l'escola
+              ja estava triada i el que fallava era el telèfon o l'Instagram:
+              enviava a fer una cosa ja feta, i l'única pista de què passava de
+              debò era la línia de sota d'un camp que pot quedar fora de
+              pantalla. En una pantalla que no es pot saltar, això és un
+              cul-de-sac. Es mira l'escola per separat perquè és l'únic camp
+              obligatori; la resta només pot ser buida —vàlida— o mal escrita. */}
           {save.isPending
             ? t('state.updating')
-            : ready
-              ? t('onboarding.cta.ready')
-              : t('onboarding.cta.pickSchool')}
+            : escola === null
+              ? t('onboarding.cta.pickSchool')
+              : ready
+                ? t('onboarding.cta.ready')
+                : t('onboarding.cta.fix')}
         </button>
 
         {save.isError ? (

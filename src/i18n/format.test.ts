@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest'
 
-import { daysUntil, formatHores, formatOrdinal, horesParts, zonedDayStart } from './format'
+import {
+  daysUntil,
+  formatHores,
+  formatOrdinal,
+  formatSigned,
+  horesParts,
+  zonedDayStart,
+} from './format'
 
 /**
  * These are the ones with an opinion in them. The rest of format.ts is Intl
@@ -127,5 +134,23 @@ describe('durades', () => {
   it('i ve partida per a les xifres grans', () => {
     expect(horesParts(795, 'ca')).toEqual({ xifra: '13', unitat: 'h 15' })
     expect(horesParts(45, 'ca')).toEqual({ xifra: '45', unitat: 'min' })
+  })
+})
+
+describe('números amb signe', () => {
+  it('el negatiu porta el seu signe i el positiu també', () => {
+    expect(formatSigned(-25, 'ca')).toBe('-25')
+    expect(formatSigned(25, 'ca')).toBe('+25')
+  })
+
+  // El zero és el d'un avís posat i retirat: hi va ser i no ha costat res. Un
+  // «+0» el llegiria com un guany, que és l'error que la llista evita.
+  it('i el zero no en porta cap', () => {
+    expect(formatSigned(0, 'ca')).toBe('0')
+  })
+
+  it('i el separador de milers és el de l’idioma', () => {
+    expect(formatSigned(-1234, 'ca')).toBe('-1.234')
+    expect(formatSigned(-1234, 'en')).toBe('-1,234')
   })
 })

@@ -1,20 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useParams } from 'react-router'
+import { useNavigate, useParams } from 'react-router'
 
 import { formatMoney, formatPrice } from '@/features/event/api'
-import { horizonIso } from '@/features/home/api'
+import { MemberLink } from '@/features/member/MemberLink'
+import { memberSubtitle } from '@/features/member/subtitle'
 import { formatDayMonth } from '@/i18n/format'
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { Chevron } from '@/ui/Chevron/Chevron'
+import { Confirm } from '@/ui/Confirm/Confirm'
 import { Notice } from '@/ui/Notice/Notice'
+import { NavRow } from '@/ui/Row/Row'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
-import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
+import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
 import { paidHeader } from './payments'
 import {
   type AttendeeRow,
@@ -49,7 +53,7 @@ export function PaymentsScreen() {
   const { t } = useTranslation()
   const { eventId } = useParams()
 
-  const horizon = horizonIso()
+  const horizon = juntaHorizonIso()
   const events = useQuery({
     queryKey: juntaEventKeys.list(horizon),
     queryFn: () => fetchJuntaEvents(horizon),
@@ -93,8 +97,14 @@ export function PaymentsScreen() {
               {t(errorKey(events.error))}
             </p>
           ) : event === null ? (
+            // DUES BUIDORS DIFERENTS. «Encara no hi ha res al calendari» amb el
+            // selector de set esdeveniments dibuixat just a sobre era la frase
+            // que es llegia quan l'id de la URL no era a la llista, i deia una
+            // cosa que la mateixa pantalla desmentia. Qui hi arriba així ve
+            // d'una fila del rebedor, o sigui que el que li falta és per on
+            // continuar, no que se li digui que creï el primer esdeveniment.
             <p className={`pt-10 text-md text-fg-muted [text-wrap:pretty] ${GUTTER}`}>
-              {t('junta.noEvents')}
+              {t(list.length === 0 ? 'junta.noEvents' : 'junta.payments.notInList')}
             </p>
           ) : (
             <PaidList
@@ -129,6 +139,8 @@ function Requests({ eventId }: { readonly eventId: string }) {
   const { t } = useTranslation()
   const client = useQueryClient()
   const [note, setNote] = useState<Decision | null>(null)
+  // Qui està esperant resposta al «segur?», si n'hi ha cap.
+  const [refusing, setRefusing] = useState<string | null>(null)
 
   const requests = useQuery({
     queryKey: paymentKeys.requests(eventId),
@@ -142,6 +154,7 @@ function Requests({ eventId }: { readonly eventId: string }) {
       // `sense_places` and `no_demanat` are answers, not failures, so they get
       // said out loud instead of arriving as a generic red line.
       setNote(result === 'si' || result === 'rebutjat' ? null : result)
+      setRefusing(null)
       await client.invalidateQueries({ queryKey: paymentKeys.requests(eventId) })
       await client.invalidateQueries({ queryKey: paymentKeys.attendees(eventId) })
     },
@@ -167,43 +180,74 @@ function Requests({ eventId }: { readonly eventId: string }) {
             key={r.id}
             className="flex flex-wrap items-center gap-4 border-b border-surface-4 py-6"
           >
-            <Avatar src={r.profiles?.avatar_url ?? null} size={36} />
-            <span className="min-w-0 flex-1 truncate text-base font-semibold">
-              {r.profiles?.nombre ?? '—'}
-            </span>
-            <span className="flex flex-none items-center gap-3">
-              <button
-                type="button"
-                disabled={decide.isPending}
-                onClick={() => {
-                  setNote(null)
-                  decide.mutate({ userId: r.user_id, accepta: true })
-                }}
-                className="min-h-[44px] bg-brand-cta px-5 text-md font-bold text-on-brand disabled:opacity-70"
-              >
-                {t('junta.payments.confirmIn')}
-              </button>
-              <button
-                type="button"
-                disabled={decide.isPending}
-                onClick={() => {
-                  setNote(null)
+            <MemberLink
+              userId={r.user_id}
+              label={t('junta.payments.title')}
+              className="flex min-w-0 flex-1 items-center gap-4 text-fg no-underline"
+            >
+              <Avatar src={r.profiles?.avatar_url ?? null} size={36} />
+              <span className="min-w-0 flex-1 truncate text-base font-semibold">
+                {r.profiles?.nombre ?? '—'}
+              </span>
+            </MemberLink>
+            {refusing === r.id ? null : (
+              <span className="flex flex-none items-center gap-3">
+                <button
+                  type="button"
+                  disabled={decide.isPending}
+                  onClick={() => {
+                    setNote(null)
+                    decide.mutate({ userId: r.user_id, accepta: true })
+                  }}
+                  className="min-h-[44px] bg-brand-cta px-5 text-md font-bold text-on-brand disabled:opacity-70"
+                >
+                  {t('junta.payments.confirmIn')}
+                </button>
+                <button
+                  type="button"
+                  disabled={decide.isPending}
+                  onClick={() => {
+                    setNote(null)
+                    setRefusing(r.id)
+                  }}
+                  className="min-h-[44px] border-[1.5px] border-surface-7 px-5 text-md font-bold text-fg-secondary disabled:opacity-70"
+                >
+                  {t('junta.payments.refuse')}
+                </button>
+              </span>
+            )}
+
+            {/* DIR QUE NO SÍ QUE PREGUNTA, i dir que sí no. No és simetria mal
+                entesa: acceptar algú es pot desfer traient-lo de la llista, i
+                refusar-lo el treu d'aquesta secció per sempre —no hi ha cap
+                pantalla que torni a posar una petició refusada—. I els dos
+                botons són germans en una fila de 390px.
+                El mateix panell que la baixa d'un soci: s'obre a la fila, sense
+                diàleg i sense atrapar el focus. */}
+            {refusing === r.id ? (
+              <Confirm
+                className="w-full"
+                cta={t('junta.payments.refuse')}
+                cancel={t('actions.cancel')}
+                busy={decide.isPending}
+                onConfirm={() => {
                   decide.mutate({ userId: r.user_id, accepta: false })
                 }}
-                className="min-h-[44px] border-[1.5px] border-surface-7 px-5 text-md font-bold text-fg-secondary disabled:opacity-70"
+                onCancel={() => {
+                  setRefusing(null)
+                }}
               >
-                {t('junta.payments.refuse')}
-              </button>
-            </span>
+                <p className="text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+                  {t('junta.payments.refuseSure', { nombre: r.profiles?.nombre ?? '—' })}
+                </p>
+              </Confirm>
+            ) : null}
           </li>
         ))}
       </ul>
 
       {note === null ? null : (
-        <p
-          role="alert"
-          className="pt-6 text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]"
-        >
+        <p role="alert" className="pt-6 text-md font-bold text-warning [text-wrap:pretty]">
           {t(note === 'sense_places' ? 'junta.payments.noRoomLeft' : 'junta.payments.gone')}
         </p>
       )}
@@ -264,10 +308,16 @@ function Queue({ eventId }: { readonly eventId: string }) {
             <span className="tabular w-[22px] flex-none text-md font-bold text-fg-muted">
               {index + 1}
             </span>
-            <Avatar src={r.profiles?.avatar_url ?? null} size={36} />
-            <span className="min-w-0 flex-1 truncate text-base font-semibold">
-              {r.profiles?.nombre ?? '—'}
-            </span>
+            <MemberLink
+              userId={r.user_id}
+              label={t('junta.payments.title')}
+              className="flex min-w-0 flex-1 items-center gap-4 text-fg no-underline"
+            >
+              <Avatar src={r.profiles?.avatar_url ?? null} size={36} />
+              <span className="min-w-0 flex-1 truncate text-base font-semibold">
+                {r.profiles?.nombre ?? '—'}
+              </span>
+            </MemberLink>
             <button
               type="button"
               disabled={letIn.isPending}
@@ -297,6 +347,14 @@ function Queue({ eventId }: { readonly eventId: string }) {
  * A native select on purpose: on a phone it is the system wheel, which beats
  * anything a list of forty events could be made to do with one thumb, and on a
  * laptop it takes the keyboard for free.
+ *
+ * I QUAN EL TRIAT NO ÉS A LA LLISTA, HI VA UN BUIT I NO EL PRIMER. Un `select`
+ * amb un `value` que no és cap de les seves opcions ensenya la primera, o sigui
+ * que la pantalla que diu «aquest esdeveniment ja no surt a la llista» tenia a
+ * sobre el títol d'un altre esdeveniment pintat com si estigués triat. Les dues
+ * coses no poden ser certes alhora, i la que la junta creurà és la de dalt,
+ * perquè és la que sembla un estat i no un avís. L'opció buida va deshabilitada
+ * perquè és un lloc on el selector es troba, no un lloc on es pot anar.
  */
 function Picker({
   list,
@@ -313,16 +371,23 @@ function Picker({
 
   if (list.length === 0) return null
 
+  const known = list.some((e) => e.id === chosen)
+
   return (
     <label className="flex min-h-[44px] min-w-0 items-center">
       <span className="sr-only">{t('junta.payments.pickEvent')}</span>
       <select
-        value={chosen ?? ''}
+        value={known ? (chosen ?? '') : ''}
         onChange={(e) => {
           void navigate(`/junta/pagaments/${e.target.value}`, { replace: true })
         }}
         className={`eyebrow truncate bg-transparent text-fg-muted ${className}`}
       >
+        {known ? null : (
+          <option value="" disabled>
+            {t('junta.payments.pickPrompt')}
+          </option>
+        )}
         {list.map((e) => (
           <option key={e.id} value={e.id}>
             {formatDayMonth(new Date(e.starts_at), locale)} · {e.titulo}
@@ -358,6 +423,15 @@ function PaidList({
   const each = formatPrice(priceCents, INTL_LOCALE[locale])
   const total = each === null ? null : formatMoney(head.n * priceCents, INTL_LOCALE[locale])
 
+  // EL NÚMERO GRAN NOMÉS SURT QUAN ESTÀ COMPTAT. `rows` arriba buit mentre la
+  // consulta d'apuntats vola i també quan ha petat, i a la branca de franc
+  // aquell número ÉS la gent: es llegia «QUI VE / 0 / que han dit que sí», un
+  // zero indistingible de la veritat, amb la silueta de la llista a sota i cap
+  // avís. El títol i l'avís sí que es queden: els decideix el preu, que ja ha
+  // tornat amb l'esdeveniment.
+  // Amb error no hi va silueta: la silueta promet que allò arribarà, i no
+  // arribarà. Hi va el buit, i l'avís de sota diu què ha passat.
+
   const toggle = useMutation({
     mutationFn: ({ id, pagado }: { id: string; pagado: boolean }) => setPaid(id, pagado),
     onSuccess: async () => {
@@ -370,24 +444,30 @@ function PaidList({
       <section className={`pt-8 ${GUTTER}`}>
         <h1 className="display text-d-md leading-[0.9] tracking-[-0.05em]">{t(head.titleKey)}</h1>
 
-        <div className="mt-7 flex items-end gap-7">
-          <div>
-            <p className="display text-d-xl leading-[0.95] tracking-[-0.055em] tabular-nums">
-              {head.n}
-            </p>
-            <p className="mt-1 text-sm font-bold text-fg-muted">
-              {t(head.subKey, { count: head.subCount })}
-            </p>
-          </div>
-          {each === null || total === null ? null : (
-            <div className="flex-1 pb-2">
-              <p className="text-xl font-extrabold tracking-[-0.02em] text-success">{total}</p>
-              <p className="mt-1 text-sm font-semibold text-fg-muted [text-wrap:pretty]">
-                {t('junta.payments.eachOne', { price: each })}
+        {loading ? (
+          <Skeleton>
+            <CountSkeleton money={each !== null} />
+          </Skeleton>
+        ) : error !== null ? null : (
+          <div className="mt-7 flex items-end gap-7">
+            <div>
+              <p className="display text-d-xl leading-[0.95] tracking-[-0.055em] tabular-nums">
+                {head.n}
+              </p>
+              <p className="mt-1 text-sm font-bold text-fg-muted">
+                {t(head.subKey, { count: head.subCount })}
               </p>
             </div>
-          )}
-        </div>
+            {each === null || total === null ? null : (
+              <div className="flex-1 pb-2">
+                <p className="text-xl font-extrabold tracking-[-0.02em] text-success">{total}</p>
+                <p className="mt-1 text-sm font-semibold text-fg-muted [text-wrap:pretty]">
+                  {t('junta.payments.eachOne', { price: each })}
+                </p>
+              </div>
+            )}
+          </div>
+        )}
 
         <Notice tone="neutral" size="tight" className="mt-8 font-medium">
           {t(head.noticeKey)}
@@ -495,7 +575,7 @@ function PaidRow({
           <span
             className={
               'mt-[2px] block text-sm-lo font-bold tracking-[0.06em] uppercase ' +
-              (row.pagado ? 'text-success' : 'text-[var(--ds-warning-deep)]')
+              (row.pagado ? 'text-success' : 'text-warning-deep')
             }
           >
             {row.pagado ? t('junta.payments.paid') : t('junta.payments.pending')}
@@ -528,30 +608,72 @@ function PaidRow({
 function GuestRow({ row }: { readonly row: AttendeeRow }) {
   const { t } = useTranslation()
 
-  const line = [
-    row.profiles?.escola == null ? null : t(`escolaShort.${row.profiles.escola}`),
-    row.profiles?.curs == null ? null : t(`onboarding.year.${row.profiles.curs}`),
-  ]
-    .filter((s): s is string => s !== null)
-    .join(' · ')
+  // Sense grau a posta: la fila és de 56px i el grau és text lliure que la gent
+  // escriu sencer —«Enginyeria Informàtica de Gestió i Sistemes d'Informació»—,
+  // que en una llista de quaranta persones empeny l'escola i el curs fora.
+  const line = memberSubtitle({
+    escola: row.profiles?.escola == null ? null : t(`escolaShort.${row.profiles.escola}`),
+    curs: row.profiles?.curs == null ? null : t(`onboarding.year.${row.profiles.curs}`),
+    grau: null,
+    cua: null,
+  })
 
+  // LA CARA PORTA AL PERFIL, com al rànquing, a «qui hi ha dins», als cotxes i a
+  // les idees. Aquesta fila era l'excepció i no per cap motiu: és l'única del
+  // repositori que pinta un soci sencer —cara, nom, escola i curs— i el deixava
+  // com a text mort. La fila de qui ha pagat no pot fer-ho, perquè aquella fila
+  // JA és un botó —marcar el pagament— i un enllaç a dins d'un botó el navegador
+  // el treu de dins; aquesta no fa res, i per això pot ser una porta.
   return (
-    <li
-      className={
-        `flex min-h-[56px] items-center gap-4 border-b border-surface-4 ` +
-        `px-[var(--ds-gutter)] py-[11px]`
-      }
-    >
-      <Avatar src={row.profiles?.avatar_url ?? null} size={36} />
-      <span className="min-w-0 flex-1">
-        <span className="block truncate text-base font-semibold">
-          {row.profiles?.nombre ?? '—'}
+    <li>
+      <MemberLink
+        userId={row.user_id}
+        label={t('junta.payments.title')}
+        className={
+          `flex min-h-[56px] items-center gap-4 border-b border-surface-4 ` +
+          `px-[var(--ds-gutter)] py-[11px] text-fg no-underline`
+        }
+      >
+        <Avatar src={row.profiles?.avatar_url ?? null} size={36} />
+        <span className="min-w-0 flex-1">
+          <span className="block truncate text-base font-semibold">
+            {row.profiles?.nombre ?? '—'}
+          </span>
+          {line === '' ? null : (
+            <span className="mt-[2px] block truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
+              {line}
+            </span>
+          )}
         </span>
-        {line === '' ? null : (
-          <span className="mt-[2px] block text-sm-lo text-[var(--ds-text-muted-lo)]">{line}</span>
-        )}
-      </span>
+        <Chevron />
+      </MemberLink>
     </li>
+  )
+}
+
+/**
+ * El número gran mentre encara s'està comptant.
+ *
+ * La mateixa silueta que porta `PaidSkeleton head` a dins, treta fora perquè
+ * aquí es fa servir sola: el títol i l'avís ja se saben —els decideix el preu—
+ * i l'únic que falta és el recompte. La meitat dels diners hi surt o no segons
+ * si n'hi ha, perquè una barra verda a una activitat de franc prometria un
+ * import que no arribarà mai.
+ */
+function CountSkeleton({ money }: { readonly money: boolean }) {
+  return (
+    <div className="mt-7 flex items-end gap-7">
+      <div>
+        <SkeletonBar w="w-[54px]" h="h-[51px]" />
+        <SkeletonBar w="w-[80px]" h="h-[12px]" className="mt-1" />
+      </div>
+      {money ? (
+        <div className="flex-1 pb-2">
+          <SkeletonBar w="w-[45%]" h="h-[20px]" />
+          <SkeletonBar w="w-[70%]" h="h-[12px]" className="mt-1" />
+        </div>
+      ) : null}
+    </div>
   )
 }
 
@@ -569,16 +691,9 @@ function PaidSkeleton({ head = false }: { readonly head?: boolean }) {
       {head ? (
         <div className={`pt-8 ${GUTTER}`}>
           <SkeletonBar w="w-[72%]" h="h-[38px]" />
-          <div className="mt-7 flex items-end gap-7">
-            <div>
-              <SkeletonBar w="w-[54px]" h="h-[51px]" />
-              <SkeletonBar w="w-[80px]" h="h-[12px]" className="mt-1" />
-            </div>
-            <div className="flex-1 pb-2">
-              <SkeletonBar w="w-[45%]" h="h-[20px]" />
-              <SkeletonBar w="w-[70%]" h="h-[12px]" className="mt-1" />
-            </div>
-          </div>
+          {/* Amb diners: d'aquí encara no se sap ni el preu, i una silueta no
+              afirma cap import — només que allà hi anirà alguna cosa. */}
+          <CountSkeleton money />
           <SkeletonBar w="w-full" h="h-[62px]" className="mt-8" />
         </div>
       ) : null}
@@ -625,20 +740,12 @@ function WhoRuns() {
         <h2 className="display text-d-sm leading-none tracking-[-0.045em]">
           {t('junta.payments.whoRuns')}
         </h2>
-        <Link
+        <NavRow
           to="/junta/rols"
-          className="mt-7 flex items-center gap-3 border-b border-surface-4 py-[15px] no-underline"
-        >
-          <span className="min-w-0 flex-1">
-            <span className="block text-base font-bold text-fg">{t('junta.roles.title')}</span>
-            <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-              {t('junta.roles.rowSub')}
-            </span>
-          </span>
-          <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
-            ›
-          </span>
-        </Link>
+          title={t('junta.roles.title')}
+          sub={t('junta.roles.rowSub')}
+          className="mt-7"
+        />
       </div>
     </section>
   )

@@ -172,6 +172,226 @@ describe('un ajust a mà, pel camí que fa servir la pantalla', () => {
   })
 })
 
+describe('l’escala de punts i el motiu de cotxe que en va sortir', () => {
+  /**
+   * La issue #2 —un sol motiu per haver portat gent— vista des de fora de la
+   * base de dades, que és l’únic lloc des d’on es pot explotar el que tancava.
+   *
+   * `point_values` té grant de taula sencer per a `authenticated` i
+   * `award_points` té grant d’execució per a `authenticated` sencer: qui vulgui
+   * saltar-se la pantalla només ha d’obrir la consola del navegador. Per això
+   * la garantia de la migració 76 —que `conduir` ja no es pot crear— només val
+   * del tot si es comprova per aquí, amb un token de debò i passant per Kong i
+   * PostgREST. La pgTAP ho prova des de dins; això és l’altra meitat.
+   *
+   * Cap cas d’aquest bloc deixa l’escala canviada: els que escriuen hi tornen a
+   * posar el valor que ja hi havia. La suite no desfà res i la base és
+   * compartida.
+   */
+
+  it('la porta es baixa tres motius, i cap d’ells és conduir', async () => {
+    // La consulta literal de `fetchPointValues`, no una d’equivalent.
+    const member = await as('alfa')
+    const { data, error } = await member
+      .from('point_values')
+      .select('mena, clau, punts, ordre')
+      .order('ordre')
+
+    expect(error).toBeNull()
+
+    const motius = (data ?? []).filter((r) => r.mena === 'motiu')
+    expect(motius.map((r) => r.clau)).toEqual(['montaje', 'trajo_gente', 'propuso'])
+    expect(motius.some((r) => r.clau === 'conduir')).toBe(false)
+
+    // I el que val portar gent és un número de la taula, no de cap pantalla.
+    const portar = motius.find((r) => r.clau === 'trajo_gente')
+    expect(typeof portar?.punts).toBe('number')
+    expect(portar?.punts).toBeGreaterThan(0)
+  })
+
+  it('i anon no en veu res, que l’escala és de dins', async () => {
+    const { data, error } = await anonClient().from('point_values').select('clau')
+
+    // Filtrada o refusada, però mai amb files: les dues respostes són bones.
+    expect(data ?? []).toEqual([])
+    if (error !== null) expect(error.code).toBe('42501')
+  })
+
+  it('un soci no pot inventar-se una fila de l’escala', async () => {
+    // `WITH CHECK` refusat és 42501, no zero files: si això passés, qualsevol
+    // soci podria dibuixar un botó nou a la porta.
+    const member = await as('alfa')
+    const { error } = await member
+      .from('point_values')
+      .insert({ mena: 'motiu', clau: 'prova_rls', punts: 500, ordre: 9 })
+
+    expect(error?.code).toBe('42501')
+  })
+
+  it('ni canviar el preu d’una que hi és, i la fila ho demostra', async () => {
+    // Aquí el refusàs és silenciós —`USING` filtra i PostgREST contesta 200 amb
+    // zero files—, o sigui que comptar files no provaria res. Es llegeix el
+    // número abans i després.
+    const admin = await as('junta_alfa')
+    const abans = await admin
+      .from('point_values')
+      .select('punts')
+      .eq('mena', 'motiu')
+      .eq('clau', 'trajo_gente')
+      .single()
+    expect(abans.error).toBeNull()
+
+    const member = await as('alfa')
+    const { data } = await member
+      .from('point_values')
+      .update({ punts: 1 })
+      .eq('mena', 'motiu')
+      .eq('clau', 'trajo_gente')
+      .select()
+    expect(data ?? []).toEqual([])
+
+    const despres = await admin
+      .from('point_values')
+      .select('punts')
+      .eq('mena', 'motiu')
+      .eq('clau', 'trajo_gente')
+      .single()
+    expect(despres.data?.punts).toBe(abans.data?.punts)
+  })
+
+  it('la junta no pot tornar a dibuixar el botó de conduir des de /junta/barem', async () => {
+    const admin = await as('junta_alfa')
+    const { error } = await rpc(admin, 'admin_set_point_value', {
+      p_mena: 'motiu',
+      p_clau: 'conduir',
+      p_punts: 25,
+    })
+
+    // P0002: la RPC es nega a inserir una fila que no hi era. Afegir un motiu
+    // és una fila, un CHECK i un allowlist, i una pantalla només pot fer la
+    // primera — ho diu la migració 25.
+    expect(error?.code).toBe('P0002')
+  })
+
+  it('però sí reajustar el que val portar gent, que és el control positiu', async () => {
+    // Es torna a escriure el valor que ja hi ha: sense això, el refusàs d’abans
+    // passaria igual el dia que la RPC petés sempre, i amb un valor nou aquesta
+    // suite deixaria l’escala moguda per a qui la corri després.
+    const admin = await as('junta_alfa')
+    const abans = await admin
+      .from('point_values')
+      .select('punts')
+      .eq('mena', 'motiu')
+      .eq('clau', 'trajo_gente')
+      .single()
+    const punts = abans.data?.punts ?? 20
+
+    const { error } = await rpc(admin, 'admin_set_point_value', {
+      p_mena: 'motiu',
+      p_clau: 'trajo_gente',
+      p_punts: punts,
+    })
+    expect(error).toBeNull()
+
+    const despres = await admin
+      .from('point_values')
+      .select('punts')
+      .eq('mena', 'motiu')
+      .eq('clau', 'trajo_gente')
+      .single()
+    expect(despres.data?.punts).toBe(punts)
+  })
+
+  it('i un soci no toca l’escala ni per la RPC', async () => {
+    const member = await as('alfa')
+    const { error } = await rpc(member, 'admin_set_point_value', {
+      p_mena: 'motiu',
+      p_clau: 'trajo_gente',
+      p_punts: 1,
+    })
+
+    expect(error?.code).toBe('42501')
+  })
+
+  it('conduir ja no es pot donar ni obrint la consola del navegador', async () => {
+    // La garantia de la migració 76. 22023 és «motiu invàlid»; 42501 seria «no
+    // ets de la junta», i aquesta crida la fa algú que sí que ho és.
+    const admin = await as('junta_alfa')
+    const { error } = await rpc(admin, 'award_points', {
+      p_user_id: F.bravo,
+      p_event_id: F.e1,
+      p_motivo: 'conduir',
+      p_puntos: 25,
+    })
+
+    expect(error?.code).toBe('22023')
+  })
+
+  it('i portar gent sí, amb el número de l’escala i no cap de la pantalla', async () => {
+    // El control positiu del refusàs d’abans, i alhora el camí sencer del botó
+    // que queda: la fila que entra es llegeix per l’id que torna la RPC, perquè
+    // `points_log` és append-only i aquesta suite no desfà res.
+    const admin = await as('junta_alfa')
+    const escala = await admin
+      .from('point_values')
+      .select('punts')
+      .eq('mena', 'motiu')
+      .eq('clau', 'trajo_gente')
+      .single()
+    const punts = escala.data?.punts ?? 20
+
+    const { data: id, error } = await rpc<string>(admin, 'award_points', {
+      p_user_id: F.bravo,
+      p_event_id: F.e1,
+      p_motivo: 'trajo_gente',
+      p_puntos: punts,
+    })
+    expect(error).toBeNull()
+    expect(id).toBeTruthy()
+
+    const { data } = await admin
+      .from('points_log')
+      .select('motivo, puntos, user_id')
+      .eq('id', id ?? '')
+      .single()
+
+    expect(data?.motivo).toBe('trajo_gente')
+    expect(data?.puntos).toBe(punts)
+    expect(data?.user_id).toBe(F.bravo)
+  })
+
+  it('i el soci veu la fila de desembre amb el motiu vell al seu llibre major', async () => {
+    // El CHECK de `points_log` no s’ha retallat, i per això una fila de
+    // `conduir` d’abans de la 71 continua sent llegible pel seu amo. La posa el
+    // `service_role`, que és l’únic camí que queda per escriure-la ara que ni
+    // la RPC ni cap grant ho permeten — i és exactament el que la fa un bon
+    // substitut de la fila de desembre.
+    const service = serviceClient()
+    const { data: posada, error: posar } = await service
+      .from('points_log')
+      .insert({
+        user_id: F.bravo,
+        event_id: F.e1,
+        motivo: 'conduir',
+        puntos: 25,
+        granted_by: F.juntaAlfa,
+      })
+      .select('id')
+      .single()
+    expect(posar).toBeNull()
+
+    const soci = await as('bravo')
+    const { data } = await soci
+      .from('points_log')
+      .select('motivo, puntos')
+      .eq('id', posada?.id ?? '')
+      .single()
+
+    expect(data?.motivo).toBe('conduir')
+    expect(data?.puntos).toBe(25)
+  })
+})
+
 describe('identity cannot be self-assigned', () => {
   it('a member cannot promote themselves', async () => {
     const member = await as('alfa')
@@ -328,6 +548,19 @@ describe('the Instagram handle is public on purpose, and is only a handle', () =
   })
 
   it('and a member cannot write somebody else’s', async () => {
+    // EL VALOR D'ABANS, CAPTURAT. Deia `not.toBe('segrestat')`, i això passava
+    // de dues maneres sense provar res: si la lectura de servei fallava,
+    // `theirs` quedava a `undefined` i `undefined` tampoc no és 'segrestat';
+    // i encara que anés bé, descartar UN valor concret no és comprovar que la
+    // fila no s'ha mogut —hi cabria qualsevol altra escriptura—. El pgTAP 450
+    // ja ho fa així amb una taula temporal; aquí faltava.
+    const { data: abans, error: errAbans } = await serviceClient()
+      .from('profiles')
+      .select('instagram')
+      .eq('id', F.bravo)
+      .single()
+    expect(errAbans).toBeNull()
+
     const member = await as('alfa')
     const { data, error } = await member
       .from('profiles')
@@ -340,12 +573,13 @@ describe('the Instagram handle is public on purpose, and is only a handle', () =
     expect(error).toBeNull()
     expect(data).toEqual([])
 
-    const { data: theirs } = await serviceClient()
+    const { data: theirs, error: errTheirs } = await serviceClient()
       .from('profiles')
       .select('instagram')
       .eq('id', F.bravo)
       .single()
-    expect(theirs?.instagram).not.toBe('segrestat')
+    expect(errTheirs).toBeNull()
+    expect(theirs?.instagram).toBe(abans?.instagram ?? null)
   })
 })
 
@@ -951,7 +1185,9 @@ describe('galeria', () => {
     // I la galeria d'una festa normal segueix servint-se a qualsevol soci, que
     // és la meitat que es trencaria si la tanca es passés de llarga.
     const festa = `${attended}/${F.alfa}/${stamp}.jpg`
-    const posada = await svc.storage.from(BUCKET).upload(festa, jpeg(), { contentType: 'image/jpeg' })
+    const posada = await svc.storage
+      .from(BUCKET)
+      .upload(festa, jpeg(), { contentType: 'image/jpeg' })
     expect(posada.error).toBeNull()
     const normal = await member.storage.from(BUCKET).createSignedUrl(festa, 60)
     expect(normal.error).toBeNull()
@@ -1010,12 +1246,18 @@ describe('galeria', () => {
     expect(data?.some((r) => r.id === seva.data?.id)).toBe(false)
 
     // El control que fa que l'asserció de dalt valgui: la fila hi és.
-    const totes = await svc.from('photo_reports').select('id').eq('id', seva.data?.id ?? '')
+    const totes = await svc
+      .from('photo_reports')
+      .select('id')
+      .eq('id', seva.data?.id ?? '')
     expect(totes.data?.length).toBe(1)
 
     // I la junta sí que la veu, que és l'altra meitat de `reports_select`.
     const junta = await as('junta_alfa')
-    const vista = await junta.from('photo_reports').select('id').eq('id', seva.data?.id ?? '')
+    const vista = await junta
+      .from('photo_reports')
+      .select('id')
+      .eq('id', seva.data?.id ?? '')
     expect(vista.error).toBeNull()
     expect(vista.data?.length).toBe(1)
 
@@ -1404,19 +1646,28 @@ describe('els avisos de la junta, vistos des de fora', () => {
 
     // Qui hi surt el veu.
     const seu = await as('bravo')
-    const meu = await seu.from('avisos').select('id, nota').eq('id', id ?? '')
+    const meu = await seu
+      .from('avisos')
+      .select('id, nota')
+      .eq('id', id ?? '')
     expect(meu.error).toBeNull()
     expect(meu.data).toHaveLength(1)
 
     // Un altre soci no. Zero files i no error: aqui si que es la politica qui
     // filtra, i per aixo l'asercio es una llista buida i no un codi.
     const altre = await as('alfa')
-    const seva = await altre.from('avisos').select('id').eq('id', id ?? '')
+    const seva = await altre
+      .from('avisos')
+      .select('id')
+      .eq('id', id ?? '')
     expect(seva.error).toBeNull()
     expect(seva.data).toHaveLength(0)
 
     // I la junta el veu.
-    const vist = await junta.from('avisos').select('id').eq('id', id ?? '')
+    const vist = await junta
+      .from('avisos')
+      .select('id')
+      .eq('id', id ?? '')
     expect(vist.data).toHaveLength(1)
   })
 

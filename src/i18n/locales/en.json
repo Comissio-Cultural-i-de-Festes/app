@@ -134,7 +134,9 @@
     "notFound": "That's not there any more.",
     "notAnImage": "I cannot read that photo. Try another one, or take it with the camera.",
     "rateLimited": "Too many tries in a row. Give it a couple of minutes.",
-    "behindServer": "This is not on the server yet: the app was deployed ahead of the database. If you are on the committee, push the migrations; if not, tell them."
+    "behindServer": "This is not on the server yet: the app was deployed ahead of the database. If you are on the committee, push the migrations; if not, tell them.",
+    "avisSostre": "This course has already taken every point the cap allows for this person. Raise “Most points per course” on The scale, or log the warning with no points.",
+    "avisForaDelCurs": "Today falls inside no course, and with no course there is no cap to count. Open the course under “The ranking periods”, or log the warning with no points."
   },
   "escola": {
     "politecnica": "Polytechnic",
@@ -704,6 +706,7 @@
     "payments": {
       "title": "Payments and committee",
       "pickEvent": "Which event",
+      "pickPrompt": "Pick an event",
       "whoPaid": "Who has paid",
       "whoComes": "Who is coming",
       "ofSignedUp_one": "of {{count}} signed up",
@@ -716,6 +719,7 @@
       "paid": "Paid",
       "pending": "Pending",
       "nobody": "Nobody has signed up yet. They appear here once they say yes.",
+      "notInList": "This event is no longer on the junta list. Pick one from the selector above.",
       "chaseThem": "Anyone still unpaid on Friday morning, message them yourself. The group chat does not work.",
       "whoRuns": "Who runs this",
       "queue_one": "Waiting list · {{count}}",
@@ -726,6 +730,7 @@
       "requestsSub": "Nobody has one until you say yes. Anybody you do not confirm stays waiting — that is not the same as being told no.",
       "confirmIn": "Let them in",
       "refuse": "Not this time",
+      "refuseSure": "Saying no takes {{nombre}} off the list for good. Confirming does not send them anything.",
       "noRoomLeft": "No places left. Raise the cap on the event form if you want to fit one more.",
       "gone": "That person is no longer asking."
     },
@@ -833,7 +838,12 @@
         "newHint": "The key is the internal name and cannot be changed later; lowercase with underscores. The label is what people read when the key has no translation.",
         "newClau": "Key, e.g. se_en_va_aviat",
         "newEtiqueta": "Label",
-        "newCta": "Add the type"
+        "newCta": "Add the type",
+        "gravetatBad": "Severity runs from {{min}} to {{max}}.",
+        "puntsBad": "A whole number between -{{max}} and 0: a warning never gives points.",
+        "clauBad": "Lower case, no accents or spaces, starting with a letter. Use underscores between words.",
+        "clauTaken": "That key is already in the catalogue.",
+        "added": "Added: {{clau}}."
       },
       "periods": {
         "title": "The ranking periods",
@@ -877,12 +887,21 @@
       "bringBack": "Bring them back",
       "lede": "Who has left, who is back. Signing somebody out deletes nothing: they stop getting into the app and what they did still counts in the history.",
       "rowSub": "{{count}} people. Sign out whoever has left",
-      "rowSubPlain": "Sign out whoever has left"
+      "rowSubPlain": "Sign out whoever has left",
+      "avisos_one": "{{count}} warning",
+      "avisos_other": "{{count}} warnings",
+      "avisosGravetat": "severity {{total}}",
+      "avisosFlag": "Worth a look"
     },
     "soci": {
+      "backLabel": "Their sheet",
+      "publicProfile": "See their profile",
+      "publicProfileSub": "What any member sees of them.",
       "ledger": {
         "title": "The points record",
-        "total": "Total: {{total}}",
+        "total": "All-time total: {{total}}",
+        "totalSub": "It adds up every line. The ranking counts by period, so the number there can differ.",
+        "totalCapped": "Only the last {{linies}} lines fit, and the total is theirs alone.",
         "empty": "No points yet."
       },
       "adjust": {
@@ -900,7 +919,46 @@
         "eventHint": "Optional. No event at all is a valid line too.",
         "eventNone": "None in particular",
         "save": "Save the adjustment",
+        "paused": "No connection. The adjustment waits here and will go when the network is back: keep this screen open.",
         "done": "Recorded: {{punts}} for {{nombre}}."
+      },
+      "avisos": {
+        "title": "Warnings",
+        "live_one": "{{count}} standing",
+        "live_other": "{{count}} standing",
+        "empty": "No warnings. Long may it last.",
+        "withdraw": "Withdraw the warning",
+        "withdrawSure": "The warning stays on the sheet, struck through, and any points it took come back as a new line in the ledger. Write why it is being withdrawn.",
+        "withdrawNote": "Why it is withdrawn",
+        "withdrawPlaceholder": "They had told us, our mistake",
+        "withdrawPaused": "No connection. The withdrawal waits here and will go when the network is back: keep this screen open.",
+        "withdrawnOn": "Withdrawn on {{dia}}"
+      },
+      "avis": {
+        "title": "Record a warning",
+        "lede": "It is written down and never deleted. It may take points or not: you can warn somebody without touching the ranking.",
+        "tipus": "What happened",
+        "tipusHint": "The catalogue lives in \"The scale\".",
+        "tipusNone": "Pick one",
+        "gravetatIs": "Severity: {{gravetat}}",
+        "punts": "Points",
+        "puntsHint": "They come from the catalogue and can be changed. Zero means a warning that leaves the ranking alone.",
+        "puntsBad": "A whole number between -{{max}} and 0.",
+        "note": "Why",
+        "noteHint": "Required. {{nombre}} will read it on their profile.",
+        "notePlaceholder": "Did not turn up to the set-up they had offered to do",
+        "noteBad": "A warning with no reason written down cannot be saved.",
+        "event": "Which night",
+        "eventHint": "Optional. If it happened at a junta meeting, the warning stays with it and the points go without an event.",
+        "eventNone": "No particular one",
+        "save": "Record the warning",
+        "sureTitle": "Before recording it",
+        "surePoints": "{{nombre}} will lose {{punts}} points and drop in the ranking.",
+        "sureNoPoints": "No points will be taken: {{nombre}} will not move in the ranking.",
+        "sureSeen": "{{nombre}} will see it on their profile with the reason you wrote, and the row is never deleted.",
+        "sureCta": "Yes, record it",
+        "paused": "No connection. It will be recorded on its own once it is back.",
+        "done": "Recorded: {{tipus}} for {{nombre}}."
       }
     },
     "role": {
@@ -996,9 +1054,9 @@
         "set_hores": "{{actor}} changed an activity's hours",
         "visa_hores": "{{actor}} signed off an activity's hours",
         "hores_persona": "{{actor}} changed somebody's hours at an activity",
-        "reveal_push": "The reveal notice went out",
-        "avis": "{{actor}} recorded a warning against somebody",
-        "retira_avis": "{{actor}} withdrew a warning",
+        "reveal_push": "The reveal notification went out",
+        "avis": "{{actor}} recorded a warning against {{target}}",
+        "retira_avis": "{{actor}} withdrew a warning against {{target}}",
         "set_avis_tipus": "{{actor}} changed the warning catalogue"
       },
       "rowSub": "Who did what"
@@ -1038,6 +1096,9 @@
       "drafts_one": "draft not published",
       "drafts_other": "drafts not published",
       "draftsSub": "Work done that is not doing anything yet",
+      "avisos_one": "is over the warning threshold",
+      "avisos_other": "are over the warning threshold",
+      "avisosSub": "Severity {{total}} or more this course. Worth a look, nothing else",
       "now": "What is happening now",
       "soon": "Coming up",
       "soonCount": "{{count}} on the calendar",
@@ -1084,6 +1145,10 @@
       },
       "points": {
         "title": "Where the points come from",
+        "notSources": "Not points anyone earned",
+        "cases_one": "{{count}} case",
+        "cases_other": "{{count}} cases",
+        "notSourcesNote": "They take points away or cancel out, so they stay off the chart. A withdrawn warning shows as zero: it happened and it cost nothing.",
         "action": "→ Setting up and bringing people are easy points to hand out in January: announce them before each plan."
       },
       "limits": {
@@ -1405,6 +1470,11 @@
       "mal_gest": "Bad behaviour",
       "va_deixar_ho": "Left it badly",
       "greu": "Serious"
+    },
+    "gravetat": {
+      "1": "Minor",
+      "2": "Serious",
+      "3": "Very serious"
     }
   },
   "nav": {
@@ -1452,11 +1522,12 @@
       "label": "Instagram",
       "placeholder": "yourhandle",
       "why": "So people can follow you. This one does show on your profile and other members see it.",
-      "invalid": "That is not a username. Letters, numbers, full stop and underscore only."
+      "invalid": "That is not a username. Letters, numbers, full stop and underscore only, and not the whole address."
     },
     "cta": {
       "ready": "Go in",
-      "pickSchool": "Pick a school and you are in"
+      "pickSchool": "Pick a school and you are in",
+      "fix": "Check the phone or the Instagram"
     },
     "later": "You can change all of this later in your profile."
   },
@@ -1561,6 +1632,7 @@
       "label": "What you are called",
       "hint": "What people actually call you, not a nickname: the committee has to find you on the payments list.",
       "saved": "Saved",
+      "waiting": "No signal. It saves itself when the network is back: no need to press again.",
       "everywhere": "It will show everywhere right away."
     },
     "instagram": {
@@ -1591,6 +1663,11 @@
     },
     "history": {
       "title": "The last thing you did"
+    },
+    "avisos": {
+      "title": "Your warnings",
+      "lede": "What the junta recorded this course and why. A struck-through one has been withdrawn: it no longer counts.",
+      "withdrawn": "Withdrawn"
     },
     "settings": {
       "title": "Settings",
@@ -1663,8 +1740,10 @@
       "body": "A profile stops being visible when somebody leaves the comi. What they did stays in the committee's ledger."
     },
     "isYou": "This is you",
-    "instagram": "Follow on Instagram",
+    "instagram": "Instagram profile",
     "footer": "This is what any member sees of you. Your phone number and your exit photos are not here.",
+    "juntaSheet": "Their points record",
+    "juntaSheetSub": "Ledger, adjustments and warnings. Only the committee sees it.",
     "standing": {
       "hidden": "They have asked to stay out of the leaderboard, so their points are not shown here."
     },
@@ -1790,7 +1869,7 @@
     "notes": "Anything else",
     "notesPlaceholder": "If you smoke in the car, if the boot is full, if you are coming back Sunday afternoon… a few words.",
     "phoneNote": "You will see the number of whoever gets in, in case you have to wait five minutes. They do not see yours.",
-      "phoneToDriver": "If you get in, the driver sees your phone in case they have to wait. The other passengers do not.",
+    "phoneToDriver": "If you get in, the driver sees your phone in case they have to wait. The other passengers do not.",
     "offerCta": "Offer the car",
     "pointsLater": "The {{points}} are for the people you take, and they go on when you are back.",
     "onlyOne": "One so far. More will turn up, but this one is definitely going.",
@@ -1837,6 +1916,7 @@
     "okWalkin": "Not on the list, but come on in",
     "okWalkinReview": "Let them in — not signed up and not paid",
     "okWalkinReviewFree": "Let them in — not signed up",
+    "okWalkinReviewUnknown": "Let them in — not signed up. Check whether this one is paid for",
     "alreadyCheckedIn": "This QR has already been used",
     "notAMember": "This QR isn't one of ours",
     "memberInactive": "This account isn't active yet",
@@ -1847,6 +1927,7 @@
       "okWalkin": "They were not signed up. It is recorded now.",
       "okWalkinReview": "Check they pay on the way in, or note it down.",
       "okWalkinReviewFree": "Places are capped. Note it down so the count adds up.",
+      "okWalkinReviewUnknown": "Note it down so the junta can square it up.",
       "alreadyCheckedIn": "They already came through. If they insist, check the manual list.",
       "notAMember": "Ask their name and find them by hand. Do not wave them through unrecorded.",
       "memberInactive": "Have them ask to join. You approve it tomorrow from the junta area.",

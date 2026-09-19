@@ -85,9 +85,33 @@ describe('la capçalera de qui es presenta sense estar apuntat', () => {
     expect(w.actionKey).toBe('scanner.action.okWalkinReviewFree')
   })
 
-  it('i no canvia de frase mentre no se sap el preu', () => {
+  // LES DUES MEITATS ALHORA. Primer el `null` es quedava la còpia de diners i
+  // una porta gratuïta amb la xarxa lenta acusava d'un deute inexistent;
+  // després se li va prestar la de la gratuïta i llavors una porta DE PAGAMENT
+  // amb la consulta caiguda deixava de dir que s'ha de cobrar. Cap de les dues
+  // frases de sempre no és certa aquí, perquè totes dues afirmen un fet de
+  // l'esdeveniment que no consta. La tercera pregunta en comptes d'afirmar.
+  it('i mentre no se sap el preu diu la seva, que no és cap de les altres dues', () => {
     const w = verdictText(SCAN_PRESENTATION.ok_walkin_review, walkin, { ...PLA, priceCents: null })
-    expect(w.headlineKey).toBe('scanner.okWalkinReview')
+    expect(w.headlineKey).toBe('scanner.okWalkinReviewUnknown')
+    expect(w.actionKey).toBe('scanner.action.okWalkinReviewUnknown')
+  })
+
+  // I que no sigui cap de les dues, escrit a part: prestar-li'n una és
+  // exactament l'error que s'ha comès dues vegades seguides en aquest fitxer, i
+  // l'asserció de sobre no diria per què és un error si la clau canviés de nom.
+  it('i no li presta ni la frase de pagament ni la de franc', () => {
+    const w = verdictText(SCAN_PRESENTATION.ok_walkin_review, walkin, { ...PLA, priceCents: null })
+    const paid = verdictText(SCAN_PRESENTATION.ok_walkin_review, walkin, {
+      ...PLA,
+      priceCents: 3000,
+    })
+    const free = verdictText(SCAN_PRESENTATION.ok_walkin_review, walkin, { ...PLA, priceCents: 0 })
+    expect(w.headlineKey).not.toBe(paid.headlineKey)
+    expect(w.headlineKey).not.toBe(free.headlineKey)
+    // I diu alguna cosa: la clau de la presentació és la de pagament, o sigui
+    // que «no substituir res» aquí tornaria a ser acusar.
+    expect(w.headlineKey).not.toBe(SCAN_PRESENTATION.ok_walkin_review.messageKey)
   })
 
   it('cap altre estat no té versió gratuïta', () => {

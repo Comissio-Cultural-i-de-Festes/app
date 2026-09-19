@@ -7,9 +7,8 @@ import { eventTitle } from '@/features/event/title'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
-import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
+import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
 import { INPUT } from './formBits'
-import { horizonIso } from '@/features/home/api'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { JuntaHeader } from './JuntaHeader'
 
@@ -35,8 +34,8 @@ export function IdeasReviewScreen() {
 
   const list = useQuery({ queryKey: proposalKeys.list(), queryFn: fetchProposals })
   const events = useQuery({
-    queryKey: juntaEventKeys.list(horizonIso()),
-    queryFn: () => fetchJuntaEvents(horizonIso()),
+    queryKey: juntaEventKeys.list(juntaHorizonIso()),
+    queryFn: () => fetchJuntaEvents(juntaHorizonIso()),
   })
 
   const send = useMutation({
@@ -55,7 +54,12 @@ export function IdeasReviewScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
-      <JuntaHeader to="/junta" label={t('junta.back')} title={t('ideas.juntaTitle')} />
+      <JuntaHeader
+        to="/junta"
+        label={t('junta.back')}
+        title={t('ideas.juntaTitle')}
+        className="lg:hidden"
+      />
 
       <div className={`pt-8 ${GUTTER}`}>
         <p className="text-md text-fg-secondary [text-wrap:pretty]">{t('ideas.juntaLede')}</p>
@@ -69,7 +73,7 @@ export function IdeasReviewScreen() {
           </p>
         )}
         {note === null ? null : (
-          <p role="status" className="pt-6 text-md font-bold text-[var(--ds-warning)]">
+          <p role="status" className="pt-6 text-md font-bold text-warning">
             {note}
           </p>
         )}
@@ -210,9 +214,7 @@ function Panel({
             {t('ideas.pickEvent')}
           </label>
           {events.length === 0 ? (
-            <p className="mt-4 text-md text-[var(--ds-warning)] [text-wrap:pretty]">
-              {t('ideas.noEvents')}
-            </p>
+            <p className="mt-4 text-md text-warning [text-wrap:pretty]">{t('ideas.noEvents')}</p>
           ) : (
             <select
               id="idea-event"
@@ -262,9 +264,7 @@ function Panel({
           onClick={onSend}
           className={
             'min-h-[46px] flex-1 px-5 text-md font-bold [text-wrap:balance] disabled:opacity-50 ' +
-            (accepta
-              ? 'bg-brand-cta text-on-brand'
-              : 'border-[1.5px] border-[var(--ds-warning)] text-[var(--ds-warning)]')
+            (accepta ? 'bg-brand-cta text-on-brand' : 'border-[1.5px] border-warning text-warning')
           }
         >
           {busy ? t('state.updating') : accepta ? t('ideas.accept') : t('ideas.discard')}

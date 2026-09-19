@@ -1,26 +1,35 @@
--- L'Instagram d'un altre soci, escrit per algú de la junta.
+-- L'Instagram d'un altre soci, escrit per algú de la junta: no s'hi escriu.
 --
--- AQUEST FITXER FALLA AVUI, I ES DEIXA ESCRIT PERQUÈ FALLI. És la prova que
--- falta, no una prova d'una cosa que ja va bé: el 450 comprova que un soci no
--- pot tocar l'Instagram d'un altre —la política `profiles_update_self` el
--- filtra i el 450 ho assereix— però `profiles` també té
--- `profiles_update_admin`, que deixa escriure QUALSEVOL fila a qui passa
--- `private.is_admin()`. El `grant update (instagram)` de la migració 70 és per
--- a `authenticated` sencer, i la junta hi és a dins.
+-- QUÈ FIXA AQUEST FITXER. La migració 79. El 450 ja comprova que un soci no pot
+-- tocar l'Instagram d'un altre —la política `profiles_update_self` li filtra la
+-- fila— però `profiles` també té `profiles_update_admin`, que deixa escriure
+-- QUALSEVOL fila a qui passa `private.is_admin()`, i el `grant update
+-- (instagram)` de la 70 és per a `authenticated` sencer, on la junta hi és a
+-- dins. Entre les dues coses, un membre de la junta podia penjar el compte
+-- d'Instagram que volgués sota la cara i el nom d'un altre soci, i la fila per
+-- seguir de `/soci/:id` el dibuixa com un enllaç tocable per a tots els socis.
+-- El `CHECK` de la 70 hi posa la FORMA —només un nom d'usuari— però no diu res
+-- de qui l'escriu.
 --
--- Efecte: un membre de la junta pot penjar el compte d'Instagram que vulgui a
--- la cara i el nom d'un altre soci, i la fila per seguir de `/soci/:id` el
--- dibuixa com un enllaç tocable a tots els socis. El `CHECK` de la 70 hi posa
--- la forma —només un nom d'usuari— però no diu res de qui l'escriu. Cap
--- pantalla ho ofereix, i per això no s'havia vist: la barrera aquí no és el
--- formulari, és la política, i és exactament el raonament amb què la mateixa
--- migració 70 justifica el `CHECK`.
+-- LA DECISIÓ QUE ES VA PRENDRE, perquè no calgui anar a buscar-la: no és el
+-- comportament que es vol. L'issue diu «publicar-lo un mateix», i decidir-lo
+-- per algú altre —o esborrar-li'l, que és el mateix acte amb el signe canviat—
+-- no és una correcció de dades, és parlar en nom seu. La 79 hi posa la tanca a
+-- `private.profiles_guard()` i no al grant ni a la política, perquè el grant de
+-- columna és per rol i aquí el soci i la junta són el mateix rol, i perquè ni
+-- `USING` ni `WITH CHECK` poden dir «aquesta columna no s'ha mogut».
 --
--- QUÈ HA DE DECIDIR QUI ARREGLI AIXÒ. O bé és el comportament que es vol —i
--- llavors s'escriu a la migració i aquesta prova passa a dir «la junta sí que
--- pot»—, o bé no ho és, i llavors cal una barrera: un `WITH CHECK` a
--- `profiles_update_admin` que deixi fora la columna, o treure `instagram` del
--- que la junta pot escriure. El que no pot quedar és sense dir.
+-- PER QUÈ AQUESTES DUES ASSERCIONS I NO UN `throws_ok`. La 79 fixa el valor
+-- vell en comptes de petar, i per això el que es mira aquí és la columna
+-- després de l'`update`, no l'error: no n'hi ha cap. Un `throws_ok` seria
+-- vermell amb l'arreglament posat. La migració explica per què es va triar
+-- així; el que en depèn és la forma d'aquest fitxer.
+--
+-- L'ALTRA MEITAT ÉS EL 456, i no és opcional: sol, aquest fitxer passaria igual
+-- amb una tanca massa ampla que li prengués a la junta l'UPDATE sobre la fila
+-- d'un altre i se li mengés la correcció de noms. La capa d'RLS hi afegeix el
+-- que cap dels dos pot veure —què rep qui escriu—, a
+-- `tests/rls/instagram_junta.test.ts`.
 --
 -- Persones inventades, com a tot el repo.
 

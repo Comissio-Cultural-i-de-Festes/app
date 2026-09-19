@@ -18,6 +18,7 @@ import {
   fetchDashboard,
   whatsappHref,
 } from './dashboardApi'
+import { splitPoints } from './dashboardPoints'
 import { JuntaHeader } from './JuntaHeader'
 
 /**
@@ -132,18 +133,13 @@ function Cards({
    * targeta costava un títol, un eyebrow i una segona graella per dir una
    * xifra, i partia en dues una targeta que es llegeix d'una tirada.
    *
-   * EL DENOMINADOR ÉS EL DELS QUE SUMEN, no el total de la llista. Amb el net,
-   * un període amb avisos encongiria el denominador i les barres passarien del
-   * 100%: «venir» no pot ser el 130% d'on surten els punts. Partint-la, els
-   * percentatges del gràfic tornen a sumar 100 i el número de sota diu el que
-   * s'ha restat, que són dues preguntes i no una.
+   * LA PARTICIÓ I ELS PERCENTATGES VIUEN A `dashboardPoints.ts`, amb la seva
+   * prova al costat. Escrits aquí dins no es podien provar sense muntar la
+   * pantalla sencera, i les dues coses que hi van fallar —que el signe no
+   * decideix què és una font, i que arrodonir cada fila pel seu compte no suma
+   * 100— són lògica pura que una prova de quatre línies hauria vist.
    */
-  const sources = data.punts_per_motiu.filter((r) => r.punts > 0)
-  const notSources = data.punts_per_motiu.filter((r) => r.punts <= 0)
-  const totalPoints = Math.max(
-    1,
-    sources.reduce((n, r) => n + r.punts, 0),
-  )
+  const { sources, notSources } = splitPoints(data.punts_per_motiu)
 
   return (
     <>
@@ -276,20 +272,17 @@ function Cards({
         <section className={CARD}>
           <h2 className="eyebrow text-fg-muted">{t('junta.dashboard.points.title')}</h2>
           <div className="mt-8 grid gap-6">
-            {sources.map((r) => {
-              const pct = Math.round((r.punts / totalPoints) * 100)
-              return (
-                <div key={r.motivo} className="grid grid-cols-[110px_1fr_60px] items-center gap-6">
-                  <span className="text-md-lo font-bold">{t(`motive.${r.motivo}`)}</span>
-                  <div className="h-[10px] bg-surface-3">
-                    <div className="h-[10px] bg-surface-9" style={{ width: `${String(pct)}%` }} />
-                  </div>
-                  <span className="tabular text-right text-sm font-bold text-fg-secondary">
-                    {pct}%
-                  </span>
+            {sources.map((r) => (
+              <div key={r.motivo} className="grid grid-cols-[110px_1fr_60px] items-center gap-6">
+                <span className="text-md-lo font-bold">{t(`motive.${r.motivo}`)}</span>
+                <div className="h-[10px] bg-surface-3">
+                  <div className="h-[10px] bg-surface-9" style={{ width: `${String(r.pct)}%` }} />
                 </div>
-              )
-            })}
+                <span className="tabular text-right text-sm font-bold text-fg-secondary">
+                  {r.pct}%
+                </span>
+              </div>
+            ))}
           </div>
 
           {notSources.length === 0 ? null : (
@@ -301,7 +294,20 @@ function Cards({
                     key={r.motivo}
                     className="flex items-baseline justify-between gap-6 text-sm text-fg-secondary"
                   >
-                    <span className="[text-wrap:pretty]">{t(`motive.${r.motivo}`)}</span>
+                    {/* Quantes vegades, al costat del número. La migració 80 el
+                        calcula i el filtra amb cura —un avís retirat són dues
+                        files i un sol avís— i fins ara no el mirava ningú. Va
+                        aquí i no a les barres perquè aquí és on desfà una
+                        lectura ambigua: «avisos −25» pot ser un avís gros o
+                        cinc de petits, i la junta que llegeix això vol saber a
+                        quantes persones ha d'escriure. */}
+                    <span className="[text-wrap:pretty]">
+                      {t(`motive.${r.motivo}`)}
+                      <span className="text-fg-dim">
+                        {' · '}
+                        {t('junta.dashboard.points.cases', { count: r.vegades })}
+                      </span>
+                    </span>
                     <span className="tabular flex-none font-bold">
                       {formatSigned(r.punts, locale)}
                     </span>

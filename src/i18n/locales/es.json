@@ -1142,6 +1142,8 @@
       "points": {
         "title": "De dónde salen los puntos",
         "notSources": "No son puntos ganados",
+        "cases_one": "{{count}} caso",
+        "cases_other": "{{count}} casos",
         "notSourcesNote": "Restan o se compensan, y por eso quedan fuera del gráfico. Un aviso retirado sale a cero: existió y no ha costado nada.",
         "action": "→ Montar y traer gente son puntos fáciles de repartir en enero: anunciadlos antes de cada plan."
       },

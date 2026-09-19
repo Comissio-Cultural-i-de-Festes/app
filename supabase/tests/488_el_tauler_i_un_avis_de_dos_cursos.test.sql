@@ -1,12 +1,19 @@
 -- Un avís posat un curs i retirat el següent torna a sortir al panell com una
 -- font de punts guanyats.
 --
--- AQUEST FITXER NEIX VERMELL I ES QUEDA VERMELL. No prova cap regla que la
--- base compleixi avui: prova la que la migració 80 diu que compleix. Es deixa
--- escrit i en vermell pel mateix criteri que el 485, que també va néixer així:
--- un forat demostrat val més que un forat descrit. Qui el tanqui el posarà
--- verd sense tocar cap asserció; si n'ha de tocar cap, el que ha canviat és la
--- promesa i no el codi.
+-- AQUEST FITXER VA NÉIXER VERMELL, a posta: no provava cap regla que la base
+-- complís, sinó la que la migració 80 deia que complia. Es va deixar escrit i
+-- en vermell pel mateix criteri que el 485, que també va néixer així: un forat
+-- demostrat val més que un forat descrit.
+--
+-- LA MIGRACIÓ 82 EL TANCA, i cap asserció no s'ha tocat per aconseguir-ho, que
+-- és l'única manera que una prova escrita abans de l'arreglament serveixi de
+-- res. Sobre una base que encara no la tingui aplicada continua vermell, i
+-- aleshores el que falta és la migració.
+--
+-- TOT EL QUE VE A CONTINUACIÓ DESCRIU LA BASE D'ABANS DE LA 82, i es deixa
+-- sencer perquè és el raonament que va trobar el forat. On va anar
+-- l'arreglament és al peu del fitxer.
 --
 -- QUÈ PROMET LA 80. La seva capçalera ho diu dues vegades, i la segona dins del
 -- cos de la funció: «`avis_retirat` NO ÉS UN MOTIU D'AQUESTA LLISTA: s'agrupa
@@ -106,6 +113,29 @@ select ok(
        and (r->>'vegades')::int = 0),
   'cap fila no diu que hi ha hagut punts per un motiu del qual no hi ha hagut cap cas'
 );
+
+-- ── ON VA ANAR L'ARREGLAMENT ────────────────────────────────────────────────
+--
+-- A `admin_dashboard`, al bloc `v_motius`, per la migració 82, i són les dues
+-- coses que la capçalera demana:
+--
+--   · les dues files d'un avís s'ancoren al `created_at` de l'avís que les
+--     explica —`avisos.points_log_id` i `avisos.retirat_points_log_id`—, que és
+--     la regla que la 78 ja havia escrit per al sostre del curs. Les dues cauen
+--     sempre a la mateixa finestra i per tant sempre es neutralitzen;
+--   · i el grup `avis` passa per un `least(..., 0)`: una fila d'avís sense cap
+--     avís que hi apunti s'ancora al seu propi dia i podria tornar a ser
+--     positiva. Amb el `least`, «retirar un càstig no és guanyar punts» és una
+--     propietat de la funció i no de les dades. El grup que queda a zero i sense
+--     cap avís no surt, que és la tercera asserció.
+--
+-- El 489 prova l'ancoratge amb la parella escrita a `avisos`, que és el cas de
+-- debò; aquest fitxer prova la garantia de fora, que la compleix el `least`.
+--
+-- LA MEITAT DE CLIENT és a `dashboardPoints.ts`, amb la seva prova al costat:
+-- `DashboardScreen.tsx` ja no parteix la llista pel signe, i un motiu d'avís no
+-- és mai una barra del gràfic tingui el número que tingui. Serveix per si la
+-- base que contesta és anterior a la 82.
 
 select * from finish();
 rollback;

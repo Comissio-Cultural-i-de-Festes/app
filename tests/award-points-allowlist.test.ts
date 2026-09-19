@@ -58,6 +58,23 @@ describe("l'allowlist d'award_points, tal com es desplega", () => {
     expect(body).toMatch(/p_motivo = 'manual' and v_nota is null/)
   })
 
+  /**
+   * LA REGLA DE LA 77, QUE ÉS LA QUE AQUESTA VERJA NO COBRIA. «Hi ha nota
+   * obligatòria» i «què compta com a nota» són dues regles i no una: amb
+   * `v_nota text := nullif(btrim(coalesce(p_nota, '')), '')` —la línia de la 72
+   * i de la 76, que `btrim` d'un sol argument fa que només tregui U+0020— la
+   * comprovació de sobre hi és sencera i un tabulador continua sent una nota
+   * vàlida. La 77 va moure la decisió a `private.nota_neta`, i és aquest nom el
+   * que un `create or replace` escrit sobre una còpia vella tornaria a perdre
+   * sense que res ho digués.
+   */
+  it('i la mesura la fa `private.nota_neta`, que és on viu la llista de blancs', () => {
+    const { file, body } = lastDefinitionOf('award_points')
+    expect(body, `l'última definició és a ${file}`).toMatch(
+      /v_nota\s+text\s*:=\s*private\.nota_neta\(/,
+    )
+  })
+
   it('ni la verja de restar, que continua sent de l’owner fora de `manual`', () => {
     const { body } = lastDefinitionOf('award_points')
     expect(body).toMatch(/p_puntos < 0 and p_motivo <> 'manual' and not private\.is_owner\(\)/)

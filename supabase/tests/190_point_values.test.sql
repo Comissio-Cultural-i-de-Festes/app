@@ -10,7 +10,6 @@ begin;
 select plan(12);
 
 reset role;
-delete from public.audit_log;
 
 -- ── who may ─────────────────────────────────────────────────────────────────
 select tests.authenticate_as('bravo');
@@ -61,6 +60,31 @@ select is(
   'with the order left alone, because nothing was said about it'
 );
 
+-- EL RASTRE ES MIRA AQUÍ, amb UNA sola crida feta, i no al final.
+--
+-- `audit_log.created_at` és `transaction_timestamp()`, o sigui que TOTES les
+-- files que escrigui aquest fitxer porten la mateixa marca de temps: el rellotge
+-- no avança dins d'una transacció. Amb les dues crides fetes, `order by
+-- created_at limit 1` no desempatava res i quina de les dues sortia ho decidia
+-- Postgres —es veia com un `have: 35→35`, que és la segona—. No era una base
+-- bruta: era aquest fitxer mirant-se dues files seves com si en fossin una.
+--
+-- I `string_agg` EN COMPTES DE `limit 1`: si algun dia hi tornen a haver dues
+-- files, el `have:` les ensenya totes dues en comptes de triar-ne una a l'atzar
+-- i passar o caure segons el dia. El `created_at >= transaction_timestamp()`
+-- continua deixant fora les files que ja hi havia: desar el barem des de
+-- `/junta/barem` també escriu `set_point_value`, i en una base viva aquelles
+-- files no se'n van.
+select is(
+  (select string_agg(detall->>'abans' || '→' || (detall->>'ara'), ', ')
+     from public.audit_log
+    where accio = 'set_point_value'
+      and detall->>'clau' = 'montaje'
+      and created_at >= transaction_timestamp()),
+  '20→35',
+  'the trail says what it was worth before, which is the question asked in March'
+);
+
 select tests.authenticate_as('junta_alfa');
 select public.admin_set_point_value('motiu', 'montaje', 35, 4);
 
@@ -69,23 +93,6 @@ select is(
   (select ordre from public.point_values where mena = 'motiu' and clau = 'montaje'),
   4,
   'and moved when something was'
-);
-
--- La fila que es mira ha de ser LA D'AQUESTA TRANSACCIÓ. `order by created_at
--- limit 1` sobre tot `audit_log` agafa la més vella de la taula, que en una
--- base viva és la d'algú altre: desar el barem des de `/junta/barem` també
--- escriu `set_point_value`, i aquelles files no se'n van. Es notava com un
--- `have: 35→35` —el valor d'una altra clau, ja igualada— i a CI no surt mai,
--- perquè allà la base neix a cada execució.
-select is(
-  (select detall->>'abans' || '→' || (detall->>'ara')
-     from public.audit_log
-    where accio = 'set_point_value'
-      and detall->>'clau' = 'montaje'
-      and created_at >= transaction_timestamp()
-    order by created_at limit 1),
-  '20→35',
-  'the trail says what it was worth before, which is the question asked in March'
 );
 
 -- ── what it will not do ─────────────────────────────────────────────────────

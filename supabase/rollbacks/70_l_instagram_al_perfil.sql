@@ -30,12 +30,13 @@
 --     ERROR:  record "new" has no field "instagram"
 --     CONTEXT:  PL/pgSQL function private.profiles_guard() line 20 at IF
 --
--- O sigui: `/perfil/editar` i la correcció de noms de la junta deixen de
--- funcionar totes dues, i l'error no assenyala enlloc l'acte que el va causar.
--- És pitjor que un `drop` bloquejat, perquè el bloqueig es veu a l'instant i
--- això no. Les RPC definer sí que segueixen anant, que la guarda les deixa
--- passar pel `current_user`, i això encara ho fa més difícil de veure: l'alta
--- per invitació funciona mentre el perfil no.
+-- O sigui: tot el que arriba a `profiles` com un `update` directe del client
+-- cau alhora —`/perfil/editar`, el formulari de la primera entrada i la
+-- correcció de noms de la junta— i l'error no assenyala enlloc l'acte que el
+-- va causar. És pitjor que un `drop` bloquejat, perquè el bloqueig es veu a
+-- l'instant i això no. Les RPC `security definer` sí que segueixen anant, que
+-- la guarda es retira pel `current_user` abans d'arribar a la branca, i això
+-- encara ho fa més difícil de veure: `redeem_invite()` no es queixa.
 --
 -- Per això la primera sentència d'aquest fitxer torna la guarda a la versió del
 -- 07 —la que no anomena la columna— i només després cau la columna. Així

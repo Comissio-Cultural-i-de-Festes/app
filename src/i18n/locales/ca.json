@@ -704,6 +704,7 @@
     "payments": {
       "title": "Pagaments i junta",
       "pickEvent": "De quin esdeveniment",
+      "pickPrompt": "Tria un esdeveniment",
       "whoPaid": "Qui ha pagat",
       "whoComes": "Qui ve",
       "ofSignedUp_one": "d'{{count}} apuntat",

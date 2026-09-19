@@ -347,6 +347,14 @@ function Queue({ eventId }: { readonly eventId: string }) {
  * A native select on purpose: on a phone it is the system wheel, which beats
  * anything a list of forty events could be made to do with one thumb, and on a
  * laptop it takes the keyboard for free.
+ *
+ * I QUAN EL TRIAT NO ÉS A LA LLISTA, HI VA UN BUIT I NO EL PRIMER. Un `select`
+ * amb un `value` que no és cap de les seves opcions ensenya la primera, o sigui
+ * que la pantalla que diu «aquest esdeveniment ja no surt a la llista» tenia a
+ * sobre el títol d'un altre esdeveniment pintat com si estigués triat. Les dues
+ * coses no poden ser certes alhora, i la que la junta creurà és la de dalt,
+ * perquè és la que sembla un estat i no un avís. L'opció buida va deshabilitada
+ * perquè és un lloc on el selector es troba, no un lloc on es pot anar.
  */
 function Picker({
   list,
@@ -363,16 +371,23 @@ function Picker({
 
   if (list.length === 0) return null
 
+  const known = list.some((e) => e.id === chosen)
+
   return (
     <label className="flex min-h-[44px] min-w-0 items-center">
       <span className="sr-only">{t('junta.payments.pickEvent')}</span>
       <select
-        value={chosen ?? ''}
+        value={known ? (chosen ?? '') : ''}
         onChange={(e) => {
           void navigate(`/junta/pagaments/${e.target.value}`, { replace: true })
         }}
         className={`eyebrow truncate bg-transparent text-fg-muted ${className}`}
       >
+        {known ? null : (
+          <option value="" disabled>
+            {t('junta.payments.pickPrompt')}
+          </option>
+        )}
         {list.map((e) => (
           <option key={e.id} value={e.id}>
             {formatDayMonth(new Date(e.starts_at), locale)} · {e.titulo}

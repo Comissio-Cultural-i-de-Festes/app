@@ -704,6 +704,7 @@
     "payments": {
       "title": "Pagos y junta",
       "pickEvent": "De qué evento",
+      "pickPrompt": "Elige un evento",
       "whoPaid": "Quién ha pagado",
       "whoComes": "Quién viene",
       "ofSignedUp_one": "de {{count}} apuntado",

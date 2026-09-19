@@ -704,6 +704,7 @@
     "payments": {
       "title": "Payments and committee",
       "pickEvent": "Which event",
+      "pickPrompt": "Pick an event",
       "whoPaid": "Who has paid",
       "whoComes": "Who is coming",
       "ofSignedUp_one": "of {{count}} signed up",

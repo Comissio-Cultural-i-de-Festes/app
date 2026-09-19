@@ -930,6 +930,7 @@
         "withdrawSure": "L'avís es queda a la fitxa, ratllat, i si va restar punts es tornen amb una línia nova al registre. Escriu per què es retira.",
         "withdrawNote": "Per què es retira",
         "withdrawPlaceholder": "Havia avisat, error nostre",
+        "withdrawPaused": "Sense connexió. La retirada espera aquí i sortirà quan torni la xarxa: no tanquis la pantalla.",
         "withdrawnOn": "Retirat el {{dia}}"
       },
       "avis": {

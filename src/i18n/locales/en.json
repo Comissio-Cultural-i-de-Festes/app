@@ -930,6 +930,7 @@
         "withdrawSure": "The warning stays on the sheet, struck through, and any points it took come back as a new line in the ledger. Write why it is being withdrawn.",
         "withdrawNote": "Why it is withdrawn",
         "withdrawPlaceholder": "They had told us, our mistake",
+        "withdrawPaused": "No connection. The withdrawal waits here and will go when the network is back: keep this screen open.",
         "withdrawnOn": "Withdrawn on {{dia}}"
       },
       "avis": {

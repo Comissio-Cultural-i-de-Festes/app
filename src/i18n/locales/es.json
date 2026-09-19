@@ -930,6 +930,7 @@
         "withdrawSure": "El aviso se queda en la ficha, tachado, y si restó puntos se devuelven con una línea nueva en el registro. Escribe por qué se retira.",
         "withdrawNote": "Por qué se retira",
         "withdrawPlaceholder": "Había avisado, error nuestro",
+        "withdrawPaused": "Sin conexión. La retirada espera aquí y saldrá cuando vuelva la red: no cierres la pantalla.",
         "withdrawnOn": "Retirado el {{dia}}"
       },
       "avis": {

@@ -1,4 +1,5 @@
 import { zonedDayStart } from '@/i18n/format'
+import { IN_PROGRESS_MS } from '@/lib/eventEnd'
 import type { Answer, AttendanceState } from '@/lib/model'
 import type { AttendanceTable, EventRow } from '@/lib/schema'
 import { DbError, unwrapAs } from '@/lib/db'
@@ -48,9 +49,11 @@ const HOUR_MS = 3_600_000
  * halfway through it and is replaced by whatever comes in October, which is
  * the one moment the app is most likely to be open. Rounded to the hour so the
  * boundary is a stable cache key rather than a new one every render.
+ *
+ * Les sis hores viuen a `@/lib/eventEnd` i no aquí, que és on van néixer:
+ * aquesta és la pregunta «què ve ara» i allà hi ha la inversa, «ja s'ha
+ * acabat», que quatre pantalles es feien cadascuna pel seu compte.
  */
-export const IN_PROGRESS_MS = 6 * HOUR_MS
-
 export function horizonIso(now: number = Date.now()): string {
   return new Date(Math.floor((now - IN_PROGRESS_MS) / HOUR_MS) * HOUR_MS).toISOString()
 }

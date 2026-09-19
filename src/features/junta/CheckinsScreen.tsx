@@ -59,6 +59,7 @@ export function CheckinsScreen() {
         to={`/junta/esdeveniment/${eventId}`}
         label={event.data?.titulo ?? t('actions.back')}
         title={t('junta.checkins.title')}
+        className="lg:hidden"
       />
 
       <p className={`pt-7 text-sm text-fg-secondary [text-wrap:pretty] ${GUTTER}`}>
@@ -96,7 +97,7 @@ export function CheckinsScreen() {
                 onClick={() => {
                   undo.mutate(r.user_id)
                 }}
-                className="min-h-[44px] flex-none px-3 text-sm font-bold text-[var(--ds-warning)] disabled:opacity-50"
+                className="min-h-[44px] flex-none px-3 text-sm font-bold text-warning disabled:opacity-50"
               >
                 {t('junta.checkins.undo')}
               </button>

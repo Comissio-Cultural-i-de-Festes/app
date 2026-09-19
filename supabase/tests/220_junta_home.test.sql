@@ -7,7 +7,7 @@
 -- to decide.
 
 begin;
-select plan(16);
+select plan(18);
 
 reset role;
 
@@ -202,6 +202,37 @@ select is(
   (public.junta_home()->'porta'->>'no_pagats')::int,
   0,
   'a una activitat sense preu no hi ha ningu que no hagi pagat'
+);
+
+-- I EL QUE NO CANVIA. Posar el preu a zero no esborra res: una activitat pot
+-- passar de gratuita a de pagament i tornar enrere amb la gent ja apuntada, i
+-- el que algu hagi cobrat abans no s'ha de perdre perque avui no es pregunti.
+-- Si aixo peta, la condicio ha deixat de ser una condicio i ha passat a ser un
+-- `update`.
+--
+-- Es compta sense persona al davant a posta: el que es prova es la taula, no
+-- que un soci la pugui llegir, i amb `junta_alfa` el numero passaria igual
+-- pel cami de la politica.
+reset role;
+
+select is(
+  (select count(*)::int from public.attendances
+    where event_id = (select avui from who) and pagado),
+  2,
+  'els qui ja havien pagat hi continuen sent, encara que ara no es comptin'
+);
+
+-- I el dia que l'activitat passa a tenir preu, el numero torna sol. Es la
+-- cara que fa que la condicio no es pugui substituir per esborrar el camp.
+reset role;
+update public.events set precio_cents = 1500 where id = (select avui from who);
+
+select tests.authenticate_as('junta_alfa');
+
+select is(
+  (public.junta_home()->'porta'->>'no_pagats')::int,
+  1,
+  'i el dia que te preu, qui no ha pagat torna a sortir sense tocar cap fila'
 );
 
 select * from finish();

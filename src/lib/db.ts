@@ -7,14 +7,45 @@ import type { PostgrestError } from '@supabase/supabase-js'
  * forgotten `if (error)` reads as an empty result — a leaderboard with nobody
  * in it, a home screen with no events. Every query goes through here so a
  * failure is a failure and the screens can show it.
+ *
+ * `code` ÉS `string` PER AL COMPILADOR I POT NO ARRIBAR MAI. El tipus de
+ * supabase-js el declara obligatori, però el que hi posa és el que venia al
+ * cos de la resposta, i un 500 de la passarel·la —o qualsevol cosa que
+ * contesti abans que PostgREST— no en porta cap. Aleshores això valia
+ * `undefined` i `errorKey()` petava a `code.startsWith('PGRST')`: la pantalla
+ * sencera queia a la pantalla de «alguna cosa s'ha trencat» just quan hauria
+ * d'haver ensenyat una frase. Que un error trenqui l'app és exactament el
+ * camí que no es prova mai.
+ *
+ * La cadena buida i no un codi inventat: no coincideix amb cap branca, o sigui
+ * que `errorKey()` acaba a `errors.network`, que és el que una resposta sense
+ * codi de Postgres vol dir de debò.
  */
 export class DbError extends Error {
   readonly code: string
 
+  /**
+   * El token que un refús de negoci es posa per nom.
+   *
+   * `raise ... using hint = 'avis_sostre'` omple el camp HINT de l'error, i
+   * PostgREST el reenvia tal qual al cos de la resposta —comprovat contra la
+   * passarel·la, no deduït—. Serveix per a la cosa que el codi sol no sap dir:
+   * `avisa()` té set refusos diferents i tots set són 22023, o sigui que pel
+   * codi són el mateix error i la pantalla no pot contestar cap dels dos que
+   * tenen remei. El missatge també hi arriba, i no s'hi mira: és prosa
+   * catalana d'una migració, i una frase es reescriu sense pensar que algú la
+   * comparava.
+   *
+   * Cadena buida quan no n'hi ha, pel mateix motiu que `code`: no coincideix
+   * amb cap entrada i el classificador continua avall.
+   */
+  readonly hint: string
+
   constructor(error: PostgrestError) {
     super(error.message)
     this.name = 'DbError'
-    this.code = error.code
+    this.code = error.code ?? ''
+    this.hint = error.hint ?? ''
   }
 }
 

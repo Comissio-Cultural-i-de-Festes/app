@@ -1,4 +1,4 @@
-import { IN_PROGRESS_MS } from '@/features/home/api'
+import { endOfEvent } from '@/lib/eventEnd'
 
 /**
  * Quan es pot fitxar.
@@ -26,8 +26,7 @@ export interface Window {
 
 export function checkinWindow(startsAt: string, endsAt: string | null): Window {
   const starts = new Date(startsAt).getTime()
-  const ends = endsAt === null ? starts + IN_PROGRESS_MS : new Date(endsAt).getTime()
-  return { opens: starts - OPENS_BEFORE_MS, closes: ends + CLOSES_AFTER_MS }
+  return { opens: starts - OPENS_BEFORE_MS, closes: endOfEvent(startsAt, endsAt) + CLOSES_AFTER_MS }
 }
 
 export function isOpen(w: Window, now: number): boolean {

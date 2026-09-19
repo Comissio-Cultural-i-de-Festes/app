@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { warmDecoder } from '@/features/door/decoder'
-import { horizonIso } from '@/features/home/api'
 import { fetchPeriods, rankingKeys } from '@/features/ranking/api'
 import { useMyProfile } from '@/features/session/useMyProfile'
 import {
@@ -19,11 +18,14 @@ import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { eventTitle } from '@/features/event/title'
 
-import { fetchJuntaEvents, juntaEventKeys } from './eventsApi'
+import { avisosKeys, fetchAvisComptes } from './avisosApi'
+import { compta, quantsPassen } from './avisosCompte'
+import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
 import { fetchHoresPendents, horesKeys } from './horesApi'
 import { fetchMeetings, meetingListKeys } from './meetingsApi'
 import { JuntaHeader } from './JuntaHeader'
+import { useLlindar } from './useLlindar'
 
 /**
  * The junta's front door.
@@ -56,7 +58,7 @@ export function JuntaHome() {
 
   const home = useQuery({ queryKey: juntaHomeKeys.home(), queryFn: fetchJuntaHome })
 
-  const horizon = horizonIso()
+  const horizon = juntaHorizonIso()
   const events = useQuery({
     queryKey: juntaEventKeys.list(horizon),
     queryFn: () => fetchJuntaEvents(horizon),
@@ -80,6 +82,21 @@ export function JuntaHome() {
   const pendents = useQuery({ queryKey: horesKeys.pendents(), queryFn: fetchHoresPendents })
   const perVisar = pendents.data?.activitats ?? 0
 
+  // Qui ha passat el llindar de gravetat aquest curs. L'issue demanava «una
+  // entrada a /junta perquè algú ho miri», i la paraula important és MIRI: no
+  // dona de baixa ningú, no bloqueja res, no envia res. Porta a la llista de
+  // socis, que és on hi ha la marca al costat del nom i el botó de debò.
+  //
+  // Amb el llindar a zero —la sortida que la junta té per apagar-ho— no en surt
+  // cap, i llavors la fila no hi és, com les altres d'aquest bloc.
+  const { llindar, des_de, fins_a, llest } = useLlindar()
+  const comptes = useQuery({
+    queryKey: avisosKeys.comptes(des_de),
+    queryFn: () => fetchAvisComptes(des_de),
+    enabled: llest,
+  })
+  const marcats = quantsPassen(compta(comptes.data ?? [], des_de, fins_a), llindar)
+
   // Fetched here rather than at the door: this screen is opened on the way to
   // the venue, and the scanner is opened inside it, where there is no signal.
   useEffect(() => {
@@ -91,7 +108,12 @@ export function JuntaHome() {
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+24px)]">
-      <JuntaHeader to="/perfil" label={t('nav.profile')} title={t('junta.title')} />
+      <JuntaHeader
+        to="/perfil"
+        label={t('nav.profile')}
+        title={t('junta.title')}
+        className="lg:hidden"
+      />
 
       {home.isPending ? (
         <DoorLoading />
@@ -109,7 +131,7 @@ export function JuntaHome() {
         aside={
           home.data === undefined
             ? undefined
-            : t('junta.home.workCount', { count: workCount(home.data, porta) })
+            : t('junta.home.workCount', { count: workCount(home.data, porta, marcats) })
         }
         amber
       />
@@ -125,12 +147,12 @@ export function JuntaHome() {
           <button
             type="button"
             onClick={() => void home.refetch()}
-            className="min-h-[44px] flex-none border-[1.5px] border-[var(--ds-warning)] px-4 text-sm font-bold text-[var(--ds-warning)]"
+            className="min-h-[44px] flex-none border-[1.5px] border-warning px-4 text-sm font-bold text-warning"
           >
             {t('actions.retry')}
           </button>
         </div>
-      ) : workCount(home.data, porta) === 0 ? (
+      ) : workCount(home.data, porta, marcats) === 0 ? (
         <div className={`pt-6 ${GUTTER}`}>
           <p className="text-md font-bold">{t('junta.home.workNone')}</p>
           <p className="mt-2 text-sm text-fg-muted [text-wrap:pretty]">
@@ -171,6 +193,14 @@ export function JuntaHome() {
               sub={t('junta.home.draftsSub')}
             />
           )}
+          {marcats === 0 ? null : (
+            <Count
+              to="/junta/socis"
+              n={marcats}
+              title={t('junta.home.avisos', { count: marcats })}
+              sub={t('junta.home.avisosSub', { total: llindar })}
+            />
+          )}
         </div>
       )}
 
@@ -209,18 +239,12 @@ export function JuntaHome() {
           to="/junta/hores"
           title={t('junta.hores.title')}
           sub={
-            perVisar > 0
-              ? t('junta.hores.rowWork', { count: perVisar })
-              : t('junta.hores.rowSub')
+            perVisar > 0 ? t('junta.hores.rowWork', { count: perVisar }) : t('junta.hores.rowSub')
           }
           warn={perVisar > 0}
           badge={perVisar}
         />
-        <Row
-          to="/junta/rols"
-          title={t('junta.roles.title')}
-          sub={t('junta.roles.rowSub')}
-        />
+        <Row to="/junta/rols" title={t('junta.roles.title')} sub={t('junta.roles.rowSub')} />
         <Row to="/junta/idees" title={t('ideas.juntaTitle')} sub={t('junta.home.proposalsSub')} />
         <Row
           to="/junta/tauler"
@@ -251,7 +275,7 @@ export function JuntaHome() {
         <CalendarSkeleton />
       ) : events.isError ? (
         <div className={`pt-6 ${GUTTER}`}>
-          <p role="alert" className="text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]">
+          <p role="alert" className="text-md font-bold text-warning [text-wrap:pretty]">
             {t('junta.home.soonFailed')}
           </p>
           <p className="mt-2 text-sm text-fg-muted [text-wrap:pretty]">
@@ -260,7 +284,7 @@ export function JuntaHome() {
           <button
             type="button"
             onClick={() => void events.refetch()}
-            className="mt-5 min-h-[46px] border-[1.5px] border-[var(--ds-warning)] px-5 text-md font-bold text-[var(--ds-warning)]"
+            className="mt-5 min-h-[46px] border-[1.5px] border-warning px-5 text-md font-bold text-warning"
           >
             {t('actions.retry')}
           </button>
@@ -335,17 +359,26 @@ export function JuntaHome() {
   )
 }
 
-/** How many separate things are asking to be done. */
+/**
+ * How many separate things are asking to be done.
+ *
+ * ELS MARCATS PEL LLINDAR HI SUMEN, i no és un detall de recompte: sense
+ * això, un dia en què l'única feina fos «algú ha passat el llindar» el bloc
+ * diria «Res a fer» i la fila no es dibuixaria, perquè el bloc sencer es
+ * decideix amb aquest número. La fila hi entra com les altres cinc.
+ */
 function workCount(
   data: { readonly pendents: number; readonly esborranys: number },
   porta: DoorNow | null,
+  marcats = 0,
 ): number {
   return (
     data.pendents +
     data.esborranys +
     (porta?.esperen ?? 0) +
     (porta?.no_pagats ?? 0) +
-    (porta?.gimcana_cua ?? 0)
+    (porta?.gimcana_cua ?? 0) +
+    marcats
   )
 }
 
@@ -485,7 +518,7 @@ function DoorFailed({ onRetry }: { readonly onRetry: () => void }) {
   const { t } = useTranslation()
   return (
     <section className="border-b border-surface-5 bg-surface-1 px-[var(--ds-gutter)] py-9">
-      <p role="alert" className="text-lg font-bold text-[var(--ds-warning)] [text-wrap:balance]">
+      <p role="alert" className="text-lg font-bold text-warning [text-wrap:balance]">
         {t('junta.home.doorFailed')}
       </p>
       <p className="mt-4 text-base text-fg-secondary [text-wrap:pretty]">
@@ -495,7 +528,7 @@ function DoorFailed({ onRetry }: { readonly onRetry: () => void }) {
         <button
           type="button"
           onClick={onRetry}
-          className="min-h-[50px] flex-1 border-[1.5px] border-[var(--ds-warning)] px-6 text-md font-bold text-[var(--ds-warning)]"
+          className="min-h-[50px] flex-1 border-[1.5px] border-warning px-6 text-md font-bold text-warning"
         >
           {t('actions.retry')}
         </button>
@@ -597,7 +630,7 @@ function Heading({
           className={
             display
               ? 'display text-d-sm leading-none tracking-[-0.045em]'
-              : `eyebrow ${amber ? 'text-[var(--ds-warning)]' : 'text-fg-muted'}`
+              : `eyebrow ${amber ? 'text-warning' : 'text-fg-muted'}`
           }
         >
           {title}
@@ -629,7 +662,7 @@ function Count({
 }) {
   return (
     <Link to={to} className={`${ROW} min-h-[64px]`}>
-      <span className="display tabular min-w-[50px] flex-none text-d-s leading-[0.9] tracking-[-0.05em] text-[var(--ds-warning)]">
+      <span className="display tabular min-w-[50px] flex-none text-d-s leading-[0.9] tracking-[-0.05em] text-warning">
         {n}
       </span>
       <span className="min-w-0 flex-1">
@@ -663,16 +696,14 @@ function Row({
         <span
           className={
             'mt-[3px] block text-sm-lo [text-wrap:pretty] ' +
-            (warn ? 'text-[var(--ds-warning)]' : 'text-[var(--ds-text-muted-lo)]')
+            (warn ? 'text-warning' : 'text-[var(--ds-text-muted-lo)]')
           }
         >
           {sub}
         </span>
       </span>
       {badge === undefined || badge === 0 ? null : (
-        <span className="tabular flex-none text-md font-bold text-[var(--ds-warning)]">
-          {badge}
-        </span>
+        <span className="tabular flex-none text-md font-bold text-warning">{badge}</span>
       )}
       <Chevron />
     </Link>

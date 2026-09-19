@@ -134,7 +134,9 @@
     "notFound": "Això ja no hi és.",
     "notAnImage": "Aquesta foto no la sé llegir. Prova amb una altra, o fes-la des de la càmera.",
     "rateLimited": "Massa intents seguits. Espera un parell de minuts i torna-hi.",
-    "behindServer": "Això encara no hi és al servidor: l'app s'ha actualitzat abans que la base de dades. Si ets de la junta, apuja les migracions; si no, avisa'ls."
+    "behindServer": "Això encara no hi és al servidor: l'app s'ha actualitzat abans que la base de dades. Si ets de la junta, apuja les migracions; si no, avisa'ls.",
+    "avisSostre": "Aquest curs ja s'han restat a aquesta persona tots els punts que el sostre permet. Puja «Màxim de punts per curs» a El barem, o registra l'avís sense punts.",
+    "avisForaDelCurs": "Avui no cau dins de cap curs, i sense curs no hi ha cap sostre a comptar. Obre el curs a «Els períodes del rànquing», o registra l'avís sense punts."
   },
   "escola": {
     "politecnica": "Politècnica",
@@ -704,6 +706,7 @@
     "payments": {
       "title": "Pagaments i junta",
       "pickEvent": "De quin esdeveniment",
+      "pickPrompt": "Tria un esdeveniment",
       "whoPaid": "Qui ha pagat",
       "whoComes": "Qui ve",
       "ofSignedUp_one": "d'{{count}} apuntat",
@@ -716,6 +719,7 @@
       "paid": "Pagat",
       "pending": "Pendent",
       "nobody": "Encara no s'hi ha apuntat ningú. Quan diguin que sí sortiran aquí.",
+      "notInList": "Aquest esdeveniment ja no surt a la llista de la junta. Tria'n un del selector de dalt.",
       "chaseThem": "Els que no han pagat el divendres al matí, avisa'ls tu al privat. Al grup no funciona.",
       "whoRuns": "Qui manega això",
       "queue_one": "Llista d'espera · {{count}}",
@@ -726,6 +730,7 @@
       "requestsSub": "Ningú en té cap fins que li dius que sí. Els que no confirmis es queden esperant, no els dius que no.",
       "confirmIn": "Que entri",
       "refuse": "Aquest cop no",
+      "refuseSure": "Si dius que no, {{nombre}} surt de la llista i no hi torna. Confirmar-ho no li envia res.",
       "noRoomLeft": "No queden places. Si en vols encabir un més, puja el límit al formulari de l'esdeveniment.",
       "gone": "Aquesta persona ja no ho demana."
     },
@@ -833,7 +838,12 @@
         "newHint": "La clau és el nom intern i no es pot canviar després; en minúscules i amb guions baixos. L'etiqueta és el que llegirà la gent si la clau no té traducció.",
         "newClau": "Clau, p. ex. se_en_va_aviat",
         "newEtiqueta": "Etiqueta",
-        "newCta": "Afegir el tipus"
+        "newCta": "Afegir el tipus",
+        "gravetatBad": "La gravetat va de {{min}} a {{max}}.",
+        "puntsBad": "Un número enter entre -{{max}} i 0: un avís no dona punts.",
+        "clauBad": "En minúscules, sense accents ni espais, començant per lletra. Els talls van amb guió baix.",
+        "clauTaken": "Aquesta clau ja és al catàleg.",
+        "added": "Afegit: {{clau}}."
       },
       "periods": {
         "title": "Els períodes del rànquing",
@@ -877,12 +887,21 @@
       "bringBack": "Torna a activar",
       "lede": "Qui ha marxat, qui torna. Donar de baixa no esborra res: la persona deixa d'entrar a l'app i el que va fer segueix comptant a la història.",
       "rowSub": "{{count}} persones. Donar de baixa qui ha marxat",
-      "rowSubPlain": "Donar de baixa qui ha marxat"
+      "rowSubPlain": "Donar de baixa qui ha marxat",
+      "avisos_one": "{{count}} avís",
+      "avisos_other": "{{count}} avisos",
+      "avisosGravetat": "gravetat {{total}}",
+      "avisosFlag": "Per mirar"
     },
     "soci": {
+      "backLabel": "La seva fitxa",
+      "publicProfile": "Veure el seu perfil",
+      "publicProfileSub": "El que qualsevol soci veu d'ell.",
       "ledger": {
         "title": "El registre de punts",
-        "total": "Total: {{total}}",
+        "total": "Total de sempre: {{total}}",
+        "totalSub": "És la suma de totes les línies. El rànquing compta per períodes, i allà el número pot ser un altre.",
+        "totalCapped": "Només hi caben les últimes {{linies}} línies, i el total és el d'aquestes.",
         "empty": "Encara no té cap punt."
       },
       "adjust": {
@@ -900,7 +919,46 @@
         "eventHint": "Opcional. Sense esdeveniment també és una línia vàlida.",
         "eventNone": "De cap en concret",
         "save": "Desa l'ajust",
+        "paused": "Sense connexió. L'ajust espera aquí i sortirà quan torni la xarxa: no tanquis la pantalla.",
         "done": "Apuntat: {{punts}} per a {{nombre}}."
+      },
+      "avisos": {
+        "title": "Els avisos",
+        "live_one": "{{count}} viu",
+        "live_other": "{{count}} vius",
+        "empty": "Cap avís. Que duri.",
+        "withdraw": "Retira l'avís",
+        "withdrawSure": "L'avís es queda a la fitxa, ratllat, i si va restar punts es tornen amb una línia nova al registre. Escriu per què es retira.",
+        "withdrawNote": "Per què es retira",
+        "withdrawPlaceholder": "Havia avisat, error nostre",
+        "withdrawPaused": "Sense connexió. La retirada espera aquí i sortirà quan torni la xarxa: no tanquis la pantalla.",
+        "withdrawnOn": "Retirat el {{dia}}"
+      },
+      "avis": {
+        "title": "Registra un avís",
+        "lede": "Queda escrit i no s'esborra mai. Pot restar punts o no: es pot avisar sense tocar el rànquing.",
+        "tipus": "Què ha passat",
+        "tipusHint": "El catàleg es toca a «El barem».",
+        "tipusNone": "Tria'n un",
+        "gravetatIs": "Gravetat: {{gravetat}}",
+        "punts": "Punts",
+        "puntsHint": "Surten del catàleg i es poden canviar. Zero vol dir un avís que no toca el rànquing.",
+        "puntsBad": "Un número enter entre -{{max}} i 0.",
+        "note": "Per què",
+        "noteHint": "Obligatori. Ho llegirà {{nombre}} al seu perfil.",
+        "notePlaceholder": "No va venir al muntatge que havia dit que faria",
+        "noteBad": "Un avís sense motiu escrit no es pot desar.",
+        "event": "De quina nit",
+        "eventHint": "Opcional. Si va ser en una reunió de junta, l'avís s'hi queda i els punts hi van sense esdeveniment.",
+        "eventNone": "De cap en concret",
+        "save": "Registra l'avís",
+        "sureTitle": "Abans de registrar-lo",
+        "surePoints": "Es restaran {{punts}} punts a {{nombre}} i li baixarà la posició al rànquing.",
+        "sureNoPoints": "No es restarà cap punt: {{nombre}} no es mourà del rànquing.",
+        "sureSeen": "{{nombre}} ho veurà al seu perfil amb el motiu que has escrit, i la fila no s'esborra mai.",
+        "sureCta": "Sí, registra'l",
+        "paused": "Sense connexió. Es registrarà tot sol quan torni.",
+        "done": "Registrat: {{tipus}} per a {{nombre}}."
       }
     },
     "role": {
@@ -996,9 +1054,9 @@
         "set_hores": "{{actor}} ha canviat les hores d'una activitat",
         "visa_hores": "{{actor}} ha visat les hores d'una activitat",
         "hores_persona": "{{actor}} ha canviat les hores d'algú en una activitat",
-        "reveal_push": "S'ha enviat l'avís d'una revelació",
-        "avis": "{{actor}} ha registrat un avís a algú",
-        "retira_avis": "{{actor}} ha retirat un avís",
+        "reveal_push": "S'ha enviat la notificació d'una revelació",
+        "avis": "{{actor}} ha registrat un avís a {{target}}",
+        "retira_avis": "{{actor}} ha retirat un avís a {{target}}",
         "set_avis_tipus": "{{actor}} ha canviat el catàleg d'avisos"
       },
       "rowSub": "Qui ha fet què"
@@ -1038,6 +1096,9 @@
       "drafts_one": "esborrany sense publicar",
       "drafts_other": "esborranys sense publicar",
       "draftsSub": "Feina feta que encara no serveix de res",
+      "avisos_one": "ha passat el llindar d'avisos",
+      "avisos_other": "han passat el llindar d'avisos",
+      "avisosSub": "Gravetat {{total}} o més aquest curs. Només per mirar-s'ho",
       "now": "El que passa ara",
       "soon": "Els que venen",
       "soonCount": "{{count}} al calendari",
@@ -1084,6 +1145,10 @@
       },
       "points": {
         "title": "D’on surten els punts",
+        "notSources": "No són punts guanyats",
+        "cases_one": "{{count}} cas",
+        "cases_other": "{{count}} casos",
+        "notSourcesNote": "Resten o es compensen, i per això queden fora del gràfic. Un avís retirat surt a zero: hi va ser i no ha costat res.",
         "action": "→ Muntar i portar gent són punts fàcils de repartir al gener: anuncieu-los abans de cada pla."
       },
       "limits": {
@@ -1405,6 +1470,11 @@
       "mal_gest": "Mal gest",
       "va_deixar_ho": "Ho va deixar malament",
       "greu": "Greu"
+    },
+    "gravetat": {
+      "1": "Lleu",
+      "2": "Greu",
+      "3": "Molt greu"
     }
   },
   "nav": {
@@ -1452,11 +1522,12 @@
       "label": "Instagram",
       "placeholder": "elteucompte",
       "why": "Perquè et puguin seguir. Aquest sí que surt al teu perfil i el veuen els altres socis.",
-      "invalid": "Això no és un nom d'usuari. Només lletres, xifres, punt i guió baix."
+      "invalid": "Això no és un nom d'usuari. Només lletres, xifres, punt i guió baix, i sense l'adreça sencera."
     },
     "cta": {
       "ready": "Entrar",
-      "pickSchool": "Tria l'escola i entres"
+      "pickSchool": "Tria l'escola i entres",
+      "fix": "Repassa el telèfon o l'Instagram"
     },
     "later": "Tot això ho pots canviar després al teu perfil."
   },
@@ -1561,6 +1632,7 @@
       "label": "Com et dius",
       "hint": "Com et diuen de debò, no un àlies: la junta t'ha de trobar a la llista de pagaments.",
       "saved": "Desat",
+      "waiting": "Sense cobertura. Es desa sol quan torni la xarxa: no cal que ho tornis a prémer.",
       "everywhere": "Es veurà a tot arreu de seguida."
     },
     "instagram": {
@@ -1591,6 +1663,11 @@
     },
     "history": {
       "title": "L'últim que has fet"
+    },
+    "avisos": {
+      "title": "Els teus avisos",
+      "lede": "El que la junta ha registrat aquest curs i per què. Un de ratllat és un avís retirat: ja no compta.",
+      "withdrawn": "Retirat"
     },
     "settings": {
       "title": "Ajustos",
@@ -1663,8 +1740,10 @@
       "body": "Un perfil deixa de veure's quan algú deixa la comi. El que va fer es queda al registre de la junta."
     },
     "isYou": "Ets tu",
-    "instagram": "Segueix-lo a Instagram",
+    "instagram": "Perfil d'Instagram",
     "footer": "Això és el que qualsevol soci veu de tu. El telèfon i les fotos de sortida no hi surten.",
+    "juntaSheet": "El seu registre de punts",
+    "juntaSheetSub": "Llibre major, ajustos i avisos. Només ho veu la junta.",
     "standing": {
       "hidden": "Ha demanat no sortir al rànquing, així que els seus punts no es diuen aquí."
     },
@@ -1790,7 +1869,7 @@
     "notes": "Alguna cosa més",
     "notesPlaceholder": "Si fumes al cotxe, si el maleter va ple, si tornes diumenge a la tarda… quatre paraules.",
     "phoneNote": "Veuràs el telèfon de qui hi pugi, per si t'has d'esperar cinc minuts. Ells no veuen el teu.",
-      "phoneToDriver": "Si hi puges, el conductor veurà el teu telèfon per si s'ha d'esperar. La resta de passatgers, no.",
+    "phoneToDriver": "Si hi puges, el conductor veurà el teu telèfon per si s'ha d'esperar. La resta de passatgers, no.",
     "offerCta": "Ofereix el cotxe",
     "pointsLater": "Els {{points}} són per la gent que puges, i te'ls posem quan torneu.",
     "onlyOne": "De moment n'hi ha un. Ja n'apareixeran més, però aquest ja hi va segur.",
@@ -1837,6 +1916,7 @@
     "okWalkin": "No estava apuntat, però endavant",
     "okWalkinReview": "Entra, però no estava apuntat ni ha pagat",
     "okWalkinReviewFree": "Entra, però no estava apuntat",
+    "okWalkinReviewUnknown": "Entra, però no estava apuntat. Mira si l’activitat es paga",
     "alreadyCheckedIn": "Aquest QR ja s'ha fet servir",
     "notAMember": "Aquest QR no és de la comi",
     "memberInactive": "Encara no està donat d'alta",
@@ -1847,6 +1927,7 @@
       "okWalkin": "No estava apuntat. Ja consta que ha vingut.",
       "okWalkinReview": "Mira que pagui abans d’entrar, o apunta-ho.",
       "okWalkinReviewFree": "Hi ha places comptades. Apunta-ho perquè el número quadri.",
+      "okWalkinReviewUnknown": "Apunta-ho perquè la junta ho pugui quadrar.",
       "alreadyCheckedIn": "Ja havia passat. Si insisteix, mira-ho a l’alta manual.",
       "notAMember": "Que et digui el nom i el busques a mà. No el deixis passar sense apuntar-lo.",
       "memberInactive": "Que demani entrar. L’aproveu demà des de la zona junta.",

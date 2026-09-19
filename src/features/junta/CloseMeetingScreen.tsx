@@ -106,7 +106,12 @@ export function CloseMeetingScreen() {
   if (e === null || e === undefined) {
     return (
       <main className="min-h-dvh bg-app">
-        <JuntaHeader to="/junta" label={t('junta.back')} title={t('meeting.closeTitle')} />
+        <JuntaHeader
+          to="/junta"
+          label={t('junta.back')}
+          title={t('meeting.closeTitle')}
+          className="lg:hidden"
+        />
         <p role="alert" className={`pt-8 text-md font-bold text-error ${GUTTER}`}>
           {t('errors.notFound')}
         </p>
@@ -132,7 +137,12 @@ export function CloseMeetingScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-14">
-      <JuntaHeader to="/junta" label={t('junta.back')} title={t('meeting.closeTitle')} />
+      <JuntaHeader
+        to="/junta"
+        label={t('junta.back')}
+        title={t('meeting.closeTitle')}
+        className="lg:hidden"
+      />
 
       <div className={`pt-8 ${GUTTER}`}>
         <p className="eyebrow-sm text-fg-muted">{formatDateTime(new Date(e.starts_at), locale)}</p>

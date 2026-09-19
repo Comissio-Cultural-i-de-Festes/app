@@ -112,7 +112,11 @@ export function GimcanaFormScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-10">
-      <JuntaHeader to={`/junta/esdeveniment/${id}`} label={t('junta.gimcana.leave')} />
+      <JuntaHeader
+        to={`/junta/esdeveniment/${id}`}
+        label={t('junta.gimcana.leave')}
+        className="lg:hidden"
+      />
 
       <div className={GUTTER}>
         <h1 className="display text-d-s tracking-[-0.045em]">{t('gimcana.title')}</h1>

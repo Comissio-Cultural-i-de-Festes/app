@@ -49,7 +49,7 @@ export function TransferBlock({ admins }: { readonly admins: readonly RoleRow[] 
       setChosen(null)
       setAgreed(false)
       setOpen(false)
-      await client.invalidateQueries({ queryKey: profileKeys.me(userId) })
+      await client.invalidateQueries({ queryKey: profileKeys.of(userId) })
       await client.invalidateQueries({ queryKey: roleKeys.admins() })
       await client.invalidateQueries({ queryKey: roleKeys.changes() })
       await client.invalidateQueries({ queryKey: memberKeys.list() })
@@ -111,7 +111,9 @@ export function TransferBlock({ admins }: { readonly admins: readonly RoleRow[] 
                   </span>
                 </span>
                 <span className="flex-none text-md font-bold text-brand-label">
-                  {chosen?.id === row.id ? t('junta.roles.transfer.chosen') : t('junta.roles.transfer.choose')}
+                  {chosen?.id === row.id
+                    ? t('junta.roles.transfer.chosen')
+                    : t('junta.roles.transfer.choose')}
                 </span>
               </button>
             </li>

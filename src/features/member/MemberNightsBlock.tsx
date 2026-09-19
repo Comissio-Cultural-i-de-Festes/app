@@ -1,14 +1,16 @@
 import { useQuery } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
 
 import { formatDateLong } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { EventType } from '@/lib/model'
+import { NavRow, ROW } from '@/ui/Row/Row'
+import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
-import { fetchMemberNights, memberKeys } from './api'
-import { sortNights } from './nights'
+import { fetchMemberNights, sociKeys } from './api'
+import { pastNights, sortNights } from './nights'
 
 /**
  * A què ha vingut.
@@ -21,10 +23,22 @@ import { sortNights } from './nights'
  * que deia el comentari de `insideApi.ts` sobre «qui hi ha dins», i aquesta
  * consulta n'és literalment la girada.
  *
- * LES REUNIONS DE JUNTA NO HI SURTEN, i no hi ha cap `if` que ho faci: la
- * política les deixa fora abans que arribin aquí. Un filtre al client seria una
- * segona còpia d'aquella regla, i el dia que divergissin guanyaria la còpia
- * equivocada.
+ * LES REUNIONS DE JUNTA NO HI SURTEN, I SÍ QUE HI HA UN `if` QUE HO FA. Aquí hi
+ * deia el contrari —«la política les deixa fora abans que arribin aquí, i un
+ * filtre al client seria una segona còpia d'aquella regla»— i només era cert
+ * per a un soci ras. Per a algú de la junta no ho és: `att_select_admin` i
+ * `events_select_admin` li publiquen tota fila, a posta, i la reunió li sortia
+ * sencera i amb el títol. El filtre és a `fetchMemberNights` i el motiu és
+ * allà; aquí n'hi ha prou de saber que la llista que arriba ja és la pública.
+ * Qui ho comprova és `src/features/member/api.test.ts`, que passa per la
+ * consulta de debò, amb el control positiu al costat —la reunió de la comi amb
+ * la mateixa fila SÍ que hi surt—, i `supabase/tests/475_les_nits_del_perfil.test.sql`
+ * pel cantó del soci ras.
+ *
+ * EL FUTUR TAMPOC, i això sí que és un filtre al client: `pastNights`. No és
+ * una còpia de cap regla de la base, perquè la base no en té cap —
+ * `close_meeting()` escriu `asistio` sense mirar la data— i el criteri de què
+ * és «acabat» és el compartit de `@/lib/eventEnd`.
  *
  * NO HI HA FOTOS. Les de sortida de `/perfil/nits` són teves i es queden allà:
  * això és una llista d'on ha estat algú, no un àlbum seu.
@@ -32,13 +46,17 @@ import { sortNights } from './nights'
 export function MemberNightsBlock({ userId }: { readonly userId: string }) {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
+  // Congelat al muntatge, com fan `InsideScreen` i `EventScreen`: una llista
+  // que es retalla sola mentre la mires perquè un `Date.now()` nou ha creuat
+  // el tall és pitjor que una que es queda com estava fins que hi tornes.
+  const [now] = useState(() => Date.now())
 
   const nights = useQuery({
-    queryKey: memberKeys.nights(userId),
+    queryKey: sociKeys.nights(userId),
     queryFn: () => fetchMemberNights(userId),
   })
 
-  const rows = sortNights(nights.data ?? [])
+  const rows = sortNights(pastNights(nights.data ?? [], now))
 
   return (
     <section className="px-[var(--ds-gutter)] pt-12">
@@ -52,7 +70,17 @@ export function MemberNightsBlock({ userId }: { readonly userId: string }) {
       </div>
 
       {nights.isPending ? (
-        <p className="py-8 text-fg-muted">{t('state.loading')}</p>
+        // Files i no «Un segon…»: aquest és el bloc més alt de la pantalla i
+        // l'últim en arribar, o sigui el que decideix si el peu balla. Tres
+        // files és el que hi cap a la primera pantalla d'un mòbil.
+        <Skeleton className="mt-2">
+          {[0, 1, 2].map((i) => (
+            <span key={i} className={`${ROW} block`}>
+              <SkeletonBar w="w-[65%]" h="h-[13px]" />
+              <SkeletonBar w="w-[40%]" h="h-[11px]" className="mt-[6px]" />
+            </span>
+          ))}
+        </Skeleton>
       ) : nights.isError ? (
         <p role="alert" className="py-8 text-md font-bold text-error [text-wrap:pretty]">
           {t(errorKey(nights.error))}
@@ -63,25 +91,15 @@ export function MemberNightsBlock({ userId }: { readonly userId: string }) {
         <ul className="mt-2">
           {rows.map((night) => (
             <li key={night.event_id}>
-              <Link
+              {/* Sense títol vol dir que la revelació encara el tapa, i una
+                  activitat ja passada també hi pot ser —res no lliga `reveal_at`
+                  amb `starts_at`; vegeu `fetchMemberNights`. El nom del tipus
+                  és el que queda, i és millor que una fila muda. */}
+              <NavRow
                 to={`/esdeveniment/${night.event_id}`}
-                className="flex items-center gap-3 border-b border-surface-4 py-[15px] no-underline"
-              >
-                <span className="min-w-0 flex-1">
-                  {/* Sense títol vol dir que la revelació encara el tapa, cosa
-                      que a una activitat passada no passa —però una fila muda
-                      és pitjor que la mena de cosa que era. */}
-                  <span className="block text-base font-semibold text-fg [text-wrap:pretty]">
-                    {night.titol ?? t(`eventType.${night.tipo satisfies EventType}`)}
-                  </span>
-                  <span className="mt-[3px] block text-sm-lo text-[var(--ds-text-muted-lo)]">
-                    {formatDateLong(new Date(night.starts_at), locale)}
-                  </span>
-                </span>
-                <span aria-hidden="true" className="flex-none text-2xl text-brand-accent">
-                  ›
-                </span>
-              </Link>
+                title={night.titol ?? t(`eventType.${night.tipo satisfies EventType}`)}
+                sub={formatDateLong(new Date(night.starts_at), locale)}
+              />
             </li>
           ))}
         </ul>

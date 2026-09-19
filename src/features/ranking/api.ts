@@ -50,6 +50,40 @@ export function periodBounds(period: Period | null): Bounds {
 }
 
 /**
+ * La fila del curs: la mateixa que tria `private.periode_curs()`, per
+ * construcció i no per sort.
+ *
+ * NO ÉS `defaultPeriod`, I LA DIFERÈNCIA VA COSTAR DE VEURE. `defaultPeriod`
+ * és la primera fila per `ordre`, sigui quina sigui la seva `mena`: és una
+ * preferència de pantalla —quina pestanya surt oberta al rànquing— i la junta
+ * l'ha de poder moure. La finestra del sostre d'avisos i la del comptador
+ * d'avisos NO són una preferència: han de dir el mateix que
+ * `where mena = 'global' order by ordre, codi limit 1`, que és el que la base
+ * mira dins d'`avisa()`. Avui les dues coincideixen només perquè la fila
+ * sembrada `curs` és `global` i té `ordre` 0, i `admin_save_periods` no exigeix
+ * ni que existeixi cap fila `global` ni que vagi primera: només refusa dos
+ * `ordre` repetits. O sigui que un dia la junta podria posar un trimestre
+ * davant i el comptador de la pantalla es separaria del sostre de la base
+ * sense que res ho digués.
+ *
+ * SENSE CAP FILA `global` TORNA NULL, i no la primera que hi hagi. És el mateix
+ * que fa la funció de la base —sense fila, els dos límits són NULL i la
+ * finestra és oberta— i és millor que inventar-se un curs: qui ho llegeix ja
+ * sap distingir «no hi ha períodes configurats» de «el curs va d'aquí a aquí».
+ *
+ * L'EMPAT PER `codi` és el desempat de la funció. Amb dues files `global` amb
+ * el mateix `ordre` —que `admin_save_periods` no permet, però la taula sí—
+ * les dues bandes han de triar la mateixa, i el criteri ha de ser el mateix.
+ */
+export function cursPeriod(periods: readonly Period[] | undefined): Period | null {
+  const globals = (periods ?? []).filter((p) => p.mena === 'global')
+  if (globals.length === 0) return null
+  return globals.reduce((millor, p) =>
+    p.ordre < millor.ordre || (p.ordre === millor.ordre && p.codi < millor.codi) ? p : millor,
+  )
+}
+
+/**
  * Whether "this week" means anything for the selected period.
  *
  * Showing somebody how much they moved last week inside a term that ended in

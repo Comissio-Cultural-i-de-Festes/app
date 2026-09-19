@@ -5,6 +5,7 @@ import { fetchRanking, periodBounds, rankingKeys } from '@/features/ranking/api'
 import { defaultPeriod, usePeriods } from '@/features/ranking/useRanking'
 import { formatOrdinal } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
+import { errorKey } from '@/lib/errors'
 
 /**
  * Els punts i la posició d'aquesta persona, del rànquing i d'enlloc més.
@@ -24,8 +25,11 @@ import { toLocale } from '@/i18n/locales'
  *
  * QUI S'AMAGA DEL RÀNQUING NO HI SURT, I EL PERFIL S'OBRE IGUAL. `ranking_period()`
  * deixa fora tota fila amb `hide_from_ranking`, o sigui que no ser-hi és
- * exactament el senyal —no cal preguntar-ho a `profiles`, i tampoc es podria,
- * perquè no hi ha manera de distingir amagat d'absent des de fora. El criteri és
+ * exactament el senyal i no cal preguntar-ho a `profiles`. Preguntar-ho sí que
+ * es podria —el grant de `profiles` és de tota la taula i la columna es
+ * llegeix—, però seria una segona font per a la mateixa decisió, i la que mana
+ * és la funció: qui no surt de `ranking_period()` no surt, amagat o donat de
+ * baixa o encara sense punts, i el bloc els tracta igual a tots tres. El criteri és
  * el de `badge_holders()`: la persona compta i el número no es diu. L'altra
  * opció era que la ruta no obrís, i vol dir que no poder sortir al rànquing
  * passa a ser també no poder ser conegut.
@@ -41,6 +45,27 @@ export function MemberStandingBlock({ userId }: { readonly userId: string }) {
     queryFn: () => fetchRanking(bounds),
     enabled: periods.isSuccess,
   })
+
+  // UN ERROR NO ÉS UN ZERO, i aquesta és la distinció que la primera versió no
+  // feia: amb una sola sortida per a «encara no ha arribat» i «ha petat», un
+  // 500 del rànquing deixava la pantalla sense bloc, i el que el soci llegia
+  // era «no té posició» —una frase falsa i indistingible de la certa. Per això
+  // l'error surt, i surt abans que res.
+  //
+  // Les dues consultes en un sol avís perquè per a qui mira són una sola cosa:
+  // sense períodes no hi ha rànquing —`enabled` el deixa aturat, o sigui
+  // «pendent» per sempre— i dos avisos per la mateixa xifra seria dir-ho dues
+  // vegades.
+  if (periods.isError || ranking.isError) {
+    return (
+      <p
+        role="alert"
+        className="px-[var(--ds-gutter)] pt-8 text-md font-bold text-error [text-wrap:pretty]"
+      >
+        {t(errorKey(periods.error ?? ranking.error))}
+      </p>
+    )
+  }
 
   // Mentre no hi hagi resposta no hi ha bloc. Un esquelet de dos números entre
   // la capçalera i la ratxa parpellejaria a cada obertura per una xifra que no

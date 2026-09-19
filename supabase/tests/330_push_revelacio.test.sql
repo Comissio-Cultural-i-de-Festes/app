@@ -142,6 +142,21 @@ select ok(
 reset role;
 
 -- ── el paquet que la funció rebrà ───────────────────────────────────────────
+-- LA TAULA NO ESTÀ BUIDA I NO ES POT SUPOSAR QUE HO ESTIGUI. Les dues
+-- assercions de sota compten subscripcions d'una persona concreta, i qui
+-- escriu aquí no és només aquest fitxer: la suite d'RLS desa subscripcions de
+-- debò per la RPC i no desfà res, així que en una base que fa dies que corre
+-- l'Alfa ja en té alguna d'abans d'arribar-hi. Es notava com un `have: 2,
+-- want: 1` que a CI no surt mai, perquè allà la base neix a cada execució.
+--
+-- Es buiden les dues persones d'aquest cas, i prou: som dins de la transacció
+-- del fitxer, que acaba en `rollback`, o sigui que no s'emporta res de ningú.
+delete from public.push_subscription
+where user_id in (
+  '00000000-0000-4000-8000-000000000001',
+  '00000000-0000-4000-8000-000000000002'
+);
+
 insert into public.push_subscription (endpoint, user_id, p256dh, auth)
 values
   ('https://fcm.googleapis.com/fcm/send/AUDIT-un', '00000000-0000-4000-8000-000000000001', 'p-un', 'a-un'),

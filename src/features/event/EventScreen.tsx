@@ -8,7 +8,6 @@ import {
   fetchAttendances,
   goingRows,
   homeKeys,
-  IN_PROGRESS_MS,
   myAnswer,
   placesLeft,
   setAnswer,
@@ -27,6 +26,7 @@ import {
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
 import { type Card, loadCardImage } from '@/lib/cards'
 import { errorKey } from '@/lib/errors'
+import { hasEnded } from '@/lib/eventEnd'
 import { ANSWERS, type Answer, type AttendanceState } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -182,7 +182,7 @@ export function EventScreen() {
   // `isPast` starts the moment the event does, which is right for everything
   // else on this page and wrong here: a party in progress is the one time
   // "who is inside" is worth asking. The pulse stops when the party does.
-  const ended = now.getTime() >= new Date(e.ends_at ?? starts.getTime() + IN_PROGRESS_MS).getTime()
+  const ended = hasEnded(e.starts_at, e.ends_at, now.getTime())
   const cover = covers.data?.get(e.cover_url ?? '') ?? null
   // Mentre la festa passa, la pregunta deixa de ser «hi véns?». I un cop
   // fitxat el bloc es queda: acaba de dir-te que hi ets i t'ofereix la foto, i
@@ -318,9 +318,7 @@ export function EventScreen() {
         {isMeeting ? (
           <Fact
             label={t('junta.form.points')}
-            value={
-              e.puntos > 0 ? t('meeting.points', { punts: e.puntos }) : t('meeting.noPoints')
-            }
+            value={e.puntos > 0 ? t('meeting.points', { punts: e.puntos }) : t('meeting.noPoints')}
           />
         ) : (
           <Fact

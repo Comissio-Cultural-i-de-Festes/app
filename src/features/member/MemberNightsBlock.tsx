@@ -23,13 +23,17 @@ import { pastNights, sortNights } from './nights'
  * que deia el comentari de `insideApi.ts` sobre «qui hi ha dins», i aquesta
  * consulta n'és literalment la girada.
  *
- * LES REUNIONS DE JUNTA NO HI SURTEN, i no hi ha cap `if` que ho faci: la
- * política les deixa fora abans que arribin aquí. Un filtre al client seria una
- * segona còpia d'aquella regla, i el dia que divergissin guanyaria la còpia
- * equivocada. Qui ho comprova és `supabase/tests/475_les_nits_del_perfil.test.sql`,
- * amb el control positiu al costat: una reunió de la comi amb la mateixa fila
- * SÍ que hi surt, perquè si no, el dia que la política deixés de publicar res
- * la prova seguiria verda dient que la junta està tapada.
+ * LES REUNIONS DE JUNTA NO HI SURTEN, I SÍ QUE HI HA UN `if` QUE HO FA. Aquí hi
+ * deia el contrari —«la política les deixa fora abans que arribin aquí, i un
+ * filtre al client seria una segona còpia d'aquella regla»— i només era cert
+ * per a un soci ras. Per a algú de la junta no ho és: `att_select_admin` i
+ * `events_select_admin` li publiquen tota fila, a posta, i la reunió li sortia
+ * sencera i amb el títol. El filtre és a `fetchMemberNights` i el motiu és
+ * allà; aquí n'hi ha prou de saber que la llista que arriba ja és la pública.
+ * Qui ho comprova és `src/features/member/api.test.ts`, que passa per la
+ * consulta de debò, amb el control positiu al costat —la reunió de la comi amb
+ * la mateixa fila SÍ que hi surt—, i `supabase/tests/475_les_nits_del_perfil.test.sql`
+ * pel cantó del soci ras.
  *
  * EL FUTUR TAMPOC, i això sí que és un filtre al client: `pastNights`. No és
  * una còpia de cap regla de la base, perquè la base no en té cap —
@@ -87,9 +91,10 @@ export function MemberNightsBlock({ userId }: { readonly userId: string }) {
         <ul className="mt-2">
           {rows.map((night) => (
             <li key={night.event_id}>
-              {/* Sense títol vol dir que la revelació encara el tapa, cosa que a
-                  una activitat passada no passa —però una fila muda és pitjor
-                  que la mena de cosa que era. */}
+              {/* Sense títol vol dir que la revelació encara el tapa, i una
+                  activitat ja passada també hi pot ser —res no lliga `reveal_at`
+                  amb `starts_at`; vegeu `fetchMemberNights`. El nom del tipus
+                  és el que queda, i és millor que una fila muda. */}
               <NavRow
                 to={`/esdeveniment/${night.event_id}`}
                 title={night.titol ?? t(`eventType.${night.tipo satisfies EventType}`)}

@@ -24,10 +24,28 @@ import type { PostgrestError } from '@supabase/supabase-js'
 export class DbError extends Error {
   readonly code: string
 
+  /**
+   * El token que un refús de negoci es posa per nom.
+   *
+   * `raise ... using hint = 'avis_sostre'` omple el camp HINT de l'error, i
+   * PostgREST el reenvia tal qual al cos de la resposta —comprovat contra la
+   * passarel·la, no deduït—. Serveix per a la cosa que el codi sol no sap dir:
+   * `avisa()` té set refusos diferents i tots set són 22023, o sigui que pel
+   * codi són el mateix error i la pantalla no pot contestar cap dels dos que
+   * tenen remei. El missatge també hi arriba, i no s'hi mira: és prosa
+   * catalana d'una migració, i una frase es reescriu sense pensar que algú la
+   * comparava.
+   *
+   * Cadena buida quan no n'hi ha, pel mateix motiu que `code`: no coincideix
+   * amb cap entrada i el classificador continua avall.
+   */
+  readonly hint: string
+
   constructor(error: PostgrestError) {
     super(error.message)
     this.name = 'DbError'
     this.code = error.code ?? ''
+    this.hint = error.hint ?? ''
   }
 }
 

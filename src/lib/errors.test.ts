@@ -27,6 +27,10 @@ import { UnreadableImage } from './storage'
 const db = (code: string): DbError =>
   new DbError(new PostgrestError({ code, message: 'x', details: '', hint: '' }))
 
+/** El mateix, amb el token que la migració 81 posa al camp HINT. */
+const dbHint = (code: string, hint: string): DbError =>
+  new DbError(new PostgrestError({ code, message: 'x', details: '', hint }))
+
 describe('errorKey', () => {
   it('puts offline first, whatever the error is', () => {
     // A policy refusal reached over no network at all is still, to the person
@@ -59,6 +63,58 @@ describe('errorKey', () => {
       for (const code of ['P0002', 'P0001', '55000']) {
         expect(errorKey(db(code), true), code).not.toBe('errors.network')
       }
+    })
+  })
+
+  /**
+   * Els dos refusos d'`avisa()` que la junta ha de poder llegir.
+   *
+   * ELS DOS SÓN 22023, i pel codi sol són indistingibles dels altres
+   * cinquanta-dos: «tipus d'avís desconegut», «punts fora de rang», «aquesta
+   * persona no és de l'associació». La branca de la classe 22 els dóna a tots
+   * «No ha sortit bé. Torna-ho a provar d'aquí un moment», i per a aquests dos
+   * aquell consell no pot funcionar mai —tornar-hi torna a topar amb el mateix
+   * sostre—, que és el mateix defecte que `errors.behindServer` va arreglar per
+   * al desplegament que va per davant de la base.
+   *
+   * La prova que mossega és la segona: amb la taula `HINTS` buida, un 22023
+   * amb token torna `errors.generic` i la junta continua llegint el consell
+   * fals. Per això s'afirmen les dues meitats —que el token guanya, i que el
+   * mateix codi SENSE token continua sent genèric—: si només s'afirmés la
+   * primera, esborrar la branca de la classe 22 també la faria passar.
+   */
+  describe('the refusals that name themselves', () => {
+    it('reads the ceiling and the out-of-course refusal off the hint', () => {
+      expect(errorKey(dbHint('22023', 'avis_sostre'), true)).toBe('errors.avisSostre')
+      expect(errorKey(dbHint('22023', 'avis_fora_del_curs'), true)).toBe('errors.avisForaDelCurs')
+    })
+
+    it('never sends the junta back to «try again in a moment» for either', () => {
+      for (const hint of ['avis_sostre', 'avis_fora_del_curs']) {
+        expect(errorKey(dbHint('22023', hint), true), hint).not.toBe('errors.generic')
+      }
+    })
+
+    it('leaves the same code without a token exactly where it was', () => {
+      expect(errorKey(dbHint('22023', ''), true)).toBe('errors.generic')
+      expect(errorKey(dbHint('22023', 'una pista qualsevol'), true)).toBe('errors.generic')
+    })
+
+    // El HINT que Postgres escriu tot sol —«You might need to add explicit
+    // type casts.»— no ha de canviar cap classificació.
+    it('ignores a hint Postgres wrote by itself', () => {
+      expect(errorKey(dbHint('42501', 'Grant the required privileges'), true)).toBe(
+        'errors.forbidden',
+      )
+      expect(errorKey(dbHint('42883', 'No operator matches the given name'), true)).toBe(
+        'errors.generic',
+      )
+    })
+
+    // I la cobertura continua guanyant: sota terra, cap dels dos no s'arriba a
+    // enviar mai, o sigui que dir-ne el motiu seria inventar-se'l.
+    it('still puts offline first', () => {
+      expect(errorKey(dbHint('22023', 'avis_sostre'), false)).toBe('errors.offline')
     })
   })
 

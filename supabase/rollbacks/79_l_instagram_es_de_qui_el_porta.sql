@@ -21,6 +21,13 @@
 -- columna tampoc l'ha tocat ningú després de la 79. És el defecte que el
 -- rollback de la 76 va portar una temporada, i aquí no hi és.
 -- `tests/rollbacks-cos-al-dia.test.ts` ho comprova per a tot el directori.
+--
+-- SI EL QUE VOLS ÉS TREURE LA COLUMNA SENCERA, aquest fitxer no et cal:
+-- `rollbacks/70_l_instagram_al_perfil.sql` ja torna la guarda a la versió del
+-- 07 abans de fer el `drop column`, perquè amb la guarda de la 79 posada la
+-- columna no es pot esborrar sense deixar `profiles` inescrivible des del
+-- client. I si els apliques tots dos, aquest va PRIMER: el `comment on column`
+-- d'aquí sota peta amb un 42703 si la columna ja no hi és.
 
 create or replace function private.profiles_guard()
 returns trigger

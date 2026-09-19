@@ -11,30 +11,31 @@ type ApiModule = typeof ApiModuleType
 /**
  * L'ALTRA MEITAT DE LA PORTA, a una activitat de franc.
  *
- * AQUESTA PROVA ÉS VERMELLA A POSTA. No arregla res: documenta el cas que la
- * issue #9 diu que no ha de passar i que la ronda d'arreglaments va deixar viu
- * a la segona pantalla.
+ * VA NÉIXER VERMELLA I ARA ÉS VERDA. Documentava el cas que la issue #9 diu
+ * que no ha de passar i que la primera ronda d'arreglaments va deixar viu a la
+ * segona pantalla; es queda aquí perquè és l'única cosa que impedeix que hi
+ * torni.
  *
- * `ScannerScreen` ja tria les paraules amb `verdictText`, que mira el preu i
- * calla quan no hi ha res a cobrar. `ManualScreen` no: pinta
+ * `ScannerScreen` ja triava les paraules amb `verdictText`, que mira el preu i
+ * calla quan no hi ha res a cobrar. `ManualScreen` no: pintava
  * `presentationOf(outcome).messageKey` tal qual, i per a `ok_walkin_review`
  * aquella clau és `scanner.okWalkinReview` —«Entra, però no estava apuntat ni
  * ha pagat»—. `check_in` torna aquest estat sempre que algú no apuntat entra a
  * un esdeveniment amb places comptades, encara que `precio_cents` sigui zero
  * (`v_free := plazas is null and precio_cents = 0`), o sigui que l'alta pel nom
- * acusa d'un deute que no existeix. Surt dues vegades: a la tira de l'últim
- * fitxat i a la fila que s'acaba de tocar.
+ * acusava d'un deute que no existeix. Sortia dues vegades: a la tira de l'últim
+ * fitxat i a la fila que s'acaba de tocar, i aquí es miren totes dues.
  *
  * Vist al navegador el 19 de setembre de 2026 a 390x844, a l'esdeveniment
  * «Quiz Bravo» (`precio_cents = 0`, `plazas = 20`), en castellà i en anglès:
  *
  *   ÚLTIMO FICHADO / November / Let them in — not signed up and not paid
  *
- * La pantalla ja té el preu a la mà: `ManualScreen` crida `fetchEvent` a la
- * línia 59 i només en fa servir el títol.
+ * La pantalla ja tenia el preu a la mà: cridava `fetchEvent` i només en feia
+ * servir el títol.
  *
- * On aniria l'arreglament: fer passar les paraules d'aquesta pantalla pel
- * mateix lloc que les de l'escàner, que és `verdict.ts`, en comptes de llegir
+ * L'arreglament: les paraules d'aquesta pantalla passen pel mateix lloc que
+ * les de l'escàner, que és `statusWords` a `verdict.ts`, en comptes de llegir
  * `messageKey` directament.
  */
 
@@ -124,5 +125,26 @@ describe('l’alta pel nom a una activitat de franc', () => {
     // A zero cèntims hi va la germana sense diners, que és la que l'escàner ja
     // tria des de l'arreglament d'aquesta issue.
     expect(tira.textContent).toContain('scanner.okWalkinReviewFree')
+  })
+
+  // L'ALTRA VEGADA QUE SORTIA, que la prova de sobre no toca: la fila torna a
+  // dir el veredicte un cop tocada, i les dues venien del mateix `messageKey`.
+  // Arreglar-ne una i deixar l'altra és exactament el que va passar entre les
+  // dues pantalles de la porta.
+  it('ni ho diu la fila que s’acaba de tocar', async () => {
+    munta()
+
+    const cerca = await screen.findByRole('searchbox')
+    fireEvent.change(cerca, { target: { value: 'November' } })
+
+    const boto = await screen.findByRole('button', { name: /November/ })
+    fireEvent.click(boto)
+
+    await waitFor(() => {
+      expect(boto.textContent).toContain('scanner.okWalkinReviewFree')
+    })
+    // La clau de diners és prefix de la de franc, o sigui que `not.toContain`
+    // no serviria: el que no hi pot ser és `scanner.okWalkinReview` tot sol.
+    expect(boto.textContent).not.toMatch(/scanner\.okWalkinReview(?![A-Za-z])/)
   })
 })

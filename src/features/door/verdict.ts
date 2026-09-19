@@ -36,6 +36,11 @@ import type { CheckInResult } from './api'
  * quan no se sap el preu és precisament que no se sap, i això és el que diu la
  * frase pròpia del cas: no acusa ningú de deure res i tampoc no deixa passar
  * un cobrament sense avisar, perquè demana mirar-ho.
+ *
+ * Aquestes paraules també són les de l'alta pel nom: `ManualScreen` les
+ * demana amb `statusWords`. Abans llegia `presentationOf(outcome).messageKey`
+ * tal qual i per això la pantalla del costat de l'escàner encara acusava d'un
+ * deute inexistent a una activitat de franc.
  */
 
 export interface DetailPart {
@@ -110,6 +115,30 @@ const PRICED_COPY: Partial<Record<CheckInStatus, Record<PriceCase, Omit<VerdictT
     ok_walkin_review: WALKIN_REVIEW_COPY,
   }
 
+/**
+ * Quina frase i quina acció van amb aquest estat, sabent el que se sap del preu.
+ *
+ * Exportada perquè hi ha dues portes i no una. `ScannerScreen` hi arriba per
+ * `verdictText`, que hi afegeix el desfer i la línia de detall; `ManualScreen`
+ * no té ni l'una ni l'altra —la tira de l'últim fitxat porta el seu propi
+ * desfer i la fila de la llista només té lloc per a tres paraules— i el que
+ * necessita és exactament això. Que la tria visqui en un sol lloc és el que
+ * evita que la meitat de les portes quedi arreglada, que és el que va passar.
+ *
+ * LA TRIA VA PER `result.status` I NO PER `shown`. Un escaneig encuat es
+ * dibuixa amb la presentació d'`ok_walkin_review` manllevada, o sigui que
+ * mirar-se `shown` acabaria triant la còpia d'un estat que el servidor no ha
+ * dit mai. Sense `result` no hi ha estat i no hi ha res a substituir.
+ */
+export function statusWords(
+  shown: ScanPresentation,
+  result: CheckInResult | null,
+  priceCents: number | null,
+): Omit<VerdictText, 'detail'> {
+  const override = result === null ? undefined : PRICED_COPY[result.status]?.[priceCase(priceCents)]
+  return override ?? { headlineKey: shown.messageKey, actionKey: shown.actionKey }
+}
+
 export function verdictText(
   shown: ScanPresentation,
   result: CheckInResult | null,
@@ -122,13 +151,7 @@ export function verdictText(
     readonly priceCents: number | null
   },
 ): VerdictText {
-  // LA TRIA VA PER `result.status` I NO PER `shown`. Un escaneig encuat es
-  // dibuixa amb la presentació d'`ok_walkin_review` manllevada, o sigui que
-  // mirar-se `shown` acabaria triant la còpia d'un estat que el servidor no ha
-  // dit mai. Sense `result` no hi ha estat i no hi ha res a substituir.
-  const override =
-    result === null ? undefined : PRICED_COPY[result.status]?.[priceCase(opts.priceCents)]
-  const words = override ?? { headlineKey: shown.messageKey, actionKey: shown.actionKey }
+  const words = statusWords(shown, result, opts.priceCents)
 
   return {
     headlineKey: opts.gone && opts.undoNote !== null ? opts.undoNote : words.headlineKey,

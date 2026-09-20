@@ -2,8 +2,24 @@
   "name": "app-comi",
   "private": true,
   "version": "0.1.0",
+  "description": "Mobile-only PWA for a university student association: events, QR check-in at the door, points and rankings.",
   "type": "module",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Comissio-Cultural-i-de-Festes/app.git"
+  },
+  "homepage": "https://comi-app.pages.dev/",
+  "keywords": [
+    "pwa",
+    "react",
+    "typescript",
+    "supabase",
+    "postgres",
+    "row-level-security",
+    "offline-first",
+    "student-association"
+  ],
   "engines": {
     "node": ">=22.12"
   },

@@ -43,6 +43,11 @@ npm-debug.log*
 # local session state
 .remember/
 
+# browser-automation leftovers. fitxa.yml is named because a 62 KB accessibility
+# dump reached the remote once, and landed in the root next to the README.
+.playwright-mcp/
+fitxa.yml
+
 # per-machine tooling, not the project's
 .mcp.json
 

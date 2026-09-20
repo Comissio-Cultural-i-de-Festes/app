@@ -1,5 +1,7 @@
 # app-comi
 
+![The ranking, the home screen and a member's door pass, side by side](.github/media/hero.png)
+
 A mobile-only PWA for a university student association: events, QR check-in,
 points and rankings. Built for the Comissió Cultural i de Festes del
 TecnoCampus, and MIT-licensed so other campus associations can fork it.
@@ -7,6 +9,73 @@ TecnoCampus, and MIT-licensed so other campus associations can fork it.
 The problem it exists to solve is retention in the second term. Everything in
 here — the ranking by contribution rather than consumption, the public "yes"
 list, the scheduled reveals — is aimed at that.
+
+It is live at <https://comi-app.pages.dev>. Getting in needs an invitation from
+the committee, so a visitor reaches the door and stops there. The screenshots
+below are the local seed instead, whose members are named after the NATO
+alphabet and whose addresses are `@example.test`: no real member appears in
+this repository, and CI fails the build if one ever does.
+
+## What it does
+
+Events are published, or scheduled to reveal themselves at a time the committee
+picks, with a countdown in between. Members say yes, and the yes is public,
+which is most of the point. At the door somebody from the committee scans the
+pass and the points land in the same transaction that marks the attendance;
+or the member checks in by location, and the server decides whether they are
+close enough, because a comparison that lives in the browser is a comparison
+that can be rewritten.
+
+Points come from a scale the committee edits in the app. Turning up is worth
+something and carrying tables is worth more, which is the whole argument: the
+ranking measures contribution, not consumption. It shows schools first and
+people second, filtered by term. Badges are awarded and never taken back.
+Streaks are computed on every read and never stored, so undoing a check-in
+cannot leave the app quoting a number the database will not justify.
+
+Around that: ideas members propose and vote on, car sharing where the driver is
+the only person who sees a phone number, a gallery only the people who actually
+came can add to, a treasure hunt whose photo proofs the committee validates one
+at a time, and an arrival-and-departure diptych for each night.
+
+The four things somebody does at a party with no signal — scan someone in,
+check yourself in, submit a proof, post an idea — write to an IndexedDB queue
+_before_ they touch the network, and the server functions are idempotent on an
+id the client generates once. Pressing a button in a basement leaves a trace.
+
+<table>
+<tr>
+<td width="25%"><img src=".github/media/event.png" alt="An event: date, venue, price, places left, and who is going"></td>
+<td width="25%"><img src=".github/media/points.png" alt="The points screen: a person, and a reason worth twenty points"></td>
+<td width="25%"><img src=".github/media/payments.png" alt="The payments screen: who has paid and who has not"></td>
+<td width="25%"><img src=".github/media/badges.png" alt="The badge grid, with the unearned ones showing their condition"></td>
+</tr>
+<tr>
+<td>An event, with its price and the places left.</td>
+<td>The door, afterwards: mark who did the work, tap the reason. Two taps.</td>
+<td>Who has paid. Amber is pending, and nobody is chased in public.</td>
+<td>Badges, including the ones not earned yet — a locked badge that will not
+say what it wants is just a locked badge.</td>
+</tr>
+</table>
+
+![The committee dashboard: who is drifting away, and what to do about it](.github/media/dashboard.png)
+
+The dashboard is the only screen in the app that is not designed for a phone.
+It is the one thing a committee does sitting down.
+
+## Where to look, if you came to read the code
+
+- [Security](#security) — why the anon key is public on purpose, and what
+  actually holds the line instead.
+- [The audit trail, and answering a subject access request](#the-audit-trail-and-answering-a-subject-access-request)
+  — who did what to whom, kept for two academic years, and the query that
+  answers a GDPR request the interface deliberately cannot.
+- [Checking the iPhone round trip](#checking-the-iphone-round-trip) — ten
+  minutes with a real phone that no laptop can replace, and what each way of
+  failing looks like.
+- [Term dates, and moving them every year](#term-dates-and-moving-them-every-year)
+  — the smallest decision in here and the one that best explains the rest.
 
 ## Stack
 
@@ -219,7 +288,7 @@ to production. That order is the whole point of having it: a migration that
 passes locally against seed data has not met a real project's auth schema,
 extensions or data.
 
-Staging is only useful if it is *actually* level. It fell four migrations
+Staging is only useful if it is _actually_ level. It fell four migrations
 behind once, which meant the four rehearsals that mattered most — the ones
 fixing defects production had already shown — were rehearsed nowhere. So:
 

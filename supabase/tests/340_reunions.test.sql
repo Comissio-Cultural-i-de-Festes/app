@@ -16,7 +16,7 @@
 -- Persones i reunions inventades, com a tot el repo.
 
 begin;
-select plan(44);
+select plan(47);
 
 reset role;
 delete from public.audit_log;
@@ -341,6 +341,14 @@ update public.events set starts_at = now() where id in (
   (select junta from que), (select comi from que)
 );
 
+-- Els punts d'assistència que ja hi ha, per poder dir que fitxar no n'afegeix
+-- cap: la reunió de comi s'ha tancat més amunt i ja n'ha repartit.
+create temp table abans as
+select count(*)::int as n from public.points_log
+ where event_id in ((select junta from que), (select comi from que))
+   and motivo = 'asistencia';
+grant select on abans to authenticated;
+
 select tests.authenticate_as('alfa');
 
 select is(
@@ -349,10 +357,35 @@ select is(
   'un soci a sobre del punt no s''afegeix a una reunio de junta'
 );
 
+reset role;
+
 select is(
-  public.check_in_here((select comi from que), 40.1234, 1.5678, 10)->>'estat',
-  'no_hi_es',
-  'ni a una de la comi: qui hi era ho diu qui la tanca'
+  (select count(*)::int from public.attendances
+    where event_id = (select junta from que)
+      and user_id = '00000000-0000-4000-8000-000000000001'
+      and checked_in_at is not null),
+  0,
+  'i no hi queda cap fila de fitxatge seva'
+);
+
+-- MIGRACIÓ 83. La 50 tancava la porta a tothom, inclosos els convocats, i el
+-- dia de la reunió la junta llegia que l'esdeveniment no existia. Qui hi és
+-- convocat hi fitxa; els punts no els dóna aquest camí.
+select tests.authenticate_as('alfa');
+
+select is(
+  public.check_in_here((select comi from que), 40.1234, 1.5678, 10)->>'punts',
+  '0',
+  'un soci fitxa a una reunio de la comi, sense punts: els dona qui la tanca'
+);
+
+reset role;
+select tests.authenticate_as('junta_alfa');
+
+select is(
+  public.check_in_here((select junta from que), 40.1234, 1.5678, 10)->>'estat',
+  'fet',
+  'i la junta fitxa a la seva reunio: el disparador dels punts no la fa petar'
 );
 
 reset role;
@@ -360,10 +393,19 @@ reset role;
 select is(
   (select count(*)::int from public.attendances
     where event_id in ((select junta from que), (select comi from que))
-      and user_id = '00000000-0000-4000-8000-000000000001'
+      and estado = 'asistio'
+      and checkin_via = 'ubicacio'
       and checked_in_at is not null),
-  0,
-  'i no queda cap fila de fitxatge a cap de les dues'
+  2,
+  'i les dues files queden a asistio, que es el que pre-marca qui la tanca'
+);
+
+select is(
+  (select count(*)::int from public.points_log
+    where event_id in ((select junta from que), (select comi from que))
+      and motivo = 'asistencia'),
+  (select n from abans),
+  'i cap de les dues afegeix punts d''assistencia'
 );
 
 -- I EL CONTROL, sense el qual les tres de sobre passarien per la raó

@@ -50,7 +50,7 @@ export function defaultPeriod(periods: readonly Period[] | undefined): Period | 
  *
  * DOS BLOCS LA DEMANEN des de dues bandes de l'aplicació —el comptador d'avisos
  * de la junta i la targeta d'avisos del perfil— i han de respondre el mateix.
- * És la mateixa raó per la qual `useLlindar` existeix, un pis més avall.
+ * És la mateixa raó per la qual `useNormativa` existeix, un pis més avall.
  *
  * `llest` NO ÉS COSMÈTIC. Amb els períodes encara a mig arribar, `des_de` és
  * null, i null vol dir «sense fitar»: una consulta llançada abans d'hora baixa

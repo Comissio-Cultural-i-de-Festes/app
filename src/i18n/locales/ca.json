@@ -895,7 +895,7 @@
       "rowSubPlain": "Donar de baixa qui ha marxat",
       "avisos_one": "{{count}} avís",
       "avisos_other": "{{count}} avisos",
-      "avisosGravetat": "gravetat {{total}}",
+      "avisosPes": "pes {{total}}",
       "avisosFlag": "Per mirar"
     },
     "soci": {
@@ -1101,9 +1101,9 @@
       "drafts_one": "esborrany sense publicar",
       "drafts_other": "esborranys sense publicar",
       "draftsSub": "Feina feta que encara no serveix de res",
-      "avisos_one": "ha passat el llindar d'avisos",
-      "avisos_other": "han passat el llindar d'avisos",
-      "avisosSub": "Gravetat {{total}} o més aquest curs. Només per mirar-s'ho",
+      "avisos_one": "ha arribat a l'escaló d'avís",
+      "avisos_other": "han arribat a l'escaló d'avís",
+      "avisosSub": "Pes {{total}} o més aquest curs. Només per mirar-s'ho",
       "now": "El que passa ara",
       "soon": "Els que venen",
       "soonCount": "{{count}} al calendari",

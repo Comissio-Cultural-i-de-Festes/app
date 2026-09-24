@@ -1,7 +1,8 @@
 import type { AvisCompte, AvisPeriode } from './avisosApi'
+import { type Pesos, pesDe } from './estatAvisos'
 
 /**
- * Quants avisos vius porta cadascú aquest curs, i qui ha passat el llindar.
+ * Quants avisos vius porta cadascú aquest curs, i quant pesen.
  *
  * EL FORAT QUE TAPA. La migració 73 va deixar dues files a `point_values`
  * —`avisos.llindar` i `avisos.sostre_curs`— i una pantalla per moure-les. El
@@ -48,15 +49,12 @@ import type { AvisCompte, AvisPeriode } from './avisosApi'
  *
  * EL RETIRAT NO COMPTA, i aquesta és la decisió de fons. Un avís retirat
  * continua existint —la fila no s'esborra mai i surt ratllada a les dues
- * pantalles que la pinten— però no suma al comptador ni acosta ningú al
- * llindar. L'alternativa era comptar-lo igual i deixar que la junta ho tingués
+ * pantalles que la pinten— però no suma al comptador ni acosta ningú a cap
+ * escaló. L'alternativa era comptar-lo igual i deixar que la junta ho tingués
  * al cap: voldria dir que retirar un avís no retira res, només torna els punts,
  * i llavors la retirada seria mitja retirada. Si la junta decideix que allò no
  * va passar, el comptador ho ha de saber.
  */
-
-/** Zero vol dir «sense llindar», com el sostre a `avisa()`. */
-export const SENSE_LLINDAR = 0
 
 /**
  * Si una fila és d'aquest curs.
@@ -68,7 +66,7 @@ export const SENSE_LLINDAR = 0
  * les dues coses han de partir exactament de la mateixa condició. Amb la
  * condició escrita dues vegades, un `<` que es tornés `<=` en una de les dues
  * donaria un comptador i una llista que no quadren i cap manera de saber quin
- * s'equivoca. És el mateix motiu pel qual `useLlindar` existeix.
+ * s'equivoca. És el mateix motiu pel qual `useNormativa` existeix.
  *
  * `des_de` i `fins_a` són les del curs, i qualsevol dels dos pot ser null —una
  * finestra oberta per aquell costat—, que és exactament el que fa
@@ -88,11 +86,19 @@ export function dinsDelCurs(
   return true
 }
 
-/** Les files agrupades per persona, dins de la finestra. */
+/**
+ * Les files agrupades per persona, dins de la finestra, amb el que pesen.
+ *
+ * EL PES I NO LA GRAVETAT. Fins a la migració 84 aquí se sumaven gravetats
+ * (1, 2, 3) i el llindar únic les comparava; ara cada gravetat val el pes que la
+ * junta hi ha escrit —lleu 1, greu 2, molt greu 4 de fàbrica— i el que se suma
+ * és això. Qui llegeix l'estat que en surt és `estatDe()`, a `estatAvisos.ts`.
+ */
 export function compta(
   files: readonly AvisPeriode[],
   des_de: string | null,
   fins_a: string | null,
+  pesos: Pesos,
 ): Map<string, AvisCompte> {
   const out = new Map<string, AvisCompte>()
 
@@ -103,29 +109,9 @@ export function compta(
     const abans = out.get(fila.user_id)
     out.set(fila.user_id, {
       quants: (abans?.quants ?? 0) + 1,
-      gravetat: (abans?.gravetat ?? 0) + fila.gravetat,
+      pes: (abans?.pes ?? 0) + pesDe(fila.gravetat, pesos),
     })
   }
 
   return out
-}
-
-/**
- * Si aquesta persona ha passat el llindar.
- *
- * `>=` I NO `>`. «Llindar 4» vol dir que amb quatre ja toca mirar-s'ho, que és
- * com es llegeix un llindar i no com es llegeix un màxim. Amb `>` la junta que
- * hi escriu 4 en descobriria el sentit el dia que algú arribés a 5.
- */
-export function passaElLlindar(compte: AvisCompte | undefined, llindar: number): boolean {
-  if (compte === undefined) return false
-  if (llindar <= SENSE_LLINDAR) return false
-  return compte.gravetat >= llindar
-}
-
-/** Quanta gent l'ha passat: el número que el rebedor de `/junta` ensenya. */
-export function quantsPassen(comptes: ReadonlyMap<string, AvisCompte>, llindar: number): number {
-  let n = 0
-  for (const compte of comptes.values()) if (passaElLlindar(compte, llindar)) n += 1
-  return n
 }

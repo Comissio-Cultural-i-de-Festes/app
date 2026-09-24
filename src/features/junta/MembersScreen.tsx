@@ -12,10 +12,11 @@ import { DoneLine } from '@/ui/Notice/DoneLine'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { avisosKeys, fetchAvisComptes } from './avisosApi'
-import { compta, passaElLlindar } from './avisosCompte'
+import { compta } from './avisosCompte'
+import { estatDe } from './estatAvisos'
 import { JuntaHeader } from './JuntaHeader'
 import { type MemberRow, fetchAllMembers, memberKeys, setMemberEstat } from './membersApi'
-import { useLlindar } from './useLlindar'
+import { useNormativa } from './useNormativa'
 
 /**
  * Who is in the association.
@@ -62,14 +63,14 @@ export function MembersScreen() {
   const [done, setDone] = useState<{ nombre: string; estat: 'actiu' | 'baixa' } | null>(null)
 
   const members = useQuery({ queryKey: memberKeys.list(), queryFn: fetchAllMembers })
-  const { llindar, des_de, fins_a, llest } = useLlindar()
+  const { pesos, llindars, des_de, fins_a, llest } = useNormativa()
   const comptes = useQuery({
     queryKey: avisosKeys.comptes(des_de),
     queryFn: () => fetchAvisComptes(des_de),
     enabled: llest,
   })
 
-  const perSoci = compta(comptes.data ?? [], des_de, fins_a)
+  const perSoci = compta(comptes.data ?? [], des_de, fins_a, pesos)
 
   const change = useMutation({
     mutationFn: (v: { readonly row: MemberRow; readonly estat: 'actiu' | 'baixa' }) =>
@@ -217,11 +218,11 @@ export function MembersScreen() {
                           })}
                         </span>
                         <span className="text-sm-lo text-[var(--ds-text-muted-lo)]">
-                          {t('junta.members.avisosGravetat', {
-                            total: perSoci.get(row.id)?.gravetat ?? 0,
+                          {t('junta.members.avisosPes', {
+                            total: perSoci.get(row.id)?.pes ?? 0,
                           })}
                         </span>
-                        {passaElLlindar(perSoci.get(row.id), llindar) ? (
+                        {estatDe(perSoci.get(row.id), llindars) !== 'ok' ? (
                           <span className="eyebrow flex-none border-[1.5px] border-warning px-3 py-[2px] text-warning">
                             {t('junta.members.avisosFlag')}
                           </span>

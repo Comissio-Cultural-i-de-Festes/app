@@ -19,13 +19,14 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { eventTitle } from '@/features/event/title'
 
 import { avisosKeys, fetchAvisComptes } from './avisosApi'
-import { compta, quantsPassen } from './avisosCompte'
+import { compta } from './avisosCompte'
+import { quantsPerEstat } from './estatAvisos'
 import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
 import { fetchHoresPendents, horesKeys } from './horesApi'
 import { fetchMeetings, meetingListKeys } from './meetingsApi'
 import { JuntaHeader } from './JuntaHeader'
-import { useLlindar } from './useLlindar'
+import { useNormativa } from './useNormativa'
 
 /**
  * The junta's front door.
@@ -89,13 +90,14 @@ export function JuntaHome() {
   //
   // Amb el llindar a zero —la sortida que la junta té per apagar-ho— no en surt
   // cap, i llavors la fila no hi és, com les altres d'aquest bloc.
-  const { llindar, des_de, fins_a, llest } = useLlindar()
+  const { pesos, llindars, des_de, fins_a, llest } = useNormativa()
   const comptes = useQuery({
     queryKey: avisosKeys.comptes(des_de),
     queryFn: () => fetchAvisComptes(des_de),
     enabled: llest,
   })
-  const marcats = quantsPassen(compta(comptes.data ?? [], des_de, fins_a), llindar)
+  const perEstat = quantsPerEstat(compta(comptes.data ?? [], des_de, fins_a, pesos), llindars)
+  const marcats = perEstat.avis + perEstat.risc + perEstat.expulsio
 
   // Fetched here rather than at the door: this screen is opened on the way to
   // the venue, and the scanner is opened inside it, where there is no signal.
@@ -198,7 +200,7 @@ export function JuntaHome() {
               to="/junta/socis"
               n={marcats}
               title={t('junta.home.avisos', { count: marcats })}
-              sub={t('junta.home.avisosSub', { total: llindar })}
+              sub={t('junta.home.avisosSub', { total: llindars.avis })}
             />
           )}
         </div>

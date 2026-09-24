@@ -895,7 +895,7 @@
       "rowSubPlain": "Sign out whoever has left",
       "avisos_one": "{{count}} warning",
       "avisos_other": "{{count}} warnings",
-      "avisosGravetat": "severity {{total}}",
+      "avisosPes": "weight {{total}}",
       "avisosFlag": "Worth a look"
     },
     "soci": {
@@ -1101,9 +1101,9 @@
       "drafts_one": "draft not published",
       "drafts_other": "drafts not published",
       "draftsSub": "Work done that is not doing anything yet",
-      "avisos_one": "is over the warning threshold",
-      "avisos_other": "are over the warning threshold",
-      "avisosSub": "Severity {{total}} or more this course. Worth a look, nothing else",
+      "avisos_one": "has reached the warning step",
+      "avisos_other": "have reached the warning step",
+      "avisosSub": "Weight {{total}} or more this course. Worth a look, nothing else",
       "now": "What is happening now",
       "soon": "Coming up",
       "soonCount": "{{count}} on the calendar",

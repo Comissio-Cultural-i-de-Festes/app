@@ -895,7 +895,7 @@
       "rowSubPlain": "Dar de baja a quien se ha ido",
       "avisos_one": "{{count}} aviso",
       "avisos_other": "{{count}} avisos",
-      "avisosGravetat": "gravedad {{total}}",
+      "avisosPes": "peso {{total}}",
       "avisosFlag": "Para mirar"
     },
     "soci": {
@@ -1101,9 +1101,9 @@
       "drafts_one": "borrador sin publicar",
       "drafts_other": "borradores sin publicar",
       "draftsSub": "Trabajo hecho que todavía no sirve de nada",
-      "avisos_one": "ha pasado el umbral de avisos",
-      "avisos_other": "han pasado el umbral de avisos",
-      "avisosSub": "Gravedad {{total}} o más este curso. Solo para mirarlo",
+      "avisos_one": "ha llegado al escalón de aviso",
+      "avisos_other": "han llegado al escalón de aviso",
+      "avisosSub": "Peso {{total}} o más este curso. Solo para mirarlo",
       "now": "Lo que pasa ahora",
       "soon": "Los que vienen",
       "soonCount": "{{count}} en el calendario",

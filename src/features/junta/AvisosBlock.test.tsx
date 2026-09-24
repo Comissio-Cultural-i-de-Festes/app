@@ -36,8 +36,14 @@ vi.mock('react-i18next', () => ({
   }),
 }))
 
-vi.mock('@/features/ranking/useRanking', () => ({
-  useCurs: () => ({ des_de: '2026-09-01T00:00:00Z', fins_a: null, llest: true }),
+vi.mock('./useNormativa', () => ({
+  useNormativa: () => ({
+    pesos: { 1: 1, 2: 2, 3: 4 },
+    llindars: { avis: 2, risc: 4, expulsio: 6 },
+    des_de: '2026-09-01T00:00:00Z',
+    fins_a: null,
+    llest: true,
+  }),
 }))
 
 const retiraAvis = vi.fn<(id: string, nota: string) => Promise<void>>()

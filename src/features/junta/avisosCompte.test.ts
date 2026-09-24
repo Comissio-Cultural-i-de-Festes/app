@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
 import type { AvisPeriode } from './avisosApi'
-import { compta, dinsDelCurs, passaElLlindar, quantsPassen } from './avisosCompte'
+import { compta as comptaAmb, dinsDelCurs } from './avisosCompte'
 
 /**
- * El comptador que el llindar comparava contra res.
+ * El comptador dels avisos vius del curs, i el que pesen.
  *
  * Tres coses es fixen aquí i cap no es veu obrint una pantalla amb la base tal
  * com està: que el retirat no compti, que la finestra del curs talli pels dos
@@ -18,6 +18,13 @@ import { compta, dinsDelCurs, passaElLlindar, quantsPassen } from './avisosCompt
 const CURS_DES_DE = '2026-09-01T00:00:00+00:00'
 const CURS_FINS_A = '2027-08-01T00:00:00+00:00'
 
+// Els pesos de fàbrica (migració 84). Qui llegeix l'escaló que en surt és
+// `estatAvisos.test.ts`; aquí només es fixa què se suma i què no.
+const PESOS = { 1: 1, 2: 2, 3: 4 } as const
+
+const compta = (files: readonly AvisPeriode[], des_de: string | null, fins_a: string | null) =>
+  comptaAmb(files, des_de, fins_a, PESOS)
+
 const fila = (over: Partial<AvisPeriode> = {}): AvisPeriode => ({
   user_id: 'alfa',
   gravetat: 1,
@@ -27,19 +34,19 @@ const fila = (over: Partial<AvisPeriode> = {}): AvisPeriode => ({
 })
 
 describe('comptar els avisos del curs', () => {
-  it('suma els vius d’una persona', () => {
+  it('suma els vius d’una persona, pel seu pes', () => {
     const out = compta(
       [fila(), fila({ gravetat: 2, created_at: '2026-11-02T20:00:00+00:00' })],
       CURS_DES_DE,
       CURS_FINS_A,
     )
-    expect(out.get('alfa')).toEqual({ quants: 2, gravetat: 3 })
+    expect(out.get('alfa')).toEqual({ quants: 2, pes: 3 })
   })
 
   it('i els separa per persona', () => {
     const out = compta([fila(), fila({ user_id: 'bravo', gravetat: 3 })], CURS_DES_DE, CURS_FINS_A)
-    expect(out.get('alfa')).toEqual({ quants: 1, gravetat: 1 })
-    expect(out.get('bravo')).toEqual({ quants: 1, gravetat: 3 })
+    expect(out.get('alfa')).toEqual({ quants: 1, pes: 1 })
+    expect(out.get('bravo')).toEqual({ quants: 1, pes: 4 })
   })
 
   it('no compta el retirat', () => {
@@ -83,7 +90,7 @@ describe('comptar els avisos del curs', () => {
 
     // I el primer instant d'aquest curs sí que hi és: el començament és inclusiu.
     const primer = compta([fila({ created_at: CURS_DES_DE })], CURS_DES_DE, CURS_FINS_A)
-    expect(primer.get('alfa')).toEqual({ quants: 1, gravetat: 1 })
+    expect(primer.get('alfa')).toEqual({ quants: 1, pes: 1 })
   })
 
   it('un curs sense data de final els compta tots des del començament', () => {
@@ -91,48 +98,12 @@ describe('comptar els avisos del curs', () => {
     // null per a la fila `global`, i `periode_curs()` torna null igual. Una
     // finestra oberta per un costat no vol dir «ningú».
     const out = compta([fila({ created_at: '2030-01-01T00:00:00+00:00' })], CURS_DES_DE, null)
-    expect(out.get('alfa')).toEqual({ quants: 1, gravetat: 1 })
+    expect(out.get('alfa')).toEqual({ quants: 1, pes: 1 })
   })
 
   it('i sense cap dels dos límits compta tot el que hi ha', () => {
     const out = compta([fila({ created_at: '2001-01-01T00:00:00+00:00' })], null, null)
-    expect(out.get('alfa')).toEqual({ quants: 1, gravetat: 1 })
-  })
-})
-
-describe('el llindar', () => {
-  it('es passa en tocar-lo, no en superar-lo', () => {
-    // «Llindar 4» vol dir que amb quatre ja toca mirar-s'ho. Amb `>` la junta
-    // que hi escrigués 4 en descobriria el sentit el dia que algú arribés a 5.
-    expect(passaElLlindar({ quants: 2, gravetat: 4 }, 4)).toBe(true)
-    expect(passaElLlindar({ quants: 2, gravetat: 3 }, 4)).toBe(false)
-  })
-
-  it('compara la gravetat i no el nombre d’avisos', () => {
-    // Quatre avisos lleus i un de molt greu no són la mateixa cosa, i el pes és
-    // justament el que aquest issue afegeix al registre.
-    expect(passaElLlindar({ quants: 1, gravetat: 3 }, 3)).toBe(true)
-    expect(passaElLlindar({ quants: 3, gravetat: 3 }, 4)).toBe(false)
-  })
-
-  it('amb zero no marca ningú', () => {
-    // La sortida que la junta té per apagar la marca sense tocar cap esquema.
-    expect(passaElLlindar({ quants: 9, gravetat: 27 }, 0)).toBe(false)
-  })
-
-  it('i qui no té cap avís tampoc', () => {
-    expect(passaElLlindar(undefined, 1)).toBe(false)
-  })
-
-  it('i el rebedor compta quanta gent l’ha passat', () => {
-    const comptes = new Map([
-      ['alfa', { quants: 2, gravetat: 4 }],
-      ['bravo', { quants: 1, gravetat: 1 }],
-      ['charlie', { quants: 3, gravetat: 6 }],
-    ])
-    expect(quantsPassen(comptes, 4)).toBe(2)
-    expect(quantsPassen(comptes, 7)).toBe(0)
-    expect(quantsPassen(comptes, 0)).toBe(0)
+    expect(out.get('alfa')).toEqual({ quants: 1, pes: 1 })
   })
 })
 

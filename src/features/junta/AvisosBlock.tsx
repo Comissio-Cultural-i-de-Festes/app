@@ -4,7 +4,6 @@ import { useTranslation } from 'react-i18next'
 
 import { profileScreenKeys } from '@/features/profile/api'
 import { LEDGER_ROW } from '@/features/profile/ledger'
-import { useCurs } from '@/features/ranking/useRanking'
 import { formatDayMonth, formatMonthYear } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
@@ -17,6 +16,7 @@ import { clauGravetat, nomDelTipus } from './avisTipus'
 import { type AvisRow, avisosKeys, fetchAvisTipus, fetchAvisos, retiraAvis } from './avisosApi'
 import { compta, dinsDelCurs } from './avisosCompte'
 import { INPUT } from './formBits'
+import { useNormativa } from './useNormativa'
 
 /**
  * Els avisos d'una persona, i la manera de retirar-ne un.
@@ -81,7 +81,7 @@ export function AvisosBlock({
   const [retirant, setRetirant] = useState<string | null>(null)
   const [nota, setNota] = useState('')
 
-  const { des_de, fins_a, llest } = useCurs()
+  const { pesos, des_de, fins_a, llest } = useNormativa()
 
   const avisos = useQuery({
     queryKey: avisosKeys.ofMember(userId),
@@ -122,7 +122,7 @@ export function AvisosBlock({
   // sobre una lectura sense finestra, o sigui que les dues pantalles deien
   // «avisos» i comptaven coses diferents. Quadraven per les dades d'avui i el
   // setembre que ve el de la llista tornaria a zero i el d'aqui no.
-  const vius = compta(rows, des_de, fins_a).get(userId)?.quants ?? 0
+  const vius = compta(rows, des_de, fins_a, pesos).get(userId)?.quants ?? 0
 
   return (
     <section className="pt-10">

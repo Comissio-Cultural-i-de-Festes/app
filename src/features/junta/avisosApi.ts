@@ -70,10 +70,13 @@ export interface AvisPeriode {
   readonly retirat_at: string | null
 }
 
-/** Quants n'hi ha de vius i quanta gravetat sumen, per a una persona. */
+/**
+ * Quants n'hi ha de vius i quant pesen, per a una persona. El pes és el de la
+ * normativa (migració 84), no la gravetat pelada.
+ */
 export interface AvisCompte {
   readonly quants: number
-  readonly gravetat: number
+  readonly pes: number
 }
 
 export const avisosKeys = {
@@ -177,7 +180,7 @@ export async function fetchAvisos(
  *
  * `desDe` NUL VOL DIR SENSE FITAR, que és el cas d'una base sense períodes
  * configurats. Qui la crida no ha de passar-hi un null «perquè encara no ho sap»:
- * `useLlindar().llest` diu quan la resposta és de debò.
+ * `useNormativa().llest` diu quan la resposta és de debò.
  */
 export async function fetchAvisComptes(desDe: string | null): Promise<AvisPeriode[]> {
   const q = supabase.from('avisos').select(COMPTE_COLS)

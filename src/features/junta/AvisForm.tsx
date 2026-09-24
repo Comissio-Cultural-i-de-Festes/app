@@ -11,10 +11,12 @@ import { Confirm } from '@/ui/Confirm/Confirm'
 import { DoneLine } from '@/ui/Notice/DoneLine'
 
 import { MAX_RESTA, avisValid, llegeixAvis } from './avis'
-import { clauGravetat, nomDelTipus } from './avisTipus'
+import { clauGravetat, clauQueFer, nomDelTipus } from './avisTipus'
 import { avisa, avisosKeys, fetchAvisTipus } from './avisosApi'
+import { clauEstat, clauQueFerEstat, escaloNou } from './estatAvisos'
 import { Field, INPUT } from './formBits'
 import { fetchAjustEvents, memberPointsKeys } from './memberPointsApi'
+import { useNormativa } from './useNormativa'
 
 /**
  * Registrar un avís, i dir abans què passarà.
@@ -37,6 +39,19 @@ import { fetchAjustEvents, memberPointsKeys } from './memberPointsApi'
  * de tipus torna a precarregar mentre ningú no hagi tocat el camp; un cop tocat,
  * mana el que hi ha escrit, perquè sobreescriure el que algú acaba d'escriure és
  * pitjor que tenir un número vell.
+ *
+ * LA GRAVETAT ES PRECARREGA DEL TIPUS I ES POT CANVIAR, amb la mateixa regla
+ * que els punts: mentre ningú no l'hagi tocada, canviar de tipus la torna a
+ * precarregar; un cop tocada, mana la triada. Des de la migració 84 la gravetat
+ * no és una etiqueta —decideix quant pesa l'avís i, per tant, si algú arriba a
+ * risc— i la 85 deixa que sigui la junta qui la decideixi. Tres botons i no un
+ * desplegable: són tres opcions que s'han de veure alhora, cadascuna amb el que
+ * vol dir, i la suggerida marcada perquè canviar-la sigui un acte i no un
+ * descuit.
+ *
+ * I LA CONFIRMACIÓ DIU L'ESCALÓ NOU, si n'hi ha: «amb aquest avís passa a
+ * risc» és la conseqüència més gran que té el botó, i és la que no es veu. La
+ * calcula `escaloNou()`, amb la mateixa regla que després pintarà el xip.
  *
  * `type="text"` I NO `type="number"`, com a `AdjustPointsBlock`: al teclat
  * numèric de l'iPhone no hi ha el signe menys i aquest camp és negatiu gairebé
@@ -76,7 +91,16 @@ import { fetchAjustEvents, memberPointsKeys } from './memberPointsApi'
 
 const BAD = 'border-warning'
 
-export function AvisForm({ userId, nombre }: { readonly userId: string; readonly nombre: string }) {
+export function AvisForm({
+  userId,
+  nombre,
+  pesAra,
+}: {
+  readonly userId: string
+  readonly nombre: string
+  /** El pes que porta aquest curs, per dir si l'avís el canvia d'escaló. */
+  readonly pesAra: number
+}) {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
   const client = useQueryClient()
@@ -84,6 +108,8 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
   const [tipus, setTipus] = useState('')
   const [punts, setPunts] = useState('')
   const [tocat, setTocat] = useState(false)
+  const [gravetat, setGravetat] = useState<number | null>(null)
+  const [gravetatTocada, setGravetatTocada] = useState(false)
   const [nota, setNota] = useState('')
   const [eventId, setEventId] = useState('')
   const [confirmant, setConfirmant] = useState(false)
@@ -92,6 +118,7 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
   const errNota = useId()
 
   const cataleg = useQuery({ queryKey: avisosKeys.tipus(), queryFn: fetchAvisTipus })
+  const normativa = useNormativa()
   const events = useQuery({
     queryKey: memberPointsKeys.events(),
     queryFn: () => fetchAjustEvents(),
@@ -111,14 +138,16 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
   const triat = actius.find((row) => row.clau === tipus)
 
   const lectura = llegeixAvis({ tipus, punts, nota })
-  const valid = avisValid(lectura)
+  const valid = avisValid(lectura) && gravetat !== null
+  const nou = gravetat === null ? null : escaloNou(pesAra, gravetat, normativa)
 
   const registra = useMutation({
     mutationFn: () => {
-      if (!valid) throw new Error('formulari incomplet')
+      if (!valid || !avisValid(lectura)) throw new Error('formulari incomplet')
       return avisa({
         userId,
         tipus: lectura.tipus,
+        gravetat,
         nota: lectura.nota,
         punts: lectura.punts,
         eventId: eventId === '' ? null : eventId,
@@ -131,6 +160,8 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
       setTipus('')
       setPunts('')
       setTocat(false)
+      setGravetat(null)
+      setGravetatTocada(false)
       setNota('')
       setEventId('')
       setConfirmant(false)
@@ -148,10 +179,11 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
     // Mentre ningú no hagi tocat el camp, el catàleg mana. Un cop tocat, no:
     // esborrar el que algú acaba d'escriure en triar un altre tipus és pitjor
     // que deixar-li un número que ell mateix ha posat.
+    const row = actius.find((r) => r.clau === clau)
     if (!tocat) {
-      const row = actius.find((r) => r.clau === clau)
       setPunts(row === undefined ? '' : String(row.punts_suggerits))
     }
+    if (!gravetatTocada) setGravetat(row?.gravetat ?? null)
   }
 
   return (
@@ -180,9 +212,39 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
       </Field>
 
       {triat === undefined ? null : (
-        <p className="-mt-6 pb-9 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-          {t('junta.soci.avis.gravetatIs', { gravetat: gravetatNom(triat.gravetat) })}
-        </p>
+        <Field
+          label={t('junta.soci.avis.gravetat')}
+          hint={t('junta.soci.avis.gravetatHint', { gravetat: gravetatNom(triat.gravetat) })}
+        >
+          <div className="mt-4 flex gap-4">
+            {[1, 2, 3].map((n) => (
+              <button
+                key={n}
+                type="button"
+                aria-pressed={gravetat === n}
+                onClick={() => {
+                  setGravetat(n)
+                  setGravetatTocada(true)
+                  setFet(null)
+                  setConfirmant(false)
+                }}
+                className={
+                  'flex min-h-[46px] flex-1 items-center justify-center px-3 text-md font-bold [text-wrap:balance] ' +
+                  (gravetat === n
+                    ? 'bg-brand-cta text-on-brand'
+                    : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-secondary')
+                }
+              >
+                {gravetatNom(n)}
+              </button>
+            ))}
+          </div>
+          {gravetat === null || clauQueFer(gravetat) === null ? null : (
+            <p className="mt-4 text-sm text-fg-secondary [text-wrap:pretty]">
+              {t(clauQueFer(gravetat) ?? '')}
+            </p>
+          )}
+        </Field>
       )}
 
       <Field label={t('junta.soci.avis.punts')} hint={t('junta.soci.avis.puntsHint')}>
@@ -255,7 +317,7 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
         </select>
       </Field>
 
-      {confirmant && valid ? (
+      {confirmant && valid && avisValid(lectura) ? (
         // El mateix panell que la baixa d'un soci i la retirada d'un avís, i no
         // una caixa pròpia: el que canvia d'una confirmació a l'altra és què s'hi
         // diu, i el que ha de ser igual és el parell de botons. La vora ambre es
@@ -289,6 +351,15 @@ export function AvisForm({ userId, nombre }: { readonly userId: string; readonly
                   punts: String(Math.abs(lectura.punts)),
                 })}
           </p>
+          {nou === null ? null : (
+            <p className="mt-3 text-sm font-bold text-fg [text-wrap:pretty]">
+              {t('junta.soci.avis.sureEscalo', {
+                nombre,
+                estat: t(clauEstat(nou)),
+                queFer: t(clauQueFerEstat(nou) ?? clauEstat(nou)),
+              })}
+            </p>
+          )}
           <p className="mt-3 text-sm text-fg-secondary [text-wrap:pretty]">
             {t('junta.soci.avis.sureSeen', { nombre })}
           </p>

@@ -150,3 +150,23 @@ export function quantsPerEstat(
   }
   return out
 }
+
+/**
+ * L'escaló on quedaria algú amb un avís més d'aquesta gravetat, si n'és un de
+ * nou; `null` si es queda on és.
+ *
+ * ÉS EL QUE LA CONFIRMACIÓ D'UN AVÍS HA DE DIR, i per això és aquí i no al
+ * formulari: «Amb aquest avís, Alfa passa a risc» és la conseqüència que la
+ * junta ha de llegir abans de prémer, amb la mateixa regla que després pintarà
+ * el xip. Si ho calculés el formulari pel seu compte, la frase i el xip podrien
+ * dir dues coses.
+ */
+export function escaloNou(
+  pesAra: number,
+  gravetat: number,
+  normativa: Normativa,
+): EstatAvis | null {
+  const abans = estatDe({ pes: pesAra }, normativa.llindars)
+  const despres = estatDe({ pes: pesAra + pesDe(gravetat, normativa.pesos) }, normativa.llindars)
+  return despres === abans ? null : despres
+}

@@ -254,7 +254,7 @@ export function AvisosBlock({
         </p>
       ) : null}
 
-      <AvisForm userId={userId} nombre={nombre} />
+      <AvisForm userId={userId} nombre={nombre} pesAra={compte?.pes ?? 0} />
     </section>
   )
 }

@@ -198,6 +198,8 @@ export async function fetchAvisComptes(desDe: string | null): Promise<AvisPeriod
 export async function avisa(avis: {
   readonly userId: string
   readonly tipus: string
+  /** La triada. Null vol dir «la del tipus», que és el que decideix la base. */
+  readonly gravetat: number | null
   readonly nota: string
   readonly punts: number
   readonly eventId: string | null
@@ -208,6 +210,7 @@ export async function avisa(avis: {
     p_nota: avis.nota,
     p_punts: avis.punts,
     p_event_id: avis.eventId,
+    p_gravetat: avis.gravetat,
   })
   if (error) throw new DbError(error)
   return data ?? ''

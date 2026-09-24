@@ -5,6 +5,7 @@ import { compta } from './avisosCompte'
 import {
   clauEstat,
   clauQueFerEstat,
+  escaloNou,
   estatDe,
   llegeixNormativa,
   pesDe,
@@ -177,5 +178,24 @@ describe('com es diu cada estat', () => {
     expect(clauEstat('expulsio')).toBe('avisos.estat.expulsio')
     expect(clauQueFerEstat('risc')).toBe('avisos.queFer.estat.risc')
     expect(clauQueFerEstat('ok')).toBeNull()
+  })
+})
+
+describe('l’escaló on quedaria algú amb un avís més', () => {
+  it('ho diu quan en canvia', () => {
+    expect(escaloNou(3, 1, FABRICA)).toBe('risc')
+    expect(escaloNou(0, 3, FABRICA)).toBe('risc')
+    expect(escaloNou(4, 3, FABRICA)).toBe('expulsio')
+  })
+
+  it('i calla quan es queda on és', () => {
+    expect(escaloNou(0, 1, FABRICA)).toBeNull()
+    expect(escaloNou(2, 1, FABRICA)).toBeNull()
+    expect(escaloNou(8, 3, FABRICA)).toBeNull()
+  })
+
+  it('amb els escalons apagats no n’hi ha cap de nou', () => {
+    const apagats = { ...FABRICA, llindars: { avis: 0, risc: 0, expulsio: 0 } }
+    expect(escaloNou(5, 3, apagats)).toBeNull()
   })
 })

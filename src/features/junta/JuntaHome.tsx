@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import { type ReactNode, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link } from 'react-router'
+import { Link, useLocation } from 'react-router'
 
 import { warmDecoder } from '@/features/door/decoder'
 import { fetchPeriods, rankingKeys } from '@/features/ranking/api'
@@ -19,11 +19,14 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { eventTitle } from '@/features/event/title'
 
 import { AvisosEstatsBlock } from './AvisosEstatsBlock'
+import { AvisosPendentsBlock } from './AvisosPendentsBlock'
 import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
 import { fetchHoresPendents, horesKeys } from './horesApi'
 import { fetchMeetings, meetingListKeys } from './meetingsApi'
 import { JuntaHeader } from './JuntaHeader'
+import { demanenFeina, estatDelPendent } from './pendents'
+import { fetchPendentsEsperen, pendentsKeys } from './pendentsApi'
 import { useEstatsAvisos } from './useEstatsAvisos'
 import { useNormativa } from './useNormativa'
 
@@ -94,6 +97,19 @@ export function JuntaHome() {
   const { llindars } = useNormativa()
   const { marcats } = useEstatsAvisos()
 
+  // Els avisos pendents que esperen: quants n'hi ha, i quants demanen una
+  // decisió —ambigus o bloquejats—. Només aquests últims són feina: un pendent
+  // sense enllaçar espera que la persona es faci soci, i no hi ha res a fer.
+  const esperen = useQuery({ queryKey: pendentsKeys.esperen(), queryFn: fetchPendentsEsperen })
+  const pendentsFeina = (esperen.data ?? []).filter((p) => demanenFeina(estatDelPendent(p))).length
+
+  // La fila de feina porta al bloc de més avall, a la mateixa pantalla. El
+  // canvi de `hash` no fa baixar la pàgina sol en una SPA, i per això es fa aquí.
+  const { hash } = useLocation()
+  useEffect(() => {
+    if (hash === '#avisos-pendents') document.getElementById('avisos-pendents')?.scrollIntoView()
+  }, [hash])
+
   // Fetched here rather than at the door: this screen is opened on the way to
   // the venue, and the scanner is opened inside it, where there is no signal.
   useEffect(() => {
@@ -128,7 +144,9 @@ export function JuntaHome() {
         aside={
           home.data === undefined
             ? undefined
-            : t('junta.home.workCount', { count: workCount(home.data, porta, marcats) })
+            : t('junta.home.workCount', {
+                count: workCount(home.data, porta, marcats + pendentsFeina),
+              })
         }
         amber
       />
@@ -149,7 +167,7 @@ export function JuntaHome() {
             {t('actions.retry')}
           </button>
         </div>
-      ) : workCount(home.data, porta, marcats) === 0 ? (
+      ) : workCount(home.data, porta, marcats + pendentsFeina) === 0 ? (
         <div className={`pt-6 ${GUTTER}`}>
           <p className="text-md font-bold">{t('junta.home.workNone')}</p>
           <p className="mt-2 text-sm text-fg-muted [text-wrap:pretty]">
@@ -198,6 +216,14 @@ export function JuntaHome() {
               sub={t('junta.home.avisosSub', { total: llindars.avis })}
             />
           )}
+          {pendentsFeina === 0 ? null : (
+            <Count
+              to={{ hash: '#avisos-pendents' }}
+              n={pendentsFeina}
+              title={t('junta.home.pendentsFeina', { count: pendentsFeina })}
+              sub={t('junta.home.pendentsFeinaSub')}
+            />
+          )}
         </div>
       )}
 
@@ -207,6 +233,21 @@ export function JuntaHome() {
           llegeixen. */}
       <Heading title={t('junta.home.estats.title')} sub={t('junta.home.estats.sub')} />
       <AvisosEstatsBlock />
+
+      {/* ── Els avisos pendents ──
+          Per a gent sense compte. El número de la dreta és quants esperen;
+          els que demanen una decisió també surten a «Hi ha feina». */}
+      <span id="avisos-pendents" />
+      <Heading
+        title={t('junta.pendents.title')}
+        sub={t('junta.pendents.lede')}
+        aside={
+          esperen.data === undefined
+            ? undefined
+            : t('junta.pendents.count', { count: esperen.data.length })
+        }
+      />
+      <AvisosPendentsBlock />
 
       {/* ── El que passa ara ── */}
       <Heading title={t('junta.home.now')} />
@@ -659,7 +700,7 @@ function Count({
   title,
   sub,
 }: {
-  readonly to: string
+  readonly to: string | { readonly hash: string }
   readonly n: number
   readonly title: string
   readonly sub: string

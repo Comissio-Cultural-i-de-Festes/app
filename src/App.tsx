@@ -98,6 +98,11 @@ const IdeasReviewScreen = lazy(() =>
 const MemberScreen = lazy(() =>
   import('@/features/junta/MemberScreen').then((m) => ({ default: m.MemberScreen })),
 )
+const AvisPendentFormScreen = lazy(() =>
+  import('@/features/junta/AvisPendentFormScreen').then((m) => ({
+    default: m.AvisPendentFormScreen,
+  })),
+)
 const MembersScreen = lazy(() =>
   import('@/features/junta/MembersScreen').then((m) => ({ default: m.MembersScreen })),
 )
@@ -329,6 +334,7 @@ export default function App() {
             <Route path="idees" element={<IdeasReviewScreen />} />
             <Route path="socis" element={<MembersScreen />} />
             <Route path="socis/:id" element={<MemberScreen />} />
+            <Route path="pendents/nou" element={<AvisPendentFormScreen />} />
             <Route path="rols" element={<RolesScreen />} />
             <Route path="reunio/:id/tanca" element={<CloseMeetingScreen />} />
             <Route path="registre" element={<AuditScreen />} />

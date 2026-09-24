@@ -11,10 +11,11 @@ import { Confirm } from '@/ui/Confirm/Confirm'
 import { DoneLine } from '@/ui/Notice/DoneLine'
 
 import { MAX_MESURA, MAX_RESTA, avisValid, llegeixAvis, llegeixMesura } from './avis'
-import { clauGravetat, clauQueFer, nomDelTipus } from './avisTipus'
+import { nomDelTipus } from './avisTipus'
 import { avisa, avisosKeys, fetchAvisTipus } from './avisosApi'
 import { clauEstat, clauQueFerEstat, escaloNou } from './estatAvisos'
 import { Field, INPUT } from './formBits'
+import { GravetatTria } from './GravetatTria'
 import { fetchAjustEvents, memberPointsKeys } from './memberPointsApi'
 import { useNormativa } from './useNormativa'
 
@@ -129,13 +130,6 @@ export function AvisForm({
   const traduccio = (clau: string): string =>
     i18n.exists(`avisos.tipus.${clau}`) ? t(`avisos.tipus.${clau}`) : ''
 
-  // Una gravetat fora de l'1-3 no hauria d'existir —la CHECK la fita— però si
-  // hi arriba, el número pelat diu la veritat i una cadena buida no.
-  const gravetatNom = (n: number): string => {
-    const clau = clauGravetat(n)
-    return clau === null ? String(n) : t(clau)
-  }
-
   const actius = (cataleg.data ?? []).filter((row) => row.actiu)
   const triat = actius.find((row) => row.clau === tipus)
 
@@ -217,39 +211,16 @@ export function AvisForm({
       </Field>
 
       {triat === undefined ? null : (
-        <Field
-          label={t('junta.soci.avis.gravetat')}
-          hint={t('junta.soci.avis.gravetatHint', { gravetat: gravetatNom(triat.gravetat) })}
-        >
-          <div className="mt-4 flex gap-4">
-            {[1, 2, 3].map((n) => (
-              <button
-                key={n}
-                type="button"
-                aria-pressed={gravetat === n}
-                onClick={() => {
-                  setGravetat(n)
-                  setGravetatTocada(true)
-                  setFet(null)
-                  setConfirmant(false)
-                }}
-                className={
-                  'flex min-h-[46px] flex-1 items-center justify-center px-3 text-md font-bold [text-wrap:balance] ' +
-                  (gravetat === n
-                    ? 'bg-brand-cta text-on-brand'
-                    : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-secondary')
-                }
-              >
-                {gravetatNom(n)}
-              </button>
-            ))}
-          </div>
-          {gravetat === null || clauQueFer(gravetat) === null ? null : (
-            <p className="mt-4 text-sm text-fg-secondary [text-wrap:pretty]">
-              {t(clauQueFer(gravetat) ?? '')}
-            </p>
-          )}
-        </Field>
+        <GravetatTria
+          suggerida={triat.gravetat}
+          triada={gravetat}
+          onTria={(n) => {
+            setGravetat(n)
+            setGravetatTocada(true)
+            setFet(null)
+            setConfirmant(false)
+          }}
+        />
       )}
 
       <Field label={t('junta.soci.avis.punts')} hint={t('junta.soci.avis.puntsHint')}>

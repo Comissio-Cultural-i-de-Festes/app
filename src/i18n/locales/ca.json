@@ -979,6 +979,57 @@
         "done": "Registrat: {{tipus}} per a {{nombre}}."
       }
     },
+    "pendents": {
+      "title": "Avisos pendents",
+      "lede": "Per a gent que encara no té compte. S'enganxen sols quan algú es fa soci amb aquest telèfon.",
+      "count_one": "{{count}} espera",
+      "count_other": "{{count}} esperen",
+      "none": "Cap avís pendent.",
+      "nou": "Nou avís pendent",
+      "showResolved": "Mostra els resolts",
+      "hideResolved": "Amaga els resolts",
+      "falta": "Falta del {{dia}}",
+      "estat": {
+        "sense_enllacar": "Sense enllaçar: espera que es faci soci",
+        "ambigu": "Ambigu: hi ha més d'un soci actiu amb aquest telèfon",
+        "bloquejat": "No s'ha pogut enganxar",
+        "enllacat": "Enllaçat amb {{nom}}",
+        "retirat": "Retirat"
+      },
+      "motiu": {
+        "avis_sostre": "passaria el sostre de punts del curs",
+        "avis_fora_del_curs": "la falta no cau dins del curs",
+        "error": "error inesperat ({{codi}})"
+      },
+      "retira": "Retira'l",
+      "retiraNote": "Per què es retira",
+      "retiraPlaceholder": "Era una altra persona",
+      "enllaca": "Enllaça a mà",
+      "cerca": "Busca el soci pel nom",
+      "capSoci": "Cap soci actiu amb aquest nom.",
+      "enllacaSure": "L'avís de {{nom}} passarà a ser de {{soci}}, amb la data de la falta ({{dia}}), i {{soci}} el veurà al seu perfil.",
+      "enllacaCta": "Sí, enllaça'l",
+      "form": {
+        "title": "Avís pendent",
+        "lede": "Per a algú que encara no té compte. Quan es faci soci amb aquest telèfon, l'avís passarà a ser seu, amb la data de la falta.",
+        "nom": "Nom",
+        "nomHint": "Com el coneixeu. Només el veu la junta.",
+        "nomBad": "Com a molt {{max}} caràcters.",
+        "telefon": "Telèfon",
+        "telefonHint": "Tal com el tens. Per trobar-lo n'hi ha prou amb els nou últims dígits.",
+        "telefonBad": "Això no sembla un telèfon.",
+        "dia": "Quin dia va ser",
+        "diaHint": "L'avís comptarà al curs i al trimestre d'aquest dia.",
+        "diaBad": "No pot ser un dia que encara no ha arribat.",
+        "noteHint": "Obligatori. Ho llegirà la persona quan tingui compte.",
+        "mesuraHint": "Opcional. Què se n'ha fet. També ho llegirà la persona.",
+        "save": "Registra l'avís pendent",
+        "sure": "{{nom}} encara no té compte. L'avís s'hi enganxarà sol quan algú es faci soci amb aquest telèfon; si ja n'hi ha un, ara mateix.",
+        "surePoints": "Quan passi, es restaran {{punts}} punts del curs de la falta.",
+        "sureNoPoints": "No resta punts: només queda escrit.",
+        "done": "Registrat: {{nom}}."
+      }
+    },
     "role": {
       "admin": "Junta",
       "owner": "Owner"
@@ -1126,6 +1177,9 @@
         "sub": "Quanta gent hi ha a cada escaló. L'expulsió és una votació de la junta, no una baixa.",
         "aria": "Els escalons d'avisos d'aquest curs. Obre la llista de socis"
       },
+      "pendentsFeina_one": "avís pendent demana una decisió",
+      "pendentsFeina_other": "avisos pendents demanen una decisió",
+      "pendentsFeinaSub": "Ambigus o bloquejats: no s'han pogut enganxar sols",
       "now": "El que passa ara",
       "soon": "Els que venen",
       "soonCount": "{{count}} al calendari",

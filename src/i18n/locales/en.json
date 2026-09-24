@@ -979,6 +979,57 @@
         "done": "Recorded: {{tipus}} for {{nombre}}."
       }
     },
+    "pendents": {
+      "title": "Pending warnings",
+      "lede": "For people who do not have an account yet. They link on their own when someone joins with that phone number.",
+      "count_one": "{{count}} waiting",
+      "count_other": "{{count}} waiting",
+      "none": "No pending warnings.",
+      "nou": "New pending warning",
+      "showResolved": "Show resolved ones",
+      "hideResolved": "Hide resolved ones",
+      "falta": "Happened on {{dia}}",
+      "estat": {
+        "sense_enllacar": "Not linked: waiting for them to join",
+        "ambigu": "Ambiguous: more than one active member has this phone",
+        "bloquejat": "Could not link",
+        "enllacat": "Linked to {{nom}}",
+        "retirat": "Withdrawn"
+      },
+      "motiu": {
+        "avis_sostre": "it would go over the course points cap",
+        "avis_fora_del_curs": "it did not happen within the course",
+        "error": "unexpected error ({{codi}})"
+      },
+      "retira": "Withdraw it",
+      "retiraNote": "Why it is withdrawn",
+      "retiraPlaceholder": "It was someone else",
+      "enllaca": "Link by hand",
+      "cerca": "Find the member by name",
+      "capSoci": "No active member with that name.",
+      "enllacaSure": "{{nom}}'s warning will become {{soci}}'s, dated the day it happened ({{dia}}), and {{soci}} will see it on their profile.",
+      "enllacaCta": "Yes, link it",
+      "form": {
+        "title": "Pending warning",
+        "lede": "For someone who does not have an account yet. When they join with this phone number, the warning becomes theirs, dated the day it happened.",
+        "nom": "Name",
+        "nomHint": "However you know them. Only the junta sees it.",
+        "nomBad": "At most {{max}} characters.",
+        "telefon": "Phone",
+        "telefonHint": "As you have it. The last nine digits are enough to find them.",
+        "telefonBad": "That does not look like a phone number.",
+        "dia": "What day it was",
+        "diaHint": "The warning will count in the course and term of that day.",
+        "diaBad": "It cannot be a day that has not come yet.",
+        "noteHint": "Required. The person will read it once they have an account.",
+        "mesuraHint": "Optional. What was done about it. The person will read it too.",
+        "save": "Log the pending warning",
+        "sure": "{{nom}} does not have an account yet. The warning will link on its own when someone joins with this phone number; if someone already has, right now.",
+        "surePoints": "When it does, {{punts}} points will come off in the course it happened in.",
+        "sureNoPoints": "No points come off: it is only written down.",
+        "done": "Logged: {{nom}}."
+      }
+    },
     "role": {
       "admin": "Committee",
       "owner": "Owner"
@@ -1126,6 +1177,9 @@
         "sub": "How many people are on each step. Expulsion is a junta vote, not a removal.",
         "aria": "Warning steps this course. Opens the member list"
       },
+      "pendentsFeina_one": "pending warning needs a decision",
+      "pendentsFeina_other": "pending warnings need a decision",
+      "pendentsFeinaSub": "Ambiguous or blocked: they could not link on their own",
       "now": "What is happening now",
       "soon": "Coming up",
       "soonCount": "{{count}} on the calendar",

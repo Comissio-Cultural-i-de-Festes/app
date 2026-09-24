@@ -979,6 +979,57 @@
         "done": "Registrado: {{tipus}} para {{nombre}}."
       }
     },
+    "pendents": {
+      "title": "Avisos pendientes",
+      "lede": "Para gente que aún no tiene cuenta. Se enganchan solos cuando alguien se hace socio con ese teléfono.",
+      "count_one": "{{count}} espera",
+      "count_other": "{{count}} esperan",
+      "none": "Ningún aviso pendiente.",
+      "nou": "Nuevo aviso pendiente",
+      "showResolved": "Muestra los resueltos",
+      "hideResolved": "Oculta los resueltos",
+      "falta": "Falta del {{dia}}",
+      "estat": {
+        "sense_enllacar": "Sin enlazar: espera a que se haga socio",
+        "ambigu": "Ambiguo: hay más de un socio activo con este teléfono",
+        "bloquejat": "No se ha podido enganchar",
+        "enllacat": "Enlazado con {{nom}}",
+        "retirat": "Retirado"
+      },
+      "motiu": {
+        "avis_sostre": "superaría el techo de puntos del curso",
+        "avis_fora_del_curs": "la falta no cae dentro del curso",
+        "error": "error inesperado ({{codi}})"
+      },
+      "retira": "Retíralo",
+      "retiraNote": "Por qué se retira",
+      "retiraPlaceholder": "Era otra persona",
+      "enllaca": "Enlaza a mano",
+      "cerca": "Busca al socio por el nombre",
+      "capSoci": "Ningún socio activo con este nombre.",
+      "enllacaSure": "El aviso de {{nom}} pasará a ser de {{soci}}, con la fecha de la falta ({{dia}}), y {{soci}} lo verá en su perfil.",
+      "enllacaCta": "Sí, enlázalo",
+      "form": {
+        "title": "Aviso pendiente",
+        "lede": "Para alguien que aún no tiene cuenta. Cuando se haga socio con este teléfono, el aviso pasará a ser suyo, con la fecha de la falta.",
+        "nom": "Nombre",
+        "nomHint": "Como lo conocéis. Solo lo ve la junta.",
+        "nomBad": "Como mucho {{max}} caracteres.",
+        "telefon": "Teléfono",
+        "telefonHint": "Tal como lo tienes. Para encontrarlo bastan los nueve últimos dígitos.",
+        "telefonBad": "Esto no parece un teléfono.",
+        "dia": "Qué día fue",
+        "diaHint": "El aviso contará en el curso y el trimestre de ese día.",
+        "diaBad": "No puede ser un día que aún no ha llegado.",
+        "noteHint": "Obligatorio. Lo leerá la persona cuando tenga cuenta.",
+        "mesuraHint": "Opcional. Qué se ha hecho. También lo leerá la persona.",
+        "save": "Registra el aviso pendiente",
+        "sure": "{{nom}} aún no tiene cuenta. El aviso se enganchará solo cuando alguien se haga socio con este teléfono; si ya hay uno, ahora mismo.",
+        "surePoints": "Cuando pase, se restarán {{punts}} puntos del curso de la falta.",
+        "sureNoPoints": "No resta puntos: solo queda escrito.",
+        "done": "Registrado: {{nom}}."
+      }
+    },
     "role": {
       "admin": "Junta",
       "owner": "Owner"
@@ -1126,6 +1177,9 @@
         "sub": "Cuánta gente hay en cada escalón. La expulsión es una votación de la junta, no una baja.",
         "aria": "Los escalones de avisos de este curso. Abre la lista de socios"
       },
+      "pendentsFeina_one": "aviso pendiente pide una decisión",
+      "pendentsFeina_other": "avisos pendientes piden una decisión",
+      "pendentsFeinaSub": "Ambiguos o bloqueados: no se han podido enganchar solos",
       "now": "Lo que pasa ahora",
       "soon": "Los que vienen",
       "soonCount": "{{count}} en el calendario",

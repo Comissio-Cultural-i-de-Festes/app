@@ -50,7 +50,9 @@ export function useLlindar(): {
   const values = useQuery({ queryKey: doorKeys.pointValues(), queryFn: fetchPointValues })
   const curs = useCurs()
 
-  const fila = values.data?.find((v) => v.mena === 'avisos' && v.clau === 'llindar')
+  // El primer dels tres escalons de la migració 84, que és el que fa el paper
+  // de l'antic llindar únic: la fila `avisos.llindar` ja no existeix.
+  const fila = values.data?.find((v) => v.mena === 'avisos' && v.clau === 'llindar_avis')
 
   return { llindar: fila?.punts ?? SENSE_LLINDAR, ...curs }
 }

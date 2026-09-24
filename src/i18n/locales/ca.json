@@ -825,7 +825,12 @@
       "avisos": {
         "nums": "Els avisos",
         "num": {
-          "llindar": "Llindar per mirar-s'ho",
+          "pes_lleu": "Pes d'una lleu",
+          "pes_greu": "Pes d'una greu",
+          "pes_molt_greu": "Pes d'una molt greu",
+          "llindar_avis": "Escaló d'avís",
+          "llindar_risc": "Escaló de risc",
+          "llindar_expulsio": "Escaló d'expulsió a votació",
           "sostre_curs": "Màxim de punts per curs"
         },
         "heading": "El catàleg d'avisos",

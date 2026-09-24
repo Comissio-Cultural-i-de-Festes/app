@@ -27,7 +27,7 @@ const row = (clau: string, punts: number, ordre: number, mena = 'motiu'): PointV
 // Tal com els torna `fetchPointValues`: les tres menes barrejades, ordenades
 // per `ordre` a la consulta i per tant NO agrupades per mena.
 const ESCALA: readonly PointValue[] = [
-  row('llindar', 4, 1, 'avisos'),
+  row('llindar_avis', 2, 4, 'avisos'),
   row('montaje', 20, 1),
   row('fiesta', 10, 1, 'tipus_esdeveniment'),
   row('sostre_curs', 200, 2, 'avisos'),

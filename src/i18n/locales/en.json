@@ -825,7 +825,12 @@
       "avisos": {
         "nums": "Warnings",
         "num": {
-          "llindar": "Threshold worth a look",
+          "pes_lleu": "Weight of a minor one",
+          "pes_greu": "Weight of a serious one",
+          "pes_molt_greu": "Weight of a very serious one",
+          "llindar_avis": "Warning step",
+          "llindar_risc": "At-risk step",
+          "llindar_expulsio": "Expulsion-vote step",
           "sostre_curs": "Most points per course"
         },
         "heading": "The warning catalogue",

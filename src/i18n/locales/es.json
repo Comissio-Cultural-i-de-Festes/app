@@ -825,7 +825,12 @@
       "avisos": {
         "nums": "Los avisos",
         "num": {
-          "llindar": "Umbral para mirarlo",
+          "pes_lleu": "Peso de una leve",
+          "pes_greu": "Peso de una grave",
+          "pes_molt_greu": "Peso de una muy grave",
+          "llindar_avis": "Escalón de aviso",
+          "llindar_risc": "Escalón de riesgo",
+          "llindar_expulsio": "Escalón de expulsión a votación",
           "sostre_curs": "Máximo de puntos por curso"
         },
         "heading": "El catálogo de avisos",

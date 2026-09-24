@@ -823,7 +823,10 @@
     "config": {
       "saved": "Desat.",
       "avisos": {
-        "nums": "Els avisos",
+        "nums": "El sostre de punts",
+        "pesos": "Què pesa cada gravetat",
+        "escalons": "Els escalons",
+        "escalonsLede": "Cada persona suma el pes dels seus avisos vius d'aquest curs. En arribar a un escaló, la fitxa ho marca; l'app no expulsa ni bloqueja ningú. Un escaló a 0 queda apagat.",
         "num": {
           "pes_lleu": "Pes d'una lleu",
           "pes_greu": "Pes d'una greu",
@@ -835,7 +838,7 @@
         },
         "heading": "El catàleg d'avisos",
         "lede": "El pes de cada cosa. Els punts d'aquí només precarreguen el formulari: un cop l'avís existeix, els seus punts són els seus, i canviar aquesta xifra al juny no reescriu què va valer una nit d'octubre.",
-        "gravetat": "Gravetat (1 a 3)",
+        "gravetat": "Gravetat suggerida",
         "punts": "Punts suggerits",
         "inUse": "En ús",
         "retired": "Retirat",
@@ -1480,6 +1483,24 @@
       "1": "Lleu",
       "2": "Greu",
       "3": "Molt greu"
+    },
+    "estat": {
+      "ok": "Tot en ordre",
+      "avis": "Avís",
+      "risc": "Risc",
+      "expulsio": "Expulsió a votació"
+    },
+    "queFer": {
+      "gravetat": {
+        "1": "Avís verbal",
+        "2": "Avís per escrit",
+        "3": "Reunió amb la junta"
+      },
+      "estat": {
+        "avis": "Recordatori formal de les normes",
+        "risc": "Reunió i últim avís",
+        "expulsio": "La junta vota l'expulsió a la reunió següent"
+      }
     }
   },
   "nav": {

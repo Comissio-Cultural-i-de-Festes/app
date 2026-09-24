@@ -47,6 +47,35 @@ export interface Normativa {
   readonly llindars: Llindars
 }
 
+/**
+ * El nom de cada estat i què es fa quan s'hi arriba.
+ *
+ * LES CLAUS VAN ESCRITES SENCERES, com a `avisTipus.ts`: `tests/i18n-unused`
+ * troba una clau com a literal, i una plantilla fora d'un `t()` no ho és.
+ *
+ * `ok` NO TÉ «QUÈ FER», a posta: no és un escaló, és no haver-ne assolit cap.
+ */
+const CLAUS_ESTAT: Readonly<Record<EstatAvis, string>> = {
+  ok: 'avisos.estat.ok',
+  avis: 'avisos.estat.avis',
+  risc: 'avisos.estat.risc',
+  expulsio: 'avisos.estat.expulsio',
+}
+
+const CLAUS_QUE_FER_ESTAT: Readonly<Record<Exclude<EstatAvis, 'ok'>, string>> = {
+  avis: 'avisos.queFer.estat.avis',
+  risc: 'avisos.queFer.estat.risc',
+  expulsio: 'avisos.queFer.estat.expulsio',
+}
+
+export function clauEstat(estat: EstatAvis): string {
+  return CLAUS_ESTAT[estat]
+}
+
+export function clauQueFerEstat(estat: EstatAvis): string | null {
+  return estat === 'ok' ? null : CLAUS_QUE_FER_ESTAT[estat]
+}
+
 /** Zero vol dir apagat: un escaló que no existeix, o un pes que no suma. */
 export const APAGAT = 0
 

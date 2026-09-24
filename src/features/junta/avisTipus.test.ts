@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { clauGravetat, nomDelTipus } from './avisTipus'
+import { clauGravetat, clauQueFer, nomDelTipus } from './avisTipus'
 import type { AvisTipus } from './avisosApi'
 
 const tipus = (over: Partial<AvisTipus> = {}): AvisTipus => ({
@@ -87,5 +87,13 @@ describe('el nom d’una gravetat', () => {
     expect(clauGravetat(0)).toBeNull()
     expect(clauGravetat(4)).toBeNull()
     expect(clauGravetat(-1)).toBeNull()
+  })
+})
+
+describe('què es fa amb cada gravetat', () => {
+  it('dona la clau de la normativa, i null fora de l’1-3', () => {
+    expect(clauQueFer(1)).toBe('avisos.queFer.gravetat.1')
+    expect(clauQueFer(3)).toBe('avisos.queFer.gravetat.3')
+    expect(clauQueFer(4)).toBeNull()
   })
 })

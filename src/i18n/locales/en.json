@@ -823,7 +823,10 @@
     "config": {
       "saved": "Saved.",
       "avisos": {
-        "nums": "Warnings",
+        "nums": "The points cap",
+        "pesos": "What each severity weighs",
+        "escalons": "The steps",
+        "escalonsLede": "Each person adds up the weight of their live warnings this course. On reaching a step, their record is marked; the app never expels or blocks anyone. A step set to 0 is off.",
         "num": {
           "pes_lleu": "Weight of a minor one",
           "pes_greu": "Weight of a serious one",
@@ -835,7 +838,7 @@
         },
         "heading": "The warning catalogue",
         "lede": "What each thing weighs. The points here only pre-fill the form: once a warning exists its points are its own, and changing this figure in June does not rewrite what a night in October was worth.",
-        "gravetat": "Severity (1 to 3)",
+        "gravetat": "Suggested severity",
         "punts": "Suggested points",
         "inUse": "In use",
         "retired": "Retired",
@@ -1480,6 +1483,24 @@
       "1": "Minor",
       "2": "Serious",
       "3": "Very serious"
+    },
+    "estat": {
+      "ok": "All clear",
+      "avis": "Warning",
+      "risc": "At risk",
+      "expulsio": "Expulsion vote"
+    },
+    "queFer": {
+      "gravetat": {
+        "1": "Verbal warning",
+        "2": "Written warning",
+        "3": "Meeting with the junta"
+      },
+      "estat": {
+        "avis": "Formal reminder of the rules",
+        "risc": "Meeting and final warning",
+        "expulsio": "The junta votes on expulsion at the next meeting"
+      }
     }
   },
   "nav": {

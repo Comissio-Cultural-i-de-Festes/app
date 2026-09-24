@@ -823,7 +823,10 @@
     "config": {
       "saved": "Guardado.",
       "avisos": {
-        "nums": "Los avisos",
+        "nums": "El techo de puntos",
+        "pesos": "Lo que pesa cada gravedad",
+        "escalons": "Los escalones",
+        "escalonsLede": "Cada persona suma el peso de sus avisos vivos de este curso. Al llegar a un escalón, la ficha lo marca; la app no expulsa ni bloquea a nadie. Un escalón a 0 queda apagado.",
         "num": {
           "pes_lleu": "Peso de una leve",
           "pes_greu": "Peso de una grave",
@@ -835,7 +838,7 @@
         },
         "heading": "El catálogo de avisos",
         "lede": "El peso de cada cosa. Los puntos de aquí solo precargan el formulario: una vez el aviso existe, sus puntos son los suyos, y cambiar esta cifra en junio no reescribe lo que valió una noche de octubre.",
-        "gravetat": "Gravedad (1 a 3)",
+        "gravetat": "Gravedad sugerida",
         "punts": "Puntos sugeridos",
         "inUse": "En uso",
         "retired": "Retirado",
@@ -1480,6 +1483,24 @@
       "1": "Leve",
       "2": "Grave",
       "3": "Muy grave"
+    },
+    "estat": {
+      "ok": "Todo en orden",
+      "avis": "Aviso",
+      "risc": "Riesgo",
+      "expulsio": "Expulsión a votación"
+    },
+    "queFer": {
+      "gravetat": {
+        "1": "Aviso verbal",
+        "2": "Aviso por escrito",
+        "3": "Reunión con la junta"
+      },
+      "estat": {
+        "avis": "Recordatorio formal de las normas",
+        "risc": "Reunión y último aviso",
+        "expulsio": "La junta vota la expulsión en la reunión siguiente"
+      }
     }
   },
   "nav": {

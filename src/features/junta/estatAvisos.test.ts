@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest'
 
 import type { AvisPeriode } from './avisosApi'
 import { compta } from './avisosCompte'
-import { estatDe, llegeixNormativa, pesDe, quantsPerEstat } from './estatAvisos'
+import {
+  clauEstat,
+  clauQueFerEstat,
+  estatDe,
+  llegeixNormativa,
+  pesDe,
+  quantsPerEstat,
+} from './estatAvisos'
 
 /**
  * La normativa: pesos, escalons, i qui és a cada escaló.
@@ -162,5 +169,13 @@ describe('el rebedor', () => {
       ['echo', { pes: 6 }],
     ])
     expect(quantsPerEstat(comptes, FABRICA.llindars)).toEqual({ avis: 1, risc: 1, expulsio: 2 })
+  })
+})
+
+describe('com es diu cada estat', () => {
+  it('cada estat té nom, i només els escalons tenen «què fer»', () => {
+    expect(clauEstat('expulsio')).toBe('avisos.estat.expulsio')
+    expect(clauQueFerEstat('risc')).toBe('avisos.queFer.estat.risc')
+    expect(clauQueFerEstat('ok')).toBeNull()
   })
 })

@@ -8,7 +8,9 @@ import { Button } from '@/ui/Button/Button'
 import { DoneLine } from '@/ui/Notice/DoneLine'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
+import { clauQueFer } from './avisTipus'
 import { setPointValue } from './configApi'
+import { clauQueFerEstat } from './estatAvisos'
 import { type PointValue, fetchPointValues } from './eventFormApi'
 
 /**
@@ -28,6 +30,26 @@ import { type PointValue, fetchPointValues } from './eventFormApi'
 
 const LIMIT = 500
 const FILA = 'flex min-h-[60px] items-center gap-5 border-b border-surface-4 py-4'
+
+/**
+ * Què vol dir cada número de la normativa, escrit sota el seu nom.
+ *
+ * UN PES O UN ESCALÓ SENSE LA SEVA CONSEQÜÈNCIA ÉS UN NÚMERO SOLT. «Pes d'una
+ * greu: 2» no diu res a qui arriba a la junta al setembre; «avís per escrit» sí.
+ * I l'escaló d'expulsió ha de dir, al mateix lloc on es mou, que el que passa en
+ * arribar-hi és una votació a la reunió següent i no una baixa.
+ *
+ * Les claus surten de `clauQueFer` i `clauQueFerEstat`, que les escriuen senceres
+ * perquè `tests/i18n-unused` les trobi.
+ */
+const AJUDA: Readonly<Record<string, string | null>> = {
+  pes_lleu: clauQueFer(1),
+  pes_greu: clauQueFer(2),
+  pes_molt_greu: clauQueFer(3),
+  llindar_avis: clauQueFerEstat('avis'),
+  llindar_risc: clauQueFerEstat('risc'),
+  llindar_expulsio: clauQueFerEstat('expulsio'),
+}
 
 export function ScaleBlock() {
   const { t } = useTranslation()
@@ -62,12 +84,17 @@ export function ScaleBlock() {
   }
 
   const rows = values.data
-  // EL TERCER GRUP NO SÓN PUNTS: són el llindar de gravetat acumulada i el
-  // sostre de punts que es poden treure a una persona en un curs. Viuen a
+  // ELS TRES ÚLTIMS GRUPS NO SÓN PUNTS: són la normativa dels avisos —què pesa
+  // cada gravetat i a quina suma hi ha cada escaló (migració 84)— i el sostre
+  // de punts que es poden treure a una persona en un curs. Viuen a
   // `point_values` perquè és la taula que el repositori ja té per a «un número
   // que la junta mou sense desplegar», amb la seva política, el seu grant i la
-  // seva RPC auditada fets des de la migració 25. Una taula nova per a dos
+  // seva RPC auditada fets des de la migració 25. Una taula nova per a set
   // enters hauria estat sis peces més per mantenir.
+  //
+  // PARTITS PER PREFIX DE LA CLAU i no per `ordre`: l'ordre el pot moure la
+  // junta, i un pes que caigués al grup dels escalons per un número canviat
+  // seria una fila que diu una cosa i en fa una altra.
   //
   // I CADA GRUP DIU COM ES DIU UNA FILA SEVA, amb el prefix escrit sencer dins
   // del `t()`. Això abans era un `label` que es concatenava a fora, i llavors
@@ -75,7 +102,9 @@ export function ScaleBlock() {
   // la part fixa del literal, i allà no n'hi havia—. Les claus del grup nou li
   // sortien com a inabastables, que és exactament el que aquell fitxer ha de
   // detectar; la manera de callar-lo era donar-li la veritat, no una excepció.
-  const groups = [
+  const nomAvisos = (clau: string) => t(`junta.config.avisos.num.${clau}`, { defaultValue: clau })
+
+  const groups: readonly GroupSpec[] = [
     {
       mena: 'motiu',
       heading: t('junta.config.scale.motius'),
@@ -88,17 +117,39 @@ export function ScaleBlock() {
     },
     {
       mena: 'avisos',
+      key: 'pesos',
+      heading: t('junta.config.avisos.pesos'),
+      name: nomAvisos,
+      only: (clau: string) => clau.startsWith('pes_'),
+    },
+    {
+      mena: 'avisos',
+      key: 'escalons',
+      heading: t('junta.config.avisos.escalons'),
+      lede: t('junta.config.avisos.escalonsLede'),
+      name: nomAvisos,
+      only: (clau: string) => clau.startsWith('llindar_'),
+    },
+    {
+      mena: 'avisos',
+      key: 'sostre',
       heading: t('junta.config.avisos.nums'),
-      name: (clau: string) => t(`junta.config.avisos.num.${clau}`, { defaultValue: clau }),
+      name: nomAvisos,
+      only: (clau: string) => !clau.startsWith('pes_') && !clau.startsWith('llindar_'),
     },
   ]
 
-  const group = (which: (typeof groups)[number]) => (
+  const group = (which: GroupSpec) => (
     <Group
-      key={which.mena}
+      key={which.key ?? which.mena}
       heading={which.heading}
+      lede={which.lede}
       name={which.name}
-      rows={rows.filter((r) => r.mena === which.mena)}
+      hint={(clau) => {
+        const clauAjuda = which.mena === 'avisos' ? AJUDA[clau] : undefined
+        return clauAjuda === undefined || clauAjuda === null ? null : t(clauAjuda)
+      }}
+      rows={rows.filter((r) => r.mena === which.mena && (which.only?.(r.clau) ?? true))}
       edits={edits}
       saved={saved}
       pending={save.isPending ? (save.variables ?? null) : null}
@@ -152,7 +203,9 @@ export function ScaleBlock() {
  */
 function Group({
   heading,
+  lede,
   name,
+  hint,
   rows,
   edits,
   saved,
@@ -161,7 +214,10 @@ function Group({
   onSave,
 }: {
   readonly heading: string
+  readonly lede?: string | undefined
   readonly name: (clau: string) => string
+  /** Una línia sota el nom que diu què vol dir el número, si en té. */
+  readonly hint: (clau: string) => string | null
   readonly rows: readonly PointValue[]
   readonly edits: Readonly<Record<string, string>>
   readonly saved: string | null
@@ -175,6 +231,9 @@ function Group({
   return (
     <section className="pb-9">
       <h3 className="eyebrow text-fg-muted">{heading}</h3>
+      {lede === undefined ? null : (
+        <p className="mt-3 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">{lede}</p>
+      )}
       <ul className="mt-2">
         {rows.map((row) => {
           const id = keyOf(row)
@@ -186,7 +245,16 @@ function Group({
 
           return (
             <li key={id} className={FILA}>
-              <span className="min-w-0 flex-1 text-lg font-semibold">{name(row.clau)}</span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-lg font-semibold [text-wrap:pretty]">
+                  {name(row.clau)}
+                </span>
+                {hint(row.clau) === null ? null : (
+                  <span className="mt-[2px] block text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+                    {hint(row.clau)}
+                  </span>
+                )}
+              </span>
 
               <input
                 type="number"
@@ -237,14 +305,24 @@ function Group({
   )
 }
 
+interface GroupSpec {
+  readonly mena: string
+  readonly key?: string
+  readonly heading: string
+  readonly lede?: string
+  readonly name: (clau: string) => string
+  /** Quines files del grup hi van, quan una mateixa `mena` es parteix en dos. */
+  readonly only?: (clau: string) => boolean
+}
+
 const keyOf = (v: { readonly mena: string; readonly clau: string }) => `${v.mena}:${v.clau}`
 
-/** Els tres grups del barem: el nom de la fila i la caixeta del número. */
+/** Els cinc grups del barem: el nom de la fila i la caixeta del número. */
 function ScaleSkeleton() {
   return (
     <Skeleton>
       <SkeletonBar w="w-[85%]" h="h-[14px]" className="mb-8" />
-      {[0, 1, 2].map((group) => (
+      {[0, 1, 2, 3, 4].map((group) => (
         <div key={group} className="pb-9">
           <SkeletonBar w="w-[36%]" h="h-[10px]" />
           <div className="mt-2">

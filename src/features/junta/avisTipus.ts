@@ -60,6 +60,23 @@ export function clauGravetat(gravetat: number): string | null {
   return CLAUS_GRAVETAT[Math.trunc(gravetat)] ?? null
 }
 
+/**
+ * I què es fa amb un avís de cada gravetat, que és el que la normativa acorda:
+ * lleu, avís verbal; greu, per escrit; molt greu, reunió amb la junta.
+ *
+ * Al costat del nom i amb la mateixa forma —claus escrites senceres, `null` per
+ * a una gravetat que no existeix— pel mateix motiu que `clauGravetat`.
+ */
+const CLAUS_QUE_FER: Readonly<Record<number, string>> = {
+  1: 'avisos.queFer.gravetat.1',
+  2: 'avisos.queFer.gravetat.2',
+  3: 'avisos.queFer.gravetat.3',
+}
+
+export function clauQueFer(gravetat: number): string | null {
+  return CLAUS_QUE_FER[Math.trunc(gravetat)] ?? null
+}
+
 export function nomDelTipus(row: AvisTipus, traduit: string): string {
   const net = traduit.trim()
   // I LA CLAU I18N CRUA COMPTA COM A «NO HI HA TRADUCCIÓ». No és paranoia: el

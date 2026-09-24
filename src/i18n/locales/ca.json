@@ -1053,6 +1053,7 @@
         "create_event": "{{actor}} ha creat un esdeveniment",
         "edit_event": "{{actor}} ha editat un esdeveniment",
         "edita_mesura_presa": "{{actor}} ha editat la mesura presa d'un avís a {{target}}",
+        "enllaca_avis_pendent": "{{actor}} ha enllaçat un avís pendent amb {{target}}",
         "delete_event": "{{actor}} ha esborrat un esdeveniment",
         "set_published": "{{actor}} ha canviat si un esdeveniment es veu",
         "create_invite": "{{actor}} ha fet una invitació",
@@ -1075,7 +1076,9 @@
         "hores_persona": "{{actor}} ha canviat les hores d'algú en una activitat",
         "reveal_push": "S'ha enviat la notificació d'una revelació",
         "avis": "{{actor}} ha registrat un avís a {{target}}",
+        "avis_pendent": "{{actor}} ha registrat un avís pendent per a algú sense compte",
         "retira_avis": "{{actor}} ha retirat un avís a {{target}}",
+        "retira_avis_pendent": "{{actor}} ha retirat un avís pendent",
         "set_avis_tipus": "{{actor}} ha canviat el catàleg d'avisos"
       },
       "rowSub": "Qui ha fet què"

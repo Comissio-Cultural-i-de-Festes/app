@@ -299,6 +299,117 @@ export type Database = {
           },
         ]
       }
+      avisos_pendents: {
+        Row: {
+          avis_id: string | null
+          created_at: string
+          created_by: string | null
+          enllacat_at: string | null
+          enllacat_by: string | null
+          enllacat_via: string | null
+          falta_at: string
+          gravetat: number
+          gravetat_suggerida: number
+          id: string
+          mesura_presa: string | null
+          motiu: string | null
+          motiu_codi: string | null
+          nom: string
+          nota: string
+          punts: number
+          retirat_at: string | null
+          retirat_by: string | null
+          retirat_nota: string | null
+          telefon: string | null
+          telefon_9: string | null
+          tipus: string
+        }
+        Insert: {
+          avis_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          enllacat_at?: string | null
+          enllacat_by?: string | null
+          enllacat_via?: string | null
+          falta_at: string
+          gravetat: number
+          gravetat_suggerida: number
+          id?: string
+          mesura_presa?: string | null
+          motiu?: string | null
+          motiu_codi?: string | null
+          nom: string
+          nota: string
+          punts?: number
+          retirat_at?: string | null
+          retirat_by?: string | null
+          retirat_nota?: string | null
+          telefon?: string | null
+          telefon_9?: string | null
+          tipus: string
+        }
+        Update: {
+          avis_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          enllacat_at?: string | null
+          enllacat_by?: string | null
+          enllacat_via?: string | null
+          falta_at?: string
+          gravetat?: number
+          gravetat_suggerida?: number
+          id?: string
+          mesura_presa?: string | null
+          motiu?: string | null
+          motiu_codi?: string | null
+          nom?: string
+          nota?: string
+          punts?: number
+          retirat_at?: string | null
+          retirat_by?: string | null
+          retirat_nota?: string | null
+          telefon?: string | null
+          telefon_9?: string | null
+          tipus?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avisos_pendents_avis_id_fkey"
+            columns: ["avis_id"]
+            isOneToOne: false
+            referencedRelation: "avisos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avisos_pendents_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avisos_pendents_enllacat_by_fkey"
+            columns: ["enllacat_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avisos_pendents_retirat_by_fkey"
+            columns: ["retirat_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avisos_pendents_tipus_fkey"
+            columns: ["tipus"]
+            isOneToOne: false
+            referencedRelation: "avis_tipus"
+            referencedColumns: ["clau"]
+          },
+        ]
+      }
       badges: {
         Row: {
           codi: string
@@ -1843,9 +1954,26 @@ export type Database = {
         }[]
       }
       clear_exit_photo: { Args: { p_event_id: string }; Returns: Json }
+      crea_avis_pendent: {
+        Args: {
+          p_falta_at: string
+          p_gravetat?: number
+          p_mesura_presa?: string
+          p_nom: string
+          p_nota: string
+          p_punts?: number
+          p_telefon: string
+          p_tipus: string
+        }
+        Returns: string
+      }
       edita_mesura_presa: {
         Args: { p_avis_id: string; p_mesura: string }
         Returns: undefined
+      }
+      enllaca_avis_pendent: {
+        Args: { p_id: string; p_user_id: string }
+        Returns: string
       }
       event_interest_size: { Args: { p_event_id: string }; Returns: number }
       event_photo_count: {
@@ -1976,6 +2104,10 @@ export type Database = {
       }
       retira_avis: {
         Args: { p_avis_id: string; p_nota: string }
+        Returns: undefined
+      }
+      retira_avis_pendent: {
+        Args: { p_id: string; p_nota: string }
         Returns: undefined
       }
       ride_candidates: {

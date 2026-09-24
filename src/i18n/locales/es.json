@@ -1053,6 +1053,7 @@
         "create_event": "{{actor}} ha creado un evento",
         "edit_event": "{{actor}} ha editado un evento",
         "edita_mesura_presa": "{{actor}} ha editado la medida tomada de un aviso a {{target}}",
+        "enllaca_avis_pendent": "{{actor}} ha enlazado un aviso pendiente con {{target}}",
         "delete_event": "{{actor}} ha borrado un evento",
         "set_published": "{{actor}} ha cambiado si un evento se ve",
         "create_invite": "{{actor}} ha hecho una invitación",
@@ -1075,7 +1076,9 @@
         "hores_persona": "{{actor}} ha cambiado las horas de alguien en una actividad",
         "reveal_push": "Se ha enviado la notificación de una revelación",
         "avis": "{{actor}} ha registrado un aviso a {{target}}",
+        "avis_pendent": "{{actor}} ha registrado un aviso pendiente para alguien sin cuenta",
         "retira_avis": "{{actor}} ha retirado un aviso a {{target}}",
+        "retira_avis_pendent": "{{actor}} ha retirado un aviso pendiente",
         "set_avis_tipus": "{{actor}} ha cambiado el catálogo de avisos"
       },
       "rowSub": "Quién ha hecho qué"

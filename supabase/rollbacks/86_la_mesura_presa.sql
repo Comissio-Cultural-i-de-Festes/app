@@ -10,7 +10,9 @@
 -- d'`edita_mesura_presa` s'esborren perquè el CHECK de la 73 no les admet. Si
 -- s'ha d'executar amb mesures escrites, el que cal fer abans és guardar-se-les.
 --
--- ORDRE: aquest va abans que el de la 85, que torna `avisa()` a la de la 81.
+-- ORDRE: aquest va DESPRÉS del de la 87 —els pendents criden el nucli amb la
+-- firma d'aquí, i sense la 87 desfeta es quedarien cridant una funció que no
+-- existeix— i ABANS que el de la 85, que torna `avisa()` a la de la 81.
 
 drop function if exists public.edita_mesura_presa(uuid, text);
 drop function if exists public.avisa(uuid, text, text, int, uuid, int, text);

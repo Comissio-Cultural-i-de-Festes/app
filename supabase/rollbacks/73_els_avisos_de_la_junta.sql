@@ -11,6 +11,13 @@
 -- la constraint no es pot tornar a estrènyer amb files de motiu `avis` a dins.
 -- Si això s'ha d'executar amb avisos ja posats, el que s'ha de fer abans és
 -- guardar-se'ls; aquí es diu i no s'amaga.
+--
+-- ORDRE: AQUEST ÉS L'ÚLTIM DELS AVISOS. Les migracions que han vingut després
+-- hi construeixen a sobre —el sostre, la nota, els escalons, la gravetat triada
+-- i el que vingui— i el `drop` d'aquí sota és el d'`avisa()` de cinc
+-- arguments. Amb la 85 aplicada la firma ja és una altra, o sigui que aquest
+-- fitxer sol deixaria viva una `avisa()` que apunta a unes taules que acaba
+-- d'esborrar. Desfés-les abans, de la més nova a la més vella.
 
 -- ── les files que impedirien estrènyer l'allowlist ──────────────────────────
 delete from public.points_log where motivo in ('avis', 'avis_retirat');

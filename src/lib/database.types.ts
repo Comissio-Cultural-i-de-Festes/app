@@ -1777,6 +1777,7 @@ export type Database = {
       avisa: {
         Args: {
           p_event_id?: string
+          p_gravetat?: number
           p_nota: string
           p_punts?: number
           p_tipus: string

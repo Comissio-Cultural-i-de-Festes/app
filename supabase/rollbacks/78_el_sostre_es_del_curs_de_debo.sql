@@ -14,6 +14,12 @@
 -- en silenci, que és exactament el defecte que el rollback de la 76 va portar
 -- una temporada. **Desfés abans la 81**, o no apliquis aquest fitxer.
 --
+-- I DESPRÉS DE LA 81 VE LA 85, que canvia la FIRMA d'`avisa()` —hi afegeix
+-- `p_gravetat`— i en treu el cos a `private.registra_avis`. Aplicar aquest
+-- fitxer amb la 85 a sobre no la desfaria: crearia una segona `avisa()` de cinc
+-- arguments al costat de la de sis, i PostgREST contestaria PGRST203 a totes
+-- dues. L'ordre és el de sempre, del més nou al més vell: 85, 81 i aquest.
+--
 -- El que sí que s'arregla aquí, perquè es pot: la neteja de la nota no es torna
 -- a copiar. `private.nota_neta` existeix des de la 77 —anterior a aquesta—, o
 -- sigui que cridar-la és segur en qualsevol ordre, i així desfer el sostre no

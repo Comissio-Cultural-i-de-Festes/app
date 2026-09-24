@@ -7,6 +7,12 @@
 -- EL QUE NO TORNA, i és a posta: les coordenades que la 65 va treure de les
 -- files antigues. Desfer la funció no ha de ressuscitar una dada que ja s'ha
 -- esborrat.
+--
+-- ORDRE: LA 83 VA DESPRÉS I TAMBÉ ESCRIU `check_in_here`. Aquest fitxer porta
+-- un cos anterior a la 65, o sigui que aplicat sol desfà també la 83 i la junta
+-- deixa de poder fitxar a la seva reunió des del lloc, sense que res ho digui.
+-- Desfés abans la 83 —el seu rollback torna exactament el cos de la 65— i
+-- després aquest.
 
 create or replace function public.check_in_here(
   p_event_id uuid,

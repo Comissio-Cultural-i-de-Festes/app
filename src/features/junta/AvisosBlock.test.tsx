@@ -71,6 +71,7 @@ const FILES: AvisosApi.AvisRow[] = [
     created_at: '2026-09-18T20:00:00Z',
     retirat_at: null,
     retirat_nota: null,
+    mesura_presa: null,
     points_log: { puntos: -25 },
   },
 ]

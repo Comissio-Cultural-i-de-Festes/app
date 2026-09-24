@@ -18,7 +18,8 @@
 -- `p_gravetat`— i en treu el cos a `private.registra_avis`. Aplicar aquest
 -- fitxer amb la 85 a sobre no la desfaria: crearia una segona `avisa()` de cinc
 -- arguments al costat de la de sis, i PostgREST contestaria PGRST203 a totes
--- dues. L'ordre és el de sempre, del més nou al més vell: 85, 81 i aquest.
+-- dues. La 86 hi torna a afegir un paràmetre, la mesura presa. L'ordre és el de
+-- sempre, del més nou al més vell: 86, 85, 81 i aquest.
 --
 -- El que sí que s'arregla aquí, perquè es pot: la neteja de la nota no es torna
 -- a copiar. `private.nota_neta` existeix des de la 77 —anterior a aquesta—, o

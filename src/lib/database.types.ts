@@ -198,6 +198,7 @@ export type Database = {
           event_id: string | null
           gravetat: number
           id: string
+          mesura_presa: string | null
           nota: string
           points_log_id: string | null
           retirat_at: string | null
@@ -213,6 +214,7 @@ export type Database = {
           event_id?: string | null
           gravetat: number
           id?: string
+          mesura_presa?: string | null
           nota: string
           points_log_id?: string | null
           retirat_at?: string | null
@@ -228,6 +230,7 @@ export type Database = {
           event_id?: string | null
           gravetat?: number
           id?: string
+          mesura_presa?: string | null
           nota?: string
           points_log_id?: string | null
           retirat_at?: string | null
@@ -1778,6 +1781,7 @@ export type Database = {
         Args: {
           p_event_id?: string
           p_gravetat?: number
+          p_mesura_presa?: string
           p_nota: string
           p_punts?: number
           p_tipus: string
@@ -1839,6 +1843,10 @@ export type Database = {
         }[]
       }
       clear_exit_photo: { Args: { p_event_id: string }; Returns: Json }
+      edita_mesura_presa: {
+        Args: { p_avis_id: string; p_mesura: string }
+        Returns: undefined
+      }
       event_interest_size: { Args: { p_event_id: string }; Returns: number }
       event_photo_count: {
         Args: { p_event_id: string }

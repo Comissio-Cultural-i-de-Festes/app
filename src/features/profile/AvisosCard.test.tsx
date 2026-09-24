@@ -75,6 +75,7 @@ const FILES: AvisosApi.AvisRow[] = [
     created_at: NOU.toISOString(),
     retirat_at: null,
     retirat_nota: null,
+    mesura_presa: null,
     points_log: { puntos: -25 },
   },
   {
@@ -87,6 +88,7 @@ const FILES: AvisosApi.AvisRow[] = [
     created_at: VELL.toISOString(),
     retirat_at: null,
     retirat_nota: null,
+    mesura_presa: null,
     points_log: { puntos: -25 },
   },
 ]

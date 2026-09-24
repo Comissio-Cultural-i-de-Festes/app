@@ -939,7 +939,12 @@
         "withdrawNote": "Why it is withdrawn",
         "withdrawPlaceholder": "They had told us, our mistake",
         "withdrawPaused": "No connection. The withdrawal waits here and will go when the network is back: keep this screen open.",
-        "withdrawnOn": "Withdrawn on {{dia}}"
+        "withdrawnOn": "Withdrawn on {{dia}}",
+        "mesura": "Action taken:",
+        "mesuraAdd": "Add the action taken",
+        "mesuraEdit": "Edit the action taken",
+        "mesuraClear": "Leave it blank to remove it. The person who got the warning will read it.",
+        "mesuraPaused": "No connection. It will save on its own when it is back."
       },
       "avis": {
         "title": "Record a warning",
@@ -956,6 +961,10 @@
         "noteHint": "Required. {{nombre}} will read it on their profile.",
         "notePlaceholder": "Did not turn up to the set-up they had offered to do",
         "noteBad": "A warning with no reason written down cannot be saved.",
+        "mesura": "Action taken",
+        "mesuraHint": "Optional. What was done about it: the meeting, the written warning. {{nombre}} will read it, and it can be written later.",
+        "mesuraPlaceholder": "Meeting on the 3rd; agreed to let us know",
+        "mesuraBad": "At most {{max}} characters.",
         "event": "Which night",
         "eventHint": "Optional. If it happened at a junta meeting, the warning stays with it and the points go without an event.",
         "eventNone": "No particular one",
@@ -1043,6 +1052,7 @@
         "award_points": "{{actor}} gave points to {{target}}",
         "create_event": "{{actor}} created an event",
         "edit_event": "{{actor}} edited an event",
+        "edita_mesura_presa": "{{actor}} edited the action taken on a warning for {{target}}",
         "delete_event": "{{actor}} deleted an event",
         "set_published": "{{actor}} changed whether an event is visible",
         "create_invite": "{{actor}} made an invitation",
@@ -1699,7 +1709,8 @@
     "avisos": {
       "title": "Your warnings",
       "lede": "What the junta recorded this course and why. A struck-through one has been withdrawn: it no longer counts.",
-      "withdrawn": "Withdrawn"
+      "withdrawn": "Withdrawn",
+      "mesura": "Action taken:"
     },
     "settings": {
       "title": "Settings",

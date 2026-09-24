@@ -939,7 +939,12 @@
         "withdrawNote": "Per què es retira",
         "withdrawPlaceholder": "Havia avisat, error nostre",
         "withdrawPaused": "Sense connexió. La retirada espera aquí i sortirà quan torni la xarxa: no tanquis la pantalla.",
-        "withdrawnOn": "Retirat el {{dia}}"
+        "withdrawnOn": "Retirat el {{dia}}",
+        "mesura": "Mesura presa:",
+        "mesuraAdd": "Afegeix la mesura presa",
+        "mesuraEdit": "Edita la mesura presa",
+        "mesuraClear": "Deixa-ho en blanc per esborrar-la. Ho llegirà qui ha rebut l'avís.",
+        "mesuraPaused": "Sense connexió. Es desarà tota sola quan torni."
       },
       "avis": {
         "title": "Registra un avís",
@@ -956,6 +961,10 @@
         "noteHint": "Obligatori. Ho llegirà {{nombre}} al seu perfil.",
         "notePlaceholder": "No va venir al muntatge que havia dit que faria",
         "noteBad": "Un avís sense motiu escrit no es pot desar.",
+        "mesura": "Mesura presa",
+        "mesuraHint": "Opcional. Què se n'ha fet: la reunió, l'avís per escrit. Ho llegirà {{nombre}}, i es pot escriure més tard.",
+        "mesuraPlaceholder": "Reunió el dia 3; es compromet a avisar",
+        "mesuraBad": "Com a molt {{max}} caràcters.",
         "event": "De quina nit",
         "eventHint": "Opcional. Si va ser en una reunió de junta, l'avís s'hi queda i els punts hi van sense esdeveniment.",
         "eventNone": "De cap en concret",
@@ -1043,6 +1052,7 @@
         "award_points": "{{actor}} ha donat punts a {{target}}",
         "create_event": "{{actor}} ha creat un esdeveniment",
         "edit_event": "{{actor}} ha editat un esdeveniment",
+        "edita_mesura_presa": "{{actor}} ha editat la mesura presa d'un avís a {{target}}",
         "delete_event": "{{actor}} ha esborrat un esdeveniment",
         "set_published": "{{actor}} ha canviat si un esdeveniment es veu",
         "create_invite": "{{actor}} ha fet una invitació",
@@ -1699,7 +1709,8 @@
     "avisos": {
       "title": "Els teus avisos",
       "lede": "El que la junta ha registrat aquest curs i per què. Un de ratllat és un avís retirat: ja no compta.",
-      "withdrawn": "Retirat"
+      "withdrawn": "Retirat",
+      "mesura": "Mesura presa:"
     },
     "settings": {
       "title": "Ajustos",

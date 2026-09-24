@@ -9,6 +9,11 @@
 -- sis arguments al seu lloc, escriure la de cinc al costat seria una
 -- sobrecàrrega, i PostgREST contestaria PGRST203 a qualsevol crida.
 --
+-- ORDRE: LA 86 VA DESPRÉS I TORNA A ESCRIURE `avisa()`, amb la mesura presa i
+-- una firma de set arguments. Aquest fitxer esborra la de sis, que amb la 86 a
+-- sobre ja no existeix, i crearia la de cinc al costat de la de set: dues
+-- `avisa()` i PGRST203. Desfés abans la 86.
+--
 -- QUÈ TORNA A OBRIR: la junta deixa de poder triar la gravetat d'un avís, i el
 -- formulari que la hi envia rebrà PGRST202. Les files ja escrites no es toquen:
 -- la gravetat que es va triar es queda a `avisos.gravetat`, que és on ha de ser.

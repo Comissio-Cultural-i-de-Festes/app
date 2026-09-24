@@ -39,6 +39,11 @@ export interface AvisRow {
   readonly tipus: string
   readonly gravetat: number
   readonly nota: string
+  /**
+   * Què en va fer la junta, si ho ha escrit (migració 86). La llegeix qui llegeix
+   * l'avís: la junta i la persona afectada.
+   */
+  readonly mesura_presa: string | null
   readonly event_id: string | null
   readonly created_at: string
   readonly retirat_at: string | null
@@ -97,7 +102,7 @@ export const avisosKeys = {
 const TIPUS_COLS = 'clau, gravetat, punts_suggerits, etiqueta, actiu, ordre'
 
 const AVIS_COLS =
-  'id, user_id, tipus, gravetat, nota, event_id, created_at, retirat_at, retirat_nota, ' +
+  'id, user_id, tipus, gravetat, nota, mesura_presa, event_id, created_at, retirat_at, retirat_nota, ' +
   'points_log!avisos_points_log_id_fkey(puntos)'
 const COMPTE_COLS = 'user_id, gravetat, created_at, retirat_at'
 
@@ -201,6 +206,8 @@ export async function avisa(avis: {
   /** La triada. Null vol dir «la del tipus», que és el que decideix la base. */
   readonly gravetat: number | null
   readonly nota: string
+  /** Opcional. Null vol dir que encara no se n'ha pres cap. */
+  readonly mesuraPresa: string | null
   readonly punts: number
   readonly eventId: string | null
 }): Promise<string> {
@@ -211,6 +218,7 @@ export async function avisa(avis: {
     p_punts: avis.punts,
     p_event_id: avis.eventId,
     p_gravetat: avis.gravetat,
+    p_mesura_presa: avis.mesuraPresa,
   })
   if (error) throw new DbError(error)
   return data ?? ''
@@ -226,6 +234,21 @@ export async function avisa(avis: {
  */
 export async function retiraAvis(avisId: string, nota: string): Promise<void> {
   const { error } = await supabase.rpc('retira_avis', { p_avis_id: avisId, p_nota: nota })
+  if (error) throw new DbError(error)
+}
+
+/**
+ * Escriure, canviar o esborrar la mesura presa d'un avís que ja existeix.
+ *
+ * `null` L'ESBORRA: `edita_mesura_presa()` passa el text per `nota_neta`, i un
+ * blanc queda null. S'envia com a cadena buida perquè el tipus generat no admet
+ * null, i a la base és el mateix.
+ */
+export async function editaMesuraPresa(avisId: string, mesura: string | null): Promise<void> {
+  const { error } = await supabase.rpc('edita_mesura_presa', {
+    p_avis_id: avisId,
+    p_mesura: mesura ?? '',
+  })
   if (error) throw new DbError(error)
 }
 

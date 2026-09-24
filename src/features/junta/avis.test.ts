@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { avisValid, llegeixAvis, notaValida } from './avis'
+import { avisValid, llegeixAvis, llegeixMesura, notaValida } from './avis'
 
 /**
  * El que `avisa()` refusaria, refusat abans d'apretar.
@@ -86,5 +86,21 @@ describe('la nota de la retirada', () => {
     // pantalla només sabria traduir per «alguna cosa ha anat malament».
     expect(notaValida('a'.repeat(500))).toBe(true)
     expect(notaValida('a'.repeat(501))).toBe(false)
+  })
+})
+
+describe('la mesura presa', () => {
+  it('és opcional: en blanc vol dir cap, i s’envia com a null', () => {
+    expect(llegeixMesura('')).toEqual({ mesura: null })
+    expect(llegeixMesura('  	 ')).toEqual({ mesura: null })
+  })
+
+  it('arriba retallada', () => {
+    expect(llegeixMesura('  reunió el dia 3  ')).toEqual({ mesura: 'reunió el dia 3' })
+  })
+
+  it('i fins a cinc-cents caràcters, com el CHECK de la taula', () => {
+    expect(llegeixMesura('a'.repeat(500))).toEqual({ mesura: 'a'.repeat(500) })
+    expect(llegeixMesura('a'.repeat(501))).toBe('massa')
   })
 })

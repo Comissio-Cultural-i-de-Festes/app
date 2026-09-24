@@ -145,6 +145,15 @@ export function AvisosCard({ userId }: { readonly userId: string }) {
                 >
                   {row.nota}
                 </p>
+                {/* Què en va fer la junta, si ho ha escrit (migració 86). Qui
+                    hi surt ho llegeix sencer, com la nota: és part del que li
+                    ha passat. */}
+                {row.mesura_presa === null ? null : (
+                  <p className="mt-[5px] text-sm text-fg-secondary [text-wrap:pretty]">
+                    <span className="font-bold">{t('profile.avisos.mesura')}</span>{' '}
+                    {row.mesura_presa}
+                  </p>
+                )}
                 {row.retirat_nota === null ? null : (
                   <p className="mt-[5px] text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
                     {row.retirat_nota}

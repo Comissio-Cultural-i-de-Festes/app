@@ -939,7 +939,12 @@
         "withdrawNote": "Por qué se retira",
         "withdrawPlaceholder": "Había avisado, error nuestro",
         "withdrawPaused": "Sin conexión. La retirada espera aquí y saldrá cuando vuelva la red: no cierres la pantalla.",
-        "withdrawnOn": "Retirado el {{dia}}"
+        "withdrawnOn": "Retirado el {{dia}}",
+        "mesura": "Medida tomada:",
+        "mesuraAdd": "Añade la medida tomada",
+        "mesuraEdit": "Edita la medida tomada",
+        "mesuraClear": "Déjalo en blanco para borrarla. Lo leerá quien ha recibido el aviso.",
+        "mesuraPaused": "Sin conexión. Se guardará sola cuando vuelva."
       },
       "avis": {
         "title": "Registra un aviso",
@@ -956,6 +961,10 @@
         "noteHint": "Obligatorio. Lo leerá {{nombre}} en su perfil.",
         "notePlaceholder": "No vino al montaje que había dicho que haría",
         "noteBad": "Un aviso sin motivo escrito no se puede guardar.",
+        "mesura": "Medida tomada",
+        "mesuraHint": "Opcional. Qué se ha hecho: la reunión, el aviso por escrito. Lo leerá {{nombre}}, y se puede escribir más tarde.",
+        "mesuraPlaceholder": "Reunión el día 3; se compromete a avisar",
+        "mesuraBad": "Como mucho {{max}} caracteres.",
         "event": "De qué noche",
         "eventHint": "Opcional. Si fue en una reunión de junta, el aviso se queda ahí y los puntos van sin evento.",
         "eventNone": "De ninguna en concreto",
@@ -1043,6 +1052,7 @@
         "award_points": "{{actor}} ha dado puntos a {{target}}",
         "create_event": "{{actor}} ha creado un evento",
         "edit_event": "{{actor}} ha editado un evento",
+        "edita_mesura_presa": "{{actor}} ha editado la medida tomada de un aviso a {{target}}",
         "delete_event": "{{actor}} ha borrado un evento",
         "set_published": "{{actor}} ha cambiado si un evento se ve",
         "create_invite": "{{actor}} ha hecho una invitación",
@@ -1699,7 +1709,8 @@
     "avisos": {
       "title": "Tus avisos",
       "lede": "Lo que la junta ha registrado este curso y por qué. Uno tachado es un aviso retirado: ya no cuenta.",
-      "withdrawn": "Retirado"
+      "withdrawn": "Retirado",
+      "mesura": "Medida tomada:"
     },
     "settings": {
       "title": "Ajustes",

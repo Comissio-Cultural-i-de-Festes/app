@@ -72,6 +72,23 @@ export function avisValid(lectura: ReturnType<typeof llegeixAvis>): lectura is A
   return lectura !== null && typeof lectura !== 'string'
 }
 
+/** Fins on arriba una mesura presa: el mateix que el CHECK d'`avisos`. */
+export const MAX_MESURA = 500
+
+/**
+ * La mesura presa, que és opcional i té la regla al revés que la nota: en
+ * blanc SÍ que es pot enviar, i vol dir «cap» —o, en editar-la, «esborra-la»—.
+ * Torna el text net —`null` per a un blanc— o `'massa'` si passa del límit, que
+ * és l'única cosa que la base refusaria. Dins d'un objecte i no pelat perquè
+ * `string | 'massa'` no distingeix res: una mesura que digués «massa» seria un
+ * error.
+ */
+export function llegeixMesura(mesura: string): { readonly mesura: string | null } | 'massa' {
+  const net = mesura.trim()
+  if (net === '') return { mesura: null }
+  return net.length > MAX_MESURA ? 'massa' : { mesura: net }
+}
+
 /**
  * I la nota de la retirada, que té la seva pròpia regla i la mateixa duresa.
  *

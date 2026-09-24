@@ -73,7 +73,7 @@ describe('the audit log says who did what', () => {
     // 24 fins a la migració 68; la 73 hi afegeix `avis`, `retira_avis` i
     // `set_avis_tipus`. Aquest número es toca a mà a posta: és el que obliga
     // que afegir una acció sigui una decisió i no una passada.
-    expect(actions.length).toBe(27)
+    expect(actions.length).toBe(28)
     expect(actions).toContain('transfer_owner')
     expect(new Set(actions).size).toBe(actions.length)
   })

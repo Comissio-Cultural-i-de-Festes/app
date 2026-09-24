@@ -10,7 +10,7 @@ import { Button } from '@/ui/Button/Button'
 import { Confirm } from '@/ui/Confirm/Confirm'
 import { DoneLine } from '@/ui/Notice/DoneLine'
 
-import { MAX_RESTA, avisValid, llegeixAvis } from './avis'
+import { MAX_MESURA, MAX_RESTA, avisValid, llegeixAvis, llegeixMesura } from './avis'
 import { clauGravetat, clauQueFer, nomDelTipus } from './avisTipus'
 import { avisa, avisosKeys, fetchAvisTipus } from './avisosApi'
 import { clauEstat, clauQueFerEstat, escaloNou } from './estatAvisos'
@@ -111,11 +111,13 @@ export function AvisForm({
   const [gravetat, setGravetat] = useState<number | null>(null)
   const [gravetatTocada, setGravetatTocada] = useState(false)
   const [nota, setNota] = useState('')
+  const [mesura, setMesura] = useState('')
   const [eventId, setEventId] = useState('')
   const [confirmant, setConfirmant] = useState(false)
   const [fet, setFet] = useState<string | null>(null)
   const errPunts = useId()
   const errNota = useId()
+  const errMesura = useId()
 
   const cataleg = useQuery({ queryKey: avisosKeys.tipus(), queryFn: fetchAvisTipus })
   const normativa = useNormativa()
@@ -138,7 +140,8 @@ export function AvisForm({
   const triat = actius.find((row) => row.clau === tipus)
 
   const lectura = llegeixAvis({ tipus, punts, nota })
-  const valid = avisValid(lectura) && gravetat !== null
+  const mesuraLlegida = llegeixMesura(mesura)
+  const valid = avisValid(lectura) && gravetat !== null && mesuraLlegida !== 'massa'
   const nou = gravetat === null ? null : escaloNou(pesAra, gravetat, normativa)
 
   const registra = useMutation({
@@ -149,6 +152,7 @@ export function AvisForm({
         tipus: lectura.tipus,
         gravetat,
         nota: lectura.nota,
+        mesuraPresa: mesuraLlegida.mesura,
         punts: lectura.punts,
         eventId: eventId === '' ? null : eventId,
       })
@@ -163,6 +167,7 @@ export function AvisForm({
       setGravetat(null)
       setGravetatTocada(false)
       setNota('')
+      setMesura('')
       setEventId('')
       setConfirmant(false)
       await client.invalidateQueries({ queryKey: avisosKeys.ofMember(userId) })
@@ -295,6 +300,34 @@ export function AvisForm({
       {lectura === 'nota' ? (
         <p id={errNota} aria-live="polite" className="-mt-6 pb-9 text-sm font-bold text-warning">
           {t('junta.soci.avis.noteBad')}
+        </p>
+      ) : null}
+
+      {/* LA MESURA PRESA, OPCIONAL I AQUÍ MATEIX. Sovint arriba després —la
+          reunió es fa la setmana següent— i per això també s'edita des de la
+          fila de l'avís; però quan la junta ja l'ha presa, escriure-la en dues
+          passes seria una manera d'assegurar que no s'escriu. */}
+      <Field label={t('junta.soci.avis.mesura')} hint={t('junta.soci.avis.mesuraHint', { nombre })}>
+        <textarea
+          value={mesura}
+          onChange={(e) => {
+            setMesura(e.target.value)
+            setFet(null)
+            setConfirmant(false)
+          }}
+          rows={2}
+          placeholder={t('junta.soci.avis.mesuraPlaceholder')}
+          aria-label={t('junta.soci.avis.mesura')}
+          aria-invalid={mesuraLlegida === 'massa'}
+          aria-describedby={mesuraLlegida === 'massa' ? errMesura : undefined}
+          maxLength={MAX_MESURA + 20}
+          className={`${INPUT} resize-y ${mesuraLlegida === 'massa' ? BAD : ''}`}
+        />
+      </Field>
+
+      {mesuraLlegida === 'massa' ? (
+        <p id={errMesura} aria-live="polite" className="-mt-6 pb-9 text-sm font-bold text-warning">
+          {t('junta.soci.avis.mesuraBad', { max: MAX_MESURA })}
         </p>
       ) : null}
 

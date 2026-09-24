@@ -18,6 +18,7 @@ import { compta, dinsDelCurs } from './avisosCompte'
 import { clauQueFerEstat, estatDe } from './estatAvisos'
 import { EstatXip } from './EstatXip'
 import { INPUT } from './formBits'
+import { MesuraPresa } from './MesuraPresa'
 import { useNormativa } from './useNormativa'
 
 /**
@@ -190,6 +191,8 @@ export function AvisosBlock({
                 >
                   {row.nota}
                 </p>
+
+                <MesuraPresa avisId={row.id} userId={userId} mesura={row.mesura_presa} />
 
                 {row.retirat_at === null ? null : (
                   <p className="mt-[6px] text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">

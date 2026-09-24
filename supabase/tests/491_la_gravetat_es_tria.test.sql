@@ -131,19 +131,22 @@ select is(
   'hi ha una sola avisa(): una segona seria PGRST203 a totes les crides'
 );
 
-select is(
+-- Els sis primers i en aquest ordre. El que vingui després (la 86 hi afegeix la
+-- mesura presa) ha d'anar al final pel mateix motiu.
+select ok(
   (select pg_get_function_identity_arguments(p.oid) from pg_proc p
      join pg_namespace n on n.oid = p.pronamespace
-    where n.nspname = 'public' and p.proname = 'avisa'),
-  'p_user_id uuid, p_tipus text, p_nota text, p_punts integer, p_event_id uuid, p_gravetat integer',
-  'i el paràmetre nou va l''últim, perquè les crides de quatre i cinc arguments no canviïn de sentit'
+    where n.nspname = 'public' and p.proname = 'avisa')
+  like 'p_user_id uuid, p_tipus text, p_nota text, p_punts integer, p_event_id uuid, p_gravetat integer%',
+  'i el paràmetre nou va després dels cinc de sempre, perquè les crides de quatre i cinc arguments no canviïn de sentit'
 );
 
+-- Per nom i no per firma: la firma del nucli pot créixer, i la tanca no.
 select ok(
-  not has_function_privilege(
-    'authenticated',
-    'private.registra_avis(uuid, text, int, int, text, int, uuid, timestamptz, uuid, jsonb)',
-    'execute'
+  not exists (
+    select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+     where n.nspname = 'private' and p.proname = 'registra_avis'
+       and has_function_privilege('authenticated', p.oid, 'execute')
   ),
   'el nucli no el crida ningú des de fora: la porta és avisa(), que mira qui truca'
 );

@@ -2,7 +2,13 @@ import { readFileSync } from 'node:fs'
 
 import { describe, expect, it } from 'vitest'
 
-import { SCAN_PRESENTATION, type CheckInStatus, type StateTone, toneVar } from './states'
+import {
+  ESTAT_AVIS_PRESENTATION,
+  SCAN_PRESENTATION,
+  type CheckInStatus,
+  type StateTone,
+  toneVar,
+} from './states'
 
 // Read off disk rather than importing: `?raw` on a stylesheet comes back empty
 // once the Tailwind plugin is in the pipeline.
@@ -124,5 +130,35 @@ describe('scanner states', () => {
       expect(toneVar(tone)).toBe(`var(--ds-${tone})`)
       expect(tokens).toContain(`--ds-${tone}:`)
     }
+  })
+})
+
+describe('warnings steps', () => {
+  const steps = Object.entries(ESTAT_AVIS_PRESENTATION)
+  const stepTones = steps.map(([, p]) => p.tone)
+
+  it('never uses the brand colour for a step', () => {
+    // A red chip beside a name would read as "one of ours", not "at risk".
+    const brandish = stepTones.filter((tone) => Math.abs(hueOf(tone) - BRAND_HUE) < 20)
+    expect(brandish, `steps within 20 degrees of the brand hue: ${brandish.join(', ')}`).toEqual([])
+  })
+
+  it('gives each of the four steps its own tone, clear of the others', () => {
+    expect(new Set(stepTones).size).toBe(4)
+    for (const a of stepTones) {
+      for (const b of stepTones) {
+        if (a >= b) continue
+        expect(hueGap(a, b), `--ds-${a} and --ds-${b}`).toBeGreaterThan(40)
+      }
+    }
+  })
+
+  it('fills only the last step, so it reads as the worst without relying on hue', () => {
+    const filled = steps.filter(([, p]) => p.filled).map(([step]) => step)
+    expect(filled).toEqual(['expulsio'])
+  })
+
+  it('resolves step tones to real tokens', () => {
+    for (const tone of stepTones) expect(tokens).toContain(`--ds-${tone}:`)
   })
 })

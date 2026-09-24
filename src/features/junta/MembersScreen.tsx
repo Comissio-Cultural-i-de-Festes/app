@@ -14,6 +14,7 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { avisosKeys, fetchAvisComptes } from './avisosApi'
 import { compta } from './avisosCompte'
 import { estatDe } from './estatAvisos'
+import { EstatXip } from './EstatXip'
 import { JuntaHeader } from './JuntaHeader'
 import { type MemberRow, fetchAllMembers, memberKeys, setMemberEstat } from './membersApi'
 import { useNormativa } from './useNormativa'
@@ -35,18 +36,19 @@ import { useNormativa } from './useNormativa'
  * `pendent` is not shown. Approving somebody is the invitations screen's whole
  * purpose, and two places to approve from is two behaviours that drift.
  *
- * EL COMPTADOR D'AVISOS I LA MARCA DEL LLINDAR. Fins ara `point_values` tenia
- * una fila `avisos.llindar` que la junta podia moure, amb l'etiqueta «Llindar
- * per mirar-s'ho», i no la llegia ningú: un número que prometia una cosa i no en
- * feia cap. Aquesta és la pantalla que la promet, i per això és aquí que es
- * compleix.
+ * EL COMPTADOR D'AVISOS I L'ESCALÓ. Cada persona amb avisos vius aquest curs
+ * porta quants en té, quant pesen i en quin dels quatre escalons és —ok, avís,
+ * risc o expulsió a votació—, amb el color del xip de `design/states.ts`. La
+ * normativa que ho decideix és la de la migració 84 i qui la llegeix és
+ * `estatDe()`.
  *
- * LA MARCA NO FA RES, i això s'ha de poder llegir de la pantalla. No dona de
- * baixa, no bloqueja, no envia res: diu «mira-t'ho». Donar de baixa continua sent
- * el botó del costat, amb la seva confirmació i el seu registre, i han de
- * continuar semblant dues coses diferents perquè ho són.
+ * L'ESCALÓ NO FA RES, i això s'ha de poder llegir de la pantalla. No dona de
+ * baixa, no bloqueja, no envia res; tampoc el d'expulsió, que és una votació de
+ * la junta a la reunió següent. Donar de baixa continua sent el botó del costat,
+ * amb la seva confirmació i el seu registre, i han de continuar semblant dues
+ * coses diferents perquè ho són.
  *
- * I ELS DOS NÚMEROS NO ATUREN LA LLISTA. Els comptadors i el llindar són dues
+ * I ELS NÚMEROS NO ATUREN LA LLISTA. Els comptadors i la normativa són dues
  * consultes més, i si triguen o fallen la llista surt igual sense la marca. Qui
  * ve a buscar una persona no ha d'esperar un número que no ha demanat — és la
  * mateixa regla que el rebedor de `/junta` es va escriure per a les seves files.
@@ -211,8 +213,8 @@ export function MembersScreen() {
                         sota cada nom convertiria una llista de socis en un
                         expedient de tothom. */}
                     {perSoci.get(row.id) === undefined ? null : (
-                      <span className="mt-[3px] flex items-center gap-3">
-                        <span className="text-sm-lo font-semibold text-warning">
+                      <span className="mt-[3px] flex flex-wrap items-center gap-x-3 gap-y-2">
+                        <span className="text-sm-lo font-semibold text-fg-secondary">
                           {t('junta.members.avisos', {
                             count: perSoci.get(row.id)?.quants ?? 0,
                           })}
@@ -222,11 +224,10 @@ export function MembersScreen() {
                             total: perSoci.get(row.id)?.pes ?? 0,
                           })}
                         </span>
-                        {estatDe(perSoci.get(row.id), llindars) !== 'ok' ? (
-                          <span className="eyebrow flex-none border-[1.5px] border-warning px-3 py-[2px] text-warning">
-                            {t('junta.members.avisosFlag')}
-                          </span>
-                        ) : null}
+                        {/* El xip surt també en verd, «Tot en ordre», per a qui
+                            té avisos però no arriba a cap escaló: és el que
+                            diferencia «n'ha tingut un» de «ja és a l'avís». */}
+                        <EstatXip estat={estatDe(perSoci.get(row.id), llindars)} />
                       </span>
                     )}
                   </span>

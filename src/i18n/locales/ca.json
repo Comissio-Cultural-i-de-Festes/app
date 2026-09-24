@@ -898,8 +898,7 @@
       "rowSubPlain": "Donar de baixa qui ha marxat",
       "avisos_one": "{{count}} avís",
       "avisos_other": "{{count}} avisos",
-      "avisosPes": "pes {{total}}",
-      "avisosFlag": "Per mirar"
+      "avisosPes": "pes {{total}}"
     },
     "soci": {
       "backLabel": "La seva fitxa",
@@ -1107,6 +1106,11 @@
       "avisos_one": "ha arribat a l'escaló d'avís",
       "avisos_other": "han arribat a l'escaló d'avís",
       "avisosSub": "Pes {{total}} o més aquest curs. Només per mirar-s'ho",
+      "estats": {
+        "title": "Els avisos d'aquest curs",
+        "sub": "Quanta gent hi ha a cada escaló. L'expulsió és una votació de la junta, no una baixa.",
+        "aria": "Els escalons d'avisos d'aquest curs. Obre la llista de socis"
+      },
       "now": "El que passa ara",
       "soon": "Els que venen",
       "soonCount": "{{count}} al calendari",

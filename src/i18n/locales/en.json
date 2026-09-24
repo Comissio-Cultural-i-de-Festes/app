@@ -898,8 +898,7 @@
       "rowSubPlain": "Sign out whoever has left",
       "avisos_one": "{{count}} warning",
       "avisos_other": "{{count}} warnings",
-      "avisosPes": "weight {{total}}",
-      "avisosFlag": "Worth a look"
+      "avisosPes": "weight {{total}}"
     },
     "soci": {
       "backLabel": "Their sheet",
@@ -1107,6 +1106,11 @@
       "avisos_one": "has reached the warning step",
       "avisos_other": "have reached the warning step",
       "avisosSub": "Weight {{total}} or more this course. Worth a look, nothing else",
+      "estats": {
+        "title": "Warnings this course",
+        "sub": "How many people are on each step. Expulsion is a junta vote, not a removal.",
+        "aria": "Warning steps this course. Opens the member list"
+      },
       "now": "What is happening now",
       "soon": "Coming up",
       "soonCount": "{{count}} on the calendar",

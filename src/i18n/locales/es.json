@@ -898,8 +898,7 @@
       "rowSubPlain": "Dar de baja a quien se ha ido",
       "avisos_one": "{{count}} aviso",
       "avisos_other": "{{count}} avisos",
-      "avisosPes": "peso {{total}}",
-      "avisosFlag": "Para mirar"
+      "avisosPes": "peso {{total}}"
     },
     "soci": {
       "backLabel": "Su ficha",
@@ -1107,6 +1106,11 @@
       "avisos_one": "ha llegado al escalón de aviso",
       "avisos_other": "han llegado al escalón de aviso",
       "avisosSub": "Peso {{total}} o más este curso. Solo para mirarlo",
+      "estats": {
+        "title": "Los avisos de este curso",
+        "sub": "Cuánta gente hay en cada escalón. La expulsión es una votación de la junta, no una baja.",
+        "aria": "Los escalones de avisos de este curso. Abre la lista de socios"
+      },
       "now": "Lo que pasa ahora",
       "soon": "Los que vienen",
       "soonCount": "{{count}} en el calendario",

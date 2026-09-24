@@ -147,3 +147,33 @@ export const SCAN_PRESENTATION = {
 
 /** The CSS variable a tone resolves to. */
 export const toneVar = (tone: StateTone): string => `var(--ds-${tone})`
+
+/**
+ * How a member's warnings step is drawn: the chip on the member list, on their
+ * record and on the junta's front door.
+ *
+ * THE SAME FOUR TONES AS THE DOOR, and for the same reason: the brand red is
+ * the association, not a verdict, and a list where a red chip might mean "at
+ * risk" or might mean "one of ours" is a list nobody can read at a glance.
+ * `risc` is the orange `error`, `expulsio` the violet `unknown`. Violet for the
+ * last step is deliberate: "expulsion to a vote" is a decision nobody has taken
+ * yet, which is exactly what that tone means at the door.
+ *
+ * `filled` IS WHAT MAKES THE LAST STEP READ AS THE WORST, not the hue. Hue order
+ * means nothing to someone who cannot separate warm colours; a solid chip next
+ * to three outlined ones reads as heavier in greyscale too. Only one step is
+ * filled, and states.test.ts holds that.
+ *
+ * `ok` is green and outlined, and only ever drawn next to somebody who has live
+ * warnings: a green chip beside every name would turn the member list into a
+ * register of everybody.
+ */
+export const ESTAT_AVIS_PRESENTATION = {
+  ok: { tone: 'success', filled: false },
+  avis: { tone: 'warning', filled: false },
+  risc: { tone: 'error', filled: false },
+  expulsio: { tone: 'unknown', filled: true },
+} as const satisfies Record<
+  'ok' | 'avis' | 'risc' | 'expulsio',
+  { readonly tone: StateTone; readonly filled: boolean }
+>

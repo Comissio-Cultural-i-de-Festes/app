@@ -15,6 +15,8 @@ import { AvisForm } from './AvisForm'
 import { clauGravetat, nomDelTipus } from './avisTipus'
 import { type AvisRow, avisosKeys, fetchAvisTipus, fetchAvisos, retiraAvis } from './avisosApi'
 import { compta, dinsDelCurs } from './avisosCompte'
+import { clauQueFerEstat, estatDe } from './estatAvisos'
+import { EstatXip } from './EstatXip'
 import { INPUT } from './formBits'
 import { useNormativa } from './useNormativa'
 
@@ -81,7 +83,7 @@ export function AvisosBlock({
   const [retirant, setRetirant] = useState<string | null>(null)
   const [nota, setNota] = useState('')
 
-  const { pesos, des_de, fins_a, llest } = useNormativa()
+  const { pesos, llindars, des_de, fins_a, llest } = useNormativa()
 
   const avisos = useQuery({
     queryKey: avisosKeys.ofMember(userId),
@@ -122,7 +124,12 @@ export function AvisosBlock({
   // sobre una lectura sense finestra, o sigui que les dues pantalles deien
   // «avisos» i comptaven coses diferents. Quadraven per les dades d'avui i el
   // setembre que ve el de la llista tornaria a zero i el d'aqui no.
-  const vius = compta(rows, des_de, fins_a, pesos).get(userId)?.quants ?? 0
+  const compte = compta(rows, des_de, fins_a, pesos).get(userId)
+  const vius = compte?.quants ?? 0
+  // L'escaló, amb el mateix `estatDe()` que la llista de socis: les dues
+  // pantalles han de dir el mateix de la mateixa persona.
+  const estat = estatDe(compte, llindars)
+  const queFer = clauQueFerEstat(estat)
 
   return (
     <section className="pt-10">
@@ -134,6 +141,19 @@ export function AvisosBlock({
           </p>
         ) : null}
       </div>
+
+      {/* L'escaló i què vol dir, només si té avisos vius: a qui no en té cap,
+          «Tot en ordre» a la seva fitxa és soroll. */}
+      {avisos.isSuccess && llest && compte !== undefined ? (
+        <div className="mt-4 flex flex-wrap items-center gap-x-5 gap-y-3">
+          <EstatXip estat={estat} />
+          {queFer === null ? null : (
+            <p className="min-w-0 flex-1 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+              {t(queFer)}
+            </p>
+          )}
+        </div>
+      ) : null}
 
       {avisos.isPending ? (
         <AvisosSkeleton />

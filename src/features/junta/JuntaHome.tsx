@@ -18,14 +18,13 @@ import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { eventTitle } from '@/features/event/title'
 
-import { avisosKeys, fetchAvisComptes } from './avisosApi'
-import { compta } from './avisosCompte'
-import { quantsPerEstat } from './estatAvisos'
+import { AvisosEstatsBlock } from './AvisosEstatsBlock'
 import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
 import { fetchHoresPendents, horesKeys } from './horesApi'
 import { fetchMeetings, meetingListKeys } from './meetingsApi'
 import { JuntaHeader } from './JuntaHeader'
+import { useEstatsAvisos } from './useEstatsAvisos'
 import { useNormativa } from './useNormativa'
 
 /**
@@ -83,21 +82,17 @@ export function JuntaHome() {
   const pendents = useQuery({ queryKey: horesKeys.pendents(), queryFn: fetchHoresPendents })
   const perVisar = pendents.data?.activitats ?? 0
 
-  // Qui ha passat el llindar de gravetat aquest curs. L'issue demanava «una
-  // entrada a /junta perquè algú ho miri», i la paraula important és MIRI: no
-  // dona de baixa ningú, no bloqueja res, no envia res. Porta a la llista de
-  // socis, que és on hi ha la marca al costat del nom i el botó de debò.
+  // Qui ha arribat a algun escaló d'avisos aquest curs (migració 84). L'issue
+  // demanava «una entrada a /junta perquè algú ho miri», i la paraula important
+  // és MIRI: no dona de baixa ningú, no bloqueja res, no envia res —tampoc
+  // l'escaló d'expulsió, que és una votació i no una baixa—. Porta a la llista
+  // de socis, que és on hi ha el xip al costat del nom i el botó de debò.
   //
-  // Amb el llindar a zero —la sortida que la junta té per apagar-ho— no en surt
-  // cap, i llavors la fila no hi és, com les altres d'aquest bloc.
-  const { pesos, llindars, des_de, fins_a, llest } = useNormativa()
-  const comptes = useQuery({
-    queryKey: avisosKeys.comptes(des_de),
-    queryFn: () => fetchAvisComptes(des_de),
-    enabled: llest,
-  })
-  const perEstat = quantsPerEstat(compta(comptes.data ?? [], des_de, fins_a, pesos), llindars)
-  const marcats = perEstat.avis + perEstat.risc + perEstat.expulsio
+  // Amb els tres escalons a zero no en surt cap, i llavors la fila no hi és,
+  // com les altres d'aquest bloc. El mateix número és el del bloc de sota, pel
+  // mateix ganxo.
+  const { llindars } = useNormativa()
+  const { marcats } = useEstatsAvisos()
 
   // Fetched here rather than at the door: this screen is opened on the way to
   // the venue, and the scanner is opened inside it, where there is no signal.
@@ -205,6 +200,13 @@ export function JuntaHome() {
           )}
         </div>
       )}
+
+      {/* ── Els avisos del curs ──
+          Quanta gent hi ha a cada escaló. Viu fora de «Hi ha feina» a posta:
+          «ok» no és feina, i els quatre números es llegeixen junts o no es
+          llegeixen. */}
+      <Heading title={t('junta.home.estats.title')} sub={t('junta.home.estats.sub')} />
+      <AvisosEstatsBlock />
 
       {/* ── El que passa ara ── */}
       <Heading title={t('junta.home.now')} />

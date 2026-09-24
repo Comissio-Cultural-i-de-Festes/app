@@ -12,7 +12,8 @@
 -- desfer el que va passar. Les files del registre de les tres accions noves
 -- s'esborren perquè el CHECK de la 86 no les admet.
 --
--- ORDRE: aquest va abans que el de la 86, que canvia la firma del nucli que
+-- ORDRE: aquest va DESPRÉS del de la 88, que penja disparadors d'aquesta taula,
+-- i ABANS que el de la 86, que canvia la firma del nucli que
 -- `private.enganxa_pendent` crida.
 
 do $$

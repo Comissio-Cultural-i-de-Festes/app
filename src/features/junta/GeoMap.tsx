@@ -12,14 +12,27 @@ import { useTranslation } from 'react-i18next'
  * carrer i la porta és quinze metres més enllà, però ningú ha de trobar un
  * lloc tocant un mapa.
  *
- * LES RAJOLES SÓN DE CARTO i no les crues d'OpenStreetMap. Les d'OSM són
- * carreteres grogues i boscos verds sobre una app negra: desentonen amb tot.
- * L'estil `voyager` és el desaturat i tranquil que s'espera d'un mapa avui, no
- * vol clau ni compte, i l'atribució és la condició d'ús.
+ * LES RAJOLES SÓN LES D'OPENSTREETMAP, DESSATURADES. Abans eren les `voyager`
+ * de CARTO, triades perquè eren tranquil·les i no demanaven ni clau ni compte.
+ * Això segon va deixar de ser cert: CARTO ara serveix, a qui no té clau, la
+ * mateixa rajola amb «API KEY REQUIRED» dibuixat a sobre —resposta 200 i una
+ * imatge vàlida, o sigui que res no falla i el mapa surt ratllat de dalt a
+ * baix—.
  *
- * Clar i no fosc, tot i que l'app és negra. El `dark_all` de CARTO està pensat
- * com a fons on posar-hi dades brillants a sobre: sobre un panell fosc no es
- * distingeix de res, que és canviar lleig per invisible. Un rectangle clar
+ * L'OPCIÓ DESCARTADA: una clau de CARTO. Mantenia l'estil, però volia un compte
+ * a un servei de tercers i una variable més a Cloudflare Pages per a un mapa que
+ * només obre la junta quan crea un esdeveniment. Les d'OSM no volen res, i la
+ * seva política d'ús admet exactament aquest volum; el que demana és
+ * l'atribució amb enllaç i que el navegador enviï el `Referer`, que el
+ * `strict-origin-when-cross-origin` de `public/_headers` ja envia.
+ *
+ * EL PREU ÉS EL COLOR. Les d'OSM són carreteres grogues i boscos verds, que
+ * sobre una app negra desentonen amb tot. Es dessaturen al panell de rajoles
+ * —no a cada rajola, que Leaflet les crea i les llença a cada moviment— i
+ * queden prou tranquil·les per llegir-se com un mapa i no com un anunci.
+ *
+ * Clar i no fosc, tot i que l'app és negra. Un mapa fosc sobre un panell fosc no
+ * es distingeix de res, que és canviar lleig per invisible. Un rectangle clar
  * dins d'una pantalla fosca es llegeix com el que és, un mapa.
  *
  * EL MARCADOR EL DIBUIXEM NOSALTRES. El de Leaflet és un PNG que la llibreria
@@ -89,12 +102,15 @@ export function GeoMap({
       first.current === null ? 11 : 16,
     )
 
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      maxZoom: 20,
-      subdomains: 'abcd',
-      // Les dues, i no és decoració: és la condició d'ús de totes dues.
-      attribution: '© OpenStreetMap · © CARTO',
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      // El màxim que serveixen els servidors d'OSM; més amunt, rajoles buides.
+      maxZoom: 19,
+      // L'atribució amb enllaç no és decoració: és la condició d'ús d'OSM.
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(instance)
+
+    const tiles = instance.getPane('tilePane')
+    if (tiles !== undefined) tiles.style.filter = 'saturate(0.35)'
 
     instance.on('click', (event: L.LeafletMouseEvent) => {
       pick.current({ lat: event.latlng.lat, lng: event.latlng.lng })

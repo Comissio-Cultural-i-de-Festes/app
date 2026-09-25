@@ -49,7 +49,7 @@
 #   *.googleusercontent.com            les fotos de perfil de Google. Amb
 #                                      comodí perquè Google les reparteix
 #                                      entre lh3 i lh6
-#   *.basemaps.cartocdn.com            les tessel·les del mapa (GeoMap.tsx:92)
+#   tile.openstreetmap.org             les tessel·les del mapa (GeoMap.tsx)
 #   photon.komoot.io                   el cercador d'adreces (geocode.ts:21)
 #   wa.me                              només enllaços que se segueixen; una
 #                                      navegació de primer nivell no la
@@ -66,7 +66,7 @@
 # afinar amb `style-src-attr`, però no abans de veure què diu la setmana de
 # `Report-Only`.
 /*
-  Content-Security-Policy-Report-Only: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; worker-src 'self'; manifest-src 'self'; img-src 'self' data: blob: https://*.googleusercontent.com https://*.basemaps.cartocdn.com https://xuirxygwhpykwjietjhj.supabase.co; connect-src 'self' https://xuirxygwhpykwjietjhj.supabase.co wss://xuirxygwhpykwjietjhj.supabase.co https://photon.komoot.io
+  Content-Security-Policy-Report-Only: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self'; worker-src 'self'; manifest-src 'self'; img-src 'self' data: blob: https://*.googleusercontent.com https://tile.openstreetmap.org https://xuirxygwhpykwjietjhj.supabase.co; connect-src 'self' https://xuirxygwhpykwjietjhj.supabase.co wss://xuirxygwhpykwjietjhj.supabase.co https://photon.komoot.io
   Referrer-Policy: strict-origin-when-cross-origin
   X-Content-Type-Options: nosniff
   Permissions-Policy: camera=(self), geolocation=(self), microphone=(), payment=(), interest-cohort=()

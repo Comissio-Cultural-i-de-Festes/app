@@ -1363,45 +1363,6 @@
       "show": "Show the details",
       "hide": "Hide the details"
     },
-    "viatgers": {
-      "title": "Traveller details",
-      "flag": {
-        "label": "Traveller details",
-        "on": "Asked for on sign-up",
-        "off": "Not asked for",
-        "hint": "For a country house or any accommodation: each person's name, ID, date of birth and address, for the traveller register. Saved straight away, and deleted automatically a week after the stay.",
-        "newEvent": "Save the event first, then you can ask for traveller details.",
-        "sure_one": "If you stop asking, the details one person has already added will be deleted. They can't be recovered.",
-        "sure_other": "If you stop asking, the details {{count}} people have already added will be deleted. They can't be recovered.",
-        "sureCta": "Stop asking",
-        "turnedOn": "Done: they're asked for now.",
-        "turnedOff": "Done: they're no longer asked for.",
-        "removed_one": "Done: no longer asked for, and one person's details were deleted.",
-        "removed_other": "Done: no longer asked for, and {{count}} people's details were deleted.",
-        "paused": "Offline. It will save when the connection comes back."
-      },
-      "off": "This event doesn't ask for traveller details.",
-      "toForm": "Go to the event form",
-      "note": "Only people with a place are included. Every time you view or export them, it's logged in the committee record with your name.",
-      "purge": "They delete themselves on {{date}}.",
-      "summary": "{{posades}} of {{total}} have added them",
-      "empty": "Nobody has signed up yet.",
-      "has": "Added",
-      "missing": "Missing",
-      "estat": {
-        "si": "Has a place",
-        "asistio": "Already in",
-        "espera": "On the waiting list",
-        "sollicitat": "Awaiting a decision"
-      },
-      "noExport": "not exported",
-      "export": "Export CSV",
-      "exported_one": "File downloaded, with one person.",
-      "exported_other": "File downloaded, with {{count}} people.",
-      "exportNone": "Nobody with a place has added details yet.",
-      "show": "Show the details",
-      "hide": "Hide the details"
-    },
     "checkins": {
       "title": "Who checked in",
       "lede": "Points are granted on check-in. This is for taking them back when needed, not for granting them: look at the metres, and whoever checked in from far away stands out.",
@@ -1545,90 +1506,7 @@
     },
     "fixFirst": "Some fields need another look: they're the ones marked in amber.",
     "offline": "You're offline, and nothing is sent without a connection. What you've written stays here as long as you don't leave this screen.",
-    "save": "Save details",
-    "delete": "Delete my details",
-    "deleteSure": "Delete them? The committee won't be able to send them to the accommodation, and you'll have to add them again if you go.",
-    "deleteCta": "Yes, delete them",
-    "notAsked": "This event doesn't ask for traveller details.",
-    "notGoing": "Traveller details are only asked of people who are going. Say you're going first.",
-    "closed": "This stay is over, and the details can no longer be added or changed.",
-    "backToEvent": "Back to the event"
-  },
-  "viatger": {
-    "title": "Traveller details",
-    "block": {
-      "before": "If you go, we'll ask for your traveller registration details: the accommodation has to send them to the police.",
-      "eyebrow": "Traveller registration",
-      "missingTitle": "Your traveller details are missing",
-      "missingBody": "The accommodation has to send them to the traveller register. Only the committee sees them, and they delete themselves on {{date}}.",
-      "missingCta": "Add them",
-      "doneTitle": "Your traveller details are in",
-      "doneBody": "You can check and change them until {{date}}, when they delete themselves.",
-      "doneCta": "Check them"
-    },
-    "privacy": {
-      "what": "The house has to send these details to the police traveller register (Spanish RD 933/2021). They are used for nothing else.",
-      "who": "You and the committee see them; the committee passes them on to the accommodation. Every time the committee opens them, who did it and when is logged.",
-      "when": "They delete themselves on {{date}}, a week after you get back, or as soon as you stop going. They are not kept for next time.",
-      "noPhoto": "We never ask for a photo of your ID."
-    },
-    "section": {
-      "who": "Who you are",
-      "document": "Your ID",
-      "home": "Where you live",
-      "emergency": "Just in case"
-    },
-    "field": {
-      "nom": "First name",
-      "cognom1": "First surname",
-      "cognom2": "Second surname",
-      "sexe": "Sex",
-      "data_naixement": "Date of birth",
-      "nacionalitat": "Nationality",
-      "tipus_document": "ID type",
-      "numero_document": "ID number",
-      "numero_suport": "Support number",
-      "adreca": "Address",
-      "localitat": "Town or city",
-      "pais": "Country",
-      "telefon_emergencia": "Emergency phone"
-    },
-    "hint": {
-      "cognom2": "If you have one. If not, leave it blank.",
-      "suport": {
-        "dni": "Three letters and six digits on the front of the DNI (labelled «IDESP» or «NÚM. SOPORTE»).",
-        "nie": "The card number, the one starting with E, at the top of the front."
-      },
-      "telefon_emergencia": "Someone to call if something happens to you. Not your own."
-    },
-    "sexe": {
-      "dona": "Female",
-      "home": "Male",
-      "altre": "Other"
-    },
-    "document": {
-      "dni": "DNI",
-      "nie": "NIE",
-      "passaport": "Passport"
-    },
-    "choose": "Pick one",
-    "bad": {
-      "nom": "Write your name as it appears on your ID.",
-      "cognom1": "Write your first surname.",
-      "cognom2": "Too long: {{max}} characters at most.",
-      "sexe": "Pick one.",
-      "data_naixement": "Enter your date of birth. It can't be in the future.",
-      "nacionalitat": "Pick your nationality.",
-      "tipus_document": "Pick which ID you carry.",
-      "numero_document": "That number doesn't add up. Check it digit by digit, and the letter at the end.",
-      "numero_suport": "The support number is missing, or isn't in the right shape.",
-      "adreca": "Write the address where you live.",
-      "localitat": "Write the town or city.",
-      "pais": "Pick the country.",
-      "telefon_emergencia": "Write a phone number with at least nine digits."
-    },
-    "fixFirst": "Some fields need another look: they're the ones marked in amber.",
-    "offline": "You're offline, and nothing is sent without a connection. What you've written stays here as long as you don't leave this screen.",
+    "notSent": "Nothing was sent: you're offline. Try again once you have a connection.",
     "save": "Save details",
     "delete": "Delete my details",
     "deleteSure": "Delete them? The committee won't be able to send them to the accommodation, and you'll have to add them again if you go.",

@@ -1363,45 +1363,6 @@
       "show": "Mostra les dades",
       "hide": "Amaga les dades"
     },
-    "viatgers": {
-      "title": "Dades de viatger",
-      "flag": {
-        "label": "Dades de viatger",
-        "on": "Es demanen en apuntar-s'hi",
-        "off": "No es demanen",
-        "hint": "Per a una casa rural o qualsevol allotjament: el nom, el document, la data de naixement i l'adreça de cada persona, per al registre de viatgers. Es desa a l'acte, i s'esborren soles una setmana després de l'estada.",
-        "newEvent": "Desa l'esdeveniment primer, i després podràs demanar les dades de viatger.",
-        "sure_one": "Si les deixes de demanar, s'esborraran les dades d'una persona que ja les havia posat. No es poden recuperar.",
-        "sure_other": "Si les deixes de demanar, s'esborraran les dades de {{count}} persones que ja les havien posat. No es poden recuperar.",
-        "sureCta": "Deixa de demanar-les",
-        "turnedOn": "Fet: ara es demanen.",
-        "turnedOff": "Fet: ja no es demanen.",
-        "removed_one": "Fet: ja no es demanen, i s'han esborrat les dades d'una persona.",
-        "removed_other": "Fet: ja no es demanen, i s'han esborrat les dades de {{count}} persones.",
-        "paused": "Sense connexió. Es desarà quan torni la cobertura."
-      },
-      "off": "Aquest esdeveniment no demana dades de viatger.",
-      "toForm": "Ves al formulari de l'esdeveniment",
-      "note": "Només surten les dades de qui té plaça. Cada cop que les mires o les exportes queda escrit al registre de la junta, amb el teu nom.",
-      "purge": "S'esborren soles el {{date}}.",
-      "summary": "{{posades}} de {{total}} les han posades",
-      "empty": "Encara no s'hi ha apuntat ningú.",
-      "has": "Posades",
-      "missing": "Falten",
-      "estat": {
-        "si": "Té plaça",
-        "asistio": "Ja és dins",
-        "espera": "En llista d'espera",
-        "sollicitat": "Pendent de decidir"
-      },
-      "noExport": "no s'exporta",
-      "export": "Exporta el CSV",
-      "exported_one": "Fitxer baixat, amb una persona.",
-      "exported_other": "Fitxer baixat, amb {{count}} persones.",
-      "exportNone": "Encara no hi ha cap dada de qui té plaça.",
-      "show": "Mostra les dades",
-      "hide": "Amaga les dades"
-    },
     "checkins": {
       "title": "Qui ha fitxat",
       "lede": "Els punts es donen sols en fitxar. Això és per treure'ls quan cal, no per donar-los: mira els metres, i el que va fitxar de lluny es veu sol.",
@@ -1545,90 +1506,7 @@
     },
     "fixFirst": "Hi ha camps per revisar: són els marcats en ambre.",
     "offline": "No tens connexió, i sense connexió no s'envia res. El que has escrit es queda aquí mentre no surtis d'aquesta pantalla.",
-    "save": "Desa les dades",
-    "delete": "Esborra les meves dades",
-    "deleteSure": "Les esborrem? La junta ja no les podrà enviar a l'allotjament, i les hauràs de tornar a posar si hi vas.",
-    "deleteCta": "Sí, esborra-les",
-    "notAsked": "Aquesta activitat no demana dades de viatger.",
-    "notGoing": "Les dades de viatger es demanen a qui hi va. Primer digues que hi vas.",
-    "closed": "Aquesta estada ja s'ha acabat, i les dades ja no es poden posar ni canviar.",
-    "backToEvent": "Torna a l'activitat"
-  },
-  "viatger": {
-    "title": "Dades de viatger",
-    "block": {
-      "before": "Si hi vas, et demanarem les dades del registre de viatgers: l'allotjament les ha d'enviar a la policia.",
-      "eyebrow": "Registre de viatgers",
-      "missingTitle": "Falten les teves dades de viatger",
-      "missingBody": "L'allotjament les ha d'enviar al registre de viatgers. Només les veu la junta, i s'esborren soles el {{date}}.",
-      "missingCta": "Posa-les",
-      "doneTitle": "Les teves dades de viatger hi són",
-      "doneBody": "Les pots revisar i canviar fins al {{date}}, que és quan s'esborren soles.",
-      "doneCta": "Revisa-les"
-    },
-    "privacy": {
-      "what": "La casa ha d'enviar aquestes dades al registre de viatgers de la policia (RD 933/2021). No serveixen per a res més.",
-      "who": "Les veus tu i la junta, que les passa a l'allotjament. Cada cop que la junta les obre, queda escrit qui ho ha fet i quan.",
-      "when": "S'esborren soles el {{date}}, una setmana després de tornar. També si deixes d'anar-hi. No es guarden per a la propera vegada.",
-      "noPhoto": "No et demanem cap foto del document."
-    },
-    "section": {
-      "who": "Qui ets",
-      "document": "El document",
-      "home": "On vius",
-      "emergency": "Per si de cas"
-    },
-    "field": {
-      "nom": "Nom",
-      "cognom1": "Primer cognom",
-      "cognom2": "Segon cognom",
-      "sexe": "Sexe",
-      "data_naixement": "Data de naixement",
-      "nacionalitat": "Nacionalitat",
-      "tipus_document": "Document",
-      "numero_document": "Número de document",
-      "numero_suport": "Número de suport",
-      "adreca": "Adreça",
-      "localitat": "Població",
-      "pais": "País",
-      "telefon_emergencia": "Telèfon d'emergència"
-    },
-    "hint": {
-      "cognom2": "Si en tens. Si no, deixa-ho en blanc.",
-      "suport": {
-        "dni": "Són tres lletres i sis xifres, a la cara de davant del DNI (hi posa «IDESP» o «NÚM. SOPORTE»).",
-        "nie": "És el número de la targeta, el que comença per E, a dalt a la cara de davant."
-      },
-      "telefon_emergencia": "D'algú a qui trucar si et passa alguna cosa. No el teu."
-    },
-    "sexe": {
-      "dona": "Dona",
-      "home": "Home",
-      "altre": "Altre"
-    },
-    "document": {
-      "dni": "DNI",
-      "nie": "NIE",
-      "passaport": "Passaport"
-    },
-    "choose": "Tria'n un",
-    "bad": {
-      "nom": "Escriu el nom com surt al document.",
-      "cognom1": "Escriu el primer cognom.",
-      "cognom2": "És massa llarg: com a màxim {{max}} caràcters.",
-      "sexe": "Tria'n un.",
-      "data_naixement": "Posa la data de naixement, que no pot ser futura.",
-      "nacionalitat": "Tria la nacionalitat.",
-      "tipus_document": "Tria quin document portes.",
-      "numero_document": "Aquest número no quadra. Revisa'l xifra per xifra, i la lletra del final.",
-      "numero_suport": "Falta el número de suport, o no té la forma que toca.",
-      "adreca": "Escriu l'adreça on vius.",
-      "localitat": "Escriu la població.",
-      "pais": "Tria el país.",
-      "telefon_emergencia": "Escriu un telèfon de nou xifres com a mínim."
-    },
-    "fixFirst": "Hi ha camps per revisar: són els marcats en ambre.",
-    "offline": "No tens connexió, i sense connexió no s'envia res. El que has escrit es queda aquí mentre no surtis d'aquesta pantalla.",
+    "notSent": "No s'ha enviat res: no tens connexió. Torna-ho a provar quan en tinguis.",
     "save": "Desa les dades",
     "delete": "Esborra les meves dades",
     "deleteSure": "Les esborrem? La junta ja no les podrà enviar a l'allotjament, i les hauràs de tornar a posar si hi vas.",

@@ -1363,45 +1363,6 @@
       "show": "Muestra los datos",
       "hide": "Oculta los datos"
     },
-    "viatgers": {
-      "title": "Datos de viajero",
-      "flag": {
-        "label": "Datos de viajero",
-        "on": "Se piden al apuntarse",
-        "off": "No se piden",
-        "hint": "Para una casa rural o cualquier alojamiento: el nombre, el documento, la fecha de nacimiento y la dirección de cada persona, para el registro de viajeros. Se guarda al momento, y se borran solos una semana después de la estancia.",
-        "newEvent": "Guarda primero el evento, y después podrás pedir los datos de viajero.",
-        "sure_one": "Si dejas de pedirlos, se borrarán los datos de una persona que ya los había puesto. No se pueden recuperar.",
-        "sure_other": "Si dejas de pedirlos, se borrarán los datos de {{count}} personas que ya los habían puesto. No se pueden recuperar.",
-        "sureCta": "Deja de pedirlos",
-        "turnedOn": "Hecho: ahora se piden.",
-        "turnedOff": "Hecho: ya no se piden.",
-        "removed_one": "Hecho: ya no se piden, y se han borrado los datos de una persona.",
-        "removed_other": "Hecho: ya no se piden, y se han borrado los datos de {{count}} personas.",
-        "paused": "Sin conexión. Se guardará cuando vuelva la cobertura."
-      },
-      "off": "Este evento no pide datos de viajero.",
-      "toForm": "Ve al formulario del evento",
-      "note": "Solo salen los datos de quien tiene plaza. Cada vez que los miras o los exportas queda escrito en el registro de la junta, con tu nombre.",
-      "purge": "Se borran solos el {{date}}.",
-      "summary": "{{posades}} de {{total}} los han puesto",
-      "empty": "Todavía no se ha apuntado nadie.",
-      "has": "Puestos",
-      "missing": "Faltan",
-      "estat": {
-        "si": "Tiene plaza",
-        "asistio": "Ya está dentro",
-        "espera": "En lista de espera",
-        "sollicitat": "Pendiente de decidir"
-      },
-      "noExport": "no se exporta",
-      "export": "Exporta el CSV",
-      "exported_one": "Archivo descargado, con una persona.",
-      "exported_other": "Archivo descargado, con {{count}} personas.",
-      "exportNone": "Todavía no hay ningún dato de quien tiene plaza.",
-      "show": "Muestra los datos",
-      "hide": "Oculta los datos"
-    },
     "checkins": {
       "title": "Quién ha fichado",
       "lede": "Los puntos se dan solos al fichar. Esto es para quitarlos cuando toca, no para darlos: mira los metros, y el que fichó de lejos se ve solo.",
@@ -1545,90 +1506,7 @@
     },
     "fixFirst": "Hay campos por revisar: son los marcados en ámbar.",
     "offline": "No tienes conexión, y sin conexión no se envía nada. Lo que has escrito se queda aquí mientras no salgas de esta pantalla.",
-    "save": "Guarda los datos",
-    "delete": "Borra mis datos",
-    "deleteSure": "¿Los borramos? La junta ya no podrá enviarlos al alojamiento, y tendrás que volver a ponerlos si vas.",
-    "deleteCta": "Sí, bórralos",
-    "notAsked": "Esta actividad no pide datos de viajero.",
-    "notGoing": "Los datos de viajero se piden a quien va. Primero di que vas.",
-    "closed": "Esta estancia ya ha terminado, y los datos ya no se pueden poner ni cambiar.",
-    "backToEvent": "Vuelve a la actividad"
-  },
-  "viatger": {
-    "title": "Datos de viajero",
-    "block": {
-      "before": "Si vas, te pediremos los datos del registro de viajeros: el alojamiento tiene que enviarlos a la policía.",
-      "eyebrow": "Registro de viajeros",
-      "missingTitle": "Faltan tus datos de viajero",
-      "missingBody": "El alojamiento tiene que enviarlos al registro de viajeros. Solo los ve la junta, y se borran solos el {{date}}.",
-      "missingCta": "Ponlos",
-      "doneTitle": "Tus datos de viajero ya están",
-      "doneBody": "Puedes revisarlos y cambiarlos hasta el {{date}}, que es cuando se borran solos.",
-      "doneCta": "Revísalos"
-    },
-    "privacy": {
-      "what": "La casa tiene que enviar estos datos al registro de viajeros de la policía (RD 933/2021). No sirven para nada más.",
-      "who": "Los ves tú y la junta, que se los pasa al alojamiento. Cada vez que la junta los abre, queda escrito quién lo ha hecho y cuándo.",
-      "when": "Se borran solos el {{date}}, una semana después de volver. También si dejas de ir. No se guardan para la próxima vez.",
-      "noPhoto": "No te pedimos ninguna foto del documento."
-    },
-    "section": {
-      "who": "Quién eres",
-      "document": "El documento",
-      "home": "Dónde vives",
-      "emergency": "Por si acaso"
-    },
-    "field": {
-      "nom": "Nombre",
-      "cognom1": "Primer apellido",
-      "cognom2": "Segundo apellido",
-      "sexe": "Sexo",
-      "data_naixement": "Fecha de nacimiento",
-      "nacionalitat": "Nacionalidad",
-      "tipus_document": "Documento",
-      "numero_document": "Número de documento",
-      "numero_suport": "Número de soporte",
-      "adreca": "Dirección",
-      "localitat": "Localidad",
-      "pais": "País",
-      "telefon_emergencia": "Teléfono de emergencia"
-    },
-    "hint": {
-      "cognom2": "Si tienes. Si no, déjalo en blanco.",
-      "suport": {
-        "dni": "Son tres letras y seis cifras, en la cara delantera del DNI (pone «IDESP» o «NÚM. SOPORTE»).",
-        "nie": "Es el número de la tarjeta, el que empieza por E, arriba en la cara delantera."
-      },
-      "telefon_emergencia": "De alguien a quien llamar si te pasa algo. No el tuyo."
-    },
-    "sexe": {
-      "dona": "Mujer",
-      "home": "Hombre",
-      "altre": "Otro"
-    },
-    "document": {
-      "dni": "DNI",
-      "nie": "NIE",
-      "passaport": "Pasaporte"
-    },
-    "choose": "Elige uno",
-    "bad": {
-      "nom": "Escribe el nombre como sale en el documento.",
-      "cognom1": "Escribe el primer apellido.",
-      "cognom2": "Es demasiado largo: como máximo {{max}} caracteres.",
-      "sexe": "Elige uno.",
-      "data_naixement": "Pon la fecha de nacimiento, que no puede ser futura.",
-      "nacionalitat": "Elige la nacionalidad.",
-      "tipus_document": "Elige qué documento llevas.",
-      "numero_document": "Este número no cuadra. Revísalo cifra a cifra, y la letra del final.",
-      "numero_suport": "Falta el número de soporte, o no tiene la forma que toca.",
-      "adreca": "Escribe la dirección donde vives.",
-      "localitat": "Escribe la localidad.",
-      "pais": "Elige el país.",
-      "telefon_emergencia": "Escribe un teléfono de nueve cifras como mínimo."
-    },
-    "fixFirst": "Hay campos por revisar: son los marcados en ámbar.",
-    "offline": "No tienes conexión, y sin conexión no se envía nada. Lo que has escrito se queda aquí mientras no salgas de esta pantalla.",
+    "notSent": "No se ha enviado nada: no tienes conexión. Vuelve a intentarlo cuando tengas.",
     "save": "Guarda los datos",
     "delete": "Borra mis datos",
     "deleteSure": "¿Los borramos? La junta ya no podrá enviarlos al alojamiento, y tendrás que volver a ponerlos si vas.",

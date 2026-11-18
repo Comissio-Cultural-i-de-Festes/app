@@ -33,6 +33,7 @@ import {
 import { forgetOnUserChange } from '@/lib/forgetSession'
 import { useStalled } from '@/lib/useAvailability'
 import { useOnline } from '@/lib/useOnline'
+import { useStorageSweep } from '@/lib/useStorageSweep'
 
 /**
  * La zona de junta, carregada quan s'hi entra i no abans.
@@ -261,6 +262,11 @@ function DrainCheckins() {
   return null
 }
 
+function SweepStorage({ userId }: { readonly userId: string }) {
+  useStorageSweep(userId)
+  return null
+}
+
 /** El mateix per al QR: es desa en entrar, i no el dia que es busca a la porta. */
 function PrefetchQr() {
   useQrPrefetch()
@@ -485,6 +491,7 @@ function Gates() {
           guarda el mòbil, o sigui que la pantalla on es va prémer el botó no
           es torna a obrir. */}
       <DrainCheckins />
+      <SweepStorage userId={session.user.id} />
       <PrefetchQr />
       <KeepPushFresh />
       <Routes>

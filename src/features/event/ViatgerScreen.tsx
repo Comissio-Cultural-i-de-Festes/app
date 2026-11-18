@@ -91,8 +91,13 @@ export function ViatgerScreen() {
     queryFn: () => fetchDemanaViatger(id),
   })
   const meves = useQuery({
-    queryKey: viatgerKeys.meves(id),
+    queryKey: viatgerKeys.meves(id, userId),
     queryFn: () => fetchMevesDades(id, userId),
+    // Ni un segon a la cau quan la pantalla es tanca, i sempre de la base en
+    // obrir-la: són els tretze camps sencers, i en un mòbil compartit la cau
+    // és el lloc on sobreviurien a qui els va escriure.
+    gcTime: 0,
+    staleTime: 0,
   })
 
   if (event.isPending || attendances.isPending || demana.isPending || meves.isPending) {
@@ -162,7 +167,7 @@ export function ViatgerScreen() {
         dia={formatDateLong(esborren, locale)}
         online={online}
         onFet={async () => {
-          await client.invalidateQueries({ queryKey: viatgerKeys.meves(id) })
+          await client.invalidateQueries({ queryKey: viatgerKeys.totes(id) })
           void navigate(back, { replace: true })
         }}
       />
@@ -249,7 +254,7 @@ function Formulari({
     networkMode: 'always',
     mutationFn: () => esborraMevesDades(eventId, userId),
     onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: viatgerKeys.meves(eventId) })
+      await client.invalidateQueries({ queryKey: viatgerKeys.totes(eventId) })
       await onFet()
     },
   })

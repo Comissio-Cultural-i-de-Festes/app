@@ -14,7 +14,7 @@ import { SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { eventKeys, fetchEvent } from './api'
 import { esApuntat, esborrenEl } from './viatger'
-import { fetchDemanaViatger, fetchMevesDades, viatgerKeys } from './viatgerApi'
+import { fetchDemanaViatger, fetchMevaMarca, viatgerKeys } from './viatgerApi'
 
 /**
  * El registre de viatgers, a la fitxa de l'esdeveniment.
@@ -57,8 +57,8 @@ export function ViatgerBlock({ eventId }: { readonly eventId: string }) {
 
   const apuntat = esApuntat(myAnswer(attendances.data ?? [], eventId, userId))
   const meves = useQuery({
-    queryKey: viatgerKeys.meves(eventId),
-    queryFn: () => fetchMevesDades(eventId, userId),
+    queryKey: viatgerKeys.marca(eventId, userId),
+    queryFn: () => fetchMevaMarca(eventId, userId),
     enabled: demana.data === true && apuntat,
   })
 

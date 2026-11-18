@@ -19,9 +19,21 @@ import type { FilaViatger } from './viatger'
  * 42501 abans de cap política (és el mateix que diu `setAnswer` a l'Inici).
  */
 
+/**
+ * LA PERSONA VA DINS DE LA CLAU. En un mòbil compartit, qui entra després a la
+ * mateixa pestanya no ha de trobar a la cau el que va obrir qui hi havia abans:
+ * amb la clau només de l'esdeveniment, B rebia el document d'A abans que la
+ * consulta tornés, i si premia «Desa» el desava com a seu. `totes` és el
+ * prefix que s'invalida quan alguna cosa ho pot haver canviat —desar, esborrar,
+ * dir que sí o que no—.
+ */
 export const viatgerKeys = {
+  totes: (eventId: string) => ['event', eventId, 'viatger'] as const,
   demana: (eventId: string) => ['event', eventId, 'viatger', 'demana'] as const,
-  meves: (eventId: string) => ['event', eventId, 'viatger', 'meves'] as const,
+  meves: (eventId: string, userId: string) =>
+    ['event', eventId, 'viatger', 'meves', userId] as const,
+  marca: (eventId: string, userId: string) =>
+    ['event', eventId, 'viatger', 'marca', userId] as const,
 }
 
 const COLUMNES =
@@ -63,6 +75,26 @@ export async function fetchMevesDades(eventId: string, userId: string): Promise<
  * un UPDATE de zero files no és cap error —tornaria «desat» sense haver desat
  * res.
  */
+/**
+ * Només si hi són i quan es van tocar: és el que la fitxa necessita, i la
+ * fitxa s'obre molt més sovint que el formulari. Els tretze camps no surten de
+ * la base fins que algú els vol veure.
+ */
+export async function fetchMevaMarca(
+  eventId: string,
+  userId: string,
+): Promise<{ readonly updated_at: string } | null> {
+  const rows = await unwrapAs<{ updated_at: string }[]>(
+    supabase
+      .from('dades_viatger')
+      .select('updated_at')
+      .eq('event_id', eventId)
+      .eq('user_id', userId)
+      .limit(1),
+  )
+  return rows[0] ?? null
+}
+
 export async function desaMevesDades(
   eventId: string,
   userId: string,

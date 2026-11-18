@@ -241,6 +241,9 @@ begin
 end $fn$;
 
 -- ── retirar, com a la 73 ───────────────────────────────────────────────────
+-- Amb una diferència, a posta: la nota es neteja amb `private.nota_neta`, com
+-- a la 93, i no amb el `btrim` de la 73. Desfer la segona persona no ha de
+-- reobrir el forat del tabulador que la 77 va tancar.
 create or replace function public.retira_avis(p_avis_id uuid, p_nota text)
 returns void
 language plpgsql
@@ -251,14 +254,14 @@ as $fn$
 declare
   v_avis   public.avisos%rowtype;
   v_punts  int;
-  v_nota   text := btrim(coalesce(p_nota, ''));
+  v_nota   text := private.nota_neta(coalesce(p_nota, ''));
   v_comp   uuid;
 begin
   if not private.is_admin() then
     raise exception 'nomes junta' using errcode = '42501';
   end if;
 
-  if length(v_nota) = 0 then
+  if v_nota is null then
     raise exception 'retirar un avis tambe demana un motiu escrit' using errcode = '22023';
   end if;
   if length(v_nota) > 500 then

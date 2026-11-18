@@ -572,7 +572,10 @@ as $fn$
 declare
   v_avis   public.avisos%rowtype;
   v_punts  int;
-  v_nota   text := btrim(coalesce(p_nota, ''));
+  -- `private.nota_neta` i no el `btrim` de la 73, ara que el cos es torna a
+  -- escriure: és la regla del blanc que la 77 va tancar en una funció, i un
+  -- tabulador no és un motiu.
+  v_nota   text := private.nota_neta(coalesce(p_nota, ''));
   v_comp   uuid;
   v_valid  boolean;
 begin
@@ -580,7 +583,7 @@ begin
     raise exception 'nomes junta' using errcode = '42501';
   end if;
 
-  if length(v_nota) = 0 then
+  if v_nota is null then
     raise exception 'retirar un avis tambe demana un motiu escrit' using errcode = '22023';
   end if;
   if length(v_nota) > 500 then

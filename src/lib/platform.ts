@@ -40,10 +40,18 @@ export function isStandalone(): boolean {
  * an iPhone home-screen app also has no `Safari/` token, so "WebKit without
  * Safari" would lock out exactly the people who did everything right. The one
  * engine-level rule is Android's `; wv)`, which stock Chrome never sends.
- * WhatsApp is not on the list because it hands links to the system browser.
+ * WhatsApp is not on the list because today it hands links to the system
+ * browser; it has been trying an embedded one, so that is worth re-checking.
  */
 export type InAppBrowser =
-  'instagram' | 'messenger' | 'facebook' | 'tiktok' | 'snapchat' | 'linkedin' | 'webview'
+  | 'instagram'
+  | 'messenger'
+  | 'facebook'
+  | 'tiktok'
+  | 'snapchat'
+  | 'linkedin'
+  | 'threads'
+  | 'webview'
 
 // Order matters: Messenger carries the Facebook markers too, and every
 // Android one also carries `; wv)`, so the specific name wins over the generic.
@@ -54,6 +62,8 @@ const IN_APP_MARKERS: readonly (readonly [InAppBrowser, RegExp])[] = [
   ['tiktok', /musical_ly|BytedanceWebview|TikTok/i],
   ['snapchat', /\bSnapchat\b/],
   ['linkedin', /LinkedInApp/],
+  // Threads' internal name for iOS is Barcelona.
+  ['threads', /\bBarcelona\b/],
   ['webview', /Android[^)]*; wv\)/],
 ]
 

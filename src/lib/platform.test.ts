@@ -62,6 +62,11 @@ const INSIDE: readonly [string, string, string][] = [
     'snapchat',
   ],
   ['LinkedIn iOS', `${IOS} Mobile/15E148 [LinkedInApp]/9.30.1521`, 'linkedin'],
+  [
+    'Threads iOS',
+    `${IOS} Mobile/15E148 Barcelona 330.0.0.35.108 (iPhone14,5; iOS 17_5; en_US; en-US; scale=3.00; 1170x2532; 600000000)`,
+    'threads',
+  ],
   ['Android WebView of an app not on the list', `${DROID}; wv) ${WV}`, 'webview'],
 ]
 

@@ -34,8 +34,8 @@ describe('QueryProvider en tornar a l’app', () => {
   it('invalida les dades i deixa en pau les URL signades', async () => {
     const client = mount()
     client.setQueryData(['events', 'home'], { reveal: false })
-    client.setQueryData(signedKey('event-covers', 'a/1.jpg'), new Map([['a/1.jpg', 'u']]))
-    client.setQueryData(signedKey('avatars', 'b/2.jpg'), 'u')
+    client.setQueryData(signedKey('event-covers', 'a/1.jpg'), 'https://cdn.test/a')
+    client.setQueryData(signedKey('avatars', 'b/2.jpg'), 'https://cdn.test/b')
 
     appRevalidate.dispatchEvent(new Event(APP_REVALIDATE))
 

@@ -1,5 +1,5 @@
 import { DbError, unwrapAs } from '@/lib/db'
-import { DOOR_PHOTOS, signedUrlsQuery, uploadDoorPhoto } from '@/lib/storage'
+import { DOOR_PHOTOS, uploadDoorPhoto } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -33,11 +33,6 @@ export const photoKeys = {
 
 export async function fetchNights(): Promise<Night[]> {
   return unwrapAs<Night[]>(supabase.rpc('my_photos').select('*'))
-}
-
-/** One round trip for every photograph on the screen, not one each. */
-export function photoUrls(paths: readonly string[]) {
-  return signedUrlsQuery(DOOR_PHOTOS, paths)
 }
 
 export function pathsOf(nights: readonly Night[]): string[] {

@@ -5,6 +5,8 @@ import { useTranslation } from 'react-i18next'
 import { formatDateTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
+import { EVENT_PHOTOS } from '@/lib/storage'
+import { useSignedUrls } from '@/lib/useSignedUrls'
 import { useModalFocus } from '@/ui/Modal/useModalFocus'
 
 import { deletePhoto, type GalleryPhoto, galleryKeys } from './api'
@@ -15,7 +17,9 @@ import { ReportSheet } from './ReportSheet'
  *
  * És l'únic lloc de la galeria on es baixa la foto de debò: la graella són
  * miniatures i prou, i aquesta és la meitat del disseny que fa que dues-centes
- * fotos siguin cinc megues i no trenta-sis.
+ * fotos siguin cinc megues i no trenta-sis. Per això la foto gran també se
+ * signa aquí, quan s'obre, i no amb la graella: signar-les totes per endavant
+ * no baixava res, però era una firma per foto que ningú no havia de mirar.
  *
  * «Esborra-la» només surt a qui la va pujar i a la junta, i la base ho torna a
  * dir: la política d'esborrat no es fia d'aquest botó.
@@ -34,13 +38,11 @@ const ARROW =
 export function Viewer({
   photos,
   index,
-  urls,
   isAdmin,
   onClose,
 }: {
   readonly photos: readonly GalleryPhoto[]
   readonly index: number
-  readonly urls: Map<string, string>
   readonly isAdmin: boolean
   readonly onClose: () => void
 }) {
@@ -51,6 +53,7 @@ export function Viewer({
   const [reporting, setReporting] = useState(false)
 
   const photo = photos[at] ?? null
+  const full = useSignedUrls(EVENT_PHOTOS, [photo?.path ?? null])
 
   const remove = useMutation({
     mutationFn: () => (photo === null ? Promise.resolve() : deletePhoto(photo)),
@@ -106,7 +109,7 @@ export function Viewer({
   }
 
   if (photo === null) return null
-  const url = urls.get(photo.path) ?? null
+  const url = full.data.get(photo.path) ?? null
 
   return (
     <div

@@ -9,13 +9,14 @@ import { formatDateLong, formatDayMonth, formatTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { type Card, loadCardImage } from '@/lib/cards'
 import { errorKey } from '@/lib/errors'
+import { DOOR_PHOTOS } from '@/lib/storage'
+import { useSignedUrls } from '@/lib/useSignedUrls'
 
 import {
   type Night,
   fetchNights,
   pathsOf,
   photoKeys,
-  photoUrls,
   removeExitPhoto,
   shapeOf,
 } from './api'
@@ -52,10 +53,7 @@ export function DiptychScreen() {
   const others = all.filter((n) => n.event_id !== night?.event_id)
 
   const paths = pathsOf(all)
-  const urls = useQuery({
-    ...photoUrls(paths),
-    enabled: paths.length > 0,
-  })
+  const urls = useSignedUrls(DOOR_PHOTOS, paths)
   const url = (path: string | null) => (path === null ? null : (urls.data?.get(path) ?? null))
 
   const forget = useMutation({

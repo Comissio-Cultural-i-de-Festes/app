@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { type DoorEvent, type HomeQuery, aLaPorta, doorView, minutesAgo } from './doorView'
+import { type DoorEvent, type HomeQuery, doorView, minutesAgo } from './doorView'
+import { aLaPorta } from './finestra'
 import type { DoorNow, JuntaHomeData } from './homeApi'
 
 /**

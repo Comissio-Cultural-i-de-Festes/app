@@ -6,9 +6,14 @@
 --
 -- AQUEST FITXER ESBORRA DADES, i és el que toca. Les dades de viatger que hi
 -- hagi se'n van amb la taula: són dades que ja havien de desaparèixer soles, i
--- no hi ha cap lloc on guardar-les que no fos pitjor. Les files del registre de
--- les dues accions noves s'esborren perquè el CHECK de la 87 no les admet; no
--- porten cap dada del registre de viatgers, només qui les va obrir i quan.
+-- no hi ha cap lloc on guardar-les que no fos pitjor.
+--
+-- EL REGISTRE ES QUEDA. Les files de `consulta_viatgers` diuen qui de la junta
+-- va obrir les dades de qui i quan, i és justament el que algú pot preguntar
+-- després que les dades ja no hi siguin; les de `set_demana_viatger`, qui va
+-- posar o treure la casella. Cap de les dues porta cap dada del registre de
+-- viatgers. Per això el CHECK que es restaura manté les dues accions: el de la
+-- 87 no les admetria i obligaria a esborrar-les.
 --
 -- ORDRE: aquest va abans que el de la 88.
 
@@ -27,17 +32,21 @@ drop function if exists public.admin_viatgers(uuid);
 drop function if exists public.admin_set_demana_viatger(uuid, boolean);
 
 drop trigger if exists events_dades_viatger_casella on public.events;
+drop trigger if exists events_reunio_sense_viatgers on public.events;
+alter table public.events drop constraint if exists events_reunio_sense_viatgers;
 drop trigger if exists profiles_dades_viatger_baixa on public.profiles;
 drop trigger if exists attendances_dades_viatger_fora on public.attendances;
 drop trigger if exists attendances_dades_viatger_estat on public.attendances;
 
 drop function if exists private.dades_viatger_sense_casella();
+drop function if exists private.reunio_sense_viatgers();
 drop function if exists private.dades_viatger_en_la_baixa();
 drop function if exists private.dades_viatger_en_desapuntar();
 
 drop table if exists public.dades_viatger;
 
 drop function if exists private.dades_viatger_tocades();
+drop function if exists private.dades_viatger_valides();
 drop function if exists private.pot_desar_viatger(uuid);
 drop function if exists private.viatger_caduca(uuid);
 drop function if exists private.document_viatger_valid(text, text, text);
@@ -45,8 +54,6 @@ drop function if exists private.camp_viatger_net(text, int);
 drop function if exists private.esta_apuntat(text);
 
 alter table public.events drop column if exists demana_viatger;
-
-delete from public.audit_log where accio in ('consulta_viatgers', 'set_demana_viatger');
 
 alter table public.audit_log drop constraint audit_log_accio_check;
 
@@ -57,6 +64,7 @@ alter table public.audit_log
     'award_points',
     'check_in_here',
     'close_meeting',
+    'consulta_viatgers',
     'create_event',
     'create_invite',
     'decide_attendance',
@@ -74,6 +82,7 @@ alter table public.audit_log
     'save_grau',
     'save_periods',
     'set_avis_tipus',
+    'set_demana_viatger',
     'set_estat',
     'set_hores',
     'set_paid',

@@ -1,4 +1,5 @@
 import type { Session } from '@supabase/supabase-js'
+import { useQueryClient } from '@tanstack/react-query'
 import { Suspense, lazy, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Route, Routes, useLocation } from 'react-router'
@@ -42,7 +43,7 @@ import {
   shouldPromptInstall,
   snoozeInstall,
 } from '@/features/install/installGate'
-import { supabase } from '@/lib/supabase'
+import { rpc, supabase } from '@/lib/supabase'
 
 /**
  * La zona de junta, carregada quan s'hi entra i no abans.
@@ -178,6 +179,7 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null)
   const { pathname } = useLocation()
   const [ready, setReady] = useState(false)
+  const queryClient = useQueryClient()
   // Llegit en muntar, abans que el bescanvi l'esborri de la barra d'adreces. A
   // partir d'aquí ja hi ha sessió, i la pantalla d'instal·lació no torna.
   const [invited] = useState(() => readInviteCode() !== null)
@@ -220,16 +222,23 @@ export default function App() {
     if (code === null) return
 
     void (async () => {
-      const { error } = await supabase.rpc('redeem_invite', { p_codi: code })
+      const { data, error } = await rpc<{ ok: boolean }>('redeem_invite', { p_codi: code })
       // The code is only rubbed out of the address bar once it has been spent.
       // Removing it either way left somebody pending, with the one string that
       // could have got them in already gone.
       if (error) return
+      // El perfil es demana alhora que això, i sol arribar abans: deia
+      // `pendent` i ho seguia dient fins al pròxim refresc, amb el botó
+      // d'apuntar-se apagat just la primera vegada que algú el volia prémer.
+      // Tota la cau i no només el perfil, pel mateix motiu que
+      // `InviteCodeSheet`: el que s'ha llegit com a pendent ha tornat buit.
+      // Un codi que no val torna `ok: false` sense error, i allò sí que és cert.
+      if (data?.ok === true) void queryClient.invalidateQueries()
       const url = new URL(window.location.href)
       url.searchParams.delete(INVITE_PARAM)
       window.history.replaceState({}, '', url.toString())
     })()
-  }, [session])
+  }, [session, queryClient])
 
   if (!ready) {
     return (

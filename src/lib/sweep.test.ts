@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { SWEEP_EVERY_MS, byBucket, sweepDue } from './sweep'
+import { SWEEP_EVERY_MS, byBucket, sweepDue, sweepMarkKey } from './sweep'
 
 const NOW = 1_800_000_000_000
 
@@ -38,5 +38,12 @@ describe('byBucket', () => {
 
   it('res, res', () => {
     expect(byBucket([]).size).toBe(0)
+  })
+})
+
+describe('sweepMarkKey', () => {
+  it('una marca per persona, perquè un mòbil compartit no se salti ningú', () => {
+    expect(sweepMarkKey('a')).not.toBe(sweepMarkKey('b'))
+    expect(sweepMarkKey('a')).toContain('a')
   })
 })

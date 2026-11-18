@@ -183,7 +183,7 @@ function Requests({ eventId }: { readonly eventId: string }) {
             <MemberLink
               userId={r.user_id}
               label={t('junta.payments.title')}
-              className="flex min-w-0 flex-1 items-center gap-4 text-fg no-underline"
+              className="flex min-h-[44px] min-w-0 flex-1 items-center gap-4 text-fg no-underline"
             >
               <Avatar src={r.profiles?.avatar_url ?? null} size={36} />
               <span className="min-w-0 flex-1 truncate text-base font-semibold">
@@ -311,7 +311,7 @@ function Queue({ eventId }: { readonly eventId: string }) {
             <MemberLink
               userId={r.user_id}
               label={t('junta.payments.title')}
-              className="flex min-w-0 flex-1 items-center gap-4 text-fg no-underline"
+              className="flex min-h-[44px] min-w-0 flex-1 items-center gap-4 text-fg no-underline"
             >
               <Avatar src={r.profiles?.avatar_url ?? null} size={36} />
               <span className="min-w-0 flex-1 truncate text-base font-semibold">
@@ -381,7 +381,7 @@ function Picker({
         onChange={(e) => {
           void navigate(`/junta/pagaments/${e.target.value}`, { replace: true })
         }}
-        className={`eyebrow truncate bg-transparent text-fg-muted ${className}`}
+        className={`eyebrow min-h-[44px] truncate bg-transparent text-fg-muted ${className}`}
       >
         {known ? null : (
           <option value="" disabled>

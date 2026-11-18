@@ -6,7 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { UnreadableImage } from '@/lib/storage'
 
 import type * as ApiType from './api'
-import type { Gimcana } from './api'
+import { type Gimcana, NotSaved } from './api'
 
 /**
  * El selector de fitxer de la prova.
@@ -39,6 +39,8 @@ const OBERTA: Gimcana = {
 }
 
 const flush = vi.fn(() => Promise.resolve(0))
+const navigate = vi.fn(() => Promise.resolve())
+let queued = true
 let submit: () => Promise<string> = () => Promise.resolve('enviada')
 
 vi.mock('react-i18next', () => ({
@@ -47,7 +49,7 @@ vi.mock('react-i18next', () => ({
 
 vi.mock('react-router', () => ({
   useParams: () => ({ id: 'ev1', provaId: 'p1' }),
-  useNavigate: () => () => Promise.resolve(),
+  useNavigate: () => navigate,
   useLocation: () => ({ pathname: '/', search: '' }),
   Link: ({ children }: { readonly children: ReactNode }) => <a href="#">{children}</a>,
 }))
@@ -61,6 +63,7 @@ vi.mock('./api', async (importOriginal) => {
     fetchGimcana: () => Promise.resolve(OBERTA),
     submitProva: () => submit(),
     flushProves: () => flush(),
+    isQueued: () => Promise.resolve(queued),
   }
 })
 
@@ -79,6 +82,8 @@ async function munta(): Promise<HTMLInputElement> {
 
 beforeEach(() => {
   flush.mockClear()
+  navigate.mockClear()
+  queued = true
   submit = () => Promise.resolve('enviada')
   vi.stubGlobal(
     'URL',
@@ -121,5 +126,55 @@ describe("la cua de proves a la pantalla d'enviar", () => {
     window.dispatchEvent(new Event('online'))
 
     expect(flush).toHaveBeenCalled()
+  })
+})
+
+describe('el que ha passat amb la foto', () => {
+  async function envia(): Promise<void> {
+    const input = await munta()
+    fireEvent.change(input, {
+      target: { files: [new File(['x'], 'IMG_1.jpg', { type: 'image/jpeg' })] },
+    })
+    fireEvent.click(screen.getByText('gimcana.send'))
+  }
+
+  // Un error abans del `put` no és «a la cua»: dir-ho seria prometre un enviament
+  // que no existirà.
+  it("una foto que no s'ha pogut desar és un error, no «desada»", async () => {
+    submit = () => Promise.reject(new NotSaved(new Error('quota')))
+    await envia()
+
+    const alert = await screen.findByRole('alert')
+    expect(alert.textContent).toBe('gimcana.notSaved')
+    expect(screen.queryByText('gimcana.queued')).toBeNull()
+  })
+
+  it("quan la cua l'envia mentre som aquí, passa a enviada", async () => {
+    submit = () => Promise.reject(new TypeError('Failed to fetch'))
+    await envia()
+    await screen.findByText('gimcana.queued')
+
+    queued = false
+    flush.mockResolvedValue(1)
+    window.dispatchEvent(new Event('online'))
+
+    await waitFor(() => {
+      expect(navigate).toHaveBeenCalledWith('/esdeveniment/ev1/gimcana', { replace: true })
+    })
+  })
+
+  it("si només ha sortit la d'una altra prova, l'avís es queda", async () => {
+    submit = () => Promise.reject(new TypeError('Failed to fetch'))
+    await envia()
+    await screen.findByText('gimcana.queued')
+
+    flush.mockResolvedValue(1)
+    window.dispatchEvent(new Event('online'))
+    await waitFor(() => {
+      expect(flush).toHaveBeenCalled()
+    })
+
+    expect(navigate).not.toHaveBeenCalled()
+    expect(screen.getByText('gimcana.queued')).toBeTruthy()
   })
 })

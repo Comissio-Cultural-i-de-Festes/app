@@ -320,6 +320,7 @@
     "sendNote": "Somebody on the junta looks at it the same night. The points land when they say it counts.",
     "offlineNote": "It works with no signal too: it is saved and sent by itself when the network comes back.",
     "queued": "Saved. It will send itself when the network comes back — you can close the app.",
+    "notSaved": "The photo could not be saved. Try again, or pick another one.",
     "rejected": {
       "title": "That one did not count",
       "noReason": "You can send another photo: the challenge is still open."

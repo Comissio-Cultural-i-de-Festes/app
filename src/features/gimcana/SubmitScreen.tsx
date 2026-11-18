@@ -9,7 +9,7 @@ import { errorKey } from '@/lib/errors'
 import { UnreadableImage } from '@/lib/storage'
 import { Notice } from '@/ui/Notice/Notice'
 
-import { fetchGimcana, gimcanaKeys, submitProva } from './api'
+import { fetchGimcana, gimcanaKeys, isQueued, NotSaved, submitProva } from './api'
 import { useProvesQueue } from './useProvesQueue'
 
 /**
@@ -35,9 +35,6 @@ export function SubmitScreen() {
   const { id = '', provaId = '' } = useParams()
   const navigate = useNavigate()
   const client = useQueryClient()
-  // La foto desada sense cobertura ha de poder sortir des d'aquí mateix: qui
-  // l'ha enviada es queda a la pantalla, i `online` no passa per la llista.
-  useProvesQueue()
   const picker = useRef<HTMLInputElement>(null)
   // Els dos van junts, i el blob-URL es crea al gestor que ha triat la foto —
   // mai durant un render. Al cos del render, cada repintada mentre s'envia en
@@ -80,6 +77,24 @@ export function SubmitScreen() {
     },
   })
 
+  // Només és «a la cua» el que ha arribat a desar-se i no ha tingut un refús.
+  const isInQueue =
+    send.isError &&
+    !isPermanent(send.error) &&
+    !(send.error instanceof UnreadableImage) &&
+    !(send.error instanceof NotSaved)
+
+  // La foto desada sense cobertura ha de poder sortir des d'aquí mateix: qui
+  // l'ha enviada es queda a la pantalla, i `online` no passa per la llista.
+  useProvesQueue(() => {
+    // La foto que deia «Desada» ha sortit mentre érem aquí: és el mateix estat
+    // que si hagués sortit a la primera. Si només ha sortit la d'una altra
+    // prova, la nostra encara espera i l'avís és cert.
+    if (!isInQueue) return
+    void isQueued(provaId).then((waiting) => {
+      if (!waiting) void navigate(`/esdeveniment/${id}/gimcana`, { replace: true })
+    })
+  })
   return (
     <main className="min-h-dvh bg-app pb-10">
       <JuntaHeader to={`/esdeveniment/${id}/gimcana`} label={t('gimcana.title')} />
@@ -162,6 +177,10 @@ export function SubmitScreen() {
               isPermanent(send.error) || send.error instanceof UnreadableImage ? (
                 <p role="alert" className="mt-5 text-md font-bold text-error [text-wrap:pretty]">
                   {t(errorKey(send.error))}
+                </p>
+              ) : send.error instanceof NotSaved ? (
+                <p role="alert" className="mt-5 text-md font-bold text-error [text-wrap:pretty]">
+                  {t('gimcana.notSaved')}
                 </p>
               ) : (
                 <Notice live className="mt-5">

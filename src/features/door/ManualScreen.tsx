@@ -122,8 +122,8 @@ export function ManualScreen() {
         setLast({ userId: row.user_id, nombre: row.nombre, outcome })
         void roster.refetch()
       })
-      .catch(() => {
-        const outcome = outcomeFromFailure(request)
+      .catch((cause: unknown) => {
+        const outcome = outcomeFromFailure(request, cause)
         setDone((previous) => ({ ...previous, [row.user_id]: outcome }))
         setLast({ userId: row.user_id, nombre: row.nombre, outcome })
       })

@@ -6,7 +6,8 @@ import { useParams } from 'react-router'
 import { decideProva, fetchQueue, gimcanaKeys, undoProva } from '@/features/gimcana/api'
 import { teamName } from '@/features/gimcana/teamName'
 import { errorKey } from '@/lib/errors'
-import { GIMCANA_PHOTOS, signedUrls } from '@/lib/storage'
+import { GIMCANA_PHOTOS } from '@/lib/storage'
+import { useSignedUrls } from '@/lib/useSignedUrls'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
@@ -47,11 +48,7 @@ export function GimcanaValidateScreen() {
   const rows = queue.data ?? []
   const current = rows[0] ?? null
 
-  const urls = useQuery({
-    queryKey: ['junta', 'gimcana', 'urls', current?.path ?? ''],
-    queryFn: () => signedUrls(GIMCANA_PHOTOS, [current?.path ?? '']),
-    enabled: current !== null,
-  })
+  const urls = useSignedUrls(GIMCANA_PHOTOS, [current?.path ?? null])
 
   const decide = useMutation({
     mutationFn: ({ id, val }: { id: string; val: boolean }) =>

@@ -1,6 +1,6 @@
-import type { CheckInStatus, ScanPresentation } from '@/design/states'
+import { type CheckInStatus, SCAN_PRESENTATION, type ScanPresentation } from '@/design/states'
 
-import type { CheckInResult } from './api'
+import type { CheckInResult, DoorOutcome } from './api'
 
 /**
  * Les paraules que van a la targeta del veredicte.
@@ -174,4 +174,19 @@ function detailOf(result: CheckInResult, priceCents: number | null): DetailPart[
   }
 
   return parts
+}
+
+/**
+ * Si una resposta que arriba tard s'ha de dir igualment.
+ *
+ * La càmera no espera, i amb la xarxa lenta la resposta d'un escaneig pot
+ * arribar quan la targeta ja és de la persona següent. No se li torna la
+ * targeta —seria posar un altre nom sobre qui hi ha davant—, però tampoc es
+ * pot llençar sencera: «no és de la comi», «ja havia entrat» o «no estava
+ * apuntat» demanen que algú faci alguna cosa, i ningú no ho sabria. Una entrada
+ * normal no demana res i calla; una que no ha arribat ja surt al comptador de
+ * la cua.
+ */
+export function displacedWorthSaying(outcome: DoorOutcome): boolean {
+  return outcome.kind === 'sent' && SCAN_PRESENTATION[outcome.result.status].tone !== 'success'
 }

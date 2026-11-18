@@ -4,8 +4,10 @@ import { Link } from 'react-router'
 
 import { formatTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
+import { DOOR_PHOTOS } from '@/lib/storage'
+import { useSignedUrls } from '@/lib/useSignedUrls'
 
-import { fetchNights, fetchPhotoUrls, pathsOf, photoKeys } from './api'
+import { fetchNights, pathsOf, photoKeys } from './api'
 
 /**
  * "La teva nit", on a past event's own page.
@@ -30,11 +32,7 @@ export function MyNightBlock({ eventId }: { readonly eventId: string }) {
   const night = nights.data?.find((n) => n.event_id === eventId)
 
   const paths = night === undefined ? [] : pathsOf([night])
-  const urls = useQuery({
-    queryKey: photoKeys.urls(paths),
-    queryFn: () => fetchPhotoUrls(paths),
-    enabled: paths.length > 0,
-  })
+  const urls = useSignedUrls(DOOR_PHOTOS, paths)
 
   if (night === undefined) return null
 

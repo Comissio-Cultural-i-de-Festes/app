@@ -25,10 +25,10 @@ interface Fake {
   refetch: () => Promise<unknown>
 }
 
-const profile = vi.hoisted(() => ({ current: null as unknown }))
+const profile = vi.hoisted<{ current: unknown }>(() => ({ current: null }))
 
 vi.mock('@/features/session/useMyProfile', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@/features/session/useMyProfile')>()),
+  ...(await importOriginal<Record<string, unknown>>()),
   useMyProfile: () => profile.current,
 }))
 

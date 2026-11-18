@@ -17,7 +17,7 @@ import {
   scan,
 } from './api'
 import { ScanGlyph } from './icons'
-import { verdictText } from './verdict'
+import { displacedWorthSaying, statusWords, verdictText } from './verdict'
 import { useCamera } from './useCamera'
 import { useQueue } from './useQueue'
 import { type Undo, useUndo, undoNoteKey } from './useUndo'
@@ -56,6 +56,7 @@ export function ScannerScreen() {
 
   const videoRef = useRef<HTMLVideoElement>(null)
   const [outcome, setOutcome] = useState<DoorOutcome | null>(null)
+  const [displaced, setDisplaced] = useState<DoorOutcome | null>(null)
   const lastToken = useRef<{ value: string; at: number } | null>(null)
   const latestRequest = useRef<string | null>(null)
   const { queued, online, refresh: refreshQueue } = useQueue()
@@ -79,16 +80,24 @@ export function ScannerScreen() {
       // The camera does not wait for an answer, so on a slow night two can be
       // in flight at once. The card belongs to whoever was scanned last: an
       // older answer arriving late would put somebody else's name over the
-      // person standing there. The older scan is not lost, only not drawn —
-      // it is in the queue count until it lands.
+      // person standing there. What the older one said is not thrown away,
+      // though. If it asks for something — not a member, already in, not
+      // signed up — it goes on the line above the card; a plain "in" has
+      // nothing to say, and one that never arrived is in the queue count.
+      // The line belongs to the scan in between, so a new scan clears it.
       latestRequest.current = request.clientRequestId
       const isLatest = () => latestRequest.current === request.clientRequestId
+      setDisplaced(null)
 
       void scan(request)
         .then((result) => {
           void roster.refetch()
-          if (!isLatest()) return
-          setOutcome({ kind: 'sent', request, result })
+          const sent: DoorOutcome = { kind: 'sent', request, result }
+          if (!isLatest()) {
+            if (displacedWorthSaying(sent)) setDisplaced(sent)
+            return
+          }
+          setOutcome(sent)
           buzz(SCAN_PRESENTATION[result.status].haptic)
         })
         .catch((cause: unknown) => {
@@ -193,6 +202,10 @@ export function ScannerScreen() {
         )}
       </div>
 
+      {displaced === null ? null : (
+        <DisplacedLine outcome={displaced} priceCents={event.data?.precio_cents ?? null} />
+      )}
+
       {outcome === null ? null : (
         // El preu, i null mentre no hagi arribat: la targeta no ha de dir que
         // ningú deu res fins que sap que hi ha alguna cosa a deure.
@@ -294,6 +307,43 @@ function Verdict({
         </button>
       )}
     </div>
+  )
+}
+
+/**
+ * What an earlier scan said, once the card belongs to somebody else.
+ *
+ * One line in the earlier verdict's colour, above the card and smaller than
+ * it, so the glance still lands on the person in front. No undo: the card's
+ * button is for the card, and what this line asks for is somebody walking
+ * over, not a tap.
+ */
+function DisplacedLine({
+  outcome,
+  priceCents,
+}: {
+  readonly outcome: DoorOutcome
+  readonly priceCents: number | null
+}) {
+  const { t } = useTranslation()
+  const shown = presentationOf(outcome)
+  const result = outcome.kind === 'sent' ? outcome.result : null
+  const nombre = result?.nombre
+  const verdict = t(statusWords(shown, result, priceCents).headlineKey, {
+    nombre: nombre ?? t('door.unknownPerson'),
+  })
+  const tone = toneVar(shown.tone)
+
+  return (
+    <p
+      role="status"
+      style={{ color: tone, borderColor: tone }}
+      className="relative z-10 mx-8 mb-4 border-l-[3px] bg-[var(--ds-scrim-bar)] px-7 py-5 text-sm font-bold backdrop-blur-[14px] [text-wrap:pretty]"
+    >
+      {nombre === undefined
+        ? t('door.displacedUnknown', { verdict })
+        : t('door.displaced', { nombre, verdict })}
+    </p>
   )
 }
 

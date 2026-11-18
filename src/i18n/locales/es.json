@@ -35,6 +35,8 @@
     "manual": "Alta manual por el nombre",
     "buzzes": "Vibra en cada QR",
     "unknownPerson": "Este QR",
+    "displaced": "Antes, {{nombre}}: {{verdict}}",
+    "displacedUnknown": "El escaneo anterior: {{verdict}}",
     "notPaid": "no ha pagado",
     "camera": {
       "denied": "No podemos abrir la cámara. Dale permiso en los ajustes del navegador —Ajustes › {{app}} › Cámara— y vuelve, o haz el alta por el nombre.",

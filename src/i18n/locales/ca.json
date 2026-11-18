@@ -35,6 +35,8 @@
     "manual": "Alta manual pel nom",
     "buzzes": "Vibra a cada QR",
     "unknownPerson": "Aquest QR",
+    "displaced": "Abans, {{nombre}}: {{verdict}}",
+    "displacedUnknown": "L'escaneig d'abans: {{verdict}}",
     "notPaid": "no ha pagat",
     "camera": {
       "denied": "No podem obrir la càmera. Dona-hi permís als ajustos del navegador —Ajustos › {{app}} › Càmera— i torna-hi, o fes l'alta pel nom.",

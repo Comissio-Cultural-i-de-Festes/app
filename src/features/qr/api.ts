@@ -49,8 +49,20 @@ function writeCachedToken(userId: string, token: string): void {
   }
 }
 
+/**
+ * Bumped on sign-out, and checked before a token is written.
+ *
+ * The prefetch on sign-in means a `my_qr` can be in the air when somebody
+ * signs out — on one bar of signal it can be in the air for a long time. Its
+ * answer would land after the wipe below and put the previous person's door
+ * pass back on a phone that is now somebody else's. A token is only kept if
+ * nobody has signed out since it was asked for.
+ */
+let generation = 0
+
 /** Called on sign-out. A shared phone must not keep somebody else's door pass. */
 export function forgetCachedTokens(): void {
+  generation += 1
   try {
     for (const key of Object.keys(localStorage)) {
       if (key.startsWith(KEY_PREFIX)) localStorage.removeItem(key)
@@ -70,6 +82,7 @@ export function forgetCachedTokens(): void {
  */
 export async function fetchQrToken(userId: string): Promise<string> {
   const cached = readCachedToken(userId)
+  const asked = generation
 
   const { data, error } = await rpc<string>('my_qr')
   if (error !== null || data === null) {
@@ -77,7 +90,7 @@ export async function fetchQrToken(userId: string): Promise<string> {
     throw error ?? new Error('no token')
   }
 
-  writeCachedToken(userId, data)
+  if (asked === generation) writeCachedToken(userId, data)
   return data
 }
 

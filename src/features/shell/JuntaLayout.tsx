@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, Outlet } from 'react-router'
+import { Navigate, Outlet, useMatch } from 'react-router'
 
 import { JuntaNav } from '@/features/junta/JuntaNav'
 import { PROFILE_CLOCK, isJunta, useMyProfile } from '@/features/session/useMyProfile'
@@ -30,6 +30,7 @@ export function JuntaLayout() {
   const { t } = useTranslation()
   const profile = useMyProfile()
   const view = useAvailability(profile, { clock: PROFILE_CLOCK })
+  const scanner = useMatch('/junta/escaner/:eventId')
 
   // On #root rather than in a component, because the width cap lives on #root
   // and a child cannot widen its own parent.
@@ -50,7 +51,18 @@ export function JuntaLayout() {
   // on one bar of signal, with nothing on screen to explain why. The same goes
   // for one that never arrived: offline the query pauses instead of failing,
   // and this used to wait on it for ever.
-  if (view.unavailable) return <GateUnreachable message={t(view.messageKey)} onRetry={view.retry} />
+  //
+  // L'escàner és l'excepció. Funciona sense xarxa —cada lectura va a la cua
+  // `SCANS` abans de sortir i el servidor la valida quan arriba—, i la porta
+  // de la casa rural és exactament on la junta l'obrirà sense cobertura i
+  // amb el perfil sense carregar. Aquí no es decideix res de seguretat: qui no
+  // és de la junta i hi arriba veu una càmera, i cada lectura que envia la
+  // refusa el servidor.
+  if (view.unavailable && scanner === null) {
+    return <GateUnreachable message={t(view.messageKey)} onRetry={view.retry} />
+  }
+
+  if (view.unavailable) return <Outlet />
 
   if (!isJunta(profile.data)) return <Navigate to="/" replace />
 

@@ -102,8 +102,8 @@
     },
     "app": {
       "title": "Sign in",
-      "lede": "Sign in with your Google account. If you already got in with an invitation in Safari, you're in.",
-      "reassurance": "We only take your name, email and photo from the account. If you still need approving, you'll see it at the top once you're in.",
+      "lede": "Sign in with your Google account. If you've already been accepted, that's all; if not, you'll see how it works once you're in.",
+      "reassurance": "We only take your name, email and photo from the account. If you haven't been accepted yet, the committee will let you in by hand, usually the same day.",
       "hasCodeHint": "Type it into the notice at the top once you're in."
     },
     "invite": {

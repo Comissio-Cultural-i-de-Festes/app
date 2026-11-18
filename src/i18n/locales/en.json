@@ -1292,7 +1292,7 @@
       "validateTitle": "Approve the gymkhana",
       "inQueue_one": "{{count}} in the queue",
       "inQueue_other": "{{count}} in the queue",
-      "photoGone": "The photo is gone: entries are deleted thirty days after the gymkhana closes.",
+      "photoGone": "The photo is gone: gymkhana photos are deleted thirty days after it closes.",
       "queueEmpty": "No photos waiting. Come back in a while.",
       "yes": "It counts: +{{n}}",
       "no": "Does not count",

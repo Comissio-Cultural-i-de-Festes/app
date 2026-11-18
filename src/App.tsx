@@ -32,6 +32,7 @@ import { JuntaLayout } from '@/features/shell/JuntaLayout'
 import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
+import { forgetInvite } from '@/features/entry/pendingInvite'
 import { readInviteCode } from '@/features/entry/useInvite'
 import { useRedeemFromLink } from '@/features/entry/useRedeemFromLink'
 import { InstallScreen } from '@/features/install/InstallScreen'
@@ -207,7 +208,12 @@ export default function App() {
       setReady(true)
     })
 
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
+    const { data: sub } = supabase.auth.onAuthStateChange((event, next) => {
+      // Aquí i no al botó del perfil: també es tanca sessió quan el token ja
+      // no es pot refrescar, o des d'una altra pestanya. Un codi que esperava
+      // el bescanvi era del compte que se'n va, i el següent que entri en
+      // aquesta pestanya no se l'ha de quedar.
+      if (event === 'SIGNED_OUT') forgetInvite()
       setSession(next)
     })
     return () => {

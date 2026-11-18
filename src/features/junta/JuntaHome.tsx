@@ -23,11 +23,13 @@ import { AvisosPendentsBlock } from './AvisosPendentsBlock'
 import { type Stale, doorView, minutesAgo } from './doorView'
 import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
+import { INPUT } from './formBits'
 import { fetchHoresPendents, horesKeys } from './horesApi'
 import { fetchMeetings, meetingListKeys } from './meetingsApi'
 import { JuntaHeader } from './JuntaHeader'
 import { demanenFeina, estatDelPendent } from './pendents'
 import { fetchPendentsEsperen, pendentsKeys } from './pendentsApi'
+import { portaRecordada, recordaPorta } from './portes'
 import { useEstatsAvisos } from './useEstatsAvisos'
 import { useNormativa } from './useNormativa'
 
@@ -51,6 +53,7 @@ import { useNormativa } from './useNormativa'
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
+const DAY_MS = 86_400_000
 const ROW =
   'flex min-h-[62px] items-center gap-4 border-t border-surface-4 py-6 no-underline ' +
   `text-left w-full ${GUTTER}`
@@ -108,7 +111,9 @@ export function JuntaHome() {
   // canvi de `hash` no fa baixar la pàgina sol en una SPA, i per això es fa aquí.
   const { hash } = useLocation()
   useEffect(() => {
-    if (hash === '#avisos-pendents') document.getElementById('avisos-pendents')?.scrollIntoView()
+    if (hash === '#avisos-pendents' || hash === '#els-que-venen') {
+      document.getElementById(hash.slice(1))?.scrollIntoView()
+    }
   }, [hash])
 
   // Fetched here rather than at the door: this screen is opened on the way to
@@ -117,12 +122,24 @@ export function JuntaHome() {
     if (navigator.onLine) void warmDecoder()
   }, [])
 
+  // A quina porta fa porta aquest mòbil, quan n'hi ha més d'una. El perquè de
+  // recordar-ho aquí i no a la junta sencera és a `portes.ts`.
+  const [triada, setTriada] = useState(portaRecordada)
+  const tria = (id: string) => {
+    setTriada(id)
+    recordaPorta(id)
+  }
+
   // Les dades abans que l'error: el perquè és a `doorView.ts`.
-  const door = doorView(home, events.data)
+  const door = doorView(home, events.data, undefined, triada)
   const retrying = home.fetchStatus !== 'idle'
   const retry = () => void home.refetch()
 
-  const porta = home.data?.porta ?? null
+  // LA FEINA SEGUEIX LA PORTA TRIADA. Les files de «no han pagat» i «esperen
+  // resposta» porten a Pagaments d'aquell esdeveniment i parlen del seu dia; amb
+  // dues portes, sumar-les totes dibuixaria files que no es corresponen amb el
+  // panell de just a sobre. La feina de l'altra és a un toc, al selector.
+  const porta = door.kind === 'door' ? door.porta : null
   const dayWord = porta === null ? '' : formatWeekdayLong(new Date(porta.starts_at), locale)
 
   return (
@@ -154,7 +171,11 @@ export function JuntaHome() {
               onRetry={retry}
             />
           )}
-          {door.kind === 'none' ? <DoorNone /> : <Door porta={door.porta} locale={locale} />}
+          {door.kind === 'none' ? (
+            <DoorNone />
+          ) : (
+            <Door porta={door.porta} portes={door.portes} onPick={tria} locale={locale} />
+          )}
         </>
       )}
 
@@ -325,6 +346,7 @@ export function JuntaHome() {
       <Meetings />
 
       {/* ── Els que venen ── */}
+      <span id="els-que-venen" />
       <Heading
         display
         title={t('junta.home.soon')}
@@ -472,10 +494,32 @@ function scannerTo(eventId: string | null): string | null {
 
 // ── the door ────────────────────────────────────────────────────────────────
 
-function Door({ porta, locale }: { readonly porta: DoorNow; readonly locale: Locale }) {
+function Door({
+  porta,
+  portes,
+  onPick,
+  locale,
+}: {
+  readonly porta: DoorNow
+  readonly portes: readonly DoorNow[]
+  readonly onPick: (id: string) => void
+  readonly locale: Locale
+}) {
   const { t } = useTranslation()
   const starts = new Date(porta.starts_at)
+  const ends = porta.ends_at == null ? null : new Date(porta.ends_at)
   const left = placesLeft(porta)
+  // Una casa rural diu de quin dia a quin dia: «divendres» sol, el dissabte
+  // d'una estada que va començar divendres, faria pensar que és una altra. Per
+  // durada i no per dia de calendari: la festa de les onze que acaba a les tres
+  // canvia de dia i continua sent una nit.
+  const when =
+    ends !== null && ends.getTime() - starts.getTime() >= DAY_MS
+      ? t('junta.home.doorUntil', {
+          from: formatDateLong(starts, locale),
+          to: formatDateLong(ends, locale),
+        })
+      : formatDateLong(starts, locale)
 
   return (
     <section className="border-b border-surface-5 bg-[var(--ds-bg-door-panel)] px-[var(--ds-gutter)] pt-9 pb-10">
@@ -487,13 +531,36 @@ function Door({ porta, locale }: { readonly porta: DoorNow; readonly locale: Loc
         <span className="eyebrow text-brand-accent">{t('junta.home.doorNow')}</span>
       </p>
 
+      {/* Només quan n'hi ha més d'una: amb una, el panell és el d'abans. Un
+          `select` i no pestanyes perquè els títols són llargs i a 390 px dues
+          pestanyes ja no hi caben; el del sistema, a més, és el que el mòbil
+          sap obrir bé amb una mà. */}
+      {portes.length > 1 ? (
+        <label className="mt-6 block">
+          <span className="eyebrow text-[var(--ds-text-muted-lo)]">
+            {t('junta.home.doorPick', { n: portes.length })}
+          </span>
+          <select
+            value={porta.id}
+            onChange={(e) => {
+              onPick(e.target.value)
+            }}
+            className={INPUT}
+          >
+            {portes.map((p) => (
+              <option key={p.id} value={p.id}>
+                {formatWeekdayLong(new Date(p.starts_at), locale)} · {eventTitle(p.titulo)}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+
       <h2 className="display mt-6 text-d-s leading-[0.87] tracking-[-0.048em] [text-wrap:balance]">
         {eventTitle(porta.titulo)}
       </h2>
       <p className="mt-5 text-base font-semibold text-fg-secondary [text-wrap:pretty]">
-        {[formatDateLong(starts, locale), porta.ubicacion]
-          .filter((s): s is string => s !== null && s !== '')
-          .join(' · ')}
+        {[when, porta.ubicacion].filter((s): s is string => s !== null && s !== '').join(' · ')}
       </p>
 
       <div className="mt-8 grid grid-cols-3 gap-[1px] bg-surface-7">
@@ -564,8 +631,12 @@ function DoorNone() {
       <p className="mt-5 text-base font-semibold text-fg-secondary [text-wrap:pretty]">
         {t('junta.home.doorNoneSub')}
       </p>
+      {/* Portava a /junta, que és aquesta mateixa pantalla: un botó d'escàner
+          que no obria cap escàner. L'escàner de qualsevol activitat és a la
+          seva fitxa (issue #28), i el camí a les fitxes és la llista de més
+          avall. */}
       <Link
-        to="/junta"
+        to={{ hash: '#els-que-venen' }}
         className="mt-7 inline-flex min-h-[50px] items-center border-[1.5px] border-surface-7 px-8 text-md font-bold text-fg-secondary no-underline"
       >
         {t('junta.home.doorAnyway')}

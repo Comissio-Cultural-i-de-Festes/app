@@ -82,7 +82,7 @@ returns text language sql as $$
       'nom', 'Persona', 'cognom1', 'Inventada', 'cognom2', 'De Prova',
       'sexe', 'dona', 'tipus_document', 'dni', 'numero_document', '12345678Z',
       'numero_suport', 'ABC123456', 'nacionalitat', 'ES',
-      'data_naixement', '2003-04-05', 'adreca', 'Carrer Inventat 1',
+      'data_naixement', '2003-04-05', 'adreca', 'Via Inventada 1',
       'localitat', 'Poble Alfa', 'pais', 'ES', 'telefon_emergencia', '955000001'
     ) || p_canvi)
 $$;
@@ -148,7 +148,7 @@ select is(
 );
 
 select lives_ok(
-  format($$ update public.dades_viatger set adreca = 'Carrer Inventat 2'
+  format($$ update public.dades_viatger set adreca = 'Via Inventada 2'
              where event_id = %L $$, (select v from w)),
   'i les edita'
 );
@@ -226,7 +226,7 @@ select is(
 );
 
 with u as (
-  update public.dades_viatger set adreca = 'Carrer Robat'
+  update public.dades_viatger set adreca = 'Via Robada'
    where user_id = '00000000-0000-4000-8000-000000000003' returning 1)
 select is((select count(*)::int from u), 0, 'ni les edita');
 
@@ -239,7 +239,7 @@ reset role;
 select is(
   (select adreca from public.dades_viatger
     where event_id = (select v from w) and user_id = (select charlie from w)),
-  'Carrer Inventat 2',
+  'Via Inventada 2',
   'i les de charlie continuen com charlie les va deixar'
 );
 
@@ -287,7 +287,7 @@ select is(
   (select numero_document || '|' || adreca || '|' || telefon_emergencia
      from public.admin_dades_viatgers((select v from w), true)
     where user_id = (select charlie from w)),
-  '12345678Z|Carrer Inventat 2|955000001',
+  '12345678Z|Via Inventada 2|955000001',
   'amb tots els camps'
 );
 
@@ -428,7 +428,7 @@ insert into public.dades_viatger (
   numero_suport, nacionalitat, data_naixement, adreca, localitat, pais,
   telefon_emergencia)
 select e, (select charlie from w), 'Persona', 'Inventada', 'dona', 'dni', '12345678Z',
-       'ABC123456', 'ES', date '2003-04-05', 'Carrer Inventat 1', 'Poble Alfa', 'ES',
+       'ABC123456', 'ES', date '2003-04-05', 'Via Inventada 1', 'Poble Alfa', 'ES',
        '955000001'
   from unnest(array[(select p from w), (select q from w), (select s from w)]) e;
 
@@ -451,7 +451,7 @@ select is(
   'el propietari encara veu les de Q'
 );
 select throws_ok(
-  format($$ update public.dades_viatger set adreca = 'Carrer Tard' where event_id = %L $$,
+  format($$ update public.dades_viatger set adreca = 'Via Tarda' where event_id = %L $$,
          (select p from w)),
   '42501', null,
   'però les de P ja no les pot tocar: la finestra s''ha tancat'

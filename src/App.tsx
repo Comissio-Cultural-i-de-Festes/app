@@ -43,6 +43,7 @@ import {
   snoozeInstall,
 } from '@/features/install/installGate'
 import { supabase } from '@/lib/supabase'
+import { useStorageSweep } from '@/lib/useStorageSweep'
 
 /**
  * La zona de junta, carregada quan s'hi entra i no abans.
@@ -165,6 +166,11 @@ function DrainCheckins() {
   return null
 }
 
+function SweepStorage() {
+  useStorageSweep()
+  return null
+}
+
 export default function App() {
   const { t } = useTranslation()
   const [session, setSession] = useState<Session | null>(null)
@@ -266,6 +272,7 @@ export default function App() {
           guarda el mòbil, o sigui que la pantalla on es va prémer el botó no
           es torna a obrir. */}
       <DrainCheckins />
+      <SweepStorage />
       <Routes>
         {/* Asked once, and it has to be its own route rather than a gate in
             front of everything: a redirect that fires on every render would

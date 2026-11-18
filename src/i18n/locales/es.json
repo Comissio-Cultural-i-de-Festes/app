@@ -170,6 +170,9 @@
     "behindServer": "Esto todavía no está en el servidor: la app se ha actualizado antes que la base de datos. Si eres de la junta, sube las migraciones; si no, avísalos.",
     "stalled": "La conexión no responde: no llega nada. Vuelve a intentarlo o busca un sitio con más cobertura.",
     "sessionUnreachable": "Sin conexión no podemos abrir tu sesión. Cuando vuelva la red, la app se abrirá sola.",
+    "sendPaused": "Sin conexión. Queda en espera y se enviará cuando vuelva la red: no cierres la app.",
+    "sendSlow": "La conexión va muy lenta: todavía no ha llegado.",
+    "sendOffline": "Sin conexión, no ha salido. Vuelve a intentarlo cuando tengas cobertura.",
     "avisSostre": "Este curso ya se le han restado a esta persona todos los puntos que el tope permite. Sube «Máximo de puntos por curso» en El baremo, o registra el aviso sin puntos.",
     "avisForaDelCurs": "Hoy no cae dentro de ningún curso, y sin curso no hay ningún tope que contar. Abre el curso en «Los periodos del ranking», o registra el aviso sin puntos."
   },

@@ -53,8 +53,8 @@ vi.mock('@/lib/queue', () => ({
 }))
 
 const {
-  CHECK_IN_TIMEOUT_MS,
-  CheckInTimeout,
+  DOOR_TIMEOUT_MS,
+  DoorTimeout,
   awardPoints,
   flushQueue,
   outcomeFromFailure,
@@ -140,6 +140,7 @@ describe('a scan at the door', () => {
     await expect(flushQueue()).resolves.toEqual({ sent: 1, left: 1 })
     expect(rpc).toHaveBeenCalledTimes(2)
   })
+
 })
 
 describe('a check-in that never answers', () => {
@@ -152,8 +153,8 @@ describe('a check-in that never answers', () => {
     vi.useFakeTimers()
     rpc.mockReturnValue(hanging())
 
-    const settled = expect(scan(request('h1'))).rejects.toBeInstanceOf(CheckInTimeout)
-    await vi.advanceTimersByTimeAsync(CHECK_IN_TIMEOUT_MS)
+    const settled = expect(scan(request('h1'))).rejects.toBeInstanceOf(DoorTimeout)
+    await vi.advanceTimersByTimeAsync(DOOR_TIMEOUT_MS)
     await settled
 
     expect(store.get('h1')).toMatchObject({ clientRequestId: 'h1', tries: 1 })
@@ -165,12 +166,12 @@ describe('a check-in that never answers', () => {
       new Promise((resolve) => {
         setTimeout(() => {
           resolve({ data: { status: 'ok' }, error: null })
-        }, CHECK_IN_TIMEOUT_MS - 1_000)
+        }, DOOR_TIMEOUT_MS - 1_000)
       }),
     )
 
     const settled = expect(scan(request('slow'))).resolves.toMatchObject({ status: 'ok' })
-    await vi.advanceTimersByTimeAsync(CHECK_IN_TIMEOUT_MS)
+    await vi.advanceTimersByTimeAsync(DOOR_TIMEOUT_MS)
     await settled
 
     expect(store.size).toBe(0)
@@ -186,7 +187,7 @@ describe('a check-in that never answers', () => {
     const req = request('h2')
 
     const caught = scan(req).catch((cause: unknown) => cause)
-    await vi.advanceTimersByTimeAsync(CHECK_IN_TIMEOUT_MS)
+    await vi.advanceTimersByTimeAsync(DOOR_TIMEOUT_MS)
     const outcome = outcomeFromFailure(req, await caught)
 
     expect(navigator.onLine).toBe(true)
@@ -198,7 +199,7 @@ describe('a check-in that never answers', () => {
     vi.useFakeTimers()
     rpc.mockReturnValue(hanging())
     const caught = scan(request('h3')).catch(() => undefined)
-    await vi.advanceTimersByTimeAsync(CHECK_IN_TIMEOUT_MS)
+    await vi.advanceTimersByTimeAsync(DOOR_TIMEOUT_MS)
     await caught
 
     vi.useRealTimers()
@@ -220,7 +221,7 @@ describe('a check-in that never answers', () => {
     const USER = '00000000-0000-4000-8000-0000000000a2'
     const req = { clientRequestId: 'h4', eventId: EVENT, qrToken: null, userId: USER }
 
-    expect(undoTargetOf(outcomeFromFailure(req, new CheckInTimeout()))).toEqual({
+    expect(undoTargetOf(outcomeFromFailure(req, new DoorTimeout()))).toEqual({
       kind: 'unsure',
       clientRequestId: 'h4',
       eventId: EVENT,
@@ -243,7 +244,7 @@ describe('a check-in that never answers', () => {
     // and "Desfés" would have dropped the queue entry and said the check-in
     // never went, with the person still checked in. A QR only becomes a name
     // inside `check_in`, so there is nobody to take back from here.
-    expect(undoTargetOf(outcomeFromFailure(request('h6'), new CheckInTimeout()))).toBeNull()
+    expect(undoTargetOf(outcomeFromFailure(request('h6'), new DoorTimeout()))).toBeNull()
   })
 })
 

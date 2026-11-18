@@ -171,7 +171,8 @@ function DrainCheckins() {
  * goes first, the code is redeemed right there in Safari, and the account is
  * active on the server before anybody installs anything; from the icon it
  * takes one more Google sign-in and nothing else. `InstallCard` offers the
- * install afterwards, on the home screen.
+ * install afterwards, on the home screen. Android's native dialog steps aside
+ * too, because accepting it can open the installed app at `/` just the same.
  *
  * It is a prompt, not a wall: skipping it goes straight on to the door.
  */

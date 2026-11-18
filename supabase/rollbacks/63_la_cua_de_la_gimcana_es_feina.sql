@@ -13,6 +13,10 @@
 -- replace` no avisa de res— i el rebedor torna a reclamar diners d'una festa de
 -- franc. Desfés la 69 abans, o reescriu aquest cos sobre el seu i deixa-hi
 -- només el que la 63 va afegir.
+--
+-- I EL MATEIX AMB LA 89, que també reescriu `junta_home()` —la porta de tots
+-- els esdeveniments de la finestra—: desfés la 89, després la 69, i llavors
+-- aquest.
 
 create or replace function public.junta_home()
 returns jsonb

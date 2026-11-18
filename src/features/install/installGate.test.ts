@@ -129,12 +129,14 @@ describe('when the install screen appears', () => {
     expect(shouldPromptInstall(NOW, { invited: false })).toBe(true)
   })
 
-  it('keeps the Android dialog in front of the door, invitation or not', async () => {
-    // A Android instal·lar no canvia de magatzem i la pestanya es queda amb la
-    // URL sencera: el codi no es perd, i no hi ha res a arreglar.
+  it('steps aside on Android too: the dialog can open the icon, and the icon has no code', async () => {
+    // Acceptar el diàleg natiu pot obrir l'app instal·lada, que arrenca a `/`
+    // sense el `?codi=`. Android perd l'oferta en aquest primer pas; la té el
+    // menú del navegador, i qui ha vingut a entrar, entra.
     mockIsIos = false
     offerNativeDialog('dismissed')
-    expect(shouldPromptInstall(NOW, { invited: true })).toBe(true)
+    expect(shouldPromptInstall(NOW, { invited: true })).toBe(false)
+    expect(shouldPromptInstall(NOW, { invited: false })).toBe(true)
     await promptNativeInstall()
   })
 })

@@ -35,6 +35,8 @@
     "manual": "Check somebody in by name",
     "buzzes": "Buzzes on every QR",
     "unknownPerson": "This QR",
+    "displaced": "Before that, {{nombre}}: {{verdict}}",
+    "displacedUnknown": "The scan before: {{verdict}}",
     "notPaid": "has not paid",
     "camera": {
       "denied": "We can't get at the camera. Allow it in your browser settings — Settings › {{app}} › Camera — and come back, or check people in by name.",

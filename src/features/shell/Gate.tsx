@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
 /**
@@ -24,9 +25,12 @@ export function GateWaiting() {
 export function GateUnreachable({
   message,
   onRetry,
+  children,
 }: {
   readonly message: string
   readonly onRetry: () => void
+  /** El que encara es pot fer sense passar la porta. */
+  readonly children?: ReactNode
 }) {
   const { t } = useTranslation()
 
@@ -42,6 +46,7 @@ export function GateUnreachable({
       >
         {t('actions.retry')}
       </button>
+      {children}
     </main>
   )
 }

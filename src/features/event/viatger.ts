@@ -104,11 +104,16 @@ export function normalitzaDocument(text: string): string {
   return text.toUpperCase().replace(/[\s.\-/]/g, '')
 }
 
-/** Només dígits, amb el `+` del davant si n'hi havia: «+34 955-00 00 01» → «+34955000001». */
+/**
+ * Només dígits, amb el `+` del davant si n'hi havia: «+34 955-00 00 01» →
+ * «+34955000001». El prefix escrit amb `00` també passa a `+`: «0034…» al full
+ * de càlcul de la junta és un número, i l'Excel se'n menja els dos zeros.
+ */
 export function normalitzaTelefon(text: string): string {
   const net = text.trim()
   const digits = net.replace(/\D/g, '')
-  return net.startsWith('+') ? `+${digits}` : digits
+  if (net.startsWith('+')) return `+${digits}`
+  return digits.startsWith('00') ? `+${digits.slice(2)}` : digits
 }
 
 const LLETRES = 'TRWAGMYFPDXBNJZSQVHLCKE'

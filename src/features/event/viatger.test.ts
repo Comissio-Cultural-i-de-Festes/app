@@ -46,6 +46,7 @@ describe('normalitzar', () => {
   it('el telèfon, amb el + del davant i prou', () => {
     expect(normalitzaTelefon(' +34 955-00 00 01 ')).toBe('+34955000001')
     expect(normalitzaTelefon('955 00 00 01')).toBe('955000001')
+    expect(normalitzaTelefon('0034 955 00 00 01')).toBe('+34955000001')
   })
 
   it('el text, sense blancs als extrems ni salts de línia', () => {

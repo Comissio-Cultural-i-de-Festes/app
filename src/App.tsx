@@ -138,6 +138,32 @@ const JuntaHome = lazy(() =>
 )
 
 /**
+ * Les dues rutes que es llegeixen sense sessió.
+ *
+ * Exportades perquè les enllacen tres pantalles i cap d'elles ha de repetir la
+ * cadena: si un dia canvien de nom, canvien aquí i prou.
+ */
+export const PRIVACY_PATH = '/privadesa'
+export const TERMS_PATH = '/condicions'
+
+/**
+ * Només per penjar el hook de la cua a l'arbre.
+ *
+ * Un component i no una crida dins d'`App`: allà hi ha retorns condicionals
+ * abans d'aquest punt —la pantalla d'instal·lació, la d'entrada— i un hook
+ * darrere d'un `return` és un hook que unes vegades s'executa i altres no.
+ */
+function DrainCheckins() {
+  useCheckinQueue()
+  return null
+}
+
+function KeepPushFresh() {
+  useKeepPushFresh()
+  return null
+}
+
+/**
  * The order of the gates, and why.
  *
  * On iOS the home-screen app has its own storage, so a session created in
@@ -155,32 +181,6 @@ const JuntaHome = lazy(() =>
  *
  * It is a prompt, not a wall: skipping it goes straight on to the door.
  */
-/**
- * Només per penjar el hook de la cua a l'arbre.
- *
- * Un component i no una crida dins d'`App`: allà hi ha retorns condicionals
- * abans d'aquest punt —la pantalla d'instal·lació, la d'entrada— i un hook
- * darrere d'un `return` és un hook que unes vegades s'executa i altres no.
- */
-/**
- * Les dues rutes que es llegeixen sense sessió.
- *
- * Exportades perquè les enllacen tres pantalles i cap d'elles ha de repetir la
- * cadena: si un dia canvien de nom, canvien aquí i prou.
- */
-export const PRIVACY_PATH = '/privadesa'
-export const TERMS_PATH = '/condicions'
-
-function DrainCheckins() {
-  useCheckinQueue()
-  return null
-}
-
-function KeepPushFresh() {
-  useKeepPushFresh()
-  return null
-}
-
 export default function App() {
   const { t } = useTranslation()
   const [session, setSession] = useState<Session | null>(null)

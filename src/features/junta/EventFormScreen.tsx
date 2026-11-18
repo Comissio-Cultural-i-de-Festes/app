@@ -613,17 +613,18 @@ function EventForm() {
               dues coses són la mateixa: aquí es tria on es pot fitxar, i allà
               es veu qui ho ha fet. */}
           {editing ? (
-            <Link
-              to={`/junta/esdeveniment/${id ?? ''}/fitxatges`}
-              className="mb-9 flex min-h-[56px] items-center justify-between gap-5 border border-surface-8 bg-surface-2 px-7 py-6 text-fg no-underline"
-            >
-              <span className="text-md font-bold [text-wrap:balance]">
-                {t('junta.checkins.title')}
-              </span>
-              <span aria-hidden="true" className="flex-none text-lg text-fg-muted">
-                ›
-              </span>
-            </Link>
+            <>
+              <ToolLink
+                to={`/junta/esdeveniment/${id ?? ''}/fitxatges`}
+                label={t('junta.checkins.title')}
+              />
+              {isMeeting ? null : (
+                <ToolLink
+                  to={`/junta/esdeveniment/${id ?? ''}/gimcana`}
+                  label={t('gimcana.title')}
+                />
+              )}
+            </>
           ) : null}
 
           <Field label={t('junta.form.description')}>
@@ -871,6 +872,24 @@ function previewFrom(form: FormState, coverUrl: string | null): PreviewData {
     descripcion: form.descripcion,
     hidden: reveal !== null && Date.parse(reveal) > Date.now(),
   }
+}
+
+/**
+ * One row that leads to a tool for this event. Rows stack under the map, so a
+ * new tool is one more line there, not a new layout.
+ */
+function ToolLink({ to, label }: { readonly to: string; readonly label: string }) {
+  return (
+    <Link
+      to={to}
+      className="mb-9 flex min-h-[56px] items-center justify-between gap-5 border border-surface-8 bg-surface-2 px-7 py-6 text-fg no-underline"
+    >
+      <span className="text-md font-bold [text-wrap:balance]">{label}</span>
+      <span aria-hidden="true" className="flex-none text-lg text-fg-muted">
+        ›
+      </span>
+    </Link>
+  )
 }
 
 function blankToNull(value: string): string | null {

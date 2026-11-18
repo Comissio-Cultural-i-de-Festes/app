@@ -1,69 +1,137 @@
-import { readFileSync } from 'node:fs'
-import { globSync } from 'node:fs'
+import { globSync, readFileSync } from 'node:fs'
 
+import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 
 /**
- * Cap URL signada no viu fora d'una clau `signedKey`.
+ * Res no torna a signar —i a baixar— totes les imatges de cop.
  *
- * La regla que impedeix tornar a signar cada imatge en tornar a l'app és una
- * marca a la clau (`lib/signedQuery.ts`): la invalidació se la salta i els
- * temps hi van lligats. Una pantalla nova que signi amb una clau qualsevol se'n
- * quedaria fora sense que cap test de comportament ho veiés —la imatge es veu
- * igual, només que es baixa vint vegades al dia—, i la factura arriba un mes
- * més tard en forma d'API caiguda per quota.
+ * La regla que ho evita és una marca a la clau (`lib/signedQuery.ts`): la
+ * invalidació se la salta i els temps hi van lligats. L'única manera de signar
+ * és `signedUrlQuery` de `lib/storage.ts`, que ja la porta, i això ho vigila el
+ * compilador: `signedUrls` ja no s'exporta. El que el compilador no veu són
+ * dues dreceres, i aquest fitxer les busca:
  *
- * Tres comprovacions de text, que és tot el que se'n pot dir sense executar
- * cada pantalla:
+ *   - cridar `createSignedUrl(s)` des d'un altre lloc, amb una clau qualsevol;
+ *   - un `invalidateQueries()`, `refetchQueries()` o `resetQueries()` que ho
+ *     agafi tot: sense arguments, amb `{}`, o amb `queryKey: []`. És exactament
+ *     el que ho tornava a signar tot cada cop que el telèfon sortia de la
+ *     butxaca. Per a «refresca-ho tot» hi ha `invalidateData`.
  *
- *   - només `lib/storage.ts` parla amb `createSignedUrl(s)`;
- *   - qualsevol altre fitxer que cridi `signedUrls(`/`signedUrl(` construeix
- *     també la seva clau amb `signedKey(` (avui, només l'avatar, que agrupa les
- *     peticions a mà; la resta passa per `signedUrlsQuery`);
- *   - ningú no crida `invalidateQueries()` sense filtre: és exactament el que
- *     ho tornava a signar tot. Per a «refresca-ho tot» hi ha `invalidateData`.
+ * Amb l'arbre sintàctic de TypeScript i no amb expressions regulars sobre el
+ * text: treure comentaris amb una regex s'empassava mig fitxer a la primera
+ * cadena amb `/*` a dins, com un `accept="image/*"`.
  */
 
-const SOURCES = globSync('src/**/*.{ts,tsx}').filter((f) => !f.includes('.test.'))
+const SOURCES = globSync('src/**/*.{ts,tsx}')
+  .filter((f) => !f.includes('.test.'))
+  .map((f) => f.replaceAll('\\', '/'))
 
-function stripComments(source: string): string {
-  return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1')
-}
-
-function code(file: string): string {
-  return stripComments(readFileSync(file, 'utf8'))
-}
-
-const normalised = (file: string) => file.replaceAll('\\', '/')
 const STORAGE = 'src/lib/storage.ts'
+const SIGNING = new Set(['createSignedUrl', 'createSignedUrls'])
+const SWEEPING = new Set(['invalidateQueries', 'refetchQueries', 'resetQueries'])
 
-describe('les URL signades', () => {
+function calledName(call: ts.CallExpression): string | null {
+  const callee = call.expression
+  if (ts.isPropertyAccessExpression(callee)) return callee.name.text
+  if (ts.isIdentifier(callee)) return callee.text
+  return null
+}
+
+/** Cap argument, `{}`, un objecte sense `queryKey` ni `predicate`, o `queryKey: []`. */
+function sweepsEverything(call: ts.CallExpression): boolean {
+  const [filters] = call.arguments
+  if (filters === undefined) return true
+  if (!ts.isObjectLiteralExpression(filters)) return false
+
+  let narrowed = false
+  for (const prop of filters.properties) {
+    // `{ ...filters }` no se sap què porta: no és cosa d'aquest test.
+    if (ts.isSpreadAssignment(prop)) narrowed = true
+    const name = prop.name !== undefined && ts.isIdentifier(prop.name) ? prop.name.text : null
+    if (name === 'predicate') narrowed = true
+    if (name === 'queryKey') {
+      const empty =
+        ts.isPropertyAssignment(prop) &&
+        ts.isArrayLiteralExpression(prop.initializer) &&
+        prop.initializer.elements.length === 0
+      if (!empty) narrowed = true
+    }
+  }
+  return !narrowed
+}
+
+interface Hit {
+  readonly file: string
+  readonly line: number
+  readonly name: string
+}
+
+function scan(file: string, source: string): { signing: Hit[]; sweeping: Hit[] } {
+  const tree = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true)
+  const signing: Hit[] = []
+  const sweeping: Hit[] = []
+
+  const visit = (node: ts.Node): void => {
+    if (ts.isCallExpression(node)) {
+      const name = calledName(node)
+      const line = tree.getLineAndCharacterOfPosition(node.getStart()).line + 1
+      if (name !== null && SIGNING.has(name)) signing.push({ file, line, name })
+      if (name !== null && SWEEPING.has(name) && sweepsEverything(node)) {
+        sweeping.push({ file, line, name })
+      }
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(tree)
+  return { signing, sweeping }
+}
+
+const found = SOURCES.map((file) => scan(file, readFileSync(file, 'utf8')))
+const show = (hits: Hit[]) => hits.map((h) => `${h.file}:${String(h.line)} ${h.name}`)
+
+describe('el detector', () => {
+  it('veu les formes de «tot», i no les que filtren', () => {
+    const { sweeping } = scan(
+      'x.ts',
+      [
+        'client.invalidateQueries()',
+        'client.refetchQueries({})',
+        'client.resetQueries({ queryKey: [] })',
+        "client.invalidateQueries({ refetchType: 'all' })",
+        "client.invalidateQueries({ queryKey: ['events'] })",
+        'client.invalidateQueries({ predicate: () => true })',
+      ].join('\n'),
+    )
+    expect(sweeping.map((h) => h.line)).toEqual([1, 2, 3, 4])
+  })
+
+  it('no es deixa enganyar per una cadena que sembla un comentari', () => {
+    const { signing } = scan(
+      'x.tsx',
+      [
+        'const a = <input accept="image/*" />',
+        "supabase.storage.from('b').createSignedUrls(['p'], 60)",
+      ].join('\n'),
+    )
+    expect(signing.map((h) => h.line)).toEqual([2])
+  })
+
   it('troba fitxers per mirar, perquè una passada buida no vol dir res', () => {
     expect(SOURCES.length).toBeGreaterThan(100)
-    expect(SOURCES.map(normalised)).toContain(STORAGE)
+    expect(SOURCES).toContain(STORAGE)
+    expect(found.flatMap((f) => f.signing).length).toBeGreaterThan(0)
   })
+})
 
+describe('les URL signades', () => {
   it('només lib/storage.ts crida createSignedUrl(s)', () => {
-    const outside = SOURCES.filter(
-      (f) => normalised(f) !== STORAGE && /\bcreateSignedUrls?\(/.test(code(f)),
-    ).map(normalised)
-    expect(outside).toEqual([])
+    const outside = found.flatMap((f) => f.signing).filter((h) => h.file !== STORAGE)
+    expect(show(outside)).toEqual([])
   })
 
-  it('qui signa fora de lib/storage.ts posa la marca a la clau', () => {
-    const unmarked = SOURCES.filter((f) => {
-      if (normalised(f) === STORAGE) return false
-      const source = code(f)
-      return /\bsignedUrls?\(/.test(source) && !/\bsignedKey\(/.test(source)
-    }).map(normalised)
-    expect(
-      unmarked,
-      'una URL signada amb una clau qualsevol es torna a signar a cada tornada',
-    ).toEqual([])
-  })
-
-  it('cap invalidateQueries() sense filtre', () => {
-    const bare = SOURCES.filter((f) => /\binvalidateQueries\(\s*\)/.test(code(f))).map(normalised)
-    expect(bare, 'fes servir invalidateData(client) de lib/signedQuery.ts').toEqual([])
+  it('cap invalidació, refetch ni reset sense filtre', () => {
+    const bare = found.flatMap((f) => f.sweeping)
+    expect(show(bare), 'fes servir invalidateData(client) de lib/signedQuery.ts').toEqual([])
   })
 })

@@ -44,6 +44,7 @@ import {
   shouldPromptInstall,
   snoozeInstall,
 } from '@/features/install/installGate'
+import { invalidateData } from '@/lib/signedQuery'
 import { rpc, supabase } from '@/lib/supabase'
 
 /**
@@ -236,10 +237,10 @@ export default function App() {
       // El perfil es demana alhora que això, i sol arribar abans: deia
       // `pendent` i ho seguia dient fins al pròxim refresc, amb el botó
       // d'apuntar-se apagat just la primera vegada que algú el volia prémer.
-      // Tota la cau i no només el perfil, pel mateix motiu que
-      // `InviteCodeSheet`: el que s'ha llegit com a pendent ha tornat buit.
+      // Tot el que la RLS deixa veure i no només el perfil, pel mateix motiu
+      // que `InviteCodeSheet`: el que s'ha llegit com a pendent ha tornat buit.
       // Un codi que no val torna `ok: false` sense error, i allò sí que és cert.
-      if (data?.ok === true) void queryClient.invalidateQueries()
+      if (data?.ok === true) void invalidateData(queryClient)
       const url = new URL(window.location.href)
       url.searchParams.delete(INVITE_PARAM)
       window.history.replaceState({}, '', url.toString())

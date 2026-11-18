@@ -9,7 +9,7 @@ import { checkinWindow, isOpen } from '@/features/checkin/window'
 import { ComebackLine } from '@/features/profile/ComebackLine'
 import { PendingNote } from '@/features/session/PendingNote'
 import { firstName } from '@/features/session/profile'
-import { accessOf } from '@/features/session/access'
+import { type Access, accessOf } from '@/features/session/access'
 
 import { movementLine } from './movementLine'
 import { useUserId } from '@/features/session/useUserId'
@@ -65,7 +65,8 @@ export function HomeScreen() {
   // closed, and the lists come back empty rather than failing. Whatever is
   // counted from them has to stay off the screen: «hi van 0» and «queden 30
   // places» are not what the calendar says, they are what a closed door shows.
-  const { active } = accessOf(home.profile)
+  const access = accessOf(home.profile)
+  const { closed } = access
 
   // Cada tasca hi va afegir el seu avís i cadascun és correcte pel seu compte;
   // junts empenyien la foto de l'esdeveniment i el CTA sota la línia de plegat
@@ -125,8 +126,8 @@ export function HomeScreen() {
             locale={locale}
             coverUrl={covers.data?.get(home.hero.cover_url ?? '') ?? null}
           />
-          <Places event={home.hero} attendances={home.attendances} active={active} />
-          <CallToAction event={home.hero} attendances={home.attendances} active={active} />
+          <Places event={home.hero} attendances={home.attendances} closed={closed} />
+          <CallToAction event={home.hero} attendances={home.attendances} access={access} />
         </>
       ) : home.isPending ? (
         <HeroSkeleton />
@@ -143,11 +144,11 @@ export function HomeScreen() {
         <Recap
           event={home.previous}
           attendances={home.attendances}
-          active={active}
+          closed={closed}
           coverUrl={covers.data?.get(home.previous.cover_url ?? '') ?? null}
         />
       ) : null}
-      <Upcoming events={home.rest} attendances={home.attendances} locale={locale} active={active} />
+      <Upcoming events={home.rest} attendances={home.attendances} locale={locale} closed={closed} />
     </div>
   )
 }
@@ -321,26 +322,28 @@ function whenLabel(start: Date, locale: Locale, t: Translate): string {
 function Places({
   event,
   attendances,
-  active,
+  closed,
 }: {
   readonly event: EventRow
   readonly attendances: readonly AttendanceRow[]
-  readonly active: boolean
+  readonly closed: boolean
 }) {
   const { t } = useTranslation()
   const going = goingRows(attendances, event.id)
   // Sense accés les assistències no es poden llegir i `going` és buit per
   // força: les places que en sortirien serien totes les de l'esdeveniment.
-  const left = active ? placesLeft(event, going.length) : null
+  const left = closed ? null : placesLeft(event, going.length)
 
   // Only the detail row is reveal-gated; the count is always known.
   const where = event.ubicacion
+  // Sense `left` el total es diu pla —«30 places»—, perquè «places de 30» només
+  // s'entén darrere del número gran que no hi és.
+  const size =
+    event.plazas === null
+      ? null
+      : t(left === null ? 'home.places.total' : 'home.places.of', { total: event.plazas })
   const capacity =
-    left === null
-      ? where
-      : where === null
-        ? t('home.places.of', { total: event.plazas })
-        : `${t('home.places.of', { total: event.plazas })} · ${where}`
+    [size, where].filter((p): p is string => p !== null && p !== '').join(' · ') || null
 
   // Un teaser no té places a dir: no se sap ni què és. Al seu lloc hi va el
   // compte enrere i quanta gent hi està pendent, que és el que hi ha.
@@ -354,7 +357,7 @@ function Places({
             {t(label.key, label.vars)}
           </p>
         </div>
-        {active ? <InterestCount eventId={event.id} /> : null}
+        <InterestCount eventId={event.id} />
       </section>
     )
   }
@@ -378,7 +381,7 @@ function Places({
         )}
       </div>
 
-      {active ? (
+      {closed ? null : (
         <div className="flex flex-none items-center gap-4 pb-2">
           <div className="flex items-center">
             {going.slice(0, 3).map((row, index) => (
@@ -397,7 +400,7 @@ function Places({
             {t('home.going', { count: going.length })}
           </p>
         </div>
-      ) : null}
+      )}
     </section>
   )
 }
@@ -415,11 +418,11 @@ function Places({
 function CallToAction({
   event,
   attendances,
-  active,
+  access,
 }: {
   readonly event: EventRow
   readonly attendances: readonly AttendanceRow[]
-  readonly active: boolean
+  readonly access: Access
 }) {
   const { t } = useTranslation()
   const userId = useUserId()
@@ -454,10 +457,10 @@ function CallToAction({
   if (titleIsHidden(event.titulo)) {
     return (
       <section className={GUTTER}>
-        {active ? (
-          <InterestBlock eventId={event.id} size="hero" />
-        ) : (
+        {access.closed ? (
           <PendingNote className="pt-8" />
+        ) : (
+          <InterestBlock eventId={event.id} size="hero" />
         )}
       </section>
     )
@@ -466,7 +469,9 @@ function CallToAction({
   // Ni un botó desactivat ni un d'actiu que contesta «això no ho pots fer
   // tu»: fins que la junta l'accepti no hi ha res a respondre, i la línia
   // diu per què i on es bescanvia un codi.
-  if (!active) {
+  if (access.closed) {
+    // Una baixa no té res que bescanviar: sense línia, i sense secció buida.
+    if (!access.pending) return null
     return (
       <section className={`pt-8 ${GUTTER}`}>
         <PendingNote />
@@ -614,12 +619,12 @@ function RankingTeaser({ home }: { readonly home: Home }) {
 function Recap({
   event,
   attendances,
-  active,
+  closed,
   coverUrl,
 }: {
   readonly event: EventRow
   readonly attendances: readonly AttendanceRow[]
-  readonly active: boolean
+  readonly closed: boolean
   readonly coverUrl: string | null
 }) {
   const { t } = useTranslation()
@@ -650,7 +655,7 @@ function Recap({
             <p className="text-xl leading-[1.15] font-bold [text-wrap:pretty]">
               {eventTitle(event.titulo)}
             </p>
-            {active && attended > 0 ? (
+            {!closed && attended > 0 ? (
               <p className="mt-[6px] text-md-lo text-fg-muted">
                 {t('home.recap.were', { count: attended })}
               </p>
@@ -674,12 +679,12 @@ function Upcoming({
   events,
   attendances,
   locale,
-  active,
+  closed,
 }: {
   readonly events: readonly EventRow[]
   readonly attendances: readonly AttendanceRow[]
   readonly locale: Locale
-  readonly active: boolean
+  readonly closed: boolean
 }) {
   const { t } = useTranslation()
 
@@ -694,7 +699,7 @@ function Upcoming({
           // xip «Reunió», i on hi hauria les places hi ha l'hora i els punts.
           // Una reunió no competeix amb una festa pel hero.
           const meeting = event.tipo === 'reunio'
-          const left = active ? placesLeft(event, goingRows(attendances, event.id).length) : null
+          const left = closed ? null : placesLeft(event, goingRows(attendances, event.id).length)
           // Mateixa fila, tres diferències: el mes en violeta i no en vermell,
           // el dia com un interrogant, i on hi hauria les places hi ha quan es
           // sabrà. Les places d'una cosa que ningú no sap què és no diuen res.

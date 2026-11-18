@@ -93,7 +93,7 @@ export function OnboardingScreen() {
   // Qui ve sense invitació encara és pendent: no veu els punts de les escoles
   // (la RLS els hi tanca) i «ja ets dins» seria mentida fins que la junta
   // l'accepti. Qui ve amb codi és actiu des del primer moment.
-  const { active, pending } = accessOf(profile)
+  const { closed, pending } = accessOf(profile)
   const grauId = useId()
   const phoneId = useId()
   const igId = useId()
@@ -122,7 +122,7 @@ export function OnboardingScreen() {
   const schools = useQuery({
     queryKey: rankingKeys.schools(bounds),
     queryFn: () => fetchSchools(bounds),
-    enabled: active,
+    enabled: !closed,
   })
 
   const save = useMutation({
@@ -213,7 +213,7 @@ export function OnboardingScreen() {
                   </span>
                   {/* Els números són els de les escoles, i un pendent no els pot llegir:
                       en lloc de «encara sense punts», que seria fals, res. */}
-                  {active ? (
+                  {closed ? null : (
                     <span
                       className={
                         'mt-[5px] block text-sm-lo font-semibold ' +
@@ -228,7 +228,7 @@ export function OnboardingScreen() {
                           })
                         : t('onboarding.school.noStats')}
                     </span>
-                  ) : null}
+                  )}
                 </span>
                 <span
                   aria-hidden="true"

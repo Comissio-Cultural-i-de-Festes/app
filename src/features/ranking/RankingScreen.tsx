@@ -46,7 +46,7 @@ export function RankingScreen() {
   // El rànquing surt de funcions que només responen a qui ja és actiu: a un
   // pendent li arriben buides, i «ningú no ha fet punts» seria fals. En lloc
   // d'això, la línia que diu quan s'obre.
-  const { known, active } = useAccess()
+  const { closed } = useAccess()
 
   const periods = usePeriods()
 
@@ -172,11 +172,10 @@ export function RankingScreen() {
             {t('actions.retry')}
           </button>
         </div>
-      ) : known && !active ? (
-        <div className={`${GUTTER} py-16 text-center`}>
-          <p className="text-md text-fg-muted [text-wrap:pretty]">{t('pending.rankingClosed')}</p>
-          <PendingNote className="mt-6" />
-        </div>
+      ) : closed ? (
+        // Una baixa no té res a bescanviar i no se li diu res: la nota només es
+        // pinta per a un pendent, i el contenidor, tampoc.
+        <PendingNote className={`${GUTTER} py-16 text-center`} />
       ) : board.isPending ? (
         <p className={`${GUTTER} py-16 text-center text-fg-muted`}>{t('state.loading')}</p>
       ) : board.rows.length === 0 && board.schools.length === 0 ? (

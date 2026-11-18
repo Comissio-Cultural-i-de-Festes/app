@@ -1,8 +1,19 @@
 name: Supabase keepalive
 
-# Free-tier projects pause after a week without activity, and over the summer
-# that will happen. A weekly authenticated read is unambiguously project
-# activity, which a health endpoint may not be.
+# Free-tier projects pause after a week without activity, and Supabase asks for
+# activity every day, not every seven: a weekly ping leaves no margin for a
+# single failed run. So this runs daily, against production and Staging, and
+# an authenticated read is unambiguously project activity, which a health
+# endpoint may not be.
+#
+# The URL and anon key of each project are public by design, so they live in
+# Actions *variables*, not secrets (Settings -> Secrets and variables ->
+# Actions -> Variables): SUPABASE_URL and SUPABASE_ANON_KEY for production,
+# STAGING_SUPABASE_URL and STAGING_SUPABASE_ANON_KEY for Staging. An empty
+# one fails the job naming the variable, instead of a curl error about a URL
+# with no host. The two projects are separate matrix entries with fail-fast
+# off, so one being down never skips the other, and the run turns red
+# showing which one.
 #
 # The catch worth knowing: GitHub disables scheduled workflows in a public repo
 # after 60 days with no commits, and emails the owner. So the thing keeping the
@@ -16,11 +27,11 @@ name: Supabase keepalive
 # does nothing at all. There is no failure to notice, and the first sign is
 # Supabase pausing the project in August.
 #
-# So: RENAMING THIS REPOSITORY MEANS EDITING THE LINE BELOW. Nothing else in
+# So: RENAMING THIS REPOSITORY MEANS EDITING THE `if:` OF THE `ping` JOB. Nothing else in
 # the build will tell you.
 on:
   schedule:
-    - cron: '17 6 * * 1'
+    - cron: '17 6 * * *'
   workflow_dispatch:
 
 permissions: {}
@@ -36,18 +47,48 @@ jobs:
     if: github.repository == 'Comissio-Cultural-i-de-Festes/app'
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - project: production
+            url_name: SUPABASE_URL
+            key_name: SUPABASE_ANON_KEY
+            url: ${{ vars.SUPABASE_URL }}
+            key: ${{ vars.SUPABASE_ANON_KEY }}
+          - project: staging
+            url_name: STAGING_SUPABASE_URL
+            key_name: STAGING_SUPABASE_ANON_KEY
+            url: ${{ vars.STAGING_SUPABASE_URL }}
+            key: ${{ vars.STAGING_SUPABASE_ANON_KEY }}
+    name: ping (${{ matrix.project }})
     steps:
       - name: read one row through PostgREST
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          PROJECT: ${{ matrix.project }}
+          URL_NAME: ${{ matrix.url_name }}
+          KEY_NAME: ${{ matrix.key_name }}
+          SUPABASE_URL: ${{ matrix.url }}
+          SUPABASE_ANON_KEY: ${{ matrix.key }}
         run: |
           set -euo pipefail
+          if [ -z "${SUPABASE_URL//[[:space:]]/}" ]; then
+            echo "::error::Actions variable ${URL_NAME} is empty or missing (${PROJECT})"
+            exit 1
+          fi
+          if [ -z "${SUPABASE_ANON_KEY//[[:space:]]/}" ]; then
+            echo "::error::Actions variable ${KEY_NAME} is empty or missing (${PROJECT})"
+            exit 1
+          fi
           status=$(curl -sS --max-time 30 -o /tmp/out -w '%{http_code}' \
             -H "apikey: ${SUPABASE_ANON_KEY}" \
             -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
             "${SUPABASE_URL}/rest/v1/rpc/invite_preview" \
             -H 'Content-Type: application/json' \
             -d '{"p_codi":"keepalive"}')
-          echo "HTTP ${status}"
-          test "${status}" = "200"
+          echo "${PROJECT}: HTTP ${status}"
+          if [ "${status}" != "200" ]; then
+            head -c 300 /tmp/out
+            echo
+            exit 1
+          fi

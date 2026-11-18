@@ -13,17 +13,20 @@ import {
 
 vi.mock('@/lib/platform', () => ({
   isIos: () => mockIsIos,
+  inAppBrowser: () => (mockInApp ? 'instagram' : null),
   isStandalone: () => mockIsStandalone,
 }))
 
 let mockIsIos = true
 let mockIsStandalone = false
+let mockInApp = false
 
 const NOW = new Date('2026-09-01T20:00:00Z').getTime()
 
 beforeEach(() => {
   mockIsIos = true
   mockIsStandalone = false
+  mockInApp = false
   localStorage.clear()
 })
 
@@ -32,6 +35,11 @@ afterEach(() => {
 })
 
 describe('when the install screen appears', () => {
+  it('never inside an in-app browser: there is no Safari there to follow its steps', () => {
+    mockInApp = true
+    expect(shouldPromptInstall(NOW)).toBe(false)
+  })
+
   it('waits a week after "not now" and a month after "already done"', () => {
     // Pinned, because the tests below measure against these same constants and
     // would happily pass with any value at all. A week is short enough to

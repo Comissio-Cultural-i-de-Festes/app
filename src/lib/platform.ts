@@ -26,3 +26,77 @@ export function isStandalone(): boolean {
   const iosStandalone = (navigator as Navigator & { standalone?: boolean }).standalone === true
   return iosStandalone || window.matchMedia('(display-mode: standalone)').matches
 }
+
+/**
+ * The browser an app opens inside itself when somebody taps a link in it.
+ *
+ * Instagram and Facebook are where the invitation travels, along with
+ * WhatsApp, and their in-app browsers break the door: Google refuses OAuth in
+ * an embedded webview (`disallowed_useragent`, a 403 on Android), and on iOS
+ * the home-screen steps describe a Safari that is not there. Neither says why.
+ * So the door has to know, and say "open this in your browser" instead.
+ *
+ * Matched on the markers each app puts in its user agent, not on the engine:
+ * an iPhone home-screen app also has no `Safari/` token, so "WebKit without
+ * Safari" would lock out exactly the people who did everything right. The one
+ * engine-level rule is Android's `; wv)`, which stock Chrome never sends.
+ * WhatsApp is not on the list because today it hands links to the system
+ * browser; it has been trying an embedded one, so that is worth re-checking.
+ */
+export type InAppBrowser =
+  | 'instagram'
+  | 'messenger'
+  | 'facebook'
+  | 'tiktok'
+  | 'snapchat'
+  | 'linkedin'
+  | 'threads'
+  | 'webview'
+
+// Order matters: Messenger carries the Facebook markers too, and every
+// Android one also carries `; wv)`, so the specific name wins over the generic.
+const IN_APP_MARKERS: readonly (readonly [InAppBrowser, RegExp])[] = [
+  ['instagram', /\bInstagram\b/],
+  ['messenger', /FBAN\/Messenger|FB_IAB\/Orca/],
+  ['facebook', /FBAN\/|FBAV\/|FB_IAB\//],
+  ['tiktok', /musical_ly|BytedanceWebview|TikTok/i],
+  ['snapchat', /\bSnapchat\b/],
+  ['linkedin', /LinkedInApp/],
+  // Threads' internal name for iOS is Barcelona.
+  ['threads', /\bBarcelona\b/],
+  ['webview', /Android[^)]*; wv\)/],
+]
+
+export function detectInAppBrowser(ua: string): InAppBrowser | null {
+  for (const [kind, marker] of IN_APP_MARKERS) {
+    if (marker.test(ua)) return kind
+  }
+  return null
+}
+
+export function inAppBrowser(): InAppBrowser | null {
+  if (typeof navigator === 'undefined') return null
+  return detectInAppBrowser(navigator.userAgent)
+}
+
+export function isAndroid(): boolean {
+  return typeof navigator !== 'undefined' && navigator.userAgent.includes('Android')
+}
+
+/**
+ * A link that asks Android to open this very page in Chrome.
+ *
+ * The whole URL goes through, query included: the invitation code lives in it.
+ * `S.browser_fallback_url` is what runs if Chrome is not installed, so the
+ * worst case is the same page in the same place, not a dead tap. The fragment
+ * is dropped because `#Intent` would end the URL there; nothing in this app
+ * reads one.
+ */
+export function androidChromeIntent(url: string): string {
+  const { protocol, host, pathname, search } = new URL(url)
+  const scheme = protocol.replace(':', '')
+  return (
+    `intent://${host}${pathname}${search}#Intent;scheme=${scheme};` +
+    `package=com.android.chrome;S.browser_fallback_url=${encodeURIComponent(url)};end`
+  )
+}

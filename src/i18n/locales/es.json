@@ -69,6 +69,19 @@
     "pointsUnavailable": "No hemos podido leer cuántos puntos vale cada motivo. Sin eso no los podemos dar bien."
   },
   "entry": {
+    "inApp": {
+      "title": "Ábrelo en el navegador",
+      "ledeInvited": "Alguien del grupo te ha pasado el enlace. Ábrelo en el navegador del móvil y entrarás con Google.",
+      "ledeOpen": "Has llegado sin invitación. Abre el enlace en el navegador del móvil, entra con Google y la junta te dará el acceso a mano, normalmente el mismo día.",
+      "body": "Estás dentro del navegador de otra app (Instagram, Facebook…) y Google no deja entrar desde aquí. Abre este enlace en el navegador del móvil y podrás entrar con normalidad.",
+      "ios": "Toca los tres puntos o el icono de compartir y elige la opción de abrirlo en el navegador o en Safari. Si no la encuentras, copia el enlace y pégalo en Safari.",
+      "androidCta": "Ábrelo en Chrome",
+      "androidHint": "Si no se abre, copia el enlace y pégalo en el navegador.",
+      "copy": "Copia el enlace",
+      "copied": "Enlace copiado",
+      "copyFailed": "No se ha podido copiar. Mantén pulsado el enlace de debajo, cópialo y pégalo en el navegador.",
+      "linkLabel": "Enlace de acceso"
+    },
     "sending": "Un segundo…",
     "invited": {
       "title": "Te han invitado",
@@ -320,6 +333,7 @@
     "sendNote": "La mira alguien de la junta esta misma noche. Los puntos salen cuando diga que vale.",
     "offlineNote": "Sin cobertura también funciona: se guarda y se envía sola cuando vuelva la red.",
     "queued": "Guardada. Se enviará sola cuando vuelva la red: puedes cerrar la app.",
+    "notSaved": "No se ha podido guardar la foto. Vuelve a intentarlo, o elige otra.",
     "rejected": {
       "title": "Esta no ha valido",
       "noReason": "La puedes volver a enviar con otra foto: la prueba sigue abierta."
@@ -347,7 +361,8 @@
       "left_one": "Queda {{count}}",
       "left_other": "Quedan {{count}}",
       "full": "Lleno",
-      "of": "plazas de {{total}}"
+      "of": "plazas de {{total}}",
+      "total": "{{total}} plazas"
     },
     "going_one": "va {{count}}",
     "going_other": "van {{count}}",
@@ -1587,9 +1602,11 @@
     "profile": "Perfil"
   },
   "onboarding": {
+    "titlePending": "Casi listo",
     "title": "Ya estás dentro",
     "lede": "Cinco cosas y entras. El nombre y la foto ya los tenemos de tu Google, mira que estén bien.",
-    "nameHint": "Pon el nombre con el que te llaman en la comi, no el del DNI.",
+    "ledePending": "Cinco cosas y lo tienes todo listo. El nombre y la foto ya los tenemos de tu Google; la junta te tiene que aceptar antes de que puedas apuntarte a nada.",
+    "nameHint": "Si no es tu nombre de verdad, cámbialo en el perfil: la junta te tiene que encontrar en la lista.",
     "school": {
       "label": "Tu escuela",
       "required": "Obligatorio",
@@ -1628,6 +1645,8 @@
     },
     "cta": {
       "ready": "Entrar",
+      "pickSchoolPending": "Elige la escuela y sigues",
+      "readyPending": "Continuar",
       "pickSchool": "Elige la escuela y entras",
       "fix": "Repasa el teléfono o el Instagram"
     },
@@ -1871,7 +1890,7 @@
     "title": "La junta te tiene que aceptar",
     "body": "Entrar con Google nos dice quién eres. Ser de la comi es otra cosa, y lo tiene que decir alguien de la junta.",
     "canLabel": "Ya puedes",
-    "can": "Mirar el calendario y las fotos",
+    "can": "Mirar el calendario",
     "cannotLabel": "Todavía no",
     "cannot": "Apuntarte, tener QR, hacer puntos",
     "collapse": "Pliega",
@@ -1884,7 +1903,8 @@
     "codePlaceholder": "Pégalo aquí",
     "codeCta": "Entra con el código",
     "codeSending": "Un momento…",
-    "codeBad": "Este código no vale. Pide otro a la junta."
+    "codeBad": "Este código no vale. Pide otro a la junta.",
+    "note": "Las plazas, las respuestas y los puntos se abren cuando la junta te acepte."
   },
   "qr": {
     "codeLabel": "Tu código QR",

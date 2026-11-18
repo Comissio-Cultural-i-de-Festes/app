@@ -69,6 +69,19 @@
     "pointsUnavailable": "No hem pogut llegir quants punts val cada motiu. Sense això no els podem donar bé."
   },
   "entry": {
+    "inApp": {
+      "title": "Obre-ho al navegador",
+      "ledeInvited": "Algú del grup t'ha passat l'enllaç. Obre'l al navegador del mòbil i hi entraràs amb Google.",
+      "ledeOpen": "Has arribat sense invitació. Obre l'enllaç al navegador del mòbil, entra amb Google i la junta et donarà l'accés a mà, normalment el mateix dia.",
+      "body": "Estàs dins del navegador d'una altra app (Instagram, Facebook…) i Google no deixa entrar des d'aquí. Obre aquest enllaç al navegador del mòbil i podràs entrar amb normalitat.",
+      "ios": "Toca els tres punts o la icona de compartir i tria l'opció d'obrir-lo al navegador o al Safari. Si no la trobes, copia l'enllaç i enganxa'l al Safari.",
+      "androidCta": "Obre al Chrome",
+      "androidHint": "Si no s'obre, copia l'enllaç i enganxa'l al navegador.",
+      "copy": "Copia l'enllaç",
+      "copied": "Enllaç copiat",
+      "copyFailed": "No s'ha pogut copiar. Mantén premut l'enllaç d'aquí sota, copia'l i enganxa'l al navegador.",
+      "linkLabel": "Enllaç d'accés"
+    },
     "sending": "Un segon…",
     "invited": {
       "title": "T'han convidat",
@@ -320,6 +333,7 @@
     "sendNote": "La mira algú de la junta aquesta mateixa nit. Els punts surten quan digui que val.",
     "offlineNote": "Sense cobertura també funciona: es desa i s’envia sola quan torni la xarxa.",
     "queued": "Desada. S’enviarà sola quan torni la xarxa: pots tancar l’app.",
+    "notSaved": "No s’ha pogut desar la foto. Torna-ho a provar, o tria-ne una altra.",
     "rejected": {
       "title": "Aquesta no ha valgut",
       "noReason": "La pots tornar a enviar amb una altra foto: la prova segueix oberta."
@@ -347,7 +361,8 @@
       "left_one": "Queda {{count}}",
       "left_other": "Queden {{count}}",
       "full": "Ple",
-      "of": "places de {{total}}"
+      "of": "places de {{total}}",
+      "total": "{{total}} places"
     },
     "going_one": "hi va {{count}}",
     "going_other": "hi van {{count}}",
@@ -1587,9 +1602,11 @@
     "profile": "Perfil"
   },
   "onboarding": {
+    "titlePending": "Gairebé a punt",
     "title": "Ja ets dins",
     "lede": "Cinc coses i entres. El nom i la foto ja els tenim del teu Google, mira que estiguin bé.",
-    "nameHint": "Posa-hi el nom amb què et diuen a la comi, no el del DNI.",
+    "ledePending": "Cinc coses i ho tens tot a punt. El nom i la foto ja els tenim del teu Google; la junta t'ha d'acceptar abans que et puguis apuntar a res.",
+    "nameHint": "Si no és el teu nom de debò, canvia'l al perfil: la junta t'ha de trobar a la llista.",
     "school": {
       "label": "La teva escola",
       "required": "Obligatori",
@@ -1628,6 +1645,8 @@
     },
     "cta": {
       "ready": "Entrar",
+      "pickSchoolPending": "Tria l'escola i continues",
+      "readyPending": "Continuar",
       "pickSchool": "Tria l'escola i entres",
       "fix": "Repassa el telèfon o l'Instagram"
     },
@@ -1871,7 +1890,7 @@
     "title": "La junta t'ha d'acceptar",
     "body": "Entrar amb el Google ens diu qui ets. Ser de la comi és una altra cosa, i algú de la junta ho ha de dir.",
     "canLabel": "Ja pots",
-    "can": "Mirar el calendari i les fotos",
+    "can": "Mirar el calendari",
     "cannotLabel": "Encara no",
     "cannot": "Apuntar-te, tenir QR, fer punts",
     "collapse": "Plega",
@@ -1884,7 +1903,8 @@
     "codePlaceholder": "Enganxa'l aquí",
     "codeCta": "Entra amb el codi",
     "codeSending": "Un moment…",
-    "codeBad": "Aquest codi no val. Demana'n un altre a la junta."
+    "codeBad": "Aquest codi no val. Demana'n un altre a la junta.",
+    "note": "Les places, les respostes i els punts s'obren quan la junta t'accepti."
   },
   "qr": {
     "codeLabel": "El teu codi QR",

@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { UnreadableImage, shrinkImage } from './storage'
+import { UnreadableImage, galleryImage, shrinkImage } from './storage'
 
 /**
  * `shrinkImage`, i sobretot que no torni mai el fitxer tal com va arribar.
@@ -154,6 +154,22 @@ describe('shrinkImage', () => {
     )
 
     await expect(shrinkImage(fitxer(3_000_000, 'image/heic'))).rejects.toBeInstanceOf(
+      UnreadableImage,
+    )
+  })
+})
+
+describe('galleryImage', () => {
+  // La foto d'una prova surt del carret i passa per aquí. Un error cru de
+  // `createImageBitmap` no el reconeix ningú, i la pantalla el llegiria com
+  // una xarxa caiguda.
+  it('un fitxer il·legible es diu pel seu nom', async () => {
+    vi.stubGlobal(
+      'createImageBitmap',
+      vi.fn(() => Promise.reject(new Error('no decoder'))),
+    )
+
+    await expect(galleryImage(fitxer(3_000_000, 'image/heic'))).rejects.toBeInstanceOf(
       UnreadableImage,
     )
   })

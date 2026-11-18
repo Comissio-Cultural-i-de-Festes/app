@@ -41,8 +41,10 @@ import { InviteCodeSheet } from './InviteCodeSheet'
  *
  * NOMÉS PER A QUI ESTÀ PENDENT. `estat` també pot ser `'baixa'`, i a algú que
  * ha plegat no se li diu que la junta l'ha d'acceptar; aquella pantalla és una
- * altra conversa i la té el QR. El botó desactivat de l'Inici sí que és per
- * als dos casos, i per això aquella condició es queda allà on és.
+ * altra conversa i la té el QR. Els recomptes i els botons de resposta que
+ * s'amaguen a l'Inici, la fitxa i el rànquing, en canvi, s'amaguen per als dos
+ * casos: els decideix `session/access.ts`, no aquesta banda, i la línia cap al
+ * codi (`PendingNote`) només es pinta per a un pendent.
  */
 
 /** El filet ambre i el fons, iguals a les dues cares. */
@@ -78,7 +80,10 @@ export function PendingBanner({
             onClick={() => collapse(false)}
             className={`flex min-h-[var(--ds-banner-h)] w-full items-center gap-[9px] px-[var(--ds-gutter)] py-4 text-left ${SKIN}`}
           >
-            <span aria-hidden="true" className="size-[7px] flex-none rounded-full bg-warning-deep" />
+            <span
+              aria-hidden="true"
+              className="size-[7px] flex-none rounded-full bg-warning-deep"
+            />
             <span className="flex-1 text-sm-lo font-bold text-warning-deep [text-wrap:pretty]">
               {t('pending.title')}
             </span>

@@ -1,6 +1,6 @@
-import { DbError } from '@/lib/db'
+import { DbError, isPermanent } from '@/lib/db'
 import { drop, PROVES, put, waiting } from '@/lib/queue'
-import { galleryImage, GIMCANA_PHOTOS } from '@/lib/storage'
+import { galleryImage, GIMCANA_PHOTOS, UnreadableImage } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -132,20 +132,71 @@ interface QueuedProva {
  * ja és a IndexedDB i sortirà sola. Al revés, prémer el botó sense cobertura no
  * deixaria cap rastre enlloc.
  */
-export async function submitProva(provaId: string, photo: Blob): Promise<string> {
-  const id = crypto.randomUUID()
-  // Encongida abans de desar-la a la cua i no després: guardar el fotograma
-  // sencer de la càmera seria omplir IndexedDB de megues que ningú mirarà a
-  // aquella mida, i la junta la mira en un telèfon.
-  const small = await galleryImage(photo)
-  const item = { id, provaId, photo: small, at: Date.now(), tries: 0 }
-
-  await put(PROVES, item)
-  return send(item)
+/**
+ * La foto no ha arribat a ser a la cua: el canvas no ha pogut codificar-la o
+ * IndexedDB ha dit que no. «Desada, s'enviarà sola» seria mentida, i la
+ * pantalla ho ha de dir amb un error i no amb l'avís de la cua.
+ */
+export class NotSaved extends Error {
+  constructor(cause: unknown) {
+    super('the photo could not be written to the queue', { cause })
+    this.name = 'NotSaved'
+  }
 }
 
+export async function submitProva(provaId: string, photo: Blob): Promise<string> {
+  const id = crypto.randomUUID()
+  let item: QueuedProva
+  try {
+    // Encongida abans de desar-la a la cua i no després: guardar el fotograma
+    // sencer de la càmera seria omplir IndexedDB de megues que ningú mirarà a
+    // aquella mida, i la junta la mira en un telèfon.
+    const small = await galleryImage(photo)
+    item = { id, provaId, photo: small, at: Date.now(), tries: 0 }
+    await put(PROVES, item)
+  } catch (cause) {
+    // Un fitxer il·legible té el seu propi missatge.
+    if (cause instanceof UnreadableImage) throw cause
+    throw new NotSaved(cause)
+  }
+  try {
+    return await send(item)
+  } catch (cause) {
+    if (isPermanent(cause)) throw cause
+    // `put` de la cua no peta mai: sense IndexedDB —mode privat, quota,
+    // disc ple— torna sense dir res. Si l'enviament ha fallat i la foto no és
+    // a la cua, «desada» seria mentida: ningú no la tornarà a intentar.
+    if (!(await isQueued(provaId))) throw new NotSaved(cause)
+    throw cause
+  }
+}
+
+/** Si aquesta prova encara espera a la cua, per saber quan ha sortit. */
+export async function isQueued(provaId: string): Promise<boolean> {
+  const rows = await waiting<QueuedProva>(PROVES)
+  return rows.some((row) => row.provaId === provaId)
+}
+
+/**
+ * Les files que ara mateix s'estan pujant, tant si les ha enviat el botó com la
+ * cua. Sense això, amb una wifi saturada (la pujada triga més que el
+ * temporitzador de la cua) o tirant enrere mentre s'envia, la mateixa foto
+ * sortiria dues vegades, i si una falla fa `put` d'una fila que l'altra ja
+ * havia esborrat: la foto torna a la cua i es puja una tercera.
+ */
+const inFlight = new Set<string>()
+
 async function send(item: QueuedProva): Promise<string> {
-  const userId = (await supabase.auth.getUser()).data.user?.id ?? ''
+  inFlight.add(item.id)
+  try {
+    return await upload(item)
+  } finally {
+    inFlight.delete(item.id)
+  }
+}
+
+async function upload(item: QueuedProva): Promise<string> {
+  const userId = await localUserId()
   const path = `${item.provaId}/${userId}/${item.id}.jpg`
 
   const up = await supabase.storage
@@ -172,6 +223,26 @@ async function send(item: QueuedProva): Promise<string> {
   return (data as { estat?: string } | null)?.estat ?? 'enviada'
 }
 
+/**
+ * Qui puja la foto, llegit de la sessió d'aquest mòbil i no del servidor.
+ *
+ * `getUser()` és una crida a /auth/v1/user per cada prova i per cada
+ * reintent, i els endpoints d'Auth tenen límit per IP: dues-centes persones
+ * darrere la mateixa wifi s'esgoten la quota entre elles. Aquí no cal validar
+ * res —el servidor ja ho fa amb el JWT que acompanya la pujada i
+ * `submit_prova` atribueix per `auth.uid()`—, només saber quin camí escriure.
+ *
+ * Sense sessió llegible no s'envia: l'error no porta codi de Postgres, de
+ * manera que `flushProves` deixa la foto a la cua per a la propera volta en
+ * comptes de pujar-la a un camí sense propietari.
+ */
+async function localUserId(): Promise<string> {
+  const { data } = await supabase.auth.getSession()
+  const id = data.session?.user.id
+  if (id === undefined) throw new Error('no session')
+  return id
+}
+
 /** Un 409 vol dir que la foto ja hi era: la primera provatura la va deixar. */
 function alreadyThere(error: unknown): boolean {
   const e = error as { statusCode?: string; message?: string } | null
@@ -186,11 +257,21 @@ function alreadyThere(error: unknown): boolean {
  * treu, perquè reintentar-la eternament és guardar una foto que no arribarà
  * mai enlloc.
  */
-export async function flushProves(): Promise<number> {
+export function flushProves(): Promise<number> {
+  flushing ??= drainOnce().finally(() => {
+    flushing = null
+  })
+  return flushing
+}
+
+let flushing: Promise<number> | null = null
+
+async function drainOnce(): Promise<number> {
   const rows = await waiting<QueuedProva>(PROVES)
   let sent = 0
 
   for (const row of rows) {
+    if (inFlight.has(row.id)) continue
     try {
       await send(row)
       sent += 1

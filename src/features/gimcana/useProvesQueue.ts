@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 
 import { flushProves, gimcanaKeys } from './api'
 
@@ -20,8 +20,13 @@ import { flushProves, gimcanaKeys } from './api'
 
 const RETRY_MS = 15_000
 
-export function useProvesQueue(): void {
+export function useProvesQueue(onSent?: () => void): void {
   const client = useQueryClient()
+  // En un ref perquè canviar de callback no ha de reiniciar el temporitzador.
+  const sentRef = useRef(onSent)
+  useEffect(() => {
+    sentRef.current = onSent
+  })
 
   useEffect(() => {
     let alive = true
@@ -30,6 +35,7 @@ export function useProvesQueue(): void {
       void flushProves().then((sent) => {
         if (!alive || sent === 0) return
         void client.invalidateQueries({ queryKey: gimcanaKeys.all() })
+        sentRef.current?.()
       })
     }
 

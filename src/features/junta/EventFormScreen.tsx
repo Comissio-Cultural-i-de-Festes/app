@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Link, useNavigate, useParams, useSearchParams } from 'react-router'
+import { useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import { APP_TIME_ZONE, formatDateTime } from '@/i18n/format'
@@ -12,6 +12,7 @@ import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
 import { uploadCover } from '@/lib/storage'
 import { useCovers } from '@/ui/Cover/useCovers'
+import { NavRow } from '@/ui/Row/Row'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { EventPreview, type PreviewData } from './EventPreview'
@@ -613,17 +614,18 @@ function EventForm() {
               dues coses són la mateixa: aquí es tria on es pot fitxar, i allà
               es veu qui ho ha fet. */}
           {editing ? (
-            <Link
-              to={`/junta/esdeveniment/${id ?? ''}/fitxatges`}
-              className="mb-9 flex min-h-[56px] items-center justify-between gap-5 border border-surface-8 bg-surface-2 px-7 py-6 text-fg no-underline"
-            >
-              <span className="text-md font-bold [text-wrap:balance]">
-                {t('junta.checkins.title')}
-              </span>
-              <span aria-hidden="true" className="flex-none text-lg text-fg-muted">
-                ›
-              </span>
-            </Link>
+            <div className="mb-9 border-t border-surface-4">
+              <NavRow
+                to={`/junta/esdeveniment/${id ?? ''}/fitxatges`}
+                title={t('junta.checkins.title')}
+              />
+              {isMeeting ? null : (
+                <NavRow
+                  to={`/junta/esdeveniment/${id ?? ''}/gimcana`}
+                  title={t('gimcana.title')}
+                />
+              )}
+            </div>
           ) : null}
 
           <Field label={t('junta.form.description')}>

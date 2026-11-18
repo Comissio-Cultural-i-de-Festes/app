@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
@@ -7,6 +8,7 @@ import { formatTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { Confirm } from '@/ui/Confirm/Confirm'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
@@ -22,6 +24,15 @@ import { type CheckinRow, checkinKeys, fetchCheckins, undoCheckin } from './chec
  *
  * Ordenada de més lluny a més a prop, que la fa el servidor: el que s'ha de
  * mirar primer és el que costa més d'explicar.
+ *
+ * TREURE ÉS DEMANAR-HO DUES VEGADES. Un toc obre la confirmació a la fila i el
+ * servidor no sap res fins al segon. S'ha triat això i no un «Desfés» de cinc
+ * segons com el de l'alta a mà perquè aquell desfà una cosa que es va fer
+ * ara mateix, i aquí no: cap RPC torna a crear un fitxatge vell amb els seus
+ * punts, la seva hora i el seu motiu originals, i endarrerir l'esborrat
+ * deixaria una crida en vol penjada d'una pestanya oberta — si es tanca
+ * l'app als cinc segons ningú sabria si va sortir. La confirmació no deixa
+ * res a mitges: o s'ha confirmat i ha sortit, o no ha passat res.
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -44,9 +55,16 @@ export function CheckinsScreen() {
     enabled: eventId !== '',
   })
 
+  const [confirming, setConfirming] = useState<string | null>(null)
+
+  // `networkMode: 'always'` perquè sense cobertura React Query no cridaria res
+  // i la confirmació es quedaria amb els dos botons morts i cap frase. Així la
+  // crida surt, falla i la pantalla diu que no s'ha pogut.
   const undo = useMutation({
+    networkMode: 'always',
     mutationFn: (userId: string) => undoCheckin(eventId, userId),
     onSuccess: async () => {
+      setConfirming(null)
       await client.invalidateQueries({ queryKey: checkinKeys.list(eventId) })
     },
   })
@@ -95,12 +113,31 @@ export function CheckinsScreen() {
                 type="button"
                 disabled={undo.isPending}
                 onClick={() => {
-                  undo.mutate(r.user_id)
+                  undo.reset()
+                  setConfirming(r.user_id)
                 }}
                 className="min-h-[44px] flex-none px-3 text-sm font-bold text-warning disabled:opacity-50"
               >
                 {t('junta.checkins.undo')}
               </button>
+              {confirming === r.user_id ? (
+                <Confirm
+                  className="basis-full"
+                  cta={t('junta.checkins.undoConfirm')}
+                  cancel={t('actions.cancel')}
+                  busy={undo.isPending}
+                  onConfirm={() => {
+                    undo.mutate(r.user_id)
+                  }}
+                  onCancel={() => {
+                    setConfirming(null)
+                  }}
+                >
+                  <p className="text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+                    {t('junta.checkins.undoSure', { nombre: r.nombre })}
+                  </p>
+                </Confirm>
+              ) : null}
             </li>
           ))}
         </ul>

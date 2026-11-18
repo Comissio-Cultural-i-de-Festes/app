@@ -112,7 +112,7 @@ export function HomeScreen() {
 
       {home.isError ? (
         <ErrorPanel
-          message={t(errorKey(home.error))}
+          message={t(home.messageKey)}
           onRetry={home.refetch}
           label={t('actions.retry')}
         />

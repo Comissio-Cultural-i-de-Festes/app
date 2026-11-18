@@ -32,6 +32,21 @@
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>%VITE_APP_NAME%</title>
+    <!-- Link preview. Crawlers run no JavaScript, so this is all they ever
+         see, on every route alike: the tags are the same for / and for an
+         event, which is what keeps an unrevealed event out of a preview.
+         Do not make any of it per-page. The image address is made absolute
+         by the `app-comi:link-preview` plugin in vite.config.ts. -->
+    <meta name="description" content="%OG_DESCRIPTION%" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="%VITE_APP_SHORT_NAME%" />
+    <meta property="og:title" content="%VITE_APP_NAME%" />
+    <meta property="og:description" content="%OG_DESCRIPTION%" />
+    <meta property="og:image" content="%OG_IMAGE_URL%" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="%VITE_APP_NAME%" />
+    <meta name="twitter:card" content="summary_large_image" />
   </head>
   <body>
     <div id="root"></div>

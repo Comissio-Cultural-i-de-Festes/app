@@ -1,6 +1,6 @@
 import type { EventType } from '@/lib/model'
 
-import { JUNTA_AHEAD_MS } from './eventsApi'
+import { JUNTA_AHEAD_MS } from './finestra'
 
 /**
  * Les eines d'una activitat, i quines li toquen.

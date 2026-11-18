@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import { horizonIso } from '@/features/home/api'
 
-import { JUNTA_BACK_MS, juntaHorizonIso, obertsDesDe } from './eventsApi'
+import { juntaHorizonIso, obertsDesDe } from './eventsApi'
+import { JUNTA_BACK_MS } from './finestra'
 
 /**
  * La finestra enrere de les llistes de la junta.

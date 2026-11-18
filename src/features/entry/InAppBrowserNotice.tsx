@@ -27,6 +27,36 @@ function currentLink(): string {
   return url.toString()
 }
 
+/**
+ * The async Clipboard API first; failing that, the old `execCommand` on a
+ * throwaway textarea, which embedded webviews honour more often than they
+ * expose `navigator.clipboard`. Only when both fail does the person get the
+ * field to copy by hand.
+ */
+async function writeClipboard(text: string): Promise<boolean> {
+  try {
+    await navigator.clipboard.writeText(text)
+    return true
+  } catch {
+    // Fall through to the legacy path.
+  }
+  const area = document.createElement('textarea')
+  area.value = text
+  area.setAttribute('readonly', '')
+  area.style.position = 'fixed'
+  area.style.opacity = '0'
+  document.body.appendChild(area)
+  try {
+    area.focus()
+    area.setSelectionRange(0, text.length)
+    return document.execCommand('copy')
+  } catch {
+    return false
+  } finally {
+    area.remove()
+  }
+}
+
 export function InAppBrowserNotice({ className = '' }: { readonly className?: string }) {
   const { t } = useTranslation()
   const link = currentLink()
@@ -38,15 +68,13 @@ export function InAppBrowserNotice({ className = '' }: { readonly className?: st
 
   async function copyLink(): Promise<void> {
     clearTimeout(timer.current)
-    try {
-      await navigator.clipboard.writeText(link)
+    if (await writeClipboard(link)) {
       setCopy('copied')
       timer.current = setTimeout(() => {
         setCopy('idle')
       }, 2500)
-    } catch {
-      // Refused, or no clipboard API in this webview. Not retried: the link
-      // is on screen now.
+    } else {
+      // Not retried: the link is on screen now.
       setCopy('failed')
     }
   }
@@ -56,11 +84,6 @@ export function InAppBrowserNotice({ className = '' }: { readonly className?: st
       <Notice as="div" size="default">
         <h2 className="text-lg font-bold text-fg">{t('entry.inApp.title')}</h2>
         <p className="mt-3 text-md text-fg-secondary [text-wrap:pretty]">{t('entry.inApp.body')}</p>
-        {!android && (
-          <p className="mt-3 text-md text-fg-secondary [text-wrap:pretty]">
-            {t('entry.inApp.ios')}
-          </p>
-        )}
       </Notice>
 
       <div className="mt-6 flex flex-col gap-[10px]">
@@ -82,6 +105,9 @@ export function InAppBrowserNotice({ className = '' }: { readonly className?: st
         >
           {copy === 'copied' ? t('entry.inApp.copied') : t('entry.inApp.copy')}
         </Button>
+        {!android && (
+          <p className="text-md text-fg-secondary [text-wrap:pretty]">{t('entry.inApp.ios')}</p>
+        )}
       </div>
 
       <p role="status" className="sr-only">
@@ -98,7 +124,7 @@ export function InAppBrowserNotice({ className = '' }: { readonly className?: st
             value={link}
             aria-label={t('entry.inApp.linkLabel')}
             onFocus={(e) => {
-              e.currentTarget.select()
+              e.currentTarget.setSelectionRange(0, link.length)
             }}
             className="mt-3 min-h-[44px] w-full border-[1.5px] border-[var(--ds-border-input)] bg-surface-1 px-7 text-md text-fg"
           />

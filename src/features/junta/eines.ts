@@ -1,6 +1,6 @@
 import type { EventType } from '@/lib/model'
 
-import { JUNTA_AHEAD_MS } from './finestra'
+import { JUNTA_AHEAD_MS, PORTA_TANCA_MS, surtDeLaPorta } from './finestra'
 
 /**
  * Les eines d'una activitat, i quines li toquen.
@@ -26,9 +26,11 @@ import { JUNTA_AHEAD_MS } from './finestra'
  *   · L'escàner i l'alta s'obren trenta hores abans, que és quan l'esdeveniment
  *     entra a la porta del rebedor. Fitxar algú tres setmanes abans d'una festa
  *     no és mai el que es volia, i amb la fila a la vista és un toc.
- *   · Després no es tanca res. L'endemà es fitxa qui es va quedar sense, es
- *     donen els punts del desmuntatge i es cobra qui va pagar en mà. Tancar-ho a
- *     una hora era exactament el defecte de l'issue.
+ *   · Després: l'endemà es fitxa qui es va quedar sense, es donen els punts
+ *     del desmuntatge i es cobra qui va pagar en mà. Tancar-ho en sortir de la
+ *     porta era exactament el defecte de l'issue. L'escàner i l'alta es tanquen
+ *     set dies després (`PORTA_TANCA_MS`, i el perquè és allà); punts, pagaments
+ *     i la resta no es tanquen mai.
  *
  * UN ESBORRANY NO TÉ PORTA. `check_in` contesta `event_not_open` a un
  * esdeveniment sense publicar, i ningú s'hi pot haver apuntat: les eines que
@@ -46,6 +48,7 @@ export type Eina =
 export interface EinesDe {
   readonly tipo: EventType
   readonly starts_at: string
+  readonly ends_at: string | null
   readonly published: boolean
   readonly precio_cents: number
   readonly plazas: number | null
@@ -53,16 +56,24 @@ export interface EinesDe {
   readonly teGimcana: boolean
 }
 
-/** Si l'escàner i l'alta ja tenen sentit: trenta hores abans, com la porta, i sense final. */
-export function portaOberta(e: Pick<EinesDe, 'starts_at'>, now: number = Date.now()): boolean {
-  return Date.parse(e.starts_at) <= now + JUNTA_AHEAD_MS
+/**
+ * On és l'escàner d'aquest esdeveniment: encara no s'ha obert, és obert, o ja
+ * s'ha tancat. S'obre quan entra a la porta i es tanca una setmana després
+ * que en surt.
+ */
+export function estatPorta(
+  e: Pick<EinesDe, 'starts_at' | 'ends_at'>,
+  now: number = Date.now(),
+): 'aviat' | 'oberta' | 'tancada' {
+  if (Date.parse(e.starts_at) > now + JUNTA_AHEAD_MS) return 'aviat'
+  return surtDeLaPorta(e) + PORTA_TANCA_MS >= now ? 'oberta' : 'tancada'
 }
 
 export function einesDe(e: EinesDe, now: number = Date.now()): readonly Eina[] {
   if (e.tipo === 'reunio') return ['fitxatges']
 
   const out: Eina[] = []
-  if (e.published && portaOberta(e, now)) out.push('escaner', 'alta')
+  if (e.published && estatPorta(e, now) === 'oberta') out.push('escaner', 'alta')
   if (e.published) out.push('punts')
   if (e.published && (e.precio_cents > 0 || e.plazas !== null || e.cal_confirmacio)) {
     out.push('pagaments')

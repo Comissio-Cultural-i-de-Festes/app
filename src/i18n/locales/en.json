@@ -1335,6 +1335,7 @@
       "validateTitle": "Review the scavenger hunt",
       "inQueue_one": "{{count}} in the queue",
       "inQueue_other": "{{count}} in the queue",
+      "photoGone": "The photo is gone: entries are deleted thirty days after the gymkhana closes.",
       "queueEmpty": "No photos waiting. Come back in a while.",
       "yes": "It counts: +{{n}}",
       "no": "Doesn't count",

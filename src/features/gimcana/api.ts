@@ -79,6 +79,12 @@ export interface QueueRow {
   readonly escola: string | null
   readonly quan: string
   readonly a_la_cua: number
+  /**
+   * Quan la foto va deixar de comptar (migració 91): la gimcana fa més de trenta
+   * dies que es va tancar. Opcional perquè el paquet i la base es despleguen per
+   * separat, i contra una base d'abans de la 91 la columna no hi és.
+   */
+  readonly foto_esborrada_at?: string | null
 }
 
 export const gimcanaKeys = {

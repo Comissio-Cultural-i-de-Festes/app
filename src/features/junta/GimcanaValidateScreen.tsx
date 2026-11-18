@@ -3,6 +3,8 @@ import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
+import { eventKeys, fetchEvent } from '@/features/event/api'
+import { eventTitle } from '@/features/event/title'
 import { decideProva, fetchQueue, gimcanaKeys, undoProva } from '@/features/gimcana/api'
 import { teamName } from '@/features/gimcana/teamName'
 import { useAvailability } from '@/lib/useAvailability'
@@ -43,6 +45,16 @@ export function GimcanaValidateScreen() {
   const queue = useQuery({
     queryKey: gimcanaKeys.queue(eventId),
     queryFn: () => fetchQueue(eventId),
+    enabled: eventId !== '',
+  })
+
+  // De quin esdeveniment és la cua. Quan només s'hi arribava des de la porta,
+  // la porta ja ho deia; des de l'issue #28 s'hi arriba també des de la fitxa
+  // de cada esdeveniment, i amb dues gimcanes el mateix cap de setmana una cua
+  // sense nom és una cua que pot ser l'altra.
+  const event = useQuery({
+    queryKey: eventKeys.one(eventId),
+    queryFn: () => fetchEvent(eventId),
     enabled: eventId !== '',
   })
 
@@ -93,6 +105,11 @@ export function GimcanaValidateScreen() {
       />
 
       <div className={`pt-7 ${GUTTER}`}>
+        {event.data == null ? null : (
+          <p className="eyebrow mb-6 text-fg-muted [text-wrap:balance]">
+            {eventTitle(event.data.titulo)}
+          </p>
+        )}
         {view.loading ? (
           <QueueSkeleton />
         ) : view.unavailable ? (

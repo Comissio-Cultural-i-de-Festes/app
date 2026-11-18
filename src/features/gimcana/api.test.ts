@@ -110,6 +110,33 @@ describe('buidar la cua', () => {
     expect(store.get('r1')?.tries).toBe(1)
     expect(getUser).not.toHaveBeenCalled()
   })
+
+  // Vist contra la passarel·la local: amb la sessió perduda la petició surt
+  // com a `anon`, que no pot executar `submit_prova`, i la resposta és 42501
+  // «permission denied for function». És de qui crida, no de la foto: quan
+  // torna la sessió, la mateixa foto entra. Esborrar-la era perdre-la.
+  it('un 42501 de qui crida no esborra la foto: es queda i suma un intent', async () => {
+    store.set('r2', { id: 'r2', tries: 0, provaId: PROVA, photo } as never)
+    getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })
+    rpc.mockResolvedValue({
+      data: null,
+      error: { code: '42501', message: 'permission denied for function submit_prova' },
+    })
+
+    expect(await flushProves()).toBe(0)
+
+    expect(store.get('r2')?.tries).toBe(1)
+  })
+
+  it('un refús de la petició mateixa sí que la treu: no entrarà mai', async () => {
+    store.set('r3', { id: 'r3', tries: 0, provaId: PROVA, photo } as never)
+    getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })
+    rpc.mockResolvedValue({ data: null, error: { code: '22P02', message: 'invalid input' } })
+
+    expect(await flushProves()).toBe(0)
+
+    expect(store.has('r3')).toBe(false)
+  })
 })
 
 describe('enviaments concurrents', () => {

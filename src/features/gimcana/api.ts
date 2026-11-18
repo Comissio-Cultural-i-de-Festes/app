@@ -275,7 +275,12 @@ async function drainOnce(): Promise<number> {
       sent += 1
     } catch (cause) {
       const code = (cause as { code?: string } | null)?.code ?? ''
-      if (code.startsWith('22') || code.startsWith('23') || code === '42501') {
+      // NO EL 42501. A `submit_prova` és sempre de qui crida —«nomes socis», o
+      // la sessió perduda que surt com a `anon` i no té permís per executar-la,
+      // comprovat contra la passarel·la—, mai de la foto. Esborrar-la amb
+      // cobertura dolenta i el refresc del token perdut era llençar la prova
+      // d'algú que, quan torna la sessió, l'hauria vist entrar.
+      if (code.startsWith('22') || code.startsWith('23')) {
         await drop(PROVES, row.id)
       } else {
         await put(PROVES, { ...row, tries: row.tries + 1 })

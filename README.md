@@ -407,8 +407,12 @@ project, production and Staging separately, so one being down does not skip
 the other and the run turns red showing which. An empty variable fails the job
 with a message naming it.
 
-To check it, run `gh workflow run keepalive.yml` and open the run: both
-`ping (production)` and `ping (staging)` must be green and print `HTTP 200`.
+Being variables, their values show in the run logs; that is acceptable because
+they are public.
+
+To check it, run `gh workflow run keepalive.yml` (it only works once the file
+is on `main`) and open the run: both `ping (production)` and `ping (staging)`
+must be green and print `production: HTTP 200` / `staging: HTTP 200`.
 
 Note that GitHub also disables scheduled workflows in a public repository
 after 60 days with no commits, and emails the owner — so the thing keeping the

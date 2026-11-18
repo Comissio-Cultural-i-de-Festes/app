@@ -627,6 +627,15 @@ union all
 select 'invitacio_usada', to_jsonb(iu)
   from public.invite_uses iu, subject s where iu.user_id = s.id
 union all
+select 'dades_viatger', to_jsonb(v)
+  from public.dades_viatger v, subject s where v.user_id = s.id
+union all
+-- Who on the committee opened their traveller details. Those rows name the
+-- event as target and list the people in `detall`, so `target_id` misses them.
+select 'consultes_dades_viatger', to_jsonb(al)
+  from public.audit_log al, subject s
+ where al.accio = 'consulta_viatgers' and al.detall->'persones' ? s.id::text
+union all
 -- Both directions: rows about them, and rows recording what they did while on
 -- the committee. Somebody asking what is held about them is owed both.
 select 'registre_sobre_ell', to_jsonb(al)

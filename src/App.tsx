@@ -1,5 +1,6 @@
+import { useQueryClient } from '@tanstack/react-query'
 import type { Session } from '@supabase/supabase-js'
-import { Suspense, lazy, useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Route, Routes, useLocation } from 'react-router'
 
@@ -42,6 +43,8 @@ import {
   shouldPromptInstall,
   snoozeInstall,
 } from '@/features/install/installGate'
+import { forgetOnUserChange } from '@/lib/forgetSession'
+import { invalidateAccess } from '@/lib/signedQuery'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -167,6 +170,8 @@ function DrainCheckins() {
 
 export default function App() {
   const { t } = useTranslation()
+  const client = useQueryClient()
+  const lastUser = useRef<string | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const { pathname } = useLocation()
   const [ready, setReady] = useState(false)
@@ -183,17 +188,21 @@ export default function App() {
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
+      lastUser.current = data.session?.user.id ?? null
       setSession(data.session)
       setReady(true)
     })
 
     const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
+      // Abans de pintar res amb la sessió nova: qui entra no ha de veure ni un
+      // instant el que tenia a la cau qui marxa.
+      lastUser.current = forgetOnUserChange(client, lastUser.current, next?.user.id ?? null)
       setSession(next)
     })
     return () => {
       sub.subscription.unsubscribe()
     }
-  }, [])
+  }, [client])
 
   // Redeem the invitation once, as soon as there is a session to redeem it
   // against. The code travelled in the redirect URL so this works even when
@@ -212,11 +221,14 @@ export default function App() {
       // Removing it either way left somebody pending, with the one string that
       // could have got them in already gone.
       if (error) return
+      // El mateix que en bescanviar-lo a mà: canvia què es pot veure, i les
+      // portades que van tornar null abans d'entrar ara sí que es poden signar.
+      await invalidateAccess(client)
       const url = new URL(window.location.href)
       url.searchParams.delete(INVITE_PARAM)
       window.history.replaceState({}, '', url.toString())
     })()
-  }, [session])
+  }, [session, client])
 
   if (!ready) {
     return (

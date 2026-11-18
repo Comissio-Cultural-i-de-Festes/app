@@ -11,6 +11,16 @@
 
 export const SWEEP_EVERY_MS = 24 * 60 * 60 * 1000
 
+/** El màxim que l'API de Storage esborra d'una crida. */
+export const SWEEP_BATCH = 1000
+/** Cinc mil objectes per obertura: una gimcana molt gran, en un sol dia. */
+export const SWEEP_ROUNDS = 5
+
+/** La marca és per persona: un mòbil compartit no s'ha de saltar ningú. */
+export function sweepMarkKey(userId: string): string {
+  return `comi.sweep.at.${userId}`
+}
+
 /** `last` és el que hi hagi a localStorage: res, un número, o brossa. */
 export function sweepDue(last: string | null, now: number): boolean {
   if (last === null) return true

@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type * as Queue from '@/lib/queue'
+
 /**
  * La cua de proves i el compte d'Auth.
  *
@@ -35,16 +37,17 @@ vi.mock('@/lib/storage', () => ({
   UnreadableImage: class UnreadableImage extends Error {},
 }))
 
-vi.mock('@/lib/queue', () => ({
+vi.mock('@/lib/queue', async (importOriginal) => ({
+  ...(await importOriginal<typeof Queue>()),
   PROVES: 'gimcana-queue',
   put: (_s: string, item: { id: string; tries: number }) => {
-    if (putFails.on) return Promise.resolve()
+    if (putFails.on) return Promise.resolve(false)
     store.set(item.id, item)
-    return Promise.resolve()
+    return Promise.resolve(true)
   },
   drop: (_s: string, id: string) => {
     store.delete(id)
-    return Promise.resolve()
+    return Promise.resolve(true)
   },
   waiting: () => Promise.resolve([...store.values()]),
 }))
@@ -163,7 +166,7 @@ describe('el que no ha arribat a desar-se', () => {
     expect(upload).not.toHaveBeenCalled()
   })
 
-  // El `put` real de la cua no peta: sense IndexedDB torna sense dir res.
+  // El `put` real de la cua no peta: sense IndexedDB torna `false`.
   it("un IndexedDB que no desa, amb l'enviament fallat, surt com a no desada", async () => {
     putFails.on = true
     getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })

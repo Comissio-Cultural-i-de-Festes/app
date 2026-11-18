@@ -1,5 +1,5 @@
 import { DbError, isPermanent } from '@/lib/db'
-import { drop, PROVES, put, waiting } from '@/lib/queue'
+import { drop, NotSaved, PROVES, put, waiting } from '@/lib/queue'
 import { galleryImage, GIMCANA_PHOTOS, UnreadableImage } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
 
@@ -135,25 +135,23 @@ interface QueuedProva {
 /**
  * La foto no ha arribat a ser a la cua: el canvas no ha pogut codificar-la o
  * IndexedDB ha dit que no. «Desada, s'enviarà sola» seria mentida, i la
- * pantalla ho ha de dir amb un error i no amb l'avís de la cua.
+ * pantalla ho ha de dir amb un error i no amb l'avís de la cua. És la mateixa
+ * classe que fan servir les altres tres cues; es reexporta perquè la pantalla
+ * la importa d'aquí.
  */
-export class NotSaved extends Error {
-  constructor(cause: unknown) {
-    super('the photo could not be written to the queue', { cause })
-    this.name = 'NotSaved'
-  }
-}
+export { NotSaved }
 
 export async function submitProva(provaId: string, photo: Blob): Promise<string> {
   const id = crypto.randomUUID()
   let item: QueuedProva
+  let saved: boolean
   try {
     // Encongida abans de desar-la a la cua i no després: guardar el fotograma
     // sencer de la càmera seria omplir IndexedDB de megues que ningú mirarà a
     // aquella mida, i la junta la mira en un telèfon.
     const small = await galleryImage(photo)
     item = { id, provaId, photo: small, at: Date.now(), tries: 0 }
-    await put(PROVES, item)
+    saved = await put(PROVES, item)
   } catch (cause) {
     // Un fitxer il·legible té el seu propi missatge.
     if (cause instanceof UnreadableImage) throw cause
@@ -163,10 +161,10 @@ export async function submitProva(provaId: string, photo: Blob): Promise<string>
     return await send(item)
   } catch (cause) {
     if (isPermanent(cause)) throw cause
-    // `put` de la cua no peta mai: sense IndexedDB —mode privat, quota,
-    // disc ple— torna sense dir res. Si l'enviament ha fallat i la foto no és
-    // a la cua, «desada» seria mentida: ningú no la tornarà a intentar.
-    if (!(await isQueued(provaId))) throw new NotSaved(cause)
+    // `put` de la cua no peta: sense IndexedDB —mode privat, quota, disc ple—
+    // torna `false`. Si l'enviament ha fallat i la foto no és a la cua,
+    // «desada» seria mentida: ningú no la tornarà a intentar.
+    if (!saved) throw new NotSaved(cause)
     throw cause
   }
 }

@@ -38,6 +38,7 @@ const OBERTA: Gimcana = {
   ],
 }
 
+const flush = vi.fn(() => Promise.resolve(0))
 let submit: () => Promise<string> = () => Promise.resolve('enviada')
 
 vi.mock('react-i18next', () => ({
@@ -59,6 +60,7 @@ vi.mock('./api', async (importOriginal) => {
     ...real,
     fetchGimcana: () => Promise.resolve(OBERTA),
     submitProva: () => submit(),
+    flushProves: () => flush(),
   }
 })
 
@@ -76,6 +78,7 @@ async function munta(): Promise<HTMLInputElement> {
 }
 
 beforeEach(() => {
+  flush.mockClear()
   submit = () => Promise.resolve('enviada')
   vi.stubGlobal(
     'URL',
@@ -105,5 +108,18 @@ describe('el selector de la prova', () => {
       expect(alert.textContent).toBe('errors.notAnImage')
     })
     expect(screen.queryByText('gimcana.queued')).toBeNull()
+  })
+})
+
+describe("la cua de proves a la pantalla d'enviar", () => {
+  // Qui ha enviat sense cobertura es queda en aquesta pantalla: si el senyal
+  // torna aquí, la foto ha de sortir sola sense haver de tornar a la llista.
+  it('un esdeveniment online buida la cua', async () => {
+    await munta()
+    flush.mockClear()
+
+    window.dispatchEvent(new Event('online'))
+
+    expect(flush).toHaveBeenCalled()
   })
 })

@@ -10,6 +10,7 @@ import { UnreadableImage } from '@/lib/storage'
 import { Notice } from '@/ui/Notice/Notice'
 
 import { fetchGimcana, gimcanaKeys, submitProva } from './api'
+import { useProvesQueue } from './useProvesQueue'
 
 /**
  * Enviar una prova.
@@ -34,6 +35,9 @@ export function SubmitScreen() {
   const { id = '', provaId = '' } = useParams()
   const navigate = useNavigate()
   const client = useQueryClient()
+  // La foto desada sense cobertura ha de poder sortir des d'aquí mateix: qui
+  // l'ha enviada es queda a la pantalla, i `online` no passa per la llista.
+  useProvesQueue()
   const picker = useRef<HTMLInputElement>(null)
   // Els dos van junts, i el blob-URL es crea al gestor que ha triat la foto —
   // mai durant un render. Al cos del render, cada repintada mentre s'envia en

@@ -280,7 +280,10 @@
       "confirmTitle": "¿Quieres venir? Las plazas las reparte la junta",
       "request": "Pide plaza",
       "requestWarning": "Pedirla no es tenerla. Lo decide la junta y te lo decimos por el grupo.",
-      "requestedPrivate": "Que lo hayas pedido no sale en ningún sitio. Solo lo ve la junta."
+      "requestedPrivate": "Que lo hayas pedido no sale en ningún sitio. Solo lo ve la junta.",
+      "paused": "Sin conexión. La respuesta espera aquí y se enviará cuando vuelva la red: no cierres la app.",
+      "offline": "Sin conexión, la respuesta no ha salido. Vuelve a intentarlo cuando tengas cobertura.",
+      "slow": "La conexión va muy lenta: la respuesta todavía no ha llegado."
     },
     "queue": {
       "onList": "Estás en la lista de espera. Si alguien se echa atrás, la junta te avisa.",

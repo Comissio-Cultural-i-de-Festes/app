@@ -280,7 +280,10 @@
       "confirmTitle": "Hi vols venir? Les places les reparteix la junta",
       "request": "Demana-hi plaça",
       "requestWarning": "Demanar-ho no és tenir-la. Ho decideix la junta i t'ho diem pel grup.",
-      "requestedPrivate": "Que ho hagis demanat no surt enlloc. Només ho veu la junta."
+      "requestedPrivate": "Que ho hagis demanat no surt enlloc. Només ho veu la junta.",
+      "paused": "Sense connexió. La resposta espera aquí i s'enviarà quan torni la xarxa: no tanquis l'app.",
+      "offline": "Sense connexió, la resposta no ha sortit. Torna-hi quan tinguis cobertura.",
+      "slow": "La connexió va molt lenta: la resposta encara no ha arribat."
     },
     "queue": {
       "onList": "Ets a la llista d'espera. Si algú es fa enrere, la junta t'avisa.",

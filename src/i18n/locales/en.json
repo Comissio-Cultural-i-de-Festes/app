@@ -280,7 +280,10 @@
       "confirmTitle": "Want to come? The committee hands out the places",
       "request": "Ask for a place",
       "requestWarning": "Asking is not having. The committee decides, and we tell you in the group.",
-      "requestedPrivate": "Nobody can see that you asked. Only the committee."
+      "requestedPrivate": "Nobody can see that you asked. Only the committee.",
+      "paused": "No connection. Your answer is waiting here and will go out when the network is back: do not close the app.",
+      "offline": "No connection, so your answer did not go out. Try again when you have signal.",
+      "slow": "The connection is very slow: your answer has not arrived yet."
     },
     "queue": {
       "onList": "You are on the waiting list. If somebody drops out, the committee will tell you.",

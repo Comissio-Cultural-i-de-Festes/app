@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { MemberLink } from '@/features/member/MemberLink'
+import { PendingNote } from '@/features/session/PendingNote'
+import { useAccess } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
 import { ShareCard } from '@/features/share/ShareCard'
 import { formatOrdinal } from '@/i18n/format'
@@ -40,6 +42,11 @@ export function RankingScreen() {
   }, [])
   const locale = toLocale(i18n.resolvedLanguage)
   const userId = useUserId()
+
+  // El rànquing surt de funcions que només responen a qui ja és actiu: a un
+  // pendent li arriben buides, i «ningú no ha fet punts» seria fals. En lloc
+  // d'això, la línia que diu quan s'obre.
+  const { known, active } = useAccess()
 
   const periods = usePeriods()
 
@@ -164,6 +171,11 @@ export function RankingScreen() {
           >
             {t('actions.retry')}
           </button>
+        </div>
+      ) : known && !active ? (
+        <div className={`${GUTTER} py-16 text-center`}>
+          <p className="text-md text-fg-muted [text-wrap:pretty]">{t('pending.rankingClosed')}</p>
+          <PendingNote className="mt-6" />
         </div>
       ) : board.isPending ? (
         <p className={`${GUTTER} py-16 text-center text-fg-muted`}>{t('state.loading')}</p>

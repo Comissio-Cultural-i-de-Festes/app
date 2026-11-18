@@ -7,7 +7,9 @@ import { useFailedCheckin } from '@/features/checkin/useFailedCheckin'
 import { PendingLine } from '@/features/checkin/PendingLine'
 import { checkinWindow, isOpen } from '@/features/checkin/window'
 import { ComebackLine } from '@/features/profile/ComebackLine'
+import { PendingNote } from '@/features/session/PendingNote'
 import { firstName } from '@/features/session/profile'
+import { accessOf } from '@/features/session/access'
 
 import { movementLine } from './movementLine'
 import { useUserId } from '@/features/session/useUserId'
@@ -60,9 +62,10 @@ export function HomeScreen() {
 
   // Approved yet? A pending profile can read the calendar — that is what the
   // door promises them — but every write and every list of names is still
-  // closed. The screen has to say so, or the only feedback is a button that
-  // fails.
-  const waiting = home.profile !== null && home.profile.estat !== 'actiu'
+  // closed, and the lists come back empty rather than failing. Whatever is
+  // counted from them has to stay off the screen: «hi van 0» and «queden 30
+  // places» are not what the calendar says, they are what a closed door shows.
+  const { active } = accessOf(home.profile)
 
   // Cada tasca hi va afegir el seu avís i cadascun és correcte pel seu compte;
   // junts empenyien la foto de l'esdeveniment i el CTA sota la línia de plegat
@@ -122,8 +125,8 @@ export function HomeScreen() {
             locale={locale}
             coverUrl={covers.data?.get(home.hero.cover_url ?? '') ?? null}
           />
-          <Places event={home.hero} attendances={home.attendances} />
-          <CallToAction event={home.hero} attendances={home.attendances} waiting={waiting} />
+          <Places event={home.hero} attendances={home.attendances} active={active} />
+          <CallToAction event={home.hero} attendances={home.attendances} active={active} />
         </>
       ) : home.isPending ? (
         <HeroSkeleton />
@@ -140,10 +143,11 @@ export function HomeScreen() {
         <Recap
           event={home.previous}
           attendances={home.attendances}
+          active={active}
           coverUrl={covers.data?.get(home.previous.cover_url ?? '') ?? null}
         />
       ) : null}
-      <Upcoming events={home.rest} attendances={home.attendances} locale={locale} />
+      <Upcoming events={home.rest} attendances={home.attendances} locale={locale} active={active} />
     </div>
   )
 }
@@ -317,13 +321,17 @@ function whenLabel(start: Date, locale: Locale, t: Translate): string {
 function Places({
   event,
   attendances,
+  active,
 }: {
   readonly event: EventRow
   readonly attendances: readonly AttendanceRow[]
+  readonly active: boolean
 }) {
   const { t } = useTranslation()
   const going = goingRows(attendances, event.id)
-  const left = placesLeft(event, going.length)
+  // Sense accés les assistències no es poden llegir i `going` és buit per
+  // força: les places que en sortirien serien totes les de l'esdeveniment.
+  const left = active ? placesLeft(event, going.length) : null
 
   // Only the detail row is reveal-gated; the count is always known.
   const where = event.ubicacion
@@ -346,7 +354,7 @@ function Places({
             {t(label.key, label.vars)}
           </p>
         </div>
-        <InterestCount eventId={event.id} />
+        {active ? <InterestCount eventId={event.id} /> : null}
       </section>
     )
   }
@@ -370,24 +378,26 @@ function Places({
         )}
       </div>
 
-      <div className="flex flex-none items-center gap-4 pb-2">
-        <div className="flex items-center">
-          {going.slice(0, 3).map((row, index) => (
-            <span
-              key={row.user_id}
-              // Overlapping, front to back, each cut out of the background so
-              // the stack reads as a stack rather than as a smear.
-              className="relative rounded-full border-2 border-app [box-sizing:content-box]"
-              style={{ marginLeft: index === 0 ? 0 : -11, zIndex: 3 - index }}
-            >
-              <Avatar src={row.profiles?.avatar_url ?? null} size={30} />
-            </span>
-          ))}
+      {active ? (
+        <div className="flex flex-none items-center gap-4 pb-2">
+          <div className="flex items-center">
+            {going.slice(0, 3).map((row, index) => (
+              <span
+                key={row.user_id}
+                // Overlapping, front to back, each cut out of the background so
+                // the stack reads as a stack rather than as a smear.
+                className="relative rounded-full border-2 border-app [box-sizing:content-box]"
+                style={{ marginLeft: index === 0 ? 0 : -11, zIndex: 3 - index }}
+              >
+                <Avatar src={row.profiles?.avatar_url ?? null} size={30} />
+              </span>
+            ))}
+          </div>
+          <p className="text-sm font-bold text-fg-secondary">
+            {t('home.going', { count: going.length })}
+          </p>
         </div>
-        <p className="text-sm font-bold text-fg-secondary">
-          {t('home.going', { count: going.length })}
-        </p>
-      </div>
+      ) : null}
     </section>
   )
 }
@@ -405,11 +415,11 @@ function Places({
 function CallToAction({
   event,
   attendances,
-  waiting,
+  active,
 }: {
   readonly event: EventRow
   readonly attendances: readonly AttendanceRow[]
-  readonly waiting: boolean
+  readonly active: boolean
 }) {
   const { t } = useTranslation()
   const userId = useUserId()
@@ -444,21 +454,29 @@ function CallToAction({
   if (titleIsHidden(event.titulo)) {
     return (
       <section className={GUTTER}>
-        <InterestBlock eventId={event.id} size="hero" />
+        {active ? (
+          <InterestBlock eventId={event.id} size="hero" />
+        ) : (
+          <PendingNote className="pt-8" />
+        )}
+      </section>
+    )
+  }
+
+  // Ni un botó desactivat ni un d'actiu que contesta «això no ho pots fer
+  // tu»: fins que la junta l'accepti no hi ha res a respondre, i la línia
+  // diu per què i on es bescanvia un codi.
+  if (!active) {
+    return (
+      <section className={`pt-8 ${GUTTER}`}>
+        <PendingNote />
       </section>
     )
   }
 
   return (
     <section className={`pt-8 ${GUTTER}`}>
-      {waiting ? (
-        // Not approved yet. The banner above says why; the button keeps its
-        // own label so the screen reads the same as everybody else's, which is
-        // the point of letting them in this far at all.
-        <button type="button" disabled className={`${base} bg-surface-2 text-fg-muted opacity-70`}>
-          {t('home.cta.join')}
-        </button>
-      ) : canCheckIn ? (
+      {canCheckIn ? (
         <Link
           to={`/esdeveniment/${event.id}#soc-aqui`}
           className={`${base} bg-brand-cta text-on-brand no-underline`}
@@ -596,10 +614,12 @@ function RankingTeaser({ home }: { readonly home: Home }) {
 function Recap({
   event,
   attendances,
+  active,
   coverUrl,
 }: {
   readonly event: EventRow
   readonly attendances: readonly AttendanceRow[]
+  readonly active: boolean
   readonly coverUrl: string | null
 }) {
   const { t } = useTranslation()
@@ -630,7 +650,7 @@ function Recap({
             <p className="text-xl leading-[1.15] font-bold [text-wrap:pretty]">
               {eventTitle(event.titulo)}
             </p>
-            {attended > 0 ? (
+            {active && attended > 0 ? (
               <p className="mt-[6px] text-md-lo text-fg-muted">
                 {t('home.recap.were', { count: attended })}
               </p>
@@ -654,10 +674,12 @@ function Upcoming({
   events,
   attendances,
   locale,
+  active,
 }: {
   readonly events: readonly EventRow[]
   readonly attendances: readonly AttendanceRow[]
   readonly locale: Locale
+  readonly active: boolean
 }) {
   const { t } = useTranslation()
 
@@ -672,11 +694,12 @@ function Upcoming({
           // xip «Reunió», i on hi hauria les places hi ha l'hora i els punts.
           // Una reunió no competeix amb una festa pel hero.
           const meeting = event.tipo === 'reunio'
-          const left = placesLeft(event, goingRows(attendances, event.id).length)
+          const left = active ? placesLeft(event, goingRows(attendances, event.id).length) : null
           // Mateixa fila, tres diferències: el mes en violeta i no en vermell,
           // el dia com un interrogant, i on hi hauria les places hi ha quan es
           // sabrà. Les places d'una cosa que ningú no sap què és no diuen res.
-          const days = hidden && event.reveal_at !== null ? daysUntil(new Date(event.reveal_at)) : null
+          const days =
+            hidden && event.reveal_at !== null ? daysUntil(new Date(event.reveal_at)) : null
           const sub = hidden
             ? days === null
               ? (event.teaser ?? '')

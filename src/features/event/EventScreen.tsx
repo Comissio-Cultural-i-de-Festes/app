@@ -41,6 +41,8 @@ import { GimcanaLink } from '@/features/gimcana/GimcanaLink'
 import { MyNightBlock } from '@/features/photos/MyNightBlock'
 import { fetchNights, fetchPhotoUrls, photoKeys } from '@/features/photos/api'
 import { ShareCard } from '@/features/share/ShareCard'
+import { PendingNote } from '@/features/session/PendingNote'
+import { useAccess } from '@/features/session/useMyProfile'
 import { RidesBlock } from '@/features/rides/RidesBlock'
 
 import { eventKeys, fetchEvent, fetchWaitlist, formatPrice } from './api'
@@ -81,6 +83,10 @@ export function EventScreen() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
   const userId = useUserId()
+  // Qui encara és pendent no llegeix les assistències dels altres ni pot
+  // contestar: tot el que en depèn queda fora de la pantalla en lloc de
+  // pintar-se a zero o de fallar en prémer-ho.
+  const { active, pending: waitingForJunta } = useAccess()
   const client = useQueryClient()
   const { id = '' } = useParams()
   const { hash: locationHash } = useLocation()
@@ -190,7 +196,7 @@ export function EventScreen() {
   // mateix moment que hi apareix.
   const canCheckIn =
     justCheckedIn ||
-    (mine !== 'asistio' && isOpen(checkinWindow(e.starts_at, e.ends_at), now.getTime()))
+    (active && mine !== 'asistio' && isOpen(checkinWindow(e.starts_at, e.ends_at), now.getTime()))
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
@@ -261,9 +267,9 @@ export function EventScreen() {
         </div>
       ) : null}
 
-      {isMeeting ? <MeetingRoster event={e} /> : null}
+      {isMeeting && active ? <MeetingRoster event={e} /> : null}
 
-      {isMeeting || going.length === 0 ? null : (
+      {isMeeting || !active || going.length === 0 ? null : (
         <section className={`pt-9 ${GUTTER}`}>
           <div className="flex items-center gap-4">
             <div className="flex items-center">
@@ -341,11 +347,11 @@ export function EventScreen() {
           és. L'única cosa que es pot fer és dir «avisa'm». */}
       {hidden ? (
         <section className={GUTTER}>
-          <InterestBlock eventId={e.id} />
+          {active ? <InterestBlock eventId={e.id} /> : <PendingNote className="pt-9" />}
         </section>
       ) : null}
 
-      {hidden || isMeeting ? null : (
+      {hidden || isMeeting || !active ? null : (
         <Places
           total={e.plazas}
           puntos={e.puntos}
@@ -396,7 +402,13 @@ export function EventScreen() {
       {/* «Hi pots ser?», amb dos botons. Es queda també quan ja ha passat i
           fins que es tanqui: entre la reunió i el tancament encara es pot
           corregir qui hi era, i és quan la gent se'n recorda. */}
-      {isMeeting ? (
+      {/* Un pendent no contesta: en lloc dels botons, la línia que explica per
+          què i porta al codi. Un teaser ja la porta al lloc de «Avisa'm». */}
+      {waitingForJunta && !hidden && (isMeeting ? e.tancada_at === null : !isPast) ? (
+        <section className={GUTTER}>
+          <PendingNote className="pt-9" />
+        </section>
+      ) : isMeeting ? (
         e.tancada_at === null ? (
           <MeetingAnswer
             event={e}
@@ -417,7 +429,7 @@ export function EventScreen() {
             }}
           />
         ) : null
-      ) : hidden || isPast || mine === 'asistio' || justCheckedIn ? null : (
+      ) : hidden || isPast || !active || mine === 'asistio' || justCheckedIn ? null : (
         <AnswerBlock
           mine={mine}
           confirm={e.cal_confirmacio}
@@ -448,16 +460,16 @@ export function EventScreen() {
           nudge and this is where somebody comes looking a fortnight later. */}
       {/* La gimcana surt sola mentre la festa passa i desapareix quan acaba:
           la mateixa finestra que la de fitxar, i cap interruptor. */}
-      {isMeeting ? null : <GimcanaLink eventId={e.id} />}
+      {isMeeting || !active ? null : <GimcanaLink eventId={e.id} />}
 
-      {ended && !isMeeting ? <MyNightBlock eventId={e.id} /> : null}
+      {ended && !isMeeting && active ? <MyNightBlock eventId={e.id} /> : null}
 
       {/* La galeria és d'una nit que ja ha passat: mentre la festa dura, la
           gent hi és. Va després del díptic perquè allò és teu i això és de
           tothom. */}
-      {ended && !isMeeting ? <GalleryBlock eventId={e.id} /> : null}
+      {ended && !isMeeting && active ? <GalleryBlock eventId={e.id} /> : null}
 
-      {ended && !isMeeting ? (
+      {ended && !isMeeting && active ? (
         <section className={`pt-12 ${GUTTER}`}>
           <ShareCard
             variant="quiet"
@@ -491,7 +503,7 @@ export function EventScreen() {
           away does not. */}
       {/* I els cotxes tampoc: encara no se sap on és, o sigui que no hi ha cap
           trajecte a oferir. */}
-      {e.te_cotxes && !hidden && !isMeeting ? <RidesBlock eventId={e.id} /> : null}
+      {e.te_cotxes && !hidden && !isMeeting && active ? <RidesBlock eventId={e.id} /> : null}
 
       {e.descripcion === null ? null : (
         <section className={`pt-9 pb-8 ${GUTTER}`}>

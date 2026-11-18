@@ -6,7 +6,12 @@ import { Button } from '@/ui/Button/Button'
 import { LogoMark } from '@/ui/Logo/Logo'
 
 import { IosInstallSteps } from './IosInstallSteps'
-import { promptNativeInstall, useNativeInstallPrompt } from './installGate'
+import {
+  SNOOZE_DONE_MS,
+  promptNativeInstall,
+  snoozeInstall,
+  useNativeInstallPrompt,
+} from './installGate'
 
 /**
  * Adding the app to the home screen.
@@ -219,6 +224,10 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
         <Button
           size="lg"
           onClick={() => {
+            // Ara i no al «seguir al navegador»: la majoria tancarà la pestanya
+            // i obrirà la icona, que és el que se li demana, i aquest Safari
+            // no els ha de tornar a fer la pregunta si un dia hi tornen.
+            snoozeInstall(SNOOZE_DONE_MS)
             setOpened(true)
           }}
         >

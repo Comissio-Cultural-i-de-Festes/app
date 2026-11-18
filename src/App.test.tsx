@@ -95,4 +95,34 @@ describe('signing out', () => {
 
     expect(pendingInvite()).toBeNull()
   })
+
+  it('takes the code out of the address too', async () => {
+    // El bescanvi el treu de la barra quan contesta. Si la sessió es tanca
+    // abans, el `?codi=` es quedava, i el compte següent el bescanviava igual.
+    window.history.replaceState({}, '', '/?codi=ABC-123')
+    mount()
+    await screen.findByText('entry.invited.title')
+    rememberInvite('ABC-123')
+
+    act(() => {
+      authListener('SIGNED_OUT', null)
+    })
+
+    expect(window.location.search).toBe('')
+  })
+
+  it('leaves the code alone when nobody had used it yet', async () => {
+    // Una sessió vella que ja no es pot refrescar també acaba en
+    // `SIGNED_OUT`, en arrencar i abans de res. Qui arriba amb l'enllaç nou
+    // en aquell Safari ha de seguir veient la invitació a la porta.
+    window.history.replaceState({}, '', '/?codi=ABC-123')
+    mount()
+    await screen.findByText('entry.invited.title')
+
+    act(() => {
+      authListener('SIGNED_OUT', null)
+    })
+
+    expect(window.location.search).toBe('?codi=ABC-123')
+  })
 })

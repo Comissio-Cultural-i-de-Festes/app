@@ -1,5 +1,5 @@
 import type { Session } from '@supabase/supabase-js'
-import { Suspense, lazy, useEffect, useState } from 'react'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Route, Routes, useLocation } from 'react-router'
 
@@ -31,7 +31,7 @@ import { JuntaLayout } from '@/features/shell/JuntaLayout'
 import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
-import { forgetInvite } from '@/features/entry/pendingInvite'
+import { discardInvite, pendingInvite } from '@/features/entry/pendingInvite'
 import { readInviteCode } from '@/features/entry/useInvite'
 import { useRedeemFromLink } from '@/features/entry/useRedeemFromLink'
 import { InstallScreen } from '@/features/install/InstallScreen'
@@ -181,6 +181,7 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null)
   const { pathname } = useLocation()
   const [ready, setReady] = useState(false)
+  const signedIn = useRef(false)
   // Llegit en muntar, abans que el bescanvi l'esborri de la barra d'adreces. A
   // partir d'aquí ja hi ha sessió, i la pantalla d'instal·lació no torna.
   const [invited] = useState(() => readInviteCode() !== null)
@@ -199,6 +200,7 @@ export default function App() {
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
+      signedIn.current = data.session !== null
       setSession(data.session)
       setReady(true)
     })
@@ -207,8 +209,16 @@ export default function App() {
       // Aquí i no al botó del perfil: també es tanca sessió quan el token ja
       // no es pot refrescar, o des d'una altra pestanya. Un codi que esperava
       // el bescanvi era del compte que se'n va, i el següent que entri en
-      // aquesta pestanya no se l'ha de quedar.
-      if (event === 'SIGNED_OUT') forgetInvite()
+      // aquesta pestanya no se l'ha de quedar, ni del desat ni de la barra.
+      //
+      // Només si algú l'havia començat a fer servir. Una sessió vella que no
+      // es pot refrescar també dona `SIGNED_OUT`, en arrencar i abans de tot:
+      // esborrar-hi el `?codi=` deixaria qui acaba d'obrir l'enllaç sense la
+      // invitació a la porta.
+      if (event === 'SIGNED_OUT' && (signedIn.current || pendingInvite() !== null)) {
+        discardInvite()
+      }
+      signedIn.current = next !== null
       setSession(next)
     })
     return () => {

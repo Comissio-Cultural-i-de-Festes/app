@@ -36,6 +36,10 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
   // diàleg gastat —l'ha descartat— la pantalla no ha de tornar als passos del
   // Safari: el que li queda és dir que ja ho té fet.
   const [spent, setSpent] = useState(false)
+  // «Ja ho tinc fet» a l'iPhone no pot portar a la porta: la porta d'aquí és la
+  // del Safari, i entrar-hi és deixar la sessió al magatzem que la icona no
+  // veu. El que toca és dir-li on ha d'anar, i deixar quedar-s'hi a qui vulgui.
+  const [opened, setOpened] = useState(false)
 
   // Amb diàleg natiu no hi ha res a explicar: els dos passos d'aquesta
   // pantalla són del Safari, i ensenyar-los a algú que té un botó que instal·la
@@ -117,6 +121,37 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
     )
   }
 
+  if (opened) {
+    return (
+      <main
+        className={
+          'flex min-h-dvh flex-col bg-app px-[var(--ds-gutter)] ' +
+          'pt-[max(calc(var(--ds-safe-top)+8px),12px)] pb-[calc(var(--ds-safe-bottom)+24px)]'
+        }
+      >
+        <div className="my-auto">
+          <LogoMark size={62} />
+          <h1 className="mt-10 font-display text-d-md leading-[0.88] tracking-[-0.05em] uppercase">
+            {t('install.opened.title')}
+          </h1>
+          <p className="mt-[14px] text-lg text-fg-secondary [text-wrap:pretty]">
+            {t('install.opened.body')}
+          </p>
+          <button
+            type="button"
+            onClick={onDone}
+            className={
+              'mt-10 min-h-[44px] w-full cursor-pointer border-0 bg-transparent text-left ' +
+              'text-md-lo font-semibold text-fg-muted [text-wrap:balance]'
+            }
+          >
+            {t('install.opened.stay')}
+          </button>
+        </div>
+      </main>
+    )
+  }
+
   return (
     // Sense `overflow-y-auto`, a diferència de la branca d'Android: el peu és
     // `sticky`, i un contenidor amb overflow passa a ser el seu marc de
@@ -181,7 +216,12 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
           'px-[var(--ds-gutter)] pt-7 pb-[calc(var(--ds-safe-bottom)+10px)] backdrop-blur-[14px]'
         }
       >
-        <Button size="lg" onClick={onDone}>
+        <Button
+          size="lg"
+          onClick={() => {
+            setOpened(true)
+          }}
+        >
           {t('install.done')}
         </Button>
 

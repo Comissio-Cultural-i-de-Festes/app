@@ -21,6 +21,10 @@
   Cache-Control: no-cache
 /manifest.webmanifest
   Cache-Control: no-cache
+# La imatge de la vista prèvia no porta hash al nom: un dia, no un any, perquè
+# un canvi de marca es vegi aviat a WhatsApp.
+/og-image.png
+  Cache-Control: public, max-age=86400
 /assets/*
   Cache-Control: public, max-age=31536000, immutable
 

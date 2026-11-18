@@ -20,6 +20,9 @@ const REQUIRED_ENV = [
 /** El de `--ds-bg-app`. També el del manifest, i el mateix a tots dos llocs. */
 const FALLBACK_COLOR = '#100909'
 
+const escapeAttribute = (value: string) =>
+  value.replaceAll('&', '&amp;').replaceAll('"', '&quot;').replaceAll('<', '&lt;')
+
 export default defineConfig(({ mode, command }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_')
 
@@ -57,6 +60,24 @@ export default defineConfig(({ mode, command }) => {
         name: 'app-comi:theme-color',
         transformIndexHtml(html: string) {
           return html.replaceAll('%VITE_THEME_COLOR%', env.VITE_THEME_COLOR || FALLBACK_COLOR)
+        },
+      },
+      {
+        // `og:image` ha de ser una URL absoluta: WhatsApp i Facebook no
+        // resolen la relativa contra la pàgina. L'origen no surt de res de
+        // l'HTML estàtic, així que ve de VITE_SITE_URL. Buida, no fa petar el
+        // build: cau a la ruta relativa, que és pitjor per als rastrejadors
+        // però millor que un marcador literal.
+        //
+        // La descripció cau al nom si no n'hi ha: un `og:description` buit fa
+        // que alguns rastrejadors se n'inventin una a partir de la pàgina.
+        name: 'app-comi:link-preview',
+        transformIndexHtml(html: string) {
+          const site = (env.VITE_SITE_URL ?? '').trim().replace(/\/+$/, '')
+          const description = env.VITE_APP_DESCRIPTION || env.VITE_APP_NAME || ''
+          return html
+            .replaceAll('%OG_IMAGE_URL%', `${site}/og-image.png`)
+            .replaceAll('%OG_DESCRIPTION%', escapeAttribute(description))
         },
       },
       VitePWA({
@@ -112,6 +133,9 @@ export default defineConfig(({ mode, command }) => {
           // only the subset it needs and the rule below keeps it forever,
           // which is lighter than precaching every subset at install.
           globPatterns: ['**/*.{js,css,html,png,ico,webmanifest}'],
+          // Només la veuen els rastrejadors dels enllaços; un soci no la baixa
+          // mai i al precache seria pes mort a cada instal·lació.
+          globIgnores: ['og-image.png'],
           cleanupOutdatedCaches: true,
           clientsClaim: true,
           skipWaiting: true,

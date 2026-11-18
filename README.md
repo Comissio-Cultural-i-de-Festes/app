@@ -352,6 +352,12 @@ Environment variables, for **both** Production and Preview:
 | `VITE_SUPABASE_URL`      | `https://<ref>.supabase.co`               |
 | `VITE_SUPABASE_ANON_KEY` | the project's anon key — public by design |
 | `VITE_WHATSAPP_URL`      | the group invite link                     |
+| `VITE_SITE_URL`          | `https://<project>.pages.dev`, no slash   |
+
+`VITE_SITE_URL` only feeds the link-preview image (`og:image` must be an
+absolute URL); empty, the build works and the preview loses its picture. The
+image itself is `public/og-image.png`, drawn from the app icon by
+`node scripts/make-og-image.mjs` — rerun it after replacing the icons.
 
 Paste the hex colours plain, with no quotes. The quoting rule in
 `.env.example` is a dotenv quirk and does not apply here.

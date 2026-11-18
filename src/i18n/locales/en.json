@@ -557,6 +557,7 @@
     "upload": "Add yours",
     "whoCanUpload": "Anybody who checked in that night can add photos.",
     "thumbsNote": "These are all thumbnails. The full-size one loads only when you open it.",
+    "thumbLabel": "Photo {{n}} of {{total}}",
     "uploading": "Uploading",
     "uploadCount": "{{n}} of {{total}}",
     "uploadNote": "They go one at a time and the thumbnail is made right here before uploading. Keep the screen open until it finishes; anything that fails stays here.",

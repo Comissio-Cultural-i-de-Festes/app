@@ -2,10 +2,10 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
 import { invalidateData } from '@/lib/signedQuery'
-import { rpc } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
-import { forgetInvite, pendingInvite, rememberInvite } from './pendingInvite'
-import { INVITE_PARAM, readInviteCode } from './useInvite'
+import { discardInvite, pendingInvite, rememberInvite } from './pendingInvite'
+import { readInviteCode } from './useInvite'
 
 /**
  * Redeem the invitation once, as soon as there is a session to redeem it
@@ -17,11 +17,17 @@ import { INVITE_PARAM, readInviteCode } from './useInvite'
  *
  * - El codi es guarda abans de la petició (`pendingInvite`). El primer cop
  *   navega i s'endú l'adreça amb el `?codi=`.
- * - Un bescanvi que no arriba es torna a provar quan torna la xarxa (`online`)
- *   i, a més, un parell de cops pel seu compte: una wifi que diu que hi és i no
- *   porta res no dispara mai `online`.
- * - Una resposta de la base —el codi no val, o s'ha gastat entremig— és
- *   definitiva. Tornar-hi no la canviarà, i el codi s'oblida.
+ * - Només dues respostes són definitives: una de la funció —`ok` sigui quin
+ *   sigui— i el 42501 de la invitació gastada entremig. Tota la resta es torna
+ *   a provar: un 502 o un 504 del proxy, un 429, `PGRST001` amb el pool ple, un
+ *   `57014`. Amb molta gent alhora a la porta, això és el cas normal, i oblidar
+ *   el codi per un d'aquests deixava la persona pendent per res.
+ * - Es torna a provar amb esperes que creixen durant uns minuts, quan torna la
+ *   xarxa (`online`) i quan la pantalla torna a ser visible —el mòbil es
+ *   desbloqueja—. Una wifi que diu que hi és i no porta res no dispara mai
+ *   `online`.
+ * - Cada intent té un temps límit. Un que no tornava mai deixava el següent
+ *   esperant per sempre.
  *
  * Només un `ok: true` refresca les dades: el perfil es demana alhora que el
  * bescanvi i sol arribar abans, encara dient `pendent`, i ho seguia dient fins
@@ -30,9 +36,10 @@ import { INVITE_PARAM, readInviteCode } from './useInvite'
  * perfil, pel mateix motiu que `InviteCodeSheet`.
  */
 
-/** Els intents sols, a part dels que porta l'esdeveniment `online`. */
-const TRIES = 3
-const RETRY_MS = 10_000
+/** Les esperes entre intents: uns set minuts en total. */
+const BACKOFF_MS = [5_000, 10_000, 20_000, 40_000, 60_000, 120_000, 180_000] as const
+/** Prou per a una porta lenta, poc per a una que no contestarà. */
+const ATTEMPT_TIMEOUT_MS = 15_000
 
 interface RedeemResult {
   readonly ok: boolean
@@ -53,42 +60,45 @@ export function useRedeemFromLink(userId: string | null): void {
     let tries = 0
     let timer: ReturnType<typeof setTimeout> | undefined
 
-    const finish = () => {
-      settled = true
-      forgetInvite()
-      // The code is only rubbed out of the address bar once it has been
-      // answered. Removing it either way left somebody pending, with the one
-      // string that could have got them in already gone.
-      const url = new URL(window.location.href)
-      if (!url.searchParams.has(INVITE_PARAM)) return
-      url.searchParams.delete(INVITE_PARAM)
-      window.history.replaceState(window.history.state, '', url.toString())
-    }
-
     const attempt = async () => {
       if (settled || inFlight) return
       inFlight = true
-      const { data, error } = await rpc<RedeemResult>('redeem_invite', { p_codi: code })
+      clearTimeout(timer)
+      const abort = new AbortController()
+      const limit = setTimeout(() => {
+        abort.abort()
+      }, ATTEMPT_TIMEOUT_MS)
+      const { data, error } = await supabase
+        .rpc('redeem_invite', { p_codi: code })
+        .abortSignal(abort.signal)
+      clearTimeout(limit)
       inFlight = false
       if (settled) return
 
-      // Sense codi SQL vol dir que la petició no ha arribat, o no ha tornat.
-      if (error !== null && error.code === '') {
+      if (data === null && error?.code !== '42501') {
+        const wait = BACKOFF_MS[tries]
         tries += 1
-        if (tries < TRIES) timer = setTimeout(() => void attempt(), RETRY_MS)
+        if (wait !== undefined) {
+          timer = setTimeout(() => void attempt(), wait)
+        }
         return
       }
 
-      finish()
-      if (data?.ok === true) void invalidateData(queryClient)
+      settled = true
+      // The code is only rubbed out once it has been answered. Removing it
+      // either way left somebody pending, with the one string that could have
+      // got them in already gone.
+      discardInvite()
+      if ((data as RedeemResult | null)?.ok === true) void invalidateData(queryClient)
     }
 
-    const onOnline = () => {
-      clearTimeout(timer)
+    const again = () => {
+      if (document.visibilityState === 'hidden') return
       void attempt()
     }
 
-    window.addEventListener('online', onOnline)
+    window.addEventListener('online', again)
+    document.addEventListener('visibilitychange', again)
     void attempt()
 
     return () => {
@@ -97,7 +107,8 @@ export function useRedeemFromLink(userId: string | null): void {
       // és actiu, o sigui que un intent de més no costa res.
       settled = true
       clearTimeout(timer)
-      window.removeEventListener('online', onOnline)
+      window.removeEventListener('online', again)
+      document.removeEventListener('visibilitychange', again)
     }
   }, [userId, queryClient])
 }

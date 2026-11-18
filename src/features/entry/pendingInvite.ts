@@ -15,6 +15,8 @@
  * ja és a lloc.
  */
 
+import { INVITE_PARAM } from './useInvite'
+
 const KEY = 'comi.invite.pending'
 
 export function rememberInvite(code: string): void {
@@ -39,4 +41,17 @@ export function forgetInvite(): void {
   } catch {
     /* ignore */
   }
+}
+
+/**
+ * Les dues bandes on viu el codi, de cop: el bescanvi que ha contestat, o la
+ * sessió que es tanca. Esborrar només el desat deixava el `?codi=` a la barra,
+ * i el compte següent d'aquesta pestanya se'l quedava igual.
+ */
+export function discardInvite(): void {
+  forgetInvite()
+  const url = new URL(window.location.href)
+  if (!url.searchParams.has(INVITE_PARAM)) return
+  url.searchParams.delete(INVITE_PARAM)
+  window.history.replaceState(window.history.state, '', url.toString())
 }

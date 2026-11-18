@@ -6,7 +6,7 @@ import type { EventType } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
 import { NavRow } from '@/ui/Row/Row'
 
-import { einesDe, portaOberta, rutaDe } from './eines'
+import { einesDe, estatPorta, rutaDe } from './eines'
 
 /**
  * Les eines d'aquesta activitat, a la seva fitxa.
@@ -42,6 +42,7 @@ export function EinesBlock({ event }: { readonly event: EventRow }) {
   const fets = {
     tipo,
     starts_at: event.starts_at,
+    ends_at: event.ends_at,
     published: event.published,
     precio_cents: event.precio_cents ?? 0,
     plazas: event.plazas,
@@ -49,6 +50,7 @@ export function EinesBlock({ event }: { readonly event: EventRow }) {
     teGimcana: gimcana.data === true,
   }
   const eines = einesDe(fets)
+  const porta = estatPorta(fets)
 
   const lede = reunio
     ? t('junta.form.eines.ledeMeeting')
@@ -70,11 +72,11 @@ export function EinesBlock({ event }: { readonly event: EventRow }) {
           />
         ))}
       </div>
-      {/* Per què no hi ha escàner, en una festa d'aquí a tres setmanes. Sense
-          la línia, la fila que falta sembla un error. */}
-      {!reunio && event.published && !portaOberta(fets) ? (
+      {/* Per què no hi ha escàner, en una festa d'aquí a tres setmanes o d'un
+          mes enrere. Sense la línia, la fila que falta sembla un error. */}
+      {!reunio && event.published && porta !== 'oberta' ? (
         <p className="mt-5 text-sm-lo text-fg-muted-lo [text-wrap:pretty]">
-          {t('junta.form.eines.soon')}
+          {porta === 'aviat' ? t('junta.form.eines.soon') : t('junta.form.eines.closed')}
         </p>
       ) : null}
     </div>

@@ -173,3 +173,20 @@ export function shouldPromptInstall(now = Date.now()): boolean {
   if (isStandalone()) return false
   return now >= readSnooze()
 }
+
+/**
+ * La mateixa oferta, a l'Inici i amb la sessió ja oberta.
+ *
+ * Només a l'iPhone i al Safari: és on hi ha passos a explicar i on qui ha entrat
+ * amb una invitació no ha vist la pantalla. A Android el navegador té el seu
+ * diàleg i la seva entrada de menú, i des de la icona no hi ha res a demanar.
+ *
+ * Comparteix el repòs amb la pantalla, a posta: «ara no» i «ja ho tinc fet» són
+ * respostes a la pregunta, no a la forma que tenia.
+ */
+export function shouldOfferInstallCard(now = Date.now()): boolean {
+  if (inAppBrowser() !== null) return false
+  if (!isIos()) return false
+  if (isStandalone()) return false
+  return now >= readSnooze()
+}

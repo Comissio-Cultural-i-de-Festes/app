@@ -838,10 +838,11 @@
       "revealAfterStarts": "The reveal is after it starts: it would uncover nothing.",
       "eines": {
         "title": "Tools for this event",
-        "lede": "They all belong to this event and are here before, during and after it. The door on the junta home is just a shortcut.",
+        "lede": "They all belong to this event. The door on the junta home is just a shortcut.",
         "ledeDraft": "This is a draft: the scanner, check-in by name, points and payments appear once you publish it.",
         "ledeMeeting": "A meeting has no door: whoever closes it says who was there.",
         "soon": "The scanner and check-in by name open thirty hours before it starts.",
+        "closed": "The scanner and check-in by name close seven days after it ends. Points can always be given.",
         "escaner": {
           "title": "The scanner",
           "sub": "Reads the QR code of whoever comes in."

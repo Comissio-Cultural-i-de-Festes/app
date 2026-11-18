@@ -15,7 +15,7 @@ import { Notice } from '@/ui/Notice/Notice'
 import { GoogleButton } from './GoogleButton'
 import { InAppBrowserNotice } from './InAppBrowserNotice'
 import { looksStranded, signInWithGoogle } from './useGoogleSignIn'
-import { INVITE_PARAM, useInvite } from './useInvite'
+import { INVITE_PARAM, readInviteCode, useInvite } from './useInvite'
 
 /**
  * The door.
@@ -25,6 +25,12 @@ import { INVITE_PARAM, useInvite } from './useInvite'
  * Without one the invitation block goes and the button asks for access
  * instead — same layout, same order, and the person lands as 'pendent' for an
  * admin to approve.
+ *
+ * The code in the link travels to Google whatever the check said. The check
+ * only chooses the face of the door; `redeem_invite` decides, and a bad code
+ * there costs nothing but an `ok: false`. Holding it back until the check
+ * answered meant that a tap during a slow check —the first thing an iPhone
+ * sees now that the door comes before the install— came back pending.
  *
  * Google identifies people; it does not admit them. The gate is still the
  * invitation, redeemed by public.redeem_invite() once there is a session. An
@@ -64,9 +70,12 @@ export function EntryScreen() {
   const [stranded] = useState(() => looksStranded())
   const [inApp] = useState(() => inAppBrowser() !== null)
 
-  const invited = invite.status === 'valid'
+  const [code] = useState(() => readInviteCode())
+
+  // Mentre es comprova, o si la comprovació no ha arribat, la porta és la de
+  // la invitació: el codi hi és, i res no diu que no valgui.
+  const invited = code !== null && invite.status !== 'invalid'
   const busy = phase.step === 'sending'
-  const code = invite.status === 'valid' ? invite.code : null
 
   async function google() {
     if (busy) return
@@ -157,7 +166,7 @@ export function EntryScreen() {
             dashed, and says who resolves it. An empty space there would just
             read as a screen that had not finished loading. */}
         <div className="mt-[26px]">
-          {invite.status === 'valid' ? (
+          {invited ? (
             <FieldShell
               label={t('entry.invite.label')}
               aside={
@@ -168,7 +177,7 @@ export function EntryScreen() {
                 ) : null
               }
             >
-              <div className="mt-[5px] font-display text-d-sm tracking-[0.02em]">{invite.code}</div>
+              <div className="mt-[5px] font-display text-d-sm tracking-[0.02em]">{code}</div>
             </FieldShell>
           ) : (
             <FieldShell
@@ -186,7 +195,6 @@ export function EntryScreen() {
             </FieldShell>
           )}
         </div>
-
         {!inApp && (
           <div className="mt-9">
             <GoogleButton onClick={() => void google()} disabled={busy}>

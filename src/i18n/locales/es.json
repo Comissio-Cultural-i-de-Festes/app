@@ -361,7 +361,8 @@
       "left_one": "Queda {{count}}",
       "left_other": "Quedan {{count}}",
       "full": "Lleno",
-      "of": "plazas de {{total}}"
+      "of": "plazas de {{total}}",
+      "total": "{{total}} plazas"
     },
     "going_one": "va {{count}}",
     "going_other": "van {{count}}",
@@ -1598,9 +1599,11 @@
     "profile": "Perfil"
   },
   "onboarding": {
+    "titlePending": "Casi listo",
     "title": "Ya estás dentro",
     "lede": "Cinco cosas y entras. El nombre y la foto ya los tenemos de tu Google, mira que estén bien.",
-    "nameHint": "Pon el nombre con el que te llaman en la comi, no el del DNI.",
+    "ledePending": "Cinco cosas y lo tienes todo listo. El nombre y la foto ya los tenemos de tu Google; la junta te tiene que aceptar antes de que puedas apuntarte a nada.",
+    "nameHint": "Si no es tu nombre de verdad, cámbialo en el perfil: la junta te tiene que encontrar en la lista.",
     "school": {
       "label": "Tu escuela",
       "required": "Obligatorio",
@@ -1639,6 +1642,8 @@
     },
     "cta": {
       "ready": "Entrar",
+      "pickSchoolPending": "Elige la escuela y sigues",
+      "readyPending": "Continuar",
       "pickSchool": "Elige la escuela y entras",
       "fix": "Repasa el teléfono o el Instagram"
     },
@@ -1882,7 +1887,7 @@
     "title": "La junta te tiene que aceptar",
     "body": "Entrar con Google nos dice quién eres. Ser de la comi es otra cosa, y lo tiene que decir alguien de la junta.",
     "canLabel": "Ya puedes",
-    "can": "Mirar el calendario y las fotos",
+    "can": "Mirar el calendario",
     "cannotLabel": "Todavía no",
     "cannot": "Apuntarte, tener QR, hacer puntos",
     "collapse": "Pliega",
@@ -1895,7 +1900,8 @@
     "codePlaceholder": "Pégalo aquí",
     "codeCta": "Entra con el código",
     "codeSending": "Un momento…",
-    "codeBad": "Este código no vale. Pide otro a la junta."
+    "codeBad": "Este código no vale. Pide otro a la junta.",
+    "note": "Las plazas, las respuestas y los puntos se abren cuando la junta te acepte."
   },
   "qr": {
     "codeLabel": "Tu código QR",

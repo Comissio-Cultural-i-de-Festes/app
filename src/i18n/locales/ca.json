@@ -361,7 +361,8 @@
       "left_one": "Queda {{count}}",
       "left_other": "Queden {{count}}",
       "full": "Ple",
-      "of": "places de {{total}}"
+      "of": "places de {{total}}",
+      "total": "{{total}} places"
     },
     "going_one": "hi va {{count}}",
     "going_other": "hi van {{count}}",
@@ -1598,9 +1599,11 @@
     "profile": "Perfil"
   },
   "onboarding": {
+    "titlePending": "Gairebé a punt",
     "title": "Ja ets dins",
     "lede": "Cinc coses i entres. El nom i la foto ja els tenim del teu Google, mira que estiguin bé.",
-    "nameHint": "Posa-hi el nom amb què et diuen a la comi, no el del DNI.",
+    "ledePending": "Cinc coses i ho tens tot a punt. El nom i la foto ja els tenim del teu Google; la junta t'ha d'acceptar abans que et puguis apuntar a res.",
+    "nameHint": "Si no és el teu nom de debò, canvia'l al perfil: la junta t'ha de trobar a la llista.",
     "school": {
       "label": "La teva escola",
       "required": "Obligatori",
@@ -1639,6 +1642,8 @@
     },
     "cta": {
       "ready": "Entrar",
+      "pickSchoolPending": "Tria l'escola i continues",
+      "readyPending": "Continuar",
       "pickSchool": "Tria l'escola i entres",
       "fix": "Repassa el telèfon o l'Instagram"
     },
@@ -1882,7 +1887,7 @@
     "title": "La junta t'ha d'acceptar",
     "body": "Entrar amb el Google ens diu qui ets. Ser de la comi és una altra cosa, i algú de la junta ho ha de dir.",
     "canLabel": "Ja pots",
-    "can": "Mirar el calendari i les fotos",
+    "can": "Mirar el calendari",
     "cannotLabel": "Encara no",
     "cannot": "Apuntar-te, tenir QR, fer punts",
     "collapse": "Plega",
@@ -1895,7 +1900,8 @@
     "codePlaceholder": "Enganxa'l aquí",
     "codeCta": "Entra amb el codi",
     "codeSending": "Un moment…",
-    "codeBad": "Aquest codi no val. Demana'n un altre a la junta."
+    "codeBad": "Aquest codi no val. Demana'n un altre a la junta.",
+    "note": "Les places, les respostes i els punts s'obren quan la junta t'accepti."
   },
   "qr": {
     "codeLabel": "El teu codi QR",

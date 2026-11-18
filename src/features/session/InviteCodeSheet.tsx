@@ -9,9 +9,6 @@ import { Button } from '@/ui/Button/Button'
 import { TextField } from '@/ui/Field/Field'
 import { Sheet, SheetClose } from '@/ui/Sheet/Sheet'
 
-import { profileKeys } from './profile'
-import { useUserId } from './useUserId'
-
 /**
  * Bescanviar un codi d'invitació quan ja has entrat.
  *
@@ -26,11 +23,14 @@ import { useUserId } from './useUserId'
  * es pugui sondejar; dir-ho aquí desfaria això. El que sí que es diu és que ha
  * fallat i què fer, que és tot el que la persona pot accionar.
  *
- * EL PERFIL S'INVALIDA I PROU. `redeem_invite` mou `estat` a `'actiu'` dins de
- * la base, i tota l'aplicació llegeix aquell camp de la fila i no del token
- * —un JWT emès abans de l'alta encara diria `pendent` durant una hora. Amb la
- * consulta invalidada, la banda desapareix, el QR apareix i el botó de l'Inici
- * s'activa sense tocar cap d'aquelles pantalles.
+ * S'INVALIDA TOTA LA CAU, no només el perfil. `redeem_invite` mou `estat` a
+ * `'actiu'` dins de la base, i tota l'aplicació llegeix aquell camp de la fila
+ * i no del token —un JWT emès abans de l'alta encara diria `pendent` durant
+ * una hora—, però el perfil no és l'únic que canvia: les assistències, el
+ * rànquing i els punts de les escoles es van llegir com a pendent i la RLS els
+ * va tornar buits, i amb un minut de `staleTime` la pantalla diria «hi van 0»
+ * a qui acaba d'entrar. L'opció més estreta, enumerar les claus, es deixaria la
+ * primera que algú afegeixi.
  */
 
 interface RedeemResult {
@@ -48,7 +48,6 @@ class BadCode extends Error {
 
 export function InviteCodeSheet({ onClose }: { readonly onClose: () => void }) {
   const { t } = useTranslation()
-  const userId = useUserId()
   const queryClient = useQueryClient()
   const fieldId = useId()
   const [code, setCode] = useState('')
@@ -63,7 +62,7 @@ export function InviteCodeSheet({ onClose }: { readonly onClose: () => void }) {
       if (data?.ok !== true) throw new BadCode()
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: profileKeys.of(userId) })
+      await queryClient.invalidateQueries()
       onClose()
     },
   })

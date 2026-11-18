@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router'
 
 import { LegalLinks } from '@/features/legal/LegalLinks'
 import { fetchSchools, rankingKeys } from '@/features/ranking/api'
+import { accessOf } from '@/features/session/access'
 import { useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
 import { INSTAGRAM_MAX, isInstagramHandle, normaliseInstagram } from '@/features/profile/instagram'
@@ -90,6 +91,10 @@ export function OnboardingScreen() {
   const userId = useUserId()
   const client = useQueryClient()
   const { data: profile } = useMyProfile()
+  // Qui ve sense invitació encara és pendent: no veu els punts de les escoles
+  // (la RLS els hi tanca) i «ja ets dins» seria mentida fins que la junta
+  // l'accepti. Qui ve amb codi és actiu des del primer moment.
+  const { closed, pending } = accessOf(profile)
   const grauId = useId()
   const phoneId = useId()
   const igId = useId()
@@ -118,6 +123,7 @@ export function OnboardingScreen() {
   const schools = useQuery({
     queryKey: rankingKeys.schools(bounds),
     queryFn: () => fetchSchools(bounds),
+    enabled: !closed,
   })
 
   const save = useMutation({
@@ -150,9 +156,11 @@ export function OnboardingScreen() {
 
       <div className={`pt-2 ${GUTTER}`}>
         <h1 className="font-display text-d-lg leading-[0.87] tracking-[-0.05em] uppercase">
-          {t('onboarding.title')}
+          {t(pending ? 'onboarding.titlePending' : 'onboarding.title')}
         </h1>
-        <p className="mt-4 text-lg text-fg-secondary [text-wrap:pretty]">{t('onboarding.lede')}</p>
+        <p className="mt-4 text-lg text-fg-secondary [text-wrap:pretty]">
+          {t(pending ? 'onboarding.ledePending' : 'onboarding.lede')}
+        </p>
       </div>
 
       {/* What Google already told us, shown rather than asked for again. */}
@@ -204,20 +212,24 @@ export function OnboardingScreen() {
                   <span className="display block text-[19px] leading-[1.02] tracking-[-0.04em] [text-wrap:balance]">
                     {t(`escola.${code}`)}
                   </span>
-                  <span
-                    className={
-                      'mt-[5px] block text-sm-lo font-semibold ' +
-                      (on ? 'text-on-brand' : 'text-[var(--ds-text-muted-lo)]')
-                    }
-                  >
-                    {row
-                      ? t('onboarding.school.stats', {
-                          members: row.membres,
-                          position: row.posicio,
-                          points: row.punts_totals,
-                        })
-                      : t('onboarding.school.noStats')}
-                  </span>
+                  {/* Els números són els de les escoles, i un pendent no els pot llegir:
+                      en lloc de «encara sense punts», que seria fals, res. */}
+                  {closed ? null : (
+                    <span
+                      className={
+                        'mt-[5px] block text-sm-lo font-semibold ' +
+                        (on ? 'text-on-brand' : 'text-[var(--ds-text-muted-lo)]')
+                      }
+                    >
+                      {row
+                        ? t('onboarding.school.stats', {
+                            members: row.membres,
+                            position: row.posicio,
+                            points: row.punts_totals,
+                          })
+                        : t('onboarding.school.noStats')}
+                    </span>
+                  )}
                 </span>
                 <span
                   aria-hidden="true"
@@ -478,9 +490,9 @@ export function OnboardingScreen() {
           {save.isPending
             ? t('state.updating')
             : escola === null
-              ? t('onboarding.cta.pickSchool')
+              ? t(pending ? 'onboarding.cta.pickSchoolPending' : 'onboarding.cta.pickSchool')
               : ready
-                ? t('onboarding.cta.ready')
+                ? t(pending ? 'onboarding.cta.readyPending' : 'onboarding.cta.ready')
                 : t('onboarding.cta.fix')}
         </button>
 

@@ -12,7 +12,7 @@
 -- Persones, activitats i camins inventats, com a tot el repo.
 
 begin;
-select plan(35);
+select plan(40);
 
 reset role;
 
@@ -28,16 +28,32 @@ select
   '00000000-0000-4000-8000-00000000a492'::uuid as recent,  -- gimcana de fa 10 dies
   '00000000-0000-4000-8000-00000000a493'::uuid as viva,    -- amb portada
   '00000000-0000-4000-8000-00000000a494'::uuid as morta,   -- no existeix
+  '00000000-0000-4000-8000-00000000a495'::uuid as amagada, -- sense publicar
+  '00000000-0000-4000-8000-00000000a496'::uuid as oberta,  -- gimcana en marxa
   '00000000-0000-4000-8000-00000000a4a1'::uuid as prova_vella,
   '00000000-0000-4000-8000-00000000a4a2'::uuid as prova_recent,
-  '00000000-0000-4000-8000-00000000a4a3'::uuid as prova_morta;
+  '00000000-0000-4000-8000-00000000a4a3'::uuid as prova_morta,
+  '00000000-0000-4000-8000-00000000a4a4'::uuid as prova_oberta;
 grant select on que to authenticated;
 
 insert into public.events (id, tipo, starts_at, puntos, published)
 values
   ((select vella from que),  'fiesta', now() - interval '40 days', 10, true),
   ((select recent from que), 'fiesta', now() - interval '10 days', 10, true),
-  ((select viva from que),   'fiesta', now() + interval '7 days',  10, true);
+  ((select viva from que),   'fiesta', now() + interval '7 days',  10, true),
+  ((select amagada from que), 'fiesta', now() - interval '10 days', 10, false),
+  ((select oberta from que), 'fiesta', now() - interval '1 hour',  10, true);
+
+-- Una casa rural: tres dies, i la gimcana oberta tota l'estada.
+insert into public.event_details (event_id, ends_at)
+values ((select oberta from que), now() + interval '2 days')
+on conflict (event_id) do update set ends_at = excluded.ends_at;
+
+-- Una imatge a `event_content`: cap pantalla les escriu avui, però la taula ho
+-- admet, i el que hi aparegui no és brossa encara que no sigui la portada.
+insert into public.event_content (event_id, tipus, cos)
+values ((select viva from que), 'imatge',
+        jsonb_build_object('path', '00000000-0000-4000-8000-00000000a493/3.jpg'));
 
 insert into public.event_details (event_id, cover_url)
 values ((select viva from que), '00000000-0000-4000-8000-00000000a493/2.jpg')
@@ -46,12 +62,14 @@ on conflict (event_id) do update set cover_url = excluded.cover_url;
 insert into public.gimcanes (id, event_id)
 values
   ('00000000-0000-4000-8000-00000000a4b1', (select vella from que)),
-  ('00000000-0000-4000-8000-00000000a4b2', (select recent from que));
+  ('00000000-0000-4000-8000-00000000a4b2', (select recent from que)),
+  ('00000000-0000-4000-8000-00000000a4b3', (select oberta from que));
 
 insert into public.gimcana_proves (id, gimcana_id, titol)
 values
   ((select prova_vella from que),  '00000000-0000-4000-8000-00000000a4b1', 'Una prova inventada vella'),
-  ((select prova_recent from que), '00000000-0000-4000-8000-00000000a4b2', 'Una prova inventada recent');
+  ((select prova_recent from que), '00000000-0000-4000-8000-00000000a4b2', 'Una prova inventada recent'),
+  ((select prova_oberta from que), '00000000-0000-4000-8000-00000000a4b3', 'Una prova inventada oberta');
 
 insert into public.gimcana_equips (id, gimcana_id, nom)
 values
@@ -93,12 +111,17 @@ from (values
   ('event-covers', '00000000-0000-4000-8000-00000000a493/1.jpg', interval '3 days'),
   ('event-covers', '00000000-0000-4000-8000-00000000a493/2.jpg', interval '3 days'),
   ('event-covers', '00000000-0000-4000-8000-00000000a494/1.jpg', interval '3 days'),
+  ('event-covers', '00000000-0000-4000-8000-00000000a493/3.jpg', interval '3 days'),
   ('door-photos', 'entrada/00000000-0000-4000-8000-00000000a492/' || (select alfa from qui) || '/bona.jpg', interval '3 days'),
   ('door-photos', 'entrada/00000000-0000-4000-8000-00000000a492/' || (select alfa from qui) || '/100.jpg',   interval '3 days'),
   ('door-photos', 'sortida/00000000-0000-4000-8000-00000000a494/' || (select alfa from qui) || '/s.jpg', interval '3 days'),
   ('event-photos', '00000000-0000-4000-8000-00000000a492/' || (select alfa from qui) || '/g.jpg', interval '3 days'),
   ('event-photos', '00000000-0000-4000-8000-00000000a492/' || (select alfa from qui) || '/g.thumb.jpg', interval '3 days'),
   ('event-photos', '00000000-0000-4000-8000-00000000a492/' || (select alfa from qui) || '/solta.jpg', interval '3 days'),
+  ('event-photos', '00000000-0000-4000-8000-00000000a495/' || (select alfa from qui) || '/solta.jpg', interval '3 days'),
+  -- Pujada fa tres dies i encara sense fila: la cua fora de línia la pot enviar
+  -- qualsevol moment mentre la gimcana sigui oberta.
+  ('gimcana-photos', '00000000-0000-4000-8000-00000000a4a4/' || (select alfa from qui) || '/cua.jpg', interval '3 days'),
   ('gimcana-photos', '00000000-0000-4000-8000-00000000a4a1/' || (select alfa from qui) || '/v.jpg', interval '35 days'),
   ('gimcana-photos', '00000000-0000-4000-8000-00000000a4a2/' || (select alfa from qui) || '/r.jpg', interval '10 days'),
   ('gimcana-photos', '00000000-0000-4000-8000-00000000a4a3/' || (select alfa from qui) || '/m.jpg', interval '3 days'),
@@ -130,6 +153,8 @@ select ok(not pg_temp.sobra('event-covers', '00000000-0000-4000-8000-00000000a49
   'la que l''esdeveniment fa servir no');
 select ok(pg_temp.sobra('event-covers', '00000000-0000-4000-8000-00000000a494/1.jpg'),
   'la d''un esdeveniment esborrat sobra');
+select ok(not pg_temp.sobra('event-covers', '00000000-0000-4000-8000-00000000a493/3.jpg'),
+  'una imatge que surt a event_content no, encara que no sigui la portada');
 
 -- ── porta ───────────────────────────────────────────────────────────────────
 select ok(not pg_temp.sobra('door-photos',
@@ -152,6 +177,9 @@ select ok(not pg_temp.sobra('event-photos',
 select ok(pg_temp.sobra('event-photos',
   '00000000-0000-4000-8000-00000000a492/' || (select alfa from qui) || '/solta.jpg'),
   'una sense fila sí');
+select ok(pg_temp.sobra('event-photos',
+  '00000000-0000-4000-8000-00000000a495/' || (select alfa from qui) || '/solta.jpg'),
+  'també la d''un esdeveniment sense publicar (que després ningú no podrà treure)');
 
 -- ── gimcana ─────────────────────────────────────────────────────────────────
 select ok(pg_temp.sobra('gimcana-photos',
@@ -166,6 +194,9 @@ select ok(pg_temp.sobra('gimcana-photos',
 select ok(not pg_temp.sobra('gimcana-photos',
   '00000000-0000-4000-8000-00000000a4a3/' || (select bravo from qui) || '/m.jpg'),
   'però no si és de fa una hora');
+select ok(not pg_temp.sobra('gimcana-photos',
+  '00000000-0000-4000-8000-00000000a4a4/' || (select alfa from qui) || '/cua.jpg'),
+  'ni una sense fila d''una gimcana oberta, per vella que sigui: la fila pot arribar de la cua');
 
 -- ── la part de cadascú ──────────────────────────────────────────────────────
 -- `my_storage_garbage` és el que l'app demana i esborra. Cada persona hi ha de
@@ -193,6 +224,12 @@ select ok(not pg_temp.meva('event-covers', '00000000-0000-4000-8000-00000000a494
 select ok(not pg_temp.meva('gimcana-photos',
   '00000000-0000-4000-8000-00000000a4a1/' || (select alfa from qui) || '/v.jpg'),
   'ni les proves de la gimcana, encara que siguin seves');
+select ok(pg_temp.meva('event-photos',
+  '00000000-0000-4000-8000-00000000a492/' || (select alfa from qui) || '/solta.jpg'),
+  'qui va penjar una foto de galeria sense fila la rep');
+select ok(not pg_temp.meva('event-photos',
+  '00000000-0000-4000-8000-00000000a495/' || (select alfa from qui) || '/solta.jpg'),
+  'però no si l''esdeveniment no és publicat: la lectura del bucket ho demana i l''esborrat fallaria');
 
 reset role;
 select tests.authenticate_as('bravo');
@@ -202,6 +239,9 @@ select ok(not pg_temp.meva('avatars', (select alfa from qui) || '/100.jpg'),
 select ok(not pg_temp.meva('door-photos',
   'entrada/00000000-0000-4000-8000-00000000a492/' || (select alfa from qui) || '/100.jpg'),
   'ni les seves fotos de porta');
+select ok(not pg_temp.meva('event-photos',
+  '00000000-0000-4000-8000-00000000a492/' || (select alfa from qui) || '/solta.jpg'),
+  'ni la seva foto de galeria');
 
 reset role;
 select tests.authenticate_as('junta_alfa');
@@ -219,6 +259,12 @@ select ok(not pg_temp.meva('door-photos',
   'però no les de sortida d''un altre: la junta no les pot ni llegir');
 select ok(not pg_temp.meva('avatars', (select alfa from qui) || '/100.jpg'),
   'ni l''avatar de ningú');
+select ok(pg_temp.meva('event-photos',
+  '00000000-0000-4000-8000-00000000a492/' || (select alfa from qui) || '/solta.jpg'),
+  'la galeria sobrant d''un esdeveniment publicat, sí');
+select ok(not pg_temp.meva('event-photos',
+  '00000000-0000-4000-8000-00000000a495/' || (select alfa from qui) || '/solta.jpg'),
+  'la d''un sense publicar, tampoc');
 
 reset role;
 select tests.authenticate_as('pendent_alfa');
@@ -231,33 +277,25 @@ select is(
 
 reset role;
 
--- ── la marca a la fila ──────────────────────────────────────────────────────
-select ok(
-  private.mark_gimcana_photos_gone() >= 1,
-  'el cron marca les proves de les gimcanes vençudes'
-);
+-- ── la cua ho deriva de l'horari ────────────────────────────────────────────
+-- Sense cap columna ni cap cron: la mateixa regla que fa sobrar la foto, de
+-- manera que la pantalla no pot dir que hi és quan l'escombrada ja l'ha treta.
+reset role;
+select tests.authenticate_as('junta_alfa');
 
-select isnt(
-  (select foto_esborrada_at from public.gimcana_enviaments
+select is(
+  (select foto_esborrada_at from public.admin_gimcana_queue((select vella from que))
     where id = '00000000-0000-4000-8000-00000000a4d1'),
-  null,
-  'la de la gimcana de fa quaranta dies queda marcada'
+  -- Sense hora de final: es tanca set hores després de començar (migració 36).
+  now() - interval '40 days' + interval '7 hours' + interval '30 days',
+  'la prova d''una gimcana de fa quaranta dies diu des de quan ja no compta'
 );
 
 select is(
-  (select foto_esborrada_at from public.gimcana_enviaments
+  (select foto_esborrada_at from public.admin_gimcana_queue((select recent from que))
     where id = '00000000-0000-4000-8000-00000000a4d2'),
   null,
-  'la de fa deu dies no'
-);
-
-select tests.authenticate_as('junta_alfa');
-
-select isnt(
-  (select foto_esborrada_at from public.admin_gimcana_queue((select vella from que))
-    where id = '00000000-0000-4000-8000-00000000a4d1'),
-  null,
-  'i la cua de validar ho diu, perquè la pantalla no pinti un requadre buit'
+  'la de fa deu dies, encara no'
 );
 
 -- ── qui ho pot cridar ───────────────────────────────────────────────────────
@@ -266,15 +304,8 @@ reset role;
 select ok(
   has_function_privilege('authenticated', 'public.my_storage_garbage(integer)', 'EXECUTE')
     and not has_function_privilege('anon', 'public.my_storage_garbage(integer)', 'EXECUTE')
-    and not has_function_privilege('authenticated', 'private.storage_garbage()', 'EXECUTE')
-    and not has_function_privilege('authenticated', 'private.mark_gimcana_photos_gone()', 'EXECUTE'),
-  'cadascú pregunta per la seva part; la llista sencera i la marca no són de ningú'
-);
-
-select is(
-  (select schedule from cron.job where jobname = 'marca-proves-gimcana'),
-  '10 4 * * *',
-  'i el cron hi és, cada dia a les 4.10'
+    and not has_function_privilege('authenticated', 'private.storage_garbage()', 'EXECUTE'),
+  'cadascú pregunta per la seva part; la llista sencera no és de ningú'
 );
 
 select * from finish();

@@ -8,6 +8,7 @@
  */
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
+import { fileURLToPath } from 'node:url'
 import { readFileSync } from 'node:fs'
 import { describe, expect, it } from 'vitest'
 
@@ -17,11 +18,11 @@ interface Pkg {
   dependencies: Record<string, string>
 }
 
+const here = dirname(fileURLToPath(import.meta.url))
 const require = createRequire(import.meta.url)
 
-/** Version of the zxing-wasm that `fromDir` resolves, read from its package.json. */
-function zxingVersionSeenFrom(fromDir: string): string {
-  const entry = createRequire(join(fromDir, 'x.js')).resolve('zxing-wasm/reader')
+/** Version of the zxing-wasm package that contains `entry`, read from its package.json. */
+function zxingVersionOf(entry: string): string {
   let dir = dirname(entry)
   for (;;) {
     try {
@@ -39,13 +40,15 @@ function zxingVersionSeenFrom(fromDir: string): string {
 describe('zxing-wasm', () => {
   it('el wasm de l’app i el JS de barcode-detector són de la mateixa versió', () => {
     const detectorDir = dirname(require.resolve('barcode-detector/ponyfill'))
-    const appCopy = zxingVersionSeenFrom(process.cwd())
-    const detectorCopy = zxingVersionSeenFrom(detectorDir)
+    const appCopy = zxingVersionOf(require.resolve('zxing-wasm/reader/zxing_reader.wasm'))
+    const detectorCopy = zxingVersionOf(
+      createRequire(join(detectorDir, 'x.js')).resolve('zxing-wasm/reader'),
+    )
     expect(appCopy).toBe(detectorCopy)
   })
 
   it('l’arrel declara zxing-wasm exacte, sense ^ ni ~', () => {
-    const pkg = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8')) as Pkg
+    const pkg = JSON.parse(readFileSync(join(here, '../../../package.json'), 'utf8')) as Pkg
     expect(pkg.dependencies['zxing-wasm']).toMatch(/^\d+\.\d+\.\d+$/)
   })
 })

@@ -57,6 +57,7 @@ export function ScannerScreen() {
   const videoRef = useRef<HTMLVideoElement>(null)
   const [outcome, setOutcome] = useState<DoorOutcome | null>(null)
   const lastToken = useRef<{ value: string; at: number } | null>(null)
+  const latestRequest = useRef<string | null>(null)
   const { queued, online, refresh: refreshQueue } = useQueue()
   // The same QR stays in front of the lens for a second or two after it is
   // read. Without this the card would flicker through four identical scans and
@@ -75,13 +76,23 @@ export function ScannerScreen() {
         userId: null,
       }
 
+      // The camera does not wait for an answer, so on a slow night two can be
+      // in flight at once. The card belongs to whoever was scanned last: an
+      // older answer arriving late would put somebody else's name over the
+      // person standing there. The older scan is not lost, only not drawn —
+      // it is in the queue count until it lands.
+      latestRequest.current = request.clientRequestId
+      const isLatest = () => latestRequest.current === request.clientRequestId
+
       void scan(request)
         .then((result) => {
+          void roster.refetch()
+          if (!isLatest()) return
           setOutcome({ kind: 'sent', request, result })
           buzz(SCAN_PRESENTATION[result.status].haptic)
-          void roster.refetch()
         })
         .catch((cause: unknown) => {
+          if (!isLatest()) return
           // Queued, not lost. The person walks in either way, so the card says
           // what actually happened rather than telling the junta to try again.
           setOutcome(outcomeFromFailure(request, cause))

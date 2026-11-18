@@ -104,3 +104,20 @@ describe('the door, with a code in the link', () => {
     })
   })
 })
+
+describe('the door, from the icon and without a code', () => {
+  it('does not tell somebody who is already in that the junta has to let them in', () => {
+    standalone = true
+    render(<EntryScreen />)
+
+    expect(screen.getByText('entry.app.title')).toBeInTheDocument()
+    expect(screen.queryByText('entry.open.title')).not.toBeInTheDocument()
+    expect(screen.queryByText('entry.open.lede')).not.toBeInTheDocument()
+    expect(screen.getByText('entry.app.hasCodeHint')).toBeInTheDocument()
+  })
+
+  it('keeps the request-access door in a browser tab', () => {
+    render(<EntryScreen />)
+    expect(screen.getByText('entry.open.title')).toBeInTheDocument()
+  })
+})

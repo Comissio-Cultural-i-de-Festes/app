@@ -12,6 +12,7 @@ import { fetchRanking, fetchSchools } from '@/features/ranking/api'
 import { type MyProfile, fetchProfile, profileKeys } from '@/features/session/profile'
 import { useUserId } from '@/features/session/useUserId'
 import type { Answer } from '@/lib/model'
+import { useAvailability } from '@/lib/useAvailability'
 
 import {
   type AttendanceRow,
@@ -36,9 +37,11 @@ export interface Home {
   readonly total: number
   readonly schools: readonly SchoolRow[]
   readonly period: Period | null
+  /** Encara pot arribar: esquelet. */
   readonly isPending: boolean
+  /** Fallat, sense xarxa o sense resposta: missatge i reintentar. */
   readonly isError: boolean
-  readonly error: Error | null
+  readonly messageKey: string
   readonly refetch: () => void
 }
 
@@ -63,6 +66,8 @@ export function useHome(): Home {
 
   // Everything on screen at once, so places-left is right for the list rows
   // too and not just the hero.
+  const view = useAvailability([upcoming, previous])
+
   const eventIds = [...(upcoming.data ?? NOTHING), ...(previous.data ?? NOTHING)].map((e) => e.id)
   const attendances = useQuery({
     queryKey: homeKeys.attendances(eventIds),
@@ -110,13 +115,14 @@ export function useHome(): Home {
     period,
     // The events are the screen. The ranking strip and the answer counts fill
     // in behind them rather than holding the whole page on a spinner.
-    isPending: upcoming.isPending || previous.isPending,
-    isError: upcoming.isError || previous.isError,
-    error: upcoming.error ?? previous.error,
-    refetch: () => {
-      void upcoming.refetch()
-      void previous.refetch()
-    },
+    //
+    // Through `useAvailability` and not `isPending`/`isError`: offline the two
+    // queries pause rather than fail, and the hero skeleton stayed up for as
+    // long as there was no signal.
+    isPending: view.loading,
+    isError: view.unavailable,
+    messageKey: view.messageKey,
+    refetch: view.retry,
   }
 }
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { isIos, isStandalone } from '@/lib/platform'
+import { inAppBrowser, isIos, isStandalone } from '@/lib/platform'
 
 /**
  * When to show the install screen.
@@ -163,8 +163,12 @@ export async function promptNativeInstall(): Promise<boolean> {
  * la pantalla d'inici té el seu propi magatzem— i el navegador no hi ofereix
  * cap diàleg. A la resta, només quan n'hi ha un: sense diàleg no hi ha res a
  * ensenyar que no siguin instruccions d'un altre navegador.
+ *
+ * Dins del navegador integrat d'Instagram o Facebook, mai: els passos parlen
+ * del Safari i allà no n'hi ha. La porta ja hi diu què fer.
  */
 export function shouldPromptInstall(now = Date.now()): boolean {
+  if (inAppBrowser() !== null) return false
   if (!isIos() && !hasNativeInstallPrompt()) return false
   if (isStandalone()) return false
   return now >= readSnooze()

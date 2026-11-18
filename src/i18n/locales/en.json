@@ -69,6 +69,17 @@
     "pointsUnavailable": "We could not read what each reason is worth. Without that the points would be wrong."
   },
   "entry": {
+    "inApp": {
+      "title": "Open it in your browser",
+      "body": "You are inside another app's browser (Instagram, Facebook…) and Google does not allow signing in from here. Open this link in your phone's browser and you can sign in as usual.",
+      "ios": "Tap the three dots or the share icon and choose \"Open in browser\" or \"Open in Safari\". If you do not see it, copy the link and paste it into Safari.",
+      "androidCta": "Open in Chrome",
+      "androidHint": "If it does not open, copy the link and paste it into your browser.",
+      "copy": "Copy link",
+      "copied": "Link copied",
+      "copyFailed": "Could not copy. Press and hold the link below, copy it and paste it into your browser.",
+      "linkLabel": "Sign-in link"
+    },
     "sending": "One sec…",
     "invited": {
       "title": "You're invited",

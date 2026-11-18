@@ -5,7 +5,7 @@ import { useTranslation } from 'react-i18next'
 import { LegalLinks } from '@/features/legal/LegalLinks'
 import { brand } from '@/config/brand'
 import { env } from '@/config/env'
-import { isStandalone } from '@/lib/platform'
+import { inAppBrowser, isStandalone } from '@/lib/platform'
 import { supabase } from '@/lib/supabase'
 import { Button } from '@/ui/Button/Button'
 import { FieldShell, TextField } from '@/ui/Field/Field'
@@ -13,6 +13,7 @@ import { LogoMark, Wordmark } from '@/ui/Logo/Logo'
 import { Notice } from '@/ui/Notice/Notice'
 
 import { GoogleButton } from './GoogleButton'
+import { InAppBrowserNotice } from './InAppBrowserNotice'
 import { looksStranded, signInWithGoogle } from './useGoogleSignIn'
 import { INVITE_PARAM, useInvite } from './useInvite'
 
@@ -61,6 +62,7 @@ export function EntryScreen() {
   const [email, setEmail] = useState('')
   const emailId = useId()
   const [stranded] = useState(() => looksStranded())
+  const [inApp] = useState(() => inAppBrowser() !== null)
 
   const invited = invite.status === 'valid'
   const busy = phase.step === 'sending'
@@ -172,11 +174,17 @@ export function EntryScreen() {
           )}
         </div>
 
-        <div className="mt-9">
-          <GoogleButton onClick={() => void google()} disabled={busy}>
-            {busy ? t('entry.sending') : invited ? t('entry.invited.cta') : t('entry.open.cta')}
-          </GoogleButton>
-        </div>
+        {/* Google refuses to sign in from another app's browser, so its
+            button would only lead to a 403. The way out replaces it. */}
+        {inApp ? (
+          <InAppBrowserNotice className="mt-9" />
+        ) : (
+          <div className="mt-9">
+            <GoogleButton onClick={() => void google()} disabled={busy}>
+              {busy ? t('entry.sending') : invited ? t('entry.invited.cta') : t('entry.open.cta')}
+            </GoogleButton>
+          </div>
+        )}
 
         {phase.step === 'error' && (
           <p role="alert" className="mt-3 text-md font-bold text-error [text-wrap:pretty]">
@@ -184,9 +192,11 @@ export function EntryScreen() {
           </p>
         )}
 
-        <p className="mt-6 text-sm text-fg-muted [text-wrap:pretty]">
-          {invited ? t('entry.invited.reassurance') : t('entry.open.reassurance')}
-        </p>
+        {!inApp && (
+          <p className="mt-6 text-sm text-fg-muted [text-wrap:pretty]">
+            {invited ? t('entry.invited.reassurance') : t('entry.open.reassurance')}
+          </p>
+        )}
 
         {env.authEmailFallback && (
           <form

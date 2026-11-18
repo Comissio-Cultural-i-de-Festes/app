@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, Ref } from 'react'
+import type { AnchorHTMLAttributes, ButtonHTMLAttributes, Ref } from 'react'
 
 /**
  * The primary action.
@@ -63,6 +63,27 @@ export function Button({ variant = 'primary', size = 'md', className, ...rest }:
   return (
     <button
       type="button"
+      {...rest}
+      className={[BASE, SIZES[size], VARIANTS[variant], className].filter(Boolean).join(' ')}
+    />
+  )
+}
+
+/**
+ * El mateix botó quan la feina és anar a un enllaç, que no es pot fer amb un
+ * `<button>`: un `intent://` o un `mailto:` són un `href` i prou.
+ */
+export function ButtonLink({
+  variant = 'primary',
+  size = 'md',
+  className,
+  ...rest
+}: AnchorHTMLAttributes<HTMLAnchorElement> & {
+  readonly variant?: ButtonVariant
+  readonly size?: ButtonSize
+}) {
+  return (
+    <a
       {...rest}
       className={[BASE, SIZES[size], VARIANTS[variant], className].filter(Boolean).join(' ')}
     />

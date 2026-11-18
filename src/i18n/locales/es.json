@@ -873,7 +873,42 @@
       "coverFailed": "La portada no se ha podido subir; el evento se ha guardado sin ella. Vuelve a probarlo cuando quieras.",
       "endsBeforeStarts": "El final es antes del inicio.",
       "endsRequired": "Falta la hora de final. Es de donde salen las horas de la memoria.",
-      "revealAfterStarts": "El reveal es después de que empiece: no destaparía nada."
+      "revealAfterStarts": "El reveal es después de que empiece: no destaparía nada.",
+      "eines": {
+        "title": "Herramientas de esta actividad",
+        "lede": "Todas son de este evento y están antes, durante y después. La puerta del panel solo es un atajo.",
+        "ledeDraft": "Es un borrador: el escáner, el alta, los puntos y los pagos aparecen cuando lo publiques.",
+        "ledeMeeting": "Una reunión no tiene puerta: quién estaba lo dice quien la cierra.",
+        "soon": "El escáner y el alta se abren treinta horas antes de que empiece.",
+        "escaner": {
+          "title": "El escáner",
+          "sub": "Lee el QR de quien entra."
+        },
+        "alta": {
+          "title": "Alta por nombre",
+          "sub": "Para quien no lleva el QR a mano."
+        },
+        "punts": {
+          "title": "Dar puntos",
+          "sub": "Por el trabajo hecho, también al día siguiente."
+        },
+        "pagaments": {
+          "title": "Pagos",
+          "sub": "Quién ha pagado, quién pide plaza y quién espera."
+        },
+        "fitxatges": {
+          "title": "Quién ha fichado",
+          "sub": "Para quitar un fichaje que no tocaba."
+        },
+        "gimcana": {
+          "title": "La gincana",
+          "sub": "Pruebas, equipos y cuándo se abre."
+        },
+        "validaGimcana": {
+          "title": "Validar la gincana",
+          "sub": "Las fotos que esperan respuesta."
+        }
+      }
     },
     "config": {
       "saved": "Guardado.",

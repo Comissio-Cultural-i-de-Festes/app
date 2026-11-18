@@ -873,7 +873,42 @@
       "coverFailed": "The cover image would not upload; the event was saved without it. Try again whenever you like.",
       "endsBeforeStarts": "The end is before the start.",
       "endsRequired": "The end time is missing. It is where the report hours come from.",
-      "revealAfterStarts": "The reveal is after it starts: it would uncover nothing."
+      "revealAfterStarts": "The reveal is after it starts: it would uncover nothing.",
+      "eines": {
+        "title": "Tools for this event",
+        "lede": "They all belong to this event and are here before, during and after it. The door on the junta home is just a shortcut.",
+        "ledeDraft": "This is a draft: the scanner, check-in by name, points and payments appear once you publish it.",
+        "ledeMeeting": "A meeting has no door: whoever closes it says who was there.",
+        "soon": "The scanner and check-in by name open thirty hours before it starts.",
+        "escaner": {
+          "title": "The scanner",
+          "sub": "Reads the QR code of whoever comes in."
+        },
+        "alta": {
+          "title": "Check in by name",
+          "sub": "For anyone without their QR code to hand."
+        },
+        "punts": {
+          "title": "Give points",
+          "sub": "For work done, the day after too."
+        },
+        "pagaments": {
+          "title": "Payments",
+          "sub": "Who has paid, who is asking for a place and who is waiting."
+        },
+        "fitxatges": {
+          "title": "Who has checked in",
+          "sub": "To remove a check-in that should not be there."
+        },
+        "gimcana": {
+          "title": "The gymkhana",
+          "sub": "Challenges, teams and when it opens."
+        },
+        "validaGimcana": {
+          "title": "Review the gymkhana",
+          "sub": "The photos waiting for an answer."
+        }
+      }
     },
     "config": {
       "saved": "Saved.",

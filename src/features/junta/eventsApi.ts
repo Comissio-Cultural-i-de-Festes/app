@@ -2,6 +2,8 @@ import { unwrapAs } from '@/lib/db'
 import type { EventRow } from '@/lib/schema'
 import { supabase } from '@/lib/supabase'
 
+import { HOUR_MS, JUNTA_BACK_MS } from './finestra'
+
 /**
  * The junta's own list of events, drafts included.
  *
@@ -42,14 +44,6 @@ import { supabase } from '@/lib/supabase'
 const COLUMNS =
   'id, titulo, tipo, starts_at, ends_at, published, reveal_at, revelat, precio_cents, plazas'
 
-const HOUR_MS = 3_600_000
-
-/** Les mateixes vuit hores que `junta_home()`, migració 69. Si una canvia, l'altra també. */
-export const JUNTA_BACK_MS = 8 * HOUR_MS
-
-/** I les trenta hores endavant, també de `junta_home()`: quan un esdeveniment entra a la porta. */
-export const JUNTA_AHEAD_MS = 30 * HOUR_MS
-
 /** Arrodonit a l'hora, com el de casa: una clau de cau estable i no una de nova a cada render. */
 export function juntaHorizonIso(now: number = Date.now()): string {
   return new Date(Math.floor((now - JUNTA_BACK_MS) / HOUR_MS) * HOUR_MS).toISOString()
@@ -80,6 +74,10 @@ export async function fetchJuntaEvents(horizon: string, limit = 20): Promise<Eve
       .or(obertsDesDe(horizon))
       .neq('tipo', 'reunio')
       .order('starts_at', { ascending: true })
+      // El mateix desempat que `junta_home()`: sense ell, dos esdeveniments a
+      // la mateixa hora podien sortir en un ordre aquí i en un altre allà, i
+      // l'escàner de reserva n'obria un altre que el de la porta.
+      .order('id', { ascending: true })
       .limit(limit),
   )
 }

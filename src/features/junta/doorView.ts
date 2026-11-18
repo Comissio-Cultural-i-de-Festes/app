@@ -1,7 +1,7 @@
 import { STALE_TIME_MS } from '@/lib/queryClient'
 import type { EventRow } from '@/lib/schema'
 
-import { JUNTA_AHEAD_MS, JUNTA_BACK_MS } from './eventsApi'
+import { aLaPorta } from './finestra'
 import type { DoorNow, JuntaHomeData } from './homeApi'
 import { portaTriada, portesDe } from './portes'
 
@@ -104,22 +104,6 @@ function staleness(home: HomeQuery, now: number): Stale | null {
     return { since: home.dataUpdatedAt, failed: false }
   }
   return null
-}
-
-/**
- * Si `junta_home()` posaria aquest esdeveniment a la porta (migració 89).
- *
- * Publicat, començat d'aquí a trenta hores com a molt, i encara no passat: ni
- * vuit hores des de l'inici ni el final, la més tardana de les dues. Una festa
- * d'una nit hi és vuit hores; una casa rural, tota l'estada. Si una regla
- * canvia, l'altra també: el client i el servidor han de triar el mateix.
- */
-export function aLaPorta(e: DoorEvent, now: number): boolean {
-  const starts = Date.parse(e.starts_at)
-  const ends = e.ends_at === null ? Number.NEGATIVE_INFINITY : Date.parse(e.ends_at)
-  return (
-    e.published && starts <= now + JUNTA_AHEAD_MS && Math.max(starts + JUNTA_BACK_MS, ends) >= now
-  )
 }
 
 /**

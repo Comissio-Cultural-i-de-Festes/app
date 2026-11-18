@@ -151,7 +151,8 @@
     "rateLimited": "Massa intents seguits. Espera un parell de minuts i torna-hi.",
     "behindServer": "Això encara no hi és al servidor: l'app s'ha actualitzat abans que la base de dades. Si ets de la junta, apuja les migracions; si no, avisa'ls.",
     "avisSostre": "Aquest curs ja s'han restat a aquesta persona tots els punts que el sostre permet. Puja «Màxim de punts per curs» a El barem, o registra l'avís sense punts.",
-    "avisForaDelCurs": "Avui no cau dins de cap curs, i sense curs no hi ha cap sostre a comptar. Obre el curs a «Els períodes del rànquing», o registra l'avís sense punts."
+    "avisForaDelCurs": "Avui no cau dins de cap curs, i sense curs no hi ha cap sostre a comptar. Obre el curs a «Els períodes del rànquing», o registra l'avís sense punts.",
+    "viatgerInvalid": "Alguna dada no té la forma que toca. Revisa els camps i torna-ho a provar."
   },
   "escola": {
     "politecnica": "Politècnica",

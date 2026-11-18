@@ -134,7 +134,7 @@ export function ViatgerScreen() {
   // Les tres raons per no ensenyar el formulari, cadascuna amb la seva frase:
   // que no se'n demanen, que encara no hi vas, i que ja és massa tard.
   const motiu =
-    e == null || !demana.data
+    e == null || !demana.data || e.tipo === 'reunio'
       ? t('viatger.notAsked')
       : !apuntat
         ? t('viatger.notGoing')

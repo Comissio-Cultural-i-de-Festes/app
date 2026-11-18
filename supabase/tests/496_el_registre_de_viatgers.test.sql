@@ -11,7 +11,7 @@
 -- ningú. Els telèfons comencen per 9 i no poden ser el mòbil de ningú.
 
 begin;
-select plan(59);
+select plan(63);
 
 reset role;
 
@@ -209,6 +209,31 @@ select throws_ok(pg_temp.dolenta('{"nacionalitat": "Espanya"}'),
   '23514', null, 'la nacionalitat és un codi de país, no un nom');
 select throws_ok(pg_temp.dolenta('{"telefon_emergencia": "truca-li"}'),
   '23514', null, 'un telèfon que no és un telèfon es refusa');
+
+-- El refús diu el camp i no el valor: un CHECK escriuria la fila sencera al
+-- DETAIL, i el DETAIL va als logs de Postgres, fora de la purga.
+create function pg_temp.refus(p_sql text) returns text language plpgsql as $$
+declare v_msg text; v_detail text; v_hint text;
+begin
+  execute p_sql;
+  return 'no ha petat';
+exception when others then
+  get stacked diagnostics v_msg = message_text, v_detail = pg_exception_detail, v_hint = pg_exception_hint;
+  return v_msg || ' | ' || coalesce(v_detail, '') || ' | ' || coalesce(v_hint, '');
+end $$;
+grant execute on function pg_temp.refus(text) to authenticated;
+
+select is(
+  pg_temp.refus(pg_temp.dolenta('{"numero_document": "12345678A"}')),
+  'dades de viatger no valides: numero_document |  | viatger_invalid',
+  'el refús diu quin camp, porta el HINT que la pantalla tradueix i cap valor'
+);
+
+select is(
+  pg_temp.refus(pg_temp.dolenta('{"adreca": null}')),
+  'dades de viatger no valides: adreca |  | viatger_invalid',
+  'i un camp obligatori buit tampoc no arriba al NOT NULL, que també escriuria la fila'
+);
 
 select lives_ok(
   pg_temp.dolenta('{"nom": "Persona", "cognom1": "Dos", "cognom2": null, "sexe": "altre",
@@ -417,6 +442,34 @@ select is(
     where accio = 'set_demana_viatger' and target_id = (select v from w)),
   '1|true|false',
   'i queda escrit, amb quantes'
+);
+
+-- ── si passa a ser una reunió ──────────────────────────────────────────────
+reset role;
+insert into public.dades_viatger (
+  event_id, user_id, nom, cognom1, sexe, tipus_document, numero_document,
+  numero_suport, nacionalitat, data_naixement, adreca, localitat, pais,
+  telefon_emergencia)
+values ((select w from w), (select charlie from w), 'Persona', 'Inventada', 'dona', 'dni',
+        '12345678Z', 'ABC123456', 'ES', date '2003-04-05', 'Via Inventada 1', 'Poble Alfa',
+        'ES', '955000001');
+
+update public.events set tipo = 'reunio' where id = (select w from w);
+
+select is(
+  (select demana_viatger::text || '|' ||
+          (select count(*) from public.dades_viatger where event_id = (select w from w))::text
+     from public.events where id = (select w from w)),
+  'false|0',
+  'un esdeveniment que passa a reunió deixa de demanar-les, i les que hi havia se''n van'
+);
+
+update public.events set demana_viatger = true where id = (select r from w);
+
+select is(
+  (select demana_viatger from public.events where id = (select r from w)),
+  false,
+  'i una reunió no la pot tenir ni escrivint-la a mà'
 );
 
 -- ── set dies després del final, se'n van soles ─────────────────────────────

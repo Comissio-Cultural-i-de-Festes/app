@@ -259,7 +259,7 @@ as $$
   select private.is_active_member()
      and exists (
        select 1 from public.events e
-        where e.id = p_event_id and e.demana_viatger
+        where e.id = p_event_id and e.demana_viatger and e.tipo <> 'reunio'
      )
      and exists (
        select 1 from public.attendances a
@@ -327,6 +327,64 @@ revoke all on function private.viatger_caduca(uuid) from public, anon, authentic
 alter function private.camp_viatger_net(text, int) owner to postgres;
 alter function private.viatger_caduca(uuid) owner to postgres;
 alter function private.pot_desar_viatger(uuid) owner to postgres;
+
+-- ── la validació, sense la fila al registre de Postgres ────────────────────
+-- UN CHECK QUE FALLA ESCRIU LA FILA SENCERA AL DETAIL de l'error —«Failing row
+-- contains (…)»—, i el DETAIL va als logs de Postgres: el número de document,
+-- l'adreça i el telèfon quedarien en un lloc que la purga dels set dies no
+-- toca. Un NOT NULL que falla fa el mateix.
+--
+-- Per això les mateixes regles es miren aquí, en un BEFORE, que corre abans
+-- que cap CHECK i que cap NOT NULL i refusa dient QUIN camp i no QUÈ hi havia.
+-- El codi és el de sempre, 23514, i el HINT `viatger_invalid` és el que la
+-- pantalla tradueix (`src/lib/errors.ts`). La sentència que PostgREST registra
+-- en un error porta els valors com a paràmetres, que no s'escriuen.
+--
+-- ELS CHECK ES QUEDEN, i no poden fallar: el disparador els fa tots abans.
+-- Són la definició de la taula que es llegeix d'un cop d'ull, i la xarxa per al
+-- dia que algú desactivi disparadors per carregar dades a mà.
+create or replace function private.dades_viatger_valides()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+declare
+  v_camp text;
+begin
+  v_camp := case
+    when new.event_id is null or new.user_id is null then 'clau'
+    when new.nom is null or not private.camp_viatger_net(new.nom, 80) then 'nom'
+    when new.cognom1 is null or not private.camp_viatger_net(new.cognom1, 80) then 'cognom1'
+    when new.cognom2 is not null and not private.camp_viatger_net(new.cognom2, 80) then 'cognom2'
+    when new.sexe is null or new.sexe not in ('home', 'dona', 'altre') then 'sexe'
+    when new.tipus_document is null
+      or new.tipus_document not in ('dni', 'nie', 'passaport') then 'tipus_document'
+    when not coalesce(
+      private.document_viatger_valid(new.tipus_document, new.numero_document, new.numero_suport),
+      false) then 'numero_document'
+    when new.nacionalitat is null or new.nacionalitat !~ '^[A-Z]{2}$' then 'nacionalitat'
+    when new.data_naixement is null
+      or new.data_naixement < date '1900-01-01'
+      or new.data_naixement > current_date then 'data_naixement'
+    when new.adreca is null or not private.camp_viatger_net(new.adreca, 160) then 'adreca'
+    when new.localitat is null or not private.camp_viatger_net(new.localitat, 80) then 'localitat'
+    when new.pais is null or new.pais !~ '^[A-Z]{2}$' then 'pais'
+    when new.telefon_emergencia is null
+      or new.telefon_emergencia !~ '^\+?[0-9]{9,15}$' then 'telefon_emergencia'
+  end;
+
+  if v_camp is not null then
+    raise exception 'dades de viatger no valides: %', v_camp
+      using errcode = '23514', hint = 'viatger_invalid';
+  end if;
+  return new;
+end $$;
+
+revoke all on function private.dades_viatger_valides() from public, anon, authenticated;
+
+create trigger dades_viatger_valides
+  before insert or update on public.dades_viatger
+  for each row execute function private.dades_viatger_valides();
 
 -- ── updated_at ─────────────────────────────────────────────────────────────
 create or replace function private.dades_viatger_tocades()
@@ -417,11 +475,45 @@ end $$;
 alter function private.dades_viatger_sense_casella() owner to postgres;
 revoke all on function private.dades_viatger_sense_casella() from public, anon, authenticated;
 
+-- SENSE `of demana_viatger`. Un disparador `update of <columna>` només salta
+-- si la columna és a la llista del SET, i la casella també la pot treure el
+-- disparador de sota quan l'esdeveniment passa a ser una reunió: allà la
+-- columna canvia sense que ningú l'hagi escrit.
 create trigger events_dades_viatger_casella
-  after update of demana_viatger on public.events
+  after update on public.events
   for each row
   when (old.demana_viatger and not new.demana_viatger)
   execute function private.dades_viatger_sense_casella();
+
+-- ── una reunió no en demana ────────────────────────────────────────────────
+-- `admin_save_event` pot canviar el tipus d'un esdeveniment que ja demanava
+-- les dades. Si passa a reunió, la casella cau sola —i amb ella les dades, pel
+-- disparador d'aquí dalt—: el formulari ja no la ensenya, o sigui que la junta
+-- no la podria treure, i el formulari del soci continuaria acceptant dades per
+-- a una cosa on ningú no dorm. El CHECK és la xarxa: amb el disparador al
+-- davant no pot fallar.
+create or replace function private.reunio_sense_viatgers()
+returns trigger
+language plpgsql
+set search_path = ''
+as $$
+begin
+  if new.tipo = 'reunio' then
+    new.demana_viatger := false;
+  end if;
+  return new;
+end $$;
+
+revoke all on function private.reunio_sense_viatgers() from public, anon, authenticated;
+
+create trigger events_reunio_sense_viatgers
+  before insert or update on public.events
+  for each row
+  when (new.tipo = 'reunio' and new.demana_viatger)
+  execute function private.reunio_sense_viatgers();
+
+alter table public.events
+  add constraint events_reunio_sense_viatgers check (not (tipo = 'reunio' and demana_viatger));
 
 -- ── la casella, per a la junta ─────────────────────────────────────────────
 -- Torna quantes dades s'han esborrat, que és el que la pantalla diu abans i

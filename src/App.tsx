@@ -1,4 +1,3 @@
-import type { Session } from '@supabase/supabase-js'
 import { Suspense, lazy, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Route, Routes, useLocation } from 'react-router'
@@ -18,6 +17,7 @@ import { useCheckinQueue } from '@/features/checkin/useCheckinQueue'
 import { SociScreen } from '@/features/member/SociScreen'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
+import { useBootSession } from '@/features/session/useBootSession'
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen'
 import { BadgesScreen } from '@/features/badges/BadgesScreen'
 import { GalleryScreen } from '@/features/gallery/GalleryScreen'
@@ -28,6 +28,7 @@ import { EditProfileScreen } from '@/features/profile/EditProfileScreen'
 import { ProfileScreen } from '@/features/profile/ProfileScreen'
 import { QrScreen } from '@/features/qr/QrScreen'
 import { JuntaLayout } from '@/features/shell/JuntaLayout'
+import { GateUnreachable, GateWaiting } from '@/features/shell/Gate'
 import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
@@ -43,6 +44,7 @@ import {
   snoozeInstall,
 } from '@/features/install/installGate'
 import { supabase } from '@/lib/supabase'
+import { useStalled } from '@/lib/useAvailability'
 
 /**
  * La zona de junta, carregada quan s'hi entra i no abans.
@@ -167,9 +169,9 @@ function DrainCheckins() {
 
 export default function App() {
   const { t } = useTranslation()
-  const [session, setSession] = useState<Session | null>(null)
+  const { phase, session } = useBootSession()
+  const stalled = useStalled(phase === 'waiting')
   const { pathname } = useLocation()
-  const [ready, setReady] = useState(false)
   const [promptInstall, setPromptInstall] = useState(() => shouldPromptInstall())
 
   // A Android el `beforeinstallprompt` sol arribar després del muntatge, i
@@ -179,20 +181,6 @@ export default function App() {
     return onNativeInstallPrompt(() => {
       setPromptInstall(shouldPromptInstall())
     })
-  }, [])
-
-  useEffect(() => {
-    void supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
-      setReady(true)
-    })
-
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
-      setSession(next)
-    })
-    return () => {
-      sub.subscription.unsubscribe()
-    }
   }, [])
 
   // Redeem the invitation once, as soon as there is a session to redeem it
@@ -218,11 +206,20 @@ export default function App() {
     })()
   }, [session])
 
-  if (!ready) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center bg-app">
-        <p className="text-fg-muted">{t('state.loading')}</p>
-      </main>
+  // Tornar-ho a provar és recarregar, i no tornar a cridar `getSession()`: una
+  // renovació penjada no es deixa substituir —la biblioteca hi enganxa la
+  // crida nova— i la que ha fallat queda desada un minut. Recarregar és l'única
+  // manera de llançar-ne una de nova, i l'app la serveix el service worker
+  // també sense xarxa.
+  const reload = (): void => {
+    window.location.reload()
+  }
+
+  if (phase === 'waiting') {
+    return stalled ? (
+      <GateUnreachable message={t('errors.stalled')} onRetry={reload} />
+    ) : (
+      <GateWaiting />
     )
   }
 
@@ -242,6 +239,14 @@ export default function App() {
   // és.
   if (pathname === PRIVACY_PATH) return <PrivacyScreen />
   if (pathname === TERMS_PATH) return <TermsScreen />
+
+  // Hi ha una sessió desada que no s'ha pogut renovar. La pantalla d'entrada
+  // seria mentir —ja has entrat— i, a més, no hi ha res que s'hi pugui fer
+  // sense xarxa. Davant del porter d'instal·lació pel mateix motiu: aquell és
+  // per a qui encara no ha entrat.
+  if (!session && phase === 'unreachable') {
+    return <GateUnreachable message={t('errors.sessionUnreachable')} onRetry={reload} />
+  }
 
   if (promptInstall && !session) {
     return (

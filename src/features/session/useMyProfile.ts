@@ -26,6 +26,9 @@ export function useMyProfile() {
   })
 }
 
+/** El rellotge que comparteixen les portes que esperen el perfil: vegeu `useAvailability`. */
+export const PROFILE_CLOCK = 'profile'
+
 export function isJunta(profile: MyProfile | null | undefined): boolean {
   return profile?.role === 'admin' || profile?.role === 'owner'
 }

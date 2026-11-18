@@ -1,9 +1,10 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import { BrowserRouter } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import App from './App'
+import { pendingInvite, rememberInvite } from './features/entry/pendingInvite'
 import type * as Platform from './lib/platform'
 
 /**
@@ -28,13 +29,19 @@ vi.mock('@/lib/platform', async (original) => ({
   isStandalone: () => false,
 }))
 
+type AuthListener = (event: string, session: null) => void
+let authListener: AuthListener = () => undefined
+
 vi.mock('@/lib/supabase', () => ({
   // Una comprovació que no contesta: la cara de la porta no és el que es prova.
   rpc: () => new Promise(() => undefined),
   supabase: {
     auth: {
       getSession: () => Promise.resolve({ data: { session: null } }),
-      onAuthStateChange: () => ({ data: { subscription: { unsubscribe: () => undefined } } }),
+      onAuthStateChange: (cb: AuthListener) => {
+        authListener = cb
+        return { data: { subscription: { unsubscribe: () => undefined } } }
+      },
     },
   },
 }))
@@ -51,6 +58,7 @@ function mount() {
 
 beforeEach(() => {
   localStorage.clear()
+  sessionStorage.clear()
 })
 
 afterEach(() => {
@@ -69,5 +77,22 @@ describe('the gates in front of an iPhone with no session', () => {
   it('still puts the install screen first without one', async () => {
     mount()
     expect(await screen.findByText('install.title')).toBeInTheDocument()
+  })
+})
+
+describe('signing out', () => {
+  it('forgets a code still waiting to be redeemed', async () => {
+    // Sigui quin sigui el camí —el botó del perfil, un token que ja no val,
+    // una altra pestanya—: el codi que esperava era d'aquest compte, i el
+    // següent que entri en aquesta pestanya no se l'ha de quedar.
+    mount()
+    await screen.findByText('install.title')
+    rememberInvite('ABC-123')
+
+    act(() => {
+      authListener('SIGNED_OUT', null)
+    })
+
+    expect(pendingInvite()).toBeNull()
   })
 })

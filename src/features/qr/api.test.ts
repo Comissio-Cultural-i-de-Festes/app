@@ -75,4 +75,20 @@ describe('the door pass', () => {
     expect(readCachedToken(ME)).toBeNull()
     spy.mockRestore()
   })
+
+  it('does not keep a token that lands after sign-out', async () => {
+    let answer: (value: { data: string; error: null }) => void = () => undefined
+    rpc.mockReturnValue(
+      new Promise((resolve) => {
+        answer = resolve
+      }),
+    )
+
+    const pending = fetchQrToken(ME)
+    forgetCachedTokens()
+    answer({ data: TOKEN, error: null })
+    await pending
+
+    expect(readCachedToken(ME)).toBeNull()
+  })
 })

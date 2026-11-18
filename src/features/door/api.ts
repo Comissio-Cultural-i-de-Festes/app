@@ -310,8 +310,26 @@ export interface FlushOutcome {
   readonly left: number
 }
 
-/** Sends whatever is waiting. Stops at the first failure rather than hammering. */
-export async function flushQueue(): Promise<FlushOutcome> {
+/**
+ * Sends whatever is waiting. Stops at the first failure rather than hammering.
+ *
+ * ONE AT A TIME. It is called by a twenty-second timer, by the `online` event
+ * and by both door screens, and with an eight-second deadline per item two
+ * runs overlap easily. Two runs read the same snapshot and send the same
+ * entries twice. `check_in` makes that harmless for points, but the second
+ * copy is a request that can still be on its way after an undo. A caller who
+ * arrives during a run gets that run's answer.
+ */
+export function flushQueue(): Promise<FlushOutcome> {
+  flushing ??= drain().finally(() => {
+    flushing = null
+  })
+  return flushing
+}
+
+let flushing: Promise<FlushOutcome> | null = null
+
+async function drain(): Promise<FlushOutcome> {
   const waiting = await pending()
   let sent = 0
 

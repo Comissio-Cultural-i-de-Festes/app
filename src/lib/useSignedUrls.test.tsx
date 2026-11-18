@@ -227,7 +227,9 @@ describe('useSignedUrls', () => {
     expect(result.current.data.size).toBe(2)
     const before = sign.mock.calls.length
 
-    await act(() => vi.advanceTimersByTimeAsync(61 * 60_000))
+    // El rellotge salta sense disparar el temporitzador de caducitat, que té el
+    // seu propi test: aquí es prova el camí de la llista que canvia.
+    vi.setSystemTime(Date.now() + 61 * 60_000)
     rerender({ paths: ['e/0.thumb.jpg', 'e/1.thumb.jpg', 'e/2.thumb.jpg'] })
     await act(() => vi.advanceTimersByTimeAsync(0))
 
@@ -256,5 +258,67 @@ describe('useSignedUrls', () => {
     const settled = sign.mock.calls.length
     await act(() => vi.advanceTimersByTimeAsync(10 * 60_000))
     expect(sign).toHaveBeenCalledTimes(settled)
+  })
+
+  it('una galeria oberta tota la nit sense canvis es torna a signar quan caduca', async () => {
+    // Res no torna a avaluar res: ni foco, ni llista nova. El temporitzador és
+    // l'únic que pot adonar-se que una URL ha fet l'hora.
+    vi.useFakeTimers({ toFake: ['setTimeout', 'Date'] })
+    sign.mockImplementation(ok)
+    const { wrapper } = setup()
+    const { result } = renderHook(
+      () => useSignedUrls('event-photos', ['e/1.thumb.jpg', 'e/2.thumb.jpg']),
+      { wrapper },
+    )
+    await act(() => vi.advanceTimersByTimeAsync(0))
+    expect(result.current.data.size).toBe(2)
+    expect(sign).toHaveBeenCalledTimes(1)
+
+    await act(() => vi.advanceTimersByTimeAsync(59 * 60_000))
+    expect(sign).toHaveBeenCalledTimes(1)
+
+    await act(() => vi.advanceTimersByTimeAsync(2 * 60_000))
+    expect(sign).toHaveBeenCalledTimes(2)
+    expect([...sign.mock.calls[1]![0]].sort()).toEqual(['e/1.thumb.jpg', 'e/2.thumb.jpg'])
+    expect(result.current.data.size).toBe(2)
+  })
+
+  it('i en desmuntar no queda cap temporitzador viu', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'Date'] })
+    sign.mockImplementation(ok)
+    const { wrapper } = setup()
+    const { unmount } = renderHook(() => useSignedUrls('event-photos', ['e/1.thumb.jpg']), {
+      wrapper,
+    })
+    await act(() => vi.advanceTimersByTimeAsync(0))
+    unmount()
+    await act(() => vi.advanceTimersByTimeAsync(3 * 60 * 60_000))
+    expect(sign).toHaveBeenCalledTimes(1)
+  })
+
+  it('un 401 no es reintenta: una sola crida', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout'] })
+    sign.mockImplementation(() =>
+      Promise.resolve({ data: null, error: Object.assign(new Error('jwt'), { status: 401 }) }),
+    )
+    const { client, wrapper } = setup()
+    renderHook(() => useSignedUrls('event-photos', ['e/1.jpg']), { wrapper })
+    await act(() => vi.advanceTimersByTimeAsync(60_000))
+    expect(sign).toHaveBeenCalledTimes(1)
+    expect(client.getQueryState(signedKey('event-photos', 'e/1.jpg'))?.status).toBe('error')
+  })
+
+  it('un 429 sí que es reintenta', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout'] })
+    sign
+      .mockImplementationOnce(() =>
+        Promise.resolve({ data: null, error: Object.assign(new Error('slow'), { status: 429 }) }),
+      )
+      .mockImplementation(ok)
+    const { wrapper } = setup()
+    const { result } = renderHook(() => useSignedUrls('event-photos', ['e/1.jpg']), { wrapper })
+    await act(() => vi.advanceTimersByTimeAsync(10_000))
+    expect(sign).toHaveBeenCalledTimes(2)
+    expect(result.current.data.size).toBe(1)
   })
 })

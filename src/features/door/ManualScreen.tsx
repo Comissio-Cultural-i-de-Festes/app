@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 
@@ -18,7 +18,7 @@ import {
   scan,
 } from './api'
 import { ScanGlyph } from './icons'
-import { RefusedScans } from './RefusedScans'
+import { HeldScans } from './HeldScans'
 import { queueNotice, useQueue } from './useQueue'
 import { type Undo, undoNoteKey, useUndo } from './useUndo'
 import { statusWords } from './verdict'
@@ -85,6 +85,11 @@ export function ManualScreen() {
   // Null mentre la consulta de l'esdeveniment no ha tornat o ha petat, que no
   // és el mateix que zero: `verdict.ts` en fa tres casos i no dos.
   const priceCents = event.data?.precio_cents ?? null
+
+  const names = useMemo(
+    () => new Map((roster.data ?? []).map((row) => [row.user_id, row.nombre])),
+    [roster.data],
+  )
 
   const needle = query.trim().toLowerCase()
   const rows = roster.data ?? []
@@ -162,7 +167,13 @@ export function ManualScreen() {
           </p>
         )}
 
-        <RefusedScans count={queue.refused} onChange={refreshQueue} className="mt-4 pl-6" />
+        <HeldScans
+          rows={queue.held}
+          names={names}
+          priceCents={priceCents}
+          onChange={refreshQueue}
+          className="mt-4 pl-6"
+        />
 
         <h1 className="display mt-4 text-d-s tracking-[-0.045em] [text-wrap:balance]">
           {t('door.manualTitle')}

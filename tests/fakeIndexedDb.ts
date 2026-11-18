@@ -11,9 +11,10 @@
  *
  * I ELS CAMINS DOLENTS DE L'OBERTURA, que són els que deixaven la cua callada
  * per a tota la vida de la pàgina: una obertura que falla, una que no contesta
- * mai, i una versió nova que ha d'esperar que una connexió vella es tanqui
- * (`versionchange` a la vella, `blocked` a la nova si la vella no plega). Més
- * l'escriptura que el disc refusa. Es demanen amb el que torna
+ * fins que la prova ho diu, obertures que esperen en fila, i una versió nova
+ * que ha d'esperar que una connexió vella es tanqui (`versionchange` a la
+ * vella, `blocked` a la nova si la vella no plega). Més l'escriptura que el
+ * disc refusa. Es demanen amb el que torna
  * `installFakeIndexedDb()`; qui no demana res té l'IndexedDB de sempre.
  *
  * No és una dependència, a posta: una de nova només per a proves no s'ha
@@ -191,8 +192,10 @@ class FakeConnection {
 export interface FakeControl {
   /** Les properes `n` obertures fallen amb aquest nom d'error. */
   failOpens: (n: number, name?: string) => void
-  /** Les properes `n` obertures no contesten mai. */
+  /** Les properes `n` obertures no contesten fins que es crida `release()`. */
   hangOpens: (n: number) => void
+  /** Deixa anar les obertures penjades, que continuen com si res. */
+  release: () => void
   /** Mentre valgui `true`, tota escriptura acaba en error i avorta la transacció. */
   refuseWrites: boolean
   /** Quantes vegades s'ha cridat `indexedDB.open`. */
@@ -206,8 +209,15 @@ type OpenRequest = FakeRequest<FakeConnection> & {
 
 export function installFakeIndexedDb(): FakeControl {
   const databases = new Map<string, Backing>()
+  /**
+   * Les obertures d'una mateixa base van una darrere l'altra, com al
+   * navegador: la següent no comença fins que l'anterior ha acabat, bé o malament.
+   * Una que es penja, o que espera bloquejada, deixa penjades les de darrere.
+   */
+  const tails = new Map<string, Promise<void>>()
   let failing = { n: 0, name: 'UnknownError' }
   let hanging = 0
+  const unhang: Listener[] = []
 
   const control: FakeControl = {
     failOpens: (n, name = 'UnknownError') => {
@@ -215,6 +225,9 @@ export function installFakeIndexedDb(): FakeControl {
     },
     hangOpens: (n) => {
       hanging = n
+    },
+    release: () => {
+      for (const go of unhang.splice(0)) go()
     },
     refuseWrites: false,
     opens: 0,
@@ -227,57 +240,74 @@ export function installFakeIndexedDb(): FakeControl {
       request.onupgradeneeded = null
       request.onblocked = null
 
-      if (hanging > 0) {
-        hanging -= 1
-        return request
-      }
-      if (failing.n > 0) {
-        failing.n -= 1
-        const errorName = failing.name
-        queueMicrotask(() => {
-          request.fail(errorName)
-        })
-        return request
-      }
+      const hangs = hanging > 0
+      if (hangs) hanging -= 1
+      const fails = failing.n > 0 ? failing.name : null
+      if (fails !== null) failing.n -= 1
 
-      queueMicrotask(() => {
-        const db = databases.get(name) ?? new Backing()
-        databases.set(name, db)
-        const target = version ?? Math.max(db.version, 1)
-        if (target < db.version) {
-          request.fail('VersionError')
-          return
-        }
-
-        const finish = () => {
-          const connection = new FakeConnection(db, control)
-          request.result = connection
-          if (target > db.version) {
-            db.version = target
-            request.onupgradeneeded?.()
-          }
-          request.succeed(connection)
-        }
-
-        if (target === db.version || db.connections.size === 0) {
-          finish()
-          return
-        }
-
-        // Una versió nova amb connexions obertes: primer se'ls demana que
-        // plegin, i si alguna no ho fa, la nova espera bloquejada fins que ho faci.
-        for (const connection of [...db.connections]) connection.onversionchange?.()
-        if (db.connections.size === 0) {
-          finish()
-          return
-        }
-        request.onblocked?.()
-        const wait = () => {
-          if (db.connections.size === 0) finish()
-          else db.waiters.push(wait)
-        }
-        db.waiters.push(wait)
+      let done!: Listener
+      const mine = new Promise<void>((resolve) => {
+        done = resolve
       })
+      const previous = tails.get(name) ?? Promise.resolve()
+      tails.set(
+        name,
+        previous.then(() => mine),
+      )
+
+      void previous
+        .then(() =>
+          hangs
+            ? new Promise<void>((resolve) => {
+                unhang.push(resolve)
+              })
+            : undefined,
+        )
+        .then(() => {
+          if (fails !== null) {
+            request.fail(fails)
+            done()
+            return
+          }
+          const db = databases.get(name) ?? new Backing()
+          databases.set(name, db)
+          const target = version ?? Math.max(db.version, 1)
+          if (target < db.version) {
+            request.fail('VersionError')
+            done()
+            return
+          }
+
+          const finish = () => {
+            const connection = new FakeConnection(db, control)
+            request.result = connection
+            if (target > db.version) {
+              db.version = target
+              request.onupgradeneeded?.()
+            }
+            request.succeed(connection)
+            done()
+          }
+
+          if (target === db.version || db.connections.size === 0) {
+            finish()
+            return
+          }
+
+          // Una versió nova amb connexions obertes: primer se'ls demana que
+          // plegin, i si alguna no ho fa, la nova espera bloquejada fins que ho faci.
+          for (const connection of [...db.connections]) connection.onversionchange?.()
+          if (db.connections.size === 0) {
+            finish()
+            return
+          }
+          request.onblocked?.()
+          const wait = () => {
+            if (db.connections.size === 0) finish()
+            else db.waiters.push(wait)
+          }
+          db.waiters.push(wait)
+        })
       return request
     },
   }

@@ -1,34 +1,53 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
-import { discardRefused, retryRefused } from './api'
+import { type CheckInStatus, SCAN_PRESENTATION } from '@/design/states'
+import { formatTime } from '@/i18n/format'
+import { toLocale } from '@/i18n/locales'
+import type { QueuedScan } from '@/lib/queue'
+
+import { discardHeld, retryRefused } from './api'
+import { statusWords } from './verdict'
 
 /**
- * The scans the server turned down, still on the phone.
+ * The scans a flush could not just rub out, still on the phone.
  *
- * Nobody sees the card of a scan refused during a flush: it was queued an
- * hour ago with no signal, and the person walked in on the strength of
- * "saved". This line is what is left to say that they are not checked in.
- * It stays until somebody acts on it, because nothing else will.
+ * Nobody saw their card. They were queued an hour ago with no signal, the
+ * person walked in on the strength of "saved", and the answer came back to an
+ * empty screen: a QR the server refused outright, or one it took and said
+ * something about — not a member, not active, in without being signed up.
+ * This list is what is left to say so, and it stays until somebody acts.
  *
- * Two ways out, not one. "Torna-hi" is for the refusal that was about the
- * phone and not the scan — a session that lapsed, a role restored — and costs
- * one request each if it was not. "Descarta" is for after the junta has dealt
- * with it by hand; until then dropping them would erase the only record.
+ * EACH LINE SAYS WHO, as far as anybody knows. A name tapped on the manual
+ * list carries its `userId`, and the roster the screen already has turns that
+ * into a name. A QR is only a token until the server reads it, so its name is
+ * whatever `check_in` answered with, if it answered at all; failing that, the
+ * time is the only handle, and at a door it is a fair one. Without any of
+ * this, "Descarta" was a button that threw away somebody nobody could name.
+ *
+ * Retrying is for the refused ones only. The answered ones landed, and the
+ * same id would only replay the same answer.
  */
-export function RefusedScans({
-  count,
+export function HeldScans({
+  rows,
+  names,
+  priceCents,
   onChange,
   className = '',
 }: {
-  readonly count: number
+  readonly rows: readonly QueuedScan[]
+  /** `user_id` to name, from the roster. */
+  readonly names: ReadonlyMap<string, string>
+  /** Cèntims de l'esdeveniment, o null mentre no se sàpiga: `verdict.ts` en fa tres casos. */
+  readonly priceCents: number | null
   readonly onChange: () => void
   readonly className?: string
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const locale = toLocale(i18n.language)
   const [busy, setBusy] = useState(false)
 
-  if (count === 0) return null
+  if (rows.length === 0) return null
 
   const act = (work: () => Promise<unknown>) => {
     setBusy(true)
@@ -38,12 +57,50 @@ export function RefusedScans({
     })
   }
 
+  const why = (row: QueuedScan): string => {
+    const held = row.held
+    if (held?.kind !== 'answered' || !(held.status in SCAN_PRESENTATION)) {
+      return t('door.heldRefused')
+    }
+    const status = held.status as CheckInStatus
+    return t(statusWords(SCAN_PRESENTATION[status], { status }, priceCents).headlineKey)
+  }
+
+  const who = (row: QueuedScan): string => {
+    if (row.held?.kind === 'answered' && row.held.nombre !== null) return row.held.nombre
+    if (row.userId !== null) return names.get(row.userId) ?? t('door.unknownPerson')
+    return t('door.heldQr')
+  }
+
   return (
     <div role="alert" className={`border-l-[3px] border-error ${className}`}>
       <p className="text-sm font-bold text-error [text-wrap:pretty]">
-        {t('door.refused', { count })}
+        {t('door.held', { count: rows.length })}
       </p>
-      <div className="mt-2 flex flex-wrap gap-x-8">
+      <ul className="mt-2">
+        {rows.map((row) => (
+          <li key={row.clientRequestId} className="flex items-center gap-4">
+            <p className="min-w-0 flex-1 text-sm text-fg [text-wrap:pretty]">
+              <span className="font-bold">{who(row)}</span>
+              {' · '}
+              {t('door.heldAt', { hora: formatTime(new Date(row.at), locale) })}
+              {' · '}
+              {why(row)}
+            </p>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                act(() => discardHeld(row.clientRequestId))
+              }}
+              className="min-h-[44px] flex-none px-2 text-sm font-bold text-fg-secondary disabled:opacity-50"
+            >
+              {t('door.heldDrop')}
+            </button>
+          </li>
+        ))}
+      </ul>
+      {rows.some((row) => row.held?.kind === 'refused') ? (
         <button
           type="button"
           disabled={busy}
@@ -52,19 +109,9 @@ export function RefusedScans({
           }}
           className="min-h-[44px] text-sm font-bold text-brand-label disabled:opacity-50"
         >
-          {t('door.refusedRetry')}
+          {t('door.heldRetry')}
         </button>
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => {
-            act(discardRefused)
-          }}
-          className="min-h-[44px] text-sm font-bold text-fg-secondary disabled:opacity-50"
-        >
-          {t('door.refusedDrop')}
-        </button>
-      </div>
+      ) : null}
     </div>
   )
 }

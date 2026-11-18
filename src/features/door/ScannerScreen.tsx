@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 
@@ -17,7 +17,7 @@ import {
   scan,
 } from './api'
 import { ScanGlyph } from './icons'
-import { RefusedScans } from './RefusedScans'
+import { HeldScans } from './HeldScans'
 import { displacedWorthSaying, statusWords, verdictText } from './verdict'
 import { useCamera } from './useCamera'
 import { queueNotice, useQueue } from './useQueue'
@@ -132,6 +132,11 @@ export function ScannerScreen() {
   }, [roster, refreshQueue])
   const undoLast = useUndo(outcome, afterUndo)
 
+  const names = useMemo(
+    () => new Map((roster.data ?? []).map((row) => [row.user_id, row.nombre])),
+    [roster.data],
+  )
+
   const checkedIn = roster.data?.filter((r) => r.checked_in).length ?? 0
   const expected = roster.data?.filter((r) => r.estado === 'si' || r.checked_in).length ?? 0
 
@@ -178,8 +183,10 @@ export function ScannerScreen() {
           )}
         </div>
 
-        <RefusedScans
-          count={queue.refused}
+        <HeldScans
+          rows={queue.held}
+          names={names}
+          priceCents={event.data?.precio_cents ?? null}
           onChange={refreshQueue}
           className="mx-8 mt-4 bg-[var(--ds-scrim-chip)] px-7 pt-5 pb-2"
         />

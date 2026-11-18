@@ -1,5 +1,5 @@
 import { type CheckInStatus, SCAN_PRESENTATION, type ScanPresentation } from '@/design/states'
-import { DbError, isPermanent, unwrapAs } from '@/lib/db'
+import { DbError, unwrapAs } from '@/lib/db'
 import type { Escola } from '@/lib/model'
 import {
   type QueuedScan,
@@ -8,7 +8,7 @@ import {
   dequeue,
   enqueue,
   pending,
-  setRefused,
+  setHeld,
 } from '@/lib/queue'
 import { supabase } from '@/lib/supabase'
 
@@ -145,6 +145,26 @@ export async function fetchRoster(eventId: string): Promise<RosterRow[]> {
 }
 
 /**
+ * Whether `check_in` refused the scan itself, rather than whoever sent it.
+ *
+ * NOT `isPermanent`, WHICH COUNTS 42501, and at `check_in` that code is never
+ * about the scan: it is `private.is_admin()` saying no, which is what a phone
+ * hears when its session lapsed on a bad connection and the request went out
+ * as `anon`, or when somebody's junta role was taken away. Treating it as the
+ * scan's fault set aside every valid scan in the queue during a flush with the
+ * token refresh lost, and nothing sent them again once the session came back.
+ * It is a failure like a dropped connection: the entry stays, and the next
+ * flush tries it.
+ *
+ * What is left is about the request: class 22 — a QR that is not a uuid
+ * (22P02), a QR and a name together (22023) — and class 23, a constraint the
+ * row cannot satisfy. Sending any of those again gets the same answer.
+ */
+export function refusesTheScan(cause: unknown): cause is DbError {
+  return cause instanceof DbError && /^(?:22|23)/.test(cause.code)
+}
+
+/**
  * A scan, whether or not there is any signal.
  *
  * The queue is written first and cleared on success, rather than being a
@@ -177,7 +197,7 @@ export async function scan(request: ScanRequest): Promise<CheckInResult> {
     // The server has said no and will say it again. The card says so now, and
     // a copy left behind would only be sent to hear it a second time — and,
     // first in line, would hold up every scan behind it.
-    if (isPermanent(cause)) {
+    if (refusesTheScan(cause)) {
       if (saved) await dequeue(request.clientRequestId)
       throw cause
     }
@@ -239,7 +259,7 @@ export type DoorOutcome =
  */
 export function outcomeFromFailure(request: ScanRequest, cause: unknown): DoorOutcome {
   if (cause instanceof NotSaved) return { kind: 'unsaved', request }
-  if (isPermanent(cause)) return { kind: 'failed', request, refused: true }
+  if (refusesTheScan(cause)) return { kind: 'failed', request, refused: true }
   if (cause instanceof DoorTimeout) return { kind: 'queued', request, unanswered: true }
   return navigator.onLine ? { kind: 'failed', request } : { kind: 'queued', request }
 }
@@ -354,15 +374,37 @@ export interface FlushOutcome {
 }
 
 /**
+ * The answers a flush must not swallow.
+ *
+ * At the door these are on the card for somebody to act on. From a flush
+ * there is no card: the scan was "saved" an hour ago and the person is long
+ * inside. Rubbing the entry out would leave a stranger, or somebody nobody
+ * charged, with no trace on any screen.
+ *
+ * Not `already_checked_in`. A QR held in front of the lens with no signal is
+ * read every two seconds and queued each time; the first lands and the rest
+ * all come back "already in". Keeping those would bury the ones above in noise
+ * about one person who is, in fact, in.
+ */
+const NEEDS_A_LOOK: ReadonlySet<CheckInStatus> = new Set<CheckInStatus>([
+  'not_a_member',
+  'member_inactive',
+  'event_not_open',
+  'ok_walkin_review',
+])
+
+/**
  * Sends whatever is waiting. Stops at the first failure rather than hammering.
  *
- * EXCEPT A FAILURE THAT WILL NEVER STOP FAILING. A scan the server refuses for
- * good — a QR that is not ours, read with no signal; an event that has gone —
- * used to sit at the front and end every run at the same place, so nothing
- * behind it was ever sent again. It is set aside instead, marked with the code
- * it got, and the run carries on. Kept rather than dropped: it is somebody who
- * walked through the door and is not checked in, and the junta has to see
- * that (`RefusedScans`).
+ * EXCEPT A FAILURE THAT WILL NEVER STOP FAILING. A scan `check_in` raises an
+ * error about — a token that is not a uuid, read off somebody else's QR with
+ * no signal — used to sit at the front and end every run at the same place,
+ * so nothing behind it was ever sent again. It is set aside instead, marked
+ * with the code it got, and the run carries on. A scan that is not ours but
+ * well formed does not raise anything: `check_in` answers `not_a_member`,
+ * and that is the other thing set aside, with every answer in `NEEDS_A_LOOK`.
+ * Kept rather than dropped, both of them: somebody walked through the door
+ * and the junta has to see who (`HeldScans`).
  *
  * ONE AT A TIME. It is called by a twenty-second timer, by the `online` event
  * and by both door screens, and with an eight-second deadline per item two
@@ -381,18 +423,26 @@ export function flushQueue(): Promise<FlushOutcome> {
 let flushing: Promise<FlushOutcome> | null = null
 
 async function drain(): Promise<FlushOutcome> {
-  const waiting = (await pending()).filter((item) => item.refused === undefined)
+  const waiting = (await pending()).filter((item) => item.held === undefined)
   let sent = 0
   let refused = 0
 
   for (const item of waiting) {
     try {
-      await checkIn(item)
-      await dequeue(item.clientRequestId)
+      const result = await checkIn(item)
+      if (NEEDS_A_LOOK.has(result.status)) {
+        await setHeld(item.clientRequestId, {
+          kind: 'answered',
+          status: result.status,
+          nombre: result.nombre ?? null,
+        })
+      } else {
+        await dequeue(item.clientRequestId)
+      }
       sent += 1
     } catch (cause) {
-      if (cause instanceof DbError && isPermanent(cause)) {
-        await setRefused(item.clientRequestId, cause.code)
+      if (refusesTheScan(cause)) {
+        await setHeld(item.clientRequestId, { kind: 'refused', code: cause.code })
         refused += 1
         continue
       }
@@ -407,22 +457,26 @@ async function drain(): Promise<FlushOutcome> {
 /**
  * The scans the server refused, sent once more.
  *
- * For the refusal that was not really about the scan: a session that lapsed
- * and went out without its token, a junta role restored. If it was about the
- * scan, it comes straight back refused, which costs one request each.
+ * For the case nobody has thought of yet: everything this sets aside is an
+ * error about the request, which a second try answers the same way, at the
+ * cost of one request each. The answered ones are not sent again: they
+ * landed, and the same id would only replay the same answer.
+ *
+ * AFTER THE FLUSH THAT IS RUNNING, NOT INSIDE IT. A run already under way
+ * read its list before the marks came off, and `flushQueue` hands a caller the
+ * run in progress, so the button would have done nothing visible.
  */
 export async function retryRefused(): Promise<FlushOutcome> {
   for (const item of await pending()) {
-    if (item.refused !== undefined) await setRefused(item.clientRequestId, null)
+    if (item.held?.kind === 'refused') await setHeld(item.clientRequestId, null)
   }
+  if (flushing !== null) await flushing
   return flushQueue()
 }
 
-/** Forgets them. The junta has seen the line and dealt with it by hand. */
-export async function discardRefused(): Promise<void> {
-  for (const item of await pending()) {
-    if (item.refused !== undefined) await dequeue(item.clientRequestId)
-  }
+/** Forgets one. The junta has seen the line and dealt with it by hand. */
+export async function discardHeld(clientRequestId: string): Promise<void> {
+  await dequeue(clientRequestId)
 }
 
 export async function awardPoints(

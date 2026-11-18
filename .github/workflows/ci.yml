@@ -122,6 +122,7 @@ jobs:
       # its summary as "TODO passed:", and that line is the whole signal.
       - name: policy tests (pgTAP)
         run: |
+          set -o pipefail
           npx supabase test db 2>&1 | tee pgtap.log
           if grep -q '^ *TODO passed:' pgtap.log; then
             echo '::error::a pgTAP todo assertion now passes: remove its todo_start/todo_end'

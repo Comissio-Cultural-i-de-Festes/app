@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { type ComponentProps, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useParams } from 'react-router'
 
@@ -25,7 +25,6 @@ import {
 } from '@/i18n/format'
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
 import { type Card, loadCardImage } from '@/lib/cards'
-import { errorKey } from '@/lib/errors'
 import { hasEnded } from '@/lib/eventEnd'
 import { useAvailability } from '@/lib/useAvailability'
 import { ANSWERS, type Answer, type AttendanceState } from '@/lib/model'
@@ -52,6 +51,7 @@ import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { DOOR_PHOTOS } from '@/lib/storage'
 import { useSignedUrls } from '@/lib/useSignedUrls'
 
+import { AnswerNote } from './AnswerNote'
 import { CalendarOffer, CalendarRow } from './Calendar'
 import { MeetingActa, MeetingAnswer, MeetingRoster } from './Meeting'
 import { meetingKeys } from './meetingApi'
@@ -451,7 +451,7 @@ export function EventScreen() {
             waitlist.data?.posicio == null ? null : formatOrdinal(waitlist.data.posicio, locale)
           }
           pending={answer.isPending}
-          error={answer.error}
+          answer={answer}
           onAnswer={(a) => {
             answer.mutate(a)
           }}
@@ -675,7 +675,7 @@ function AnswerBlock({
   left,
   position,
   pending,
-  error,
+  answer,
   onAnswer,
   when,
   where,
@@ -687,7 +687,8 @@ function AnswerBlock({
   readonly left: number | null
   readonly position: string | null
   readonly pending: boolean
-  readonly error: Error | null
+  /** L'estat de la crida, per dir què passa quan la resposta no arriba. */
+  readonly answer: ComponentProps<typeof AnswerNote>['answer']
   readonly onAnswer: (a: Answer) => void
   /** Weekday, date and start time in one — formatDateLong already joins them. */
   readonly when: string
@@ -804,11 +805,7 @@ function AnswerBlock({
         })}
       </div>
 
-      {error === null ? null : (
-        <p role="alert" className="mt-6 text-md font-bold text-error [text-wrap:pretty]">
-          {t(errorKey(error))}
-        </p>
-      )}
+      <AnswerNote answer={answer} className="mt-6" />
 
       {/* Next to the button that causes it, not in a footnote at the bottom.
           On a full event the yes button joins a queue instead, and a queue is

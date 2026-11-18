@@ -184,7 +184,7 @@ export function ScannerScreen() {
         </div>
 
         <HeldScans
-          rows={queue.held}
+          rows={queue.held.filter((row) => row.eventId === id)}
           names={names}
           priceCents={event.data?.precio_cents ?? null}
           onChange={refreshQueue}

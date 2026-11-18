@@ -168,7 +168,7 @@ export function ManualScreen() {
         )}
 
         <HeldScans
-          rows={queue.held}
+          rows={queue.held.filter((row) => row.eventId === id)}
           names={names}
           priceCents={priceCents}
           onChange={refreshQueue}

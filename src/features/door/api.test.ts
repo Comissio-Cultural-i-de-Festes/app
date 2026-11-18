@@ -73,7 +73,7 @@ const {
   flushQueue,
   outcomeFromFailure,
   presentationOf,
-  retryRefused,
+  resendHeld,
   scan,
   undo,
   undoTargetOf,
@@ -276,7 +276,7 @@ describe('a scan the server refuses for good', () => {
 
     const running = flushQueue()
     await new Promise((resolve) => setTimeout(resolve, 0))
-    const retried = retryRefused()
+    const retried = resendHeld()
     finish({ data: { status: 'ok' }, error: null })
     await running
 
@@ -321,6 +321,29 @@ describe('a refusal that is about whoever sent it, not the scan', () => {
 })
 
 describe('an answer from a flush that asks somebody to act', () => {
+  it('goes out again when it was about the event, not the scan', async () => {
+    // Unpublished for ten minutes by mistake: everything flushed meanwhile
+    // came back `event_not_open`, and the junta must be able to send it again.
+    store.set('closed', { ...request('closed'), at: 1, tries: 0 })
+    store.set('stranger', { ...request('stranger'), at: 2, tries: 0 })
+    rpc.mockImplementation((_name: string, args: { p_client_request_id: string }) =>
+      Promise.resolve({
+        data: { status: args.p_client_request_id === 'closed' ? 'event_not_open' : 'not_a_member' },
+        error: null,
+      }),
+    )
+    await flushQueue()
+    expect(store.get('closed')).toMatchObject({ held: { status: 'event_not_open' } })
+
+    rpc.mockReset()
+    rpc.mockResolvedValue({ data: { status: 'ok' }, error: null })
+    await expect(resendHeld()).resolves.toEqual({ sent: 1, left: 0 })
+
+    // Only that one: a stranger's answer would only replay.
+    expect([...store.keys()]).toEqual(['stranger'])
+    expect(rpc).toHaveBeenCalledTimes(1)
+  })
+
   it('is kept with its status and name, and not sent again', async () => {
     store.set('stranger', { ...request('stranger'), at: 1, tries: 0 })
     store.set('dup', { ...request('dup'), at: 2, tries: 0 })

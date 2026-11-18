@@ -52,34 +52,41 @@ const ev = (id: string, startsAt: number, published = true): DoorEvent => ({
 
 describe('la porta amb dades', () => {
   it('es pinta neta quan la consulta ha anat bé', () => {
-    expect(doorView(consulta(), undefined, ARA)).toEqual({ kind: 'door', porta, staleSince: null })
+    expect(doorView(consulta(), undefined, ARA)).toEqual({ kind: 'door', porta, stale: null })
   })
 
   it('es pinta igual quan la recàrrega falla, amb l’hora de les dades', () => {
     expect(doorView(consulta({ isError: true }), undefined, ARA)).toEqual({
       kind: 'door',
       porta,
-      staleSince: ARA - 5 * MIN,
+      stale: { since: ARA - 5 * MIN, failed: true },
     })
   })
 
   it('també és vella mentre la recàrrega espera que torni la xarxa', () => {
     expect(doorView(consulta({ fetchStatus: 'paused' }), undefined, ARA)).toMatchObject({
       kind: 'door',
-      staleSince: ARA - 5 * MIN,
+      stale: { since: ARA - 5 * MIN, failed: true },
     })
   })
 
-  it('no és vella mentre la recàrrega simplement està en marxa', () => {
+  it('no és vella mentre recarrega unes dades de fa menys d’un minut', () => {
+    const fresques = consulta({ fetchStatus: 'fetching', dataUpdatedAt: ARA - 30_000 })
+    expect(doorView(fresques, undefined, ARA)).toMatchObject({ stale: null })
+  })
+
+  it('sí que ho és si recarrega unes dades velles: la recàrrega pot estar penjada', () => {
+    // Una recàrrega penjada no falla mai, i sense això la porta ensenyava
+    // números de fa quaranta minuts com si fossin d’ara.
     expect(doorView(consulta({ fetchStatus: 'fetching' }), undefined, ARA)).toMatchObject({
-      staleSince: null,
+      stale: { since: ARA - 5 * MIN, failed: false },
     })
   })
 
   it('diu «res aquests dies» amb les dades velles si és el que deien', () => {
     expect(doorView(consulta({ data: dades(null), isError: true }), undefined, ARA)).toEqual({
       kind: 'none',
-      staleSince: ARA - 5 * MIN,
+      stale: { since: ARA - 5 * MIN, failed: true },
     })
   })
 })
@@ -90,6 +97,16 @@ describe('la porta sense dades', () => {
   it('carrega mentre la primera consulta és en marxa', () => {
     expect(doorView(consulta({ ...sense, fetchStatus: 'fetching' }), undefined, ARA)).toEqual({
       kind: 'loading',
+      scannerEventId: null,
+    })
+  })
+
+  it('i ja ofereix l’escàner mentre carrega si la llista d’esdeveniments el sap', () => {
+    // En fred amb la xarxa saturada, la primera consulta pot trigar minuts.
+    const llista = [ev('aquest', ARA - HORA)]
+    expect(doorView(consulta({ ...sense, fetchStatus: 'fetching' }), llista, ARA)).toEqual({
+      kind: 'loading',
+      scannerEventId: 'aquest',
     })
   })
 

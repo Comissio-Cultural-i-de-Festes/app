@@ -1170,6 +1170,7 @@
       "openScanner": "Abrir el escáner",
       "doorStale": "Datos de hace {{n}} min. No se han podido actualizar.",
       "doorStaleNow": "Datos de hace un momento. No se han podido actualizar.",
+      "doorStaleRefreshing": "Datos de hace {{n}} min. Se están actualizando…",
       "doorRetrying": "Reintentando…",
       "work": "Hay trabajo",
       "workCount_one": "{{count}} cosa",

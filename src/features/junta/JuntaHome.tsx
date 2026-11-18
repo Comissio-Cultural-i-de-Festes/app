@@ -19,8 +19,8 @@ import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { eventTitle } from '@/features/event/title'
 
-import { AvisosEstatsBlock } from './AvisosEstatsBlock'
 import { AnteriorsBlock } from './AnteriorsBlock'
+import { AvisosEstatsBlock } from './AvisosEstatsBlock'
 import { AvisosPendentsBlock } from './AvisosPendentsBlock'
 import { type Stale, doorView, minutesAgo } from './doorView'
 import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
@@ -413,11 +413,11 @@ export function JuntaHome() {
         </div>
       )}
 
-      {/* ── Com funciona la comi ── */}
       {/* ── Les que ja s'han acabat ──
           Just sota les que venen: és la mateixa llista, cap enrere. */}
       <AnteriorsBlock />
 
+      {/* ── Com funciona la comi ── */}
       <Heading title={t('junta.home.how')} sub={t('junta.home.howSub')} />
       <div className="mt-6">
         <Row
@@ -640,6 +640,11 @@ function DoorNone() {
           avall. */}
       <Link
         to={{ hash: '#els-que-venen' }}
+        // El `hash` només canvia el primer cop: si ja és `#els-que-venen`, el
+        // segon toc no fa saltar l'efecte i la pàgina no es mou.
+        onClick={() => {
+          document.getElementById('els-que-venen')?.scrollIntoView()
+        }}
         className="mt-7 inline-flex min-h-[50px] items-center border-[1.5px] border-surface-7 px-8 text-md font-bold text-fg-secondary no-underline"
       >
         {t('junta.home.doorAnyway')}

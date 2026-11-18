@@ -1,3 +1,6 @@
+import { queryOptions } from '@tanstack/react-query'
+
+import { SIGNED_TTL_SECONDS, signedKey } from './signedQuery'
 import { supabase } from './supabase'
 
 /**
@@ -20,8 +23,6 @@ export const DOOR_PHOTOS = 'door-photos'
 export const EVENT_PHOTOS = 'event-photos'
 export const GIMCANA_PHOTOS = 'gimcana-photos'
 export const AVATARS = 'avatars'
-
-const SIGNED_TTL_SECONDS = 3600
 
 /** Longest edge, in pixels, of anything that goes up. */
 const MAX_EDGE = 1600
@@ -312,4 +313,18 @@ export async function signedUrls(
     }
   }
   return out
+}
+
+/**
+ * The query for a set of signed URLs, key and fetch together.
+ *
+ * Together on purpose: a screen that asks for signed URLs gets the marked key
+ * without having to remember it, and the mark is what keeps returning to the
+ * app from re-signing — and re-downloading — every picture on it.
+ */
+export function signedUrlsQuery(bucket: string, paths: readonly string[]) {
+  return queryOptions({
+    queryKey: signedKey(bucket, ...paths),
+    queryFn: () => signedUrls(bucket, paths),
+  })
 }

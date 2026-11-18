@@ -39,7 +39,7 @@ import { checkinWindow, isOpen } from '@/features/checkin/window'
 import { GalleryBlock } from '@/features/gallery/GalleryBlock'
 import { GimcanaLink } from '@/features/gimcana/GimcanaLink'
 import { MyNightBlock } from '@/features/photos/MyNightBlock'
-import { fetchNights, fetchPhotoUrls, photoKeys } from '@/features/photos/api'
+import { fetchNights, photoKeys, photoUrls } from '@/features/photos/api'
 import { ShareCard } from '@/features/share/ShareCard'
 import { RidesBlock } from '@/features/rides/RidesBlock'
 
@@ -526,8 +526,7 @@ function CheckinShare({
   const entry = night?.entry_photo_url ?? null
 
   const urls = useQuery({
-    queryKey: photoKeys.urls(entry === null ? [] : [entry]),
-    queryFn: () => fetchPhotoUrls(entry === null ? [] : [entry]),
+    ...photoUrls(entry === null ? [] : [entry]),
     enabled: entry !== null,
   })
 

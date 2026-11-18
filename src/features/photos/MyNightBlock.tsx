@@ -5,7 +5,7 @@ import { Link } from 'react-router'
 import { formatTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 
-import { fetchNights, fetchPhotoUrls, pathsOf, photoKeys } from './api'
+import { fetchNights, pathsOf, photoKeys, photoUrls } from './api'
 
 /**
  * "La teva nit", on a past event's own page.
@@ -31,8 +31,7 @@ export function MyNightBlock({ eventId }: { readonly eventId: string }) {
 
   const paths = night === undefined ? [] : pathsOf([night])
   const urls = useQuery({
-    queryKey: photoKeys.urls(paths),
-    queryFn: () => fetchPhotoUrls(paths),
+    ...photoUrls(paths),
     enabled: paths.length > 0,
   })
 
@@ -49,7 +48,7 @@ export function MyNightBlock({ eventId }: { readonly eventId: string }) {
 
       <div className="mt-7 flex gap-6">
         <Pane
-          src={entry === null ? null : urls.data?.get(entry) ?? null}
+          src={entry === null ? null : (urls.data?.get(entry) ?? null)}
           label={
             inAt === null
               ? t('diptych.entry')
@@ -59,7 +58,7 @@ export function MyNightBlock({ eventId }: { readonly eventId: string }) {
           alt={t('diptych.entry')}
         />
         <Pane
-          src={exit === null ? null : urls.data?.get(exit) ?? null}
+          src={exit === null ? null : (urls.data?.get(exit) ?? null)}
           label={
             outAt === null
               ? `${t('diptych.exit')} · ${t('diptych.pending')}`

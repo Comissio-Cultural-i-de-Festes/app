@@ -13,9 +13,9 @@ import { errorKey } from '@/lib/errors'
 import {
   type Night,
   fetchNights,
-  fetchPhotoUrls,
   pathsOf,
   photoKeys,
+  photoUrls,
   removeExitPhoto,
   shapeOf,
 } from './api'
@@ -53,8 +53,7 @@ export function DiptychScreen() {
 
   const paths = pathsOf(all)
   const urls = useQuery({
-    queryKey: photoKeys.urls(paths),
-    queryFn: () => fetchPhotoUrls(paths),
+    ...photoUrls(paths),
     enabled: paths.length > 0,
   })
   const url = (path: string | null) => (path === null ? null : (urls.data?.get(path) ?? null))

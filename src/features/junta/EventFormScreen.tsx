@@ -10,6 +10,7 @@ import type { Abast, EventType } from '@/lib/model'
 import { DbError } from '@/lib/db'
 import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
+import { invalidateData } from '@/lib/signedQuery'
 import { uploadCover } from '@/lib/storage'
 import { useCovers } from '@/ui/Cover/useCovers'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
@@ -173,7 +174,7 @@ function EventForm() {
       return eventId
     },
     onSuccess: async () => {
-      await client.invalidateQueries()
+      await invalidateData(client)
       void navigate('/junta', { replace: true })
     },
   })
@@ -199,11 +200,7 @@ function EventForm() {
   const endsMissing = form.ends_at === ''
 
   const ready =
-    form.titulo.trim() !== '' &&
-    form.starts_at !== '' &&
-    !endsMissing &&
-    !endsBad &&
-    !revealBad
+    form.titulo.trim() !== '' && form.starts_at !== '' && !endsMissing && !endsBad && !revealBad
   const showTemplates = !editing && (templates.data?.length ?? 0) > 0
   // Without templates there is nothing above the fields, so they take both
   // rows rather than leaving a hole where the list would have been.
@@ -977,7 +974,7 @@ function PublishedStrip({
     mutationFn: (next: boolean) => setPublished(eventId, next),
     onSuccess: async () => {
       setConfirming(false)
-      await client.invalidateQueries()
+      await invalidateData(client)
     },
   })
 

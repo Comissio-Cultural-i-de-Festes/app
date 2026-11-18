@@ -1350,11 +1350,11 @@
       },
       "off": "Este evento no pide datos de viajero.",
       "toForm": "Ve al formulario del evento",
-      "note": "Solo salen los datos de quien tiene plaza. Cada vez que los miras o los exportas queda escrito en el registro de la junta, con tu nombre.",
+      "note": "Solo salen los datos de quien tiene plaza. Cada vez que los miras o los exportas queda escrito en el registro de la junta, con tu nombre. El archivo que descargues es responsabilidad tuya: bórralo cuando lo hayas enviado al alojamiento.",
       "purge": "Se borran solos el {{date}}.",
       "summary": "{{posades}} de {{total}} los han puesto",
       "empty": "Todavía no se ha apuntado nadie.",
-      "has": "Puestos",
+      "has": "Completos",
       "missing": "Faltan",
       "estat": {
         "si": "Tiene plaza",
@@ -1453,7 +1453,7 @@
     "privacy": {
       "what": "La casa tiene que enviar estos datos al registro de viajeros de la policía (RD 933/2021). No sirven para nada más.",
       "who": "Los ves tú y la junta, que se los pasa al alojamiento. Cada vez que la junta los abre, queda escrito quién lo ha hecho y cuándo.",
-      "when": "Se borran solos el {{date}}, una semana después de volver. También si dejas de ir. No se guardan para la próxima vez.",
+      "when": "De la app se borran solos el {{date}}, una semana después de volver. También si dejas de ir. No se guardan para la próxima vez.",
       "noPhoto": "No te pedimos ninguna foto del documento."
     },
     "section": {
@@ -1571,7 +1571,7 @@
       "travel": {
         "title": "Si duermes fuera",
         "p1": "Cuando una actividad es en una casa rural u otro alojamiento, la ley obliga a la casa a enviar a la policía los datos de cada persona que duerme allí (RD 933/2021): nombre, apellidos, sexo, documento, nacionalidad, fecha de nacimiento y dirección. Si vas, te los pedimos, más un teléfono de emergencia. No te pedimos ninguna foto del documento.",
-        "p2": "Los ves tú y la junta, que se los pasa al alojamiento, y cada vez que la junta los abre queda escrito quién y cuándo. Se borran solos una semana después de la estancia, o antes si dejas de ir o te das de baja. No se guardan para la próxima vez: cada alojamiento te los vuelve a pedir."
+        "p2": "Los ves tú y la junta, que se los pasa al alojamiento, y cada vez que la junta los abre queda escrito quién y cuándo. Se borran solos una semana después de la estancia, o antes si dejas de ir o te das de baja. No se guardan para la próxima vez: cada alojamiento te los vuelve a pedir. Esto es lo que hace la app; la copia que la junta exporta para enviarla al alojamiento es responsabilidad de la junta, que debe borrarla una vez enviada, y el alojamiento guarda la suya el tiempo que le manda la ley."
       },
       "log": {
         "title": "El registro de la junta",

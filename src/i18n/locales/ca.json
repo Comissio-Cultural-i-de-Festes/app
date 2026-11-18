@@ -1350,7 +1350,7 @@
       },
       "off": "Aquest esdeveniment no demana dades de viatger.",
       "toForm": "Ves al formulari de l'esdeveniment",
-      "note": "Només surten les dades de qui té plaça. Cada cop que les mires o les exportes queda escrit al registre de la junta, amb el teu nom.",
+      "note": "Només surten les dades de qui té plaça. Cada cop que les mires o les exportes queda escrit al registre de la junta, amb el teu nom. El fitxer que descarreguis és responsabilitat teva: esborra'l en haver-lo enviat a l'allotjament.",
       "purge": "S'esborren soles el {{date}}.",
       "summary": "{{posades}} de {{total}} les han posades",
       "empty": "Encara no s'hi ha apuntat ningú.",
@@ -1453,7 +1453,7 @@
     "privacy": {
       "what": "La casa ha d'enviar aquestes dades al registre de viatgers de la policia (RD 933/2021). No serveixen per a res més.",
       "who": "Les veus tu i la junta, que les passa a l'allotjament. Cada cop que la junta les obre, queda escrit qui ho ha fet i quan.",
-      "when": "S'esborren soles el {{date}}, una setmana després de tornar. També si deixes d'anar-hi. No es guarden per a la propera vegada.",
+      "when": "De l'app s'esborren soles el {{date}}, una setmana després de tornar. També si deixes d'anar-hi. No es guarden per a la propera vegada.",
       "noPhoto": "No et demanem cap foto del document."
     },
     "section": {
@@ -1571,7 +1571,7 @@
       "travel": {
         "title": "Si dorms fora",
         "p1": "Quan una activitat és en una casa rural o un altre allotjament, la llei obliga la casa a enviar a la policia les dades de cada persona que hi dorm (RD 933/2021): nom, cognoms, sexe, document, nacionalitat, data de naixement i adreça. Si hi vas, te les demanem, més un telèfon d'emergència. No et demanem cap foto del document.",
-        "p2": "Les veus tu i la junta, que les passa a l'allotjament, i cada cop que la junta les obre queda escrit qui i quan. S'esborren soles una setmana després de l'estada, o abans si deixes d'anar-hi o et dones de baixa. No es guarden per a la vegada següent: cada allotjament te les torna a demanar."
+        "p2": "Les veus tu i la junta, que les passa a l'allotjament, i cada cop que la junta les obre queda escrit qui i quan. S'esborren soles una setmana després de l'estada, o abans si deixes d'anar-hi o et dones de baixa. No es guarden per a la vegada següent: cada allotjament te les torna a demanar. Això és el que fa l'app; la còpia que la junta exporta per enviar-la a l'allotjament és responsabilitat de la junta, que l'ha d'esborrar un cop enviada, i l'allotjament guarda la seva el temps que li mana la llei."
       },
       "log": {
         "title": "El registre de la junta",

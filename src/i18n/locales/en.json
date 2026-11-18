@@ -1350,7 +1350,7 @@
       },
       "off": "This event doesn't ask for traveller details.",
       "toForm": "Go to the event form",
-      "note": "Only people with a place are included. Every time you view or export them, it's logged in the committee record with your name.",
+      "note": "Only people with a place are included. Every time you view or export them, it's logged in the committee record with your name. The file you download is your responsibility: delete it once you've sent it to the accommodation.",
       "purge": "They delete themselves on {{date}}.",
       "summary": "{{posades}} of {{total}} have added them",
       "empty": "Nobody has signed up yet.",
@@ -1453,7 +1453,7 @@
     "privacy": {
       "what": "The house has to send these details to the police traveller register (Spanish RD 933/2021). They are used for nothing else.",
       "who": "You and the committee see them; the committee passes them on to the accommodation. Every time the committee opens them, who did it and when is logged.",
-      "when": "They delete themselves on {{date}}, a week after you get back, or as soon as you stop going. They are not kept for next time.",
+      "when": "In the app they delete themselves on {{date}}, a week after you get back, or as soon as you stop going. They are not kept for next time.",
       "noPhoto": "We never ask for a photo of your ID."
     },
     "section": {
@@ -1571,7 +1571,7 @@
       "travel": {
         "title": "If you stay overnight",
         "p1": "When an event is at a country house or other accommodation, the law requires the house to send the police the details of everyone who stays (Spanish RD 933/2021): name, surnames, sex, ID, nationality, date of birth and address. If you go, we ask you for them, plus an emergency phone number. We never ask for a photo of your ID.",
-        "p2": "You and the committee see them; the committee passes them on to the accommodation, and every time it opens them, who and when is logged. They delete themselves a week after the stay, or sooner if you stop going or leave the association. They are not kept for next time: each stay asks for them again."
+        "p2": "You and the committee see them; the committee passes them on to the accommodation, and every time it opens them, who and when is logged. They delete themselves a week after the stay, or sooner if you stop going or leave the association. They are not kept for next time: each stay asks for them again. That is what the app does; the copy the committee exports to send to the accommodation is the committee's responsibility, and it must delete it once sent, while the accommodation keeps its own for as long as the law requires."
       },
       "log": {
         "title": "The committee's log",

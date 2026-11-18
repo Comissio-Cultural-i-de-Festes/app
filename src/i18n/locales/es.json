@@ -69,6 +69,19 @@
     "pointsUnavailable": "No hemos podido leer cuántos puntos vale cada motivo. Sin eso no los podemos dar bien."
   },
   "entry": {
+    "inApp": {
+      "title": "Ábrelo en el navegador",
+      "ledeInvited": "Alguien del grupo te ha pasado el enlace. Ábrelo en el navegador del móvil y entrarás con Google.",
+      "ledeOpen": "Has llegado sin invitación. Abre el enlace en el navegador del móvil, entra con Google y la junta te dará el acceso a mano, normalmente el mismo día.",
+      "body": "Estás dentro del navegador de otra app (Instagram, Facebook…) y Google no deja entrar desde aquí. Abre este enlace en el navegador del móvil y podrás entrar con normalidad.",
+      "ios": "Toca los tres puntos o el icono de compartir y elige la opción de abrirlo en el navegador o en Safari. Si no la encuentras, copia el enlace y pégalo en Safari.",
+      "androidCta": "Ábrelo en Chrome",
+      "androidHint": "Si no se abre, copia el enlace y pégalo en el navegador.",
+      "copy": "Copia el enlace",
+      "copied": "Enlace copiado",
+      "copyFailed": "No se ha podido copiar. Mantén pulsado el enlace de debajo, cópialo y pégalo en el navegador.",
+      "linkLabel": "Enlace de acceso"
+    },
     "sending": "Un segundo…",
     "invited": {
       "title": "Te han invitado",
@@ -320,6 +333,7 @@
     "sendNote": "La mira alguien de la junta esta misma noche. Los puntos salen cuando diga que vale.",
     "offlineNote": "Sin cobertura también funciona: se guarda y se envía sola cuando vuelva la red.",
     "queued": "Guardada. Se enviará sola cuando vuelva la red: puedes cerrar la app.",
+    "notSaved": "No se ha podido guardar la foto. Vuelve a intentarlo, o elige otra.",
     "rejected": {
       "title": "Esta no ha valido",
       "noReason": "La puedes volver a enviar con otra foto: la prueba sigue abierta."

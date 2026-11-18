@@ -69,6 +69,19 @@
     "pointsUnavailable": "We could not read what each reason is worth. Without that the points would be wrong."
   },
   "entry": {
+    "inApp": {
+      "title": "Open it in your browser",
+      "ledeInvited": "Someone in the group sent you the link. Open it in your phone's browser and you will sign in with Google there.",
+      "ledeOpen": "You arrived without an invitation. Open the link in your phone's browser, sign in with Google and the committee will give you access by hand, usually the same day.",
+      "body": "You are inside another app's browser (Instagram, Facebook…) and Google does not allow signing in from here. Open this link in your phone's browser and you can sign in as usual.",
+      "ios": "Tap the three dots or the share icon and choose the option to open it in your browser or in Safari. If you cannot find it, copy the link and paste it into Safari.",
+      "androidCta": "Open in Chrome",
+      "androidHint": "If it does not open, copy the link and paste it into your browser.",
+      "copy": "Copy link",
+      "copied": "Link copied",
+      "copyFailed": "Could not copy. Press and hold the link below, copy it and paste it into your browser.",
+      "linkLabel": "Sign-in link"
+    },
     "sending": "One sec…",
     "invited": {
       "title": "You're invited",
@@ -320,6 +333,7 @@
     "sendNote": "Somebody on the junta looks at it the same night. The points land when they say it counts.",
     "offlineNote": "It works with no signal too: it is saved and sent by itself when the network comes back.",
     "queued": "Saved. It will send itself when the network comes back — you can close the app.",
+    "notSaved": "The photo could not be saved. Try again, or pick another one.",
     "rejected": {
       "title": "That one did not count",
       "noReason": "You can send another photo: the challenge is still open."

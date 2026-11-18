@@ -1,4 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
+import { type Access, accessOf } from './access'
 
 import { type MyProfile, fetchProfile, profileKeys } from './profile'
 import { useUserId } from './useUserId'
@@ -38,4 +39,10 @@ export function isJunta(profile: MyProfile | null | undefined): boolean {
  */
 export function needsOnboarding(profile: MyProfile | null | undefined): boolean {
   return profile?.escola === null
+}
+
+/** `accessOf` sobre el perfil propi: el que els blocs consulten abans de pintar un recompte. */
+export function useAccess(): Access {
+  const { data: profile } = useMyProfile()
+  return accessOf(profile)
 }

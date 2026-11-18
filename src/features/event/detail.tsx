@@ -93,6 +93,7 @@ export function Fact({
 }
 
 export function Places({
+  closed = false,
   total,
   puntos,
   left,
@@ -107,8 +108,32 @@ export function Places({
   readonly going: number
   readonly isPast: boolean
   readonly waiting: number
+  /** El perfil diu que no és actiu: només es pinta el que no surt de les assistències. */
+  readonly closed?: boolean
 }) {
   const { t } = useTranslation()
+
+  // Les places i els punts són de l'esdeveniment i es llegeixen sempre; el que
+  // no es pot saber és quanta gent hi va, i d'aquí en surten `left`, `going` i la
+  // cua.
+  if (closed) {
+    if (isPast) {
+      return (
+        <section className={`pt-9 ${GUTTER}`}>
+          <p className="tabular display text-d-sm leading-[0.85] tracking-[-0.05em] text-brand-accent">
+            +{puntos}
+          </p>
+          <p className="mt-2 text-sm font-bold text-fg-muted">{t('event.pointsForComing')}</p>
+        </section>
+      )
+    }
+    if (total === null) return null
+    return (
+      <section className={`pt-9 ${GUTTER}`}>
+        <p className="text-md font-bold text-fg-muted">{t('home.places.total', { total })}</p>
+      </section>
+    )
+  }
 
   if (isPast) {
     return (

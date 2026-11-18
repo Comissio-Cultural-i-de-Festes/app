@@ -30,6 +30,12 @@ export interface DoorNow {
   readonly id: string
   readonly titulo: string
   readonly starts_at: string
+  /**
+   * Quan s'acaba, des de la migració 89, perquè una casa rural pugui dir «de
+   * divendres a diumenge». Opcional perquè contra una base d'abans no arriba, i
+   * `null` quan l'esdeveniment no en té.
+   */
+  readonly ends_at?: string | null
   readonly ubicacion: string | null
   readonly plazas: number | null
   readonly diuen_si: number
@@ -51,7 +57,13 @@ export interface DoorNow {
 }
 
 export interface JuntaHomeData {
+  /** La primera de `portes`: la que el rebedor ensenyava abans de la 89. */
   readonly porta: DoorNow | null
+  /**
+   * Tots els esdeveniments de la finestra, en ordre d'inici (migració 89). Es
+   * llegeix sempre per `portesDe`, que sap què fer quan no arriba.
+   */
+  readonly portes?: readonly DoorNow[]
   readonly pendents: number
   readonly esborranys: number
   readonly propers: number

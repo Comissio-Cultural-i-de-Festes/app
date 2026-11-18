@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate, useParams } from 'react-router'
 
-import { formatMoney, formatPrice } from '@/features/event/api'
+import { eventKeys, fetchEvent, formatMoney, formatPrice } from '@/features/event/api'
 import { MemberLink } from '@/features/member/MemberLink'
 import { memberSubtitle } from '@/features/member/subtitle'
 import { formatDayMonth } from '@/i18n/format'
@@ -59,10 +59,28 @@ export function PaymentsScreen() {
     queryFn: () => fetchJuntaEvents(horizon),
   })
 
+  // UN ESDEVENIMENT DE FORA DE LA LLISTA ES VA A BUSCAR. Des de l'issue #28 s'hi
+  // arriba des de la fitxa de qualsevol esdeveniment, i la llista només arriba
+  // vuit hores enrere: cobrar la festa de la setmana passada a qui va pagar en
+  // mà deia «ja no surt a la llista». Es busca sol i s'afegeix al selector, al
+  // seu lloc del calendari. Si no existeix —esborrat, o un enllaç vell— sí que
+  // queda la frase d'abans.
+  const fromList = events.data ?? []
+  const outside =
+    eventId !== undefined && events.isSuccess && !fromList.some((e) => e.id === eventId)
+  const single = useQuery({
+    queryKey: eventKeys.one(eventId ?? ''),
+    queryFn: () => fetchEvent(eventId ?? ''),
+    enabled: outside,
+  })
+  const list =
+    outside && single.data != null
+      ? [...fromList, single.data].sort((a, b) => Date.parse(a.starts_at) - Date.parse(b.starts_at))
+      : fromList
+
   // No event in the address bar means the next one, which is what the junta
   // wants nine times out of ten. Switching is a select rather than a screen of
   // its own: the second event of the term still has to be reachable.
-  const list = events.data ?? []
   const chosen = eventId ?? list[0]?.id ?? null
   const event = list.find((e) => e.id === chosen) ?? null
 
@@ -90,11 +108,11 @@ export function PaymentsScreen() {
 
       <div className="lg:grid lg:grid-cols-[1fr_340px] lg:items-start lg:gap-15 lg:px-14 lg:pb-16">
         <div>
-          {events.isPending ? (
+          {events.isPending || (outside && single.isPending) ? (
             <PaidSkeleton head />
-          ) : events.isError ? (
+          ) : events.isError || (outside && single.isError) ? (
             <p role="alert" className={`pt-10 text-md font-bold text-error ${GUTTER}`}>
-              {t(errorKey(events.error))}
+              {t(errorKey(events.error ?? single.error))}
             </p>
           ) : event === null ? (
             // DUES BUIDORS DIFERENTS. «Encara no hi ha res al calendari» amb el

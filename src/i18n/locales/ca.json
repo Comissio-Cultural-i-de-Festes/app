@@ -333,6 +333,7 @@
     "sendNote": "La mira algú de la junta aquesta mateixa nit. Els punts surten quan digui que val.",
     "offlineNote": "Sense cobertura també funciona: es desa i s’envia sola quan torni la xarxa.",
     "queued": "Desada. S’enviarà sola quan torni la xarxa: pots tancar l’app.",
+    "notSaved": "No s’ha pogut desar la foto. Torna-ho a provar, o tria-ne una altra.",
     "rejected": {
       "title": "Aquesta no ha valgut",
       "noReason": "La pots tornar a enviar amb una altra foto: la prova segueix oberta."

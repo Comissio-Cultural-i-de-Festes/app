@@ -333,6 +333,7 @@
     "sendNote": "La mira alguien de la junta esta misma noche. Los puntos salen cuando diga que vale.",
     "offlineNote": "Sin cobertura también funciona: se guarda y se envía sola cuando vuelva la red.",
     "queued": "Guardada. Se enviará sola cuando vuelva la red: puedes cerrar la app.",
+    "notSaved": "No se ha podido guardar la foto. Vuelve a intentarlo, o elige otra.",
     "rejected": {
       "title": "Esta no ha valido",
       "noReason": "La puedes volver a enviar con otra foto: la prueba sigue abierta."

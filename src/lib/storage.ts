@@ -348,7 +348,7 @@ export async function keepOnly(bucket: string, folder: string, keep: string | nu
   try {
     const { data, error } = await supabase.storage.from(bucket).list(folder, { limit: 1000 })
     if (error) return
-    await removeObjects(bucket, staleIn(folder, data, keep, Date.now()))
+    await removeObjects(bucket, staleIn(folder, data, keep))
   } catch {
     // Vegeu a dalt: l'escombrada diària ho recull.
   }

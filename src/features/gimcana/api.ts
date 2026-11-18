@@ -144,7 +144,25 @@ export async function submitProva(provaId: string, photo: Blob): Promise<string>
   return send(item)
 }
 
+/**
+ * Les files que ara mateix s'estan pujant, tant si les ha enviat el botó com la
+ * cua. Sense això, amb una wifi saturada (la pujada triga més que el
+ * temporitzador de la cua) o tirant enrere mentre s'envia, la mateixa foto
+ * sortiria dues vegades, i si una falla fa `put` d'una fila que l'altra ja
+ * havia esborrat: la foto torna a la cua i es puja una tercera.
+ */
+const inFlight = new Set<string>()
+
 async function send(item: QueuedProva): Promise<string> {
+  inFlight.add(item.id)
+  try {
+    return await upload(item)
+  } finally {
+    inFlight.delete(item.id)
+  }
+}
+
+async function upload(item: QueuedProva): Promise<string> {
   const userId = await localUserId()
   const path = `${item.provaId}/${userId}/${item.id}.jpg`
 
@@ -206,11 +224,21 @@ function alreadyThere(error: unknown): boolean {
  * treu, perquè reintentar-la eternament és guardar una foto que no arribarà
  * mai enlloc.
  */
-export async function flushProves(): Promise<number> {
+export function flushProves(): Promise<number> {
+  flushing ??= drainOnce().finally(() => {
+    flushing = null
+  })
+  return flushing
+}
+
+let flushing: Promise<number> | null = null
+
+async function drainOnce(): Promise<number> {
   const rows = await waiting<QueuedProva>(PROVES)
   let sent = 0
 
   for (const row of rows) {
+    if (inFlight.has(row.id)) continue
     try {
       await send(row)
       sent += 1

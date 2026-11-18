@@ -100,3 +100,45 @@ describe('buidar la cua', () => {
     expect(getUser).not.toHaveBeenCalled()
   })
 })
+
+describe('enviaments concurrents', () => {
+  function slowUpload() {
+    let release: () => void = () => undefined
+    upload.mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          release = () => resolve({ error: null })
+        }),
+    )
+    return () => release()
+  }
+
+  it('dues buidades alhora pugen cada foto una sola vegada', async () => {
+    store.set('r1', { id: 'r1', tries: 0, provaId: PROVA, photo } as never)
+    getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })
+    const release = slowUpload()
+
+    const a = flushProves()
+    const b = flushProves()
+    await vi.waitFor(() => expect(upload).toHaveBeenCalled())
+    release()
+    await Promise.all([a, b])
+
+    expect(upload).toHaveBeenCalledTimes(1)
+    expect(rpc).toHaveBeenCalledTimes(1)
+  })
+
+  it('una prova que s’està enviant no la torna a enviar la buidada', async () => {
+    getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })
+    const release = slowUpload()
+
+    const sending = submitProva(PROVA, photo)
+    await vi.waitFor(() => expect(upload).toHaveBeenCalled())
+    const flushed = flushProves()
+    release()
+    await Promise.all([sending, flushed])
+
+    expect(upload).toHaveBeenCalledTimes(1)
+    expect(rpc).toHaveBeenCalledTimes(1)
+  })
+})

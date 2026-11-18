@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import type { Session } from '@supabase/supabase-js'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
@@ -45,6 +46,7 @@ import {
   shouldPromptInstall,
   snoozeInstall,
 } from '@/features/install/installGate'
+import { forgetOnUserChange } from '@/lib/forgetSession'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -184,6 +186,8 @@ function KeepPushFresh() {
  */
 export default function App() {
   const { t } = useTranslation()
+  const client = useQueryClient()
+  const lastUser = useRef<string | null>(null)
   const [session, setSession] = useState<Session | null>(null)
   const { pathname } = useLocation()
   const [ready, setReady] = useState(false)
@@ -206,6 +210,7 @@ export default function App() {
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {
+      lastUser.current = data.session?.user.id ?? null
       signedIn.current = data.session !== null
       setSession(data.session)
       setReady(true)
@@ -225,12 +230,15 @@ export default function App() {
         discardInvite()
       }
       signedIn.current = next !== null
+      // Abans de pintar res amb la sessió nova: qui entra no ha de veure ni un
+      // instant el que tenia a la cau qui marxa.
+      lastUser.current = forgetOnUserChange(client, lastUser.current, next?.user.id ?? null)
       setSession(next)
     })
     return () => {
       sub.subscription.unsubscribe()
     }
-  }, [])
+  }, [client])
 
   useRedeemFromLink(session?.user.id ?? null)
 

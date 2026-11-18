@@ -101,7 +101,9 @@ export function withSignedDefaults(client: QueryClient): QueryClient {
   client.setQueryDefaults([SIGNED], {
     staleTime: 50 * MINUTE,
     gcTime: SIGNED_TTL_SECONDS * 1000,
-    // Els reintents els fa el lot (`storage.ts`), tots junts.
+    // Els reintents els fa el lot (`storage.ts`), tots junts. Amb `retry:
+    // false` la regla `isPermanent` de `queryClient.ts` ja no s'hi aplica: qui
+    // decideix què val la pena reintentar és `worthRetrying`, allà.
     retry: false,
   })
   return client

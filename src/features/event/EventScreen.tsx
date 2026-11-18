@@ -39,7 +39,7 @@ import { checkinWindow, isOpen } from '@/features/checkin/window'
 import { GalleryBlock } from '@/features/gallery/GalleryBlock'
 import { GimcanaLink } from '@/features/gimcana/GimcanaLink'
 import { MyNightBlock } from '@/features/photos/MyNightBlock'
-import { fetchNights, fetchPhotoUrls, photoKeys } from '@/features/photos/api'
+import { fetchNights, photoKeys } from '@/features/photos/api'
 import { ShareCard } from '@/features/share/ShareCard'
 import { PendingNote } from '@/features/session/PendingNote'
 import { useAccess } from '@/features/session/useMyProfile'
@@ -48,6 +48,8 @@ import { RidesBlock } from '@/features/rides/RidesBlock'
 import { eventKeys, fetchEvent, fetchWaitlist, formatPrice } from './api'
 import { Cover, Fact, Places } from './detail'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
+import { DOOR_PHOTOS } from '@/lib/storage'
+import { useSignedUrls } from '@/lib/useSignedUrls'
 
 import { CalendarOffer, CalendarRow } from './Calendar'
 import { MeetingActa, MeetingAnswer, MeetingRoster } from './Meeting'
@@ -551,11 +553,7 @@ function CheckinShare({
   const night = nights.data?.find((n) => n.event_id === event.id)
   const entry = night?.entry_photo_url ?? null
 
-  const urls = useQuery({
-    queryKey: photoKeys.urls(entry === null ? [] : [entry]),
-    queryFn: () => fetchPhotoUrls(entry === null ? [] : [entry]),
-    enabled: entry !== null,
-  })
+  const urls = useSignedUrls(DOOR_PHOTOS, entry === null ? [] : [entry])
 
   const at = night?.checked_in_at == null ? null : new Date(night.checked_in_at)
   const starts = new Date(event.starts_at)

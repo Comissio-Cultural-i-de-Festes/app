@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { SCAN_PRESENTATION } from '@/design/states'
 
 import type { CheckInResult } from './api'
-import { verdictText } from './verdict'
+import { displacedWorthSaying, verdictText } from './verdict'
 
 /**
  * Les paraules de la targeta del veredicte.
@@ -151,5 +151,35 @@ describe('quan encara no hi ha resposta del servidor', () => {
     const w = verdictText(SCAN_PRESENTATION.error, null, { ...PLA, priceCents: 1500 })
     expect(w.detail).toEqual([])
     expect(w.headlineKey).toBe('scanner.error')
+  })
+})
+
+describe('una resposta que arriba quan ja s’ha escanejat algú altre', () => {
+  // La targeta és de qui hi ha ara. El que arriba tard i demana alguna cosa
+  // —no és de la comi, ja havia entrat, no estava apuntat— no es pot perdre.
+  const request = { clientRequestId: 'r', eventId: 'e', qrToken: 'q', userId: null }
+  const sent = (status: CheckInResult['status']) =>
+    ({ kind: 'sent', request, result: scan({ status }) }) as const
+
+  it('es diu si demana fer alguna cosa', () => {
+    for (const status of [
+      'not_a_member',
+      'member_inactive',
+      'already_checked_in',
+      'ok_walkin_review',
+      'event_not_open',
+    ] as const) {
+      expect(displacedWorthSaying(sent(status)), status).toBe(true)
+    }
+  })
+
+  it('i calla si era una entrada normal', () => {
+    expect(displacedWorthSaying(sent('ok'))).toBe(false)
+    expect(displacedWorthSaying(sent('ok_walkin'))).toBe(false)
+  })
+
+  it('i calla si no ha arribat: ja surt al comptador de la cua', () => {
+    expect(displacedWorthSaying({ kind: 'queued', request, unanswered: true })).toBe(false)
+    expect(displacedWorthSaying({ kind: 'failed', request })).toBe(false)
   })
 })

@@ -1,4 +1,4 @@
-import { DbError } from '@/lib/db'
+import { DbError, isPermanent } from '@/lib/db'
 import { HERE, NotSaved, type Queued, drop, put, waiting } from '@/lib/queue'
 import { supabase } from '@/lib/supabase'
 
@@ -146,6 +146,9 @@ export async function checkInHere(eventId: string, fix: Fix): Promise<Verdict> {
     if (saved) await drop(HERE, item.id)
     return verdict
   } catch (cause) {
+    // Un refús del servidor es diu com a tal, desat o no: «no s'ha pogut
+    // desar» enviaria algú a buscar cobertura per a una cosa que no la necessita.
+    if (!saved && isPermanent(cause)) throw cause
     // Ni a la cua ni al servidor. «Ho hem apuntat» seria mentida: no sortirà
     // sol, i qui ho llegeix es queda tranquil sense els punts.
     if (!saved) throw new NotSaved(cause)

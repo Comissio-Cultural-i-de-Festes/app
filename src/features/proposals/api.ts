@@ -1,4 +1,4 @@
-import { DbError, unwrapAs } from '@/lib/db'
+import { DbError, isPermanent, unwrapAs } from '@/lib/db'
 import { IDEAS, NotSaved, type Queued, drop, put, waiting } from '@/lib/queue'
 import { supabase } from '@/lib/supabase'
 
@@ -127,6 +127,9 @@ export async function propose(titol: string, descripcio: string, userId: string)
     await send(idea)
     if (saved) await drop(IDEAS, idea.id)
   } catch (cause) {
+    // A refusal is said as a refusal, saved or not: "could not be saved"
+    // would send somebody looking for signal over a title the CHECK rejects.
+    if (!saved && isPermanent(cause)) throw cause
     // Not written down and not sent: the screen must keep the text and say
     // so, rather than send the member off to a list it will never reach.
     if (!saved) throw new NotSaved(cause)

@@ -675,6 +675,14 @@
     "later": "Not now, I'll manage",
     "laterWarning": "You can carry on here in the browser. Once you add it to your home screen you'll sign in one more time, because the iPhone treats them as two separate things.",
     "iconPreview": "This is how it will sit among your apps. The red icon is easy to spot when you are in a hurry.",
+    "card": {
+      "eyebrow": "Keep it handy",
+      "title": "Put it on your home screen",
+      "body": "Two taps in Safari and it opens instantly, full screen, with your QR ready even without signal.",
+      "cta": "Show me how",
+      "later": "Not now",
+      "again": "When you open it from the icon, sign in once more with Google using the same account. The iPhone keeps the app and Safari apart, but the account is the same one."
+    },
     "android": {
       "lede": "One tap and it is on your home screen: full screen, the QR to hand, and no browser in the way.",
       "cta": "Install the app"

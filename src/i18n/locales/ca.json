@@ -675,6 +675,14 @@
     "later": "Ara no, ja m'espavilaré",
     "laterWarning": "Pots seguir aquí al navegador. Quan la posis a la pantalla d'inici hauràs de tornar a entrar un cop, perquè l'iPhone les tracta com dues coses diferents.",
     "iconPreview": "Així quedarà entre les teves apps. La icona vermella es veu de lluny quan la busques amb pressa.",
+    "card": {
+      "eyebrow": "Per tenir-la a mà",
+      "title": "Posa-la a la pantalla d'inici",
+      "body": "Dos tocs al Safari i s'obre a l'instant, a pantalla completa i amb el QR a punt encara que no hi hagi cobertura.",
+      "cta": "Mostra'm com",
+      "later": "Ara no",
+      "again": "Quan l'obris des de la icona, entra un cop més amb Google i amb el mateix compte. L'iPhone guarda l'app i el Safari per separat, però el compte és el mateix."
+    },
     "android": {
       "lede": "Un toc i la tens a la pantalla d'inici: a pantalla completa, amb el QR a mà i sense passar pel navegador.",
       "cta": "Instal·la l'app"

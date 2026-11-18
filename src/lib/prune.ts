@@ -16,8 +16,11 @@
  * amb mala cobertura— es poden desar en l'ordre contrari al que es van pujar, i
  * la que escombra la carpeta l'última no pot treure la que la fila acaba
  * d'apuntar. El que és més nou que el que es guarda es deixa: si sobra, ho
- * recull l'escombrada diària. Quan no es guarda res, o el que es guarda no és a
- * la carpeta, la vora és uns minuts enrere pel mateix motiu.
+ * recull l'escombrada diària.
+ *
+ * Quan no es guarda res —treure la foto, tornar a la de Google, esborrar
+ * l'esdeveniment— no hi ha cap fila que pugui quedar apuntant a res, i se'n va
+ * tota la carpeta.
  */
 
 export interface Listed {
@@ -27,24 +30,14 @@ export interface Listed {
   readonly created_at?: string | null
 }
 
-export const RECENT_MS = 5 * 60 * 1000
-
-export function staleIn(
-  folder: string,
-  listed: readonly Listed[],
-  keep: string | null,
-  now: number,
-): string[] {
+export function staleIn(folder: string, listed: readonly Listed[], keep: string | null): string[] {
   const files = listed.filter((entry) => entry.id !== null)
   const kept = files.find((entry) => `${folder}/${entry.name}` === keep)
-  const keptAt = Date.parse(kept?.created_at ?? '')
-  const edge = Number.isNaN(keptAt) ? now - RECENT_MS : keptAt
+  if (kept === undefined) return files.map((entry) => `${folder}/${entry.name}`)
 
-  return (
-    files
-      // Sense data no se sap si és més vell, i el que no se sap no s'esborra.
-      .filter((entry) => Date.parse(entry.created_at ?? '') < edge)
-      .map((entry) => `${folder}/${entry.name}`)
-      .filter((path) => path !== keep)
-  )
+  // Sense data no se sap què és més vell, i el que no se sap no s'esborra.
+  const keptAt = Date.parse(kept.created_at ?? '')
+  return files
+    .filter((entry) => Date.parse(entry.created_at ?? '') < keptAt)
+    .map((entry) => `${folder}/${entry.name}`)
 }

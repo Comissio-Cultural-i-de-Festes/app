@@ -45,7 +45,7 @@ describe('la forma curta', () => {
     })
   })
 
-  it('amb menys d\'un dia, les hores i els minuts', () => {
+  it("amb menys d'un dia, les hores i els minuts", () => {
     expect(countdownShape(countdown(at(5 * HOUR + 9 * MINUTE), NOW))).toEqual({
       kind: 'hours',
       hours: 5,
@@ -53,7 +53,7 @@ describe('la forma curta', () => {
     })
   })
 
-  it('amb menys d\'una hora, només els minuts', () => {
+  it("amb menys d'una hora, només els minuts", () => {
     // «0 h 12 m» fa pensar que falta alguna cosa; «12 m» no.
     expect(countdownShape(countdown(at(12 * MINUTE), NOW))).toEqual({
       kind: 'minutes',
@@ -61,7 +61,7 @@ describe('la forma curta', () => {
     })
   })
 
-  it('i l\'últim minut segueix sent un minut', () => {
+  it("i l'últim minut segueix sent un minut", () => {
     // Un zero que no és `done` es llegeix com una pantalla encallada.
     expect(countdownShape(countdown(at(20_000), NOW))).toEqual({ kind: 'minutes', minutes: 1 })
   })

@@ -100,6 +100,12 @@
       "noCodeValue": "No code",
       "noCodeAside": "The committee approves it"
     },
+    "app": {
+      "title": "Sign in",
+      "lede": "Sign in with your Google account. If you already got in with an invitation in Safari, you're in.",
+      "reassurance": "We only take your name, email and photo from the account. If you still need approving, you'll see it at the top once you're in.",
+      "hasCodeHint": "Type it into the notice at the top once you're in."
+    },
     "invite": {
       "label": "Invitation",
       "expiresSoon": "Expires shortly",

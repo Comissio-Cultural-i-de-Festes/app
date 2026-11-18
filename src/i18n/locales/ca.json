@@ -673,6 +673,11 @@
     "later": "Ara no, ja m'espavilaré",
     "laterWarning": "Pots seguir aquí al navegador. Quan la posis a la pantalla d'inici hauràs de tornar a entrar un cop, perquè l'iPhone les tracta com dues coses diferents.",
     "iconPreview": "Així quedarà entre les teves apps. La icona vermella es veu de lluny quan la busques amb pressa.",
+    "opened": {
+      "title": "Ara, des de la icona",
+      "body": "Ja pots tancar el Safari. Obre l'app des de la icona de la pantalla d'inici i entra-hi des d'allà: és on es queda la sessió.",
+      "stay": "Prefereixo seguir al navegador"
+    },
     "card": {
       "eyebrow": "Per tenir-la a mà",
       "title": "Posa-la a la pantalla d'inici",

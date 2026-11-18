@@ -673,6 +673,11 @@
     "later": "Not now, I'll manage",
     "laterWarning": "You can carry on here in the browser. Once you add it to your home screen you'll sign in one more time, because the iPhone treats them as two separate things.",
     "iconPreview": "This is how it will sit among your apps. The red icon is easy to spot when you are in a hurry.",
+    "opened": {
+      "title": "Now open it from the icon",
+      "body": "You can close Safari now. Open the app from its icon on your home screen and sign in there: that is where your session stays.",
+      "stay": "I'd rather stay in the browser"
+    },
     "card": {
       "eyebrow": "Keep it handy",
       "title": "Put it on your home screen",

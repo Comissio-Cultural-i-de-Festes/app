@@ -133,7 +133,12 @@ function encodingFor(sourceType: string): string {
  * camí ràpid i el rebutjaria el servidor — o pitjor, s'hi desaria amb un tipus
  * declarat que no és el que té a dins. Aquí sempre en surt un JPEG.
  */
-async function encodeJpeg(source: Blob, maxEdge: number, quality: number): Promise<Blob> {
+async function encodeJpeg(
+  source: Blob,
+  maxEdge: number,
+  quality: number,
+  square = false,
+): Promise<Blob> {
   // Un HEIC del carret fora de Safari: que arribi com a `UnreadableImage` i no
   // com un error anònim que la pantalla confondria amb una xarxa caiguda.
   let bitmap: ImageBitmap
@@ -142,15 +147,22 @@ async function encodeJpeg(source: Blob, maxEdge: number, quality: number): Promi
   } catch (cause) {
     throw new UnreadableImage(cause)
   }
-  const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height))
+  // Retall central quadrat si es demana: el costat curt mana i es perd el
+  // sobrant de l'altre, repartit a banda i banda.
+  const side = square ? Math.min(bitmap.width, bitmap.height) : null
+  const cropW = side ?? bitmap.width
+  const cropH = side ?? bitmap.height
+  const cropX = Math.floor((bitmap.width - cropW) / 2)
+  const cropY = Math.floor((bitmap.height - cropH) / 2)
+  const scale = Math.min(1, maxEdge / Math.max(cropW, cropH))
 
   const canvas = document.createElement('canvas')
-  canvas.width = Math.max(1, Math.round(bitmap.width * scale))
-  canvas.height = Math.max(1, Math.round(bitmap.height * scale))
+  canvas.width = Math.max(1, Math.round(cropW * scale))
+  canvas.height = Math.max(1, Math.round(cropH * scale))
 
   const context = canvas.getContext('2d')
   if (context === null) throw new Error('no canvas')
-  context.drawImage(bitmap, 0, 0, canvas.width, canvas.height)
+  context.drawImage(bitmap, cropX, cropY, cropW, cropH, 0, 0, canvas.width, canvas.height)
   bitmap.close()
 
   const blob = await new Promise<Blob | null>((resolve) => {
@@ -163,6 +175,23 @@ async function encodeJpeg(source: Blob, maxEdge: number, quality: number): Promi
 /** La foto de galeria, a mida de mirar-la i no a mida de càmera. */
 export function galleryImage(file: Blob): Promise<Blob> {
   return encodeJpeg(file, MAX_EDGE, JPEG_QUALITY)
+}
+
+/**
+ * L'avatar: un quadrat de 384 px, JPEG, sense metadades.
+ *
+ * Es pinta sempre en un cercle amb `object-cover`, de 20 a 40 px a les llistes
+ * i 112 a la fitxa d'edició del perfil. 384 és els 112 px de la mida més gran a
+ * 3x (336) arrodonits cap amunt; a les llistes en sobra el triple. Pujar-lo a
+ * 1600 px com una foto de galeria feia pesar l'objecte quatre-cents kB per a
+ * una cara de 40. Es retalla en quadrat aquí, i no en deixar-ho a `object-cover`,
+ * perquè el que sobra no ha de viatjar.
+ */
+const AVATAR_EDGE = 384
+const AVATAR_QUALITY = 0.8
+
+export function avatarImage(file: Blob): Promise<Blob> {
+  return encodeJpeg(file, AVATAR_EDGE, AVATAR_QUALITY, true)
 }
 
 /**
@@ -223,7 +252,7 @@ export async function uploadCover(file: File, eventId: string): Promise<string> 
  * under the same name.
  *
  * The bucket refuses PNG, so anything that is not already webp is called what
- * `shrinkImage` will have encoded it as.
+ * `avatarImage` will have encoded it as (always JPEG).
  */
 export async function uploadAvatar(body: Blob, userId: string): Promise<string> {
   const type = body.type === 'image/webp' ? 'image/webp' : 'image/jpeg'

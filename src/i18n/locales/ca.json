@@ -1383,7 +1383,7 @@
       "validateTitle": "Validar la gimcana",
       "inQueue_one": "{{count}} a la cua",
       "inQueue_other": "{{count}} a la cua",
-      "photoGone": "La foto ja no hi és: les proves s’esborren trenta dies després de tancar la gimcana.",
+      "photoGone": "La foto ja no hi és: les fotos de la gimcana s’esborren trenta dies després de tancar-la.",
       "queueEmpty": "Cap foto esperant. Torneu-hi d’aquí a una estona.",
       "yes": "Val: +{{n}}",
       "no": "No val",

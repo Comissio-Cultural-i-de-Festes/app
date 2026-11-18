@@ -5,6 +5,12 @@
 -- tal com era. Desfer-ho vol dir que una activitat gratuïta torna a sortir al
 -- rebedor amb tots els apuntats comptats com a feina pendent. Només val la pena
 -- si la 69 trenca una altra cosa.
+--
+-- ORDRE: LA 89 VA PRIMER. La 89 va tornar a escriure `junta_home()` perquè la
+-- porta mostrés tots els esdeveniments de la finestra i una casa rural tota
+-- l'estada. Aplicar aquest fitxer sobre una base amb la 89 la desfà en silenci
+-- —`create or replace` no avisa de res— i la casa rural torna a desaparèixer
+-- de la porta l'endemà d'arribar. Desfés la 89 abans.
 
 create or replace function public.junta_home()
 returns jsonb

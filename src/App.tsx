@@ -142,6 +142,14 @@ const JuntaHome = lazy(() =>
  * they sign in is the only order that does not end with somebody opening the
  * icon and finding themselves signed out.
  *
+ * Unless the link carries an invitation. The code lives only in the URL, and
+ * the icon opens `/` in a storage jar that has never seen it, so installing
+ * first meant arriving at the icon's door as a stranger. With a code the door
+ * goes first, the code is redeemed right there in Safari, and the account is
+ * active on the server before anybody installs anything; from the icon it
+ * takes one more Google sign-in and nothing else. `InstallCard` offers the
+ * install afterwards, on the home screen.
+ *
  * It is a prompt, not a wall: skipping it goes straight on to the door.
  */
 /**
@@ -170,16 +178,21 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null)
   const { pathname } = useLocation()
   const [ready, setReady] = useState(false)
-  const [promptInstall, setPromptInstall] = useState(() => shouldPromptInstall())
+  // Llegit en muntar, abans que el bescanvi l'esborri de la barra d'adreces. A
+  // partir d'aquí ja hi ha sessió, i la pantalla d'instal·lació no torna.
+  const [invited] = useState(() => readInviteCode() !== null)
+  const [promptInstall, setPromptInstall] = useState(() =>
+    shouldPromptInstall(Date.now(), { invited }),
+  )
 
   // A Android el `beforeinstallprompt` sol arribar després del muntatge, i
   // aquest estat es llegeix un sol cop: sense tornar-hi, la pantalla no
   // sortiria mai on hi ha diàleg natiu.
   useEffect(() => {
     return onNativeInstallPrompt(() => {
-      setPromptInstall(shouldPromptInstall())
+      setPromptInstall(shouldPromptInstall(Date.now(), { invited }))
     })
-  }, [])
+  }, [invited])
 
   useEffect(() => {
     void supabase.auth.getSession().then(({ data }) => {

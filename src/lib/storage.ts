@@ -136,9 +136,12 @@ function encodingFor(sourceType: string): string {
 async function encodeJpeg(source: Blob, maxEdge: number, quality: number): Promise<Blob> {
   // Un HEIC del carret fora de Safari: que arribi com a `UnreadableImage` i no
   // com un error anònim que la pantalla confondria amb una xarxa caiguda.
-  const bitmap = await createImageBitmap(source).catch((cause: unknown) => {
+  let bitmap: ImageBitmap
+  try {
+    bitmap = await createImageBitmap(source)
+  } catch (cause) {
     throw new UnreadableImage(cause)
-  })
+  }
   const scale = Math.min(1, maxEdge / Math.max(bitmap.width, bitmap.height))
 
   const canvas = document.createElement('canvas')

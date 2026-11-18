@@ -102,8 +102,8 @@
     },
     "app": {
       "title": "Entra",
-      "lede": "Entra amb el teu compte de Google. Si ja vas entrar amb una invitació al Safari, ja hi ets.",
-      "reassurance": "Del compte només agafem el nom, el correu i la foto. Si encara t'han d'acceptar, un cop dins ho veuràs a dalt de tot.",
+      "lede": "Entra amb el teu compte de Google. Si ja t'han acceptat, entra i ja està; si no, un cop dins veuràs com va.",
+      "reassurance": "Del compte només agafem el nom, el correu i la foto. Si encara no t'han acceptat, la junta et donarà l'accés a mà, normalment el mateix dia.",
       "hasCodeHint": "Escriu-lo a l'avís de dalt un cop dins."
     },
     "invite": {

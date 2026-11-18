@@ -33,9 +33,10 @@ import { INVITE_PARAM, readInviteCode, useInvite } from './useInvite'
  * sees now that the door comes before the install— came back pending.
  *
  * A third face, from the home-screen icon with no code: the icon opens `/` and
- * never carries one, and whoever is there most likely came in through Safari
- * with an invitation already. "Ask for access" would be telling an active
- * member the junta still has to let them in.
+ * never carries one, and whoever is there may well have come in through the
+ * browser with an invitation already —on an iPhone or an Android alike—.
+ * "Ask for access" would be telling an active member the junta still has to
+ * let them in, so the door says both things without guessing which.
  *
  * Google identifies people; it does not admit them. The gate is still the
  * invitation, redeemed by public.redeem_invite() once there is a session. An

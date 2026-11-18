@@ -115,4 +115,34 @@ describe('useStalled', () => {
     rerender({ waiting: true, round: 1 })
     expect(result.current).toBe(false)
   })
+
+  it('un rellotge compartit compta des del primer que espera', () => {
+    const first = renderHook(() => useStalled(true, 0, STALL_MS, 'prova'))
+    act(() => {
+      vi.advanceTimersByTime(STALL_MS - 1000)
+    })
+    const second = renderHook(() => useStalled(true, 0, STALL_MS, 'prova'))
+    act(() => {
+      vi.advanceTimersByTime(1000)
+    })
+    expect(first.result.current).toBe(true)
+    expect(second.result.current).toBe(true)
+  })
+
+  it('quan tots els que el compartien se’n van, el següent comença de zero', () => {
+    const first = renderHook(() => useStalled(true, 0, STALL_MS, 'prova'))
+    act(() => {
+      vi.advanceTimersByTime(STALL_MS - 1000)
+    })
+    first.unmount()
+    act(() => {
+      vi.advanceTimersByTime(60_000)
+    })
+
+    const again = renderHook(() => useStalled(true, 0, STALL_MS, 'prova'))
+    act(() => {
+      vi.advanceTimersByTime(1000)
+    })
+    expect(again.result.current).toBe(false)
+  })
 })

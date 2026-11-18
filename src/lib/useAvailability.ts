@@ -54,14 +54,35 @@ export interface View {
  * `round` és per reiniciar el compte sense que `waiting` hagi canviat, que és
  * el que fa un reintent amb la petició encara a l'aire.
  */
-const clocks = new Map<string, number>()
+/**
+ * Quan va començar l'espera, i quants l'estan comptant.
+ *
+ * El comptador és perquè l'entrada se'n vagi amb l'últim que la comparteix. Sense
+ * ell, si tots es desmuntaven a mig esperar —sortir de la junta, per exemple—
+ * l'hora de començar quedava aquí, i el pròxim que s'hi muntava naixia ja
+ * «no contesta», hores després.
+ */
+interface Clock {
+  since: number
+  users: number
+}
 
-export function useStalled(
-  waiting: boolean,
-  round = 0,
-  ms = STALL_MS,
-  clock?: string,
-): boolean {
+const clocks = new Map<string, Clock>()
+
+function join(clock: string): Clock {
+  const shared = clocks.get(clock) ?? { since: Date.now(), users: 0 }
+  shared.users += 1
+  clocks.set(clock, shared)
+  return shared
+}
+
+function leave(clock: string, shared: Clock): void {
+  shared.users -= 1
+  // Només si encara és la mateixa: un reintent l'ha pogut substituir.
+  if (shared.users <= 0 && clocks.get(clock) === shared) clocks.delete(clock)
+}
+
+export function useStalled(waiting: boolean, round = 0, ms = STALL_MS, clock?: string): boolean {
   const episode = waiting ? round : -1
   const [seen, setSeen] = useState(episode)
   const [stalled, setStalled] = useState(false)
@@ -75,15 +96,9 @@ export function useStalled(
   }
 
   useEffect(() => {
-    if (episode < 0) {
-      if (clock !== undefined) clocks.delete(clock)
-      return
-    }
-    let since = Date.now()
-    if (clock !== undefined) {
-      since = clocks.get(clock) ?? since
-      clocks.set(clock, since)
-    }
+    if (episode < 0) return
+    const shared = clock === undefined ? null : join(clock)
+    const since = shared?.since ?? Date.now()
     const id = setTimeout(
       () => {
         setStalled(true)
@@ -92,6 +107,7 @@ export function useStalled(
     )
     return () => {
       clearTimeout(id)
+      if (clock !== undefined && shared !== null) leave(clock, shared)
     }
   }, [episode, ms, clock])
 

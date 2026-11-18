@@ -151,7 +151,10 @@
     "rateLimited": "Too many tries in a row. Give it a couple of minutes.",
     "behindServer": "This is not on the server yet: the app was deployed ahead of the database. If you are on the committee, push the migrations; if not, tell them.",
     "avisSostre": "This course has already taken every point the cap allows for this person. Raise “Most points per course” on The scale, or log the warning with no points.",
-    "avisForaDelCurs": "Today falls inside no course, and with no course there is no cap to count. Open the course under “The ranking periods”, or log the warning with no points."
+    "avisForaDelCurs": "Today falls inside no course, and with no course there is no cap to count. Open the course under “The ranking periods”, or log the warning with no points.",
+    "avisPropi": "Nobody can give, withdraw or edit a warning of their own. Someone else on the junta has to do it.",
+    "avisValidacioPropia": "You proposed this warning: someone else on the junta has to confirm it.",
+    "avisJaResolt": "Someone else on the junta has already confirmed or turned it down. Reload the screen to see it."
   },
   "escola": {
     "politecnica": "Polytechnic",
@@ -961,11 +964,25 @@
         "mesuraAdd": "Add the action taken",
         "mesuraEdit": "Edit the action taken",
         "mesuraClear": "Leave it blank to remove it. The person who got the warning will read it.",
-        "mesuraPaused": "No connection. It will save on its own when it is back."
+        "mesuraPaused": "No connection. It will save on its own when it is back.",
+        "proposat": "Proposed · someone else on the junta still has to confirm it",
+        "proposatPerMi": "You proposed it: someone else on the junta has to confirm it.",
+        "proposatMeu": "It is yours: someone else on the junta will confirm it or turn it down.",
+        "valida": "Confirm it",
+        "validaSurePunts": "{{nombre}} will lose {{punts}} points, it will count towards the steps and {{nombre}} will get a notification on their phone.",
+        "validaSureSensePunts": "No points will be taken. It will count towards the steps, and {{nombre}} will see it on their profile and get a notification on their phone.",
+        "validaCta": "Yes, confirm it",
+        "rebutja": "Turn it down",
+        "rebutjaSure": "It will never count and {{nombre}} will not hear about it. Write down why it is turned down.",
+        "rebutjaNote": "Why it is turned down",
+        "rebutjaPlaceholder": "That is not quite how it went",
+        "rebutjatOn": "Turned down on {{dia}}",
+        "paused": "No connection. It will go through on its own once the network is back: do not close the screen.",
+        "propi": "You cannot give yourself a warning. If one is needed, someone else on the junta has to propose it."
       },
       "avis": {
-        "title": "Record a warning",
-        "lede": "It is written down and never deleted. It may take points or not: you can warn somebody without touching the ranking.",
+        "title": "Propose a warning",
+        "lede": "It is written down and never deleted. It does not count until someone else on the junta confirms it. It may take points or not: you can warn somebody without touching the ranking.",
         "tipus": "What happened",
         "tipusHint": "The catalogue lives in \"The scale\".",
         "tipusNone": "Pick one",
@@ -985,16 +1002,25 @@
         "event": "Which night",
         "eventHint": "Optional. If it happened at a junta meeting, the warning stays with it and the points go without an event.",
         "eventNone": "No particular one",
-        "save": "Record the warning",
-        "sureTitle": "Before recording it",
-        "surePoints": "{{nombre}} will lose {{punts}} points and drop in the ranking.",
+        "save": "Propose the warning",
+        "sureTitle": "Before proposing it",
+        "surePoints": "Once it is confirmed, {{nombre}} will lose {{punts}} points and drop in the ranking.",
         "sureNoPoints": "No points will be taken: {{nombre}} will not move in the ranking.",
-        "sureEscalo": "With this warning, {{nombre}} reaches the “{{estat}}” step: {{queFer}}.",
-        "sureSeen": "{{nombre}} will see it on their profile with the reason you wrote, and the row is never deleted.",
-        "sureCta": "Yes, record it",
-        "paused": "No connection. It will be recorded on its own once it is back.",
-        "done": "Recorded: {{tipus}} for {{nombre}}."
+        "sureEscalo": "If it is confirmed, {{nombre}} reaches the “{{estat}}” step: {{queFer}}.",
+        "sureSeen": "It will not count until someone else on the junta confirms it. Then {{nombre}} will see it on their profile with the reason you wrote and get a notification on their phone. The row is never deleted.",
+        "sureCta": "Yes, propose it",
+        "paused": "No connection. It will be proposed on its own once it is back.",
+        "done": "Proposed: {{tipus}} for {{nombre}}. Someone else on the junta still has to confirm it."
       }
+    },
+    "proposats": {
+      "title": "Warnings to confirm",
+      "lede": "A warning does not count until someone on the junta who neither proposed it nor received it confirms it.",
+      "count_one": "{{count}} waiting",
+      "count_other": "{{count}} waiting",
+      "none": "No warnings to confirm.",
+      "per": "Proposed by {{nom}} on {{dia}}",
+      "perSenseNom": "Proposed on {{dia}}"
     },
     "pendents": {
       "title": "Pending warnings",
@@ -1024,7 +1050,7 @@
       "enllaca": "Link by hand",
       "cerca": "Find the member by name",
       "capSoci": "No active member with that name.",
-      "enllacaSure": "{{nom}}'s warning will become {{soci}}'s, dated the day it happened ({{dia}}), and {{soci}} will see it on their profile.",
+      "enllacaSure": "{{nom}}'s warning will become {{soci}}'s, dated the day it happened ({{dia}}). It will stay proposed: {{soci}} will see it on their profile once someone on the junta who did not write it confirms it.",
       "enllacaCta": "Yes, link it",
       "form": {
         "title": "Pending warning",
@@ -1203,6 +1229,9 @@
       "pendentsFeina_one": "pending warning needs a decision",
       "pendentsFeina_other": "pending warnings need a decision",
       "pendentsFeinaSub": "Ambiguous or blocked: they could not link on their own",
+      "perValidar_one": "warning waiting for someone else to confirm it",
+      "perValidar_other": "warnings waiting for someone else to confirm them",
+      "perValidarSub": "Proposed by another junta member: the second person is missing",
       "now": "What is happening now",
       "soon": "Coming up",
       "soonCount": "{{count}} on the calendar",

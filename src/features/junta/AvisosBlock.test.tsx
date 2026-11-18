@@ -36,6 +36,16 @@ vi.mock('react-i18next', () => ({
   }),
 }))
 
+// Qui mira la fitxa és algú de la junta que no és la persona: si fos la mateixa,
+// no hi hauria cap botó per prémer (migració 93).
+const JUNTA = '00000000-0000-4000-8000-0000000000c1'
+const PROPOSA = '00000000-0000-4000-8000-0000000000c2'
+let jo = JUNTA
+
+vi.mock('@/features/session/useUserId', () => ({
+  useUserId: () => jo,
+}))
+
 vi.mock('./useNormativa', () => ({
   useNormativa: () => ({
     pesos: { 1: 1, 2: 2, 3: 4 },
@@ -47,14 +57,16 @@ vi.mock('./useNormativa', () => ({
 }))
 
 const retiraAvis = vi.fn<(id: string, nota: string) => Promise<void>>()
+const validaAvis = vi.fn<(id: string) => Promise<void>>()
 
 vi.mock('./avisosApi', async (original) => {
   const real = await original<typeof AvisosApi>()
   return {
     ...real,
-    fetchAvisos: () => Promise.resolve(FILES),
+    fetchAvisos: () => Promise.resolve(files),
     fetchAvisTipus: () => Promise.resolve([]),
     retiraAvis: (id: string, nota: string) => retiraAvis(id, nota),
+    validaAvis: (id: string) => validaAvis(id),
   }
 })
 
@@ -68,7 +80,10 @@ const FILES: AvisosApi.AvisRow[] = [
     gravetat: 3,
     nota: 'No va venir al muntatge que havia dit que faria',
     event_id: null,
+    created_by: PROPOSA,
     created_at: '2026-09-18T20:00:00Z',
+    validat_at: '2026-09-19T09:00:00Z',
+    punts: -25,
     retirat_at: null,
     retirat_nota: null,
     mesura_presa: null,
@@ -76,9 +91,21 @@ const FILES: AvisosApi.AvisRow[] = [
   },
 ]
 
+let files = FILES
+
+const PROPOSAT: AvisosApi.AvisRow = {
+  ...FILES[0]!,
+  id: '00000000-0000-4000-8000-0000000000b2',
+  nota: 'Va marxar amb les claus del local',
+  validat_at: null,
+  points_log: null,
+}
+
 afterEach(() => {
   onlineManager.setOnline(true)
   vi.clearAllMocks()
+  jo = JUNTA
+  files = FILES
 })
 
 function munta() {
@@ -126,5 +153,52 @@ describe('AvisosBlock, retirant un avís', () => {
       expect(retiraAvis).toHaveBeenCalledTimes(1)
     })
     expect(screen.queryByText('junta.soci.avisos.withdrawPaused')).toBeNull()
+  })
+})
+
+describe('AvisosBlock, un avís proposat (migració 93)', () => {
+  it('a una altra persona de la junta li ofereix validar-lo, i valida aquell', async () => {
+    validaAvis.mockResolvedValue()
+    files = [PROPOSAT]
+    munta()
+
+    expect(await screen.findByText('junta.soci.avisos.proposat')).toBeInTheDocument()
+    // Un proposat no es retira: es valida o es rebutja.
+    expect(screen.queryByRole('button', { name: 'junta.soci.avisos.withdraw' })).toBeNull()
+
+    fireEvent.click(screen.getByRole('button', { name: 'junta.soci.avisos.valida' }))
+    fireEvent.click(screen.getByRole('button', { name: 'junta.soci.avisos.validaCta' }))
+
+    await waitFor(() => {
+      expect(validaAvis).toHaveBeenCalledWith(PROPOSAT.id)
+    })
+  })
+
+  it('a qui l’ha proposat no li ofereix validar-lo, però sí rebutjar-lo', async () => {
+    jo = PROPOSA
+    files = [PROPOSAT]
+    munta()
+
+    expect(await screen.findByText('junta.soci.avisos.proposatPerMi')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'junta.soci.avisos.valida' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'junta.soci.avisos.rebutja' })).toBeInTheDocument()
+  })
+
+  it('a la seva pròpia fitxa, ni botons ni formulari', async () => {
+    jo = SOCI
+    files = [PROPOSAT, FILES[0]!]
+    munta()
+
+    expect(await screen.findByText('junta.soci.avisos.proposatMeu')).toBeInTheDocument()
+    expect(screen.getByText('junta.soci.avisos.propi')).toBeInTheDocument()
+    for (const nom of [
+      'junta.soci.avisos.valida',
+      'junta.soci.avisos.rebutja',
+      'junta.soci.avisos.withdraw',
+      'junta.soci.avisos.mesuraAdd',
+      'junta.soci.avis.save',
+    ]) {
+      expect(screen.queryByRole('button', { name: nom }), nom).toBeNull()
+    }
   })
 })

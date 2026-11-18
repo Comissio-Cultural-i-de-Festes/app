@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
+import { useUserId } from '@/features/session/useUserId'
 import { formatDayMonth } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
@@ -117,6 +118,7 @@ function Fila({ row }: { readonly row: PendentRow }) {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
   const client = useQueryClient()
+  const jo = useUserId()
   const [obert, setObert] = useState<'retira' | 'enllaca' | null>(null)
   const [nota, setNota] = useState('')
   const [cerca, setCerca] = useState('')
@@ -172,7 +174,11 @@ function Fila({ row }: { readonly row: PendentRow }) {
     agulla === ''
       ? []
       : (members.data ?? [])
-          .filter((m) => m.estat === 'actiu' && m.nombre.toLowerCase().includes(agulla))
+          // Tu no hi surts: enllaçar-te'l seria proposar-te un avís a tu mateix,
+          // i `enllaca_avis_pendent()` ho refusa (migració 93).
+          .filter(
+            (m) => m.estat === 'actiu' && m.id !== jo && m.nombre.toLowerCase().includes(agulla),
+          )
           .slice(0, 6)
 
   const motiu =

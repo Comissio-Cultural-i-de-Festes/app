@@ -10,8 +10,8 @@ import { rpc, supabase } from '@/lib/supabase'
  * el que escriu aquí baixa per una RPC `security definer`, i per això aquest
  * fitxer no té ni un sol `.insert()`.
  *
- * QUI LLEGEIX QUÈ. `avisos` té una sola política: els teus o tots si ets de la
- * junta. O sigui que `fetchAvisos(userId)` filtra per `user_id` encara que la
+ * QUI LLEGEIX QUÈ. `avisos` té una sola política: els teus VALIDATS, o tots si
+ * ets de la junta (migració 93). O sigui que `fetchAvisos(userId)` filtra per `user_id` encara que la
  * política ja ho faria per a un soci —és la mateixa raó que hi ha escrita a
  * `profile/api.ts`: recolzar-se en l'RLS per acotar funciona perfectament per a
  * un soci i ensenya a algú de la junta el registre sencer com si fos el seu.
@@ -45,7 +45,19 @@ export interface AvisRow {
    */
   readonly mesura_presa: string | null
   readonly event_id: string | null
+  /** Qui l'ha proposat. No el pot validar (migració 93). */
+  readonly created_by: string | null
   readonly created_at: string
+  /**
+   * Null vol dir proposat: no compta, no ha restat res i el soci no el veu.
+   * L'omple `valida_avis()`, que és qui resta els punts.
+   */
+  readonly validat_at: string | null
+  /**
+   * Els punts que l'avís resta o restarà. En un proposat és l'únic lloc on
+   * són; en un validat, la fila del llibre major és la que mana i val el mateix.
+   */
+  readonly punts: number
   readonly retirat_at: string | null
   readonly retirat_nota: string | null
   /**
@@ -61,7 +73,7 @@ export interface AvisRow {
 }
 
 /**
- * Les quatre columnes que el comptador necessita, i cap més.
+ * Les cinc columnes que el comptador necessita, i cap més.
  *
  * SENSE LA NOTA, i això és el motiu pel qual aquesta lectura no reaprofita
  * `AvisRow`. La llista de socis només ha de pintar un número al costat d'un
@@ -72,6 +84,8 @@ export interface AvisPeriode {
   readonly user_id: string
   readonly gravetat: number
   readonly created_at: string
+  /** Null vol dir proposat: encara no compta (migració 93). */
+  readonly validat_at: string | null
   readonly retirat_at: string | null
 }
 
@@ -97,14 +111,17 @@ export const avisosKeys = {
   // d'avisar algú les ha de tornar a demanar totes: amb la clau sencera
   // n'invalidaria una i deixaria la del curs passat dient el que deia.
   comptesTots: () => ['junta', 'avisos', 'comptes'] as const,
+  // Penja de l'arrel `['junta', 'avisos']`, que és la que invalida l'enllaç d'un
+  // pendent: un pendent enllaçat neix proposat i ha de sortir a la llista.
+  proposats: () => ['junta', 'avisos', 'proposats'] as const,
 }
 
 const TIPUS_COLS = 'clau, gravetat, punts_suggerits, etiqueta, actiu, ordre'
 
 const AVIS_COLS =
-  'id, user_id, tipus, gravetat, nota, mesura_presa, event_id, created_at, retirat_at, retirat_nota, ' +
-  'points_log!avisos_points_log_id_fkey(puntos)'
-const COMPTE_COLS = 'user_id, gravetat, created_at, retirat_at'
+  'id, user_id, tipus, gravetat, nota, mesura_presa, event_id, created_by, created_at, validat_at, ' +
+  'punts, retirat_at, retirat_nota, points_log!avisos_points_log_id_fkey(puntos)'
+const COMPTE_COLS = 'user_id, gravetat, created_at, validat_at, retirat_at'
 
 /**
  * El catàleg sencer, retirats inclosos.
@@ -152,12 +169,17 @@ export async function fetchAvisos(
   userId: string,
   desDe: string | null = null,
   finsA: string | null = null,
+  nomesValidats = false,
 ): Promise<AvisRow[]> {
   let q = supabase
     .from('avisos')
     .select(AVIS_COLS)
     .eq('user_id', userId)
     .order('created_at', { ascending: false })
+  // EL PERFIL ELS VOL VALIDATS, i la política no basta per a tothom: a un soci
+  // li amaga els proposats, però algú de la junta que mira el seu propi perfil
+  // els llegiria tots —és el mateix motiu que el `user_id` d'aquí dalt—.
+  if (nomesValidats) q = q.not('validat_at', 'is', null)
   if (desDe !== null) q = q.gte('created_at', desDe)
   // Final exclusiu, com el `<` de `periode_curs()`: el primer instant del curs
   // que ve és del curs que ve.
@@ -192,8 +214,43 @@ export async function fetchAvisComptes(desDe: string | null): Promise<AvisPeriod
   return unwrapAs<AvisPeriode[]>(desDe === null ? q : q.gte('created_at', desDe))
 }
 
+/** Un proposat, amb el nom de qui el rep i de qui l'ha proposat. */
+export interface AvisProposat extends AvisRow {
+  readonly persona: { readonly nombre: string } | null
+  readonly proposa: { readonly nombre: string } | null
+}
+
 /**
- * Registrar-ne un.
+ * Els que esperen validació, de tothom: la llista del rebedor de `/junta`.
+ *
+ * NOMÉS LA JUNTA EN TREU RES. La política d'`avisos` amaga els proposats a
+ * tothom qui no és de la junta, també a qui els rep; per a un soci això torna
+ * buit, que és exactament el que ha de tornar.
+ *
+ * SENSE FITAR. Els proposats són pocs per construcció —esperen que algú els
+ * miri— i un que porti mesos esperant és precisament el que la junta ha de
+ * veure, no el que una finestra hauria d'amagar.
+ */
+export async function fetchProposats(): Promise<AvisProposat[]> {
+  return unwrapAs<AvisProposat[]>(
+    supabase
+      .from('avisos')
+      .select(
+        `${AVIS_COLS}, persona:profiles!avisos_user_id_fkey(nombre), ` +
+          'proposa:profiles!avisos_created_by_fkey(nombre)',
+      )
+      .is('validat_at', null)
+      .is('retirat_at', null)
+      .order('created_at', { ascending: true }),
+  )
+}
+
+/**
+ * Proposar-ne un.
+ *
+ * NO COMPTA ENCARA (migració 93): `avisa()` el deixa proposat, sense restar res,
+ * fins que un altre membre de la junta el valida amb `validaAvis`. Refusa amb
+ * 42501 i HINT `avis_propi` si la persona és qui crida.
  *
  * VA PEL `rpc()` GENÈRIC i no pel tipat, pel mateix motiu que `adjustPoints`: el
  * generador escriu `p_event_id: string` per a un paràmetre que admet null, i un
@@ -225,7 +282,20 @@ export async function avisa(avis: {
 }
 
 /**
- * I retirar-ne un, que no l'esborra.
+ * Validar-ne un de proposat, que és el que el fa comptar: resta els punts,
+ * l'ensenya al perfil de la persona i li envia la notificació.
+ *
+ * No el pot validar ni qui l'ha proposat ni qui el rep: tots dos tornen 42501
+ * amb un HINT que `errorKey` diu pel seu nom.
+ */
+export async function validaAvis(avisId: string): Promise<void> {
+  const { error } = await supabase.rpc('valida_avis', { p_avis_id: avisId })
+  if (error) throw new DbError(error)
+}
+
+/**
+ * I retirar-ne un, que no l'esborra. Sobre un proposat, és rebutjar-lo: no hi
+ * ha res a tornar.
  *
  * La fila es queda i surt ratllada; el que passa és que `retirat_at` s'omple i,
  * si l'avís havia restat punts, `retira_avis()` escriu la fila compensatòria al

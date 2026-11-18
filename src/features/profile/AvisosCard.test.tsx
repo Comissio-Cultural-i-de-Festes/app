@@ -57,10 +57,15 @@ vi.mock('@/features/junta/avisosApi', async (original) => {
   const real = await original<typeof AvisosApi>()
   return {
     ...real,
-    fetchAvisos: () => Promise.resolve(FILES),
+    fetchAvisos: (...args: unknown[]) => {
+      demanat.push(args)
+      return Promise.resolve(FILES)
+    },
     fetchAvisTipus: () => Promise.resolve([]),
   }
 })
+
+const demanat: unknown[][] = []
 
 const SOCI = '00000000-0000-4000-8000-0000000000a1'
 
@@ -72,7 +77,10 @@ const FILES: AvisosApi.AvisRow[] = [
     gravetat: 3,
     nota: 'Va deixar la sala oberta',
     event_id: null,
+    created_by: null,
     created_at: NOU.toISOString(),
+    validat_at: NOU.toISOString(),
+    punts: -25,
     retirat_at: null,
     retirat_nota: null,
     mesura_presa: null,
@@ -85,7 +93,10 @@ const FILES: AvisosApi.AvisRow[] = [
     gravetat: 3,
     nota: 'Se’n va anar amb les claus',
     event_id: null,
+    created_by: null,
     created_at: VELL.toISOString(),
+    validat_at: VELL.toISOString(),
+    punts: -25,
     retirat_at: null,
     retirat_nota: null,
     mesura_presa: null,
@@ -115,5 +126,17 @@ describe('AvisosCard', () => {
     expect(screen.getByText(formatMonthYear(VELL, 'ca'))).toBeInTheDocument()
     // I només una: si les dues filessin amb dia i mes, n'hi hauria dues.
     expect(screen.queryAllByText(formatDayMonth(NOU, 'ca'))).toHaveLength(1)
+  })
+})
+
+describe('AvisosCard, i els proposats', () => {
+  it('demana només els validats, també quan qui mira el perfil és de la junta', async () => {
+    // La política amaga els proposats a un soci, però no a la junta: algú de la
+    // junta que mira el seu propi perfil els rebria tots si la lectura no ho
+    // digués ella mateixa (migració 93).
+    demanat.length = 0
+    munta()
+    await screen.findByText('Va deixar la sala oberta')
+    expect(demanat.at(-1)?.[3]).toBe(true)
   })
 })

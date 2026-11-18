@@ -30,8 +30,9 @@ import { type Pesos, pesDe } from './estatAvisos'
  *
  *   I EL REGISTRE NO BAIXA. L'altre argument era no descarregar-se les notes de
  *   tothom a un telèfon per pintar un «2». També es resol sense RPC:
- *   `fetchAvisComptes` demana quatre columnes —qui, quanta gravetat, quan i si
- *   està retirat— i cap nota. Pel cable no hi passa ni un motiu.
+ *   `fetchAvisComptes` demana cinc columnes —qui, quanta gravetat, quan, si
+ *   està validat i si està retirat— i cap nota. Pel cable no hi passa ni un
+ *   motiu.
  *
  *   I EL QUE QUEDAVA ERA UNA MIGRACIÓ QUE NO ES POT CÓRRER. Sense poder-la
  *   aplicar, ni el comptador ni la marca del llindar es podien obrir en una
@@ -104,6 +105,10 @@ export function compta(
 
   for (const fila of files) {
     if (fila.retirat_at !== null) continue
+    // Un proposat no compta fins que algú altre de la junta el valida
+    // (migració 93). La política de lectura ja l'amaga al soci; la junta sí que
+    // el llegeix, i és aquí on es decideix que no pesa.
+    if (fila.validat_at === null) continue
     if (!dinsDelCurs(fila.created_at, des_de, fins_a)) continue
 
     const abans = out.get(fila.user_id)

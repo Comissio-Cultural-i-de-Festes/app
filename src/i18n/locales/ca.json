@@ -151,7 +151,10 @@
     "rateLimited": "Massa intents seguits. Espera un parell de minuts i torna-hi.",
     "behindServer": "Això encara no hi és al servidor: l'app s'ha actualitzat abans que la base de dades. Si ets de la junta, apuja les migracions; si no, avisa'ls.",
     "avisSostre": "Aquest curs ja s'han restat a aquesta persona tots els punts que el sostre permet. Puja «Màxim de punts per curs» a El barem, o registra l'avís sense punts.",
-    "avisForaDelCurs": "Avui no cau dins de cap curs, i sense curs no hi ha cap sostre a comptar. Obre el curs a «Els períodes del rànquing», o registra l'avís sense punts."
+    "avisForaDelCurs": "Avui no cau dins de cap curs, i sense curs no hi ha cap sostre a comptar. Obre el curs a «Els períodes del rànquing», o registra l'avís sense punts.",
+    "avisPropi": "Ningú no es pot posar, retirar ni editar un avís a si mateix. Ho ha de fer algú altre de la junta.",
+    "avisValidacioPropia": "Aquest avís l'has proposat tu: l'ha de validar algú altre de la junta.",
+    "avisJaResolt": "Algú altre de la junta ja l'ha validat o rebutjat. Torna a carregar la pantalla per veure-ho."
   },
   "escola": {
     "politecnica": "Politècnica",
@@ -961,11 +964,25 @@
         "mesuraAdd": "Afegeix la mesura presa",
         "mesuraEdit": "Edita la mesura presa",
         "mesuraClear": "Deixa-ho en blanc per esborrar-la. Ho llegirà qui ha rebut l'avís.",
-        "mesuraPaused": "Sense connexió. Es desarà tota sola quan torni."
+        "mesuraPaused": "Sense connexió. Es desarà tota sola quan torni.",
+        "proposat": "Proposat · falta que algú altre de la junta el validi",
+        "proposatPerMi": "L'has proposat tu: l'ha de validar algú altre de la junta.",
+        "proposatMeu": "És teu: el validarà o el rebutjarà algú altre de la junta.",
+        "valida": "Valida'l",
+        "validaSurePunts": "Es restaran {{punts}} punts a {{nombre}}, comptarà per als escalons i {{nombre}} rebrà un avís al mòbil.",
+        "validaSureSensePunts": "No es restarà cap punt. Comptarà per als escalons, i {{nombre}} ho veurà al seu perfil i rebrà un avís al mòbil.",
+        "validaCta": "Sí, valida'l",
+        "rebutja": "Rebutja'l",
+        "rebutjaSure": "No comptarà mai i {{nombre}} no en sabrà res. Escriu per què es rebutja.",
+        "rebutjaNote": "Per què es rebutja",
+        "rebutjaPlaceholder": "No va anar ben bé així",
+        "rebutjatOn": "Rebutjat el {{dia}}",
+        "paused": "Sense connexió. Sortirà sol quan torni la xarxa: no tanquis la pantalla.",
+        "propi": "No et pots posar un avís a tu mateix. Si cal, que el proposi algú altre de la junta."
       },
       "avis": {
-        "title": "Registra un avís",
-        "lede": "Queda escrit i no s'esborra mai. Pot restar punts o no: es pot avisar sense tocar el rànquing.",
+        "title": "Proposa un avís",
+        "lede": "Queda escrit i no s'esborra mai. No compta fins que el valida algú altre de la junta. Pot restar punts o no: es pot avisar sense tocar el rànquing.",
         "tipus": "Què ha passat",
         "tipusHint": "El catàleg es toca a «El barem».",
         "tipusNone": "Tria'n un",
@@ -985,16 +1002,25 @@
         "event": "De quina nit",
         "eventHint": "Opcional. Si va ser en una reunió de junta, l'avís s'hi queda i els punts hi van sense esdeveniment.",
         "eventNone": "De cap en concret",
-        "save": "Registra l'avís",
-        "sureTitle": "Abans de registrar-lo",
-        "surePoints": "Es restaran {{punts}} punts a {{nombre}} i li baixarà la posició al rànquing.",
+        "save": "Proposa l'avís",
+        "sureTitle": "Abans de proposar-lo",
+        "surePoints": "Quan es validi, es restaran {{punts}} punts a {{nombre}} i li baixarà la posició al rànquing.",
         "sureNoPoints": "No es restarà cap punt: {{nombre}} no es mourà del rànquing.",
-        "sureEscalo": "Amb aquest avís, {{nombre}} arriba a l'escaló «{{estat}}»: {{queFer}}.",
-        "sureSeen": "{{nombre}} ho veurà al seu perfil amb el motiu que has escrit, i la fila no s'esborra mai.",
-        "sureCta": "Sí, registra'l",
-        "paused": "Sense connexió. Es registrarà tot sol quan torni.",
-        "done": "Registrat: {{tipus}} per a {{nombre}}."
+        "sureEscalo": "Si es valida, {{nombre}} arriba a l'escaló «{{estat}}»: {{queFer}}.",
+        "sureSeen": "No comptarà fins que el validi algú altre de la junta. Llavors {{nombre}} el veurà al seu perfil amb el motiu que has escrit i rebrà un avís al mòbil. La fila no s'esborra mai.",
+        "sureCta": "Sí, proposa'l",
+        "paused": "Sense connexió. Es proposarà tot sol quan torni.",
+        "done": "Proposat: {{tipus}} per a {{nombre}}. Falta que el validi algú altre de la junta."
       }
+    },
+    "proposats": {
+      "title": "Avisos per validar",
+      "lede": "Un avís no compta fins que el valida algú de la junta que no l'hagi proposat ni el rebi.",
+      "count_one": "{{count}} espera",
+      "count_other": "{{count}} esperen",
+      "none": "Cap avís per validar.",
+      "per": "Proposat per {{nom}} el {{dia}}",
+      "perSenseNom": "Proposat el {{dia}}"
     },
     "pendents": {
       "title": "Avisos pendents",
@@ -1024,7 +1050,7 @@
       "enllaca": "Enllaça a mà",
       "cerca": "Busca el soci pel nom",
       "capSoci": "Cap soci actiu amb aquest nom.",
-      "enllacaSure": "L'avís de {{nom}} passarà a ser de {{soci}}, amb la data de la falta ({{dia}}), i {{soci}} el veurà al seu perfil.",
+      "enllacaSure": "L'avís de {{nom}} passarà a ser de {{soci}}, amb la data de la falta ({{dia}}). Quedarà proposat: {{soci}} el veurà al seu perfil quan el validi algú de la junta que no l'hagi escrit.",
       "enllacaCta": "Sí, enllaça'l",
       "form": {
         "title": "Avís pendent",
@@ -1203,6 +1229,9 @@
       "pendentsFeina_one": "avís pendent demana una decisió",
       "pendentsFeina_other": "avisos pendents demanen una decisió",
       "pendentsFeinaSub": "Ambigus o bloquejats: no s'han pogut enganxar sols",
+      "perValidar_one": "avís espera que el validi algú altre",
+      "perValidar_other": "avisos esperen que els validi algú altre",
+      "perValidarSub": "Proposats per una altra persona de la junta: falta la segona",
       "now": "El que passa ara",
       "soon": "Els que venen",
       "soonCount": "{{count}} al calendari",

@@ -25,6 +25,12 @@ import { UnreadableImage } from './storage'
 const HINTS: Readonly<Record<string, string>> = {
   avis_sostre: 'errors.avisSostre',
   avis_fora_del_curs: 'errors.avisForaDelCurs',
+  // Migració 93. Els dos primers són 42501, com «nomes junta», i diuen coses
+  // diferents: no et pots tocar un avís teu, i no pots validar el que has
+  // proposat. L'últim és que algú altre de la junta ja l'ha validat o rebutjat.
+  avis_propi: 'errors.avisPropi',
+  avis_validacio_propia: 'errors.avisValidacioPropia',
+  avis_ja_resolt: 'errors.avisJaResolt',
 }
 
 /**

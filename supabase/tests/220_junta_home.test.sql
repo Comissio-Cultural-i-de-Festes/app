@@ -22,9 +22,14 @@ select
 grant select on who to authenticated;
 
 -- Everything else out of the window, so the counts below are only about the
--- row this test makes.
-update public.events set starts_at = now() + interval '90 days'
- where starts_at between now() - interval '8 hours' and now() + interval '30 hours';
+-- row this test makes. The window is migration 89's: an event still going on
+-- is at the door until it ends, however long ago it started.
+update public.events e set starts_at = now() + interval '90 days'
+ where e.starts_at <= now() + interval '30 hours'
+   and greatest(
+         e.starts_at + interval '8 hours',
+         (select d.ends_at from public.event_details d where d.event_id = e.id)
+       ) >= now();
 
 insert into public.events (id, tipo, starts_at, plazas, precio_cents, puntos, published, cal_confirmacio)
 values
@@ -178,8 +183,10 @@ select tests.authenticate_as('junta_alfa');
 
 select is(
   (public.junta_home()->>'propers')::int,
-  (select count(*)::int from public.events
-    where tipo <> 'reunio' and starts_at >= now() - interval '8 hours'),
+  (select count(*)::int from public.events e
+    left join public.event_details d on d.event_id = e.id
+    where e.tipo <> 'reunio'
+      and greatest(e.starts_at + interval '8 hours', d.ends_at) >= now()),
   'ni es compta al calendari, que te el seu bloc a part'
 );
 

@@ -166,10 +166,57 @@ export async function promptNativeInstall(): Promise<boolean> {
  *
  * Dins del navegador integrat d'Instagram o Facebook, mai: els passos parlen
  * del Safari i allà no n'hi ha. La porta ja hi diu què fer.
+ *
+ * Tampoc si l'enllaç porta una invitació. El codi només viu a la
+ * URL, la icona obre l'arrel (`start_url: '/'`) i el seu magatzem no veu res
+ * del Safari: instal·lar primer era perdre el codi i entrar com a pendent. Amb
+ * codi, doncs, la porta va primer i el bescanvi es fa aquí mateix, al Safari;
+ * el compte queda actiu al servidor, i a la icona n'hi ha prou d'entrar un cop
+ * més amb Google. La instal·lació torna a l'Inici, com a targeta.
+ *
+ * L'opció descartada era desar el codi i recuperar-lo a la icona. No hi ha on:
+ * cap dels dos magatzems veu l'altre, i demanar a algú que el torni a enganxar
+ * és exactament el pas que es perdia.
+ *
+ * A Android tampoc, encara que allà el magatzem sigui el mateix: acceptar el
+ * diàleg natiu pot obrir l'app instal·lada, que arrenca a `/` igual que la
+ * icona de l'iPhone, i el `?codi=` es queda a la pestanya que s'ha deixat
+ * enrere. Android perd l'oferta en aquest primer pas —la hi torna a fer la
+ * pròxima visita sense codi, i el navegador la té al menú—, i és el preu
+ * acceptable: qui ha vingut amb una invitació ha vingut a entrar.
  */
-export function shouldPromptInstall(now = Date.now()): boolean {
+export function shouldPromptInstall(
+  now = Date.now(),
+  { invited = false }: { readonly invited?: boolean } = {},
+): boolean {
+  if (invited) return false
   if (inAppBrowser() !== null) return false
   if (!isIos() && !hasNativeInstallPrompt()) return false
+  if (isStandalone()) return false
+  return now >= readSnooze()
+}
+
+/**
+ * La mateixa oferta, a l'Inici i amb la sessió ja oberta.
+ *
+ * Només a l'iPhone i al Safari: és on hi ha passos a explicar i on qui ha entrat
+ * amb una invitació no ha vist la pantalla. A Android el navegador té el seu
+ * diàleg i la seva entrada de menú, i des de la icona no hi ha res a demanar.
+ *
+ * Comparteix el repòs amb la pantalla, a posta: «ara no» i «ja ho tinc fet» són
+ * respostes a la pregunta, no a la forma que tenia.
+ *
+ * Tampoc mentre el codi de l'enllaç espera el bescanvi: instal·lar llavors és
+ * obrir la icona sense codi i encara pendent, el forat que la porta davant de la
+ * instal·lació tapava.
+ */
+export function shouldOfferInstallCard(
+  now = Date.now(),
+  { invited = false }: { readonly invited?: boolean } = {},
+): boolean {
+  if (invited) return false
+  if (inAppBrowser() !== null) return false
+  if (!isIos()) return false
   if (isStandalone()) return false
   return now >= readSnooze()
 }

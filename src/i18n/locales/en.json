@@ -1584,9 +1584,11 @@
     "profile": "Profile"
   },
   "onboarding": {
+    "titlePending": "Nearly there",
     "title": "You're in",
     "lede": "Five things and you are in. We already have your name and photo from Google — check they look right.",
-    "nameHint": "Use the name people call you here, not the one on your ID.",
+    "ledePending": "Five things and you are all set. We already have your name and photo from Google; the committee has to accept you before you can sign up for anything.",
+    "nameHint": "This is how the committee will find you: use your real name, not an alias. You can change it later in your profile.",
     "school": {
       "label": "Your school",
       "required": "Required",
@@ -1625,6 +1627,8 @@
     },
     "cta": {
       "ready": "Go in",
+      "pickSchoolPending": "Pick your school and carry on",
+      "readyPending": "Continue",
       "pickSchool": "Pick a school and you are in",
       "fix": "Check the phone or the Instagram"
     },
@@ -1881,7 +1885,9 @@
     "codePlaceholder": "Paste it here",
     "codeCta": "Go in with the code",
     "codeSending": "One moment…",
-    "codeBad": "That code does not work. Ask the committee for another."
+    "codeBad": "That code does not work. Ask the committee for another.",
+    "note": "Places, replies and points open up once the committee accepts you.",
+    "rankingClosed": "The ranking is not for you yet."
   },
   "qr": {
     "codeLabel": "Your QR code",

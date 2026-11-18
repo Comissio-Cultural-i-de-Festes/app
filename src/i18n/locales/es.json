@@ -100,6 +100,12 @@
       "noCodeValue": "Ningún código",
       "noCodeAside": "Lo aprueba la junta"
     },
+    "app": {
+      "title": "Entra",
+      "lede": "Entra con tu cuenta de Google. Si ya entraste con una invitación en Safari, ya estás dentro.",
+      "reassurance": "De la cuenta solo cogemos el nombre, el correo y la foto. Si aún tienen que aceptarte, una vez dentro lo verás arriba del todo.",
+      "hasCodeHint": "Escríbelo en el aviso de arriba una vez dentro."
+    },
     "invite": {
       "label": "Invitación",
       "expiresSoon": "Caduca enseguida",

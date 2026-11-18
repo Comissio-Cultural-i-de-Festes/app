@@ -100,6 +100,12 @@
       "noCodeValue": "Cap codi",
       "noCodeAside": "Ho aprova la junta"
     },
+    "app": {
+      "title": "Entra",
+      "lede": "Entra amb el teu compte de Google. Si ja vas entrar amb una invitació al Safari, ja hi ets.",
+      "reassurance": "Del compte només agafem el nom, el correu i la foto. Si encara t'han d'acceptar, un cop dins ho veuràs a dalt de tot.",
+      "hasCodeHint": "Escriu-lo a l'avís de dalt un cop dins."
+    },
     "invite": {
       "label": "Invitació",
       "expiresSoon": "Caduca de seguida",

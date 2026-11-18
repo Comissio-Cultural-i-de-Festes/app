@@ -167,7 +167,7 @@ export async function promptNativeInstall(): Promise<boolean> {
  * Dins del navegador integrat d'Instagram o Facebook, mai: els passos parlen
  * del Safari i allà no n'hi ha. La porta ja hi diu què fer.
  *
- * A l'iPhone, tampoc si l'enllaç porta una invitació. El codi només viu a la
+ * Tampoc si l'enllaç porta una invitació. El codi només viu a la
  * URL, la icona obre l'arrel (`start_url: '/'`) i el seu magatzem no veu res
  * del Safari: instal·lar primer era perdre el codi i entrar com a pendent. Amb
  * codi, doncs, la porta va primer i el bescanvi es fa aquí mateix, al Safari;
@@ -178,16 +178,20 @@ export async function promptNativeInstall(): Promise<boolean> {
  * cap dels dos magatzems veu l'altre, i demanar a algú que el torni a enganxar
  * és exactament el pas que es perdia.
  *
- * A Android no canvia res. Instal·lar no hi canvia de magatzem i la pestanya es
- * queda amb la URL sencera, codi inclòs.
+ * A Android tampoc, encara que allà el magatzem sigui el mateix: acceptar el
+ * diàleg natiu pot obrir l'app instal·lada, que arrenca a `/` igual que la
+ * icona de l'iPhone, i el `?codi=` es queda a la pestanya que s'ha deixat
+ * enrere. Android perd l'oferta en aquest primer pas —la hi torna a fer la
+ * pròxima visita sense codi, i el navegador la té al menú—, i és el preu
+ * acceptable: qui ha vingut amb una invitació ha vingut a entrar.
  */
 export function shouldPromptInstall(
   now = Date.now(),
   { invited = false }: { readonly invited?: boolean } = {},
 ): boolean {
+  if (invited) return false
   if (inAppBrowser() !== null) return false
   if (!isIos() && !hasNativeInstallPrompt()) return false
-  if (isIos() && invited) return false
   if (isStandalone()) return false
   return now >= readSnooze()
 }

@@ -201,7 +201,11 @@ function EventForm() {
   const endsMissing = form.ends_at === ''
 
   const ready =
-    form.titulo.trim() !== '' && form.starts_at !== '' && !endsMissing && !endsBad && !revealBad
+    form.titulo.trim() !== '' &&
+    form.starts_at !== '' &&
+    !endsMissing &&
+    !endsBad &&
+    !revealBad
   const showTemplates = !editing && (templates.data?.length ?? 0) > 0
   // Without templates there is nothing above the fields, so they take both
   // rows rather than leaving a hole where the list would have been.

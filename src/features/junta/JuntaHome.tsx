@@ -8,6 +8,7 @@ import { fetchPeriods, rankingKeys } from '@/features/ranking/api'
 import { useMyProfile } from '@/features/session/useMyProfile'
 import {
   formatDateLong,
+  formatDayRange,
   formatDayNumber,
   formatMonthShort,
   formatTime,
@@ -520,10 +521,7 @@ function Door({
   // canvia de dia i continua sent una nit.
   const when =
     ends !== null && ends.getTime() - starts.getTime() >= DAY_MS
-      ? t('junta.home.doorUntil', {
-          from: formatDateLong(starts, locale),
-          to: formatDateLong(ends, locale),
-        })
+      ? formatDayRange(starts, ends, locale)
       : formatDateLong(starts, locale)
 
   return (

@@ -27,7 +27,7 @@ name: Supabase keepalive
 # does nothing at all. There is no failure to notice, and the first sign is
 # Supabase pausing the project in August.
 #
-# So: RENAMING THIS REPOSITORY MEANS EDITING THE LINE BELOW. Nothing else in
+# So: RENAMING THIS REPOSITORY MEANS EDITING THE `if:` OF THE `ping` JOB. Nothing else in
 # the build will tell you.
 on:
   schedule:
@@ -72,14 +72,18 @@ jobs:
           SUPABASE_ANON_KEY: ${{ matrix.key }}
         run: |
           set -euo pipefail
-          if [ -z "${SUPABASE_URL}" ]; then
+          if [ -z "${SUPABASE_URL//[[:space:]]/}" ]; then
             echo "::error::Actions variable ${URL_NAME} is empty or missing (${PROJECT})"
             exit 1
           fi
-          if [ -z "${SUPABASE_ANON_KEY}" ]; then
+          if [ -z "${SUPABASE_ANON_KEY//[[:space:]]/}" ]; then
             echo "::error::Actions variable ${KEY_NAME} is empty or missing (${PROJECT})"
             exit 1
           fi
           status=$(curl -sS --max-time 30 -o /tmp/out -w '%{http_code}'             -H "apikey: ${SUPABASE_ANON_KEY}"             -H "Authorization: Bearer ${SUPABASE_ANON_KEY}"             "${SUPABASE_URL}/rest/v1/rpc/invite_preview"             -H 'Content-Type: application/json'             -d '{"p_codi":"keepalive"}')
           echo "${PROJECT}: HTTP ${status}"
-          test "${status}" = "200"
+          if [ "${status}" != "200" ]; then
+            head -c 300 /tmp/out
+            echo
+            exit 1
+          fi

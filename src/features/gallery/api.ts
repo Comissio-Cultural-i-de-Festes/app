@@ -1,5 +1,5 @@
 import { DbError } from '@/lib/db'
-import { EVENT_PHOTOS, galleryImage, signedUrlsQuery, thumbnail } from '@/lib/storage'
+import { EVENT_PHOTOS, galleryImage, thumbnail } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -52,11 +52,6 @@ export async function fetchPhotoCount(eventId: string): Promise<PhotoCount> {
   const { data, error } = await supabase.rpc('event_photo_count', { p_event_id: eventId })
   if (error) throw new DbError(error)
   return data?.[0] ?? { quantes: 0, persones: 0 }
-}
-
-/** Les URL signades, en una sola volta. Una hora, com la resta de l'app. */
-export function galleryUrls(paths: readonly string[]) {
-  return signedUrlsQuery(EVENT_PHOTOS, paths)
 }
 
 /**

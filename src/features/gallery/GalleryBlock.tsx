@@ -4,8 +4,10 @@ import { Link } from 'react-router'
 
 import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
+import { EVENT_PHOTOS } from '@/lib/storage'
+import { useSignedUrls } from '@/lib/useSignedUrls'
 
-import { fetchPhotoCount, fetchPhotos, galleryKeys, galleryUrls } from './api'
+import { fetchPhotoCount, fetchPhotos, galleryKeys } from './api'
 
 /**
  * On comença la galeria: tres miniatures al detall d'una activitat passada.
@@ -37,10 +39,7 @@ export function GalleryBlock({ eventId }: { readonly eventId: string }) {
 
   const first = (photos.data ?? []).slice(0, PEEK)
   const thumbs = first.map((p) => p.thumb_path)
-  const urls = useQuery({
-    ...galleryUrls(thumbs),
-    enabled: thumbs.length > 0,
-  })
+  const urls = useSignedUrls(EVENT_PHOTOS, thumbs)
 
   const total = count.data?.quantes ?? 0
   const rest = Math.max(0, total - PEEK)

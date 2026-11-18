@@ -9,8 +9,10 @@ import { formatTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { captureFrame } from '@/lib/frame'
+import { DOOR_PHOTOS } from '@/lib/storage'
+import { useSignedUrls } from '@/lib/useSignedUrls'
 
-import { fetchNights, photoKeys, photoUrls, saveEntryPhoto, saveExitPhoto } from './api'
+import { fetchNights, photoKeys, saveEntryPhoto, saveExitPhoto } from './api'
 import { useSelfie } from './useSelfie'
 
 /**
@@ -57,10 +59,7 @@ export function DoorPhotoScreen() {
   const night = nights.data?.find((n) => n.event_id === id)
 
   const entry = night?.entry_photo_url ?? null
-  const thumb = useQuery({
-    ...photoUrls(entry === null ? [] : [entry]),
-    enabled: entry !== null,
-  })
+  const thumb = useSignedUrls(DOOR_PHOTOS, entry === null ? [] : [entry])
 
   const save = useMutation({
     mutationFn: async () => {

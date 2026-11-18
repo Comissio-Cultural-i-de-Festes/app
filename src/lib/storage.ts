@@ -273,42 +273,44 @@ export async function uploadDoorPhoto(
 }
 
 /**
- * A URL for one stored object, good for an hour.
+ * Les URL signades: una consulta per objecte, i les peticions juntes.
  *
- * Returns null rather than throwing: a cover that will not load is a missing
- * picture, and the screen already knows how to draw one of those.
+ * UNA CLAU PER CAMÍ. Abans la galeria signava amb una sola clau feta de tots
+ * els camins, o sigui que una foto nova —o una d'esborrada, o una d'amagada per
+ * la junta— canviava la clau, i en tornar a l'app es tornaven a signar i a
+ * baixar totes les miniatures. Una nit de casa rural amb dues-centes fotos són
+ * gigues. Amb una entrada per camí, el que ja estava signat es queda com era i
+ * la miniatura que surt a l'inici i a la galeria és la mateixa URL.
+ *
+ * UNA PETICIÓ PER CUBELL I MICROTASK. Una entrada per camí no vol dir una
+ * petició per camí: tot el que React demana en un mateix pas de render entra
+ * en una sola crida a `createSignedUrls`. És el lot que ja feien els avatars,
+ * fet general.
+ *
+ * UN ERROR ÉS UN ERROR. `createSignedUrls` no llança quan falla la xarxa:
+ * torna `{ data: null, error }`. Abans això acabava en un `Map` buit desat com
+ * a èxit, que no es tornava a demanar fins al cap de cinquanta minuts, i la
+ * portada quedava en blanc tota aquella estona. Ara la consulta falla, React
+ * Query la reintenta, i una consulta fallida es torna a demanar en tornar a
+ * l'app. Una fila sense URL —l'objecte ja no hi és, o no és teu de veure— sí
+ * que és una resposta, i es desa com a `null`.
+ *
+ * No s'exporta res que signi fora d'aquí: l'única porta és `signedUrlQuery`,
+ * que porta la marca de `signedKey` (vegeu `signedQuery.ts`).
  */
-export async function signedUrl(bucket: string, path: string | null): Promise<string | null> {
-  if (path === null || path === '') return null
 
-  // Anything already absolute was written before the bucket existed, or by
-  // hand. Left alone rather than mangled into a storage path.
-  if (path.startsWith('http://') || path.startsWith('https://')) return path
+const batches = new Map<
+  string,
+  { readonly paths: Set<string>; readonly ready: Promise<Map<string, string>> }
+>()
 
+async function signBatch(bucket: string, paths: readonly string[]): Promise<Map<string, string>> {
   const { data, error } = await supabase.storage
     .from(bucket)
-    .createSignedUrl(path, SIGNED_TTL_SECONDS)
-  if (error) return null
-  return data.signedUrl
-}
+    .createSignedUrls([...paths], SIGNED_TTL_SECONDS)
+  if (error) throw error
 
-/** The same, for a list — one round trip instead of one per row. */
-export async function signedUrls(
-  bucket: string,
-  paths: readonly (string | null)[],
-): Promise<Map<string, string>> {
-  const wanted = [...new Set(paths.filter((p): p is string => p !== null && p !== ''))]
-  const relative = wanted.filter((p) => !p.startsWith('http'))
   const out = new Map<string, string>()
-
-  for (const absolute of wanted.filter((p) => p.startsWith('http'))) out.set(absolute, absolute)
-  if (relative.length === 0) return out
-
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .createSignedUrls(relative, SIGNED_TTL_SECONDS)
-
-  if (error || data === null) return out
   for (const row of data) {
     // Both fields are nullable in the response type: a batch call reports a
     // per-object error by returning nulls for that row rather than failing the
@@ -322,16 +324,25 @@ export async function signedUrls(
   return out
 }
 
-/**
- * The query for a set of signed URLs, key and fetch together.
- *
- * Together on purpose: a screen that asks for signed URLs gets the marked key
- * without having to remember it, and the mark is what keeps returning to the
- * app from re-signing — and re-downloading — every picture on it.
- */
-export function signedUrlsQuery(bucket: string, paths: readonly string[]) {
+function enqueue(bucket: string, path: string): Promise<string | null> {
+  let batch = batches.get(bucket)
+  if (batch === undefined) {
+    const paths = new Set<string>()
+    const ready = Promise.resolve().then(() => {
+      batches.delete(bucket)
+      return signBatch(bucket, [...paths])
+    })
+    batch = { paths, ready }
+    batches.set(bucket, batch)
+  }
+  batch.paths.add(path)
+  return batch.ready.then((urls) => urls.get(path) ?? null)
+}
+
+/** La consulta d'un objecte: la seva clau marcada i la seva URL, o `null`. */
+export function signedUrlQuery(bucket: string, path: string) {
   return queryOptions({
-    queryKey: signedKey(bucket, ...paths),
-    queryFn: () => signedUrls(bucket, paths),
+    queryKey: signedKey(bucket, path),
+    queryFn: () => enqueue(bucket, path),
   })
 }

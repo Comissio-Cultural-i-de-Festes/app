@@ -176,7 +176,8 @@
     "sendSlow": "La connexió va molt lenta: encara no ha arribat.",
     "sendOffline": "Sense connexió, no ha sortit. Torna-hi quan tinguis cobertura.",
     "avisSostre": "Aquest curs ja s'han restat a aquesta persona tots els punts que el sostre permet. Puja «Màxim de punts per curs» a El barem, o registra l'avís sense punts.",
-    "avisForaDelCurs": "Avui no cau dins de cap curs, i sense curs no hi ha cap sostre a comptar. Obre el curs a «Els períodes del rànquing», o registra l'avís sense punts."
+    "avisForaDelCurs": "Avui no cau dins de cap curs, i sense curs no hi ha cap sostre a comptar. Obre el curs a «Els períodes del rànquing», o registra l'avís sense punts.",
+    "viatgerInvalid": "Alguna dada no té la forma que toca. Revisa els camps i torna-ho a provar."
   },
   "escola": {
     "politecnica": "Politècnica",

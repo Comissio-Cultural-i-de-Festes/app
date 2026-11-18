@@ -90,6 +90,11 @@ describe('errorKey', () => {
       expect(errorKey(dbHint('22023', 'avis_fora_del_curs'), true)).toBe('errors.avisForaDelCurs')
     })
 
+    it('reads a traveller-details refusal off the hint, not off its 23514', () => {
+      expect(errorKey(dbHint('23514', 'viatger_invalid'), true)).toBe('errors.viatgerInvalid')
+      expect(errorKey(dbHint('23514', ''), true)).toBe('errors.generic')
+    })
+
     it('never sends the junta back to «try again in a moment» for either', () => {
       for (const hint of ['avis_sostre', 'avis_fora_del_curs']) {
         expect(errorKey(dbHint('22023', hint), true), hint).not.toBe('errors.generic')

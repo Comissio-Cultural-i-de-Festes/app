@@ -17,12 +17,18 @@ import { useRedeemFromLink } from './useRedeemFromLink'
 
 interface Reply {
   data: { ok: boolean } | null
-  error: { code: string; message: string } | null
+  // `code` hi pot no ser: postgrest-js amb un no-2xx que no porta JSON torna
+  // només el missatge, que és el cos tal qual.
+  error: { code?: string; message: string } | null
 }
-const redeem = vi.fn<(code: string) => Promise<Reply>>()
+const redeem = vi.fn<(code: string, signal: AbortSignal) => Promise<Reply>>()
 
 vi.mock('@/lib/supabase', () => ({
-  rpc: (_fn: string, args: { p_codi: string }) => redeem(args.p_codi),
+  supabase: {
+    rpc: (_fn: string, args: { p_codi: string }) => ({
+      abortSignal: (signal: AbortSignal) => redeem(args.p_codi, signal),
+    }),
+  },
 }))
 
 const invalidate = vi.fn(() => Promise.resolve())
@@ -64,7 +70,7 @@ describe('redeeming the code from the link', () => {
     await waitFor(() => {
       expect(invalidate).toHaveBeenCalledTimes(1)
     })
-    expect(redeem).toHaveBeenCalledWith(CODE)
+    expect(redeem).toHaveBeenCalledWith(CODE, expect.any(AbortSignal))
     expect(window.location.search).toBe('')
     expect(pendingInvite()).toBeNull()
   })
@@ -107,16 +113,85 @@ describe('redeeming the code from the link', () => {
     expect(pendingInvite()).toBeNull()
   })
 
-  it('tries again by itself a few times, without waiting for an online event', async () => {
-    // Una wifi que diu que hi és i no porta res no dispara mai `online`.
+  it('keeps trying by itself for minutes, without waiting for an online event', async () => {
+    // Una wifi que diu que hi és i no porta res no dispara mai `online`, i a
+    // la porta de l'estrena la cua de gent dura més de vint segons.
     vi.useFakeTimers({ shouldAdvanceTime: true })
-    redeem.mockResolvedValueOnce(OFFLINE).mockResolvedValueOnce({ data: { ok: true }, error: null })
+    for (let i = 0; i < 5; i++) redeem.mockResolvedValueOnce(OFFLINE)
+    redeem.mockResolvedValueOnce({ data: { ok: true }, error: null })
     mount()
 
     await waitFor(() => {
       expect(redeem).toHaveBeenCalledTimes(1)
     })
-    await vi.advanceTimersByTimeAsync(15_000)
+    await vi.advanceTimersByTimeAsync(5 * 60_000)
+    await waitFor(() => {
+      expect(invalidate).toHaveBeenCalledTimes(1)
+    })
+    expect(redeem).toHaveBeenCalledTimes(6)
+  })
+
+  it.each([
+    ['a 502 page from the proxy', { message: '<html><body>502 Bad Gateway</body></html>' }],
+    ['a 429', { message: 'Too Many Requests' }],
+    [
+      'PGRST001, the pool out of connections',
+      { code: 'PGRST001', message: 'Database client error' },
+    ],
+    ['57014, a statement that timed out', { code: '57014', message: 'canceling statement' }],
+  ])('keeps the code after %s, and gets it in on the next try', async (_name, error) => {
+    // Just el que passa amb molta gent alhora. Res d'això diu res del codi.
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    redeem
+      .mockResolvedValueOnce({ data: null, error })
+      .mockResolvedValueOnce({ data: { ok: true }, error: null })
+    mount()
+
+    await waitFor(() => {
+      expect(redeem).toHaveBeenCalledTimes(1)
+    })
+    expect(pendingInvite()).toBe(CODE)
+    expect(window.location.search).toBe(`?codi=${CODE}`)
+
+    await vi.advanceTimersByTimeAsync(60_000)
+    await waitFor(() => {
+      expect(invalidate).toHaveBeenCalledTimes(1)
+    })
+    expect(pendingInvite()).toBeNull()
+  })
+
+  it('gives up on a request that hangs, and asks again', async () => {
+    // Un intent que no torna mai deixava `inFlight` encès per sempre, i cap
+    // reintent no passava d'aquella línia.
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    redeem
+      .mockImplementationOnce(
+        (_code, signal) =>
+          new Promise((resolve) => {
+            signal.addEventListener('abort', () => {
+              resolve({ data: null, error: { code: '', message: 'AbortError: aborted' } })
+            })
+          }),
+      )
+      .mockResolvedValueOnce({ data: { ok: true }, error: null })
+    mount()
+
+    await vi.advanceTimersByTimeAsync(2 * 60_000)
+    await waitFor(() => {
+      expect(invalidate).toHaveBeenCalledTimes(1)
+    })
+  })
+
+  it('tries again when the phone is unlocked', async () => {
+    redeem.mockResolvedValueOnce(OFFLINE)
+    mount()
+    await waitFor(() => {
+      expect(redeem).toHaveBeenCalledTimes(1)
+    })
+
+    redeem.mockResolvedValueOnce({ data: { ok: true }, error: null })
+    document.dispatchEvent(new Event('visibilitychange'))
+
     await waitFor(() => {
       expect(invalidate).toHaveBeenCalledTimes(1)
     })
@@ -138,7 +213,7 @@ describe('redeeming the code from the link', () => {
     await waitFor(() => {
       expect(invalidate).toHaveBeenCalledTimes(1)
     })
-    expect(redeem).toHaveBeenLastCalledWith(CODE)
+    expect(redeem).toHaveBeenLastCalledWith(CODE, expect.any(AbortSignal))
   })
 
   it('gives up on an answer from the database, which will not change by asking again', async () => {

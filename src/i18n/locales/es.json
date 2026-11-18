@@ -109,6 +109,12 @@
       "noCodeValue": "Ningún código",
       "noCodeAside": "Lo aprueba la junta"
     },
+    "app": {
+      "title": "Entra",
+      "lede": "Entra con tu cuenta de Google. Si ya te han aceptado, entra y listo; si no, una vez dentro verás cómo va.",
+      "reassurance": "De la cuenta solo cogemos el nombre, el correo y la foto. Si aún no te han aceptado, la junta te dará acceso a mano, normalmente el mismo día.",
+      "hasCodeHint": "Escríbelo en el aviso de arriba una vez dentro."
+    },
     "invite": {
       "label": "Invitación",
       "expiresSoon": "Caduca enseguida",
@@ -685,6 +691,19 @@
     "later": "Ahora no, ya me apañaré",
     "laterWarning": "Puedes seguir aquí en el navegador. Cuando la pongas en la pantalla de inicio tendrás que entrar otra vez, porque el iPhone las trata como dos cosas distintas.",
     "iconPreview": "Así quedará entre tus apps. El icono rojo se ve de lejos cuando lo buscas con prisa.",
+    "opened": {
+      "title": "Ahora, desde el icono",
+      "body": "Ya puedes cerrar Safari. Abre la app desde el icono de la pantalla de inicio y entra desde allí: es donde se queda la sesión.",
+      "stay": "Prefiero seguir en el navegador"
+    },
+    "card": {
+      "eyebrow": "Para tenerla a mano",
+      "title": "Ponla en la pantalla de inicio",
+      "body": "Dos toques en Safari y se abre al instante, a pantalla completa y con el QR listo aunque no haya cobertura.",
+      "cta": "Enséñame cómo",
+      "later": "Ahora no",
+      "again": "Cuando la abras desde el icono, entra una vez más con Google y con la misma cuenta. El iPhone guarda la app y Safari por separado, pero la cuenta es la misma."
+    },
     "android": {
       "lede": "Un toque y la tienes en la pantalla de inicio: a pantalla completa, con el QR a mano y sin pasar por el navegador.",
       "cta": "Instala la app"

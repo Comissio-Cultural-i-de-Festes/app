@@ -51,6 +51,14 @@ function urlBase64ToBytes(base64: string): ArrayBuffer {
   return buffer
 }
 
+/** Dues claus VAPID, byte a byte: els `ArrayBuffer` no es comparen amb `===`. */
+export function sameKey(a: ArrayBuffer, b: ArrayBuffer): boolean {
+  if (a.byteLength !== b.byteLength) return false
+  const x = new Uint8Array(a)
+  const y = new Uint8Array(b)
+  return x.every((byte, i) => byte === y[i])
+}
+
 /** Si val la pena ensenyar el bloc que demana el permís. */
 export function pushAvailable(): boolean {
   return (
@@ -147,7 +155,26 @@ async function saveSubscription(
 }
 
 /**
- * Si el navegador ja hi està subscrit, tornar-ho a desar.
+ * Una subscripció feta amb una clau VAPID que ja no és l'actual.
+ *
+ * El servei de push la lliga a la clau amb què es va crear, i si la clau es
+ * perd o es rota rebutja cada enviament sense que ningú ho vegi: l'app la
+ * continuava desant i els avisos deixaven d'arribar a tothom qui s'havia
+ * subscrit abans.
+ *
+ * AMB `options` O `applicationServerKey` NULS NO ES TOCA RES. Alguns
+ * navegadors (Safari antic) no la diuen, i sense saber-ho refer-la a cada
+ * sessió canviaria l'endpoint de gent que va bé i deixaria una fila morta cada
+ * cop. El cost és que una rotació no es cura en aquells navegadors.
+ */
+function keyIsStale(subscription: PushSubscription): boolean {
+  const current = subscription.options?.applicationServerKey
+  if (current === null || current === undefined) return false
+  return !sameKey(current, urlBase64ToBytes(env.vapidPublicKey))
+}
+
+/**
+ * Deixar el navegador subscrit amb la clau actual i la subscripció desada.
  *
  * PERQUÈ «PERMÍS CONCEDIT» NO VOL DIR «DESADA». Són dues coses que passen en
  * dos llocs diferents i la segona pot fallar sola: el navegador es queda
@@ -155,20 +182,50 @@ async function saveSubscription(
  * la pantalla no torna a oferir res. Sense això, aquell navegador no rep un
  * avís mai més i ningú se n'assabenta.
  *
- * És idempotent i barata —una crida quan es mira un esdeveniment sense
- * revelar— i el que arregla és precisament el cas que ja ha passat: qui es va
- * «subscriure» mentre el desat estava trencat es cura sol la pròxima vegada
- * que obre l'app.
+ * És idempotent i barata, i es crida en arrencar i des de la targeta de
+ * l'esdeveniment. Amb el permís concedit cura tres casos:
+ *   - desada que no va arribar al servidor: es torna a desar;
+ *   - clau VAPID anterior (vegeu `keyIsStale`): es refà;
+ *   - cap subscripció: es crea en silenci. Passa si una rotació va dessubscriure
+ *     i el `subscribe` va fallar sense xarxa, o si iOS l'ha descartada. Sense
+ *     això, el permís concedit amagava el problema per sempre.
+ *
+ * Sense xarxa no es toca res: dessubscriure i no poder tornar a subscriure és
+ * pitjor que esperar. La fila de l'endpoint vell no es pot esborrar des del
+ * client —`authenticated` no té DELETE a la taula— i queda com a morta.
+ *
+ * UNA SOLA EXECUCIÓ ALHORA. L'arrencada i la targeta poden córrer a la vegada
+ * i un doble unsubscribe/subscribe deixaria una subscripció òrfena.
  */
-export async function ensureSubscriptionSaved(): Promise<boolean> {
+let inFlight: Promise<boolean> | null = null
+
+export function ensureSubscriptionSaved(): Promise<boolean> {
+  inFlight ??= ensure().finally(() => {
+    inFlight = null
+  })
+  return inFlight
+}
+
+async function ensure(): Promise<boolean> {
   if (env.vapidPublicKey === '') return false
   if (!('serviceWorker' in navigator) || !('PushManager' in window)) return false
   if (!pushGranted()) return false
+  if (!navigator.onLine) return false
 
   try {
     const registration = await navigator.serviceWorker.ready
-    const subscription = await registration.pushManager.getSubscription()
-    if (subscription === null) return false
+    let subscription = await registration.pushManager.getSubscription()
+
+    if (subscription !== null && keyIsStale(subscription)) {
+      // Dessubscriure abans: un `subscribe` amb una altra clau sobre la vella
+      // llança.
+      await subscription.unsubscribe()
+      subscription = null
+    }
+    subscription ??= await registration.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToBytes(env.vapidPublicKey),
+    })
 
     const json = subscription.toJSON()
     const p256dh = json.keys?.p256dh

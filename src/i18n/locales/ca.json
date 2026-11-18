@@ -109,6 +109,12 @@
       "noCodeValue": "Cap codi",
       "noCodeAside": "Ho aprova la junta"
     },
+    "app": {
+      "title": "Entra",
+      "lede": "Entra amb el teu compte de Google. Si ja t'han acceptat, entra i ja està; si no, un cop dins veuràs com va.",
+      "reassurance": "Del compte només agafem el nom, el correu i la foto. Si encara no t'han acceptat, la junta et donarà l'accés a mà, normalment el mateix dia.",
+      "hasCodeHint": "Escriu-lo a l'avís de dalt un cop dins."
+    },
     "invite": {
       "label": "Invitació",
       "expiresSoon": "Caduca de seguida",
@@ -685,6 +691,19 @@
     "later": "Ara no, ja m'espavilaré",
     "laterWarning": "Pots seguir aquí al navegador. Quan la posis a la pantalla d'inici hauràs de tornar a entrar un cop, perquè l'iPhone les tracta com dues coses diferents.",
     "iconPreview": "Així quedarà entre les teves apps. La icona vermella es veu de lluny quan la busques amb pressa.",
+    "opened": {
+      "title": "Ara, des de la icona",
+      "body": "Ja pots tancar el Safari. Obre l'app des de la icona de la pantalla d'inici i entra-hi des d'allà: és on es queda la sessió.",
+      "stay": "Prefereixo seguir al navegador"
+    },
+    "card": {
+      "eyebrow": "Per tenir-la a mà",
+      "title": "Posa-la a la pantalla d'inici",
+      "body": "Dos tocs al Safari i s'obre a l'instant, a pantalla completa i amb el QR a punt encara que no hi hagi cobertura.",
+      "cta": "Mostra'm com",
+      "later": "Ara no",
+      "again": "Quan l'obris des de la icona, entra un cop més amb Google i amb el mateix compte. L'iPhone guarda l'app i el Safari per separat, però el compte és el mateix."
+    },
     "android": {
       "lede": "Un toc i la tens a la pantalla d'inici: a pantalla completa, amb el QR a mà i sense passar pel navegador.",
       "cta": "Instal·la l'app"

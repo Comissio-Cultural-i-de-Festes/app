@@ -1,12 +1,17 @@
-import { type ReactNode, useState } from 'react'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { brand } from '@/config/brand'
 import { Button } from '@/ui/Button/Button'
 import { LogoMark } from '@/ui/Logo/Logo'
 
-import { SafariShareSheetMock, SafariToolbarMock } from './IosMocks'
-import { promptNativeInstall, useNativeInstallPrompt } from './installGate'
+import { IosInstallSteps } from './IosInstallSteps'
+import {
+  SNOOZE_DONE_MS,
+  promptNativeInstall,
+  snoozeInstall,
+  useNativeInstallPrompt,
+} from './installGate'
 
 /**
  * Adding the app to the home screen.
@@ -16,34 +21,13 @@ import { promptNativeInstall, useNativeInstallPrompt } from './installGate'
  * on iOS the home-screen app has its own storage: install after signing in and
  * the icon opens to a signed-out app.
  *
+ * Except when the link carries an invitation. Then the door goes first and
+ * this comes back afterwards as `InstallCard` on the home screen: see
+ * `shouldPromptInstall` for why the code would not survive the trip.
+ *
  * It is skippable. "Not now" continues in Safari with a one-line warning that
  * signing in again from the icon will be needed, and comes back in a week.
  */
-
-interface StepProps {
-  readonly n: string
-  readonly title: string
-  readonly body: string
-  readonly children: ReactNode
-}
-
-function Step({ n, title, body, children }: StepProps) {
-  return (
-    <li className="mt-[26px] flex items-start gap-[14px]">
-      <span
-        aria-hidden
-        className="flex size-[34px] flex-none items-center justify-center bg-brand-cta font-display text-lg text-on-brand"
-      >
-        {n}
-      </span>
-      <div className="flex-1">
-        <h2 className="text-2xl font-bold tracking-[-0.015em]">{title}</h2>
-        <p className="mt-[5px] text-md text-fg-muted [text-wrap:pretty]">{body}</p>
-        {children}
-      </div>
-    </li>
-  )
-}
 
 export interface InstallScreenProps {
   readonly onDone: () => void
@@ -57,6 +41,10 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
   // diàleg gastat —l'ha descartat— la pantalla no ha de tornar als passos del
   // Safari: el que li queda és dir que ja ho té fet.
   const [spent, setSpent] = useState(false)
+  // «Ja ho tinc fet» a l'iPhone no pot portar a la porta: la porta d'aquí és la
+  // del Safari, i entrar-hi és deixar la sessió al magatzem que la icona no
+  // veu. El que toca és dir-li on ha d'anar, i deixar quedar-s'hi a qui vulgui.
+  const [opened, setOpened] = useState(false)
 
   // Amb diàleg natiu no hi ha res a explicar: els dos passos d'aquesta
   // pantalla són del Safari, i ensenyar-los a algú que té un botó que instal·la
@@ -138,79 +126,125 @@ export function InstallScreen({ onDone, onLater }: InstallScreenProps) {
     )
   }
 
-  return (
-    <main
-      className={
-        // Vuit píxels per damunt del safe-area, com HomeScreen i ScannerScreen.
-        // Hi havia `pt-[var(--ds-safe-top)]` i, concatenat, un `pt-2`: guanyava
-        // el primer —surt més tard al CSS generat— i el segon era codi mort. El
-        // titular quedava enganxat a la barra d'estat sense cap coixí, i la
-        // branca nativa no tenia ni safe-area.
-        'flex min-h-dvh flex-col overflow-y-auto bg-app px-[var(--ds-gutter)] ' +
-        'pt-[max(calc(var(--ds-safe-top)+8px),12px)] pb-[calc(var(--ds-safe-bottom)+24px)]'
-      }
-    >
-      <h1 className="font-display text-d-md leading-[0.88] tracking-[-0.05em] uppercase">
-        {t('install.title')}
-      </h1>
-      <p className="mt-[14px] text-lg text-fg-secondary [text-wrap:pretty]">{t('install.lede')}</p>
-
-      <ol>
-        <Step n="1" title={t('install.step1.title')} body={t('install.step1.body')}>
-          <SafariToolbarMock />
-        </Step>
-
-        <Step n="2" title={t('install.step2.title')} body={t('install.step2.body')}>
-          <SafariShareSheetMock
-            above={t('install.step2.sheetAbove')}
-            target={t('install.step2.sheetTarget')}
-            below={t('install.step2.sheetBelow')}
-          />
-        </Step>
-      </ol>
-
-      {/* What they are about to end up with. The step before this one asks
-          them to hunt for a row in a system sheet; this one tells them what
-          success looks like, so they know when they have found it. */}
-      <section className="mt-[26px] flex items-center gap-8 border border-surface-7 bg-surface-2 px-[18px] py-8">
-        <div className="flex flex-none flex-col items-center gap-4">
-          <LogoMark size={62} />
-          <span className="text-xs-lo font-medium text-fg-secondary">{brand.shortName}</span>
-        </div>
-        <p className="flex-1 text-md text-fg-secondary [text-wrap:pretty]">
-          {t('install.iconPreview')}
-        </p>
-      </section>
-
-      <section className="mt-[22px] border-y border-surface-7 px-[18px] py-8">
-        <h2 className="eyebrow text-[var(--ds-brand-accent-hi)]">{t('install.payoff.title')}</h2>
-        <p className="mt-[10px] text-base text-fg-secondary [text-wrap:pretty]">
-          {t('install.payoff.body')}
-        </p>
-      </section>
-
-      <div className="mt-10">
-        <Button size="lg" onClick={onDone}>
-          {t('install.done')}
-        </Button>
-      </div>
-
-      <button
-        type="button"
-        onClick={onLater}
+  if (opened) {
+    return (
+      <main
         className={
-          'mt-5 min-h-[44px] w-full cursor-pointer border-0 bg-transparent text-center ' +
-          'text-md-lo font-semibold text-fg-muted [text-wrap:balance]'
+          'flex min-h-dvh flex-col bg-app px-[var(--ds-gutter)] ' +
+          'pt-[max(calc(var(--ds-safe-top)+8px),12px)] pb-[calc(var(--ds-safe-bottom)+24px)]'
         }
       >
-        {t('install.later')}
-      </button>
+        <div className="my-auto">
+          <LogoMark size={62} />
+          <h1 className="mt-10 font-display text-d-md leading-[0.88] tracking-[-0.05em] uppercase">
+            {t('install.opened.title')}
+          </h1>
+          <p className="mt-[14px] text-lg text-fg-secondary [text-wrap:pretty]">
+            {t('install.opened.body')}
+          </p>
+          <button
+            type="button"
+            onClick={onDone}
+            className={
+              'mt-10 min-h-[44px] w-full cursor-pointer border-0 bg-transparent text-left ' +
+              'text-md-lo font-semibold text-fg-muted [text-wrap:balance]'
+            }
+          >
+            {t('install.opened.stay')}
+          </button>
+        </div>
+      </main>
+    )
+  }
 
-      {/* The reason skipping is allowed at all, said out loud rather than
-          discovered later at the icon. */}
-      <p className="mt-6 text-center text-sm text-fg-muted-lo [text-wrap:pretty]">
-        {t('install.laterWarning')}
-      </p>
+  return (
+    // Sense `overflow-y-auto`, a diferència de la branca d'Android: el peu és
+    // `sticky`, i un contenidor amb overflow passa a ser el seu marc de
+    // referència. Com que `min-h-dvh` el deixa créixer i qui fa scroll és el
+    // document, el peu es quedaria al final del contingut com si no hi fos.
+    <main className="flex min-h-dvh flex-col bg-app">
+      <div
+        className={
+          // Vuit píxels per damunt del safe-area, com HomeScreen i ScannerScreen.
+          // Hi havia `pt-[var(--ds-safe-top)]` i, concatenat, un `pt-2`: guanyava
+          // el primer —surt més tard al CSS generat— i el segon era codi mort. El
+          // titular quedava enganxat a la barra d'estat sense cap coixí, i la
+          // branca nativa no tenia ni safe-area.
+          'px-[var(--ds-gutter)] pt-[max(calc(var(--ds-safe-top)+8px),12px)] pb-10'
+        }
+      >
+        <h1 className="font-display text-d-md leading-[0.88] tracking-[-0.05em] uppercase">
+          {t('install.title')}
+        </h1>
+        <p className="mt-[14px] text-lg text-fg-secondary [text-wrap:pretty]">
+          {t('install.lede')}
+        </p>
+
+        <IosInstallSteps />
+
+        {/* What they are about to end up with. The step before this one asks
+            them to hunt for a row in a system sheet; this one tells them what
+            success looks like, so they know when they have found it. */}
+        <section className="mt-[26px] flex items-center gap-8 border border-surface-7 bg-surface-2 px-[18px] py-8">
+          <div className="flex flex-none flex-col items-center gap-4">
+            <LogoMark size={62} />
+            <span className="text-xs-lo font-medium text-fg-secondary">{brand.shortName}</span>
+          </div>
+          <p className="flex-1 text-md text-fg-secondary [text-wrap:pretty]">
+            {t('install.iconPreview')}
+          </p>
+        </section>
+
+        <section className="mt-[22px] border-y border-surface-7 px-[18px] py-8">
+          <h2 className="eyebrow text-[var(--ds-brand-accent-hi)]">{t('install.payoff.title')}</h2>
+          <p className="mt-[10px] text-base text-fg-secondary [text-wrap:pretty]">
+            {t('install.payoff.body')}
+          </p>
+        </section>
+
+        {/* The reason skipping is allowed at all, said out loud rather than
+            discovered later at the icon. Al final del contingut i no al peu:
+            allà eren tres línies més tapant la pantalla tota l'estona, i
+            quan s'arriba aquí a baix queda just damunt del botó que explica. */}
+        <p className="mt-9 text-center text-sm text-fg-muted-lo [text-wrap:pretty]">
+          {t('install.laterWarning')}
+        </p>
+      </div>
+
+      {/* Fixats al peu. Al final del contingut quedaven a 936 i 1008 px d'una
+          pàgina de 1143, o sigui que en un iPhone qualsevol no es veia cap de
+          les dues sortides sense fer scroll, i qui no en veu cap tanca la
+          pestanya. El vel és el de la barra de punts de la porta. */}
+      <div
+        className={
+          'sticky bottom-0 z-10 mt-auto border-t border-surface-6 bg-[var(--ds-scrim-bar)] ' +
+          'px-[var(--ds-gutter)] pt-7 pb-[calc(var(--ds-safe-bottom)+10px)] backdrop-blur-[14px]'
+        }
+      >
+        <Button
+          size="lg"
+          onClick={() => {
+            // Ara i no al «seguir al navegador»: la majoria tancarà la pestanya
+            // i obrirà la icona, que és el que se li demana, i aquest Safari
+            // no els ha de tornar a fer la pregunta si un dia hi tornen.
+            snoozeInstall(SNOOZE_DONE_MS)
+            setOpened(true)
+          }}
+        >
+          {t('install.done')}
+        </Button>
+
+        <button
+          type="button"
+          onClick={onLater}
+          className={
+            'mt-3 min-h-[44px] w-full cursor-pointer border-0 bg-transparent text-center ' +
+            'text-md-lo font-semibold text-fg-muted [text-wrap:balance]'
+          }
+        >
+          {t('install.later')}
+        </button>
+      </div>
     </main>
   )
 }

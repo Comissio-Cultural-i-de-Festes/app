@@ -1352,6 +1352,8 @@
       "lede": "Els punts es donen sols en fitxar. Això és per treure'ls quan cal, no per donar-los: mira els metres, i el que va fitxar de lluny es veu sol.",
       "nobody": "Encara no ha fitxat ningú.",
       "undo": "Treu-ho",
+      "undoConfirm": "Treu el fitxatge",
+      "undoSure": "Es treuen a {{nombre}} el fitxatge i els punts que li va donar. No es pot desfer des d'aquí; queda al registre.",
       "walkin": "no estava apuntat",
       "metres_one": "a {{count}} m",
       "metres_other": "a {{count}} m",

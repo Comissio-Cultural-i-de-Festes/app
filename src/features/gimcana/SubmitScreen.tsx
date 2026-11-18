@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { isPermanent } from '@/lib/db'
 import { errorKey } from '@/lib/errors'
+import { useAvailability } from '@/lib/useAvailability'
 import { UnreadableImage } from '@/lib/storage'
 import { Notice } from '@/ui/Notice/Notice'
 
@@ -60,6 +61,8 @@ export function SubmitScreen() {
     enabled: id !== '',
   })
 
+  const view = useAvailability(gimcana)
+
   const open = gimcana.data?.estat === 'oberta' ? gimcana.data : null
   const prova = open?.proves.find((p) => p.id === provaId) ?? null
 
@@ -100,7 +103,25 @@ export function SubmitScreen() {
       <JuntaHeader to={`/esdeveniment/${id}/gimcana`} label={t('gimcana.title')} />
 
       <div className={GUTTER}>
-        {prova === null ? (
+        {/* «Aquesta prova ja no hi és» només quan la gimcana ha arribat i no
+            la porta. Sense xarxa i sense res a la cau la gimcana no arriba, i
+            dir-ho així feia creure que la prova s'havia retirat. */}
+        {view.loading ? (
+          <p className="py-8 text-fg-muted">{t('state.loading')}</p>
+        ) : view.unavailable && gimcana.data === undefined ? (
+          <div className="py-8">
+            <p role="alert" className="text-md font-bold text-error [text-wrap:pretty]">
+              {t(view.messageKey)}
+            </p>
+            <button
+              type="button"
+              onClick={view.retry}
+              className="-ml-2 mt-6 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-brand-label"
+            >
+              {t('actions.retry')}
+            </button>
+          </div>
+        ) : prova === null ? (
           <p className="py-8 text-md text-fg-muted [text-wrap:pretty]">{t('gimcana.gone')}</p>
         ) : (
           <>

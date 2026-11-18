@@ -4,8 +4,8 @@ import { Link, useParams } from 'react-router'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
-import { errorKey } from '@/lib/errors'
 import { useAvailability } from '@/lib/useAvailability'
+import { SendNote } from '@/features/shell/SendNote'
 
 import { fetchBoard, fetchGimcana, fetchTeams, gimcanaKeys, pickTeam } from './api'
 import { teamName } from './teamName'
@@ -243,11 +243,11 @@ function TeamPicker({
         ))}
       </div>
 
-      {pick.isError ? (
-        <p role="alert" className="mt-5 text-md font-bold text-error [text-wrap:pretty]">
-          {t(errorKey(pick.error))}
-        </p>
-      ) : pick.data === 'ple' ? (
+      {/* Triar equip sense xarxa es posava en pausa i els botons es quedaven
+          apagats sense dir res, a la casa rural, que és on es tria. */}
+      <SendNote send={pick} className="mt-5" />
+
+      {pick.data === 'ple' ? (
         <p role="alert" className="mt-5 text-md font-bold text-warning [text-wrap:pretty]">
           {t('gimcana.pick.full')}
         </p>

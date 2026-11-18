@@ -5,7 +5,7 @@ import { Link, useParams } from 'react-router'
 
 import { toneVar } from '@/design/states'
 import { eventKeys, fetchEvent } from '@/features/event/api'
-import { errorKey } from '@/lib/errors'
+import { useAvailability } from '@/lib/useAvailability'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
 import {
@@ -81,6 +81,10 @@ export function ManualScreen() {
     queryFn: () => fetchRoster(id),
     enabled: id !== '',
   })
+  // L'alta a mà és el que queda quan l'escàner no pot: a la porta, sense
+  // cobertura. Sense xarxa la llista es posava en pausa i «Un segon…» era per
+  // sempre, sense dir per què.
+  const view = useAvailability(roster)
 
   // Null mentre la consulta de l'esdeveniment no ha tornat o ha petat, que no
   // és el mateix que zero: `verdict.ts` en fa tres casos i no dos.
@@ -201,11 +205,11 @@ export function ManualScreen() {
 
       {last === null ? null : <LastInStrip last={last} undo={undoLast} priceCents={priceCents} />}
 
-      {roster.isPending ? (
+      {view.loading ? (
         <p className="px-[var(--ds-gutter)] pt-10 text-fg-muted">{t('state.loading')}</p>
-      ) : roster.isError ? (
+      ) : view.unavailable ? (
         <p role="alert" className="px-[var(--ds-gutter)] pt-10 text-md font-bold text-error">
-          {t(errorKey(roster.error))}
+          {t(view.messageKey)}
         </p>
       ) : rows.length === 0 ? (
         // checkin_roster hands back zero rows rather than an error to anybody

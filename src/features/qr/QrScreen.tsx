@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import QRCode from 'qrcode'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
 import { InviteCodeSheet } from '@/features/session/InviteCodeSheet'
@@ -10,6 +9,7 @@ import type { Escola } from '@/lib/model'
 import { useAvailability } from '@/lib/useAvailability'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
+import { CARD, QrCard } from './QrCard'
 import { qrQuery, readCachedToken } from './api'
 
 /**
@@ -17,15 +17,8 @@ import { qrQuery, readCachedToken } from './api'
  *
  * Less is the whole design here: a big code, a big name under it, and nothing
  * competing with either. Somebody is holding this up in a queue, at night, to
- * a person who has ninety more to scan.
- *
- * White card on a dark app on purpose. Scanners read dark-on-light far more
- * reliably, and inverting a QR is the kind of clever that costs you a second
- * per person at the door.
+ * a person who has ninety more to scan. The card itself lives in `QrCard`.
  */
-
-const CARD = 340
-const CODE = 300
 
 /** La targeta blanca, la mateixa mida, mentre el codi arriba. */
 function QrSkeleton() {
@@ -48,8 +41,6 @@ export function QrScreen() {
   const { t } = useTranslation()
   const userId = useUserId()
   const { data: profile } = useMyProfile()
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [drawError, setDrawError] = useState(false)
   const [asking, setAsking] = useState(false)
 
   // A profile that is not active has no door token and cannot get one — the
@@ -67,25 +58,6 @@ export function QrScreen() {
     initialData: () => readCachedToken(userId) ?? undefined,
   })
   const view = useAvailability(token)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas || token.data === undefined) return
-
-    void QRCode.toCanvas(canvas, token.data, {
-      width: CODE,
-      margin: 0,
-      errorCorrectionLevel: 'M',
-      color: { dark: '#000000', light: '#ffffff' },
-    }).then(
-      () => {
-        setDrawError(false)
-      },
-      () => {
-        setDrawError(true)
-      },
-    )
-  }, [token.data])
 
   // Keeps the screen from dimming while it is being shown. There is no way to
   // raise the brightness from a web page — the line below asks the person to
@@ -211,36 +183,7 @@ export function QrScreen() {
         )
       ) : (
         <>
-          <div
-            className="flex flex-col items-center rounded-lg bg-white p-10"
-            style={{ width: CARD }}
-          >
-            {drawError ? (
-              <p
-                role="alert"
-                className="flex h-[300px] w-[300px] items-center justify-center text-center text-md text-[oklch(0.42_0.012_45)] [text-wrap:pretty]"
-              >
-                {t('qr.unavailable')}
-              </p>
-            ) : (
-              <canvas
-                ref={canvasRef}
-                width={CODE}
-                height={CODE}
-                aria-label={t('qr.codeLabel')}
-                role="img"
-              />
-            )}
-
-            <p className="display mt-9 text-center text-d-sm tracking-[-0.04em] text-[oklch(0.18_0.012_25)]">
-              {profile?.nombre ?? ''}
-            </p>
-            {subtitle === '' ? null : (
-              <p className="mt-3 text-center text-md font-semibold text-[oklch(0.42_0.012_45)]">
-                {subtitle}
-              </p>
-            )}
-          </div>
+          <QrCard token={token.data} name={profile?.nombre ?? ''} subtitle={subtitle} />
 
           <p className="mt-[22px] flex items-center gap-[9px] rounded-md bg-surface-2 px-[14px] py-[9px]">
             <span aria-hidden="true" className="size-2 flex-none rounded-full bg-success" />

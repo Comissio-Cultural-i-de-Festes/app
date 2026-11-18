@@ -26,14 +26,19 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
+const encode = vi.fn((b: Blob) => Promise.resolve(b))
+const putFails = { on: false }
+
 vi.mock('@/lib/storage', () => ({
   GIMCANA_PHOTOS: 'gimcana-photos',
-  galleryImage: (b: Blob) => Promise.resolve(b),
+  galleryImage: (b: Blob) => encode(b),
+  UnreadableImage: class UnreadableImage extends Error {},
 }))
 
 vi.mock('@/lib/queue', () => ({
   PROVES: 'gimcana-queue',
   put: (_s: string, item: { id: string; tries: number }) => {
+    if (putFails.on) return Promise.resolve()
     store.set(item.id, item)
     return Promise.resolve()
   },
@@ -44,7 +49,7 @@ vi.mock('@/lib/queue', () => ({
   waiting: () => Promise.resolve([...store.values()]),
 }))
 
-const { flushProves, submitProva } = await import('./api')
+const { flushProves, submitProva, NotSaved } = await import('./api')
 
 const PROVA = '00000000-0000-4000-8000-0000000000a1'
 const USER = '00000000-0000-4000-8000-0000000000b1'
@@ -52,6 +57,9 @@ const photo = new Blob(['x'], { type: 'image/jpeg' })
 
 beforeEach(() => {
   store.clear()
+  putFails.on = false
+  encode.mockReset()
+  encode.mockImplementation((b: Blob) => Promise.resolve(b))
   for (const m of [getUser, getSession, upload, rpc]) m.mockReset()
   upload.mockResolvedValue({ error: null })
   rpc.mockResolvedValue({ data: { estat: 'enviada' }, error: null })
@@ -140,5 +148,36 @@ describe('enviaments concurrents', () => {
 
     expect(upload).toHaveBeenCalledTimes(1)
     expect(rpc).toHaveBeenCalledTimes(1)
+  })
+})
+
+describe('el que no ha arribat a desar-se', () => {
+  // «Desada, s'enviarà sola» només és veritat si la foto és a la cua. Un error
+  // abans del `put` ha de sortir com a tal, no com una xarxa caiguda.
+  it('un canvas que falla surt com a no desada, sense res a la cua', async () => {
+    encode.mockRejectedValue(new Error('no canvas'))
+
+    await expect(submitProva(PROVA, photo)).rejects.toBeInstanceOf(NotSaved)
+
+    expect(store.size).toBe(0)
+    expect(upload).not.toHaveBeenCalled()
+  })
+
+  // El `put` real de la cua no peta: sense IndexedDB torna sense dir res.
+  it("un IndexedDB que no desa, amb l'enviament fallat, surt com a no desada", async () => {
+    putFails.on = true
+    getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })
+    upload.mockRejectedValue(new TypeError('Failed to fetch'))
+
+    await expect(submitProva(PROVA, photo)).rejects.toBeInstanceOf(NotSaved)
+  })
+
+  it('un enviament fallat amb la foto a la cua continua sent «a la cua»', async () => {
+    getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })
+    upload.mockRejectedValue(new TypeError('Failed to fetch'))
+
+    await expect(submitProva(PROVA, photo)).rejects.not.toBeInstanceOf(NotSaved)
+
+    expect(store.size).toBe(1)
   })
 })

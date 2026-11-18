@@ -1,6 +1,6 @@
-import { DbError } from '@/lib/db'
+import { DbError, isPermanent } from '@/lib/db'
 import { drop, PROVES, put, waiting } from '@/lib/queue'
-import { galleryImage, GIMCANA_PHOTOS } from '@/lib/storage'
+import { galleryImage, GIMCANA_PHOTOS, UnreadableImage } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -151,16 +151,49 @@ interface QueuedProva {
  * ja és a IndexedDB i sortirà sola. Al revés, prémer el botó sense cobertura no
  * deixaria cap rastre enlloc.
  */
+/**
+ * La foto no ha arribat a ser a la cua: el canvas no ha pogut codificar-la o
+ * IndexedDB ha dit que no. «Desada, s'enviarà sola» seria mentida, i la
+ * pantalla ho ha de dir amb un error i no amb l'avís de la cua.
+ */
+export class NotSaved extends Error {
+  constructor(cause: unknown) {
+    super('the photo could not be written to the queue', { cause })
+    this.name = 'NotSaved'
+  }
+}
+
 export async function submitProva(provaId: string, photo: Blob): Promise<string> {
   const id = crypto.randomUUID()
-  // Encongida abans de desar-la a la cua i no després: guardar el fotograma
-  // sencer de la càmera seria omplir IndexedDB de megues que ningú mirarà a
-  // aquella mida, i la junta la mira en un telèfon.
-  const small = await galleryImage(photo)
-  const item = { id, provaId, photo: small, at: Date.now(), tries: 0 }
+  let item: QueuedProva
+  try {
+    // Encongida abans de desar-la a la cua i no després: guardar el fotograma
+    // sencer de la càmera seria omplir IndexedDB de megues que ningú mirarà a
+    // aquella mida, i la junta la mira en un telèfon.
+    const small = await galleryImage(photo)
+    item = { id, provaId, photo: small, at: Date.now(), tries: 0 }
+    await put(PROVES, item)
+  } catch (cause) {
+    // Un fitxer il·legible té el seu propi missatge.
+    if (cause instanceof UnreadableImage) throw cause
+    throw new NotSaved(cause)
+  }
+  try {
+    return await send(item)
+  } catch (cause) {
+    if (isPermanent(cause)) throw cause
+    // `put` de la cua no peta mai: sense IndexedDB —mode privat, quota,
+    // disc ple— torna sense dir res. Si l'enviament ha fallat i la foto no és
+    // a la cua, «desada» seria mentida: ningú no la tornarà a intentar.
+    if (!(await isQueued(provaId))) throw new NotSaved(cause)
+    throw cause
+  }
+}
 
-  await put(PROVES, item)
-  return send(item)
+/** Si aquesta prova encara espera a la cua, per saber quan ha sortit. */
+export async function isQueued(provaId: string): Promise<boolean> {
+  const rows = await waiting<QueuedProva>(PROVES)
+  return rows.some((row) => row.provaId === provaId)
 }
 
 /**

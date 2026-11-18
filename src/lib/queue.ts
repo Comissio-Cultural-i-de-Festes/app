@@ -160,8 +160,29 @@ export async function count(storeName: string = SCANS): Promise<number> {
   return (await run<number>(storeName, 'readonly', (store) => store.count())) ?? 0
 }
 
+/**
+ * Un intent fallit més, només si l'entrada encara hi és.
+ *
+ * ABANS ERA UN `put` SENSE MIRAR, i això reviu entrades. Qui envia té la fila
+ * a la mà des d'abans d'enviar; si mentrestant algú l'ha treta —«Desfés» a la
+ * porta, que la treu i fa enrere el fitxatge al servidor—, el `put` del
+ * fracàs la tornava a escriure, i el buidatge següent fitxava la persona de
+ * nou, amb punts, amb la pantalla dient «fet enrere».
+ *
+ * Llegir i escriure dins de la mateixa transacció és el que ho fa segur: les
+ * transaccions d'escriptura sobre un mateix magatzem no s'encavalquen, així
+ * que entre el `get` i el `put` no hi cap cap `delete`.
+ */
 export async function bumpTries(scan: QueuedScan): Promise<void> {
-  await enqueue({ ...scan, tries: scan.tries + 1 })
+  await run(SCANS, 'readwrite', (store) => {
+    const current = store.get(scan.clientRequestId) as IDBRequest<QueuedScan | undefined>
+    // `addEventListener` i no `onsuccess`: `run` es queda aquell per resoldre.
+    current.addEventListener('success', () => {
+      const row = current.result
+      if (row !== undefined) store.put({ ...row, tries: row.tries + 1 })
+    })
+    return current
+  })
 }
 
 /**

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { type ReactNode, useEffect } from 'react'
+import { type ReactNode, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 
@@ -20,6 +20,7 @@ import { eventTitle } from '@/features/event/title'
 
 import { AvisosEstatsBlock } from './AvisosEstatsBlock'
 import { AvisosPendentsBlock } from './AvisosPendentsBlock'
+import { type Stale, doorView, minutesAgo } from './doorView'
 import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
 import { fetchHoresPendents, horesKeys } from './horesApi'
@@ -116,6 +117,11 @@ export function JuntaHome() {
     if (navigator.onLine) void warmDecoder()
   }, [])
 
+  // Les dades abans que l'error: el perquè és a `doorView.ts`.
+  const door = doorView(home, events.data)
+  const retrying = home.fetchStatus !== 'idle'
+  const retry = () => void home.refetch()
+
   const porta = home.data?.porta ?? null
   const dayWord = porta === null ? '' : formatWeekdayLong(new Date(porta.starts_at), locale)
 
@@ -128,14 +134,28 @@ export function JuntaHome() {
         className="lg:hidden"
       />
 
-      {home.isPending ? (
-        <DoorLoading />
-      ) : home.isError ? (
-        <DoorFailed onRetry={() => void home.refetch()} />
-      ) : porta === null ? (
-        <DoorNone />
+      {door.kind === 'loading' ? (
+        <DoorLoading scannerTo={scannerTo(door.scannerEventId)} />
+      ) : door.kind === 'failed' ? (
+        <DoorFailed
+          scannerTo={scannerTo(door.scannerEventId)}
+          retrying={retrying}
+          onRetry={retry}
+        />
       ) : (
-        <Door porta={porta} locale={locale} />
+        <>
+          {door.stale === null ? null : (
+            // Keyed on the moment, so the two-second grace starts again for
+            // each refresh rather than once per visit.
+            <DoorStale
+              key={door.stale.since}
+              stale={door.stale}
+              retrying={retrying}
+              onRetry={retry}
+            />
+          )}
+          {door.kind === 'none' ? <DoorNone /> : <Door porta={door.porta} locale={locale} />}
+        </>
       )}
 
       {/* ── Hi ha feina ── */}
@@ -151,21 +171,19 @@ export function JuntaHome() {
         amber
       />
 
-      {home.isPending ? (
+      {door.kind === 'loading' ? (
         <WorkSkeleton />
-      ) : home.isError ? (
+      ) : home.data === undefined ? (
         <div className={`flex items-center gap-6 pt-6 ${GUTTER}`}>
           <span className="display flex-none text-d-s leading-none text-fg-muted">—</span>
           <p className="flex-1 text-md text-fg-secondary [text-wrap:pretty]">
             {t('junta.home.workFailed')}
           </p>
-          <button
-            type="button"
-            onClick={() => void home.refetch()}
-            className="min-h-[44px] flex-none border-[1.5px] border-warning px-4 text-sm font-bold text-warning"
-          >
-            {t('actions.retry')}
-          </button>
+          <RetryButton
+            retrying={retrying}
+            onRetry={retry}
+            className="min-h-[44px] flex-none px-4 text-sm"
+          />
         </div>
       ) : workCount(home.data, porta, marcats + pendentsFeina) === 0 ? (
         <div className={`pt-6 ${GUTTER}`}>
@@ -448,6 +466,10 @@ function periodsCoverToday(
   )
 }
 
+function scannerTo(eventId: string | null): string | null {
+  return eventId === null ? null : `/junta/escaner/${eventId}`
+}
+
 // ── the door ────────────────────────────────────────────────────────────────
 
 function Door({ porta, locale }: { readonly porta: DoorNow; readonly locale: Locale }) {
@@ -555,11 +577,25 @@ function DoorNone() {
 /**
  * Not "no event": "we could not find out".
  *
- * The difference is the whole reason this state is drawn separately. And the
- * way to the scanner stays open, because the one thing that still works with
- * no connection is the queue behind it.
+ * The difference is the whole reason this state is drawn separately. Only
+ * drawn when there is nothing at all to show: with earlier data the door is
+ * drawn instead, with `DoorStale` above it.
+ *
+ * The way to the scanner stays open when the event list says which event it
+ * would be, because the one thing that still works with no connection is the
+ * queue behind it. It used to be a link to this same screen, which at a door
+ * with a queue is a button that does nothing; when the event is unknown there
+ * is no button.
  */
-function DoorFailed({ onRetry }: { readonly onRetry: () => void }) {
+function DoorFailed({
+  scannerTo,
+  retrying,
+  onRetry,
+}: {
+  readonly scannerTo: string | null
+  readonly retrying: boolean
+  readonly onRetry: () => void
+}) {
   const { t } = useTranslation()
   return (
     <section className="border-b border-surface-5 bg-surface-1 px-[var(--ds-gutter)] py-9">
@@ -570,28 +606,125 @@ function DoorFailed({ onRetry }: { readonly onRetry: () => void }) {
         {t('junta.home.doorFailedSub')}
       </p>
       <div className="mt-7 flex flex-wrap gap-5">
-        <button
-          type="button"
-          onClick={onRetry}
-          className="min-h-[50px] flex-1 border-[1.5px] border-warning px-6 text-md font-bold text-warning"
-        >
-          {t('actions.retry')}
-        </button>
-        <Link
-          to="/junta"
-          className="flex min-h-[50px] flex-1 items-center justify-center border-[1.5px] border-surface-7 px-6 text-md font-bold text-fg-secondary no-underline"
-        >
-          {t('junta.home.openScanner')}
-        </Link>
+        <RetryButton
+          retrying={retrying}
+          onRetry={onRetry}
+          className="min-h-[50px] flex-1 px-6 text-md"
+        />
+        {scannerTo === null ? null : (
+          <Link
+            to={scannerTo}
+            className="flex min-h-[50px] flex-1 items-center justify-center border-[1.5px] border-surface-7 px-6 text-md font-bold text-fg-secondary no-underline"
+          >
+            {t('junta.home.openScanner')}
+          </Link>
+        )}
       </div>
-      <p className="mt-5 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-        {t('junta.home.doorFailedNote')}
-      </p>
+      {scannerTo === null ? null : (
+        <p className="mt-5 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+          {t('junta.home.doorFailedNote')}
+        </p>
+      )}
     </section>
   )
 }
 
-function DoorLoading() {
+/**
+ * The door is from earlier, and says so.
+ *
+ * A strip on the door's own panel rather than a notice of its own, because it
+ * qualifies the numbers under it and nothing else: the title, the place and
+ * the scanner button are as true as they were. The minutes tick, so a phone
+ * left on the table does not keep saying "a moment ago" for an hour.
+ */
+function DoorStale({
+  stale,
+  retrying,
+  onRetry,
+}: {
+  readonly stale: Stale
+  readonly retrying: boolean
+  readonly onRetry: () => void
+}) {
+  const { t } = useTranslation()
+  const [now, setNow] = useState(Date.now)
+  // A refresh still under way is not news for the first couple of seconds:
+  // every return to the app starts one, and a strip that blinks in and out
+  // above the scanner button would move the button under the thumb. One that
+  // has failed is said at once.
+  const [patient, setPatient] = useState(false)
+  useEffect(() => {
+    const tick = window.setInterval(() => {
+      setNow(Date.now())
+    }, 30_000)
+    const wait = window.setTimeout(() => {
+      setPatient(true)
+    }, 2_000)
+    return () => {
+      window.clearInterval(tick)
+      window.clearTimeout(wait)
+    }
+  }, [])
+  if (!stale.failed && !patient) return null
+  const n = minutesAgo(stale.since, now)
+
+  return (
+    <div className="flex items-center gap-6 bg-[var(--ds-bg-door-panel)] px-[var(--ds-gutter)] pt-7">
+      <p role="status" className="flex-1 text-sm font-bold text-warning [text-wrap:pretty]">
+        {!stale.failed
+          ? t('junta.home.doorStaleRefreshing', { n })
+          : n === 0
+            ? t('junta.home.doorStaleNow')
+            : t('junta.home.doorStale', { n })}
+      </p>
+      {stale.failed ? (
+        <RetryButton
+          retrying={retrying}
+          onRetry={onRetry}
+          className="min-h-[44px] flex-none px-4 text-sm"
+        />
+      ) : null}
+    </div>
+  )
+}
+
+/**
+ * "Try again", and visibly trying.
+ *
+ * A refetch with its retries takes a few seconds to fail again, and a button
+ * that looks exactly the same before and after reads as broken: this is what
+ * made the old one look like it did nothing. Without signal the query waits
+ * for it rather than failing, and the label says it is still trying.
+ */
+function RetryButton({
+  retrying,
+  onRetry,
+  className,
+}: {
+  readonly retrying: boolean
+  readonly onRetry: () => void
+  readonly className: string
+}) {
+  const { t } = useTranslation()
+  return (
+    <button
+      type="button"
+      onClick={onRetry}
+      disabled={retrying}
+      className={`border-[1.5px] border-warning font-bold text-warning disabled:opacity-70 ${className}`}
+    >
+      {retrying ? t('junta.home.doorRetrying') : t('actions.retry')}
+    </button>
+  )
+}
+
+/**
+ * The door while it loads. With the scanner's event already known from the
+ * event list, its button is real rather than a skeleton: on a cold start over
+ * a saturated network the first load can take minutes, and the queue behind
+ * the scanner works without it.
+ */
+function DoorLoading({ scannerTo }: { readonly scannerTo: string | null }) {
   const { t } = useTranslation()
   return (
     <section
@@ -610,7 +743,16 @@ function DoorLoading() {
         ))}
       </div>
       <div className="mt-8 grid grid-cols-2 gap-5">
-        <SkeletonBar w="w-full" h="h-[78px]" />
+        {scannerTo === null ? (
+          <SkeletonBar w="w-full" h="h-[78px]" />
+        ) : (
+          <Link
+            to={scannerTo}
+            className="flex min-h-[78px] items-center justify-center bg-brand-cta px-6 text-xl font-bold text-on-brand no-underline [text-wrap:balance]"
+          >
+            {t('junta.scan')}
+          </Link>
+        )}
         <SkeletonBar w="w-full" h="h-[78px]" />
       </div>
       <p className="mt-6 text-sm text-fg-muted">{t('junta.home.doorLoading')}</p>

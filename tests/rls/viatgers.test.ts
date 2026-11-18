@@ -38,7 +38,7 @@ const DADES = {
   numero_suport: 'ABC123456',
   nacionalitat: 'ES',
   data_naixement: '2003-04-05',
-  adreca: 'Carrer Inventat 1',
+  adreca: 'Via Inventada 1',
   localitat: 'Poble Alfa',
   pais: 'ES',
   telefon_emergencia: '955000001',
@@ -110,7 +110,7 @@ describe('les dades de viatger per PostgREST', () => {
   it('un altre soci no les edita ni les esborra', async () => {
     const edit = await bravo
       .from('dades_viatger')
-      .update({ adreca: 'Carrer Robat' })
+      .update({ adreca: 'Via Robada' })
       .eq('event_id', casa)
       .select('user_id')
     expect(edit.error).toBeNull()
@@ -121,7 +121,7 @@ describe('les dades de viatger per PostgREST', () => {
     expect(del.data).toEqual([])
 
     const { data } = await charlie.from('dades_viatger').select('adreca').eq('event_id', casa)
-    expect(data).toEqual([{ adreca: 'Carrer Inventat 1' }])
+    expect(data).toEqual([{ adreca: 'Via Inventada 1' }])
   })
 
   it('el propietari no se les pot passar a algú altre: no hi ha grant de columna', async () => {

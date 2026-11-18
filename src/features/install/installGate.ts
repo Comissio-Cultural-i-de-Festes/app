@@ -201,8 +201,16 @@ export function shouldPromptInstall(
  *
  * Comparteix el repòs amb la pantalla, a posta: «ara no» i «ja ho tinc fet» són
  * respostes a la pregunta, no a la forma que tenia.
+ *
+ * Tampoc mentre el codi de l'enllaç espera el bescanvi: instal·lar llavors és
+ * obrir la icona sense codi i encara pendent, el forat que la porta davant de la
+ * instal·lació tapava.
  */
-export function shouldOfferInstallCard(now = Date.now()): boolean {
+export function shouldOfferInstallCard(
+  now = Date.now(),
+  { invited = false }: { readonly invited?: boolean } = {},
+): boolean {
+  if (invited) return false
   if (inAppBrowser() !== null) return false
   if (!isIos()) return false
   if (isStandalone()) return false

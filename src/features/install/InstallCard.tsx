@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { pendingInvite } from '@/features/entry/pendingInvite'
+import { readInviteCode } from '@/features/entry/useInvite'
 import { Button } from '@/ui/Button/Button'
 import { Sheet, SheetClose } from '@/ui/Sheet/Sheet'
 
@@ -32,7 +34,11 @@ export function InstallCard() {
   const { t } = useTranslation()
   // Es llegeix un sol cop: el repòs viu a `localStorage` i res d'aquesta pantalla
   // el canvia si no és aquesta mateixa targeta.
-  const [shown, setShown] = useState(() => shouldOfferInstallCard())
+  const [shown, setShown] = useState(() =>
+    shouldOfferInstallCard(Date.now(), {
+      invited: readInviteCode() !== null || pendingInvite() !== null,
+    }),
+  )
   const [steps, setSteps] = useState(false)
 
   if (!shown) return null

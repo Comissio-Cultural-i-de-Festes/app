@@ -211,7 +211,7 @@ export function AvisTipusBlock() {
                     onChange={(e) => {
                       change({ gravetat: e.target.value })
                     }}
-                    className="mt-2 min-h-[46px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none"
+                    className="mt-2 min-h-[46px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg"
                   />
                 </label>
 
@@ -231,7 +231,7 @@ export function AvisTipusBlock() {
                       change({ punts: e.target.value })
                     }}
                     className={
-                      'tabular mt-2 min-h-[46px] w-full border-[1.5px] bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none ' +
+                      'tabular mt-2 min-h-[46px] w-full border-[1.5px] bg-surface-1 px-4 text-center text-lg font-bold text-fg ' +
                       (lectura === 'punts' ? 'border-warning' : 'border-surface-7')
                     }
                   />
@@ -356,7 +356,7 @@ export function AvisTipusBlock() {
                   setNou((p) => ({ ...p, gravetat: e.target.value }))
                   setAfegit(null)
                 }}
-                className="mt-2 min-h-[46px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none"
+                className="mt-2 min-h-[46px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg"
               />
             </label>
             <label className="min-w-0 flex-1">
@@ -374,7 +374,7 @@ export function AvisTipusBlock() {
                   setAfegit(null)
                 }}
                 className={
-                  'tabular mt-2 min-h-[46px] w-full border-[1.5px] bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none ' +
+                  'tabular mt-2 min-h-[46px] w-full border-[1.5px] bg-surface-1 px-4 text-center text-lg font-bold text-fg ' +
                   (lecturaNova === 'punts' ? 'border-warning' : 'border-surface-7')
                 }
               />

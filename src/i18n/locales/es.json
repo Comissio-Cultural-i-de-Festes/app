@@ -102,8 +102,8 @@
     },
     "app": {
       "title": "Entra",
-      "lede": "Entra con tu cuenta de Google. Si ya entraste con una invitación en Safari, ya estás dentro.",
-      "reassurance": "De la cuenta solo cogemos el nombre, el correo y la foto. Si aún tienen que aceptarte, una vez dentro lo verás arriba del todo.",
+      "lede": "Entra con tu cuenta de Google. Si ya te han aceptado, entra y listo; si no, una vez dentro verás cómo va.",
+      "reassurance": "De la cuenta solo cogemos el nombre, el correo y la foto. Si aún no te han aceptado, la junta te dará acceso a mano, normalmente el mismo día.",
       "hasCodeHint": "Escríbelo en el aviso de arriba una vez dentro."
     },
     "invite": {

@@ -41,6 +41,8 @@ interface Combined {
   readonly urls: Map<string, string>
   /** Camins amb una URL de més d'una hora, i per tant sense mostrar. */
   readonly expired: readonly string[]
+  /** Quan caduca la primera de les que es mostren, o `null` si no n'hi ha. */
+  readonly nextExpiry: number | null
 }
 
 export function useSignedUrls(
@@ -59,19 +61,23 @@ export function useSignedUrls(
       const urls = new Map<string, string>()
       for (const url of absolute) urls.set(url, url)
       const expired: string[] = []
+      let nextExpiry: number | null = null
       const oldest = Date.now() - TTL_MS
       results.forEach((result, i) => {
         const path = stored[i]
         if (path === undefined || typeof result.data !== 'string') return
-        if (result.dataUpdatedAt > oldest) urls.set(path, result.data)
-        else expired.push(path)
+        if (result.dataUpdatedAt > oldest) {
+          urls.set(path, result.data)
+          const at = result.dataUpdatedAt + TTL_MS
+          if (nextExpiry === null || at < nextExpiry) nextExpiry = at
+        } else expired.push(path)
       })
-      return { urls, expired }
+      return { urls, expired, nextExpiry }
     },
     [stored, absolute],
   )
 
-  const { urls, expired } = useQueries({
+  const { urls, expired, nextExpiry } = useQueries({
     queries: stored.map((path) => signedUrlQuery(bucket, path)),
     combine,
   })
@@ -92,6 +98,35 @@ export function useSignedUrls(
       { cancelRefetch: false },
     )
   }, [client, bucket, expiredKey])
+
+  // I SENSE RES QUE ES VOLTI. `combine` només es torna a avaluar quan canvia un
+  // resultat o la llista, i una galeria oberta tota la nit sense cap de les
+  // dues deixaria les URL fer l'hora sense que ningú se n'adonés. Un
+  // temporitzador fins a la primera caducitat les renova; quan arriben les
+  // noves, `nextExpiry` canvia i se'n arma un altre.
+  useEffect(() => {
+    if (nextExpiry === null) return
+    const timer = setTimeout(
+      () => {
+        const oldest = Date.now() - TTL_MS
+        const mine = new Set(stored)
+        void client.invalidateQueries(
+          {
+            queryKey: signedKey(bucket),
+            predicate: (query) =>
+              typeof query.queryKey[2] === 'string' &&
+              mine.has(query.queryKey[2]) &&
+              query.state.dataUpdatedAt <= oldest,
+          },
+          { cancelRefetch: false },
+        )
+      },
+      Math.max(0, nextExpiry - Date.now()),
+    )
+    return () => {
+      clearTimeout(timer)
+    }
+  }, [client, bucket, stored, nextExpiry])
 
   return { data: urls }
 }

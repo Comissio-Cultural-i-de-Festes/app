@@ -191,6 +191,48 @@ export default defineConfig(({ mode, command }) => {
                 cacheableResponse: { statuses: [0, 200] },
               },
             },
+            {
+              // Els trossos que no són a la precache: la zona de junta, la porta
+              // i el mapa. Porten hash al nom i no canvien mai, així que el que
+              // s'ha baixat un cop serveix sense xarxa per sempre, que és el que
+              // la porta necessita. La ruta de la precache es registra abans, i
+              // el que hi és no arriba mai aquí.
+              //
+              // Funció i no RegExp, i sense res de fora: Workbox l'escriu tal
+              // qual a sw.js (vegeu el comentari de `supabaseOrigin`).
+              urlPattern: ({ url, sameOrigin }: { url: URL; sameOrigin: boolean }) =>
+                sameOrigin &&
+                url.pathname.startsWith('/assets/') &&
+                /\.(?:js|css)$/.test(url.pathname),
+              handler: 'CacheFirst' as const,
+              options: {
+                cacheName: 'chunks',
+                // Un build en fa una cinquantena; n'hi caben uns quants
+                // seguits, i els vells marxen primer. L'edat és la de les altres
+                // regles: amb `CacheFirst` caducar vol dir tornar a la xarxa, i
+                // a la porta no n'hi ha.
+                expiration: {
+                  maxEntries: 200,
+                  maxAgeSeconds: 60 * 60 * 24 * 365,
+                  purgeOnQuotaError: true,
+                },
+                cacheableResponse: { statuses: [200] },
+                plugins: [
+                  {
+                    // Cloudflare Pages respon `index.html` amb un 200 a qualsevol
+                    // camí que no existeix, també a un tros d'un desplegament
+                    // anterior. Guardar-lo amb el nom del tros seria guardar una
+                    // pàgina on hi havia d'haver codi.
+                    cacheWillUpdate: ({ response }: { response: Response }) =>
+                      Promise.resolve(
+                        response.headers.get('content-type')?.includes('text/html')
+                          ? null
+                          : response,
+                      ),
+                  },
+                ],
+              },
+            },
           ],
         },
         devOptions: { enabled: false, type: 'module' },

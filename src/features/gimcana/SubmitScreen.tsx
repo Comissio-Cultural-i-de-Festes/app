@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { isPermanent } from '@/lib/db'
 import { errorKey } from '@/lib/errors'
+import { UnreadableImage } from '@/lib/storage'
 import { Notice } from '@/ui/Notice/Notice'
 
 import { fetchGimcana, gimcanaKeys, submitProva } from './api'
@@ -13,8 +14,10 @@ import { fetchGimcana, gimcanaKeys, submitProva } from './api'
 /**
  * Enviar una prova.
  *
- * La foto es tria del carret o es fa amb la càmera —`capture` deixa que ho
- * decideixi el telèfon, que és qui sap si en té— i s'envia a validar. Els punts
+ * La foto es fa al moment o es tria del carret, i s'envia a validar. L'input
+ * NO porta `capture`: amb ell el telèfon obre directament la càmera i no deixa
+ * triar res, i amb poca cobertura la gent fa les fotos abans i les puja quan
+ * té senyal. Sense, iOS i Android ofereixen «Fer foto» i «Fototeca». Els punts
  * surten quan la junta digui que val, i això es diu aquí abans de prémer res:
  * el marcador que no es mou de seguida només decep si ningú havia avisat.
  *
@@ -111,7 +114,6 @@ export function SubmitScreen() {
               ref={picker}
               type="file"
               accept="image/*"
-              capture="environment"
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0] ?? null
@@ -153,7 +155,7 @@ export function SubmitScreen() {
                 sortirà sola. Ensenyar «sense connexió» en vermell faria pensar que
                 s'ha perdut, i és justament el cas per al qual existeix la cua. */}
             {send.isError ? (
-              isPermanent(send.error) ? (
+              isPermanent(send.error) || send.error instanceof UnreadableImage ? (
                 <p role="alert" className="mt-5 text-md font-bold text-error [text-wrap:pretty]">
                   {t(errorKey(send.error))}
                 </p>

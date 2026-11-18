@@ -1228,7 +1228,6 @@
     "home": {
       "doorNow": "Ahora mismo en la puerta",
       "doorPick": "{{n}} actividades en la puerta · elige la tuya",
-      "doorUntil": "Del {{from}} al {{to}}",
       "doorYes": "han dicho que sí",
       "doorIn": "han fichado",
       "doorFree": "plazas libres",

@@ -1228,7 +1228,6 @@
     "home": {
       "doorNow": "At the door right now",
       "doorPick": "{{n}} events at the door · pick yours",
-      "doorUntil": "From {{from}} to {{to}}",
       "doorYes": "said yes",
       "doorIn": "checked in",
       "doorFree": "places left",

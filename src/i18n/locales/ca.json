@@ -1228,7 +1228,6 @@
     "home": {
       "doorNow": "Ara mateix a la porta",
       "doorPick": "{{n}} activitats a la porta · tria la teva",
-      "doorUntil": "De {{from}} a {{to}}",
       "doorYes": "han dit sí",
       "doorIn": "han fitxat",
       "doorFree": "places lliures",

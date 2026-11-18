@@ -51,6 +51,7 @@ import { JuntaHeader } from '@/features/junta/JuntaHeader'
 
 import { CalendarOffer, CalendarRow } from './Calendar'
 import { MeetingActa, MeetingAnswer, MeetingRoster } from './Meeting'
+import { ViatgerBlock } from './ViatgerBlock'
 import { meetingKeys } from './meetingApi'
 import { BigCountdown, HiddenChip, InterestBlock } from './Teaser'
 import { eventTitle, titleIsHidden } from './title'
@@ -454,6 +455,8 @@ export function EventScreen() {
           offer={e}
         />
       )}
+
+      {isMeeting ? null : <ViatgerBlock eventId={e.id} />}
 
       {/* Right after fitxar, which is the moment somebody wants to say so.
           Only for whoever the door actually let in. */}

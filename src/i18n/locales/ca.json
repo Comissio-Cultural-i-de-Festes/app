@@ -831,7 +831,42 @@
       "coverFailed": "La portada no s'ha pogut pujar; l'esdeveniment s'ha desat sense. Torna-hi quan vulguis.",
       "endsBeforeStarts": "El final és abans de l'inici.",
       "endsRequired": "Falta l'hora de final. És d'on surten les hores de la memòria.",
-      "revealAfterStarts": "El reveal és després que comenci: no destaparia res."
+      "revealAfterStarts": "El reveal és després que comenci: no destaparia res.",
+      "eines": {
+        "title": "Eines d'aquesta activitat",
+        "lede": "Totes són d'aquest esdeveniment i hi són abans, durant i després. La porta del rebedor només n'és una drecera.",
+        "ledeDraft": "És un esborrany: l'escàner, l'alta, els punts i els pagaments hi surten quan el publiquis.",
+        "ledeMeeting": "Una reunió no té porta: qui hi era ho diu qui la tanca.",
+        "soon": "L'escàner i l'alta s'obren trenta hores abans que comenci.",
+        "escaner": {
+          "title": "L'escàner",
+          "sub": "Llegeix el QR de qui entra."
+        },
+        "alta": {
+          "title": "Alta pel nom",
+          "sub": "Per a qui no porta el QR a mà."
+        },
+        "punts": {
+          "title": "Donar punts",
+          "sub": "Per la feina feta, també l'endemà."
+        },
+        "pagaments": {
+          "title": "Pagaments",
+          "sub": "Qui ha pagat, qui demana plaça i qui espera."
+        },
+        "fitxatges": {
+          "title": "Qui ha fitxat",
+          "sub": "Per treure un fitxatge que no tocava."
+        },
+        "gimcana": {
+          "title": "La gimcana",
+          "sub": "Proves, equips i quan s'obre."
+        },
+        "validaGimcana": {
+          "title": "Validar la gimcana",
+          "sub": "Les fotos que esperen resposta."
+        }
+      }
     },
     "config": {
       "saved": "Desat.",

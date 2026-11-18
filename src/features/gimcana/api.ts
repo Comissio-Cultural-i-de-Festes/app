@@ -84,6 +84,7 @@ export interface QueueRow {
 export const gimcanaKeys = {
   all: () => ['gimcana'] as const,
   one: (eventId: string) => ['gimcana', 'one', eventId] as const,
+  existeix: (eventId: string) => ['gimcana', 'existeix', eventId] as const,
   teams: (gimcanaId: string) => ['gimcana', 'teams', gimcanaId] as const,
   board: (gimcanaId: string) => ['gimcana', 'board', gimcanaId] as const,
   queue: (eventId: string) => ['junta', 'gimcana', eventId] as const,
@@ -93,6 +94,24 @@ export async function fetchGimcana(eventId: string): Promise<Gimcana> {
   const { data, error } = await supabase.rpc('gimcana_for_event', { p_event_id: eventId })
   if (error) throw new DbError(error)
   return data as unknown as Gimcana
+}
+
+/**
+ * Si un esdeveniment té gimcana, i res més.
+ *
+ * Per a la fitxa de l'esdeveniment, que només ha de saber si dibuixa el camí a
+ * la cua. NO VA PER `gimcana_for_event`: aquella RPC és volàtil i, de passada,
+ * pot posar a un equip qui la crida si encara no en té cap. Obrir la fitxa d'un
+ * esdeveniment no pot ser apuntar-se a la seva gimcana.
+ */
+export async function fetchTeGimcana(eventId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('gimcanes')
+    .select('id')
+    .eq('event_id', eventId)
+    .maybeSingle()
+  if (error) throw new DbError(error)
+  return data !== null
 }
 
 export async function fetchTeams(gimcanaId: string): Promise<TeamRow[]> {

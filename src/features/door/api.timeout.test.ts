@@ -1,6 +1,8 @@
 import { createClient } from '@supabase/supabase-js'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type * as Queue from '@/lib/queue'
+
 /**
  * El temps màxim de la porta, contra el client de debò.
  *
@@ -23,10 +25,12 @@ const client = createClient('http://supabase.invalid', 'anon-inventada', {
 
 vi.mock('@/lib/supabase', () => ({ supabase: client }))
 
-vi.mock('@/lib/queue', () => ({
-  enqueue: () => Promise.resolve(),
-  dequeue: () => Promise.resolve(),
+vi.mock('@/lib/queue', async (importOriginal) => ({
+  ...(await importOriginal<typeof Queue>()),
+  enqueue: () => Promise.resolve(true),
+  dequeue: () => Promise.resolve(true),
   bumpTries: () => Promise.resolve(),
+  setRefused: () => Promise.resolve(),
   pending: () => Promise.resolve([]),
 }))
 

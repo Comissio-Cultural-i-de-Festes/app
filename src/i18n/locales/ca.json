@@ -37,6 +37,12 @@
     "unknownPerson": "Aquest QR",
     "displaced": "Abans, {{nombre}}: {{verdict}}",
     "displacedUnknown": "L'escaneig d'abans: {{verdict}}",
+    "noQueue": "Aquest mòbil no pot desar la cua",
+    "noQueueOffline": "Sense xarxa i sense cua: no es desa res",
+    "refused_one": "El servidor ha refusat {{count}} escaneig de la cua. Aquesta persona no consta com a entrada.",
+    "refused_other": "El servidor ha refusat {{count}} escanejos de la cua. Aquestes persones no consten com a entrades.",
+    "refusedRetry": "Torna-hi",
+    "refusedDrop": "Descarta",
     "notPaid": "no ha pagat",
     "camera": {
       "denied": "No podem obrir la càmera. Dona-hi permís als ajustos del navegador —Ajustos › {{app}} › Càmera— i torna-hi, o fes l'alta pel nom.",
@@ -2071,6 +2077,8 @@
     "eventNotOpen": "Aquest esdeveniment no està obert",
     "error": "No s'ha pogut connectar. Torna-ho a provar",
     "queued": "Desat. S'enviarà quan hi hagi cobertura",
+    "notSaved": "No s'ha pogut desar ni enviar",
+    "refused": "El servidor no l'accepta",
     "action": {
       "okWalkin": "No estava apuntat. Ja consta que ha vingut.",
       "okWalkinReview": "Mira que pagui abans d’entrar, o apunta-ho.",
@@ -2080,6 +2088,8 @@
       "notAMember": "Que et digui el nom i el busques a mà. No el deixis passar sense apuntar-lo.",
       "memberInactive": "Que demani entrar. L’aproveu demà des de la zona junta.",
       "eventNotOpen": "Comprova que és l’esdeveniment bo i que està publicat.",
+      "notSaved": "No sortirà sol. Que et digui el nom i fes-li l'alta pel nom quan torni la cobertura.",
+      "refused": "No ha entrat. Que et digui el nom i busca'l a l'alta pel nom.",
       "error": "Segueix escanejant. Quan torni la cobertura s’envia sol."
     }
   },

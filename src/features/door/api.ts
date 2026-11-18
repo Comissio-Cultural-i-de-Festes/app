@@ -1,7 +1,15 @@
 import { type CheckInStatus, SCAN_PRESENTATION, type ScanPresentation } from '@/design/states'
-import { DbError, unwrapAs } from '@/lib/db'
+import { DbError, isPermanent, unwrapAs } from '@/lib/db'
 import type { Escola } from '@/lib/model'
-import { type QueuedScan, bumpTries, dequeue, enqueue, pending } from '@/lib/queue'
+import {
+  type QueuedScan,
+  NotSaved,
+  bumpTries,
+  dequeue,
+  enqueue,
+  pending,
+  setRefused,
+} from '@/lib/queue'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -142,6 +150,13 @@ export async function fetchRoster(eventId: string): Promise<RosterRow[]> {
  * The queue is written first and cleared on success, rather than being a
  * fallback after a failure: a request that times out after thirty seconds
  * would otherwise be lost between the two.
+ *
+ * A queue that could not be written does not stop the scan. It is sent all
+ * the same — `check_in` is idempotent on the id whether or not a copy exists
+ * on the phone — and if it lands, the answer is as good as any other. Only if
+ * it does not land is the difference worth saying, and then it is `NotSaved`:
+ * nothing is going to send it later, so "queued" would be a lie told to
+ * somebody who will wave the person through on the strength of it.
  */
 export async function scan(request: ScanRequest): Promise<CheckInResult> {
   const queued: QueuedScan = {
@@ -152,13 +167,21 @@ export async function scan(request: ScanRequest): Promise<CheckInResult> {
     at: Date.now(),
     tries: 0,
   }
-  await enqueue(queued)
+  const saved = await enqueue(queued)
 
   try {
     const result = await checkIn(request)
-    await dequeue(request.clientRequestId)
+    if (saved) await dequeue(request.clientRequestId)
     return result
   } catch (cause) {
+    // The server has said no and will say it again. The card says so now, and
+    // a copy left behind would only be sent to hear it a second time — and,
+    // first in line, would hold up every scan behind it.
+    if (isPermanent(cause)) {
+      if (saved) await dequeue(request.clientRequestId)
+      throw cause
+    }
+    if (!saved) throw new NotSaved(cause)
     // Left in the queue on purpose. The person in front of you goes in either
     // way; the row catches up when the signal does.
     await bumpTries(queued)
@@ -190,7 +213,21 @@ export type DoorOutcome =
        */
       readonly unanswered?: true
     }
-  | { readonly kind: 'failed'; readonly request: ScanRequest }
+  | {
+      readonly kind: 'failed'
+      readonly request: ScanRequest
+      /**
+       * The server answered, and the answer was no for good. Nothing was left
+       * in the queue, so the card must not say it goes on its own.
+       */
+      readonly refused?: true
+    }
+  /**
+   * Neither on the server nor on the phone. Not `queued`, however much it
+   * looks like it from the door: nothing will ever send it, so somebody has to
+   * do it by hand.
+   */
+  | { readonly kind: 'unsaved'; readonly request: ScanRequest }
 
 /**
  * Which of the two a thrown scan was. Offline is the queue working.
@@ -201,6 +238,8 @@ export type DoorOutcome =
  * flush is already going to send.
  */
 export function outcomeFromFailure(request: ScanRequest, cause: unknown): DoorOutcome {
+  if (cause instanceof NotSaved) return { kind: 'unsaved', request }
+  if (isPermanent(cause)) return { kind: 'failed', request, refused: true }
   if (cause instanceof DoorTimeout) return { kind: 'queued', request, unanswered: true }
   return navigator.onLine ? { kind: 'failed', request } : { kind: 'queued', request }
 }
@@ -247,6 +286,10 @@ const UNDOABLE: ReadonlySet<CheckInStatus> = new Set<CheckInStatus>([
  */
 export function undoTargetOf(outcome: DoorOutcome): UndoTarget | null {
   const { request } = outcome
+
+  // Nothing was written down, and as far as anybody knows nothing landed.
+  if (outcome.kind === 'unsaved') return null
+  if (outcome.kind === 'failed' && outcome.refused === true) return null
 
   if (outcome.kind === 'sent') {
     const { status, user_id } = outcome.result
@@ -313,6 +356,14 @@ export interface FlushOutcome {
 /**
  * Sends whatever is waiting. Stops at the first failure rather than hammering.
  *
+ * EXCEPT A FAILURE THAT WILL NEVER STOP FAILING. A scan the server refuses for
+ * good — a QR that is not ours, read with no signal; an event that has gone —
+ * used to sit at the front and end every run at the same place, so nothing
+ * behind it was ever sent again. It is set aside instead, marked with the code
+ * it got, and the run carries on. Kept rather than dropped: it is somebody who
+ * walked through the door and is not checked in, and the junta has to see
+ * that (`RefusedScans`).
+ *
  * ONE AT A TIME. It is called by a twenty-second timer, by the `online` event
  * and by both door screens, and with an eight-second deadline per item two
  * runs overlap easily. Two runs read the same snapshot and send the same
@@ -330,21 +381,48 @@ export function flushQueue(): Promise<FlushOutcome> {
 let flushing: Promise<FlushOutcome> | null = null
 
 async function drain(): Promise<FlushOutcome> {
-  const waiting = await pending()
+  const waiting = (await pending()).filter((item) => item.refused === undefined)
   let sent = 0
+  let refused = 0
 
   for (const item of waiting) {
     try {
       await checkIn(item)
       await dequeue(item.clientRequestId)
       sent += 1
-    } catch {
+    } catch (cause) {
+      if (cause instanceof DbError && isPermanent(cause)) {
+        await setRefused(item.clientRequestId, cause.code)
+        refused += 1
+        continue
+      }
       await bumpTries(item)
       break
     }
   }
 
-  return { sent, left: waiting.length - sent }
+  return { sent, left: waiting.length - sent - refused }
+}
+
+/**
+ * The scans the server refused, sent once more.
+ *
+ * For the refusal that was not really about the scan: a session that lapsed
+ * and went out without its token, a junta role restored. If it was about the
+ * scan, it comes straight back refused, which costs one request each.
+ */
+export async function retryRefused(): Promise<FlushOutcome> {
+  for (const item of await pending()) {
+    if (item.refused !== undefined) await setRefused(item.clientRequestId, null)
+  }
+  return flushQueue()
+}
+
+/** Forgets them. The junta has seen the line and dealt with it by hand. */
+export async function discardRefused(): Promise<void> {
+  for (const item of await pending()) {
+    if (item.refused !== undefined) await dequeue(item.clientRequestId)
+  }
 }
 
 export async function awardPoints(
@@ -389,6 +467,22 @@ export async function awardPoints(
  */
 export function presentationOf(outcome: DoorOutcome): ScanPresentation {
   if (outcome.kind === 'sent') return SCAN_PRESENTATION[outcome.result.status]
+  // The error's colour and buzz, and words of its own: "could not connect, it
+  // goes on its own" is what a failed scan says, and this one will not.
+  if (outcome.kind === 'unsaved') {
+    return {
+      ...SCAN_PRESENTATION.error,
+      messageKey: 'scanner.notSaved',
+      actionKey: 'scanner.action.notSaved',
+    }
+  }
+  if (outcome.kind === 'failed' && outcome.refused === true) {
+    return {
+      ...SCAN_PRESENTATION.error,
+      messageKey: 'scanner.refused',
+      actionKey: 'scanner.action.refused',
+    }
+  }
   if (outcome.kind === 'queued') {
     return { ...SCAN_PRESENTATION.ok_walkin_review, messageKey: 'scanner.queued', actionKey: null }
   }

@@ -2,7 +2,7 @@ import { queryOptions } from '@tanstack/react-query'
 
 import { staleIn } from './prune'
 import { SIGNED_TTL_SECONDS, signedKey } from './signedQuery'
-import { byBucket } from './sweep'
+import { SWEEP_BATCH, SWEEP_ROUNDS, byBucket } from './sweep'
 import { supabase } from './supabase'
 
 /**
@@ -348,7 +348,7 @@ export async function keepOnly(bucket: string, folder: string, keep: string | nu
   try {
     const { data, error } = await supabase.storage.from(bucket).list(folder, { limit: 1000 })
     if (error) return
-    await removeObjects(bucket, staleIn(folder, data, keep))
+    await removeObjects(bucket, staleIn(folder, data, keep, Date.now()))
   } catch {
     // Vegeu a dalt: l'escombrada diària ho recull.
   }
@@ -361,18 +361,30 @@ export async function keepOnly(bucket: string, folder: string, keep: string | nu
  * aquí no es decideix res: es demana i s'esborra, un bucket per crida. Torna
  * quants n'ha tret, o `null` si ni tan sols ha pogut preguntar. No llança mai:
  * es fa en segon pla i ningú no l'ha demanat.
+ *
+ * DE MIL EN MIL I TORNANT-HI. Una gimcana gran són milers de fotos, i totes
+ * arriben a la junta el mateix dia trenta; a dos-cents per mòbil i dia
+ * trigarien setmanes. Mil és el màxim que l'API esborra d'una crida, i mentre
+ * la llista arriba plena es torna a demanar, fins a `SWEEP_ROUNDS` voltes. Si
+ * una volta no treu res —una política que ha canviat, la xarxa que cau— es
+ * para: tornar-hi donaria la mateixa llista.
  */
 export async function sweepStorage(): Promise<number | null> {
+  let removed = 0
   try {
-    const { data, error } = await supabase.rpc('my_storage_garbage', { p_limit: 200 })
-    if (error) return null
-    let removed = 0
-    for (const [bucket, paths] of byBucket(data)) {
-      removed += (await removeObjects(bucket, paths).catch(() => [])).length
+    for (let round = 0; round < SWEEP_ROUNDS; round++) {
+      const { data, error } = await supabase.rpc('my_storage_garbage', { p_limit: SWEEP_BATCH })
+      if (error) return round === 0 ? null : removed
+      let thisRound = 0
+      for (const [bucket, paths] of byBucket(data)) {
+        thisRound += (await removeObjects(bucket, paths).catch(() => [])).length
+      }
+      removed += thisRound
+      if (data.length < SWEEP_BATCH || thisRound === 0) break
     }
     return removed
   } catch {
-    return null
+    return removed > 0 ? removed : null
   }
 }
 

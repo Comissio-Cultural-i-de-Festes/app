@@ -26,8 +26,8 @@ beforeEach(() => {
   from.mockReturnValue({ list, remove })
   list.mockResolvedValue({
     data: [
-      { name: '100.jpg', id: 'a' },
-      { name: '200.jpg', id: 'b' },
+      { name: '100.jpg', id: 'a', created_at: '2026-11-01T10:00:00Z' },
+      { name: '200.jpg', id: 'b', created_at: '2026-11-01T11:00:00Z' },
     ],
     error: null,
   })
@@ -55,7 +55,10 @@ describe('keepOnly', () => {
   })
 
   it('si no hi ha res a treure, no demana res', async () => {
-    list.mockResolvedValue({ data: [{ name: '200.jpg', id: 'b' }], error: null })
+    list.mockResolvedValue({
+      data: [{ name: '200.jpg', id: 'b', created_at: '2026-11-01T11:00:00Z' }],
+      error: null,
+    })
     await keepOnly('avatars', 'u', 'u/200.jpg')
     expect(remove).not.toHaveBeenCalled()
   })
@@ -84,7 +87,7 @@ describe('sweepStorage', () => {
     })
 
     expect(await sweepStorage()).toBe(3)
-    expect(rpc).toHaveBeenCalledWith('my_storage_garbage', { p_limit: 200 })
+    expect(rpc).toHaveBeenCalledWith('my_storage_garbage', { p_limit: 1000 })
     expect(from).toHaveBeenCalledWith('avatars')
     expect(from).toHaveBeenCalledWith('gimcana-photos')
     expect(remove).toHaveBeenCalledWith(['u/1.jpg', 'u/2.jpg'])
@@ -107,5 +110,34 @@ describe('sweepStorage', () => {
     })
     remove.mockRejectedValueOnce(new TypeError('Failed to fetch'))
     expect(await sweepStorage()).toBe(1)
+  })
+
+  const full = Array.from({ length: 1000 }, (_, i) => ({
+    bucket: 'gimcana-photos',
+    path: `p/u/${String(i)}.jpg`,
+  }))
+
+  it('mentre la llista arriba plena hi torna, fins a cinc voltes', async () => {
+    rpc.mockResolvedValue({ data: full, error: null })
+
+    expect(await sweepStorage()).toBe(5000)
+    expect(rpc).toHaveBeenCalledTimes(5)
+  })
+
+  it('i para quan la llista no és plena', async () => {
+    rpc
+      .mockResolvedValueOnce({ data: full, error: null })
+      .mockResolvedValueOnce({ data: full.slice(0, 3), error: null })
+
+    expect(await sweepStorage()).toBe(1003)
+    expect(rpc).toHaveBeenCalledTimes(2)
+  })
+
+  it('o quan una volta no ha pogut treure res, que donaria la mateixa llista', async () => {
+    rpc.mockResolvedValue({ data: full, error: null })
+    remove.mockResolvedValue({ data: [], error: null })
+
+    expect(await sweepStorage()).toBe(0)
+    expect(rpc).toHaveBeenCalledTimes(1)
   })
 })

@@ -1,5 +1,4 @@
 import type { Session } from '@supabase/supabase-js'
-import { useQueryClient } from '@tanstack/react-query'
 import { Suspense, lazy, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Route, Routes, useLocation } from 'react-router'
@@ -33,7 +32,8 @@ import { JuntaLayout } from '@/features/shell/JuntaLayout'
 import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
-import { INVITE_PARAM, readInviteCode } from '@/features/entry/useInvite'
+import { readInviteCode } from '@/features/entry/useInvite'
+import { useRedeemFromLink } from '@/features/entry/useRedeemFromLink'
 import { InstallScreen } from '@/features/install/InstallScreen'
 import { PrivacyScreen } from '@/features/legal/PrivacyScreen'
 import { TermsScreen } from '@/features/legal/TermsScreen'
@@ -44,8 +44,7 @@ import {
   shouldPromptInstall,
   snoozeInstall,
 } from '@/features/install/installGate'
-import { invalidateData } from '@/lib/signedQuery'
-import { rpc, supabase } from '@/lib/supabase'
+import { supabase } from '@/lib/supabase'
 
 /**
  * La zona de junta, carregada quan s'hi entra i no abans.
@@ -186,7 +185,6 @@ export default function App() {
   const [session, setSession] = useState<Session | null>(null)
   const { pathname } = useLocation()
   const [ready, setReady] = useState(false)
-  const queryClient = useQueryClient()
   // Llegit en muntar, abans que el bescanvi l'esborri de la barra d'adreces. A
   // partir d'aquí ja hi ha sessió, i la pantalla d'instal·lació no torna.
   const [invited] = useState(() => readInviteCode() !== null)
@@ -217,35 +215,12 @@ export default function App() {
     }
   }, [])
 
-  // Redeem the invitation once, as soon as there is a session to redeem it
-  // against. The code travelled in the redirect URL so this works even when
-  // the link is opened on a different device from the one that asked for it.
+  useRedeemFromLink(session?.user.id ?? null)
+
   useEffect(() => {
-    if (!session) return
     // The round trip came back here, so the stranded marker has done its job.
-    clearOAuthMark()
-
-    const code = readInviteCode()
-    if (code === null) return
-
-    void (async () => {
-      const { data, error } = await rpc<{ ok: boolean }>('redeem_invite', { p_codi: code })
-      // The code is only rubbed out of the address bar once it has been spent.
-      // Removing it either way left somebody pending, with the one string that
-      // could have got them in already gone.
-      if (error) return
-      // El perfil es demana alhora que això, i sol arribar abans: deia
-      // `pendent` i ho seguia dient fins al pròxim refresc, amb el botó
-      // d'apuntar-se apagat just la primera vegada que algú el volia prémer.
-      // Tot el que la RLS deixa veure i no només el perfil, pel mateix motiu
-      // que `InviteCodeSheet`: el que s'ha llegit com a pendent ha tornat buit.
-      // Un codi que no val torna `ok: false` sense error, i allò sí que és cert.
-      if (data?.ok === true) void invalidateData(queryClient)
-      const url = new URL(window.location.href)
-      url.searchParams.delete(INVITE_PARAM)
-      window.history.replaceState({}, '', url.toString())
-    })()
-  }, [session, queryClient])
+    if (session) clearOAuthMark()
+  }, [session])
 
   if (!ready) {
     return (

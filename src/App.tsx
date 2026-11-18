@@ -15,6 +15,7 @@ import { MyRideScreen } from '@/features/rides/MyRideScreen'
 import { OfferRideScreen } from '@/features/rides/OfferRideScreen'
 import { RidesScreen } from '@/features/rides/RidesScreen'
 import { useCheckinQueue } from '@/features/checkin/useCheckinQueue'
+import { useKeepPushFresh } from '@/features/event/useKeepPushFresh'
 import { SociScreen } from '@/features/member/SociScreen'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
@@ -165,6 +166,11 @@ function DrainCheckins() {
   return null
 }
 
+function KeepPushFresh() {
+  useKeepPushFresh()
+  return null
+}
+
 export default function App() {
   const { t } = useTranslation()
   const [session, setSession] = useState<Session | null>(null)
@@ -266,6 +272,7 @@ export default function App() {
           guarda el mòbil, o sigui que la pantalla on es va prémer el botó no
           es torna a obrir. */}
       <DrainCheckins />
+      <KeepPushFresh />
       <Routes>
         {/* Asked once, and it has to be its own route rather than a gate in
             front of everything: a redirect that fires on every render would

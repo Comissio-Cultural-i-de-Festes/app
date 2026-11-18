@@ -1,8 +1,9 @@
 import { STALE_TIME_MS } from '@/lib/queryClient'
 import type { EventRow } from '@/lib/schema'
 
-import { JUNTA_BACK_MS } from './eventsApi'
+import { JUNTA_AHEAD_MS, JUNTA_BACK_MS } from './eventsApi'
 import type { DoorNow, JuntaHomeData } from './homeApi'
+import { portaTriada, portesDe } from './portes'
 
 /**
  * Què pinta la porta del rebedor, i de quan són les dades.
@@ -20,6 +21,11 @@ import type { DoorNow, JuntaHomeData } from './homeApi'
  * tampoc no hi és, no es pinta cap botó: abans n'hi havia un que portava a
  * aquesta mateixa pantalla, i un botó que no fa res a una porta amb cua és
  * pitjor que cap.
+ *
+ * DES DE LA 89 POT HAVER-HI MÉS D'UNA PORTA, i la que es pinta és la que la
+ * junta ha triat en aquest mòbil (`portes.ts`). Sense dades, el camí a
+ * l'escàner fa la mateixa tria sobre la llista: qui fa porta a la casa rural
+ * no ha de trobar l'escàner de la festa de la ciutat el dia que la xarxa falla.
  */
 
 export interface HomeQuery {
@@ -29,7 +35,7 @@ export interface HomeQuery {
   readonly dataUpdatedAt: number
 }
 
-export type DoorEvent = Pick<EventRow, 'id' | 'starts_at' | 'published'>
+export type DoorEvent = Pick<EventRow, 'id' | 'starts_at' | 'ends_at' | 'published'>
 
 /**
  * De quan són les dades que es veuen, quan no són d'ara.
@@ -47,18 +53,22 @@ export type DoorView =
   | { readonly kind: 'loading'; readonly scannerEventId: string | null }
   | { readonly kind: 'failed'; readonly scannerEventId: string | null }
   | { readonly kind: 'none'; readonly stale: Stale | null }
-  | { readonly kind: 'door'; readonly porta: DoorNow; readonly stale: Stale | null }
-
-/** Les trenta hores endavant de `junta_home()`, migració 69. Les vuit enrere són `JUNTA_BACK_MS`. */
-const AHEAD_MS = 30 * 3_600_000
+  /** `porta`: la triada, o la primera. `portes`: totes, per al selector. */
+  | {
+      readonly kind: 'door'
+      readonly porta: DoorNow
+      readonly portes: readonly DoorNow[]
+      readonly stale: Stale | null
+    }
 
 export function doorView(
   home: HomeQuery,
   events: readonly DoorEvent[] | undefined,
   now: number = Date.now(),
+  triada: string | null = null,
 ): DoorView {
   if (home.data === undefined) {
-    const scannerEventId = doorEventId(events, now)
+    const scannerEventId = doorEventId(events, now, triada)
     // Sense xarxa la primera consulta es queda en pausa, no falla, i la
     // pantalla de càrrega duraria fins que tornés la cobertura.
     if (home.isError || home.fetchStatus === 'paused') return { kind: 'failed', scannerEventId }
@@ -68,9 +78,10 @@ export function doorView(
     return { kind: 'loading', scannerEventId }
   }
 
-  const { porta } = home.data
+  const portes = portesDe(home.data)
+  const porta = portaTriada(portes, triada)
   const stale = staleness(home, now)
-  return porta === null ? { kind: 'none', stale } : { kind: 'door', porta, stale }
+  return porta === null ? { kind: 'none', stale } : { kind: 'door', porta, portes, stale }
 }
 
 /**
@@ -96,18 +107,34 @@ function staleness(home: HomeQuery, now: number): Stale | null {
 }
 
 /**
- * L'esdeveniment que `junta_home()` posaria a la porta, tret de la llista.
+ * Si `junta_home()` posaria aquest esdeveniment a la porta (migració 89).
  *
- * La mateixa regla —publicat, de vuit hores enrere a trenta endavant, el
- * primer— perquè sense la porta això és l'única pista. La llista ja arriba
- * ordenada i sense reunions.
+ * Publicat, començat d'aquí a trenta hores com a molt, i encara no passat: ni
+ * vuit hores des de l'inici ni el final, la més tardana de les dues. Una festa
+ * d'una nit hi és vuit hores; una casa rural, tota l'estada. Si una regla
+ * canvia, l'altra també: el client i el servidor han de triar el mateix.
  */
-function doorEventId(events: readonly DoorEvent[] | undefined, now: number): string | null {
-  const open = events?.find((e) => {
-    const at = Date.parse(e.starts_at)
-    return e.published && at >= now - JUNTA_BACK_MS && at <= now + AHEAD_MS
-  })
-  return open?.id ?? null
+export function aLaPorta(e: DoorEvent, now: number): boolean {
+  const starts = Date.parse(e.starts_at)
+  const ends = e.ends_at === null ? Number.NEGATIVE_INFINITY : Date.parse(e.ends_at)
+  return (
+    e.published && starts <= now + JUNTA_AHEAD_MS && Math.max(starts + JUNTA_BACK_MS, ends) >= now
+  )
+}
+
+/**
+ * L'esdeveniment que el rebedor posaria a la porta, tret de la llista.
+ *
+ * La mateixa regla i la mateixa tria, perquè sense la porta això és l'única
+ * pista. La llista ja arriba ordenada i sense reunions.
+ */
+function doorEventId(
+  events: readonly DoorEvent[] | undefined,
+  now: number,
+  triada: string | null,
+): string | null {
+  const open = (events ?? []).filter((e) => aLaPorta(e, now))
+  return (open.find((e) => e.id === triada) ?? open[0])?.id ?? null
 }
 
 export function minutesAgo(since: number, now: number): number {

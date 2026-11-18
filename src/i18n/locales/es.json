@@ -1333,6 +1333,8 @@
       "lede": "Los puntos se dan solos al fichar. Esto es para quitarlos cuando toca, no para darlos: mira los metros, y el que fichó de lejos se ve solo.",
       "nobody": "Todavía no ha fichado nadie.",
       "undo": "Quítalo",
+      "undoConfirm": "Quita el fichaje",
+      "undoSure": "Se le quitan a {{nombre}} el fichaje y los puntos que le dio. No se puede deshacer desde aquí; queda en el registro.",
       "walkin": "no estaba apuntado",
       "metres_one": "a {{count}} m",
       "metres_other": "a {{count}} m",

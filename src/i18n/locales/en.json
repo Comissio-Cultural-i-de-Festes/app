@@ -1920,6 +1920,9 @@
     "howTo": "The fallback: if you cannot check in from your phone, show this at the door and wait for the \"checked in\". Open this screen once with a connection and the code stays saved on your phone.",
     "unavailable": "We cannot show your code right now. Try once with a connection and it will be saved for next time.",
     "fallback": "Whoever is on the door can look you up by name.",
+    "fromPocket": "Show my QR",
+    "noneSaved": "This phone has no QR saved: it has to be opened once with a connection. At the door they can look you up by name.",
+    "pocketBack": "Hide the QR",
     "notYet": {
       "heading": "My QR",
       "lead": "It is what you show at the door.",

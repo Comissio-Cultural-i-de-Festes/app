@@ -29,7 +29,8 @@ import { ProfileScreen } from '@/features/profile/ProfileScreen'
 import { QrScreen } from '@/features/qr/QrScreen'
 import { useQrPrefetch } from '@/features/qr/useQrPrefetch'
 import { JuntaLayout } from '@/features/shell/JuntaLayout'
-import { GateUnreachable, GateWaiting } from '@/features/shell/Gate'
+import { GateWaiting } from '@/features/shell/Gate'
+import { SessionGate } from '@/features/shell/SessionGate'
 import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
@@ -164,6 +165,9 @@ const JuntaHome = lazy(() =>
 export const PRIVACY_PATH = '/privadesa'
 export const TERMS_PATH = '/condicions'
 
+/** Vegeu la porta de la sessió, a `App`. */
+const OFFLINE_GRACE_MS = 500
+
 function DrainCheckins() {
   useCheckinQueue()
   return null
@@ -180,6 +184,7 @@ export default function App() {
   const { phase, session } = useBootSession()
   const stalled = useStalled(phase === 'waiting')
   const online = useOnline()
+  const offlineSettled = useStalled(phase === 'waiting' && !online, 0, OFFLINE_GRACE_MS)
   const { pathname } = useLocation()
   const [promptInstall, setPromptInstall] = useState(() => shouldPromptInstall())
 
@@ -226,13 +231,16 @@ export default function App() {
 
   // Sense xarxa, supabase-js s'hi passa uns vint-i-cinc segons reintentant la
   // renovació abans de rendir-se. No cal esperar-lo per dir-ho: si el
-  // navegador diu que no hi ha xarxa, és que no n'hi ha.
+  // navegador diu que no hi ha xarxa, és que no n'hi ha. Però no al primer
+  // frame: amb una sessió vàlida `getSession()` contesta en mil·lisegons sense
+  // tocar la xarxa, i en mode avió tothom veia una frase vermella un instant
+  // abans d'entrar. Mig segon de «Un segon…» primer.
   if (phase === 'waiting') {
-    if (!online) {
-      return <GateUnreachable message={t('errors.sessionUnreachable')} onRetry={reload} />
+    if (offlineSettled) {
+      return <SessionGate message={t('errors.sessionUnreachable')} onRetry={reload} />
     }
     return stalled ? (
-      <GateUnreachable message={t('errors.stalled')} onRetry={reload} />
+      <SessionGate message={t('errors.stalled')} onRetry={reload} />
     ) : (
       <GateWaiting />
     )
@@ -259,8 +267,17 @@ export default function App() {
   // seria mentir —ja has entrat— i, a més, no hi ha res que s'hi pugui fer
   // sense xarxa. Davant del porter d'instal·lació pel mateix motiu: aquell és
   // per a qui encara no ha entrat.
+  //
+  // «Sense connexió» només si el navegador ho diu. La biblioteca també dona
+  // per reintentable un 502, 503 o 504 del servidor d'entrada, i allà la
+  // cobertura no hi té res a veure.
   if (!session && phase === 'unreachable') {
-    return <GateUnreachable message={t('errors.sessionUnreachable')} onRetry={reload} />
+    return (
+      <SessionGate
+        message={t(online ? 'errors.network' : 'errors.sessionUnreachable')}
+        onRetry={reload}
+      />
+    )
   }
 
   if (promptInstall && !session) {

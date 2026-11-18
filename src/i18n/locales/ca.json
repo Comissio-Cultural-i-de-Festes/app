@@ -1920,6 +1920,9 @@
     "howTo": "El de recanvi: si no pots fitxar des del mòbil, ensenya'l a la porta i espera el «fitxat». Obre aquesta pantalla un cop amb connexió i el codi queda desat al mòbil.",
     "unavailable": "Ara mateix no podem mostrar el teu codi. Prova-ho amb connexió i quedarà desat per la propera.",
     "fallback": "El de la porta et pot buscar pel nom.",
+    "fromPocket": "Mostra el meu QR",
+    "noneSaved": "Aquest mòbil no té cap QR desat: s'ha d'obrir un cop amb connexió. A la porta et poden buscar pel nom.",
+    "pocketBack": "Amaga el QR",
     "notYet": {
       "heading": "El meu QR",
       "lead": "És el que ensenyes a la porta.",

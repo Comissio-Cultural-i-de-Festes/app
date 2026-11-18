@@ -42,14 +42,31 @@ export interface QueuedScan {
   readonly at: number
   /** How many times sending has failed. Only for showing the person a number. */
   readonly tries: number
-  /**
-   * The SQLSTATE the server refused it with, for good: a QR that is not ours,
-   * an event that is gone. Set aside rather than sent again, so it stops
-   * holding up everything behind it, and kept rather than dropped, so the
-   * junta can see that somebody did not get in.
-   */
-  readonly refused?: string | undefined
+  /** Set when it is no longer waiting to be sent, and why. See `Held`. */
+  readonly held?: Held | undefined
 }
+
+/**
+ * Why a scan is still on the phone although nothing is going to send it.
+ *
+ * Both are somebody who walked through the door on the strength of "saved"
+ * and whose card nobody saw, because it was answered an hour later by a
+ * flush. Kept rather than dropped, so the junta can see them and decide.
+ */
+export type Held =
+  /**
+   * The server raised an error about the scan itself, with this SQLSTATE: a
+   * token that is not a uuid, a request carrying both a QR and a name. Sending
+   * it again gets the same answer, and first in line it would hold up every
+   * scan behind it.
+   */
+  | { readonly kind: 'refused'; readonly code: string }
+  /**
+   * It landed, and the answer asks for somebody to act: not a member, not
+   * active, in without being signed up. The status and the name, when the
+   * server gave one, are what the junta needs to find the person.
+   */
+  | { readonly kind: 'answered'; readonly status: string; readonly nombre: string | null }
 
 /**
  * How long opening the database may take before the caller is told it did not.
@@ -59,6 +76,11 @@ export interface QueuedScan {
  * without one a scan would sit in `enqueue` forever and never even try the
  * network. Three seconds is far beyond a healthy open, which takes
  * milliseconds; a late answer is not wasted, because it is still adopted.
+ *
+ * It covers the open and nothing else. A read or a write on a connection that
+ * is already open has no limit here; it has never been seen to hang, and
+ * timing out a write that then commits would report "not saved" about
+ * something that was.
  */
 export const OPEN_DEADLINE_MS = 3_000
 
@@ -77,13 +99,30 @@ let connection: IDBDatabase | null = null
 /** One attempt at a time, shared by whoever asks while it runs. */
 let opening: Promise<IDBDatabase | null> | null = null
 /**
- * An open that is waiting for another tab to let go of an older version.
+ * An open that is still pending after its caller was told no: blocked by
+ * another tab holding an older version, or past `OPEN_DEADLINE_MS`.
  *
- * While it waits, a second open would queue behind it and never answer
- * either, so callers are told no straight away instead. It is not abandoned:
- * the moment the other tab closes it goes through and is adopted.
+ * Browsers run opens to one database first in, first out, so a second open
+ * would only queue behind it and answer no later than it does. Callers are
+ * told no straight away instead. It is not abandoned: if it ever goes
+ * through, it is adopted, and `onReconnect` says so.
  */
 let heldBack = false
+
+const reconnected = new Set<() => void>()
+
+/**
+ * Called when the queue becomes usable after having told somebody it was not.
+ *
+ * For the screens that say "this phone cannot keep a queue": that line would
+ * otherwise stay up until something else made them ask again.
+ */
+export function onReconnect(listener: () => void): () => void {
+  reconnected.add(listener)
+  return () => {
+    reconnected.delete(listener)
+  }
+}
 
 function open(): Promise<IDBDatabase | null> {
   if (connection !== null) return Promise.resolve(connection)
@@ -111,7 +150,10 @@ function connect(version: number | undefined): Promise<IDBDatabase | null> {
       return
     }
 
+    let late = false
     const timer = setTimeout(() => {
+      late = true
+      heldBack = true
       resolve(null)
     }, OPEN_DEADLINE_MS)
     const settle = (db: IDBDatabase | null) => {
@@ -124,7 +166,9 @@ function connect(version: number | undefined): Promise<IDBDatabase | null> {
     }
     request.onsuccess = () => {
       heldBack = false
-      settle(adopt(request.result))
+      const db = adopt(request.result)
+      settle(db)
+      if (late) for (const listener of reconnected) listener()
     }
     request.onerror = () => {
       heldBack = false
@@ -141,6 +185,7 @@ function connect(version: number | undefined): Promise<IDBDatabase | null> {
       settle(null)
     }
     request.onblocked = () => {
+      late = true
       heldBack = true
       settle(null)
     }
@@ -230,7 +275,10 @@ function run<T>(
           tx = db.transaction(storeName, mode)
           request = body(tx.objectStore(storeName))
         } catch {
-          // A connection the browser closed under us. The next call reopens.
+          // A connection the browser closed under us. The next call reopens;
+          // closing it first is what keeps that reopen from being blocked by
+          // this very handle if it turns out to be alive after all.
+          db.close()
           if (connection === db) connection = null
           resolve({ ok: false })
           return
@@ -337,14 +385,14 @@ export async function bumpTries(scan: QueuedScan): Promise<void> {
 }
 
 /**
- * Aparta una entrada que el servidor ha refusat per sempre, o la hi torna.
+ * Aparta una entrada que ja no s'ha d'enviar, o la hi torna.
  *
  * Amb la mateixa precaució que `bumpTries`: si mentrestant algú l'ha treta, no
  * es torna a escriure. `null` treu la marca, i l'entrada torna a sortir amb el
  * buidatge següent.
  */
-export async function setRefused(clientRequestId: string, code: string | null): Promise<void> {
-  await change(clientRequestId, (row) => ({ ...row, refused: code ?? undefined }))
+export async function setHeld(clientRequestId: string, held: Held | null): Promise<void> {
+  await change(clientRequestId, (row) => ({ ...row, held: held ?? undefined }))
 }
 
 /** Llegeix i reescriu una entrada de l'escàner dins d'una sola transacció, si hi és. */

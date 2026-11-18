@@ -71,16 +71,29 @@ describe('obrir la base', () => {
     expect((await queue.pending()).map((row) => row.clientRequestId)).toEqual(['b'])
   })
 
-  it('no s’hi queda penjada si l’obertura no contesta mai', async () => {
+  it('no s’hi queda penjada si l’obertura no contesta', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
     control.hangOpens(1)
 
     const first = queue.enqueue(scan('a'))
     await vi.advanceTimersByTimeAsync(queue.OPEN_DEADLINE_MS)
     await expect(first).resolves.toBe(false)
-
     vi.useRealTimers()
-    await expect(queue.enqueue(scan('b'))).resolves.toBe(true)
+
+    // Una altra obertura s'encuaria darrere de la penjada i no contestaria
+    // abans que ella: es diu que no de seguida, sense obrir-ne cap.
+    const opens = control.opens
+    await expect(queue.enqueue(scan('b'))).resolves.toBe(false)
+    expect(control.opens).toBe(opens)
+
+    // Si la penjada acaba contestant, s'adopta i es diu a qui ho vulgui saber.
+    const reconnected = vi.fn()
+    queue.onReconnect(reconnected)
+    control.release()
+    await settle()
+    expect(reconnected).toHaveBeenCalledTimes(1)
+    await expect(queue.enqueue(scan('c'))).resolves.toBe(true)
+    expect(control.opens).toBe(opens)
   })
 
   it('tanca la connexió quan una pestanya nova puja la versió, i no la bloqueja', async () => {
@@ -124,24 +137,26 @@ describe('obrir la base', () => {
   })
 })
 
-describe('apartar una entrada que el servidor refusa', () => {
-  it('la marca amb el codi i la deixa a la cua', async () => {
+describe('apartar una entrada que ja no s’ha d’enviar', () => {
+  const refused = { kind: 'refused', code: '22P02' } as const
+
+  it('la marca amb el motiu i la deixa a la cua', async () => {
     await queue.enqueue(scan('a'))
-    await queue.setRefused('a', '22P02')
-    expect(await queue.pending()).toMatchObject([{ clientRequestId: 'a', refused: '22P02' }])
+    await queue.setHeld('a', refused)
+    expect(await queue.pending()).toMatchObject([{ clientRequestId: 'a', held: refused }])
   })
 
   it('i la torna a la cua quan se li treu la marca', async () => {
     await queue.enqueue(scan('a'))
-    await queue.setRefused('a', '22P02')
-    await queue.setRefused('a', null)
+    await queue.setHeld('a', refused)
+    await queue.setHeld('a', null)
     const [row] = await queue.pending()
     expect(row).toBeDefined()
-    expect(row?.refused).toBeUndefined()
+    expect(row?.held).toBeUndefined()
   })
 
   it('no reviu una entrada que algú ha tret', async () => {
-    await queue.setRefused('ningú', '22P02')
+    await queue.setHeld('ningú', refused)
     expect(await queue.pending()).toEqual([])
   })
 })

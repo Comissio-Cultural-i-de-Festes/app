@@ -30,7 +30,7 @@ vi.mock('@/lib/queue', async (importOriginal) => ({
   enqueue: () => Promise.resolve(true),
   dequeue: () => Promise.resolve(true),
   bumpTries: () => Promise.resolve(),
-  setRefused: () => Promise.resolve(),
+  setHeld: () => Promise.resolve(),
   pending: () => Promise.resolve([]),
 }))
 

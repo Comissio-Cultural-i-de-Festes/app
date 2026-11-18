@@ -50,9 +50,9 @@ vi.mock('@/lib/queue', async (importOriginal) => ({
     store.delete(id)
     return Promise.resolve(true)
   },
-  setRefused: (id: string, code: string | null) => {
+  setHeld: (id: string, held: unknown) => {
     const row = store.get(id) as Record<string, unknown> | undefined
-    if (row !== undefined) store.set(id, { ...row, refused: code ?? undefined })
+    if (row !== undefined) store.set(id, { ...row, held: held ?? undefined })
     return Promise.resolve()
   },
   // Like the real one: an entry somebody removed is not written back.
@@ -73,6 +73,7 @@ const {
   flushQueue,
   outcomeFromFailure,
   presentationOf,
+  retryRefused,
   scan,
   undo,
   undoTargetOf,
@@ -248,11 +249,99 @@ describe('a scan the server refuses for good', () => {
 
     await expect(flushQueue()).resolves.toEqual({ sent: 1, left: 0 })
     expect(store.has('good')).toBe(false)
-    expect(store.get('bad')).toMatchObject({ refused: '22P02' })
+    expect(store.get('bad')).toMatchObject({ held: { kind: 'refused', code: '22P02' } })
 
     // Set aside, so the next run does not ask again.
     rpc.mockClear()
     await expect(flushQueue()).resolves.toEqual({ sent: 0, left: 0 })
+    expect(rpc).not.toHaveBeenCalled()
+  })
+
+  it('is sent again, after the flush already running, when somebody asks', async () => {
+    store.set('bad', {
+      ...request('bad'),
+      at: 1,
+      tries: 0,
+      held: { kind: 'refused', code: '22P02' },
+    })
+    store.set('slow', { ...request('slow'), at: 2, tries: 0 })
+    let finish!: (value: unknown) => void
+    rpc.mockImplementation((_name: string, args: { p_client_request_id: string }) =>
+      args.p_client_request_id === 'slow'
+        ? new Promise((resolve) => {
+            finish = resolve
+          })
+        : Promise.resolve({ data: { status: 'ok' }, error: null }),
+    )
+
+    const running = flushQueue()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    const retried = retryRefused()
+    finish({ data: { status: 'ok' }, error: null })
+    await running
+
+    // The run in progress read its list before the mark came off; the retry
+    // waits for it and then runs its own, which is the one that sends `bad`.
+    await expect(retried).resolves.toEqual({ sent: 1, left: 0 })
+    expect(store.size).toBe(0)
+  })
+})
+
+describe('a refusal that is about whoever sent it, not the scan', () => {
+  // `check_in` raises 42501 from `is_admin()`: a session that lapsed and went
+  // out as `anon`, or a junta role taken away. Never about the scan.
+  const notJunta = { data: null, error: { message: 'nomes junta', code: '42501' } }
+
+  it('leaves the flush to try again, instead of setting good scans aside', async () => {
+    store.set('one', { ...request('one'), at: 1, tries: 0 })
+    store.set('two', { ...request('two'), at: 2, tries: 0 })
+    rpc.mockResolvedValue(notJunta)
+
+    await expect(flushQueue()).resolves.toEqual({ sent: 0, left: 2 })
+    expect(store.get('one')).toMatchObject({ tries: 1 })
+    expect(store.get('one')).not.toHaveProperty('held')
+    expect(rpc).toHaveBeenCalledTimes(1)
+
+    // The session comes back, and both go.
+    rpc.mockReset()
+    rpc.mockResolvedValue({ data: { status: 'ok' }, error: null })
+    await expect(flushQueue()).resolves.toEqual({ sent: 2, left: 0 })
+    expect(store.size).toBe(0)
+  })
+
+  it('keeps a live scan in the queue rather than dropping it', async () => {
+    rpc.mockResolvedValue(notJunta)
+    const req = request('n1')
+
+    const cause = await scan(req).catch((error: unknown) => error)
+
+    expect(store.get('n1')).toMatchObject({ tries: 1 })
+    expect(outcomeFromFailure(req, cause)).not.toHaveProperty('refused')
+  })
+})
+
+describe('an answer from a flush that asks somebody to act', () => {
+  it('is kept with its status and name, and not sent again', async () => {
+    store.set('stranger', { ...request('stranger'), at: 1, tries: 0 })
+    store.set('dup', { ...request('dup'), at: 2, tries: 0 })
+    store.set('fine', { ...request('fine'), at: 3, tries: 0 })
+    const answers: Record<string, unknown> = {
+      stranger: { status: 'member_inactive', nombre: 'Persona Inventada' },
+      dup: { status: 'already_checked_in', nombre: 'Alfa' },
+      fine: { status: 'ok', nombre: 'Beta' },
+    }
+    rpc.mockImplementation((_name: string, args: { p_client_request_id: string }) =>
+      Promise.resolve({ data: answers[args.p_client_request_id], error: null }),
+    )
+
+    await expect(flushQueue()).resolves.toEqual({ sent: 3, left: 0 })
+    expect([...store.keys()]).toEqual(['stranger'])
+    expect(store.get('stranger')).toMatchObject({
+      held: { kind: 'answered', status: 'member_inactive', nombre: 'Persona Inventada' },
+    })
+
+    rpc.mockClear()
+    await flushQueue()
     expect(rpc).not.toHaveBeenCalled()
   })
 })

@@ -6,7 +6,7 @@ import { formatTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import type { QueuedScan } from '@/lib/queue'
 
-import { discardHeld, retryRefused } from './api'
+import { discardHeld, resendHeld, resendable } from './api'
 import { statusWords } from './verdict'
 
 /**
@@ -25,9 +25,16 @@ import { statusWords } from './verdict'
  * time is the only handle, and at a door it is a fair one. Without any of
  * this, "Descarta" was a button that threw away somebody nobody could name.
  *
- * Retrying is for the refused ones only. The answered ones landed, and the
- * same id would only replay the same answer.
+ * Sending again is only offered for what could get another answer
+ * (`resendable`): the refused ones, and an event that was not open.
+ *
+ * THREE LINES, AND THE REST BEHIND A TAP. On the scanner this sits in the
+ * header over the camera, and a list with no limit — a stranger's QR held up
+ * with no signal is read every two seconds — pushed the viewfinder off the
+ * screen. Three is enough to say what is going on; the count says how much.
  */
+const SHOWN = 3
+
 export function HeldScans({
   rows,
   names,
@@ -46,6 +53,7 @@ export function HeldScans({
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.language)
   const [busy, setBusy] = useState(false)
+  const [all, setAll] = useState(false)
 
   if (rows.length === 0) return null
 
@@ -78,7 +86,7 @@ export function HeldScans({
         {t('door.held', { count: rows.length })}
       </p>
       <ul className="mt-2">
-        {rows.map((row) => (
+        {(all ? rows : rows.slice(0, SHOWN)).map((row) => (
           <li key={row.clientRequestId} className="flex items-center gap-4">
             <p className="min-w-0 flex-1 text-sm text-fg [text-wrap:pretty]">
               <span className="font-bold">{who(row)}</span>
@@ -100,18 +108,32 @@ export function HeldScans({
           </li>
         ))}
       </ul>
-      {rows.some((row) => row.held?.kind === 'refused') ? (
-        <button
-          type="button"
-          disabled={busy}
-          onClick={() => {
-            act(retryRefused)
-          }}
-          className="min-h-[44px] text-sm font-bold text-brand-label disabled:opacity-50"
-        >
-          {t('door.heldRetry')}
-        </button>
-      ) : null}
+      <div className="flex flex-wrap gap-x-8">
+        {rows.length > SHOWN ? (
+          <button
+            type="button"
+            aria-expanded={all}
+            onClick={() => {
+              setAll(!all)
+            }}
+            className="min-h-[44px] text-sm font-bold text-fg-secondary"
+          >
+            {all ? t('door.heldLess') : t('door.heldMore', { n: rows.length - SHOWN })}
+          </button>
+        ) : null}
+        {rows.some((row) => row.held !== undefined && resendable(row.held)) ? (
+          <button
+            type="button"
+            disabled={busy}
+            onClick={() => {
+              act(resendHeld)
+            }}
+            className="min-h-[44px] text-sm font-bold text-brand-label disabled:opacity-50"
+          >
+            {t('door.heldRetry')}
+          </button>
+        ) : null}
+      </div>
     </div>
   )
 }

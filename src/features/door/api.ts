@@ -2,6 +2,7 @@ import { type CheckInStatus, SCAN_PRESENTATION, type ScanPresentation } from '@/
 import { DbError, unwrapAs } from '@/lib/db'
 import type { Escola } from '@/lib/model'
 import {
+  type Held,
   type QueuedScan,
   NotSaved,
   bumpTries,
@@ -455,20 +456,35 @@ async function drain(): Promise<FlushOutcome> {
 }
 
 /**
- * The scans the server refused, sent once more.
+ * Whether sending a held scan again could get a different answer.
  *
- * For the case nobody has thought of yet: everything this sets aside is an
- * error about the request, which a second try answers the same way, at the
- * cost of one request each. The answered ones are not sent again: they
- * landed, and the same id would only replay the same answer.
+ * `event_not_open` can: it is about the event, not the scan. Unpublished for
+ * ten minutes by mistake, every scan flushed in those ten minutes came back
+ * with it, and without a way to send them again they stayed aside for good.
+ * `check_in` answers it before writing anything, so the same id goes through
+ * once the event is open.
+ *
+ * The other answers cannot: they landed, and the same id replays the same
+ * answer. The refused ones are errors about the request, which should come
+ * back the same too; they are let through for the case nobody has thought of
+ * yet, at the cost of one request each.
+ */
+export function resendable(held: Held): boolean {
+  return held.kind === 'refused' || held.status === 'event_not_open'
+}
+
+/**
+ * The held scans that could get another answer (`resendable`), sent once more.
  *
  * AFTER THE FLUSH THAT IS RUNNING, NOT INSIDE IT. A run already under way
  * read its list before the marks came off, and `flushQueue` hands a caller the
  * run in progress, so the button would have done nothing visible.
  */
-export async function retryRefused(): Promise<FlushOutcome> {
+export async function resendHeld(): Promise<FlushOutcome> {
   for (const item of await pending()) {
-    if (item.held?.kind === 'refused') await setHeld(item.clientRequestId, null)
+    if (item.held !== undefined && resendable(item.held)) {
+      await setHeld(item.clientRequestId, null)
+    }
   }
   if (flushing !== null) await flushing
   return flushQueue()

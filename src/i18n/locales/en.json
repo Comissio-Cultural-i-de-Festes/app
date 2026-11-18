@@ -169,6 +169,7 @@
     "rateLimited": "Too many tries in a row. Give it a couple of minutes.",
     "behindServer": "This is not on the server yet: the app was deployed ahead of the database. If you are on the committee, push the migrations; if not, tell them.",
     "stalled": "The connection is not answering: nothing is getting through. Try again, or find somewhere with better signal.",
+    "sessionUnreachable": "Without a connection we cannot open your session. When the network is back, the app will open by itself.",
     "avisSostre": "This course has already taken every point the cap allows for this person. Raise “Most points per course” on The scale, or log the warning with no points.",
     "avisForaDelCurs": "Today falls inside no course, and with no course there is no cap to count. Open the course under “The ranking periods”, or log the warning with no points."
   },

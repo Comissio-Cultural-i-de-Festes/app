@@ -1,5 +1,4 @@
 import { useQueryClient } from '@tanstack/react-query'
-import type { Session } from '@supabase/supabase-js'
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Route, Routes, useLocation } from 'react-router'
@@ -20,6 +19,7 @@ import { useKeepPushFresh } from '@/features/event/useKeepPushFresh'
 import { SociScreen } from '@/features/member/SociScreen'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
+import { useBootSession } from '@/features/session/useBootSession'
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen'
 import { BadgesScreen } from '@/features/badges/BadgesScreen'
 import { GalleryScreen } from '@/features/gallery/GalleryScreen'
@@ -29,7 +29,10 @@ import { SubmitScreen } from '@/features/gimcana/SubmitScreen'
 import { EditProfileScreen } from '@/features/profile/EditProfileScreen'
 import { ProfileScreen } from '@/features/profile/ProfileScreen'
 import { QrScreen } from '@/features/qr/QrScreen'
+import { useQrPrefetch } from '@/features/qr/useQrPrefetch'
 import { JuntaLayout } from '@/features/shell/JuntaLayout'
+import { GateWaiting } from '@/features/shell/Gate'
+import { SessionGate } from '@/features/shell/SessionGate'
 import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
@@ -47,7 +50,8 @@ import {
   snoozeInstall,
 } from '@/features/install/installGate'
 import { forgetOnUserChange } from '@/lib/forgetSession'
-import { supabase } from '@/lib/supabase'
+import { useStalled } from '@/lib/useAvailability'
+import { useOnline } from '@/lib/useOnline'
 
 /**
  * La zona de junta, carregada quan s'hi entra i no abans.
@@ -148,6 +152,9 @@ const JuntaHome = lazy(() =>
 export const PRIVACY_PATH = '/privadesa'
 export const TERMS_PATH = '/condicions'
 
+/** Vegeu la porta de la sessió, a `App`. */
+const OFFLINE_GRACE_MS = 500
+
 /**
  * Només per penjar el hook de la cua a l'arbre.
  *
@@ -157,6 +164,12 @@ export const TERMS_PATH = '/condicions'
  */
 function DrainCheckins() {
   useCheckinQueue()
+  return null
+}
+
+/** El mateix per al QR: es desa en entrar, i no el dia que es busca a la porta. */
+function PrefetchQr() {
+  useQrPrefetch()
   return null
 }
 
@@ -188,35 +201,13 @@ export default function App() {
   const { t } = useTranslation()
   const client = useQueryClient()
   const lastUser = useRef<string | null>(null)
-  const [session, setSession] = useState<Session | null>(null)
-  const { pathname } = useLocation()
-  const [ready, setReady] = useState(false)
   const signedIn = useRef(false)
-  // Llegit en muntar, abans que el bescanvi l'esborri de la barra d'adreces. A
-  // partir d'aquí ja hi ha sessió, i la pantalla d'instal·lació no torna.
-  const [invited] = useState(() => readInviteCode() !== null)
-  const [promptInstall, setPromptInstall] = useState(() =>
-    shouldPromptInstall(Date.now(), { invited }),
-  )
-
-  // A Android el `beforeinstallprompt` sol arribar després del muntatge, i
-  // aquest estat es llegeix un sol cop: sense tornar-hi, la pantalla no
-  // sortiria mai on hi ha diàleg natiu.
-  useEffect(() => {
-    return onNativeInstallPrompt(() => {
-      setPromptInstall(shouldPromptInstall(Date.now(), { invited }))
-    })
-  }, [invited])
-
-  useEffect(() => {
-    void supabase.auth.getSession().then(({ data }) => {
-      lastUser.current = data.session?.user.id ?? null
-      signedIn.current = data.session !== null
-      setSession(data.session)
-      setReady(true)
-    })
-
-    const { data: sub } = supabase.auth.onAuthStateChange((event, next) => {
+  const { phase, session } = useBootSession({
+    onRead: (read) => {
+      lastUser.current = read?.user.id ?? null
+      signedIn.current = read !== null
+    },
+    onChange: (event, next) => {
       // Aquí i no al botó del perfil: també es tanca sessió quan el token ja
       // no es pot refrescar, o des d'una altra pestanya. Un codi que esperava
       // el bescanvi era del compte que se'n va, i el següent que entri en
@@ -233,12 +224,27 @@ export default function App() {
       // Abans de pintar res amb la sessió nova: qui entra no ha de veure ni un
       // instant el que tenia a la cau qui marxa.
       lastUser.current = forgetOnUserChange(client, lastUser.current, next?.user.id ?? null)
-      setSession(next)
+    },
+  })
+  const stalled = useStalled(phase === 'waiting')
+  const online = useOnline()
+  const offlineSettled = useStalled(phase === 'waiting' && !online, 0, OFFLINE_GRACE_MS)
+  const { pathname } = useLocation()
+  // Llegit en muntar, abans que el bescanvi l'esborri de la barra d'adreces. A
+  // partir d'aquí ja hi ha sessió, i la pantalla d'instal·lació no torna.
+  const [invited] = useState(() => readInviteCode() !== null)
+  const [promptInstall, setPromptInstall] = useState(() =>
+    shouldPromptInstall(Date.now(), { invited }),
+  )
+
+  // A Android el `beforeinstallprompt` sol arribar després del muntatge, i
+  // aquest estat es llegeix un sol cop: sense tornar-hi, la pantalla no
+  // sortiria mai on hi ha diàleg natiu.
+  useEffect(() => {
+    return onNativeInstallPrompt(() => {
+      setPromptInstall(shouldPromptInstall(Date.now(), { invited }))
     })
-    return () => {
-      sub.subscription.unsubscribe()
-    }
-  }, [client])
+  }, [invited])
 
   useRedeemFromLink(session?.user.id ?? null)
 
@@ -247,11 +253,29 @@ export default function App() {
     if (session) clearOAuthMark()
   }, [session])
 
-  if (!ready) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center bg-app">
-        <p className="text-fg-muted">{t('state.loading')}</p>
-      </main>
+  // Tornar-ho a provar és recarregar, i no tornar a cridar `getSession()`: una
+  // renovació penjada no es deixa substituir —la biblioteca hi enganxa la
+  // crida nova— i la que ha fallat queda desada un minut. Recarregar és l'única
+  // manera de llançar-ne una de nova, i l'app la serveix el service worker
+  // també sense xarxa.
+  const reload = (): void => {
+    window.location.reload()
+  }
+
+  // Sense xarxa, supabase-js s'hi passa uns vint-i-cinc segons reintentant la
+  // renovació abans de rendir-se. No cal esperar-lo per dir-ho: si el
+  // navegador diu que no hi ha xarxa, és que no n'hi ha. Però no al primer
+  // frame: amb una sessió vàlida `getSession()` contesta en mil·lisegons sense
+  // tocar la xarxa, i en mode avió tothom veia una frase vermella un instant
+  // abans d'entrar. Mig segon de «Un segon…» primer.
+  if (phase === 'waiting') {
+    if (offlineSettled) {
+      return <SessionGate message={t('errors.sessionUnreachable')} onRetry={reload} />
+    }
+    return stalled ? (
+      <SessionGate message={t('errors.stalled')} onRetry={reload} />
+    ) : (
+      <GateWaiting />
     )
   }
 
@@ -271,6 +295,23 @@ export default function App() {
   // és.
   if (pathname === PRIVACY_PATH) return <PrivacyScreen />
   if (pathname === TERMS_PATH) return <TermsScreen />
+
+  // Hi ha una sessió desada que no s'ha pogut renovar. La pantalla d'entrada
+  // seria mentir —ja has entrat— i, a més, no hi ha res que s'hi pugui fer
+  // sense xarxa. Davant del porter d'instal·lació pel mateix motiu: aquell és
+  // per a qui encara no ha entrat.
+  //
+  // «Sense connexió» només si el navegador ho diu. La biblioteca també dona
+  // per reintentable un 502, 503 o 504 del servidor d'entrada, i allà la
+  // cobertura no hi té res a veure.
+  if (!session && phase === 'unreachable') {
+    return (
+      <SessionGate
+        message={t(online ? 'errors.network' : 'errors.sessionUnreachable')}
+        onRetry={reload}
+      />
+    )
+  }
 
   if (promptInstall && !session) {
     return (
@@ -295,6 +336,7 @@ export default function App() {
           guarda el mòbil, o sigui que la pantalla on es va prémer el botó no
           es torna a obrir. */}
       <DrainCheckins />
+      <PrefetchQr />
       <KeepPushFresh />
       <Routes>
         {/* Asked once, and it has to be its own route rather than a gate in

@@ -123,8 +123,21 @@ export function EntryScreen() {
           {invited ? t('entry.invited.title') : t('entry.open.title')}
         </h1>
         <p className="mt-8 max-w-[300px] text-lg text-fg-secondary [text-wrap:pretty]">
-          {invited ? t('entry.invited.lede') : t('entry.open.lede')}
+          {inApp
+            ? invited
+              ? t('entry.inApp.ledeInvited')
+              : t('entry.inApp.ledeOpen')
+            : invited
+              ? t('entry.invited.lede')
+              : t('entry.open.lede')}
         </p>
+
+        {/* Right after the lede, ahead of every other notice and the code
+            card: on a small phone with a valid invitation, anything above it
+            pushes the only thing to tap below the fold. Google refuses to sign
+            in from another app's browser, so its button would only lead to a
+            403, and this replaces it. */}
+        {inApp && <InAppBrowserNotice className="mt-[26px]" />}
 
         {/* Back in an installed app with no session: the round trip ended
             somewhere else. Amber, never the brand red. */}
@@ -174,11 +187,7 @@ export function EntryScreen() {
           )}
         </div>
 
-        {/* Google refuses to sign in from another app's browser, so its
-            button would only lead to a 403. The way out replaces it. */}
-        {inApp ? (
-          <InAppBrowserNotice className="mt-9" />
-        ) : (
+        {!inApp && (
           <div className="mt-9">
             <GoogleButton onClick={() => void google()} disabled={busy}>
               {busy ? t('entry.sending') : invited ? t('entry.invited.cta') : t('entry.open.cta')}

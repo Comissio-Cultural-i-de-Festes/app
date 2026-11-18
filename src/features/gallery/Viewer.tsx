@@ -53,7 +53,14 @@ export function Viewer({
   const [reporting, setReporting] = useState(false)
 
   const photo = photos[at] ?? null
-  const full = useSignedUrls(EVENT_PHOTOS, [photo?.path ?? null])
+  // La del costat també: signar-la quan ja s'ha lliscat vol dir «Carregant» a
+  // cada foto, i a la mateixa petició no costa res més. Només es signa, no es
+  // baixa: la imatge no es demana fins que es mira.
+  const full = useSignedUrls(EVENT_PHOTOS, [
+    photo?.path ?? null,
+    photos[at - 1]?.path ?? null,
+    photos[at + 1]?.path ?? null,
+  ])
 
   const remove = useMutation({
     mutationFn: () => (photo === null ? Promise.resolve() : deletePhoto(photo)),

@@ -80,7 +80,12 @@ jobs:
             echo "::error::Actions variable ${KEY_NAME} is empty or missing (${PROJECT})"
             exit 1
           fi
-          status=$(curl -sS --max-time 30 -o /tmp/out -w '%{http_code}'             -H "apikey: ${SUPABASE_ANON_KEY}"             -H "Authorization: Bearer ${SUPABASE_ANON_KEY}"             "${SUPABASE_URL}/rest/v1/rpc/invite_preview"             -H 'Content-Type: application/json'             -d '{"p_codi":"keepalive"}')
+          status=$(curl -sS --max-time 30 -o /tmp/out -w '%{http_code}' \
+            -H "apikey: ${SUPABASE_ANON_KEY}" \
+            -H "Authorization: Bearer ${SUPABASE_ANON_KEY}" \
+            "${SUPABASE_URL}/rest/v1/rpc/invite_preview" \
+            -H 'Content-Type: application/json' \
+            -d '{"p_codi":"keepalive"}')
           echo "${PROJECT}: HTTP ${status}"
           if [ "${status}" != "200" ]; then
             head -c 300 /tmp/out

@@ -47,10 +47,12 @@
 -- la gimcana (migracions 14, 35, 36, 40, 42). `my_storage_garbage()` torna, a
 -- qui la crida, la brossa que les polítiques li deixen treure i res més, i
 -- l'app la treu en segon pla com a molt un cop al dia per mòbil
--- (`src/lib/sweep.ts`). La junta obre l'app cada setmana; la foto d'una prova
--- desapareix de Storage la primera vegada que algú de la junta l'obre passats
--- els trenta dies, i de la pantalla, el mateix dia trenta (vegeu la marca de
--- sota).
+-- (`src/lib/sweep.ts`). La foto d'una prova desapareix de Storage la primera
+-- vegada que algú de la junta obre l'app passats els trenta dies: «sola» vol
+-- dir que ningú no ho ha de demanar, no que passi sense que ningú obri l'app.
+-- De la pantalla, en canvi, desapareix el dia trenta en punt (vegeu la cua, a
+-- sota). Una gimcana gran són milers de fotos, i per això l'escombrada demana
+-- de mil en mil i hi torna mentre la llista arribi plena.
 --
 -- DESCARTAT: `pg_cron` QUE DESPERTA UNA EDGE FUNCTION, com `reveal-push`. Seria
 -- a les quatre de la matinada en punt i sense dependre de ningú, però esborrar
@@ -83,11 +85,18 @@
 -- treure torna a sortir el dia següent. Treure dues vegades el mateix no fa mal.
 --
 -- LES FILES DE LA GIMCANA. `gimcana_enviaments.path` no és nul i es queda: diu
--- què es va enviar. El que hi afegeix això és `foto_esborrada_at`, que un
--- `cron` marca el dia que la gimcana passa dels trenta dies —encara que els
--- bytes no hagin marxat—, i que la cua de validar torna perquè la pantalla digui
--- «la foto ja no hi és» en comptes d'un requadre buit. La regla de la pantalla
--- és la de la decisió, no la del disc.
+-- què es va enviar. Que la foto ja no compta es dedueix de l'horari, igual que
+-- el que fa que sobri: la cua de validar torna `foto_esborrada_at` calculada
+-- amb la mateixa `gimcana_tancada_a`, i la pantalla diu «la foto ja no hi és»
+-- en comptes d'un requadre buit des del mateix instant que l'escombrada la pot
+-- treure.
+--
+-- DESCARTAT: UNA COLUMNA A LA FILA MARCADA PER UN `cron`. Era la primera
+-- versió, i deixava una finestra: entre l'escombrada de la junta i el `cron` de
+-- les 4.10, la foto ja no hi era i la fila encara no ho deia. Dues fonts per a
+-- la mateixa regla poden discrepar; una de sola, no. I l'estat que la columna
+-- guardava es pot tornar a calcular sempre, perquè l'horari d'un esdeveniment
+-- no s'esborra.
 
 -- ── on es tanca una gimcana ─────────────────────────────────────────────────
 -- Quan es tanca la finestra de `private.gimcana_is_open`, que és la de fitxar
@@ -126,15 +135,6 @@ $$;
 
 alter function private.uuid_or_null(text) owner to postgres;
 revoke all on function private.uuid_or_null(text) from public, anon, authenticated;
-
--- ── la marca a la fila ──────────────────────────────────────────────────────
-alter table public.gimcana_enviaments
-  add column if not exists foto_esborrada_at timestamptz;
-
-comment on column public.gimcana_enviaments.foto_esborrada_at is
-  'Quan la foto va deixar de comptar: la gimcana fa més de trenta dies que es '
-  'va tancar. El camí es queda, perquè diu què es va enviar; aquesta columna '
-  'diu que ja no es pot mirar.';
 
 -- ── què sobra ───────────────────────────────────────────────────────────────
 create or replace function private.storage_garbage()
@@ -280,45 +280,6 @@ alter function public.my_storage_garbage(integer) owner to postgres;
 revoke all on function public.my_storage_garbage(integer) from public, anon;
 grant execute on function public.my_storage_garbage(integer) to authenticated;
 
--- ── el cron, que només marca ────────────────────────────────────────────────
--- La regla és que passats trenta dies la foto ja no es mira, i això no ha de
--- dependre de qui obri l'app ni de quan: la marca la posa la base sola.
-create or replace function private.mark_gimcana_photos_gone()
-returns integer
-language plpgsql
-volatile
-security definer
-set search_path = ''
-as $$
-declare
-  v_marked integer;
-begin
-  update public.gimcana_enviaments s
-     set foto_esborrada_at = now()
-    from public.gimcana_proves pr
-    join public.gimcanes g on g.id = pr.gimcana_id
-   where pr.id = s.prova_id
-     and s.foto_esborrada_at is null
-     and private.gimcana_tancada_a(g.event_id) < now() - interval '30 days';
-  get diagnostics v_marked = row_count;
-  return v_marked;
-end $$;
-
-comment on function private.mark_gimcana_photos_gone() is
-  'Marca foto_esborrada_at a les proves de les gimcanes tancades fa més de '
-  'trenta dies. Els bytes els treu l''app de la junta (my_storage_garbage).';
-
-alter function private.mark_gimcana_photos_gone() owner to postgres;
-revoke all on function private.mark_gimcana_photos_gone() from public, anon, authenticated;
-
--- Cada dia, abans de les altres dues purgues. `cron.schedule` reemplaça un job
--- amb el mateix nom, o sigui que tornar a passar això no els apila.
-select cron.schedule(
-  'marca-proves-gimcana',
-  '10 4 * * *',
-  $$ select private.mark_gimcana_photos_gone() $$
-);
-
 -- ── la cua de validar diu si la foto ja no hi és ────────────────────────────
 -- Cal DROP: canviar les columnes d'un `returns table` no es pot fer amb
 -- replace. La columna nova va al final, perquè un mòbil amb la versió d'ahir
@@ -355,7 +316,13 @@ as $$
     e.escola,
     s.created_at,
     count(*) over ()::int,
-    s.foto_esborrada_at
+    -- Des de quan la foto ja no compta: la mateixa regla que la fa sobrar a
+    -- `storage_garbage`, o sigui que la pantalla i l'escombrada no poden dir
+    -- coses diferents.
+    case
+      when private.gimcana_tancada_a(g.event_id) < now() - interval '30 days'
+      then private.gimcana_tancada_a(g.event_id) + interval '30 days'
+    end
   from public.gimcana_enviaments s
   join public.gimcana_proves p on p.id = s.prova_id
   join public.gimcanes g on g.id = p.gimcana_id
@@ -372,7 +339,7 @@ grant execute on function public.admin_gimcana_queue(uuid) to authenticated;
 
 -- ── ROLLBACK ────────────────────────────────────────────────────────────────
 --
--- A supabase/rollbacks/91_l_storage_es_buida_sol.sql. Desfer-ho para la marca
--- i torna la cua sense la columna; el client la llegeix amb `?? null` i, sense
+-- A supabase/rollbacks/91_l_storage_es_buida_sol.sql. Desfer-ho torna la cua
+-- sense la columna; el client la llegeix amb `?? null` i, sense
 -- `my_storage_garbage`, l'escombrada en segon pla falla sense dir res, o sigui
 -- que no cal desfer-lo alhora. Els objectes que ja s'hagin esborrat no tornen.

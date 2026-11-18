@@ -768,7 +768,6 @@ export type Database = {
           created_at: string
           equip_id: string
           estat: string
-          foto_esborrada_at: string | null
           id: string
           motiu: string | null
           path: string
@@ -782,7 +781,6 @@ export type Database = {
           created_at?: string
           equip_id: string
           estat?: string
-          foto_esborrada_at?: string | null
           id?: string
           motiu?: string | null
           path: string
@@ -796,7 +794,6 @@ export type Database = {
           created_at?: string
           equip_id?: string
           estat?: string
-          foto_esborrada_at?: string | null
           id?: string
           motiu?: string | null
           path?: string

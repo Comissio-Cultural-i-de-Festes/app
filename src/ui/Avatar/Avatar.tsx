@@ -28,8 +28,11 @@ export interface AvatarProps {
 }
 
 export function Avatar({ src, size, ring = false, className = '' }: AvatarProps) {
-  const [failed, setFailed] = useState(false)
   const url = useAvatarUrl(src)
+  // The URL that failed, not a flag: a signed URL shown for a moment after it
+  // expired fails, and the fresh one that replaces it must get its chance.
+  const [failedUrl, setFailedUrl] = useState<string | null>(null)
+  const failed = url !== null && url === failedUrl
   const box = { width: size, height: size } as const
   const outline = ring ? 'outline-[1.5px] outline-brand outline-offset-1' : ''
 
@@ -61,7 +64,7 @@ export function Avatar({ src, size, ring = false, className = '' }: AvatarProps)
       // referrer to a third party on every row of the ranking.
       referrerPolicy="no-referrer"
       onError={() => {
-        setFailed(true)
+        setFailedUrl(url)
       }}
       style={box}
       className={`flex-none rounded-full bg-[var(--ds-bg-avatar)] object-cover ${outline} ${className}`}

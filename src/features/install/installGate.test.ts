@@ -7,6 +7,7 @@ import {
   hasNativeInstallPrompt,
   offersNativeInstall,
   promptNativeInstall,
+  shouldOfferInstallCard,
   shouldPromptInstall,
   snoozeInstall,
 } from './installGate'
@@ -22,6 +23,17 @@ let mockIsStandalone = false
 let mockInApp = false
 
 const NOW = new Date('2026-09-01T20:00:00Z').getTime()
+
+/** El que Chrome dispara, retallat al que el mòdul en fa servir. */
+function offerNativeDialog(outcome: 'accepted' | 'dismissed'): void {
+  const e = new Event('beforeinstallprompt', { cancelable: true }) as Event & {
+    prompt: () => Promise<void>
+    userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
+  }
+  e.prompt = () => Promise.resolve()
+  e.userChoice = Promise.resolve({ outcome })
+  window.dispatchEvent(e)
+}
 
 beforeEach(() => {
   mockIsIos = true
@@ -110,17 +122,44 @@ describe('when the install screen appears', () => {
   })
 })
 
+describe('the install card on the home screen', () => {
+  it('appears on iOS in Safari, once somebody is already in', () => {
+    expect(shouldOfferInstallCard(NOW)).toBe(true)
+  })
+
+  it('never from the icon, which is where it would send them', () => {
+    mockIsStandalone = true
+    expect(shouldOfferInstallCard(NOW)).toBe(false)
+  })
+
+  it('never inside an in-app browser', () => {
+    mockInApp = true
+    expect(shouldOfferInstallCard(NOW)).toBe(false)
+  })
+
+  it('never off iOS: Android has its own dialog and its own menu entry', () => {
+    // Els passos de la targeta són del Safari. A Android, amb o sense diàleg,
+    // ensenyar-los seria explicar com es fa en un altre mòbil.
+    mockIsIos = false
+    expect(shouldOfferInstallCard(NOW)).toBe(false)
+  })
+
+  it('shares the snooze with the screen: "not now" is a week, "already done" a month', () => {
+    // Una sola resposta per a les dues ofertes. Qui ha dit «ara no» a la
+    // pantalla no ha de trobar-se la mateixa pregunta a l'Inici cinc minuts
+    // després, i qui diu que ja la té no l'ha de tornar a sentir enlloc.
+    snoozeInstall(SNOOZE_LATER_MS, NOW)
+    expect(shouldOfferInstallCard(NOW + 1000)).toBe(false)
+    expect(shouldOfferInstallCard(NOW + SNOOZE_LATER_MS + 1000)).toBe(true)
+
+    snoozeInstall(SNOOZE_DONE_MS, NOW)
+    expect(shouldOfferInstallCard(NOW + SNOOZE_LATER_MS + 1000)).toBe(false)
+    expect(shouldOfferInstallCard(NOW + SNOOZE_DONE_MS + 1000)).toBe(true)
+  })
+})
+
 describe('the native install dialog', () => {
-  /** El que Chrome dispara, retallat al que el mòdul en fa servir. */
-  function offerOne(outcome: 'accepted' | 'dismissed'): void {
-    const e = new Event('beforeinstallprompt', { cancelable: true }) as Event & {
-      prompt: () => Promise<void>
-      userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>
-    }
-    e.prompt = () => Promise.resolve()
-    e.userChoice = Promise.resolve({ outcome })
-    window.dispatchEvent(e)
-  }
+  const offerOne = offerNativeDialog
 
   it('separates having a dialog in hand from being a browser that offers one', async () => {
     // Aquesta és la distinció sencera. `deferred` es gasta en obrir-lo; el fet

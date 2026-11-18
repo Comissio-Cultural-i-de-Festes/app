@@ -16,6 +16,10 @@ import { promptNativeInstall, useNativeInstallPrompt } from './installGate'
  * on iOS the home-screen app has its own storage: install after signing in and
  * the icon opens to a signed-out app.
  *
+ * Except when the link carries an invitation. Then the door goes first and
+ * this comes back afterwards as `InstallCard` on the home screen: see
+ * `shouldPromptInstall` for why the code would not survive the trip.
+ *
  * It is skippable. "Not now" continues in Safari with a one-line warning that
  * signing in again from the icon will be needed, and comes back in a week.
  */

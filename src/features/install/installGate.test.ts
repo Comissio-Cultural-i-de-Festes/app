@@ -120,6 +120,23 @@ describe('when the install screen appears', () => {
     localStorage.setItem('comi.install.snoozedUntil', 'whenever')
     expect(shouldPromptInstall(NOW)).toBe(true)
   })
+
+  it('steps aside on iOS when the link carries an invitation', () => {
+    // El codi només viu a la URL, i la icona obre l'arrel en un magatzem a
+    // part: instal·lar primer és perdre'l. La porta va davant i la
+    // instal·lació arriba després, com a targeta a l'Inici.
+    expect(shouldPromptInstall(NOW, { invited: true })).toBe(false)
+    expect(shouldPromptInstall(NOW, { invited: false })).toBe(true)
+  })
+
+  it('keeps the Android dialog in front of the door, invitation or not', async () => {
+    // A Android instal·lar no canvia de magatzem i la pestanya es queda amb la
+    // URL sencera: el codi no es perd, i no hi ha res a arreglar.
+    mockIsIos = false
+    offerNativeDialog('dismissed')
+    expect(shouldPromptInstall(NOW, { invited: true })).toBe(true)
+    await promptNativeInstall()
+  })
 })
 
 describe('the install card on the home screen', () => {

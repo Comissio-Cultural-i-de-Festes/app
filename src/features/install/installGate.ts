@@ -166,10 +166,28 @@ export async function promptNativeInstall(): Promise<boolean> {
  *
  * Dins del navegador integrat d'Instagram o Facebook, mai: els passos parlen
  * del Safari i allà no n'hi ha. La porta ja hi diu què fer.
+ *
+ * A l'iPhone, tampoc si l'enllaç porta una invitació. El codi només viu a la
+ * URL, la icona obre l'arrel (`start_url: '/'`) i el seu magatzem no veu res
+ * del Safari: instal·lar primer era perdre el codi i entrar com a pendent. Amb
+ * codi, doncs, la porta va primer i el bescanvi es fa aquí mateix, al Safari;
+ * el compte queda actiu al servidor, i a la icona n'hi ha prou d'entrar un cop
+ * més amb Google. La instal·lació torna a l'Inici, com a targeta.
+ *
+ * L'opció descartada era desar el codi i recuperar-lo a la icona. No hi ha on:
+ * cap dels dos magatzems veu l'altre, i demanar a algú que el torni a enganxar
+ * és exactament el pas que es perdia.
+ *
+ * A Android no canvia res. Instal·lar no hi canvia de magatzem i la pestanya es
+ * queda amb la URL sencera, codi inclòs.
  */
-export function shouldPromptInstall(now = Date.now()): boolean {
+export function shouldPromptInstall(
+  now = Date.now(),
+  { invited = false }: { readonly invited?: boolean } = {},
+): boolean {
   if (inAppBrowser() !== null) return false
   if (!isIos() && !hasNativeInstallPrompt()) return false
+  if (isIos() && invited) return false
   if (isStandalone()) return false
   return now >= readSnooze()
 }

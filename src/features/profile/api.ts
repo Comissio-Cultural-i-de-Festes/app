@@ -1,5 +1,5 @@
 import { DbError, unwrap, unwrapAs } from '@/lib/db'
-import { AVATARS, shrinkImage, uploadAvatar } from '@/lib/storage'
+import { AVATARS, avatarImage, uploadAvatar } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
 
 import type { Hores } from './hores'
@@ -209,13 +209,13 @@ export async function setMyNameAndInstagram(
  * surt. Si la pujada falla, la columna no s'ha tocat i la foto d'abans encara
  * hi és.
  *
- * L'objecte que sobra no s'esborra. Un avatar antic ocupa cinquanta kB i
- * esborrar-lo voldria dir una segona operació que pot fallar tota sola,
- * deixant la columna canviada i l'error a la pantalla d'algú que ja havia
- * acabat. «Treu-la» sí que esborra, perquè allà treure és la funció.
+ * L'objecte que sobra no s'esborra. Un avatar antic pesa unes desenes de kB
+ * (és un quadrat de 384 px) i esborrar-lo voldria dir una segona operació que
+ * pot fallar tota sola, deixant la columna canviada i l'error a la pantalla
+ * d'algú que ja havia acabat. «Treu-la» sí que esborra, perquè allà treure és la funció.
  */
 export async function setMyPhoto(userId: string, file: Blob): Promise<void> {
-  const body = file instanceof File ? await shrinkImage(file) : file
+  const body = await avatarImage(file)
   const path = await uploadAvatar(body, userId)
   await unwrap(supabase.from('profiles').update({ avatar_url: path }).eq('id', userId).select('id'))
 }

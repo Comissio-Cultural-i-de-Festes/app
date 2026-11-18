@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { UnreadableImage, galleryImage, shrinkImage } from './storage'
+import { UnreadableImage, avatarImage, galleryImage, shrinkImage } from './storage'
 
 /**
  * `shrinkImage`, i sobretot que no torni mai el fitxer tal com va arribar.
@@ -170,6 +170,64 @@ describe('galleryImage', () => {
     )
 
     await expect(galleryImage(fitxer(3_000_000, 'image/heic'))).rejects.toBeInstanceOf(
+      UnreadableImage,
+    )
+  })
+})
+
+describe('avatarImage', () => {
+  // Un avatar es pinta en un cercle de 112 px com a molt. Abans passava per
+  // `shrinkImage` i pujava a 1600 px: quatre-cents kB per a una cara de 40.
+  it('retalla el centre en quadrat abans d encongir', async () => {
+    bitmap(4000, 3000)
+    const canvas = muntaCanvas()
+
+    await avatarImage(fitxer(9_000_000))
+
+    const args = canvas.drawImage.mock.calls[0] as number[]
+    // drawImage(bitmap, sx, sy, sw, sh, dx, dy, dw, dh)
+    expect(args.slice(1)).toEqual([500, 0, 3000, 3000, 0, 0, 384, 384])
+  })
+
+  it('una foto vertical es retalla pel mig cap amunt i avall', async () => {
+    bitmap(1000, 2000)
+    const canvas = muntaCanvas()
+
+    await avatarImage(fitxer(3_000_000, 'image/png'))
+
+    const args = canvas.drawImage.mock.calls[0] as number[]
+    expect(args.slice(1)).toEqual([0, 500, 1000, 1000, 0, 0, 384, 384])
+  })
+
+  it('no amplia una foto que ja és més petita que el sostre', async () => {
+    bitmap(200, 150)
+    const canvas = muntaCanvas()
+
+    await avatarImage(fitxer(40_000))
+
+    const args = canvas.drawImage.mock.calls[0] as number[]
+    expect(args.slice(1)).toEqual([25, 0, 150, 150, 0, 0, 150, 150])
+  })
+
+  // Sempre JPEG, també un PNG: el cubell d'avatars no l'accepta, i així
+  // també se'n van les metadades.
+  it('sempre surt en JPEG', async () => {
+    bitmap(800, 800)
+    const canvas = muntaCanvas()
+
+    const out = await avatarImage(fitxer(200_000, 'image/png'))
+
+    expect(canvas.toBlob.mock.calls[0]?.[1]).toBe('image/jpeg')
+    expect(out.type).toBe('image/jpeg')
+  })
+
+  it('un fitxer il·legible es diu pel seu nom', async () => {
+    vi.stubGlobal(
+      'createImageBitmap',
+      vi.fn(() => Promise.reject(new Error('no decoder'))),
+    )
+
+    await expect(avatarImage(fitxer(3_000_000, 'image/heic'))).rejects.toBeInstanceOf(
       UnreadableImage,
     )
   })

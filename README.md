@@ -649,37 +649,118 @@ not after.
 **There is no PITR and there are no managed backups**: this is a free-tier
 project. There is also no nightly job, deliberately — it would need a
 `service_role` key living as a GitHub Actions secret, and that is a credential
-that bypasses every policy in `supabase/` sitting in one more place.
+that bypasses every policy in `supabase/` sitting in one more place. Whether
+that trade should change is open: see "Monthly checklist" below.
 
-So the policy is manual and it is a habit: **a full dump before every round of
-migrations**, downloaded locally, kept outside this repository.
+So the policy is manual and it is a habit: **a full backup before every round
+of migrations**, downloaded locally, kept outside this repository. A full
+backup is three SQL files and the bucket files.
+
+### The database
 
 ```
-npx supabase db dump --linked -s public,auth -f <somewhere>/<date>-schema.sql
-npx supabase db dump --linked --data-only -s public,auth -f <somewhere>/<date>-data.sql
+npx supabase db dump --linked -s public,private,auth -f <somewhere>/<date>-schema.sql
+npx supabase db dump --linked --data-only -s public,private,auth -f <somewhere>/<date>-data.sql
 npx supabase db dump --linked --role-only -f <somewhere>/<date>-roles.sql
 ```
 
 **`auth` is not optional.** `public.profiles.id` references `auth.users(id)`, so
 a `public`-only dump does not restore: every profile row fails its foreign key
-on the way in, and the rest cascades off that. It is the kind of mistake you
-find out about on the one day you cannot afford to.
+on the way in, and the rest cascades off that.
 
-**Two things a SQL dump does not carry, and both matter.**
+**`private` is not optional either**, and it is the one that is easy to
+forget because nothing in the app lists it. `private.event_geo` holds the
+coordinates of every event: PostgREST does not expose that schema, so no
+screen would show you they are missing. Restore without it and every event
+silently stops accepting check-in by location. The data dump carries it only
+because `private` is in the `-s` list.
 
-The bucket files. The dump brings the rows of `storage.objects` — names, sizes,
-metadata — and none of the bytes. Restore it and the database will tell you
-there is a cover photo and an avatar, and the bucket will be empty. Today that
-is two files; after a term of party photos and door diptychs it is thousands,
-and at that point this stops being a footnote and becomes the main problem with
-the backup.
+Do not add `storage` to that list. It would bring the rows of
+`storage.objects` — names, sizes, metadata — and none of the bytes, and those
+rows would collide with the buckets the migrations already create. The files
+are copied separately, below, and uploading them is what recreates the rows.
+
+The data file starts with `set session_replication_role = replica`, so
+triggers and foreign keys do not fire while it loads. That is what lets it
+load in table order without an audit row for every insert.
+
+Check the dump rather than trusting it: `grep -c 'private"."event_geo"'` on the
+data file, and count the tuples of `profiles` and `events` against the project.
+
+### The bucket files
+
+Five buckets, from `supabase/config.toml` and the storage migrations:
+`event-covers`, `door-photos`, `event-photos`, `gimcana-photos`, `avatars`.
+All are private. The CLI copies one path at a time, so one recursive copy per
+bucket:
+
+```
+for b in event-covers door-photos event-photos gimcana-photos avatars; do
+  npx supabase storage cp -r --linked "ss:///$b" "<somewhere>/<date>-storage/$b"
+done
+```
+
+`npx supabase storage ls -r --linked ss:///<bucket>` lists a bucket, which is
+how to compare file counts afterwards. If a bucket is added in a migration,
+add it to that loop; `grep -rn "storage.buckets" supabase/migrations` finds
+them.
+
+### What a dump does not carry
 
 The Vault, where `reveal_push_url` and `reveal_push_token` live. Restore into a
 fresh project and the reveal notifications stop going out, silently, until
-somebody puts both secrets back by hand.
+somebody puts both secrets back by hand (section 9 above).
 
-Check the dump rather than trusting it: count the tuples in the data file
-before you rely on it.
+The `pg_cron` jobs: `purge-audit-log`, `send-reveal-pushes` and
+`purga-avis-pendents`. They live in the `cron` schema, which is not in the
+dump. The migrations that create them (10, 47 and 87) re-run them; a
+restore that skips the migrations has no jobs and nothing says so.
+
+### Restoring
+
+Order matters.
+
+1. A new project, with `pg_cron` and `pg_net` enabled first (deploy step 1).
+2. Roles: `psql … -f <date>-roles.sql`. One line may fail on a role that only
+   the managed platform has (`supabase_realtime_admin`); the `ALTER ROLE`
+   lines before it are the ones that matter.
+3. Schema: `<date>-schema.sql`, then data: `<date>-data.sql`. Use
+   `supabase_admin` locally; on a hosted project the `postgres` role is what
+   you have. A hosted project already has its own `auth` tables at the
+   current version, so expect a block of "already exists" and "multiple
+   primary keys" errors from the `auth` part of the schema file. They are
+   noise; anything about `public` or `private` is not.
+4. The bucket files, bucket by bucket, the other way round:
+   `npx supabase storage cp -r --linked "<somewhere>/<date>-storage/<bucket>" "ss:///<bucket>"`.
+5. The Vault secrets and the three cron jobs, if the migrations did not run.
+6. Check: row counts of `profiles`, `events` and `auth.users`, that
+   `private.event_geo` is populated, `select jobname from cron.job`, and one
+   cover photo that actually opens in the app.
+
+What was rehearsed in local, from a dump of the shared development database
+into an empty database in a throwaway container of the same Postgres image:
+the schema file loaded with zero errors, the data file with zero errors, and
+the counts matched (59 profiles, 12 events, 59 users and 59 identities). A
+dump taken from that restored database brought `private.event_geo` back with
+a row in it, and the same dump without `private` in `-s` did not. What is
+**not** proven: the bucket copy (the CLI call was checked against `--help`,
+not run), a restore into a real hosted project, and the Vault and cron steps
+beyond creating a secret and a job by hand.
+
+### Monthly checklist
+
+- Dump the three SQL files above and the five buckets.
+- Count `private.event_geo` and `storage.objects` in the dump against the
+  project.
+- Open the newest dump in a text editor and check it is not empty.
+- Keep the last three; delete older ones.
+- Once a term, restore the newest into the Staging project and open the app.
+
+Automating this is undecided: either a private repository in the organisation
+with an `age`-encrypted dump taken by a read-only role, or this checklist done
+by hand each month. Tracked in
+[#24](https://github.com/Comissio-Cultural-i-de-Festes/app/issues/24); until it
+is decided the checklist is the policy.
 
 ## Brand colours
 

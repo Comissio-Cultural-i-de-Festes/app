@@ -5,6 +5,7 @@ import { Link, useParams } from 'react-router'
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { errorKey } from '@/lib/errors'
+import { useAvailability } from '@/lib/useAvailability'
 
 import { fetchBoard, fetchGimcana, fetchTeams, gimcanaKeys, pickTeam } from './api'
 import { teamName } from './teamName'
@@ -46,6 +47,10 @@ export function ProvesScreen() {
     refetchInterval: 20_000,
   })
 
+  // Sense xarxa la consulta es posa en pausa i no falla. A la casa rural, que
+  // és on es juga, «Un segon…» era el que es veia fins que tornava la cobertura.
+  const view = useAvailability(gimcana)
+
   const open = gimcana.data?.estat === 'oberta' ? gimcana.data : null
 
   const board = useQuery({
@@ -62,11 +67,11 @@ export function ProvesScreen() {
         <h1 className="display text-d-s tracking-[-0.045em]">{t('gimcana.title')}</h1>
       </div>
 
-      {gimcana.isPending ? (
+      {view.loading ? (
         <p className={`py-8 text-fg-muted ${GUTTER}`}>{t('state.loading')}</p>
-      ) : gimcana.isError ? (
+      ) : view.unavailable ? (
         <p role="alert" className={`py-8 text-md font-bold text-error ${GUTTER}`}>
-          {t(errorKey(gimcana.error))}
+          {t(view.messageKey)}
         </p>
       ) : gimcana.data?.estat === 'no_hi_es' ? (
         <p className={`py-8 text-md text-fg-muted ${GUTTER} [text-wrap:pretty]`}>

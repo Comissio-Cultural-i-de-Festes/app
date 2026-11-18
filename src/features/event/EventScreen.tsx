@@ -27,6 +27,7 @@ import { INTL_LOCALE, toLocale } from '@/i18n/locales'
 import { type Card, loadCardImage } from '@/lib/cards'
 import { errorKey } from '@/lib/errors'
 import { hasEnded } from '@/lib/eventEnd'
+import { useAvailability } from '@/lib/useAvailability'
 import { ANSWERS, type Answer, type AttendanceState } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -98,6 +99,7 @@ export function EventScreen() {
   const [justCheckedIn, setJustCheckedIn] = useState(false)
 
   const event = useQuery({ queryKey: eventKeys.one(id), queryFn: () => fetchEvent(id) })
+  const view = useAvailability(event)
   const attendances = useQuery({
     queryKey: homeKeys.attendances([id]),
     queryFn: () => fetchAttendances([id]),
@@ -125,21 +127,23 @@ export function EventScreen() {
     document.getElementById('soc-aqui')?.scrollIntoView({ block: 'center' })
   }, [locationHash, event.isSuccess, attendances.isSuccess])
 
-  if (event.isPending) {
+  if (view.loading) {
     return <EventSkeleton />
   }
 
-  if (event.isError) {
+  // Sense xarxa la consulta es posa en pausa i no falla: amb `isError` aquí,
+  // obrir un enllaç a un esdeveniment sota terra era l'esquelet per sempre.
+  if (view.unavailable) {
     return (
       <main
         className={`with-tabbar min-h-dvh bg-app pt-[max(calc(var(--ds-safe-top)+32px),12px)] ${GUTTER}`}
       >
         <p role="alert" className="text-lg font-bold text-error [text-wrap:pretty]">
-          {t(errorKey(event.error))}
+          {t(view.messageKey)}
         </p>
         <button
           type="button"
-          onClick={() => void event.refetch()}
+          onClick={view.retry}
           className="-ml-2 mt-8 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-brand-label"
         >
           {t('actions.retry')}

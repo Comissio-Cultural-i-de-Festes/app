@@ -6,6 +6,8 @@ import { loadEnv } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
 
+import { juntaOutOfPrecache } from './build/precache.ts'
+
 const REQUIRED_ENV = [
   'VITE_APP_NAME',
   'VITE_APP_SHORT_NAME',
@@ -48,10 +50,13 @@ export default defineConfig(({ mode, command }) => {
   // contain is the dot.
   const supabasePattern = new RegExp(`^${supabaseOrigin.split('.').join('\\.')}/`)
 
+  const precache = juntaOutOfPrecache()
+
   return {
     plugins: [
       react(),
       tailwindcss(),
+      precache.plugin,
       {
         // La substitució de `%VITE_*%` que fa Vite deixa el marcador tal qual
         // quan la variable no hi és, i aleshores `content="%VITE_THEME_COLOR%"`
@@ -136,6 +141,10 @@ export default defineConfig(({ mode, command }) => {
           // Només la veuen els rastrejadors dels enllaços; un soci no la baixa
           // mai i al precache seria pes mort a cada instal·lació.
           globIgnores: ['og-image.png'],
+          // La zona de junta, la porta i el mapa, fora: el perquè i com es
+          // decideix són a `build/precache.ts`. Els serveix la regla `chunks`
+          // de més avall.
+          manifestTransforms: [precache.manifestTransform],
           cleanupOutdatedCaches: true,
           clientsClaim: true,
           skipWaiting: true,
@@ -247,7 +256,7 @@ export default defineConfig(({ mode, command }) => {
       environment: 'jsdom',
       globals: true,
       setupFiles: ['./tests/setup.ts'],
-      include: ['tests/**/*.test.{ts,tsx}', 'src/**/*.test.{ts,tsx}'],
+      include: ['tests/**/*.test.{ts,tsx}', 'src/**/*.test.{ts,tsx}', 'build/**/*.test.ts'],
       // tests/rls needs a running Supabase stack, so it has its own config and
       // its own script. `npm test` must work with nothing but node_modules.
       exclude: ['tests/rls/**'],

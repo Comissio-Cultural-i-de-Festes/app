@@ -154,6 +154,10 @@ describe('the install card on the home screen', () => {
     expect(shouldOfferInstallCard(NOW)).toBe(false)
   })
 
+  it('never while the code from the link is still waiting to be redeemed', () => {
+    expect(shouldOfferInstallCard(NOW, { invited: true })).toBe(false)
+  })
+
   it('never off iOS: Android has its own dialog and its own menu entry', () => {
     // Els passos de la targeta són del Safari. A Android, amb o sense diàleg,
     // ensenyar-los seria explicar com es fa en un altre mòbil.

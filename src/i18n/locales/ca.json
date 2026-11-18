@@ -1146,6 +1146,8 @@
         "avis": "{{actor}} ha registrat un avís a {{target}}",
         "avis_pendent": "{{actor}} ha registrat un avís pendent per a algú sense compte",
         "retira_avis": "{{actor}} ha retirat un avís a {{target}}",
+        "rebutja_avis": "{{actor}} ha rebutjat un avís proposat per a {{target}}",
+        "valida_avis": "{{actor}} ha validat un avís a {{target}}",
         "retira_avis_pendent": "{{actor}} ha retirat un avís pendent",
         "set_avis_tipus": "{{actor}} ha canviat el catàleg d'avisos"
       },

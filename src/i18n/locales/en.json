@@ -1146,6 +1146,8 @@
         "avis": "{{actor}} recorded a warning against {{target}}",
         "avis_pendent": "{{actor}} logged a pending warning for someone without an account",
         "retira_avis": "{{actor}} withdrew a warning against {{target}}",
+        "rebutja_avis": "{{actor}} turned down a proposed warning for {{target}}",
+        "valida_avis": "{{actor}} confirmed a warning against {{target}}",
         "retira_avis_pendent": "{{actor}} withdrew a pending warning",
         "set_avis_tipus": "{{actor}} changed the warning catalogue"
       },

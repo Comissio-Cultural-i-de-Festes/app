@@ -103,6 +103,9 @@ select is(
   'i continua sense la nota, que viu a `avisos`'
 );
 
+-- Els punts es resten en validar-lo (migració 93), i amb la data de l'avís.
+select tests.valida_proposats();
+
 select is(
   (select pl.created_at = a.created_at
      from public.avisos a join public.points_log pl on pl.id = a.points_log_id

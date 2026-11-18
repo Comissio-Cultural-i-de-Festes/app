@@ -47,10 +47,11 @@ insert into public.points_log (user_id, event_id, motivo, puntos, nota, granted_
 values ((select alfa from qui), null, 'avis', -200, 'curs passat',
         (select junta from qui), now() - interval '400 days');
 
-insert into public.avisos (user_id, tipus, gravetat, nota, points_log_id, created_by, created_at)
+-- Validat al moment, que és com eren tots els avisos abans de la 93.
+insert into public.avisos (user_id, tipus, gravetat, nota, points_log_id, created_by, created_at, validat_at)
 select (select alfa from qui), 'greu', 3, 'curs passat',
        (select id from public.points_log where nota = 'curs passat'),
-       (select junta from qui), now() - interval '400 days';
+       (select junta from qui), now() - interval '400 days', now() - interval '400 days';
 
 insert into fet (clau, id)
 select 'vell', id from public.avisos where nota = 'curs passat';

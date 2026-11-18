@@ -97,6 +97,15 @@ export function invalidateAccess(client: QueryClient): Promise<void> {
   })
 }
 
+/**
+ * Oblida la URL d'objectes que ja no hi són. `removeQueries` i no
+ * `invalidateQueries`: invalidar-la la tornaria a signar, i l'objecte ja no hi
+ * és.
+ */
+export function forgetSigned(client: QueryClient, bucket: string, paths: readonly string[]): void {
+  for (const path of paths) client.removeQueries({ queryKey: signedKey(bucket, path), exact: true })
+}
+
 export function withSignedDefaults(client: QueryClient): QueryClient {
   client.setQueryDefaults([SIGNED], {
     staleTime: 50 * MINUTE,

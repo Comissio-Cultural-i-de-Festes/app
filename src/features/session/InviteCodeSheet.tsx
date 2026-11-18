@@ -9,7 +9,6 @@ import { Button } from '@/ui/Button/Button'
 import { TextField } from '@/ui/Field/Field'
 import { Sheet, SheetClose } from '@/ui/Sheet/Sheet'
 
-
 /**
  * Bescanviar un codi d'invitació quan ja has entrat.
  *

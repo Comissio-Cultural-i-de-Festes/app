@@ -86,7 +86,7 @@ export function EventScreen() {
   // Qui encara és pendent no llegeix les assistències dels altres ni pot
   // contestar: tot el que en depèn queda fora de la pantalla en lloc de
   // pintar-se a zero o de fallar en prémer-ho.
-  const { active, pending: waitingForJunta } = useAccess()
+  const { closed } = useAccess()
   const client = useQueryClient()
   const { id = '' } = useParams()
   const { hash: locationHash } = useLocation()
@@ -194,9 +194,16 @@ export function EventScreen() {
   // fitxat el bloc es queda: acaba de dir-te que hi ets i t'ofereix la foto, i
   // desmuntar-lo perquè `mine` ha canviat seria treure-ho de la pantalla en el
   // mateix moment que hi apareix.
+  const answerSlot: 'meeting' | 'event' | null = isMeeting
+    ? e.tancada_at === null
+      ? 'meeting'
+      : null
+    : hidden || isPast || mine === 'asistio' || justCheckedIn
+      ? null
+      : 'event'
   const canCheckIn =
     justCheckedIn ||
-    (active && mine !== 'asistio' && isOpen(checkinWindow(e.starts_at, e.ends_at), now.getTime()))
+    (!closed && mine !== 'asistio' && isOpen(checkinWindow(e.starts_at, e.ends_at), now.getTime()))
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
@@ -267,9 +274,9 @@ export function EventScreen() {
         </div>
       ) : null}
 
-      {isMeeting && active ? <MeetingRoster event={e} /> : null}
+      {isMeeting && !closed ? <MeetingRoster event={e} /> : null}
 
-      {isMeeting || !active || going.length === 0 ? null : (
+      {isMeeting || closed || going.length === 0 ? null : (
         <section className={`pt-9 ${GUTTER}`}>
           <div className="flex items-center gap-4">
             <div className="flex items-center">
@@ -347,12 +354,13 @@ export function EventScreen() {
           és. L'única cosa que es pot fer és dir «avisa'm». */}
       {hidden ? (
         <section className={GUTTER}>
-          {active ? <InterestBlock eventId={e.id} /> : <PendingNote className="pt-9" />}
+          {closed ? <PendingNote className="pt-9" /> : <InterestBlock eventId={e.id} />}
         </section>
       ) : null}
 
-      {hidden || isMeeting || !active ? null : (
+      {hidden || isMeeting ? null : (
         <Places
+          closed={closed}
           total={e.plazas}
           puntos={e.puntos}
           left={left}
@@ -402,34 +410,33 @@ export function EventScreen() {
       {/* «Hi pots ser?», amb dos botons. Es queda també quan ja ha passat i
           fins que es tanqui: entre la reunió i el tancament encara es pot
           corregir qui hi era, i és quan la gent se'n recorda. */}
-      {/* Un pendent no contesta: en lloc dels botons, la línia que explica per
-          què i porta al codi. Un teaser ja la porta al lloc de «Avisa'm». */}
-      {waitingForJunta && !hidden && (isMeeting ? e.tancada_at === null : !isPast) ? (
+      {/* El lloc de la resposta es decideix una sola vegada. Un pendent hi veu la
+          línia que explica per què no hi ha botons i porta al codi; un teaser
+          ja la porta al lloc de «Avisa'm». */}
+      {answerSlot === null ? null : closed ? (
         <section className={GUTTER}>
           <PendingNote className="pt-9" />
         </section>
-      ) : isMeeting ? (
-        e.tancada_at === null ? (
-          <MeetingAnswer
-            event={e}
-            mine={mine}
-            pending={answer.isPending}
-            onAnswer={(a) => {
-              // El recompte «2 de 3 hi seran» surt de `meeting_roster`, que té
-              // la seva pròpia clau: `useAnswer` només invalida les
-              // assistències de l'Inici, o sigui que sense això la xifra es
-              // queda com estava i sembla que la resposta no s'hagi desat.
-              // Al `onSuccess` de la crida i no al costat del `mutate`, perquè
-              // `mutate` no espera i el refetch sortiria abans de l'escriptura.
-              answer.mutate(a, {
-                onSuccess: () => {
-                  void client.invalidateQueries({ queryKey: meetingKeys.roster(e.id) })
-                },
-              })
-            }}
-          />
-        ) : null
-      ) : hidden || isPast || !active || mine === 'asistio' || justCheckedIn ? null : (
+      ) : answerSlot === 'meeting' ? (
+        <MeetingAnswer
+          event={e}
+          mine={mine}
+          pending={answer.isPending}
+          onAnswer={(a) => {
+            // El recompte «2 de 3 hi seran» surt de `meeting_roster`, que té
+            // la seva pròpia clau: `useAnswer` només invalida les
+            // assistències de l'Inici, o sigui que sense això la xifra es
+            // queda com estava i sembla que la resposta no s'hagi desat.
+            // Al `onSuccess` de la crida i no al costat del `mutate`, perquè
+            // `mutate` no espera i el refetch sortiria abans de l'escriptura.
+            answer.mutate(a, {
+              onSuccess: () => {
+                void client.invalidateQueries({ queryKey: meetingKeys.roster(e.id) })
+              },
+            })
+          }}
+        />
+      ) : (
         <AnswerBlock
           mine={mine}
           confirm={e.cal_confirmacio}
@@ -460,36 +467,43 @@ export function EventScreen() {
           nudge and this is where somebody comes looking a fortnight later. */}
       {/* La gimcana surt sola mentre la festa passa i desapareix quan acaba:
           la mateixa finestra que la de fitxar, i cap interruptor. */}
-      {isMeeting || !active ? null : <GimcanaLink eventId={e.id} />}
+      {/* Només per a qui ja és dins: la gimcana, la nit, la galeria i la targeta
+          de resum es llegeixen o s'escriuen amb una RPC o una política que
+          demana estar aprovat, i les dues últimes porten un recompte. */}
+      {isMeeting || closed ? null : (
+        <>
+          <GimcanaLink eventId={e.id} />
 
-      {ended && !isMeeting && active ? <MyNightBlock eventId={e.id} /> : null}
+          {ended ? <MyNightBlock eventId={e.id} /> : null}
 
-      {/* La galeria és d'una nit que ja ha passat: mentre la festa dura, la
-          gent hi és. Va després del díptic perquè allò és teu i això és de
-          tothom. */}
-      {ended && !isMeeting && active ? <GalleryBlock eventId={e.id} /> : null}
+          {/* La galeria és d'una nit que ja ha passat: mentre la festa dura, la
+            gent hi és. Va després del díptic perquè allò és teu i això és de
+            tothom. */}
+          {ended ? <GalleryBlock eventId={e.id} /> : null}
 
-      {ended && !isMeeting && active ? (
-        <section className={`pt-12 ${GUTTER}`}>
-          <ShareCard
-            variant="quiet"
-            card={async (): Promise<Card> => ({
-              kind: 'recap',
-              photo: await loadCardImage(cover),
-              eyebrow: `${formatDayMonth(starts, locale)} · ${t('share.recap')}`,
-              headline: eventTitle(e.titulo),
-              stats: [
-                { value: String(going.length), label: t('share.wereThere') },
-                ...(e.puntos > 0
-                  ? [{ value: `+${String(e.puntos)}`, label: t('share.pointsFor') }]
-                  : []),
-              ],
-              footnote: null,
-            })}
-            name={[eventTitle(e.titulo), 'recap']}
-          />
-        </section>
-      ) : null}
+          {ended ? (
+            <section className={`pt-12 ${GUTTER}`}>
+              <ShareCard
+                variant="quiet"
+                card={async (): Promise<Card> => ({
+                  kind: 'recap',
+                  photo: await loadCardImage(cover),
+                  eyebrow: `${formatDayMonth(starts, locale)} · ${t('share.recap')}`,
+                  headline: eventTitle(e.titulo),
+                  stats: [
+                    { value: String(going.length), label: t('share.wereThere') },
+                    ...(e.puntos > 0
+                      ? [{ value: `+${String(e.puntos)}`, label: t('share.pointsFor') }]
+                      : []),
+                  ],
+                  footnote: null,
+                })}
+                name={[eventTitle(e.titulo), 'recap']}
+              />
+            </section>
+          ) : null}
+        </>
+      )}
 
       {e.transport_info === null ? null : (
         <section className={`pt-12 ${GUTTER}`}>
@@ -503,7 +517,7 @@ export function EventScreen() {
           away does not. */}
       {/* I els cotxes tampoc: encara no se sap on és, o sigui que no hi ha cap
           trajecte a oferir. */}
-      {e.te_cotxes && !hidden && !isMeeting && active ? <RidesBlock eventId={e.id} /> : null}
+      {e.te_cotxes && !hidden && !isMeeting && !closed ? <RidesBlock eventId={e.id} /> : null}
 
       {e.descripcion === null ? null : (
         <section className={`pt-9 pb-8 ${GUTTER}`}>

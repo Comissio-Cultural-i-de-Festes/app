@@ -1190,7 +1190,9 @@
         "avis_pendent": "{{actor}} ha registrat un avís pendent per a algú sense compte",
         "retira_avis": "{{actor}} ha retirat un avís a {{target}}",
         "retira_avis_pendent": "{{actor}} ha retirat un avís pendent",
-        "set_avis_tipus": "{{actor}} ha canviat el catàleg d'avisos"
+        "set_avis_tipus": "{{actor}} ha canviat el catàleg d'avisos",
+        "consulta_viatgers": "{{actor}} ha obert les dades de viatger d'un esdeveniment",
+        "set_demana_viatger": "{{actor}} ha canviat si un esdeveniment demana dades de viatger"
       },
       "rowSub": "Qui ha fet què"
     },

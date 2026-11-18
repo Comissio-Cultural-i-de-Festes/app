@@ -1190,7 +1190,9 @@
         "avis_pendent": "{{actor}} ha registrado un aviso pendiente para alguien sin cuenta",
         "retira_avis": "{{actor}} ha retirado un aviso a {{target}}",
         "retira_avis_pendent": "{{actor}} ha retirado un aviso pendiente",
-        "set_avis_tipus": "{{actor}} ha cambiado el catálogo de avisos"
+        "set_avis_tipus": "{{actor}} ha cambiado el catálogo de avisos",
+        "consulta_viatgers": "{{actor}} ha abierto los datos de viajero de un evento",
+        "set_demana_viatger": "{{actor}} ha cambiado si un evento pide datos de viajero"
       },
       "rowSub": "Quién ha hecho qué"
     },

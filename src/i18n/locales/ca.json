@@ -1170,6 +1170,7 @@
       "openScanner": "Obrir l'escàner",
       "doorStale": "Dades de fa {{n}} min. No s'han pogut actualitzar.",
       "doorStaleNow": "Dades de fa un moment. No s'han pogut actualitzar.",
+      "doorStaleRefreshing": "Dades de fa {{n}} min. S'estan actualitzant…",
       "doorRetrying": "Provant-ho…",
       "work": "Hi ha feina",
       "workCount_one": "{{count}} cosa",

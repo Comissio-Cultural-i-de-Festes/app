@@ -1170,6 +1170,7 @@
       "openScanner": "Open the scanner",
       "doorStale": "Figures from {{n}} min ago. They could not be refreshed.",
       "doorStaleNow": "Figures from a moment ago. They could not be refreshed.",
+      "doorStaleRefreshing": "Figures from {{n}} min ago. Refreshing…",
       "doorRetrying": "Trying again…",
       "work": "There is work",
       "workCount_one": "{{count}} thing",

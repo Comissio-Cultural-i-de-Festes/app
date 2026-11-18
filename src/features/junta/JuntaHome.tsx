@@ -20,7 +20,7 @@ import { eventTitle } from '@/features/event/title'
 
 import { AvisosEstatsBlock } from './AvisosEstatsBlock'
 import { AvisosPendentsBlock } from './AvisosPendentsBlock'
-import { doorView, minutesAgo } from './doorView'
+import { type Stale, doorView, minutesAgo } from './doorView'
 import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
 import { fetchHoresPendents, horesKeys } from './horesApi'
@@ -135,17 +135,24 @@ export function JuntaHome() {
       />
 
       {door.kind === 'loading' ? (
-        <DoorLoading />
+        <DoorLoading scannerTo={scannerTo(door.scannerEventId)} />
       ) : door.kind === 'failed' ? (
         <DoorFailed
-          scannerTo={door.scannerEventId === null ? null : `/junta/escaner/${door.scannerEventId}`}
+          scannerTo={scannerTo(door.scannerEventId)}
           retrying={retrying}
           onRetry={retry}
         />
       ) : (
         <>
-          {door.staleSince === null ? null : (
-            <DoorStale since={door.staleSince} retrying={retrying} onRetry={retry} />
+          {door.stale === null ? null : (
+            // Keyed on the moment, so the two-second grace starts again for
+            // each refresh rather than once per visit.
+            <DoorStale
+              key={door.stale.since}
+              stale={door.stale}
+              retrying={retrying}
+              onRetry={retry}
+            />
           )}
           {door.kind === 'none' ? <DoorNone /> : <Door porta={door.porta} locale={locale} />}
         </>
@@ -459,6 +466,10 @@ function periodsCoverToday(
   )
 }
 
+function scannerTo(eventId: string | null): string | null {
+  return eventId === null ? null : `/junta/escaner/${eventId}`
+}
+
 // ── the door ────────────────────────────────────────────────────────────────
 
 function Door({ porta, locale }: { readonly porta: DoorNow; readonly locale: Locale }) {
@@ -627,36 +638,52 @@ function DoorFailed({
  * left on the table does not keep saying "a moment ago" for an hour.
  */
 function DoorStale({
-  since,
+  stale,
   retrying,
   onRetry,
 }: {
-  readonly since: number
+  readonly stale: Stale
   readonly retrying: boolean
   readonly onRetry: () => void
 }) {
   const { t } = useTranslation()
   const [now, setNow] = useState(Date.now)
+  // A refresh still under way is not news for the first couple of seconds:
+  // every return to the app starts one, and a strip that blinks in and out
+  // above the scanner button would move the button under the thumb. One that
+  // has failed is said at once.
+  const [patient, setPatient] = useState(false)
   useEffect(() => {
-    const timer = window.setInterval(() => {
+    const tick = window.setInterval(() => {
       setNow(Date.now())
     }, 30_000)
+    const wait = window.setTimeout(() => {
+      setPatient(true)
+    }, 2_000)
     return () => {
-      window.clearInterval(timer)
+      window.clearInterval(tick)
+      window.clearTimeout(wait)
     }
   }, [])
-  const n = minutesAgo(since, now)
+  if (!stale.failed && !patient) return null
+  const n = minutesAgo(stale.since, now)
 
   return (
     <div className="flex items-center gap-6 bg-[var(--ds-bg-door-panel)] px-[var(--ds-gutter)] pt-7">
       <p role="status" className="flex-1 text-sm font-bold text-warning [text-wrap:pretty]">
-        {n === 0 ? t('junta.home.doorStaleNow') : t('junta.home.doorStale', { n })}
+        {!stale.failed
+          ? t('junta.home.doorStaleRefreshing', { n })
+          : n === 0
+            ? t('junta.home.doorStaleNow')
+            : t('junta.home.doorStale', { n })}
       </p>
-      <RetryButton
-        retrying={retrying}
-        onRetry={onRetry}
-        className="min-h-[44px] flex-none px-4 text-sm"
-      />
+      {stale.failed ? (
+        <RetryButton
+          retrying={retrying}
+          onRetry={onRetry}
+          className="min-h-[44px] flex-none px-4 text-sm"
+        />
+      ) : null}
     </div>
   )
 }
@@ -691,7 +718,13 @@ function RetryButton({
   )
 }
 
-function DoorLoading() {
+/**
+ * The door while it loads. With the scanner's event already known from the
+ * event list, its button is real rather than a skeleton: on a cold start over
+ * a saturated network the first load can take minutes, and the queue behind
+ * the scanner works without it.
+ */
+function DoorLoading({ scannerTo }: { readonly scannerTo: string | null }) {
   const { t } = useTranslation()
   return (
     <section
@@ -710,7 +743,16 @@ function DoorLoading() {
         ))}
       </div>
       <div className="mt-8 grid grid-cols-2 gap-5">
-        <SkeletonBar w="w-full" h="h-[78px]" />
+        {scannerTo === null ? (
+          <SkeletonBar w="w-full" h="h-[78px]" />
+        ) : (
+          <Link
+            to={scannerTo}
+            className="flex min-h-[78px] items-center justify-center bg-brand-cta px-6 text-xl font-bold text-on-brand no-underline [text-wrap:balance]"
+          >
+            {t('junta.scan')}
+          </Link>
+        )}
         <SkeletonBar w="w-full" h="h-[78px]" />
       </div>
       <p className="mt-6 text-sm text-fg-muted">{t('junta.home.doorLoading')}</p>

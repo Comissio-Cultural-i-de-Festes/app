@@ -4,6 +4,9 @@ import { isPermanent } from './db'
 
 const MINUTE = 60_000
 
+/** Exported for the screens that have to say how old what they show is. */
+export const STALE_TIME_MS = MINUTE
+
 /**
  * Defaults for every query in the app.
  *
@@ -20,7 +23,7 @@ export function createQueryClient(): QueryClient {
         // Long enough that moving between the two tabs does not refetch, short
         // enough that "queden 3 places" is not something you can act on after
         // it stopped being true.
-        staleTime: MINUTE,
+        staleTime: STALE_TIME_MS,
         gcTime: 30 * MINUTE,
         retry: (failureCount, error) => !isPermanent(error) && failureCount < 2,
         // Both of these matter more here than on a desktop app: the tab is

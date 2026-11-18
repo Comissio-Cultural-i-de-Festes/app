@@ -1,6 +1,8 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
+import { invalidateData } from '@/lib/signedQuery'
+
 import { flushCheckins } from './api'
 
 /**
@@ -30,7 +32,7 @@ export function useCheckinQueue(): void {
         // Només quan de debò ha entrat alguna cosa: refrescar-ho tot a cada
         // batec de vint segons seria una petició que ningú ha demanat.
         if (!alive || sent === 0) return
-        void client.invalidateQueries()
+        void invalidateData(client)
       })
     }
 

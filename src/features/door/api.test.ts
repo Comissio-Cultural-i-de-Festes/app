@@ -14,8 +14,26 @@ import type { CheckInStatus } from '@/design/states'
 const rpc = vi.fn()
 const store = new Map<string, unknown>()
 
+// `check_in` goes through a builder that takes a signal, and an aborted request
+// resolves with an error rather than rejecting, which is what postgrest-js does
+// with a cancelled fetch. Everything else awaits the call as it comes.
 vi.mock('@/lib/supabase', () => ({
-  supabase: { rpc: (...args: unknown[]) => rpc(...args) as unknown },
+  supabase: {
+    rpc: (...args: unknown[]) => {
+      const answer = rpc(...args) as Promise<unknown>
+      return {
+        abortSignal: (signal: AbortSignal) =>
+          new Promise((resolve) => {
+            signal.addEventListener('abort', () => {
+              resolve({ data: null, error: { message: 'AbortError: aborted', code: '' } })
+            })
+            void answer.then(resolve)
+          }),
+        then: (ok: (value: unknown) => unknown, ko: (error: unknown) => unknown) =>
+          answer.then(ok, ko),
+      }
+    },
+  },
 }))
 
 vi.mock('@/lib/queue', () => ({
@@ -27,14 +45,27 @@ vi.mock('@/lib/queue', () => ({
     store.delete(id)
     return Promise.resolve()
   },
+  // Like the real one: an entry somebody removed is not written back.
   bumpTries: (scan: { clientRequestId: string; tries: number }) => {
-    store.set(scan.clientRequestId, { ...scan, tries: scan.tries + 1 })
+    if (store.has(scan.clientRequestId)) {
+      store.set(scan.clientRequestId, { ...scan, tries: scan.tries + 1 })
+    }
     return Promise.resolve()
   },
   pending: () => Promise.resolve([...store.values()]),
 }))
 
-const { awardPoints, flushQueue, scan, undo, undoTargetOf } = await import('./api')
+const {
+  DOOR_TIMEOUT_MS,
+  DoorTimeout,
+  awardPoints,
+  flushQueue,
+  outcomeFromFailure,
+  presentationOf,
+  scan,
+  undo,
+  undoTargetOf,
+} = await import('./api')
 
 const EVENT = '00000000-0000-4000-8000-0000000000e1'
 const TOKEN = 'fd6b16d0-1030-4b84-a8d9-3db4b9fa6205'
@@ -46,6 +77,8 @@ function request(id: string) {
 beforeEach(() => {
   store.clear()
   rpc.mockReset()
+  vi.useRealTimers()
+  vi.restoreAllMocks()
 })
 
 describe('a scan at the door', () => {
@@ -109,6 +142,130 @@ describe('a scan at the door', () => {
 
     await expect(flushQueue()).resolves.toEqual({ sent: 1, left: 1 })
     expect(rpc).toHaveBeenCalledTimes(2)
+  })
+
+  it('runs one flush at a time, and a second caller shares the first run', async () => {
+    // The timer, the `online` event and both screens all call it. Two runs
+    // over the same snapshot sent every entry twice.
+    store.set('one', { ...request('one'), at: 1, tries: 0 })
+    store.set('two', { ...request('two'), at: 2, tries: 0 })
+    rpc.mockResolvedValue({ data: { status: 'ok' }, error: null })
+
+    const first = flushQueue()
+    const second = flushQueue()
+
+    expect(second).toBe(first)
+    await expect(first).resolves.toEqual({ sent: 2, left: 0 })
+    expect(rpc).toHaveBeenCalledTimes(2)
+
+    // And it is free again once it is done.
+    store.set('three', { ...request('three'), at: 3, tries: 0 })
+    await expect(flushQueue()).resolves.toEqual({ sent: 1, left: 0 })
+  })
+})
+
+describe('a check-in that never answers', () => {
+  // The request leaves and nothing comes back, neither an answer nor a
+  // failure. Without a limit the card never appears and the person in front
+  // of the phone is left standing there.
+  const hanging = () => new Promise<never>(() => undefined)
+
+  it('stops waiting at the limit and leaves the scan in the queue', async () => {
+    vi.useFakeTimers()
+    rpc.mockReturnValue(hanging())
+
+    const settled = expect(scan(request('h1'))).rejects.toBeInstanceOf(DoorTimeout)
+    await vi.advanceTimersByTimeAsync(DOOR_TIMEOUT_MS)
+    await settled
+
+    expect(store.get('h1')).toMatchObject({ clientRequestId: 'h1', tries: 1 })
+  })
+
+  it('does not give up on an answer that is only slow', async () => {
+    vi.useFakeTimers()
+    rpc.mockReturnValue(
+      new Promise((resolve) => {
+        setTimeout(() => {
+          resolve({ data: { status: 'ok' }, error: null })
+        }, DOOR_TIMEOUT_MS - 1_000)
+      }),
+    )
+
+    const settled = expect(scan(request('slow'))).resolves.toMatchObject({ status: 'ok' })
+    await vi.advanceTimersByTimeAsync(DOOR_TIMEOUT_MS)
+    await settled
+
+    expect(store.size).toBe(0)
+    // Cleared with the answer, so nothing is aborted after the fact.
+    expect(vi.getTimerCount()).toBe(0)
+  })
+
+  it('is drawn as queued even though the browser says there is signal', async () => {
+    // A saturated network is still a network: `navigator.onLine` stays true,
+    // so it cannot be what decides this one.
+    vi.useFakeTimers()
+    rpc.mockReturnValue(hanging())
+    const req = request('h2')
+
+    const caught = scan(req).catch((cause: unknown) => cause)
+    await vi.advanceTimersByTimeAsync(DOOR_TIMEOUT_MS)
+    const outcome = outcomeFromFailure(req, await caught)
+
+    expect(navigator.onLine).toBe(true)
+    expect(outcome.kind).toBe('queued')
+    expect(presentationOf(outcome).messageKey).toBe('scanner.queued')
+  })
+
+  it('goes out once more, with the same id, when the flush comes round', async () => {
+    vi.useFakeTimers()
+    rpc.mockReturnValue(hanging())
+    const caught = scan(request('h3')).catch(() => undefined)
+    await vi.advanceTimersByTimeAsync(DOOR_TIMEOUT_MS)
+    await caught
+
+    vi.useRealTimers()
+    rpc.mockReset()
+    rpc.mockResolvedValue({ data: { status: 'ok', replayed: true }, error: null })
+
+    await expect(flushQueue()).resolves.toEqual({ sent: 1, left: 0 })
+    expect(rpc).toHaveBeenCalledTimes(1)
+    expect(rpc).toHaveBeenCalledWith(
+      'check_in',
+      expect.objectContaining({ p_client_request_id: 'h3' }),
+    )
+    expect(store.size).toBe(0)
+  })
+
+  it('is undone on both sides when it was a name, because it may have landed', () => {
+    // Unlike a scan that never left, this one did. Dropping only the queue
+    // entry would say the person is gone while their row stays on the server.
+    const USER = '00000000-0000-4000-8000-0000000000a2'
+    const req = { clientRequestId: 'h4', eventId: EVENT, qrToken: null, userId: USER }
+
+    expect(undoTargetOf(outcomeFromFailure(req, new DoorTimeout()))).toEqual({
+      kind: 'unsure',
+      clientRequestId: 'h4',
+      eventId: EVENT,
+      userId: USER,
+    })
+  })
+
+  it('still undoes a scan that never left by dropping it alone', () => {
+    const req = { clientRequestId: 'h5', eventId: EVENT, qrToken: null, userId: 'u' }
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
+
+    expect(undoTargetOf(outcomeFromFailure(req, new Error('offline')))).toEqual({
+      kind: 'queued',
+      clientRequestId: 'h5',
+    })
+  })
+
+  it('offers no undo for a QR that left and never answered', () => {
+    // Seen at the door in testing: the row had landed, the answer had not,
+    // and "Desfés" would have dropped the queue entry and said the check-in
+    // never went, with the person still checked in. A QR only becomes a name
+    // inside `check_in`, so there is nobody to take back from here.
+    expect(undoTargetOf(outcomeFromFailure(request('h6'), new DoorTimeout()))).toBeNull()
   })
 })
 

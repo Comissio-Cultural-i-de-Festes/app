@@ -50,52 +50,79 @@ export interface ScanRequest {
 }
 
 /**
- * How long the door waits for `check_in` before it stops waiting.
+ * How long the door waits for the server before it stops waiting.
  *
- * Eight seconds. On a working connection the call answers in well under one;
- * on one bar shared with a room, a lost packet costs a second, the next one
- * two, the next four, so eight lets a connection that drops two in a row
+ * Eight seconds. On a working connection `check_in` answers in well under
+ * one; on one bar shared with a room, a lost packet costs a second, the next
+ * one two, the next four, so eight lets a connection that drops two in a row
  * still answer. Much longer and the person in front of the phone gives up and
  * holds the QR out again. Much shorter and a slow answer becomes "queued",
  * which costs the verdict: a QR that has not reached the server has no name
  * and no status, only "saved".
  *
- * Giving up loses nothing. The scan is already in the queue and the id is the
- * one the flush will send, so whatever the server did with the abandoned
- * request, the resend lands once.
+ * Giving up does not lose the scan: it is already in the queue, and the flush
+ * resends it with the same id, which `check_in` grants once. What giving up
+ * cannot do is recall a request that is already on its way. An abandoned
+ * check-in can still land after somebody has pressed "Desfés", and then the
+ * person is back in with nothing on screen to say so. Closing that needs
+ * `check_in` to recognise an id that was undone, which is a migration, not
+ * something this file can promise.
  */
-export const CHECK_IN_TIMEOUT_MS = 8_000
+export const DOOR_TIMEOUT_MS = 8_000
 
-/** It left and nothing came back in time. Whether it landed is unknown. */
-export class CheckInTimeout extends Error {
+/** It left, or was about to, and nothing came back in time. Whether it landed is unknown. */
+export class DoorTimeout extends Error {
   constructor() {
-    super('check_in did not answer in time')
-    this.name = 'CheckInTimeout'
+    super('the door did not get an answer in time')
+    this.name = 'DoorTimeout'
+  }
+}
+
+/**
+ * A call that cannot take longer than `DOOR_TIMEOUT_MS`, whatever it is doing.
+ *
+ * THE ABORT ALONE DID NOT ENFORCE IT. supabase-js asks for the access token
+ * before it fetches, and a token with under ninety seconds left waits for a
+ * refresh from `/token` with no limit of its own. During that wait there is no
+ * request for the signal to cancel: the abort fires, nothing listens, and the
+ * call hangs for as long as the refresh does — every hour, and every time an
+ * iPhone comes back to the app with an expired token. So the deadline is a
+ * race the caller always loses on time, and the abort is kept for the case
+ * where the fetch did start, so it does not go on using the one bar there is.
+ */
+async function withDeadline<T>(call: (signal: AbortSignal) => PromiseLike<T>): Promise<T> {
+  const controller = new AbortController()
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const deadline = new Promise<never>((_resolve, reject) => {
+    timer = setTimeout(() => {
+      // Rejected before the abort, so the deadline is what settles the race: an
+      // aborted call can come back resolved, with an error that looks like any
+      // other network failure.
+      reject(new DoorTimeout())
+      controller.abort()
+    }, DOOR_TIMEOUT_MS)
+  })
+
+  try {
+    return await Promise.race([call(controller.signal), deadline])
+  } finally {
+    clearTimeout(timer)
   }
 }
 
 export async function checkIn(request: ScanRequest): Promise<CheckInResult> {
-  const controller = new AbortController()
-  const timer = setTimeout(() => {
-    controller.abort()
-  }, CHECK_IN_TIMEOUT_MS)
-
-  try {
-    const { data, error } = await supabase
+  const { data, error } = await withDeadline((signal) =>
+    supabase
       .rpc('check_in', {
         p_event_id: request.eventId,
         p_client_request_id: request.clientRequestId,
         ...(request.qrToken === null ? {} : { p_qr_token: request.qrToken }),
         ...(request.userId === null ? {} : { p_user_id: request.userId }),
       })
-      .abortSignal(controller.signal)
-    // An aborted fetch comes back as an error with no code, the same shape as
-    // any other network failure. The signal is the only thing that knows.
-    if (error) throw controller.signal.aborted ? new CheckInTimeout() : new DbError(error)
-    return data as unknown as CheckInResult
-  } finally {
-    clearTimeout(timer)
-  }
+      .abortSignal(signal),
+  )
+  if (error) throw new DbError(error)
+  return data as unknown as CheckInResult
 }
 
 /**
@@ -174,7 +201,7 @@ export type DoorOutcome =
  * flush is already going to send.
  */
 export function outcomeFromFailure(request: ScanRequest, cause: unknown): DoorOutcome {
-  if (cause instanceof CheckInTimeout) return { kind: 'queued', request, unanswered: true }
+  if (cause instanceof DoorTimeout) return { kind: 'queued', request, unanswered: true }
   return navigator.onLine ? { kind: 'failed', request } : { kind: 'queued', request }
 }
 
@@ -258,14 +285,22 @@ export async function undo(target: UndoTarget): Promise<void> {
   if (target.kind !== 'row') await dequeue(target.clientRequestId)
   if (target.kind === 'queued') return
 
-  const { error } = await supabase.rpc('admin_undo_checkin', {
-    p_event_id: target.eventId,
-    p_user_id: target.userId,
-  })
+  // Under the same deadline as the check-in: a token refresh that never comes
+  // back would otherwise leave the button on "desfent" for good.
+  const { error } = await withDeadline((signal) =>
+    supabase
+      .rpc('admin_undo_checkin', {
+        p_event_id: target.eventId,
+        p_user_id: target.userId,
+      })
+      .abortSignal(signal),
+  )
   if (error === null) return
-  // P0002 is the RPC saying nobody was checked in, which for a scan we were
-  // unsure about is the good answer: it never landed, and the queue entry we
-  // just removed was the whole of it.
+  // P0002 is the RPC saying nobody was checked in. For a scan we were unsure
+  // about that is the answer we hoped for, and the queue entry we just removed
+  // was all there was — AS FAR AS ANYBODY CAN SEE NOW. A request abandoned on
+  // a timeout may still be travelling, and if it lands after this the person
+  // is checked in again. See `DOOR_TIMEOUT_MS`: closing that is a migration.
   if (target.kind === 'unsure' && error.code === 'P0002') return
   throw new DbError(error)
 }

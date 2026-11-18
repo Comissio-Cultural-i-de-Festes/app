@@ -10,7 +10,7 @@ import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { captureFrame } from '@/lib/frame'
 
-import { fetchNights, fetchPhotoUrls, photoKeys, saveEntryPhoto, saveExitPhoto } from './api'
+import { fetchNights, photoKeys, photoUrls, saveEntryPhoto, saveExitPhoto } from './api'
 import { useSelfie } from './useSelfie'
 
 /**
@@ -58,8 +58,7 @@ export function DoorPhotoScreen() {
 
   const entry = night?.entry_photo_url ?? null
   const thumb = useQuery({
-    queryKey: photoKeys.urls(entry === null ? [] : [entry]),
-    queryFn: () => fetchPhotoUrls(entry === null ? [] : [entry]),
+    ...photoUrls(entry === null ? [] : [entry]),
     enabled: entry !== null,
   })
 

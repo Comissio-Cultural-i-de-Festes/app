@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
-import { decidePhoto, fetchReported, fetchUrls, galleryKeys } from '@/features/gallery/api'
+import { decidePhoto, fetchReported, galleryKeys, galleryUrls } from '@/features/gallery/api'
 import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
@@ -30,8 +30,7 @@ export function PhotoReportsScreen() {
 
   const thumbs = (reports.data ?? []).map((r) => r.thumb_path)
   const urls = useQuery({
-    queryKey: galleryKeys.urls(thumbs),
-    queryFn: () => fetchUrls(thumbs),
+    ...galleryUrls(thumbs),
     enabled: thumbs.length > 0,
   })
 

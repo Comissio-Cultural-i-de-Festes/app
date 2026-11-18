@@ -1,5 +1,5 @@
 import { DbError } from '@/lib/db'
-import { EVENT_PHOTOS, galleryImage, signedUrls, thumbnail } from '@/lib/storage'
+import { EVENT_PHOTOS, galleryImage, signedUrlsQuery, thumbnail } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -39,7 +39,6 @@ export const galleryKeys = {
   all: () => ['gallery'] as const,
   photos: (eventId: string) => ['gallery', 'photos', eventId] as const,
   count: (eventId: string) => ['gallery', 'count', eventId] as const,
-  urls: (paths: readonly string[]) => ['gallery', 'urls', ...paths] as const,
   reports: () => ['junta', 'photoReports'] as const,
 }
 
@@ -56,8 +55,8 @@ export async function fetchPhotoCount(eventId: string): Promise<PhotoCount> {
 }
 
 /** Les URL signades, en una sola volta. Una hora, com la resta de l'app. */
-export async function fetchUrls(paths: readonly string[]): Promise<Map<string, string>> {
-  return signedUrls(EVENT_PHOTOS, paths)
+export function galleryUrls(paths: readonly string[]) {
+  return signedUrlsQuery(EVENT_PHOTOS, paths)
 }
 
 /**

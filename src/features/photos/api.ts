@@ -1,5 +1,5 @@
 import { DbError, unwrapAs } from '@/lib/db'
-import { DOOR_PHOTOS, signedUrls, uploadDoorPhoto } from '@/lib/storage'
+import { DOOR_PHOTOS, signedUrlsQuery, uploadDoorPhoto } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -27,7 +27,6 @@ export interface Night {
 
 export const photoKeys = {
   nights: () => ['photos', 'nights'] as const,
-  urls: (paths: readonly string[]) => ['photos', 'urls', ...paths] as const,
   /** El «ara no» de la targeta de sortida, que viu a localStorage. */
   exitDismissed: (eventId: string) => ['photos', 'exitDismissed', eventId] as const,
 }
@@ -37,8 +36,8 @@ export async function fetchNights(): Promise<Night[]> {
 }
 
 /** One round trip for every photograph on the screen, not one each. */
-export async function fetchPhotoUrls(paths: readonly string[]): Promise<Map<string, string>> {
-  return signedUrls(DOOR_PHOTOS, paths)
+export function photoUrls(paths: readonly string[]) {
+  return signedUrlsQuery(DOOR_PHOTOS, paths)
 }
 
 export function pathsOf(nights: readonly Night[]): string[] {

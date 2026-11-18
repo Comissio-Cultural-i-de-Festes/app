@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 
+import { signedKey } from '@/lib/signedQuery'
 import { AVATARS, signedUrls } from '@/lib/storage'
 
 /**
@@ -25,10 +26,11 @@ import { AVATARS, signedUrls } from '@/lib/storage'
  * la consulta ni s'activa. Això vol dir que aquest fitxer no fa res a l'app
  * fins que algú puja una foto, que és exactament el que ha de passar.
  *
- * Cinquanta minuts de `staleTime` perquè els enllaços duren una hora.
+ * La clau porta la marca de `signedKey`, que és d'on surten els temps (es
+ * torna a signar abans que la firma caduqui) i el que fa que tornar a l'app no
+ * torni a signar —i a baixar— cada cara de la pantalla. Vegeu
+ * `lib/signedQuery.ts`.
  */
-
-const TTL_MS = 50 * 60 * 1000
 
 /** Els camins demanats en aquest microtask, amb qui els espera. */
 let batch: {
@@ -66,10 +68,9 @@ export function useAvatarUrl(src: string | null): string | null {
   const path = isStoragePath(src) ? src : null
 
   const signed = useQuery({
-    queryKey: ['avatar', path],
+    queryKey: signedKey(AVATARS, path ?? ''),
     queryFn: () => enqueue(path!),
     enabled: path !== null,
-    staleTime: TTL_MS,
   })
 
   return path === null ? src : (signed.data ?? null)

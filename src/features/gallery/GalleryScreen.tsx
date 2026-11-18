@@ -11,7 +11,7 @@ import { useUserId } from '@/features/session/useUserId'
 import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
-import { fetchPhotos, fetchUrls, galleryKeys, uploadPhoto } from './api'
+import { fetchPhotos, galleryKeys, galleryUrls, uploadPhoto } from './api'
 import { Viewer } from './Viewer'
 
 /**
@@ -63,8 +63,7 @@ export function GalleryScreen() {
 
   const paths = (photos.data ?? []).flatMap((p) => [p.thumb_path, p.path])
   const urls = useQuery({
-    queryKey: galleryKeys.urls(paths),
-    queryFn: () => fetchUrls(paths),
+    ...galleryUrls(paths),
     enabled: paths.length > 0,
   })
 

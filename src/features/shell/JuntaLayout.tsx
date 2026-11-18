@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet, useMatch } from 'react-router'
 
+import { preloadDoor } from '@/features/door/preload'
 import { JuntaNav } from '@/features/junta/JuntaNav'
 import { PROFILE_CLOCK, isJunta, useMyProfile } from '@/features/session/useMyProfile'
 import { useAvailability } from '@/lib/useAvailability'
@@ -41,6 +42,14 @@ export function JuntaLayout() {
       root?.removeAttribute('data-wide')
     }
   }, [])
+
+  // Aquí i no al rebedor: s'hi pot entrar per qualsevol pantalla de la zona, i
+  // el que importa és que la porta quedi baixada abans de ser-hi. El perquè és
+  // a `preload.ts`.
+  const junta = isJunta(profile)
+  useEffect(() => {
+    if (junta) void preloadDoor()
+  }, [junta])
 
   // Deciding while the profile is still in flight would bounce every admin
   // out of the door they just came through.

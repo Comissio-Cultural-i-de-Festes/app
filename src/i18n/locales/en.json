@@ -1340,6 +1340,8 @@
       "lede": "Points are granted on check-in. This is for taking them back when needed, not for granting them: look at the metres, and whoever checked in from far away stands out.",
       "nobody": "Nobody has checked in yet.",
       "undo": "Take it back",
+      "undoConfirm": "Remove check-in",
+      "undoSure": "This removes {{nombre}}'s check-in and the points it gave. It cannot be undone from here; it stays in the log.",
       "walkin": "was not signed up",
       "metres_one": "{{count}} m away",
       "metres_other": "{{count}} m away",

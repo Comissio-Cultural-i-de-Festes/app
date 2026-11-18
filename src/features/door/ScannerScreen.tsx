@@ -81,10 +81,10 @@ export function ScannerScreen() {
           buzz(SCAN_PRESENTATION[result.status].haptic)
           void roster.refetch()
         })
-        .catch(() => {
+        .catch((cause: unknown) => {
           // Queued, not lost. The person walks in either way, so the card says
           // what actually happened rather than telling the junta to try again.
-          setOutcome(outcomeFromFailure(request))
+          setOutcome(outcomeFromFailure(request, cause))
           buzz(SCAN_PRESENTATION.error.haptic)
         })
         .finally(refreshQueue)

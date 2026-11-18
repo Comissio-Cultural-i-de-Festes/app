@@ -7,9 +7,10 @@ import { InviteCodeSheet } from '@/features/session/InviteCodeSheet'
 import { useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
 import type { Escola } from '@/lib/model'
+import { useAvailability } from '@/lib/useAvailability'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
-import { fetchQrToken, qrKeys, readCachedToken } from './api'
+import { qrQuery, readCachedToken } from './api'
 
 /**
  * The door pass.
@@ -61,15 +62,11 @@ export function QrScreen() {
   const inactive = profile !== undefined && profile !== null && profile.estat !== 'actiu'
 
   const token = useQuery({
-    queryKey: qrKeys.mine(userId),
-    queryFn: () => fetchQrToken(userId),
+    ...qrQuery(userId),
     enabled: !inactive,
-    // The token does not change unless somebody rotates it, and this screen is
-    // opened in exactly the places with the worst signal.
-    staleTime: 24 * 60 * 60 * 1000,
     initialData: () => readCachedToken(userId) ?? undefined,
-    retry: 1,
   })
+  const view = useAvailability(token)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -185,18 +182,22 @@ export function QrScreen() {
   return (
     <main className="with-tabbar flex min-h-dvh flex-col items-center justify-center bg-app px-10 pt-[var(--ds-safe-top-min)]">
       {token.data === undefined ? (
-        token.isError ? (
+        view.unavailable ? (
           // Darrere hi ha cua física. Un carreró sense sortida aquí és
           // l'única pantalla de l'app on quedar-se encallat té gent esperant,
           // així que diu les dues sortides que hi ha: tornar-ho a provar, i
           // que l'alta manual existeix precisament per això.
+          //
+          // `view` i no `isError`: sense xarxa la consulta es posa en pausa en
+          // lloc de fallar, i qui obria el QR per primer cop sota terra veia
+          // la targeta grisa per sempre.
           <div className="flex flex-col items-center">
             <p role="alert" className="text-center text-fg-muted [text-wrap:pretty]">
               {t('qr.unavailable')}
             </p>
             <button
               type="button"
-              onClick={() => void token.refetch()}
+              onClick={view.retry}
               className="mt-6 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-brand-label"
             >
               {t('actions.retry')}

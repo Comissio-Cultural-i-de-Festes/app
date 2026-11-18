@@ -27,6 +27,7 @@ import { SubmitScreen } from '@/features/gimcana/SubmitScreen'
 import { EditProfileScreen } from '@/features/profile/EditProfileScreen'
 import { ProfileScreen } from '@/features/profile/ProfileScreen'
 import { QrScreen } from '@/features/qr/QrScreen'
+import { useQrPrefetch } from '@/features/qr/useQrPrefetch'
 import { JuntaLayout } from '@/features/shell/JuntaLayout'
 import { GateUnreachable, GateWaiting } from '@/features/shell/Gate'
 import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
@@ -167,6 +168,12 @@ function DrainCheckins() {
   return null
 }
 
+/** El mateix per al QR: es desa en entrar, i no el dia que es busca a la porta. */
+function PrefetchQr() {
+  useQrPrefetch()
+  return null
+}
+
 export default function App() {
   const { t } = useTranslation()
   const { phase, session } = useBootSession()
@@ -271,6 +278,7 @@ export default function App() {
           guarda el mòbil, o sigui que la pantalla on es va prémer el botó no
           es torna a obrir. */}
       <DrainCheckins />
+      <PrefetchQr />
       <Routes>
         {/* Asked once, and it has to be its own route rather than a gate in
             front of everything: a redirect that fires on every render would

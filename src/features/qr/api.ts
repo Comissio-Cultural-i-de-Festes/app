@@ -1,3 +1,5 @@
+import { queryOptions } from '@tanstack/react-query'
+
 import { rpc } from '@/lib/supabase'
 
 /**
@@ -77,4 +79,22 @@ export async function fetchQrToken(userId: string): Promise<string> {
 
   writeCachedToken(userId, data)
   return data
+}
+
+/**
+ * La consulta del QR, la mateixa per a la pantalla i per a la precàrrega.
+ *
+ * Compartida perquè la precàrrega deixi a la cau exactament el que la pantalla
+ * espera trobar-hi: amb una clau o un `staleTime` diferents, obrir el QR
+ * després de precarregar-lo tornaria a demanar-lo.
+ */
+export function qrQuery(userId: string) {
+  return queryOptions({
+    queryKey: qrKeys.mine(userId),
+    queryFn: () => fetchQrToken(userId),
+    // The token does not change unless somebody rotates it, and this screen is
+    // opened in exactly the places with the worst signal.
+    staleTime: 24 * 60 * 60 * 1000,
+    retry: 1,
+  })
 }

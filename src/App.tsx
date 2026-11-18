@@ -166,8 +166,8 @@ function DrainCheckins() {
   return null
 }
 
-function SweepStorage() {
-  useStorageSweep()
+function SweepStorage({ userId }: { readonly userId: string }) {
+  useStorageSweep(userId)
   return null
 }
 
@@ -272,7 +272,7 @@ export default function App() {
           guarda el mòbil, o sigui que la pantalla on es va prémer el botó no
           es torna a obrir. */}
       <DrainCheckins />
-      <SweepStorage />
+      <SweepStorage userId={session.user.id} />
       <Routes>
         {/* Asked once, and it has to be its own route rather than a gate in
             front of everything: a redirect that fires on every render would

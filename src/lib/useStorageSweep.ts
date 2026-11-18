@@ -1,53 +1,59 @@
 import { useEffect } from 'react'
 
 import { sweepStorage } from './storage'
-import { sweepDue } from './sweep'
+import { sweepDue, sweepMarkKey } from './sweep'
 
 /**
- * L'escombrada de l'storage, un cop al dia per mòbil i en segon pla.
+ * L'escombrada de l'storage, un cop al dia per persona i mòbil, en segon pla.
  *
  * Vint segons després d'obrir l'app i no en obrir-la: el primer que ha
  * d'arribar és la pantalla, i a la casa rural la xarxa es comparteix amb tota
- * la sala. Sense xarxa no s'intenta, i la marca es posa només quan s'ha fet:
- * un intent que no ha pogut sortir es torna a provar el proper cop.
+ * la sala. Sense sessió o sense xarxa no s'intenta, i la marca es posa només
+ * quan s'ha pogut preguntar: un intent que no ha sortit es torna a provar el
+ * proper cop.
+ *
+ * LA MARCA PORTA L'UID. Cadascú escombra la seva part —la seva carpeta, o la
+ * de la junta—, o sigui que si en un mòbil compartit entra una altra persona,
+ * la seva escombrada encara no s'ha fet encara que la de l'altra sí.
  *
  * La marca viu a localStorage, que pot no ser-hi (navegació privada, iOS amb
- * l'emmagatzematge bloquejat). Llavors s'escombra a cada obertura, que és el
- * mateix que abans d'haver-la posat i no fa cap mal.
+ * l'emmagatzematge bloquejat). Llavors s'escombra a cada obertura, que no fa
+ * cap mal.
  */
 
-const KEY = 'comi.sweep.at'
 const DELAY_MS = 20_000
 
-function readMark(): string | null {
+function readMark(key: string): string | null {
   try {
-    return localStorage.getItem(KEY)
+    return localStorage.getItem(key)
   } catch {
     return null
   }
 }
 
-function writeMark(now: number): void {
+function writeMark(key: string, now: number): void {
   try {
-    localStorage.setItem(KEY, String(now))
+    localStorage.setItem(key, String(now))
   } catch {
     // Vegeu a dalt: sense marca s'escombra a la propera obertura.
   }
 }
 
-export function useStorageSweep(): void {
+export function useStorageSweep(userId: string | null | undefined): void {
   useEffect(() => {
-    if (!sweepDue(readMark(), Date.now())) return
+    if (userId === null || userId === undefined || userId === '') return
+    const key = sweepMarkKey(userId)
+    if (!sweepDue(readMark(key), Date.now())) return
 
     const timer = window.setTimeout(() => {
       if (!navigator.onLine) return
       void sweepStorage().then((removed) => {
-        if (removed !== null) writeMark(Date.now())
+        if (removed !== null) writeMark(key, Date.now())
       })
     }, DELAY_MS)
 
     return () => {
       window.clearTimeout(timer)
     }
-  }, [])
+  }, [userId])
 }

@@ -51,6 +51,7 @@ export function juntaHorizonIso(now: number = Date.now()): string {
 
 export const juntaEventKeys = {
   list: (horizon: string) => ['junta', 'events', horizon] as const,
+  anteriors: (horizon: string, n: number) => ['junta', 'events', 'anteriors', horizon, n] as const,
 }
 
 /**
@@ -79,5 +80,38 @@ export async function fetchJuntaEvents(horizon: string, limit = 20): Promise<Eve
       // l'escàner de reserva n'obria un altre que el de la porta.
       .order('id', { ascending: true })
       .limit(limit),
+  )
+}
+
+/**
+ * El contrari exacte de `obertsDesDe`: el que ja ha sortit de la llista.
+ *
+ * Començat abans de l'horitzó i ja acabat, o sense final. Cap esdeveniment no
+ * surt a totes dues llistes ni s'escapa de les dues.
+ */
+export function acabatsAbansDe(horizon: string): string {
+  const ara = new Date(Date.parse(horizon) + JUNTA_BACK_MS).toISOString()
+  return `ends_at.lt."${ara}",ends_at.is.null`
+}
+
+/**
+ * Els anteriors, del més recent enrere (issue #29).
+ *
+ * Sense límit de dies, i és a posta: el que es demana és «la festa de dissabte»
+ * o «la casa rural de la setmana passada», que són les primeres de la llista,
+ * i un tall a trenta dies deixaria sense camí el curs anterior el dia que algú
+ * l'hagi de repassar. Es demanen `n` i la pantalla en demana més si cal.
+ */
+export async function fetchJuntaAnteriors(horizon: string, n: number): Promise<EventRow[]> {
+  return unwrapAs<EventRow[]>(
+    supabase
+      .from('events_public')
+      .select(COLUMNS)
+      .lt('starts_at', horizon)
+      .or(acabatsAbansDe(horizon))
+      .neq('tipo', 'reunio')
+      .order('starts_at', { ascending: false })
+      .order('id', { ascending: false })
+      .limit(n),
   )
 }

@@ -19,6 +19,7 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { eventTitle } from '@/features/event/title'
 
 import { AvisosEstatsBlock } from './AvisosEstatsBlock'
+import { AnteriorsBlock } from './AnteriorsBlock'
 import { AvisosPendentsBlock } from './AvisosPendentsBlock'
 import { type Stale, doorView, minutesAgo } from './doorView'
 import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
@@ -412,6 +413,10 @@ export function JuntaHome() {
       )}
 
       {/* ── Com funciona la comi ── */}
+      {/* ── Les que ja s'han acabat ──
+          Just sota les que venen: és la mateixa llista, cap enrere. */}
+      <AnteriorsBlock />
+
       <Heading title={t('junta.home.how')} sub={t('junta.home.howSub')} />
       <div className="mt-6">
         <Row

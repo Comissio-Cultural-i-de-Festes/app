@@ -210,9 +210,9 @@ export async function setMyNameAndInstagram(
  * hi és.
  *
  * L'objecte que sobra no s'esborra. Un avatar antic pesa unes desenes de kB
- * (és un quadrat de 384 px) i esborrar-lo voldria dir una segona operació que pot fallar tota sola,
- * deixant la columna canviada i l'error a la pantalla d'algú que ja havia
- * acabat. «Treu-la» sí que esborra, perquè allà treure és la funció.
+ * (és un quadrat de 384 px) i esborrar-lo voldria dir una segona operació que
+ * pot fallar tota sola, deixant la columna canviada i l'error a la pantalla
+ * d'algú que ja havia acabat. «Treu-la» sí que esborra, perquè allà treure és la funció.
  */
 export async function setMyPhoto(userId: string, file: Blob): Promise<void> {
   const body = await avatarImage(file)

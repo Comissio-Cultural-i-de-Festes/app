@@ -1383,6 +1383,7 @@
       "validateTitle": "Validar la gincana",
       "inQueue_one": "{{count}} en la cola",
       "inQueue_other": "{{count}} en la cola",
+      "photoGone": "La foto ya no está: las pruebas se borran treinta días después de cerrar la gincana.",
       "queueEmpty": "Ninguna foto esperando. Volved dentro de un rato.",
       "yes": "Vale: +{{n}}",
       "no": "No vale",

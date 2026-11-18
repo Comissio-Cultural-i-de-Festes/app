@@ -143,7 +143,9 @@ async function encodeJpeg(
   // com un error anònim que la pantalla confondria amb una xarxa caiguda.
   let bitmap: ImageBitmap
   try {
-    bitmap = await createImageBitmap(source)
+    // Explícit: amb un retall quadrat, una orientació EXIF mal llegida talla
+    // el costat que no toca.
+    bitmap = await createImageBitmap(source, { imageOrientation: 'from-image' })
   } catch (cause) {
     throw new UnreadableImage(cause)
   }

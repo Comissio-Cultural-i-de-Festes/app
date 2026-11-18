@@ -389,20 +389,31 @@ No rebuild is needed after this. The app derives its redirect from
 `window.location.origin` at run time, so it follows whatever address it is
 served from.
 
-### 7. GitHub — the keepalive secrets
+### 7. GitHub — the keepalive variables
 
-Settings → Secrets and variables → Actions:
+Settings → Secrets and variables → Actions → **Variables** (not Secrets: the
+URL and the anon key are public by design):
 
-| Secret              | Value                       |
-| ------------------- | --------------------------- |
-| `SUPABASE_URL`      | `https://<ref>.supabase.co` |
-| `SUPABASE_ANON_KEY` | the same anon key           |
+| Variable                    | Value                                   |
+| --------------------------- | --------------------------------------- |
+| `SUPABASE_URL`              | production, `https://<ref>.supabase.co` |
+| `SUPABASE_ANON_KEY`         | production's anon key                   |
+| `STAGING_SUPABASE_URL`      | Staging, `https://<ref>.supabase.co`    |
+| `STAGING_SUPABASE_ANON_KEY` | Staging's anon key                      |
 
 Free-tier projects pause after a week without activity, and over the summer
-that will happen. Note that GitHub also disables scheduled workflows in a
-public repository after 60 days with no commits, and emails the owner — so the
-thing keeping the database awake falls asleep first if work stops. Treat that
-email as an action item.
+that will happen. The workflow runs every day and reads one row from each
+project, production and Staging separately, so one being down does not skip
+the other and the run turns red showing which. An empty variable fails the job
+with a message naming it.
+
+To check it, run `gh workflow run keepalive.yml` and open the run: both
+`ping (production)` and `ping (staging)` must be green and print `HTTP 200`.
+
+Note that GitHub also disables scheduled workflows in a public repository
+after 60 days with no commits, and emails the owner — so the thing keeping the
+database awake falls asleep first if work stops. Treat that email as an action
+item.
 
 ### 8. Supabase — make the first person the owner
 

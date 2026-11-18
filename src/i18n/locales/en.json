@@ -1668,14 +1668,19 @@
         "title": "Where you were when you checked in",
         "p1": "If you check in from your phone instead of the QR code, the phone sends where you are so we can tell you are at the venue. The coordinate is stored, but nobody sees it through the app: the committee only sees how many metres from the venue you were, which is what it takes to spot somebody checking in from home."
       },
+      "travel": {
+        "title": "If you stay overnight",
+        "p1": "When an event is at a country house or other accommodation, the law requires the house to send the police the details of everyone who stays (Spanish RD 933/2021): name, surnames, sex, ID, nationality, date of birth and address. If you go, we ask you for them, plus an emergency phone number. We never ask for a photo of your ID.",
+        "p2": "You and the committee see them; the committee passes them on to the accommodation, and every time it opens them, who and when is logged. They delete themselves a week after the stay, or sooner if you stop going or leave the association. They are not kept for next time: each stay asks for them again."
+      },
       "log": {
         "title": "The committee's log",
-        "p1": "Everything the committee does — awarding points, admitting somebody, publishing an event — is recorded with who did it and when. The committee reads that log and it deletes itself after two years. It is the only thing in the whole app that expires on its own.",
+        "p1": "Everything the committee does — awarding points, admitting somebody, publishing an event — is recorded with who did it and when. The committee reads that log and it deletes itself after two years.",
         "p2": "There is also a screen where the committee sees who has not been around for a while, worked out from recent activities. It is good for nothing except writing to you and asking whether everything is all right."
       },
       "keep": {
         "title": "How long we keep it",
-        "p1": "As things stand, plainly: apart from the log, nothing deletes itself. Not the profile, not the phone number, not the photographs, not the history. If you leave you stop appearing everywhere, but the data stays until somebody removes it by hand.",
+        "p1": "As things stand, plainly: apart from the log and traveller details, nothing deletes itself. Not the profile, not the phone number, not the photographs, not the history. If you leave you stop appearing everywhere, but the data stays until somebody removes it by hand.",
         "p2": "It is something we want to fix before this grows, and in the meantime we will not quote you a deadline we do not meet."
       },
       "others": {
@@ -1687,7 +1692,7 @@
       "minors": {
         "title": "If you are not 18 yet",
         "p1": "From the age of 14 you can give permission for this data yourself, and therefore to use the app. The parental authorisation we ask for on certain activities is a different thing and goes a different way: on paper, separately.",
-        "p2": "The app does not ask your date of birth and checks no age. If you are under 18 and would rather your face did not appear in a night's gallery, say so and it will not."
+        "p2": "The app does not ask your date of birth (except in the traveller details for a place to stay, which delete themselves) and checks no age. If you are under 18 and would rather your face did not appear in a night's gallery, say so and it will not."
       },
       "rights": {
         "title": "What you can ask for",

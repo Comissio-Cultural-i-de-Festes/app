@@ -1668,14 +1668,19 @@
         "title": "Dónde estabas al fichar",
         "p1": "Si fichas desde el móvil en lugar del QR, el teléfono envía dónde estás para comprobar que estás en el sitio. La coordenada se guarda, pero no la ve nadie por la app: la junta solo ve a cuántos metros del local estabas, que es lo que hace falta para ver si alguien ficha desde casa."
       },
+      "travel": {
+        "title": "Si duermes fuera",
+        "p1": "Cuando una actividad es en una casa rural u otro alojamiento, la ley obliga a la casa a enviar a la policía los datos de cada persona que duerme allí (RD 933/2021): nombre, apellidos, sexo, documento, nacionalidad, fecha de nacimiento y dirección. Si vas, te los pedimos, más un teléfono de emergencia. No te pedimos ninguna foto del documento.",
+        "p2": "Los ves tú y la junta, que se los pasa al alojamiento, y cada vez que la junta los abre queda escrito quién y cuándo. Se borran solos una semana después de la estancia, o antes si dejas de ir o te das de baja. No se guardan para la próxima vez: cada alojamiento te los vuelve a pedir."
+      },
       "log": {
         "title": "El registro de la junta",
-        "p1": "Cada cosa que hace la junta —dar puntos, aceptar a alguien, publicar un evento— queda anotada con quién lo ha hecho y cuándo. Ese registro lo lee la junta y se borra solo a los dos años. Es lo único de toda la app que caduca solo.",
+        "p1": "Cada cosa que hace la junta —dar puntos, aceptar a alguien, publicar un evento— queda anotada con quién lo ha hecho y cuándo. Ese registro lo lee la junta y se borra solo a los dos años.",
         "p2": "También hay una pantalla donde la junta ve quién lleva tiempo sin venir, calculado con las últimas actividades. No sirve para nada más que para escribirte y preguntarte si todo va bien."
       },
       "keep": {
         "title": "Cuánto tiempo lo guardamos",
-        "p1": "Ahora mismo, y dicho claro: salvo el registro, nada se borra solo. Ni el perfil, ni el teléfono, ni las fotos, ni el histórico. Si te das de baja dejas de salir en todas partes, pero los datos se quedan hasta que alguien los quite a mano.",
+        "p1": "Ahora mismo, y dicho claro: salvo el registro y los datos de viajero, nada se borra solo. Ni el perfil, ni el teléfono, ni las fotos, ni el histórico. Si te das de baja dejas de salir en todas partes, pero los datos se quedan hasta que alguien los quite a mano.",
         "p2": "Es algo que queremos arreglar antes de que esto crezca, y mientras tanto no te diremos ningún plazo que no cumplimos."
       },
       "others": {
@@ -1687,7 +1692,7 @@
       "minors": {
         "title": "Si todavía no tienes 18",
         "p1": "A partir de los 14 años puedes dar tú mismo el permiso para estos datos, y por tanto para usar la app. La autorización de los padres que te pedimos para según qué actividades es otra cosa y va por otro camino: en papel y aparte.",
-        "p2": "La app no te pide la fecha de nacimiento ni comprueba ninguna edad. Si eres menor y no quieres que tu cara salga en la galería de una noche, dilo y no sale."
+        "p2": "La app no te pide la fecha de nacimiento —salvo en los datos de viajero de un alojamiento, que se borran solos— ni comprueba ninguna edad. Si eres menor y no quieres que tu cara salga en la galería de una noche, dilo y no sale."
       },
       "rights": {
         "title": "Lo que puedes pedir",

@@ -15,7 +15,9 @@ import type { DadesViatger } from './viatgersCsv'
  * LES DADES NO VAN A LA CAU DE REACT QUERY. Es demanen amb una mutació, quan
  * algú prem el botó, i viuen a l'estat de la pantalla: en sortir-ne se'n van.
  * Una consulta les deixaria trenta minuts a la memòria i les tornaria a
- * demanar —i a auditar— cada cop que la finestra recupera el focus.
+ * demanar —i a auditar— cada cop que la finestra recupera el focus. Però una
+ * mutació també guarda el que torna al `MutationCache` cinc minuts després
+ * d'acabar, i per això les dues de la pantalla porten `gcTime: 0`.
  */
 
 export const viatgersKeys = {

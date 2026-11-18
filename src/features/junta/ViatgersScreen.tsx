@@ -68,9 +68,12 @@ export function ViatgersScreen() {
 
   // `always`: sense xarxa, una exportació en pausa sortiria sola quan tornés la
   // cobertura i el fitxer apareixeria a les baixades sense que ningú l'hagués
-  // tornat a demanar. Millor que falli i ho digui.
+  // tornat a demanar. Millor que falli i ho digui. I `gcTime: 0`: una mutació
+  // acabada es queda cinc minuts al `MutationCache` amb el que va tornar, que
+  // aquí són les dades de tothom.
   const mira = useMutation({
     networkMode: 'always',
+    gcTime: 0,
     mutationFn: () => fetchDades(id, false),
     onSuccess: (rows) => {
       setDades(rows)
@@ -79,6 +82,7 @@ export function ViatgersScreen() {
 
   const exporta = useMutation({
     networkMode: 'always',
+    gcTime: 0,
     mutationFn: async () => {
       const rows = await fetchDades(id, true)
       const titol = event.data == null ? '' : eventTitle(event.data.titulo)

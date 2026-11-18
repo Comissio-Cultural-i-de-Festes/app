@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { DbError } from '@/lib/db'
 import { errorKey } from '@/lib/errors'
+import { invalidateData } from '@/lib/signedQuery'
 import { rpc } from '@/lib/supabase'
 import { Button } from '@/ui/Button/Button'
 import { TextField } from '@/ui/Field/Field'
@@ -62,7 +63,9 @@ export function InviteCodeSheet({ onClose }: { readonly onClose: () => void }) {
       if (data?.ok !== true) throw new BadCode()
     },
     onSuccess: async () => {
-      await queryClient.invalidateQueries()
+      // Canvia tot el que la RLS deixa veure, o sigui que es refresca tot,
+      // menys les URL signades que ja funcionaven (vegeu `invalidateData`).
+      await invalidateData(queryClient)
       onClose()
     },
   })

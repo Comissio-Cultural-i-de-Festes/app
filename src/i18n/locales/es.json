@@ -69,6 +69,17 @@
     "pointsUnavailable": "No hemos podido leer cuántos puntos vale cada motivo. Sin eso no los podemos dar bien."
   },
   "entry": {
+    "inApp": {
+      "title": "Ábrelo en el navegador",
+      "body": "Estás dentro del navegador de otra app (Instagram, Facebook…) y Google no deja entrar desde aquí. Abre este enlace en el navegador del móvil y podrás entrar con normalidad.",
+      "ios": "Toca los tres puntos o el icono de compartir y elige «Abrir en el navegador» o «Abrir en Safari». Si no te sale, copia el enlace y pégalo en Safari.",
+      "androidCta": "Abrir en Chrome",
+      "androidHint": "Si no se abre, copia el enlace y pégalo en el navegador.",
+      "copy": "Copiar enlace",
+      "copied": "Enlace copiado",
+      "copyFailed": "No se ha podido copiar. Mantén pulsado el enlace de debajo, cópialo y pégalo en el navegador.",
+      "linkLabel": "Enlace de acceso"
+    },
     "sending": "Un segundo…",
     "invited": {
       "title": "Te han invitado",

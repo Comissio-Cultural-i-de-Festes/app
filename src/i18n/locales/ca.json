@@ -69,6 +69,17 @@
     "pointsUnavailable": "No hem pogut llegir quants punts val cada motiu. Sense això no els podem donar bé."
   },
   "entry": {
+    "inApp": {
+      "title": "Obre-ho al navegador",
+      "body": "Estàs dins del navegador d'una altra app (Instagram, Facebook…) i Google no deixa entrar des d'aquí. Obre aquest enllaç al navegador del mòbil i podràs entrar amb normalitat.",
+      "ios": "Toca els tres punts o la icona de compartir i tria «Obre al navegador» o «Obre al Safari». Si no hi surt, copia l'enllaç i enganxa'l al Safari.",
+      "androidCta": "Obre al Chrome",
+      "androidHint": "Si no s'obre, copia l'enllaç i enganxa'l al navegador.",
+      "copy": "Copia l'enllaç",
+      "copied": "Enllaç copiat",
+      "copyFailed": "No s'ha pogut copiar. Mantén premut l'enllaç d'aquí sota, copia'l i enganxa'l al navegador.",
+      "linkLabel": "Enllaç d'accés"
+    },
     "sending": "Un segon…",
     "invited": {
       "title": "T'han convidat",

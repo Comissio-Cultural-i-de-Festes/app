@@ -876,10 +876,11 @@
       "revealAfterStarts": "El reveal és després que comenci: no destaparia res.",
       "eines": {
         "title": "Eines d'aquesta activitat",
-        "lede": "Totes són d'aquest esdeveniment i hi són abans, durant i després. La porta del rebedor només n'és una drecera.",
+        "lede": "Totes són d'aquest esdeveniment. La porta del rebedor només n'és una drecera.",
         "ledeDraft": "És un esborrany: l'escàner, l'alta, els punts i els pagaments hi surten quan el publiquis.",
         "ledeMeeting": "Una reunió no té porta: qui hi era ho diu qui la tanca.",
         "soon": "L'escàner i l'alta s'obren trenta hores abans que comenci.",
+        "closed": "L'escàner i l'alta es tanquen set dies després que acabi. Els punts es poden donar sempre.",
         "escaner": {
           "title": "L'escàner",
           "sub": "Llegeix el QR de qui entra."

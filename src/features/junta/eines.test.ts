@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { type EinesDe, einesDe, portaOberta, rutaDe } from './eines'
+import { type EinesDe, einesDe, estatPorta, rutaDe } from './eines'
 
 /**
  * Quines eines surten a la fitxa d'un esdeveniment.
@@ -17,6 +17,7 @@ const HORA = 3_600_000
 const FESTA: EinesDe = {
   tipo: 'fiesta',
   starts_at: new Date(ARA + 4 * HORA).toISOString(),
+  ends_at: new Date(ARA + 9 * HORA).toISOString(),
   published: true,
   precio_cents: 0,
   plazas: null,
@@ -73,15 +74,41 @@ describe('quan', () => {
   it('l’escàner i l’alta s’obren trenta hores abans, com la porta', () => {
     const lluny = { ...FESTA, starts_at: new Date(ARA + 31 * HORA).toISOString() }
     expect(einesDe(lluny, ARA)).toEqual(['punts', 'fitxatges', 'gimcana'])
-    expect(portaOberta(lluny, ARA)).toBe(false)
-    expect(portaOberta({ ...lluny, starts_at: new Date(ARA + 30 * HORA).toISOString() }, ARA)).toBe(
-      true,
+    expect(estatPorta(lluny, ARA)).toBe('aviat')
+    expect(estatPorta({ ...lluny, starts_at: new Date(ARA + 30 * HORA).toISOString() }, ARA)).toBe(
+      'oberta',
     )
   })
 
-  it('i no es tanquen mai: l’endemà encara es fitxa qui es va quedar sense', () => {
-    const passada = { ...FESTA, starts_at: new Date(ARA - 20 * 24 * HORA).toISOString() }
-    expect(einesDe(passada, ARA)).toEqual(['escaner', 'alta', 'punts', 'fitxatges', 'gimcana'])
+  it('l’endemà encara es fitxa qui es va quedar sense', () => {
+    const ahir = {
+      ...FESTA,
+      starts_at: new Date(ARA - 24 * HORA).toISOString(),
+      ends_at: new Date(ARA - 18 * HORA).toISOString(),
+    }
+    expect(einesDe(ahir, ARA)).toEqual(['escaner', 'alta', 'punts', 'fitxatges', 'gimcana'])
+  })
+
+  it('i set dies després de sortir de la porta l’escàner i l’alta es tanquen; els punts, no', () => {
+    // La festa va sortir de la porta vuit hores després de començar, fa set
+    // dies i una hora.
+    const passada = {
+      ...FESTA,
+      starts_at: new Date(ARA - 7 * 24 * HORA - 9 * HORA).toISOString(),
+      ends_at: new Date(ARA - 7 * 24 * HORA - 5 * HORA).toISOString(),
+    }
+    expect(estatPorta(passada, ARA)).toBe('tancada')
+    expect(einesDe(passada, ARA)).toEqual(['punts', 'fitxatges', 'gimcana'])
+  })
+
+  it('i a una casa rural, la setmana compta des que s’acaba, no des que comença', () => {
+    const casa = {
+      ...FESTA,
+      tipo: 'casa_rural' as const,
+      starts_at: new Date(ARA - 9 * 24 * HORA).toISOString(),
+      ends_at: new Date(ARA - 6 * 24 * HORA).toISOString(),
+    }
+    expect(estatPorta(casa, ARA)).toBe('oberta')
   })
 
   it('i la casa rural, en marxa des d’ahir, les té totes', () => {

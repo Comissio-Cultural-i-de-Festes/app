@@ -575,6 +575,7 @@
     "upload": "Puja les teves",
     "whoCanUpload": "Pot pujar-ne qui va fitxar aquella nit.",
     "thumbsNote": "Aquí tot són miniatures. La bona, amb tot el detall, es carrega només quan n’obres una.",
+    "thumbLabel": "Foto {{n}} de {{total}}",
     "uploading": "Pujant",
     "uploadCount": "{{n}} de {{total}}",
     "uploadNote": "Van d’una en una i la miniatura es fa aquí mateix abans de pujar. Deixa la pantalla oberta fins que acabi; les que fallin es queden aquí.",

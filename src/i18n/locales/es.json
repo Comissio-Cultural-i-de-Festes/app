@@ -575,6 +575,7 @@
     "upload": "Sube las tuyas",
     "whoCanUpload": "Puede subirlas quien fichó aquella noche.",
     "thumbsNote": "Aquí todo son miniaturas. La buena, con todo el detalle, se carga solo cuando abres una.",
+    "thumbLabel": "Foto {{n}} de {{total}}",
     "uploading": "Subiendo",
     "uploadCount": "{{n}} de {{total}}",
     "uploadNote": "Van de una en una y la miniatura se hace aquí mismo antes de subir. Deja la pantalla abierta hasta que acabe; las que fallen se quedan aquí.",

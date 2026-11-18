@@ -71,8 +71,10 @@
   "entry": {
     "inApp": {
       "title": "Obre-ho al navegador",
+      "ledeInvited": "Algú del grup t'ha passat l'enllaç. Obre'l al navegador del mòbil i hi entraràs amb Google.",
+      "ledeOpen": "Has arribat sense invitació. Obre l'enllaç al navegador del mòbil, entra amb Google i la junta et donarà l'accés a mà, normalment el mateix dia.",
       "body": "Estàs dins del navegador d'una altra app (Instagram, Facebook…) i Google no deixa entrar des d'aquí. Obre aquest enllaç al navegador del mòbil i podràs entrar amb normalitat.",
-      "ios": "Toca els tres punts o la icona de compartir i tria «Obre al navegador» o «Obre al Safari». Si no hi surt, copia l'enllaç i enganxa'l al Safari.",
+      "ios": "Toca els tres punts o la icona de compartir i tria l'opció d'obrir-lo al navegador o al Safari. Si no la trobes, copia l'enllaç i enganxa'l al Safari.",
       "androidCta": "Obre al Chrome",
       "androidHint": "Si no s'obre, copia l'enllaç i enganxa'l al navegador.",
       "copy": "Copia l'enllaç",

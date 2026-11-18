@@ -71,8 +71,10 @@
   "entry": {
     "inApp": {
       "title": "Open it in your browser",
+      "ledeInvited": "Someone in the group sent you the link. Open it in your phone's browser and you will sign in with Google there.",
+      "ledeOpen": "You arrived without an invitation. Open the link in your phone's browser, sign in with Google and the committee will give you access by hand, usually the same day.",
       "body": "You are inside another app's browser (Instagram, Facebook…) and Google does not allow signing in from here. Open this link in your phone's browser and you can sign in as usual.",
-      "ios": "Tap the three dots or the share icon and choose \"Open in browser\" or \"Open in Safari\". If you do not see it, copy the link and paste it into Safari.",
+      "ios": "Tap the three dots or the share icon and choose the option to open it in your browser or in Safari. If you cannot find it, copy the link and paste it into Safari.",
       "androidCta": "Open in Chrome",
       "androidHint": "If it does not open, copy the link and paste it into your browser.",
       "copy": "Copy link",

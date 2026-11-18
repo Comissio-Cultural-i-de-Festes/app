@@ -1598,9 +1598,11 @@
     "profile": "Perfil"
   },
   "onboarding": {
+    "titlePending": "Gairebé a punt",
     "title": "Ja ets dins",
     "lede": "Cinc coses i entres. El nom i la foto ja els tenim del teu Google, mira que estiguin bé.",
-    "nameHint": "Posa-hi el nom amb què et diuen a la comi, no el del DNI.",
+    "ledePending": "Cinc coses i ho tens tot a punt. El nom i la foto ja els tenim del teu Google; la junta t'ha d'acceptar abans que et puguis apuntar a res.",
+    "nameHint": "Així et trobarà la junta: posa-hi el nom de debò, no un àlies. El pots canviar després al perfil.",
     "school": {
       "label": "La teva escola",
       "required": "Obligatori",
@@ -1639,6 +1641,8 @@
     },
     "cta": {
       "ready": "Entrar",
+      "pickSchoolPending": "Tria l'escola i continues",
+      "readyPending": "Continuar",
       "pickSchool": "Tria l'escola i entres",
       "fix": "Repassa el telèfon o l'Instagram"
     },
@@ -1895,7 +1899,9 @@
     "codePlaceholder": "Enganxa'l aquí",
     "codeCta": "Entra amb el codi",
     "codeSending": "Un moment…",
-    "codeBad": "Aquest codi no val. Demana'n un altre a la junta."
+    "codeBad": "Aquest codi no val. Demana'n un altre a la junta.",
+    "note": "Les places, les respostes i els punts s'obren quan la junta t'accepti.",
+    "rankingClosed": "El rànquing encara no és per a tu."
   },
   "qr": {
     "codeLabel": "El teu codi QR",

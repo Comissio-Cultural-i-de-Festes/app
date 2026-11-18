@@ -1598,9 +1598,11 @@
     "profile": "Perfil"
   },
   "onboarding": {
+    "titlePending": "Casi listo",
     "title": "Ya estás dentro",
     "lede": "Cinco cosas y entras. El nombre y la foto ya los tenemos de tu Google, mira que estén bien.",
-    "nameHint": "Pon el nombre con el que te llaman en la comi, no el del DNI.",
+    "ledePending": "Cinco cosas y lo tienes todo a punto. El nombre y la foto ya los tenemos de tu Google; la junta te tiene que aceptar antes de que puedas apuntarte a nada.",
+    "nameHint": "Así te encontrará la junta: pon tu nombre de verdad, no un alias. Lo puedes cambiar luego en el perfil.",
     "school": {
       "label": "Tu escuela",
       "required": "Obligatorio",
@@ -1639,6 +1641,8 @@
     },
     "cta": {
       "ready": "Entrar",
+      "pickSchoolPending": "Elige la escuela y sigues",
+      "readyPending": "Continuar",
       "pickSchool": "Elige la escuela y entras",
       "fix": "Repasa el teléfono o el Instagram"
     },
@@ -1895,7 +1899,9 @@
     "codePlaceholder": "Pégalo aquí",
     "codeCta": "Entra con el código",
     "codeSending": "Un momento…",
-    "codeBad": "Este código no vale. Pide otro a la junta."
+    "codeBad": "Este código no vale. Pide otro a la junta.",
+    "note": "Las plazas, las respuestas y los puntos se abren cuando la junta te acepte.",
+    "rankingClosed": "El ranking todavía no es para ti."
   },
   "qr": {
     "codeLabel": "Tu código QR",

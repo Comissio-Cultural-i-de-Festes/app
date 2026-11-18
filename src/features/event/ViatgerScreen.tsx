@@ -182,7 +182,7 @@ function Shell({
   readonly children: ReactNode
 }) {
   return (
-    <main className="with-tabbar min-h-dvh bg-app pb-12">
+    <main className="with-tabbar min-h-dvh bg-app">
       <JuntaHeader to={back} label={label} title={title} />
       <div className={`pt-8 ${GUTTER}`}>{children}</div>
     </main>
@@ -253,6 +253,11 @@ function Formulari({
       await onFet()
     },
   })
+
+  // Sense xarxa, la frase general parla de «veure això»; aquí el que importa
+  // és que no ha sortit res i que el formulari encara hi és.
+  const frase = (err: unknown) =>
+    errorKey(err) === 'errors.offline' ? t('viatger.notSent') : t(errorKey(err))
 
   const posa = <K extends CampViatger>(camp: K, valor: EsborranyViatger[K]) => {
     setD((ara) => ({ ...ara, [camp]: valor }))
@@ -554,7 +559,7 @@ function Formulari({
 
         {desa.isError ? (
           <p role="alert" className="mt-6 text-md font-bold text-error [text-wrap:pretty]">
-            {t(errorKey(desa.error))}
+            {frase(desa.error)}
           </p>
         ) : null}
       </form>
@@ -588,7 +593,7 @@ function Formulari({
           )}
           {esborra.isError ? (
             <p role="alert" className="mt-6 text-md font-bold text-error [text-wrap:pretty]">
-              {t(errorKey(esborra.error))}
+              {frase(esborra.error)}
             </p>
           ) : null}
         </section>

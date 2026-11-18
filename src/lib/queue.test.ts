@@ -96,6 +96,28 @@ describe('obrir la base', () => {
     expect(control.opens).toBe(opens)
   })
 
+  it('torna a provar una obertura vençuda passada una estona, però no una bloquejada', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] })
+    control.hangOpens(1)
+
+    const first = queue.enqueue(scan('a'))
+    await vi.advanceTimersByTimeAsync(queue.OPEN_DEADLINE_MS)
+    await expect(first).resolves.toBe(false)
+    const opens = control.opens
+
+    await vi.advanceTimersByTimeAsync(queue.STALLED_RETRY_MS)
+    const second = queue.enqueue(scan('b'))
+    await vi.advanceTimersByTimeAsync(queue.OPEN_DEADLINE_MS)
+    await expect(second).resolves.toBe(false)
+    // Ho ha provat: una obertura nova, encara que s'hagi encuat darrere de la penjada.
+    expect(control.opens).toBe(opens + 1)
+
+    control.release()
+    await vi.advanceTimersByTimeAsync(0)
+    vi.useRealTimers()
+    await expect(queue.enqueue(scan('c'))).resolves.toBe(true)
+  })
+
   it('tanca la connexió quan una pestanya nova puja la versió, i no la bloqueja', async () => {
     await queue.enqueue(scan('a'))
 
@@ -129,8 +151,11 @@ describe('obrir la base', () => {
     await expect(queue.enqueue(scan('b'))).resolves.toBe(false)
     expect(control.opens).toBe(opens)
 
+    const reconnected = vi.fn()
+    queue.onReconnect(reconnected)
     oldTab.close()
     await settle()
+    expect(reconnected).toHaveBeenCalledTimes(1)
 
     await expect(queue.enqueue(scan('c'))).resolves.toBe(true)
     expect((await queue.pending()).map((row) => row.clientRequestId)).toEqual(['c'])

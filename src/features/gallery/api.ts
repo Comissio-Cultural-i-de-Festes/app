@@ -1,5 +1,5 @@
 import { DbError } from '@/lib/db'
-import { EVENT_PHOTOS, galleryImage, thumbnail } from '@/lib/storage'
+import { EVENT_PHOTOS, galleryImage, removeObjects, thumbnail } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -107,7 +107,10 @@ export async function uploadPhoto(file: File, eventId: string, userId: string): 
 export async function deletePhoto(photo: GalleryPhoto): Promise<void> {
   const { error } = await supabase.from('event_photos').delete().eq('id', photo.id)
   if (error) throw new DbError(error)
-  await supabase.storage.from(EVENT_PHOTOS).remove([photo.path, photo.thumb_path])
+  // Per `removeObjects`, perquè la URL signada de la miniatura se'n vagi amb
+  // ella. Un error aquí no és de la pantalla: la fila ja no hi és, i el que
+  // quedi ho recull l'escombrada diària (migració 91).
+  await removeObjects(EVENT_PHOTOS, [photo.path, photo.thumb_path]).catch(() => [])
 }
 
 export async function reportPhoto(photoId: string, motiu: ReportReason): Promise<string> {

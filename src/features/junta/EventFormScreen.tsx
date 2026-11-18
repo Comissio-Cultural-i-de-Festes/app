@@ -25,6 +25,7 @@ import { Field, INPUT } from './formBits'
 import { JuntaHeader } from './JuntaHeader'
 import {
   deleteEvent,
+  dropOldCovers,
   type EventDraft,
   eventFormKeys,
   fetchGeo,
@@ -163,6 +164,7 @@ function EventForm() {
         eventId = await saveEvent(
           draftFrom({ ...form, id: eventId, cover_url: coverPath }, publish, coverPath),
         )
+        dropOldCovers(eventId, coverPath)
       } else {
         eventId = await saveEvent(draftFrom(form, publish, coverPath))
       }

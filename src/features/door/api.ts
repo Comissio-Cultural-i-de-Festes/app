@@ -49,15 +49,53 @@ export interface ScanRequest {
   readonly userId: string | null
 }
 
+/**
+ * How long the door waits for `check_in` before it stops waiting.
+ *
+ * Eight seconds. On a working connection the call answers in well under one;
+ * on one bar shared with a room, a lost packet costs a second, the next one
+ * two, the next four, so eight lets a connection that drops two in a row
+ * still answer. Much longer and the person in front of the phone gives up and
+ * holds the QR out again. Much shorter and a slow answer becomes "queued",
+ * which costs the verdict: a QR that has not reached the server has no name
+ * and no status, only "saved".
+ *
+ * Giving up loses nothing. The scan is already in the queue and the id is the
+ * one the flush will send, so whatever the server did with the abandoned
+ * request, the resend lands once.
+ */
+export const CHECK_IN_TIMEOUT_MS = 8_000
+
+/** It left and nothing came back in time. Whether it landed is unknown. */
+export class CheckInTimeout extends Error {
+  constructor() {
+    super('check_in did not answer in time')
+    this.name = 'CheckInTimeout'
+  }
+}
+
 export async function checkIn(request: ScanRequest): Promise<CheckInResult> {
-  const { data, error } = await supabase.rpc('check_in', {
-    p_event_id: request.eventId,
-    p_client_request_id: request.clientRequestId,
-    ...(request.qrToken === null ? {} : { p_qr_token: request.qrToken }),
-    ...(request.userId === null ? {} : { p_user_id: request.userId }),
-  })
-  if (error) throw new DbError(error)
-  return data as unknown as CheckInResult
+  const controller = new AbortController()
+  const timer = setTimeout(() => {
+    controller.abort()
+  }, CHECK_IN_TIMEOUT_MS)
+
+  try {
+    const { data, error } = await supabase
+      .rpc('check_in', {
+        p_event_id: request.eventId,
+        p_client_request_id: request.clientRequestId,
+        ...(request.qrToken === null ? {} : { p_qr_token: request.qrToken }),
+        ...(request.userId === null ? {} : { p_user_id: request.userId }),
+      })
+      .abortSignal(controller.signal)
+    // An aborted fetch comes back as an error with no code, the same shape as
+    // any other network failure. The signal is the only thing that knows.
+    if (error) throw controller.signal.aborted ? new CheckInTimeout() : new DbError(error)
+    return data as unknown as CheckInResult
+  } finally {
+    clearTimeout(timer)
+  }
 }
 
 /**
@@ -115,11 +153,28 @@ export async function scan(request: ScanRequest): Promise<CheckInResult> {
  */
 export type DoorOutcome =
   | { readonly kind: 'sent'; readonly request: ScanRequest; readonly result: CheckInResult }
-  | { readonly kind: 'queued'; readonly request: ScanRequest }
+  | {
+      readonly kind: 'queued'
+      readonly request: ScanRequest
+      /**
+       * It was sent and never answered, rather than never sent. Drawn the same,
+       * because for the person at the door it is the same; undone differently,
+       * because the row may exist.
+       */
+      readonly unanswered?: true
+    }
   | { readonly kind: 'failed'; readonly request: ScanRequest }
 
-/** Which of the two a thrown scan was. Offline is the queue working. */
-export function outcomeFromFailure(request: ScanRequest): DoorOutcome {
+/**
+ * Which of the two a thrown scan was. Offline is the queue working.
+ *
+ * A timeout is the queue working too, and `navigator.onLine` cannot see it: a
+ * saturated network is still a network. Calling it "failed" would tell the
+ * junta to try again, and trying again is a second request for something the
+ * flush is already going to send.
+ */
+export function outcomeFromFailure(request: ScanRequest, cause: unknown): DoorOutcome {
+  if (cause instanceof CheckInTimeout) return { kind: 'queued', request, unanswered: true }
   return navigator.onLine ? { kind: 'failed', request } : { kind: 'queued', request }
 }
 
@@ -139,7 +194,8 @@ export type UndoTarget =
   /**
    * It was sent and never answered, so it is in the queue AND may be on the
    * server: `scan()` leaves a failure queued on purpose, and the twenty-second
-   * flush may have got through since. Both, in that order.
+   * flush may have got through since. Both, in that order. A timeout is this
+   * case too, even though its card says "queued".
    */
   | {
       readonly kind: 'unsure'
@@ -174,7 +230,17 @@ export function undoTargetOf(outcome: DoorOutcome): UndoTarget | null {
   // A QR that never reached the server never resolved to anybody either — the
   // token only becomes a person inside `check_in` — so the queue is all there
   // is to go on. A name tapped on the manual list is the case that can do more.
-  if (outcome.kind === 'queued' || request.userId === null) {
+  //
+  // Except a QR that timed out. That one did reach the server, often enough to
+  // have landed — it was seen doing exactly that while this was tested — and
+  // dropping its queue entry would say "it never went" about somebody who is
+  // checked in. No button is the honest answer there: the person is taken back
+  // from the check-ins list once the row shows up.
+  if (outcome.kind === 'queued' && outcome.unanswered === true && request.userId === null) {
+    return null
+  }
+  const neverLeft = outcome.kind === 'queued' && outcome.unanswered !== true
+  if (neverLeft || request.userId === null) {
     return { kind: 'queued', clientRequestId: request.clientRequestId }
   }
 

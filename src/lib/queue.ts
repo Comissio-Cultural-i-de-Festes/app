@@ -106,8 +106,18 @@ let opening: Promise<IDBDatabase | null> | null = null
  * would only queue behind it and answer no later than it does. Callers are
  * told no straight away instead. It is not abandoned: if it ever goes
  * through, it is adopted, and `onReconnect` says so.
+ *
+ * A time and not a flag, because the two cases do not end the same way. A
+ * blocked open is waiting for something that will happen — the other tab
+ * closing — and holds back until it does. One past the deadline may be
+ * waiting for nothing at all, so after `STALLED_RETRY_MS` the next call is
+ * allowed one more try: a fresh open is cheap, and the alternative is a door
+ * phone that cannot save until somebody reloads it.
  */
-let heldBack = false
+let heldBackUntil = 0
+
+/** How long after a stalled open the next call may try again. */
+export const STALLED_RETRY_MS = 30_000
 
 const reconnected = new Set<() => void>()
 
@@ -126,7 +136,7 @@ export function onReconnect(listener: () => void): () => void {
 
 function open(): Promise<IDBDatabase | null> {
   if (connection !== null) return Promise.resolve(connection)
-  if (heldBack) return Promise.resolve(null)
+  if (Date.now() < heldBackUntil) return Promise.resolve(null)
   opening ??= connect(DB_VERSION).finally(() => {
     opening = null
   })
@@ -150,10 +160,8 @@ function connect(version: number | undefined): Promise<IDBDatabase | null> {
       return
     }
 
-    let late = false
     const timer = setTimeout(() => {
-      late = true
-      heldBack = true
+      heldBackUntil = Date.now() + STALLED_RETRY_MS
       resolve(null)
     }, OPEN_DEADLINE_MS)
     const settle = (db: IDBDatabase | null) => {
@@ -165,13 +173,16 @@ function connect(version: number | undefined): Promise<IDBDatabase | null> {
       upgrade(request.result)
     }
     request.onsuccess = () => {
-      heldBack = false
+      // Somebody was told no while this was pending — this caller or any
+      // other — and the screens saying so have to hear that it is over.
+      const toldNo = heldBackUntil !== 0
+      heldBackUntil = 0
       const db = adopt(request.result)
       settle(db)
-      if (late) for (const listener of reconnected) listener()
+      if (toldNo) for (const listener of reconnected) listener()
     }
     request.onerror = () => {
-      heldBack = false
+      heldBackUntil = 0
       // This tab's code is older than the database: another tab has already
       // upgraded it. Every version so far only adds stores, so the newer
       // database has all the ones this code knows, and opening it at whatever
@@ -185,8 +196,7 @@ function connect(version: number | undefined): Promise<IDBDatabase | null> {
       settle(null)
     }
     request.onblocked = () => {
-      late = true
-      heldBack = true
+      heldBackUntil = Number.POSITIVE_INFINITY
       settle(null)
     }
   })

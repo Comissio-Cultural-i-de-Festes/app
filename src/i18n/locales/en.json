@@ -37,6 +37,12 @@
     "unknownPerson": "This QR",
     "displaced": "Before that, {{nombre}}: {{verdict}}",
     "displacedUnknown": "The scan before: {{verdict}}",
+    "noQueue": "This phone can't keep a queue",
+    "noQueueOffline": "No signal and no queue: nothing is being saved",
+    "refused_one": "The server refused {{count}} queued scan. That person is not checked in.",
+    "refused_other": "The server refused {{count}} queued scans. Those people are not checked in.",
+    "refusedRetry": "Try again",
+    "refusedDrop": "Dismiss",
     "notPaid": "has not paid",
     "camera": {
       "denied": "We can't get at the camera. Allow it in your browser settings — Settings › {{app}} › Camera — and come back, or check people in by name.",
@@ -2050,6 +2056,8 @@
     "eventNotOpen": "This event isn't open",
     "error": "Couldn't connect. Try again",
     "queued": "Saved. It will send once there's signal",
+    "notSaved": "Couldn't save it or send it",
+    "refused": "The server won't accept it",
     "action": {
       "okWalkin": "They were not signed up. It is recorded now.",
       "okWalkinReview": "Check they pay on the way in, or note it down.",
@@ -2059,6 +2067,8 @@
       "notAMember": "Ask their name and find them by hand. Do not wave them through unrecorded.",
       "memberInactive": "Have them ask to join. You approve it tomorrow from the junta area.",
       "eventNotOpen": "Check this is the right event and that it is published.",
+      "notSaved": "It won't go by itself. Ask their name and check them in by name once the signal is back.",
+      "refused": "They're not in. Ask their name and look them up under check-in by name.",
       "error": "Keep scanning. It sends itself when the signal comes back."
     }
   },

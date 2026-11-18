@@ -37,6 +37,12 @@
     "unknownPerson": "Este QR",
     "displaced": "Antes, {{nombre}}: {{verdict}}",
     "displacedUnknown": "El escaneo anterior: {{verdict}}",
+    "noQueue": "Este móvil no puede guardar la cola",
+    "noQueueOffline": "Sin red y sin cola: no se guarda nada",
+    "refused_one": "El servidor ha rechazado {{count}} escaneo de la cola. Esa persona no consta como entrada.",
+    "refused_other": "El servidor ha rechazado {{count}} escaneos de la cola. Esas personas no constan como entradas.",
+    "refusedRetry": "Reintentar",
+    "refusedDrop": "Descartar",
     "notPaid": "no ha pagado",
     "camera": {
       "denied": "No podemos abrir la cámara. Dale permiso en los ajustes del navegador —Ajustes › {{app}} › Cámara— y vuelve, o haz el alta por el nombre.",
@@ -2050,6 +2056,8 @@
     "eventNotOpen": "Este evento no está abierto",
     "error": "No se ha podido conectar. Vuelve a probar",
     "queued": "Guardado. Se enviará cuando haya cobertura",
+    "notSaved": "No se ha podido guardar ni enviar",
+    "refused": "El servidor no lo acepta",
     "action": {
       "okWalkin": "No estaba apuntado. Ya consta que ha venido.",
       "okWalkinReview": "Mira que pague antes de entrar, o apúntalo.",
@@ -2059,6 +2067,8 @@
       "notAMember": "Que te diga el nombre y lo buscas a mano. No lo dejes pasar sin apuntarlo.",
       "memberInactive": "Que pida entrar. Lo aprobáis mañana desde la zona junta.",
       "eventNotOpen": "Comprueba que es el evento correcto y que está publicado.",
+      "notSaved": "No se enviará solo. Que te diga el nombre y dale de alta por el nombre cuando vuelva la cobertura.",
+      "refused": "No ha entrado. Que te diga el nombre y búscalo en el alta por el nombre.",
       "error": "Sigue escaneando. Cuando vuelva la cobertura se envía solo."
     }
   },

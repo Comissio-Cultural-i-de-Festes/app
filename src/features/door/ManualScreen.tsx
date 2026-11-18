@@ -18,7 +18,8 @@ import {
   scan,
 } from './api'
 import { ScanGlyph } from './icons'
-import { useQueue } from './useQueue'
+import { RefusedScans } from './RefusedScans'
+import { queueNotice, useQueue } from './useQueue'
 import { type Undo, undoNoteKey, useUndo } from './useUndo'
 import { statusWords } from './verdict'
 
@@ -66,7 +67,9 @@ export function ManualScreen() {
   const [done, setDone] = useState<Record<string, DoorOutcome>>({})
   const [busy, setBusy] = useState<string | null>(null)
   const [last, setLast] = useState<LastIn | null>(null)
-  const { queued, online, refresh: refreshQueue } = useQueue()
+  const queue = useQueue()
+  const { refresh: refreshQueue } = queue
+  const notice = queueNotice(queue)
 
   const event = useQuery({
     queryKey: eventKeys.one(id),
@@ -149,17 +152,17 @@ export function ManualScreen() {
           <p className="eyebrow min-w-0 truncate text-fg-muted">{event.data?.titulo ?? ''}</p>
         </div>
 
-        {queued === 0 && online ? null : (
+        {notice === null ? null : (
           <p className="mt-4 flex items-center gap-3 text-sm font-bold text-[var(--ds-warning-deep)]">
             <span
               aria-hidden="true"
               className="size-[8px] flex-none animate-pulse rounded-full bg-[var(--ds-warning-deep)]"
             />
-            {online
-              ? t('door.queued', { count: queued })
-              : t('door.queuedOffline', { count: queued })}
+            {t(notice.key, notice.params)}
           </p>
         )}
+
+        <RefusedScans count={queue.refused} onChange={refreshQueue} className="mt-4 pl-6" />
 
         <h1 className="display mt-4 text-d-s tracking-[-0.045em] [text-wrap:balance]">
           {t('door.manualTitle')}

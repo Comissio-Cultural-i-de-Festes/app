@@ -46,6 +46,7 @@ import {
 } from '@/features/install/installGate'
 import { supabase } from '@/lib/supabase'
 import { useStalled } from '@/lib/useAvailability'
+import { useOnline } from '@/lib/useOnline'
 
 /**
  * La zona de junta, carregada quan s'hi entra i no abans.
@@ -178,6 +179,7 @@ export default function App() {
   const { t } = useTranslation()
   const { phase, session } = useBootSession()
   const stalled = useStalled(phase === 'waiting')
+  const online = useOnline()
   const { pathname } = useLocation()
   const [promptInstall, setPromptInstall] = useState(() => shouldPromptInstall())
 
@@ -222,7 +224,13 @@ export default function App() {
     window.location.reload()
   }
 
+  // Sense xarxa, supabase-js s'hi passa uns vint-i-cinc segons reintentant la
+  // renovació abans de rendir-se. No cal esperar-lo per dir-ho: si el
+  // navegador diu que no hi ha xarxa, és que no n'hi ha.
   if (phase === 'waiting') {
+    if (!online) {
+      return <GateUnreachable message={t('errors.sessionUnreachable')} onRetry={reload} />
+    }
     return stalled ? (
       <GateUnreachable message={t('errors.stalled')} onRetry={reload} />
     ) : (

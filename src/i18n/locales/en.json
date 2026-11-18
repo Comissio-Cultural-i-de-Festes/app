@@ -1130,7 +1130,9 @@
         "avis_pendent": "{{actor}} logged a pending warning for someone without an account",
         "retira_avis": "{{actor}} withdrew a warning against {{target}}",
         "retira_avis_pendent": "{{actor}} withdrew a pending warning",
-        "set_avis_tipus": "{{actor}} changed the warning catalogue"
+        "set_avis_tipus": "{{actor}} changed the warning catalogue",
+        "consulta_viatgers": "{{actor}} opened the traveller details for an event",
+        "set_demana_viatger": "{{actor}} changed whether an event asks for traveller details"
       },
       "rowSub": "Who did what"
     },

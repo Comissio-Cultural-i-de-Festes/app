@@ -145,7 +145,7 @@ export async function submitProva(provaId: string, photo: Blob): Promise<string>
 }
 
 async function send(item: QueuedProva): Promise<string> {
-  const userId = (await supabase.auth.getUser()).data.user?.id ?? ''
+  const userId = await localUserId()
   const path = `${item.provaId}/${userId}/${item.id}.jpg`
 
   const up = await supabase.storage
@@ -170,6 +170,26 @@ async function send(item: QueuedProva): Promise<string> {
 
   await drop(PROVES, item.id)
   return (data as { estat?: string } | null)?.estat ?? 'enviada'
+}
+
+/**
+ * Qui puja la foto, llegit de la sessió d'aquest mòbil i no del servidor.
+ *
+ * `getUser()` és una crida a /auth/v1/user per cada prova i per cada
+ * reintent, i els endpoints d'Auth tenen límit per IP: dues-centes persones
+ * darrere la mateixa wifi s'esgoten la quota entre elles. Aquí no cal validar
+ * res —el servidor ja ho fa amb el JWT que acompanya la pujada i
+ * `submit_prova` atribueix per `auth.uid()`—, només saber quin camí escriure.
+ *
+ * Sense sessió llegible no s'envia: l'error no porta codi de Postgres, de
+ * manera que `flushProves` deixa la foto a la cua per a la propera volta en
+ * comptes de pujar-la a un camí sense propietari.
+ */
+async function localUserId(): Promise<string> {
+  const { data } = await supabase.auth.getSession()
+  const id = data.session?.user.id
+  if (id === undefined) throw new Error('no session')
+  return id
 }
 
 /** Un 409 vol dir que la foto ja hi era: la primera provatura la va deixar. */

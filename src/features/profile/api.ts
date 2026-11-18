@@ -1,5 +1,5 @@
 import { DbError, unwrap, unwrapAs } from '@/lib/db'
-import { AVATARS, avatarImage, uploadAvatar } from '@/lib/storage'
+import { AVATARS, avatarImage, keepOnly, uploadAvatar } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
 
 import type { Hores } from './hores'
@@ -209,15 +209,18 @@ export async function setMyNameAndInstagram(
  * surt. Si la pujada falla, la columna no s'ha tocat i la foto d'abans encara
  * hi és.
  *
- * L'objecte que sobra no s'esborra. Un avatar antic pesa unes desenes de kB
- * (és un quadrat de 384 px) i esborrar-lo voldria dir una segona operació que
- * pot fallar tota sola, deixant la columna canviada i l'error a la pantalla
- * d'algú que ja havia acabat. «Treu-la» sí que esborra, perquè allà treure és la funció.
+ * I l'anterior se'n va després, quan la columna ja apunta a la nova. Abans no
+ * s'esborrava: era una segona operació que podia fallar tota sola i deixar
+ * l'error a la pantalla d'algú que ja havia acabat. Però deixar-la volia dir
+ * que cada canvi de foto quedava a Storage per sempre, i l'espai és un de sol
+ * per a totes les fotos de l'app. `keepOnly` no llança mai i no s'espera: si
+ * falla, l'objecte el recull l'escombrada diària (migració 91).
  */
 export async function setMyPhoto(userId: string, file: Blob): Promise<void> {
   const body = await avatarImage(file)
   const path = await uploadAvatar(body, userId)
   await unwrap(supabase.from('profiles').update({ avatar_url: path }).eq('id', userId).select('id'))
+  void keepOnly(AVATARS, userId, path)
 }
 
 /** La de Google, que ja és a `user_metadata` des que la persona va entrar. */
@@ -238,19 +241,20 @@ export async function revertToGooglePhoto(userId: string): Promise<void> {
   await unwrap(
     supabase.from('profiles').update({ avatar_url: picture }).eq('id', userId).select('id'),
   )
+  // La de Google no viu al bucket, o sigui que tot el que hi ha a la carpeta sobra.
+  void keepOnly(AVATARS, userId, null)
 }
 
 /**
- * Treu la foto: la columna a null i l'objecte del bucket, si n'hi havia.
+ * Treu la foto: la columna a null i la carpeta del bucket buida.
  *
  * La columna primer. Si l'esborrat de l'objecte falla —un permís, una fila que
  * ja no hi és— el que la persona ha demanat ja ha passat: la seva cara no surt
  * enlloc. Un objecte orfe al bucket és brossa; una foto que continua sortint
  * després de dir que la treguis és una promesa incomplerta.
  */
-export async function clearMyPhoto(userId: string, current: string | null): Promise<void> {
+export async function clearMyPhoto(userId: string): Promise<void> {
   await unwrap(supabase.from('profiles').update({ avatar_url: null }).eq('id', userId).select('id'))
-
-  const stored = current !== null && current !== '' && !current.startsWith('http') ? current : null
-  if (stored !== null) await supabase.storage.from(AVATARS).remove([stored])
+  // Esperat, a diferència de canviar-la: aquí treure-la és la funció.
+  await keepOnly(AVATARS, userId, null)
 }

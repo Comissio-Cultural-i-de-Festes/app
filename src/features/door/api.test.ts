@@ -45,8 +45,11 @@ vi.mock('@/lib/queue', () => ({
     store.delete(id)
     return Promise.resolve()
   },
+  // Like the real one: an entry somebody removed is not written back.
   bumpTries: (scan: { clientRequestId: string; tries: number }) => {
-    store.set(scan.clientRequestId, { ...scan, tries: scan.tries + 1 })
+    if (store.has(scan.clientRequestId)) {
+      store.set(scan.clientRequestId, { ...scan, tries: scan.tries + 1 })
+    }
     return Promise.resolve()
   },
   pending: () => Promise.resolve([...store.values()]),
@@ -141,6 +144,24 @@ describe('a scan at the door', () => {
     expect(rpc).toHaveBeenCalledTimes(2)
   })
 
+  it('runs one flush at a time, and a second caller shares the first run', async () => {
+    // The timer, the `online` event and both screens all call it. Two runs
+    // over the same snapshot sent every entry twice.
+    store.set('one', { ...request('one'), at: 1, tries: 0 })
+    store.set('two', { ...request('two'), at: 2, tries: 0 })
+    rpc.mockResolvedValue({ data: { status: 'ok' }, error: null })
+
+    const first = flushQueue()
+    const second = flushQueue()
+
+    expect(second).toBe(first)
+    await expect(first).resolves.toEqual({ sent: 2, left: 0 })
+    expect(rpc).toHaveBeenCalledTimes(2)
+
+    // And it is free again once it is done.
+    store.set('three', { ...request('three'), at: 3, tries: 0 })
+    await expect(flushQueue()).resolves.toEqual({ sent: 1, left: 0 })
+  })
 })
 
 describe('a check-in that never answers', () => {

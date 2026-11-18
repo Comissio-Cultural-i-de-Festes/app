@@ -1,4 +1,11 @@
-import { type ReactNode, useId } from 'react'
+import {
+  Children,
+  cloneElement,
+  isValidElement,
+  type ReactElement,
+  type ReactNode,
+  useId,
+} from 'react'
 
 /**
  * The two pieces every junta form is made of.
@@ -11,8 +18,24 @@ import { type ReactNode, useId } from 'react'
 
 export const INPUT =
   'mt-4 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] py-[13px] ' +
-  'text-lg font-semibold text-fg outline-none caret-[var(--ds-brand-strong)] ' +
+  'text-lg font-semibold text-fg caret-[var(--ds-brand-strong)] ' +
   'placeholder:font-medium placeholder:text-fg-faint'
+
+const CONTROLS = new Set(['input', 'textarea', 'select'])
+
+/**
+ * Un control de formulari que encara no té nom propi. Un `placeholder` no
+ * compta: no és un nom accessible i desapareix en escriure.
+ */
+function isUnnamedControl(node: ReactNode): node is ReactElement<Record<string, unknown>> {
+  if (!isValidElement<Record<string, unknown>>(node)) return false
+  if (typeof node.type !== 'string' || !CONTROLS.has(node.type)) return false
+  return (
+    node.props['aria-label'] === undefined &&
+    node.props['aria-labelledby'] === undefined &&
+    node.props.id === undefined
+  )
+}
 
 export function Field({
   label,
@@ -45,14 +68,23 @@ export function Field({
   // a form control, so the association was void — no accessible name on any of
   // these inputs and no enlarged tap target from the label either. A named
   // group works for the three-button rows as well as the single inputs.
+  //
+  // El nom del control, per tant, el posa `Field`: cada `input`, `textarea` o
+  // `select` fill directe que no en dugui apunta a la mateixa etiqueta. Així
+  // els quaranta-quatre camps que passen per aquí en tenen sense que cadascun
+  // hagi de repetir l'`aria-label`, que és el que s'oblidava. Un control dins
+  // d'un altre element, o amb nom propi, no es toca.
   const id = useId()
+  const named = Children.map(children, (child) =>
+    isUnnamedControl(child) ? cloneElement(child, { 'aria-labelledby': id }) : child,
+  )
   return (
     <div className="pb-9">
       <span id={id} className="block eyebrow text-fg-muted">
         {label}
       </span>
       <div role="group" aria-labelledby={id}>
-        {children}
+        {named}
       </div>
       {hint === undefined ? null : (
         <p

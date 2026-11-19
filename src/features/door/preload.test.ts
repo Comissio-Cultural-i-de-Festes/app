@@ -17,6 +17,10 @@ vi.mock('./ScannerScreen', () => (requested.push('ScannerScreen'), {}))
 vi.mock('./ManualScreen', () => (requested.push('ManualScreen'), {}))
 vi.mock('./PointsScreen', () => (requested.push('PointsScreen'), {}))
 vi.mock('@/features/junta/GimcanaValidateScreen', () => (requested.push('Gimcana'), {}))
+vi.mock('@/features/junta/PaymentsScreen', () => (requested.push('Payments'), {}))
+vi.mock('@/features/junta/MembersScreen', () => (requested.push('Members'), {}))
+vi.mock('@/features/junta/InvitesScreen', () => (requested.push('Invites'), {}))
+vi.mock('@/features/junta/CheckinsScreen', () => (requested.push('Checkins'), {}))
 vi.mock('./decoder', () => ({
   warmDecoder: () => {
     requested.push('decoder')
@@ -36,11 +40,22 @@ afterEach(() => {
 })
 
 describe('preloadDoor', () => {
-  it('asks for the junta home, everything its door block opens, and the QR decoder', async () => {
+  it('asks for the junta home, what its door block and work rows open, and the QR decoder', async () => {
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true)
     await preloadDoor()
     expect([...requested].sort()).toEqual(
-      ['Gimcana', 'JuntaHome', 'ManualScreen', 'PointsScreen', 'ScannerScreen', 'decoder'].sort(),
+      [
+        'Checkins',
+        'Gimcana',
+        'Invites',
+        'JuntaHome',
+        'ManualScreen',
+        'Members',
+        'Payments',
+        'PointsScreen',
+        'ScannerScreen',
+        'decoder',
+      ].sort(),
     )
   })
 
@@ -58,6 +73,8 @@ describe('preloadDoor', () => {
     const routed = [...app.matchAll(/import\('@\/features\/door\/(\w+)'\)/g)].map((m) => m[1])
 
     expect(routed.length).toBeGreaterThanOrEqual(3)
+    // El mapa és el tros més gros, i no surt mai a la porta.
+    expect(preload).not.toMatch(/EventFormScreen|GeoMap|GeoPicker/)
     for (const screen of routed) {
       expect(preload, `${screen} is lazy in App.tsx and not preloaded`).toMatch(
         new RegExp(`import\\('(?:\\./|@/features/door/)${screen}'\\)`),

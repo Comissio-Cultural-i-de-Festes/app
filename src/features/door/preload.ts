@@ -16,9 +16,15 @@
  * costa res, i si un dia la regla de la precache se'n deixés alguna, aquí
  * quedaria a la memòria cau.
  *
+ * També les quatre pantalles de feina a les quals porta el rebedor —pagaments,
+ * socis, invitacions i fitxatges—, que no són a la precache. Amb el rebedor
+ * obert a la porta i sense cobertura, «3 no pagats» és el primer que es toca;
+ * així s'obre igualment si s'ha entrat a la zona amb xarxa des de l'últim
+ * desplegament. Si no, ho diu `JuntaScreenBoundary` i no es perd res.
+ *
  * Es va descartar baixar tota la zona: el formulari d'esdeveniment porta el mapa,
- * que és el tros més gros de tots, i la resta són pantalles d'escriptori, que es
- * fan servir amb xarxa.
+ * que és el tros més gros de tots, i la resta són pantalles d'escriptori que no
+ * surten a la porta.
  *
  * NOMÉS AMB XARXA. Sense, no hi ha res a guanyar, i un `import()` que falla pot
  * quedar recordat com a fallat fins que es recarregui la pàgina. Una fallada no
@@ -32,6 +38,10 @@ export function preloadDoor(): Promise<unknown> {
     import('./ManualScreen'),
     import('./PointsScreen'),
     import('@/features/junta/GimcanaValidateScreen'),
+    import('@/features/junta/PaymentsScreen'),
+    import('@/features/junta/MembersScreen'),
+    import('@/features/junta/InvitesScreen'),
+    import('@/features/junta/CheckinsScreen'),
     import('./decoder').then((m) => m.warmDecoder()),
   ])
 }

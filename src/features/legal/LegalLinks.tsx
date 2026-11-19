@@ -23,14 +23,14 @@ export function LegalLinks({ className = '' }: { readonly className?: string }) 
     <p className={`text-sm-lo text-fg-muted-lo [text-wrap:pretty] ${className}`}>
       <Link
         to={PRIVACY_PATH}
-        className="inline-flex min-h-[44px] items-center text-fg-muted underline-offset-2 hover:underline"
+        className="inline-block py-[15px] text-fg-muted underline-offset-2 hover:underline"
       >
         {t('legal.privacy')}
       </Link>
       <span aria-hidden="true"> · </span>
       <Link
         to={TERMS_PATH}
-        className="inline-flex min-h-[44px] items-center text-fg-muted underline-offset-2 hover:underline"
+        className="inline-block py-[15px] text-fg-muted underline-offset-2 hover:underline"
       >
         {t('legal.terms')}
       </Link>

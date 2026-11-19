@@ -2079,7 +2079,7 @@
     "yourSeatSub": "{{who}} t’ha guardat un seient. Puja-hi si hi vas.",
     "takeIt": "Hi pujo",
     "declineIt": "No hi vaig",
-    "invitedOk": "Plaça guardada. Ara li toca a ell."
+    "invitedOk": "Plaça guardada. Ara li toca decidir."
   },
   "scanner": {
     "ok": "Fitxat. Ja és dins",

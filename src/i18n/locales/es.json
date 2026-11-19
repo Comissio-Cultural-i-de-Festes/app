@@ -2079,7 +2079,7 @@
     "yourSeatSub": "{{who}} te ha guardado un asiento. Súbete si vas.",
     "takeIt": "Me subo",
     "declineIt": "No voy",
-    "invitedOk": "Plaza guardada. Ahora le toca a él."
+    "invitedOk": "Plaza guardada. Ahora le toca decidir."
   },
   "scanner": {
     "ok": "Fichado. Ya está dentro",

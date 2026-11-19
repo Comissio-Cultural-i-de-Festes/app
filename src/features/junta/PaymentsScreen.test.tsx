@@ -5,6 +5,8 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { EventRow } from '@/lib/schema'
 
+import type * as EventApiType from '@/features/event/api'
+
 import type * as EventsApiType from './eventsApi'
 import type * as PaymentsApiType from './paymentsApi'
 import type { AttendeeRow } from './paymentsApi'
@@ -76,6 +78,8 @@ let params: { readonly eventId?: string } = {}
 let events: () => Promise<EventRow[]> = () => Promise.resolve([...LLISTA])
 /** Què torna la llista d'apuntats, per prova. */
 let attendees: () => Promise<AttendeeRow[]> = () => Promise.resolve([])
+/** Què troba la pantalla quan va a buscar un esdeveniment que no és a la llista. */
+let single: (id: string) => Promise<EventRow | null> = () => Promise.resolve(null)
 
 vi.mock('react-i18next', () => ({
   // Les claus, sense traduir: el que es prova és quina frase es tria.
@@ -88,6 +92,11 @@ vi.mock('react-router', () => ({
   useLocation: () => ({ pathname: '/junta/pagaments', search: '' }),
   Link: ({ children }: { readonly children: ReactNode }) => <a href="#">{children}</a>,
 }))
+
+vi.mock('@/features/event/api', async (importOriginal) => {
+  const real = await importOriginal<typeof EventApiType>()
+  return { ...real, fetchEvent: (id: string) => single(id) }
+})
 
 vi.mock('./eventsApi', async (importOriginal) => {
   const real = await importOriginal<typeof EventsApiType>()
@@ -119,6 +128,7 @@ beforeEach(() => {
   params = {}
   events = () => Promise.resolve([...LLISTA])
   attendees = () => Promise.resolve([])
+  single = () => Promise.resolve(null)
 })
 
 describe('la capçalera de pagaments', () => {
@@ -168,6 +178,31 @@ describe('la capçalera de pagaments', () => {
 })
 
 describe('un esdeveniment que ja no surt a la llista de la junta', () => {
+  it('es va a buscar i es tria, perquè s’hi arriba des de la seva fitxa', async () => {
+    // L'issue #28: Pagaments penja de la fitxa de cada esdeveniment, i la
+    // llista només arriba vuit hores enrere. La festa de la setmana passada
+    // s'ha de poder cobrar igual.
+    params = { eventId: FORA }
+    single = (id) =>
+      Promise.resolve({
+        ...BASE,
+        id,
+        titulo: 'Festa de la setmana passada',
+        starts_at: '2026-09-18T19:00:00.000Z',
+      })
+    munta()
+
+    await waitFor(() => {
+      const select = screen.getAllByRole('combobox')[0] as HTMLSelectElement
+      expect(select.value).toBe(FORA)
+    })
+    const select = screen.getAllByRole('combobox')[0] as HTMLSelectElement
+    expect(select.selectedOptions[0]?.textContent).toContain('Festa de la setmana passada')
+    // Al seu lloc del calendari: és la més antiga, o sigui la primera.
+    expect(select.options[0]?.value).toBe(FORA)
+    expect(screen.queryByText('junta.payments.notInList')).toBeNull()
+  })
+
   it('no és un calendari buit', async () => {
     params = { eventId: FORA }
     munta()

@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import { horizonIso } from '@/features/home/api'
 
-import { JUNTA_BACK_MS, juntaHorizonIso } from './eventsApi'
+import { acabatsAbansDe, juntaHorizonIso, obertsDesDe } from './eventsApi'
+import { JUNTA_BACK_MS } from './finestra'
 
 /**
  * La finestra enrere de les llistes de la junta.
@@ -35,5 +36,25 @@ describe('la finestra enrere de la junta', () => {
   it('i s’arrodoneix a l’hora, per no estrenar clau de cau a cada render', () => {
     expect(juntaHorizonIso(NOON)).toBe(juntaHorizonIso(NOON + 60_000))
     expect(Date.parse(juntaHorizonIso(NOON)) % HOUR).toBe(0)
+  })
+})
+
+describe('i el que encara dura (migració 89)', () => {
+  it('hi entra pel final, amb l’hora en punt d’ara', () => {
+    const h = juntaHorizonIso(NOON)
+    expect(obertsDesDe(h)).toBe(`starts_at.gte."${h}",ends_at.gte."2026-09-18T12:00:00.000Z"`)
+  })
+
+  it('i la mateixa clau dona el mateix filtre, minut amunt minut avall', () => {
+    expect(obertsDesDe(juntaHorizonIso(NOON + 59 * 60_000))).toBe(
+      obertsDesDe(juntaHorizonIso(NOON)),
+    )
+  })
+})
+
+describe('els anteriors (issue #29)', () => {
+  it('són el contrari de la llista: començats abans de l’horitzó i acabats abans d’ara', () => {
+    const h = juntaHorizonIso(NOON)
+    expect(acabatsAbansDe(h)).toBe('ends_at.lt."2026-09-18T12:00:00.000Z",ends_at.is.null')
   })
 })

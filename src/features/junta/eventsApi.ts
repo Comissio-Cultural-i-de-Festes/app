@@ -2,6 +2,8 @@ import { unwrapAs } from '@/lib/db'
 import type { EventRow } from '@/lib/schema'
 import { supabase } from '@/lib/supabase'
 
+import { HOUR_MS, JUNTA_BACK_MS } from './finestra'
+
 /**
  * The junta's own list of events, drafts included.
  *
@@ -30,14 +32,17 @@ import { supabase } from '@/lib/supabase'
  * dues preguntes: la de casa és «què és el següent» i aquesta és «què està
  * obert per treballar-hi». Fer-ne una de sola voldria dir moure també la
  * pantalla de casa a vuit hores, que és el que la 69 no va fer.
+ *
+ * I UN ESDEVENIMENT EN MARXA HI ÉS FINS QUE S'ACABA (migració 89). Les vuit
+ * hores des de l'inici deixaven fora una casa rural l'endemà d'arribar: el
+ * rebedor la treia de «els que venen» i Pagaments no la trobava al selector,
+ * amb la gent a dins. La regla és la de `junta_home()`: hi és mentre no hagin
+ * passat vuit hores des que va començar O encara no s'hagi acabat, la més
+ * tardana de les dues.
  */
 
-const COLUMNS = 'id, titulo, tipo, starts_at, published, reveal_at, revelat, precio_cents, plazas'
-
-const HOUR_MS = 3_600_000
-
-/** Les mateixes vuit hores que `junta_home()`, migració 69. Si una canvia, l'altra també. */
-export const JUNTA_BACK_MS = 8 * HOUR_MS
+const COLUMNS =
+  'id, titulo, tipo, starts_at, ends_at, published, reveal_at, revelat, precio_cents, plazas'
 
 /** Arrodonit a l'hora, com el de casa: una clau de cau estable i no una de nova a cada render. */
 export function juntaHorizonIso(now: number = Date.now()): string {
@@ -46,6 +51,20 @@ export function juntaHorizonIso(now: number = Date.now()): string {
 
 export const juntaEventKeys = {
   list: (horizon: string) => ['junta', 'events', horizon] as const,
+  anteriors: (horizon: string, n: number) => ['junta', 'events', 'anteriors', horizon, n] as const,
+}
+
+/**
+ * El filtre de la llista: començat dins de les vuit hores, o encara en marxa.
+ *
+ * «Encara en marxa» es mira contra l'horitzó més les vuit hores, que és l'hora
+ * en punt d'ara: surt de la mateixa clau de cau i no n'estrena cap. Les dates
+ * van entre cometes perquè PostgREST llegeix el punt i els dos punts d'un ISO
+ * com a separadors dins d'un `or`.
+ */
+export function obertsDesDe(horizon: string): string {
+  const ara = new Date(Date.parse(horizon) + JUNTA_BACK_MS).toISOString()
+  return `starts_at.gte."${horizon}",ends_at.gte."${ara}"`
 }
 
 export async function fetchJuntaEvents(horizon: string, limit = 20): Promise<EventRow[]> {
@@ -53,9 +72,46 @@ export async function fetchJuntaEvents(horizon: string, limit = 20): Promise<Eve
     supabase
       .from('events_public')
       .select(COLUMNS)
-      .gte('starts_at', horizon)
+      .or(obertsDesDe(horizon))
       .neq('tipo', 'reunio')
       .order('starts_at', { ascending: true })
+      // El mateix desempat que `junta_home()`: sense ell, dos esdeveniments a
+      // la mateixa hora podien sortir en un ordre aquí i en un altre allà, i
+      // l'escàner de reserva n'obria un altre que el de la porta.
+      .order('id', { ascending: true })
       .limit(limit),
+  )
+}
+
+/**
+ * El contrari exacte de `obertsDesDe`: el que ja ha sortit de la llista.
+ *
+ * Començat abans de l'horitzó i ja acabat, o sense final. Cap esdeveniment no
+ * surt a totes dues llistes ni s'escapa de les dues.
+ */
+export function acabatsAbansDe(horizon: string): string {
+  const ara = new Date(Date.parse(horizon) + JUNTA_BACK_MS).toISOString()
+  return `ends_at.lt."${ara}",ends_at.is.null`
+}
+
+/**
+ * Els anteriors, del més recent enrere (issue #29).
+ *
+ * Sense límit de dies, i és a posta: el que es demana és «la festa de dissabte»
+ * o «la casa rural de la setmana passada», que són les primeres de la llista,
+ * i un tall a trenta dies deixaria sense camí el curs anterior el dia que algú
+ * l'hagi de repassar. Es demanen `n` i la pantalla en demana més si cal.
+ */
+export async function fetchJuntaAnteriors(horizon: string, n: number): Promise<EventRow[]> {
+  return unwrapAs<EventRow[]>(
+    supabase
+      .from('events_public')
+      .select(COLUMNS)
+      .lt('starts_at', horizon)
+      .or(acabatsAbansDe(horizon))
+      .neq('tipo', 'reunio')
+      .order('starts_at', { ascending: false })
+      .order('id', { ascending: false })
+      .limit(n),
   )
 }

@@ -12,14 +12,7 @@ import { errorKey } from '@/lib/errors'
 import { DOOR_PHOTOS } from '@/lib/storage'
 import { useSignedUrls } from '@/lib/useSignedUrls'
 
-import {
-  type Night,
-  fetchNights,
-  pathsOf,
-  photoKeys,
-  removeExitPhoto,
-  shapeOf,
-} from './api'
+import { type Night, fetchNights, pathsOf, photoKeys, removeExitPhoto, shapeOf } from './api'
 
 /**
  * Your nights, two photographs at a time.
@@ -151,6 +144,7 @@ export function DiptychScreen() {
             {night.exit_photo_url === null ? (
               <Link
                 to={`/perfil/nits/${night.event_id}/camera`}
+                state={{ from: 'diptych' }}
                 className="flex min-h-[56px] w-full items-center justify-center bg-brand-cta px-8 py-7 text-lg font-bold text-on-brand no-underline [text-wrap:balance]"
               >
                 {t('diptych.takeExit')}

@@ -131,9 +131,7 @@ function Card({
       onClick={onOpen}
       className={
         'px-7 pt-8 pb-7 text-left ' +
-        (has
-          ? 'border border-brand-banner-border bg-brand-tint-soft'
-          : 'border border-surface-3')
+        (has ? 'border border-brand-banner-border bg-brand-tint-soft' : 'border border-surface-3')
       }
     >
       <span className={'block ' + (has ? 'text-brand-accent' : 'text-fg-faint-lo')}>

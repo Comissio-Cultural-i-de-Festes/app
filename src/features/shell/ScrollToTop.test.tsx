@@ -14,6 +14,7 @@ function Go() {
   return (
     <>
       <Link to="/b">a b</Link>
+      <Link to="/c">a c</Link>
       <Link to="/a#ancora">ancora</Link>
       <button onClick={() => void navigate(-1)}>enrere</button>
     </>
@@ -27,6 +28,7 @@ function App() {
       <Routes>
         <Route path="/a" element={<Go />} />
         <Route path="/b" element={<Go />} />
+        <Route path="/c" element={<Go />} />
       </Routes>
     </MemoryRouter>
   )
@@ -34,7 +36,10 @@ function App() {
 
 beforeEach(() => {
   y = 0
-  scrollTo.mockClear()
+  scrollTo.mockReset()
+  scrollTo.mockImplementation((_x: number, top: number) => {
+    y = top
+  })
   sessionStorage.clear()
   vi.stubGlobal('scrollTo', scrollTo)
   Object.defineProperty(window, 'scrollY', { configurable: true, get: () => y })
@@ -72,7 +77,10 @@ describe('ScrollToTop', () => {
   it('un canvi només d àncora no mou res', () => {
     const { getByText } = render(<App />)
     scrollTo_(500)
-    scrollTo.mockClear()
+    scrollTo.mockReset()
+    scrollTo.mockImplementation((_x: number, top: number) => {
+      y = top
+    })
     fireEvent.click(getByText('ancora'))
     expect(scrollTo).not.toHaveBeenCalled()
   })
@@ -96,5 +104,23 @@ describe('ScrollToTop', () => {
       vi.advanceTimersByTime(500)
     })
     expect(scrollTo.mock.calls.length).toBe(calls)
+  })
+
+  it('una pantalla no desa la posició d una altra després de restaurar', () => {
+    const { getByText } = render(<App />)
+    scrollTo_(1500)
+    fireEvent.click(getByText('a b'))
+    scrollTo_(300)
+    act(() => {
+      fireEvent.click(getByText('enrere'))
+      vi.advanceTimersByTime(50)
+    })
+    expect(y).toBe(1500)
+    fireEvent.click(getByText('a c'))
+    act(() => {
+      fireEvent.click(getByText('enrere'))
+      vi.advanceTimersByTime(50)
+    })
+    expect(scrollTo).toHaveBeenLastCalledWith(0, 1500)
   })
 })

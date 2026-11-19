@@ -78,7 +78,8 @@ export function GimcanaValidateScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-10">
-      <JuntaHeader viaHistory
+      <JuntaHeader
+        viaHistory
         to="/junta"
         label={t('junta.back')}
         title={t('junta.gimcana.validateTitle')}

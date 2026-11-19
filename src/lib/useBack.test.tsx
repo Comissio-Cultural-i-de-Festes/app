@@ -23,10 +23,21 @@ function Event() {
   )
 }
 
+function Offer() {
+  const { back } = useBack('/esdeveniment/1/cotxes')
+  return (
+    <>
+      <button onClick={back}>desa</button>
+      <Where />
+    </>
+  )
+}
+
 function Rides() {
   return (
     <>
       <JuntaHeader viaHistory to="/esdeveniment/1" label="fitxa" />
+      <Link to="/esdeveniment/1/cotxes/nou">nou</Link>
       <Where />
     </>
   )
@@ -62,6 +73,7 @@ function App({ start }: { readonly start: string }) {
         <Route path="/esdeveniment/1" element={<Event />} />
         <Route path="/esdeveniment/1/cotxes" element={<Rides />} />
         <Route path="/junta" element={<Elsewhere name="junta" />} />
+        <Route path="/esdeveniment/1/cotxes/nou" element={<Offer />} />
         <Route path="/formulari" element={<Fixed />} />
       </Routes>
     </BrowserRouter>
@@ -120,5 +132,22 @@ describe('useBack', () => {
     expect(where()).toBe('/formulari')
     fireEvent.click(screen.getByText(/junta/))
     await waitFor(() => expect(where()).toBe('/junta'))
+  })
+
+  it('fitxa, cotxes, nou, desa: la fletxa torna a la fitxa sense duplicar cotxes', async () => {
+    render(<App start="/" />)
+    fireEvent.click(screen.getByText('obrir des de inici'))
+    fireEvent.click(screen.getByText('cotxes'))
+    fireEvent.click(screen.getByText('nou'))
+    fireEvent.click(screen.getByText('desa'))
+    await waitFor(() => expect(where()).toBe('/esdeveniment/1/cotxes'))
+    fireEvent.click(screen.getByText(/fitxa/))
+    await waitFor(() => expect(where()).toBe('/esdeveniment/1'))
+  })
+
+  it('desar en una entrada directa va al pare', () => {
+    render(<App start="/esdeveniment/1/cotxes/nou" />)
+    fireEvent.click(screen.getByText('desa'))
+    expect(where()).toBe('/esdeveniment/1/cotxes')
   })
 })

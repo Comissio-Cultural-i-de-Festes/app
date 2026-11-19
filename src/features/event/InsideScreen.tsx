@@ -103,7 +103,8 @@ export function InsideScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <JuntaHeader viaHistory
+      <JuntaHeader
+        viaHistory
         to={`/esdeveniment/${id}`}
         label={e?.titulo ?? t('actions.back')}
         title={t(live ? 'inside.link' : 'inside.linkPast')}

@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams, useSearchParams } from 'react-router'
+import { useParams, useSearchParams } from 'react-router'
+import { useBack } from '@/lib/useBack'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import { APP_TIME_ZONE, formatDateTime } from '@/i18n/format'
@@ -82,7 +83,7 @@ export function EventFormScreen() {
 function EventForm() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
-  const navigate = useNavigate()
+  const { back } = useBack('/junta')
   const client = useQueryClient()
   const { id } = useParams()
   const editing = id !== undefined && id !== 'nou'
@@ -176,7 +177,7 @@ function EventForm() {
     },
     onSuccess: async () => {
       await invalidateData(client)
-      void navigate('/junta', { replace: true })
+      back()
     },
   })
 
@@ -201,11 +202,7 @@ function EventForm() {
   const endsMissing = form.ends_at === ''
 
   const ready =
-    form.titulo.trim() !== '' &&
-    form.starts_at !== '' &&
-    !endsMissing &&
-    !endsBad &&
-    !revealBad
+    form.titulo.trim() !== '' && form.starts_at !== '' && !endsMissing && !endsBad && !revealBad
   const showTemplates = !editing && (templates.data?.length ?? 0) > 0
   // Without templates there is nothing above the fields, so they take both
   // rows rather than leaving a hole where the list would have been.
@@ -256,7 +253,8 @@ function EventForm() {
         />
       ) : null}
 
-      <JuntaHeader viaHistory
+      <JuntaHeader
+        viaHistory
         to="/junta"
         className="lg:hidden"
         label={t('junta.form.leaveIt')}
@@ -621,10 +619,7 @@ function EventForm() {
                 title={t('junta.checkins.title')}
               />
               {isMeeting ? null : (
-                <NavRow
-                  to={`/junta/esdeveniment/${id ?? ''}/gimcana`}
-                  title={t('gimcana.title')}
-                />
+                <NavRow to={`/junta/esdeveniment/${id ?? ''}/gimcana`} title={t('gimcana.title')} />
               )}
             </div>
           ) : null}
@@ -890,13 +885,13 @@ function blankToNull(value: string): string | null {
  */
 function DeleteEvent({ eventId }: { readonly eventId: string }) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const { back } = useBack('/junta')
   const [asking, setAsking] = useState(false)
 
   const remove = useMutation({
     mutationFn: () => deleteEvent(eventId),
     onSuccess: () => {
-      void navigate('/junta', { replace: true })
+      back()
     },
   })
 

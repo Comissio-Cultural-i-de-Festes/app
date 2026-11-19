@@ -68,7 +68,10 @@ export function restoreMyRow(
   return previous === null ? others : [previous, ...others]
 }
 
-export type HomeCta = 'waiting' | 'checkin' | 'going' | 'queued' | 'requested' | 'join'
+/** Les assistències: ja són aquí, encara poden arribar, o no arribaran sense que passi alguna cosa. */
+export type AnswersState = 'known' | 'waiting' | 'unavailable'
+
+export type HomeCta = 'waiting' | 'unknown' | 'checkin' | 'going' | 'queued' | 'requested' | 'join'
 
 /**
  * Què posa l'Inici sota el hero segons la meva resposta.
@@ -80,16 +83,21 @@ export type HomeCta = 'waiting' | 'checkin' | 'going' | 'queued' | 'requested' |
  *
  * MENTRE LES ASSISTÈNCIES NO HAN ARRIBAT, ESPERA. Sense elles `mine` és `null`
  * per a tothom, i qui ja hi anava veia «M'hi apunto» uns segons i després un
- * altre botó al mateix lloc. `answersKnown` és fals només mentre encara
- * poden arribar: si no arriben (sense xarxa, penjades, error) ja és cert, i
- * el botó d'apuntar-s'hi torna a ser el que era.
+ * altre botó al mateix lloc.
+ *
+ * I SI NO ARRIBEN, TAMPOC S'APUNTA. `set_attendance` fa un upsert: el «sí» d'una
+ * persona que és a la llista d'espera, que té una sol·licitud o que ja ha
+ * fitxat li trepitjaria la fila, o fallaria. Sense saber què hi ha, el
+ * botó d'apuntar-s'hi és una pregunta que no es pot fer; surt una línia que ho
+ * diu i un «torna-ho a provar».
  */
 export function homeCta(
   mine: AttendanceState | null,
   canCheckIn: boolean,
-  answersKnown: boolean,
+  answers: AnswersState,
 ): HomeCta {
-  if (!answersKnown) return 'waiting'
+  if (answers === 'waiting') return 'waiting'
+  if (answers === 'unavailable') return 'unknown'
   if (mine === 'espera') return 'queued'
   if (mine === 'sollicitat') return 'requested'
   if (canCheckIn && (mine === 'si' || mine === 'potser')) return 'checkin'

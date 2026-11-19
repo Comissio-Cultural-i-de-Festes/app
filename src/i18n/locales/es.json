@@ -397,7 +397,8 @@
     "cta": {
       "join": "Apúntate",
       "confirm": "Dijiste quizá · confirma",
-      "going": "Ya vas · cámbialo"
+      "going": "Ya vas · cámbialo",
+      "unknown": "No podemos saber si vas."
     },
     "movement": {
       "line_one": "Se ha apuntado hoy: {{people}}",

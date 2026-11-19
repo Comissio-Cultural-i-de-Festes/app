@@ -42,10 +42,12 @@ export function JuntaHeader({
    */
   readonly className?: string
   /**
-   * Per a les pantalles a qu� s'arriba des de molts llocs (una fitxa
-   * d'esdeveniment s'obre des de l'Inici, del R�nquing, del perfil�): la
-   * fletxa torna d'on s'ha vingut. Les que volen un dest� fix �sortir d'un
-   * formulari desat, pujar d'un nivell� no el posen i `to` mana.
+   * La fletxa torna d'on s'ha vingut quan hi ha historial de l'app, i `to` és
+   * el destí només si no n'hi ha (un enllaç compartit). Sense això, una
+   * pantalla a què s'arriba des de molts llocs —la fitxa d'un esdeveniment, la
+   * junta— portava sempre al mateix lloc, i pujar a un pare amb un `<Link>`
+   * afegia una entrada més i feia un bucle entre pare i filla. Només cal
+   * deixar-lo apagat si la pantalla vol un destí fix passi el que passi.
    */
   readonly viaHistory?: boolean
 }) {

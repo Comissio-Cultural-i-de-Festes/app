@@ -75,7 +75,7 @@ export function CheckinsScreen() {
 
   return (
     <main className="min-h-dvh bg-app">
-      <JuntaHeader
+      <JuntaHeader viaHistory
         to={`/junta/esdeveniment/${eventId}`}
         label={event.data?.titulo ?? t('actions.back')}
         title={t('junta.checkins.title')}

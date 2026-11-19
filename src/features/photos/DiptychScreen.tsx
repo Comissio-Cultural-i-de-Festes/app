@@ -242,7 +242,7 @@ function Shell({ children }: { readonly children: React.ReactNode }) {
   const { t } = useTranslation()
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <JuntaHeader to="/perfil" label={t('nav.profile')} title={t('diptych.title')} />
+      <JuntaHeader viaHistory to="/perfil" label={t('nav.profile')} title={t('diptych.title')} />
       {children}
     </main>
   )

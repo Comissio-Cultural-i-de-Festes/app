@@ -55,7 +55,7 @@ export function NewIdeaScreen() {
     mutationFn: () => propose(titol, descripcio, userId),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: proposalKeys.list() })
-      await navigate('/idees')
+      await navigate('/idees', { replace: true })
     },
     // Offline is not a refusal. `propose` writes the idea to the queue before
     // it tries to send it, so it is safe on the phone either way and the list
@@ -67,7 +67,7 @@ export function NewIdeaScreen() {
     // fields, with the reason, for when there is signal.
     onError: (cause) => {
       if (navigator.onLine || cause instanceof NotSaved) return
-      void navigate('/idees')
+      void navigate('/idees', { replace: true })
     },
   })
 
@@ -78,7 +78,7 @@ export function NewIdeaScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <JuntaHeader to="/idees" label={t('ideas.title')} title={t('ideas.newTitle')} />
+      <JuntaHeader viaHistory to="/idees" label={t('ideas.title')} title={t('ideas.newTitle')} />
 
       <div className={`pt-8 ${GUTTER}`}>
         <h2 className="text-lg font-bold [text-wrap:balance]">{t('ideas.newHeading')}</h2>

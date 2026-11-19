@@ -256,7 +256,7 @@ function EventForm() {
         />
       ) : null}
 
-      <JuntaHeader
+      <JuntaHeader viaHistory
         to="/junta"
         className="lg:hidden"
         label={t('junta.form.leaveIt')}

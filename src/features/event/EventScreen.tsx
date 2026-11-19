@@ -99,6 +99,10 @@ export function EventScreen() {
     queryKey: homeKeys.summaries([id], desde),
     queryFn: () => fetchSummaries([id], desde),
   })
+  // Si el resum no arriba, no se sap quanta gent hi va ni què vaig dir: les
+  // places serien les de l'esdeveniment sencer i els botons, els d'algú que no
+  // ha contestat. Es pinta el que no en depèn, com l'Inici.
+  const answers = useAvailability(summaries)
   const waitlist = useQuery({
     queryKey: eventKeys.waitlist(id),
     queryFn: () => fetchWaitlist(id),
@@ -173,6 +177,7 @@ export function EventScreen() {
   // pantalla canvia, i el que la decideix és `tipo`.
   const isMeeting = e.tipo === 'reunio'
   const price = formatPrice(e.precio_cents, INTL_LOCALE[locale])
+  const unknown = answers.unavailable
   // Only worth a tap once the door has let somebody in. Before that the
   // screen has nothing on it, and a link to nothing is a dead end.
   const inside = summary.attended
@@ -267,7 +272,7 @@ export function EventScreen() {
 
       {isMeeting && !closed ? <MeetingRoster event={e} /> : null}
 
-      {isMeeting || closed || going === 0 ? null : (
+      {isMeeting || closed || unknown || going === 0 ? null : (
         <section className={`pt-9 ${GUTTER}`}>
           <div className="flex items-center gap-4">
             <div className="flex items-center">
@@ -351,7 +356,7 @@ export function EventScreen() {
 
       {hidden || isMeeting ? null : (
         <Places
-          closed={closed}
+          closed={closed || unknown}
           total={e.plazas}
           puntos={e.puntos}
           left={left}
@@ -408,6 +413,8 @@ export function EventScreen() {
         <section className={GUTTER}>
           <PendingNote className="pt-9" />
         </section>
+      ) : unknown ? (
+        <AnswersUnknown onRetry={answers.retry} />
       ) : answerSlot === 'meeting' ? (
         <MeetingAnswer
           event={e}
@@ -631,6 +638,36 @@ function Share({ event }: { readonly event: EventRow }) {
     >
       {copied ? t('event.shared') : t('actions.share')}
     </button>
+  )
+}
+
+/**
+ * El lloc de la resposta quan el resum no ha arribat.
+ *
+ * Els botons hi serien com si no hagués contestat, i un «sí» premut aquí podria
+ * trepitjar una llista d'espera o una sol·licitud que no es veu. La mateixa
+ * línia que l'Inici, amb el seu «torna-ho a provar».
+ */
+function AnswersUnknown({ onRetry }: { readonly onRetry: () => void }) {
+  const { t } = useTranslation()
+  return (
+    <section className={`pt-12 pb-8 ${GUTTER}`}>
+      <div
+        role="status"
+        className="flex min-h-[56px] items-center justify-between gap-3 rounded-cta border-[1.5px] border-surface-9 bg-surface-2 px-[18px] py-[10px]"
+      >
+        <p className="text-md-lo font-bold text-fg-secondary [text-wrap:pretty]">
+          {t('home.cta.unknown')}
+        </p>
+        <button
+          type="button"
+          onClick={onRetry}
+          className="-mr-3 min-h-[44px] flex-none px-3 text-sm font-bold text-brand-label"
+        >
+          {t('actions.retry')}
+        </button>
+      </div>
+    </section>
   )
 }
 

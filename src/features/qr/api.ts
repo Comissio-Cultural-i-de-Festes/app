@@ -1,3 +1,5 @@
+import { queryOptions } from '@tanstack/react-query'
+
 import { rpc } from '@/lib/supabase'
 
 /**
@@ -47,8 +49,20 @@ function writeCachedToken(userId: string, token: string): void {
   }
 }
 
+/**
+ * Bumped on sign-out, and checked before a token is written.
+ *
+ * The prefetch on sign-in means a `my_qr` can be in the air when somebody
+ * signs out — on one bar of signal it can be in the air for a long time. Its
+ * answer would land after the wipe below and put the previous person's door
+ * pass back on a phone that is now somebody else's. A token is only kept if
+ * nobody has signed out since it was asked for.
+ */
+let generation = 0
+
 /** Called on sign-out. A shared phone must not keep somebody else's door pass. */
 export function forgetCachedTokens(): void {
+  generation += 1
   try {
     for (const key of Object.keys(localStorage)) {
       if (key.startsWith(KEY_PREFIX)) localStorage.removeItem(key)
@@ -68,6 +82,7 @@ export function forgetCachedTokens(): void {
  */
 export async function fetchQrToken(userId: string): Promise<string> {
   const cached = readCachedToken(userId)
+  const asked = generation
 
   const { data, error } = await rpc<string>('my_qr')
   if (error !== null || data === null) {
@@ -75,6 +90,24 @@ export async function fetchQrToken(userId: string): Promise<string> {
     throw error ?? new Error('no token')
   }
 
-  writeCachedToken(userId, data)
+  if (asked === generation) writeCachedToken(userId, data)
   return data
+}
+
+/**
+ * La consulta del QR, la mateixa per a la pantalla i per a la precàrrega.
+ *
+ * Compartida perquè la precàrrega deixi a la cau exactament el que la pantalla
+ * espera trobar-hi: amb una clau o un `staleTime` diferents, obrir el QR
+ * després de precarregar-lo tornaria a demanar-lo.
+ */
+export function qrQuery(userId: string) {
+  return queryOptions({
+    queryKey: qrKeys.mine(userId),
+    queryFn: () => fetchQrToken(userId),
+    // The token does not change unless somebody rotates it, and this screen is
+    // opened in exactly the places with the worst signal.
+    staleTime: 24 * 60 * 60 * 1000,
+    retry: 1,
+  })
 }

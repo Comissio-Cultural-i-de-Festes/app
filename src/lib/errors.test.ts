@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 
 import { DbError } from './db'
 import { errorKey } from './errors'
+import { NotSaved } from './queue'
 import { UnreadableImage } from './storage'
 
 /**
@@ -150,6 +151,17 @@ describe('errorKey', () => {
     const bad = new UnreadableImage(new Error('decode failed'))
     expect(errorKey(bad, true)).toBe('errors.notAnImage')
     expect(errorKey(bad, false)).toBe('errors.notAnImage')
+  })
+
+  /**
+   * Not saved on the phone and not sent. «Necessites connexió» is true and
+   * useless here: it does not say that nothing will go on its own, and that
+   * is the one thing the person has to know to try again later.
+   */
+  it('names something that was neither saved nor sent, offline or not', () => {
+    const lost = new NotSaved(new TypeError('Failed to fetch'))
+    expect(errorKey(lost, false)).toBe('errors.notSaved')
+    expect(errorKey(lost, true)).toBe('errors.notSaved')
   })
 
   it('treats anything that is not a DbError as transport', () => {

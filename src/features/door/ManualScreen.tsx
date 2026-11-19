@@ -1,11 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 
 import { toneVar } from '@/design/states'
 import { eventKeys, fetchEvent } from '@/features/event/api'
-import { errorKey } from '@/lib/errors'
+import { useAvailability } from '@/lib/useAvailability'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
 import {
@@ -18,7 +18,8 @@ import {
   scan,
 } from './api'
 import { ScanGlyph } from './icons'
-import { useQueue } from './useQueue'
+import { HeldScans } from './HeldScans'
+import { queueNotice, useQueue } from './useQueue'
 import { type Undo, undoNoteKey, useUndo } from './useUndo'
 import { statusWords } from './verdict'
 
@@ -66,7 +67,9 @@ export function ManualScreen() {
   const [done, setDone] = useState<Record<string, DoorOutcome>>({})
   const [busy, setBusy] = useState<string | null>(null)
   const [last, setLast] = useState<LastIn | null>(null)
-  const { queued, online, refresh: refreshQueue } = useQueue()
+  const queue = useQueue()
+  const { refresh: refreshQueue } = queue
+  const notice = queueNotice(queue)
 
   const event = useQuery({
     queryKey: eventKeys.one(id),
@@ -78,10 +81,19 @@ export function ManualScreen() {
     queryFn: () => fetchRoster(id),
     enabled: id !== '',
   })
+  // L'alta a mà és el que queda quan l'escàner no pot: a la porta, sense
+  // cobertura. Sense xarxa la llista es posava en pausa i «Un segon…» era per
+  // sempre, sense dir per què.
+  const view = useAvailability(roster)
 
   // Null mentre la consulta de l'esdeveniment no ha tornat o ha petat, que no
   // és el mateix que zero: `verdict.ts` en fa tres casos i no dos.
   const priceCents = event.data?.precio_cents ?? null
+
+  const names = useMemo(
+    () => new Map((roster.data ?? []).map((row) => [row.user_id, row.nombre])),
+    [roster.data],
+  )
 
   const needle = query.trim().toLowerCase()
   const rows = roster.data ?? []
@@ -149,17 +161,23 @@ export function ManualScreen() {
           <p className="eyebrow min-w-0 truncate text-fg-muted">{event.data?.titulo ?? ''}</p>
         </div>
 
-        {queued === 0 && online ? null : (
+        {notice === null ? null : (
           <p className="mt-4 flex items-center gap-3 text-sm font-bold text-[var(--ds-warning-deep)]">
             <span
               aria-hidden="true"
               className="size-[8px] flex-none animate-pulse rounded-full bg-[var(--ds-warning-deep)]"
             />
-            {online
-              ? t('door.queued', { count: queued })
-              : t('door.queuedOffline', { count: queued })}
+            {t(notice.key, notice.params)}
           </p>
         )}
+
+        <HeldScans
+          rows={queue.held.filter((row) => row.eventId === id)}
+          names={names}
+          priceCents={priceCents}
+          onChange={refreshQueue}
+          className="mt-4 pl-6"
+        />
 
         <h1 className="display mt-4 text-d-s tracking-[-0.045em] [text-wrap:balance]">
           {t('door.manualTitle')}
@@ -172,7 +190,7 @@ export function ManualScreen() {
           }}
           // Bigger than anywhere else in the app on purpose: this is typed
           // with one thumb, standing up, with people waiting.
-          className="mt-6 min-h-[54px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-7 py-6 text-xl font-semibold text-fg outline-none placeholder:font-medium placeholder:text-fg-dim"
+          className="mt-6 min-h-[54px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-7 py-6 text-xl font-semibold text-fg outline-none focus:border-brand-strong placeholder:font-medium placeholder:text-fg-dim"
           type="search"
           enterKeyHint="search"
           // El placeholder desapareix en escriure: per a un lector de pantalla
@@ -187,11 +205,11 @@ export function ManualScreen() {
 
       {last === null ? null : <LastInStrip last={last} undo={undoLast} priceCents={priceCents} />}
 
-      {roster.isPending ? (
+      {view.loading ? (
         <p className="px-[var(--ds-gutter)] pt-10 text-fg-muted">{t('state.loading')}</p>
-      ) : roster.isError ? (
+      ) : view.unavailable ? (
         <p role="alert" className="px-[var(--ds-gutter)] pt-10 text-md font-bold text-error">
-          {t(errorKey(roster.error))}
+          {t(view.messageKey)}
         </p>
       ) : rows.length === 0 ? (
         // checkin_roster hands back zero rows rather than an error to anybody

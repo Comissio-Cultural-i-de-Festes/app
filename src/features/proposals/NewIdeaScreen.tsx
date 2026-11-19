@@ -9,6 +9,7 @@ import { Field, INPUT } from '@/features/junta/formBits'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { useUserId } from '@/features/session/useUserId'
 import { errorKey } from '@/lib/errors'
+import { NotSaved } from '@/lib/queue'
 import { useQuery } from '@tanstack/react-query'
 
 import { propose, proposalKeys } from './api'
@@ -60,8 +61,12 @@ export function NewIdeaScreen() {
     // it tries to send it, so it is safe on the phone either way and the list
     // is where the waiting count lives. Anything else — a policy saying no, a
     // title the CHECK refuses — stays on this screen with its reason.
-    onError: () => {
-      if (navigator.onLine) return
+    //
+    // So does an idea the phone could not write down. Leaving would throw the
+    // text away with nothing queued to bring it back; staying keeps it in the
+    // fields, with the reason, for when there is signal.
+    onError: (cause) => {
+      if (navigator.onLine || cause instanceof NotSaved) return
       void navigate('/idees')
     },
   })

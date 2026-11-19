@@ -1,5 +1,5 @@
-import type { Session } from '@supabase/supabase-js'
-import { Suspense, lazy, useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Route, Routes, useLocation } from 'react-router'
 
@@ -16,9 +16,11 @@ import { MyRideScreen } from '@/features/rides/MyRideScreen'
 import { OfferRideScreen } from '@/features/rides/OfferRideScreen'
 import { RidesScreen } from '@/features/rides/RidesScreen'
 import { useCheckinQueue } from '@/features/checkin/useCheckinQueue'
+import { useKeepPushFresh } from '@/features/event/useKeepPushFresh'
 import { SociScreen } from '@/features/member/SociScreen'
 import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
+import { useBootSession } from '@/features/session/useBootSession'
 import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen'
 import { BadgesScreen } from '@/features/badges/BadgesScreen'
 import { GalleryScreen } from '@/features/gallery/GalleryScreen'
@@ -28,11 +30,19 @@ import { SubmitScreen } from '@/features/gimcana/SubmitScreen'
 import { EditProfileScreen } from '@/features/profile/EditProfileScreen'
 import { ProfileScreen } from '@/features/profile/ProfileScreen'
 import { QrScreen } from '@/features/qr/QrScreen'
+import { useQrPrefetch } from '@/features/qr/useQrPrefetch'
 import { JuntaLayout } from '@/features/shell/JuntaLayout'
+import { GateWaiting } from '@/features/shell/Gate'
+import { SessionGate } from '@/features/shell/SessionGate'
 import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
-import { INVITE_PARAM, readInviteCode } from '@/features/entry/useInvite'
+import { discardInvite, pendingInvite } from '@/features/entry/pendingInvite'
+import { ReturnToLink } from '@/features/entry/ReturnToLink'
+import { forgetReturn } from '@/features/entry/returnTo'
+import { useForgetReturn } from '@/features/entry/useForgetReturn'
+import { readInviteCode } from '@/features/entry/useInvite'
+import { useRedeemFromLink } from '@/features/entry/useRedeemFromLink'
 import { InstallScreen } from '@/features/install/InstallScreen'
 import { PrivacyScreen } from '@/features/legal/PrivacyScreen'
 import { TermsScreen } from '@/features/legal/TermsScreen'
@@ -43,7 +53,9 @@ import {
   shouldPromptInstall,
   snoozeInstall,
 } from '@/features/install/installGate'
-import { supabase } from '@/lib/supabase'
+import { forgetOnUserChange } from '@/lib/forgetSession'
+import { useStalled } from '@/lib/useAvailability'
+import { useOnline } from '@/lib/useOnline'
 
 /**
  * La zona de junta, carregada quan s'hi entra i no abans.
@@ -139,23 +151,6 @@ const ViatgersScreen = lazy(() =>
 )
 
 /**
- * The order of the gates, and why.
- *
- * On iOS the home-screen app has its own storage, so a session created in
- * Safari is not there when the icon is tapped. Asking people to install before
- * they sign in is the only order that does not end with somebody opening the
- * icon and finding themselves signed out.
- *
- * It is a prompt, not a wall: skipping it goes straight on to the door.
- */
-/**
- * Només per penjar el hook de la cua a l'arbre.
- *
- * Un component i no una crida dins d'`App`: allà hi ha retorns condicionals
- * abans d'aquest punt —la pantalla d'instal·lació, la d'entrada— i un hook
- * darrere d'un `return` és un hook que unes vegades s'executa i altres no.
- */
-/**
  * Les dues rutes que es llegeixen sense sessió.
  *
  * Exportades perquè les enllacen tres pantalles i cap d'elles ha de repetir la
@@ -164,69 +159,133 @@ const ViatgersScreen = lazy(() =>
 export const PRIVACY_PATH = '/privadesa'
 export const TERMS_PATH = '/condicions'
 
+/** Vegeu la porta de la sessió, a `App`. */
+const OFFLINE_GRACE_MS = 500
+
+/**
+ * Només per penjar el hook de la cua a l'arbre.
+ *
+ * Un component i no una crida dins d'`App`: allà hi ha retorns condicionals
+ * abans d'aquest punt —la pantalla d'instal·lació, la d'entrada— i un hook
+ * darrere d'un `return` és un hook que unes vegades s'executa i altres no.
+ */
 function DrainCheckins() {
   useCheckinQueue()
   return null
 }
 
+/** El mateix per al QR: es desa en entrar, i no el dia que es busca a la porta. */
+function PrefetchQr() {
+  useQrPrefetch()
+  return null
+}
+
+function KeepPushFresh() {
+  useKeepPushFresh()
+  return null
+}
+
+/**
+ * The order of the gates, and why.
+ *
+ * On iOS the home-screen app has its own storage, so a session created in
+ * Safari is not there when the icon is tapped. Asking people to install before
+ * they sign in is the only order that does not end with somebody opening the
+ * icon and finding themselves signed out.
+ *
+ * Unless the link carries an invitation. The code lives only in the URL, and
+ * the icon opens `/` in a storage jar that has never seen it, so installing
+ * first meant arriving at the icon's door as a stranger. With a code the door
+ * goes first, the code is redeemed right there in Safari, and the account is
+ * active on the server before anybody installs anything; from the icon it
+ * takes one more Google sign-in and nothing else. `InstallCard` offers the
+ * install afterwards, on the home screen. Android's native dialog steps aside
+ * too, because accepting it can open the installed app at `/` just the same.
+ *
+ * It is a prompt, not a wall: skipping it goes straight on to the door.
+ */
 export default function App() {
   const { t } = useTranslation()
-  const [session, setSession] = useState<Session | null>(null)
+  const client = useQueryClient()
+  const lastUser = useRef<string | null>(null)
+  const signedIn = useRef(false)
+  const { phase, session } = useBootSession({
+    onRead: (read) => {
+      lastUser.current = read?.user.id ?? null
+      signedIn.current = read !== null
+    },
+    onChange: (event, next) => {
+      // Aquí i no al botó del perfil: també es tanca sessió quan el token ja
+      // no es pot refrescar, o des d'una altra pestanya. Un codi que esperava
+      // el bescanvi era del compte que se'n va, i el següent que entri en
+      // aquesta pestanya no se l'ha de quedar, ni del desat ni de la barra.
+      //
+      // Només si algú l'havia començat a fer servir. Una sessió vella que no
+      // es pot refrescar també dona `SIGNED_OUT`, en arrencar i abans de tot:
+      // esborrar-hi el `?codi=` deixaria qui acaba d'obrir l'enllaç sense la
+      // invitació a la porta.
+      if (event === 'SIGNED_OUT' && (signedIn.current || pendingInvite() !== null)) {
+        discardInvite()
+        forgetReturn()
+      }
+      signedIn.current = next !== null
+      // Abans de pintar res amb la sessió nova: qui entra no ha de veure ni un
+      // instant el que tenia a la cau qui marxa.
+      lastUser.current = forgetOnUserChange(client, lastUser.current, next?.user.id ?? null)
+    },
+  })
+  const stalled = useStalled(phase === 'waiting')
+  const online = useOnline()
+  const offlineSettled = useStalled(phase === 'waiting' && !online, 0, OFFLINE_GRACE_MS)
   const { pathname } = useLocation()
-  const [ready, setReady] = useState(false)
-  const [promptInstall, setPromptInstall] = useState(() => shouldPromptInstall())
+  // Llegit en muntar, abans que el bescanvi l'esborri de la barra d'adreces. A
+  // partir d'aquí ja hi ha sessió, i la pantalla d'instal·lació no torna.
+  const [invited] = useState(() => readInviteCode() !== null)
+  const [promptInstall, setPromptInstall] = useState(() =>
+    shouldPromptInstall(Date.now(), { invited }),
+  )
 
   // A Android el `beforeinstallprompt` sol arribar després del muntatge, i
   // aquest estat es llegeix un sol cop: sense tornar-hi, la pantalla no
   // sortiria mai on hi ha diàleg natiu.
   useEffect(() => {
     return onNativeInstallPrompt(() => {
-      setPromptInstall(shouldPromptInstall())
+      setPromptInstall(shouldPromptInstall(Date.now(), { invited }))
     })
-  }, [])
+  }, [invited])
+
+  useRedeemFromLink(session?.user.id ?? null)
 
   useEffect(() => {
-    void supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
-      setReady(true)
-    })
-
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
-      setSession(next)
-    })
-    return () => {
-      sub.subscription.unsubscribe()
-    }
-  }, [])
-
-  // Redeem the invitation once, as soon as there is a session to redeem it
-  // against. The code travelled in the redirect URL so this works even when
-  // the link is opened on a different device from the one that asked for it.
-  useEffect(() => {
-    if (!session) return
     // The round trip came back here, so the stranded marker has done its job.
-    clearOAuthMark()
-
-    const code = readInviteCode()
-    if (code === null) return
-
-    void (async () => {
-      const { error } = await supabase.rpc('redeem_invite', { p_codi: code })
-      // The code is only rubbed out of the address bar once it has been spent.
-      // Removing it either way left somebody pending, with the one string that
-      // could have got them in already gone.
-      if (error) return
-      const url = new URL(window.location.href)
-      url.searchParams.delete(INVITE_PARAM)
-      window.history.replaceState({}, '', url.toString())
-    })()
+    if (session) clearOAuthMark()
   }, [session])
 
-  if (!ready) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center bg-app">
-        <p className="text-fg-muted">{t('state.loading')}</p>
-      </main>
+  useForgetReturn(session?.user.id ?? null)
+
+  // Tornar-ho a provar és recarregar, i no tornar a cridar `getSession()`: una
+  // renovació penjada no es deixa substituir —la biblioteca hi enganxa la
+  // crida nova— i la que ha fallat queda desada un minut. Recarregar és l'única
+  // manera de llançar-ne una de nova, i l'app la serveix el service worker
+  // també sense xarxa.
+  const reload = (): void => {
+    window.location.reload()
+  }
+
+  // Sense xarxa, supabase-js s'hi passa uns vint-i-cinc segons reintentant la
+  // renovació abans de rendir-se. No cal esperar-lo per dir-ho: si el
+  // navegador diu que no hi ha xarxa, és que no n'hi ha. Però no al primer
+  // frame: amb una sessió vàlida `getSession()` contesta en mil·lisegons sense
+  // tocar la xarxa, i en mode avió tothom veia una frase vermella un instant
+  // abans d'entrar. Mig segon de «Un segon…» primer.
+  if (phase === 'waiting') {
+    if (offlineSettled) {
+      return <SessionGate message={t('errors.sessionUnreachable')} onRetry={reload} />
+    }
+    return stalled ? (
+      <SessionGate message={t('errors.stalled')} onRetry={reload} />
+    ) : (
+      <GateWaiting />
     )
   }
 
@@ -246,6 +305,23 @@ export default function App() {
   // és.
   if (pathname === PRIVACY_PATH) return <PrivacyScreen />
   if (pathname === TERMS_PATH) return <TermsScreen />
+
+  // Hi ha una sessió desada que no s'ha pogut renovar. La pantalla d'entrada
+  // seria mentir —ja has entrat— i, a més, no hi ha res que s'hi pugui fer
+  // sense xarxa. Davant del porter d'instal·lació pel mateix motiu: aquell és
+  // per a qui encara no ha entrat.
+  //
+  // «Sense connexió» només si el navegador ho diu. La biblioteca també dona
+  // per reintentable un 502, 503 o 504 del servidor d'entrada, i allà la
+  // cobertura no hi té res a veure.
+  if (!session && phase === 'unreachable') {
+    return (
+      <SessionGate
+        message={t(online ? 'errors.network' : 'errors.sessionUnreachable')}
+        onRetry={reload}
+      />
+    )
+  }
 
   if (promptInstall && !session) {
     return (
@@ -270,6 +346,8 @@ export default function App() {
           guarda el mòbil, o sigui que la pantalla on es va prémer el botó no
           es torna a obrir. */}
       <DrainCheckins />
+      <PrefetchQr />
+      <KeepPushFresh />
       <Routes>
         {/* Asked once, and it has to be its own route rather than a gate in
             front of everything: a redirect that fires on every render would
@@ -278,7 +356,15 @@ export default function App() {
 
         <Route element={<RequireOnboarding />}>
           <Route element={<TabLayout />}>
-            <Route path="/" element={<HomeScreen />} />
+            <Route
+              path="/"
+              element={
+                <>
+                  <ReturnToLink />
+                  <HomeScreen />
+                </>
+              }
+            />
             <Route path="/ranquing" element={<RankingScreen />} />
             <Route path="/qr" element={<QrScreen />} />
             <Route path="/idees" element={<IdeasScreen />} />

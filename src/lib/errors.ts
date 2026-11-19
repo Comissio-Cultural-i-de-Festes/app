@@ -1,4 +1,5 @@
 import { DbError } from './db'
+import { NotSaved } from './queue'
 import { UnreadableImage } from './storage'
 
 /**
@@ -48,6 +49,9 @@ export function errorKey(error: unknown, online = navigator.onLine): string {
   // veure amb la cobertura, i dir-li «mira la xarxa» és enviar algú a
   // comprovar una cosa que no és.
   if (error instanceof UnreadableImage) return 'errors.notAnImage'
+  // També abans: «necessites connexió» és cert, però calla l'única cosa que
+  // cal saber, que no sortirà sol i que s'ha de tornar a fer.
+  if (error instanceof NotSaved) return 'errors.notSaved'
 
   if (!online) return 'errors.offline'
 

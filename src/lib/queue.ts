@@ -42,12 +42,109 @@ export interface QueuedScan {
   readonly at: number
   /** How many times sending has failed. Only for showing the person a number. */
   readonly tries: number
+  /** Set when it is no longer waiting to be sent, and why. See `Held`. */
+  readonly held?: Held | undefined
 }
 
+/**
+ * Why a scan is still on the phone although nothing is going to send it.
+ *
+ * Both are somebody who walked through the door on the strength of "saved"
+ * and whose card nobody saw, because it was answered an hour later by a
+ * flush. Kept rather than dropped, so the junta can see them and decide.
+ */
+export type Held =
+  /**
+   * The server raised an error about the scan itself, with this SQLSTATE: a
+   * token that is not a uuid, a request carrying both a QR and a name. Sending
+   * it again gets the same answer, and first in line it would hold up every
+   * scan behind it.
+   */
+  | { readonly kind: 'refused'; readonly code: string }
+  /**
+   * It landed, and the answer asks for somebody to act: not a member, not
+   * active, in without being signed up. The status and the name, when the
+   * server gave one, are what the junta needs to find the person.
+   */
+  | { readonly kind: 'answered'; readonly status: string; readonly nombre: string | null }
+
+/**
+ * How long opening the database may take before the caller is told it did not.
+ *
+ * Opening is a handshake with no deadline of its own, and Safari has shipped
+ * versions where it simply never answers. Everything here waits on it, so
+ * without one a scan would sit in `enqueue` forever and never even try the
+ * network. Three seconds is far beyond a healthy open, which takes
+ * milliseconds; a late answer is not wasted, because it is still adopted.
+ *
+ * It covers the open and nothing else. A read or a write on a connection that
+ * is already open has no limit here; it has never been seen to hang, and
+ * timing out a write that then commits would report "not saved" about
+ * something that was.
+ */
+export const OPEN_DEADLINE_MS = 3_000
+
+/**
+ * The connection, once there is one. Not the attempt to get it.
+ *
+ * IT USED TO BE THE PROMISE, ERRORS INCLUDED. The first open was kept for the
+ * life of the page, so one that failed or was blocked — the day the version
+ * goes up with an old tab still open — left every later call resolving to
+ * nothing, and `enqueue` returned as happily as if it had written. The door
+ * said "queued" about scans that were nowhere. Now only a working connection
+ * is kept; a failure is reported to that one caller and the next one tries
+ * again.
+ */
+let connection: IDBDatabase | null = null
+/** One attempt at a time, shared by whoever asks while it runs. */
 let opening: Promise<IDBDatabase | null> | null = null
+/**
+ * An open that is still pending after its caller was told no: blocked by
+ * another tab holding an older version, or past `OPEN_DEADLINE_MS`.
+ *
+ * Browsers run opens to one database first in, first out, so a second open
+ * would only queue behind it and answer no later than it does. Callers are
+ * told no straight away instead. It is not abandoned: if it ever goes
+ * through, it is adopted, and `onReconnect` says so.
+ *
+ * A time and not a flag, because the two cases do not end the same way. A
+ * blocked open is waiting for something that will happen — the other tab
+ * closing — and holds back until it does. One past the deadline may be
+ * waiting for nothing at all, so after `STALLED_RETRY_MS` the next call is
+ * allowed one more try: a fresh open is cheap, and the alternative is a door
+ * phone that cannot save until somebody reloads it.
+ */
+let heldBackUntil = 0
+
+/** How long after a stalled open the next call may try again. */
+export const STALLED_RETRY_MS = 30_000
+
+const reconnected = new Set<() => void>()
+
+/**
+ * Called when the queue becomes usable after having told somebody it was not.
+ *
+ * For the screens that say "this phone cannot keep a queue": that line would
+ * otherwise stay up until something else made them ask again.
+ */
+export function onReconnect(listener: () => void): () => void {
+  reconnected.add(listener)
+  return () => {
+    reconnected.delete(listener)
+  }
+}
 
 function open(): Promise<IDBDatabase | null> {
-  opening ??= new Promise<IDBDatabase | null>((resolve) => {
+  if (connection !== null) return Promise.resolve(connection)
+  if (Date.now() < heldBackUntil) return Promise.resolve(null)
+  opening ??= connect(DB_VERSION).finally(() => {
+    opening = null
+  })
+  return opening
+}
+
+function connect(version: number | undefined): Promise<IDBDatabase | null> {
+  return new Promise<IDBDatabase | null>((resolve) => {
     // Private browsing on iOS, a blocked-storage setting, or a browser that
     // simply refuses. A door with no queue still works, one scan at a time,
     // and that is a far better outcome than a screen that will not load.
@@ -55,72 +152,173 @@ function open(): Promise<IDBDatabase | null> {
       resolve(null)
       return
     }
-    const request = indexedDB.open(DB_NAME, DB_VERSION)
+    let request: IDBOpenDBRequest
+    try {
+      request = version === undefined ? indexedDB.open(DB_NAME) : indexedDB.open(DB_NAME, version)
+    } catch {
+      resolve(null)
+      return
+    }
+
+    const timer = setTimeout(() => {
+      heldBackUntil = Date.now() + STALLED_RETRY_MS
+      resolve(null)
+    }, OPEN_DEADLINE_MS)
+    const settle = (db: IDBDatabase | null) => {
+      clearTimeout(timer)
+      resolve(db)
+    }
+
     request.onupgradeneeded = () => {
-      const db = request.result
-      if (!db.objectStoreNames.contains(SCANS)) {
-        db.createObjectStore(SCANS, { keyPath: 'clientRequestId' })
-      }
-      // Added at version 2. An existing database is upgraded in place, so a
-      // phone with scans already waiting keeps them.
-      if (!db.objectStoreNames.contains(IDEAS)) {
-        db.createObjectStore(IDEAS, { keyPath: 'id' })
-      }
-      // Version 3: checking yourself in by where you are. A farmhouse in the
-      // Pyrenees with a hundred phones on one cell is exactly the case this
-      // store exists for.
-      if (!db.objectStoreNames.contains(HERE)) {
-        db.createObjectStore(HERE, { keyPath: 'id' })
-      }
-      // Version 4: the gimcana. This one holds a Blob, which the other three do
-      // not: a photograph is the whole point of a prova, and a queue that kept
-      // the caption and threw the picture away would be worse than no queue.
-      // Fifteen of them is tens of megabytes in IndexedDB, and that is the
-      // price of «sense cobertura també funciona».
-      if (!db.objectStoreNames.contains(PROVES)) {
-        db.createObjectStore(PROVES, { keyPath: 'id' })
-      }
+      upgrade(request.result)
     }
     request.onsuccess = () => {
-      resolve(request.result)
+      // Somebody was told no while this was pending — this caller or any
+      // other — and the screens saying so have to hear that it is over.
+      const toldNo = heldBackUntil !== 0
+      heldBackUntil = 0
+      const db = adopt(request.result)
+      settle(db)
+      if (toldNo) for (const listener of reconnected) listener()
     }
     request.onerror = () => {
-      resolve(null)
+      heldBackUntil = 0
+      // This tab's code is older than the database: another tab has already
+      // upgraded it. Every version so far only adds stores, so the newer
+      // database has all the ones this code knows, and opening it at whatever
+      // version it is keeps an old tab saving instead of failing until reload.
+      // A version that one day removes a store fails at `transaction()`, which
+      // `run` reports as not saved.
+      if (version !== undefined && request.error?.name === 'VersionError') {
+        void connect(undefined).then(settle)
+        return
+      }
+      settle(null)
     }
     request.onblocked = () => {
-      resolve(null)
+      heldBackUntil = Number.POSITIVE_INFINITY
+      settle(null)
     }
   })
-  return opening
 }
 
+function upgrade(db: IDBDatabase): void {
+  if (!db.objectStoreNames.contains(SCANS)) {
+    db.createObjectStore(SCANS, { keyPath: 'clientRequestId' })
+  }
+  // Added at version 2. An existing database is upgraded in place, so a
+  // phone with scans already waiting keeps them.
+  if (!db.objectStoreNames.contains(IDEAS)) {
+    db.createObjectStore(IDEAS, { keyPath: 'id' })
+  }
+  // Version 3: checking yourself in by where you are. A farmhouse in the
+  // Pyrenees with a hundred phones on one cell is exactly the case this
+  // store exists for.
+  if (!db.objectStoreNames.contains(HERE)) {
+    db.createObjectStore(HERE, { keyPath: 'id' })
+  }
+  // Version 4: the gimcana. This one holds a Blob, which the other three do
+  // not: a photograph is the whole point of a prova, and a queue that kept
+  // the caption and threw the picture away would be worse than no queue.
+  // Fifteen of them is tens of megabytes in IndexedDB, and that is the
+  // price of «sense cobertura també funciona».
+  if (!db.objectStoreNames.contains(PROVES)) {
+    db.createObjectStore(PROVES, { keyPath: 'id' })
+  }
+}
+
+/**
+ * Keeps a connection, and lets go of it when somebody needs it to.
+ *
+ * `versionchange` is a newer tab asking to upgrade. Without closing here, that
+ * tab is blocked for as long as this one stays open — which on a phone is
+ * until somebody swipes it away — and it is the newer tab, the one with the
+ * fixes, that cannot save. Closing costs this tab nothing: the next call opens
+ * again, at the newer version (see `connect`).
+ *
+ * `close` is the browser dropping it without being asked: storage cleared
+ * under pressure, which Safari does. Forgetting it is what makes the next call
+ * reopen rather than throw on a dead handle.
+ */
+function adopt(db: IDBDatabase): IDBDatabase {
+  // Two attempts can both succeed when an earlier one answered late.
+  if (connection !== null && connection !== db) {
+    db.close()
+    return connection
+  }
+  connection = db
+  const forget = () => {
+    if (connection === db) connection = null
+  }
+  db.onversionchange = () => {
+    db.close()
+    forget()
+  }
+  db.onclose = forget
+  return db
+}
+
+type Outcome<T> = { readonly ok: true; readonly value: T } | { readonly ok: false }
+
+/**
+ * One request, answered when its transaction has committed.
+ *
+ * Not when the request succeeds: a write can succeed and the transaction
+ * still abort afterwards — a full disk is reported at commit — and "saved"
+ * has to mean it is on the disk.
+ */
 function run<T>(
   storeName: string,
   mode: IDBTransactionMode,
   body: (store: IDBObjectStore) => IDBRequest<T>,
-): Promise<T | null> {
+): Promise<Outcome<T>> {
   return open().then(
     (db) =>
-      new Promise<T | null>((resolve) => {
+      new Promise<Outcome<T>>((resolve) => {
         if (db === null) {
-          resolve(null)
+          resolve({ ok: false })
           return
         }
         let request: IDBRequest<T>
+        let tx: IDBTransaction
         try {
-          request = body(db.transaction(storeName, mode).objectStore(storeName))
+          tx = db.transaction(storeName, mode)
+          request = body(tx.objectStore(storeName))
         } catch {
-          resolve(null)
+          // A connection the browser closed under us. The next call reopens;
+          // closing it first is what keeps that reopen from being blocked by
+          // this very handle if it turns out to be alive after all.
+          db.close()
+          if (connection === db) connection = null
+          resolve({ ok: false })
           return
         }
-        request.onsuccess = () => {
-          resolve(request.result)
+        tx.oncomplete = () => {
+          resolve({ ok: true, value: request.result })
         }
-        request.onerror = () => {
-          resolve(null)
+        tx.onerror = () => {
+          resolve({ ok: false })
+        }
+        tx.onabort = () => {
+          resolve({ ok: false })
         }
       }),
   )
+}
+
+/**
+ * It could not be written down, and it did not get through either.
+ *
+ * Every queue here promises the same thing — pressed with no signal, it goes
+ * on its own later — and this is the case where that promise is false. A
+ * screen that catches it says so and does not say "saved". Thrown by the
+ * callers, not here: only they know whether the network got it anyway.
+ */
+export class NotSaved extends Error {
+  constructor(cause: unknown) {
+    super('it could not be written to the on-device queue, and it was not sent', { cause })
+    this.name = 'NotSaved'
+  }
 }
 
 /** Anything the queues hold: a key, when it happened, and how often it failed. */
@@ -129,12 +327,30 @@ export interface Queued {
   readonly tries: number
 }
 
-export async function enqueue(scan: QueuedScan): Promise<void> {
-  await run(SCANS, 'readwrite', (store) => store.put(scan))
+/**
+ * Whether the queue can be written to at all, without writing anything.
+ *
+ * For a screen that wants to warn before it matters: a door with no signal and
+ * no queue lets nobody in on the phone, and the junta should know that before
+ * the first person is standing there, not after.
+ */
+export async function usable(): Promise<boolean> {
+  return (await open()) !== null
 }
 
-export async function dequeue(clientRequestId: string): Promise<void> {
-  await run(SCANS, 'readwrite', (store) => store.delete(clientRequestId))
+/**
+ * Writes a scan down. True only once it is on the disk.
+ *
+ * The answer is the point. `check_in` is safe to send whether or not this
+ * worked, so a false here does not stop the scan; it stops the screen from
+ * saying "queued" about something no flush is ever going to find.
+ */
+export async function enqueue(scan: QueuedScan): Promise<boolean> {
+  return (await run(SCANS, 'readwrite', (store) => store.put(scan))).ok
+}
+
+export async function dequeue(clientRequestId: string): Promise<boolean> {
+  return (await run(SCANS, 'readwrite', (store) => store.delete(clientRequestId))).ok
 }
 
 /** Oldest first: the door queue is a queue, not a stack. */
@@ -144,7 +360,7 @@ export async function pending(): Promise<QueuedScan[]> {
     'readonly',
     (store) => store.getAll() as IDBRequest<QueuedScan[]>,
   )
-  return (rows ?? []).sort((a, b) => a.at - b.at)
+  return (rows.ok ? rows.value : []).sort((a, b) => a.at - b.at)
 }
 
 /**
@@ -157,7 +373,8 @@ export async function pending(): Promise<QueuedScan[]> {
  * no fa cap feina.
  */
 export async function count(storeName: string = SCANS): Promise<number> {
-  return (await run<number>(storeName, 'readonly', (store) => store.count())) ?? 0
+  const rows = await run<number>(storeName, 'readonly', (store) => store.count())
+  return rows.ok ? rows.value : 0
 }
 
 /**
@@ -174,12 +391,31 @@ export async function count(storeName: string = SCANS): Promise<number> {
  * que entre el `get` i el `put` no hi cap cap `delete`.
  */
 export async function bumpTries(scan: QueuedScan): Promise<void> {
+  await change(scan.clientRequestId, (row) => ({ ...row, tries: row.tries + 1 }))
+}
+
+/**
+ * Aparta una entrada que ja no s'ha d'enviar, o la hi torna.
+ *
+ * Amb la mateixa precaució que `bumpTries`: si mentrestant algú l'ha treta, no
+ * es torna a escriure. `null` treu la marca, i l'entrada torna a sortir amb el
+ * buidatge següent.
+ */
+export async function setHeld(clientRequestId: string, held: Held | null): Promise<void> {
+  await change(clientRequestId, (row) => ({ ...row, held: held ?? undefined }))
+}
+
+/** Llegeix i reescriu una entrada de l'escàner dins d'una sola transacció, si hi és. */
+async function change(
+  clientRequestId: string,
+  edit: (row: QueuedScan) => QueuedScan,
+): Promise<void> {
   await run(SCANS, 'readwrite', (store) => {
-    const current = store.get(scan.clientRequestId) as IDBRequest<QueuedScan | undefined>
+    const current = store.get(clientRequestId) as IDBRequest<QueuedScan | undefined>
     // `addEventListener` i no `onsuccess`: `run` es queda aquell per resoldre.
     current.addEventListener('success', () => {
       const row = current.result
-      if (row !== undefined) store.put({ ...row, tries: row.tries + 1 })
+      if (row !== undefined) store.put(edit(row))
     })
     return current
   })
@@ -209,15 +445,16 @@ export async function clearAllQueues(): Promise<void> {
 
 // ── the same three verbs, for any other store ───────────────────────────────
 
-export async function put<T extends Queued>(storeName: string, item: T): Promise<void> {
-  await run(storeName, 'readwrite', (store) => store.put(item))
+/** True only once it is on the disk. See `enqueue`. */
+export async function put<T extends Queued>(storeName: string, item: T): Promise<boolean> {
+  return (await run(storeName, 'readwrite', (store) => store.put(item))).ok
 }
 
-export async function drop(storeName: string, key: string): Promise<void> {
-  await run(storeName, 'readwrite', (store) => store.delete(key))
+export async function drop(storeName: string, key: string): Promise<boolean> {
+  return (await run(storeName, 'readwrite', (store) => store.delete(key))).ok
 }
 
 export async function waiting<T extends Queued>(storeName: string): Promise<T[]> {
   const rows = await run<T[]>(storeName, 'readonly', (store) => store.getAll() as IDBRequest<T[]>)
-  return (rows ?? []).sort((a, b) => a.at - b.at)
+  return (rows.ok ? rows.value : []).sort((a, b) => a.at - b.at)
 }

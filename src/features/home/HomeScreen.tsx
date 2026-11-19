@@ -1,3 +1,4 @@
+import { useQuery } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
@@ -23,12 +24,14 @@ import {
 } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
 import { countdown, countdownLabel, countdownShape } from '@/features/event/countdown'
+import { eventKeys, fetchWaitlist } from '@/features/event/api'
+import { AnswerNote } from '@/features/event/AnswerNote'
 import { RevealedCard } from '@/features/event/RevealedCard'
 import { InterestBlock, InterestCount } from '@/features/event/Teaser'
 import { eventTitle, titleIsHidden } from '@/features/event/title'
+import { InstallCard } from '@/features/install/InstallCard'
 import { ExitPhotoCard } from '@/features/photos/ExitPhotoCard'
 import { useExitOffer } from '@/features/photos/useExitOffer'
-import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { useOnline } from '@/lib/useOnline'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -44,6 +47,7 @@ import {
   placesLeft,
   signedUpToday,
 } from './api'
+import { expectedState, homeCta } from './answer'
 import { type Home, useAnswer, useHome } from './useHome'
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -111,7 +115,7 @@ export function HomeScreen() {
 
       {home.isError ? (
         <ErrorPanel
-          message={t(errorKey(home.error))}
+          message={t(home.messageKey)}
           onRetry={home.refetch}
           label={t('actions.retry')}
         />
@@ -138,6 +142,8 @@ export function HomeScreen() {
       {/* Els que han perdut el torn. Segueixen sent visibles i segueixen sent
           certs; el que no fan és competir amb la decisió de la nit. */}
       {notices.slice(1).map(notice)}
+
+      <InstallCard />
 
       <RankingTeaser home={home} />
       {home.previous ? (
@@ -424,11 +430,16 @@ function CallToAction({
   readonly attendances: readonly AttendanceRow[]
   readonly access: Access
 }) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const userId = useUserId()
   const answer = useAnswer()
   const mine = myAnswer(attendances, event.id, userId)
-  const going = mine === 'si' || mine === 'asistio'
+  const waitlist = useQuery({
+    queryKey: eventKeys.waitlist(event.id),
+    queryFn: () => fetchWaitlist(event.id),
+    enabled: mine === 'espera',
+  })
+  const locale = toLocale(i18n.resolvedLanguage)
 
   // Un sol instant per a tot el render: llegir l'hora dues vegades pot posar
   // «encara s'hi pot fitxar» i «s'hi han apuntat avui» en desacord.
@@ -443,9 +454,7 @@ function CallToAction({
   // Només per a qui hi anava. Amb `mine !== 'asistio'` a seques, qui havia dit
   // que no —o no havia contestat— rebia com a acció principal de la nit un
   // botó per fitxar en un lloc on no pensava anar, i perdia el d'apuntar-s'hi.
-  const canCheckIn =
-    (mine === 'si' || mine === 'potser') &&
-    isOpen(checkinWindow(event.starts_at, event.ends_at), now.getTime())
+  const cta = homeCta(mine, isOpen(checkinWindow(event.starts_at, event.ends_at), now.getTime()))
 
   const base =
     'flex w-full min-h-[56px] items-center justify-center px-[18px] py-[15px] ' +
@@ -481,14 +490,14 @@ function CallToAction({
 
   return (
     <section className={`pt-8 ${GUTTER}`}>
-      {canCheckIn ? (
+      {cta === 'checkin' ? (
         <Link
           to={`/esdeveniment/${event.id}#soc-aqui`}
           className={`${base} bg-brand-cta text-on-brand no-underline`}
         >
           {t('checkin.here')}
         </Link>
-      ) : going ? (
+      ) : cta === 'going' ? (
         // Qui ja ha dit que sí és el públic que volem retenir, i aquest és
         // l'únic CTA que veu. Porta a l'esdeveniment, que és on hi ha el
         // sí/potser/no: secundari perquè la decisió ja està presa, però viu,
@@ -502,12 +511,38 @@ function CallToAction({
             ›
           </span>
         </Link>
+      ) : cta === 'queued' || cta === 'requested' ? (
+        // L'estat de debò, i un enllaç a la fitxa: cap botó que convidi a
+        // tornar-ho a demanar. La posició surt de la mateixa consulta que la
+        // fitxa, només quan som a la llista.
+        <Link
+          to={`/esdeveniment/${event.id}`}
+          className={`${base} gap-3 border-[1.5px] border-surface-9 bg-surface-2 text-fg-secondary no-underline`}
+        >
+          {cta === 'requested'
+            ? t('event.said.requested')
+            : waitlist.data?.posicio == null
+              ? t('event.queue.onList')
+              : t('event.queue.position', {
+                  position: formatOrdinal(waitlist.data.posicio, locale),
+                })}
+          <span aria-hidden="true" className="flex-none text-[20px]">
+            ›
+          </span>
+        </Link>
       ) : (
         <button
           type="button"
           disabled={answer.isPending}
           onClick={() => {
-            answer.mutate({ eventId: event.id, estado: 'si' })
+            answer.mutate({
+              eventId: event.id,
+              estado: 'si',
+              expected: expectedState('si', {
+                confirm: event.cal_confirmacio,
+                full: placesLeft(event, goingRows(attendances, event.id).length) === 0,
+              }),
+            })
           }}
           className={`${base} bg-brand-cta text-on-brand disabled:opacity-70`}
         >
@@ -519,11 +554,7 @@ function CallToAction({
         </button>
       )}
 
-      {answer.isError ? (
-        <p role="alert" className="mt-[10px] text-md-lo text-error">
-          {t(errorKey(answer.error))}
-        </p>
-      ) : null}
+      <AnswerNote answer={answer} className="mt-[10px]" />
 
       {names.length > 0 ? (
         <p className="mt-[10px] flex items-center gap-[9px] text-md-lo text-fg-muted">

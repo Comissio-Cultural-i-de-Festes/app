@@ -182,4 +182,12 @@ describe('una resposta que arriba quan ja s’ha escanejat algú altre', () => {
     expect(displacedWorthSaying({ kind: 'queued', request, unanswered: true })).toBe(false)
     expect(displacedWorthSaying({ kind: 'failed', request })).toBe(false)
   })
+
+  it('però no calla si no s’ha desat enlloc: no surt a cap comptador i no anirà sola', () => {
+    expect(displacedWorthSaying({ kind: 'unsaved', request })).toBe(true)
+  })
+
+  it('ni si el servidor l’ha refusat: no ha entrat i no queda a la cua', () => {
+    expect(displacedWorthSaying({ kind: 'failed', request, refused: true })).toBe(true)
+  })
 })

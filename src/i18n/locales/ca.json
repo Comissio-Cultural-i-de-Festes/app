@@ -37,6 +37,17 @@
     "unknownPerson": "Aquest QR",
     "displaced": "Abans, {{nombre}}: {{verdict}}",
     "displacedUnknown": "L'escaneig d'abans: {{verdict}}",
+    "noQueue": "Aquest mòbil no pot desar la cua. Recarrega l'app",
+    "noQueueOffline": "Sense xarxa i sense cua: no es desa res. Recarrega l'app",
+    "held_one": "{{count}} escaneig de la cua demana que el miris:",
+    "held_other": "{{count}} escanejos de la cua demanen que els miris:",
+    "heldQr": "Un QR",
+    "heldAt": "a les {{hora}}",
+    "heldRefused": "el servidor no l'accepta: no ha entrat",
+    "heldRetry": "Torna-ho a enviar",
+    "heldDrop": "Descarta",
+    "heldMore": "i {{n}} més",
+    "heldLess": "Mostra'n menys",
     "notPaid": "no ha pagat",
     "camera": {
       "denied": "No podem obrir la càmera. Dona-hi permís als ajustos del navegador —Ajustos › {{app}} › Càmera— i torna-hi, o fes l'alta pel nom.",
@@ -100,6 +111,12 @@
       "noCodeValue": "Cap codi",
       "noCodeAside": "Ho aprova la junta"
     },
+    "app": {
+      "title": "Entra",
+      "lede": "Entra amb el teu compte de Google. Si ja t'han acceptat, entra i ja està; si no, un cop dins veuràs com va.",
+      "reassurance": "Del compte només agafem el nom, el correu i la foto. Si encara no t'han acceptat, la junta et donarà l'accés a mà, normalment el mateix dia.",
+      "hasCodeHint": "Escriu-lo a l'avís de dalt un cop dins."
+    },
     "invite": {
       "label": "Invitació",
       "expiresSoon": "Caduca de seguida",
@@ -148,8 +165,14 @@
     "forbidden": "Això no ho pots fer tu.",
     "notFound": "Això ja no hi és.",
     "notAnImage": "Aquesta foto no la sé llegir. Prova amb una altra, o fes-la des de la càmera.",
+    "notSaved": "No s'ha pogut enviar ni desar al telèfon, o sigui que no sortirà sol. Torna-ho a provar quan tinguis cobertura.",
     "rateLimited": "Massa intents seguits. Espera un parell de minuts i torna-hi.",
     "behindServer": "Això encara no hi és al servidor: l'app s'ha actualitzat abans que la base de dades. Si ets de la junta, apuja les migracions; si no, avisa'ls.",
+    "stalled": "La connexió no respon: no arriba res. Torna-ho a provar, o busca un lloc amb més cobertura.",
+    "sessionUnreachable": "Sense connexió no podem obrir la teva sessió. Quan torni la xarxa, l'app s'obrirà sola.",
+    "sendPaused": "Sense connexió. Queda en espera i s'enviarà quan torni la xarxa: no tanquis l'app.",
+    "sendSlow": "La connexió va molt lenta: encara no ha arribat.",
+    "sendOffline": "Sense connexió, no ha sortit. Torna-hi quan tinguis cobertura.",
     "avisSostre": "Aquest curs ja s'han restat a aquesta persona tots els punts que el sostre permet. Puja «Màxim de punts per curs» a El barem, o registra l'avís sense punts.",
     "avisForaDelCurs": "Avui no cau dins de cap curs, i sense curs no hi ha cap sostre a comptar. Obre el curs a «Els períodes del rànquing», o registra l'avís sense punts.",
     "viatgerInvalid": "Alguna dada no té la forma que toca. Revisa els camps i torna-ho a provar."
@@ -180,14 +203,14 @@
     },
     "calendar": {
       "offerTitle": "Ho vols al calendari del mòbil?",
-      "offerBody": "Amb l'hora, el lloc i un enllaç per tornar aquí. Si canviem l'hora, s'actualitza.",
+      "offerBody": "Amb l'hora, el lloc i un enllaç per tornar aquí. És un fitxer que s'obre un cop: si canviem l'hora, l'hauràs de tornar a baixar.",
       "addShort": "Afegeix-ho",
       "add": "Afegeix-ho al calendari",
       "noThanks": "No, gràcies",
-      "isThere": "És al teu calendari",
-      "again": "Torna-hi",
+      "isThere": "Fitxer descarregat",
+      "again": "Torna'l a baixar",
       "fromTo": "{{day}}, {{from}} – {{to}}",
-      "cannotRead": "«Torna-hi» hi és perquè l'app no pot llegir el calendari del telèfon: no sap si l'entrada encara existeix. Diu el que sap i et deixa fer-ho un altre cop, que és inofensiu perquè no es duplica.",
+      "cannotRead": "L'app no veu el calendari del telèfon, així que no sap si has arribat a afegir-hi l'esdeveniment: obre el fitxer descarregat per fer-ho. Si canvia l'hora, torna'l a baixar i obre'l.",
       "failed": "No hem pogut preparar el fitxer. Prova-ho un altre cop."
     },
     "teaser": {
@@ -261,7 +284,10 @@
       "confirmTitle": "Hi vols venir? Les places les reparteix la junta",
       "request": "Demana-hi plaça",
       "requestWarning": "Demanar-ho no és tenir-la. Ho decideix la junta i t'ho diem pel grup.",
-      "requestedPrivate": "Que ho hagis demanat no surt enlloc. Només ho veu la junta."
+      "requestedPrivate": "Que ho hagis demanat no surt enlloc. Només ho veu la junta.",
+      "paused": "Sense connexió. La resposta espera aquí i s'enviarà quan torni la xarxa: no tanquis l'app.",
+      "offline": "Sense connexió, la resposta no ha sortit. Torna-hi quan tinguis cobertura.",
+      "slow": "La connexió va molt lenta: la resposta encara no ha arribat."
     },
     "queue": {
       "onList": "Ets a la llista d'espera. Si algú es fa enrere, la junta t'avisa.",
@@ -558,6 +584,7 @@
     "upload": "Puja les teves",
     "whoCanUpload": "Pot pujar-ne qui va fitxar aquella nit.",
     "thumbsNote": "Aquí tot són miniatures. La bona, amb tot el detall, es carrega només quan n’obres una.",
+    "thumbLabel": "Foto {{n}} de {{total}}",
     "uploading": "Pujant",
     "uploadCount": "{{n}} de {{total}}",
     "uploadNote": "Van d’una en una i la miniatura es fa aquí mateix abans de pujar. Deixa la pantalla oberta fins que acabi; les que fallin es queden aquí.",
@@ -658,15 +685,13 @@
     "title": "Posa-la a la pantalla",
     "lede": "Dos tocs i la tens com una app de veritat: s'obre a l'instant, el QR va sense cobertura i no has de tornar a entrar cada vegada.",
     "step1": {
-      "title": "Toca Comparteix, a baix",
-      "body": "És el quadradet amb la fletxa cap amunt, al mig de la barra del Safari."
+      "title": "Toca Comparteix",
+      "body": "És el quadradet amb la fletxa cap amunt. Segons l'iPhone, és a la barra de baix o a la de dalt, al costat de l'adreça. Si no el veus, toca els tres puntets."
     },
     "step2": {
-      "title": "Baixa fins a \"Afegeix a la pantalla d'inici\"",
-      "body": "Surt cap avall a la llista. Després, Afegeix a dalt a la dreta.",
-      "sheetAbove": "Afegeix a Preferits",
-      "sheetTarget": "Afegeix a la pantalla d'inici",
-      "sheetBelow": "Marca com a text"
+      "title": "Busca \"Afegeix a la pantalla d'inici\"",
+      "body": "Baixa per la llista; en alguns iPhone és dins de «Més». Després, toca Afegeix.",
+      "sheetTarget": "Afegeix a la pantalla d'inici"
     },
     "payoff": {
       "title": "Què guanyes",
@@ -676,6 +701,19 @@
     "later": "Ara no, ja m'espavilaré",
     "laterWarning": "Pots seguir aquí al navegador. Quan la posis a la pantalla d'inici hauràs de tornar a entrar un cop, perquè l'iPhone les tracta com dues coses diferents.",
     "iconPreview": "Així quedarà entre les teves apps. La icona vermella es veu de lluny quan la busques amb pressa.",
+    "opened": {
+      "title": "Ara, des de la icona",
+      "body": "Ja pots tancar el Safari. Obre l'app des de la icona de la pantalla d'inici i entra-hi des d'allà: és on es queda la sessió.",
+      "stay": "Prefereixo seguir al navegador"
+    },
+    "card": {
+      "eyebrow": "Per tenir-la a mà",
+      "title": "Posa-la a la pantalla d'inici",
+      "body": "Dos tocs al Safari i s'obre a l'instant, a pantalla completa i amb el QR a punt encara que no hi hagi cobertura.",
+      "cta": "Mostra'm com",
+      "later": "Ara no",
+      "again": "Quan l'obris des de la icona, entra un cop més amb Google i amb el mateix compte. L'iPhone guarda l'app i el Safari per separat, però el compte és el mateix."
+    },
     "android": {
       "lede": "Un toc i la tens a la pantalla d'inici: a pantalla completa, amb el QR a mà i sense passar pel navegador.",
       "cta": "Instal·la l'app"
@@ -1288,6 +1326,10 @@
       "saveTeams": "Desa els equips",
       "proves": "Proves",
       "provaPlaceholder": "Què han de fotografiar",
+      "shuffleHowMany": "Nombre d’equips",
+      "teamLabel": "Equip {{n}}",
+      "provaLabel": "Prova {{n}}",
+      "provaPuntsLabel": "Punts de la prova {{n}}",
       "addProva": "+ Afegeix una prova",
       "provesNote": "Proves que es puguin fotografiar i punts rodons. Les cares del joc: entre cinc i deu.",
       "publish": "Publica-la amb la festa",
@@ -1375,6 +1417,8 @@
       "lede": "Els punts es donen sols en fitxar. Això és per treure'ls quan cal, no per donar-los: mira els metres, i el que va fitxar de lluny es veu sol.",
       "nobody": "Encara no ha fitxat ningú.",
       "undo": "Treu-ho",
+      "undoConfirm": "Treu el fitxatge",
+      "undoSure": "Es treuen a {{nombre}} el fitxatge i els punts que li va donar. No es pot desfer des d'aquí; queda al registre.",
       "walkin": "no estava apuntat",
       "metres_one": "a {{count}} m",
       "metres_other": "a {{count}} m",
@@ -2047,6 +2091,9 @@
     "howTo": "El de recanvi: si no pots fitxar des del mòbil, ensenya'l a la porta i espera el «fitxat». Obre aquesta pantalla un cop amb connexió i el codi queda desat al mòbil.",
     "unavailable": "Ara mateix no podem mostrar el teu codi. Prova-ho amb connexió i quedarà desat per la propera.",
     "fallback": "El de la porta et pot buscar pel nom.",
+    "fromPocket": "Mostra el meu QR",
+    "noneSaved": "Aquest mòbil no té cap QR desat: s'ha d'obrir un cop amb connexió. A la porta et poden buscar pel nom.",
+    "pocketBack": "Amaga el QR",
     "notYet": {
       "heading": "El meu QR",
       "lead": "És el que ensenyes a la porta.",
@@ -2181,6 +2228,8 @@
     "eventNotOpen": "Aquest esdeveniment no està obert",
     "error": "No s'ha pogut connectar. Torna-ho a provar",
     "queued": "Desat. S'enviarà quan hi hagi cobertura",
+    "notSaved": "No s'ha pogut desar ni enviar",
+    "refused": "El servidor no l'accepta",
     "action": {
       "okWalkin": "No estava apuntat. Ja consta que ha vingut.",
       "okWalkinReview": "Mira que pagui abans d’entrar, o apunta-ho.",
@@ -2190,6 +2239,8 @@
       "notAMember": "Que et digui el nom i el busques a mà. No el deixis passar sense apuntar-lo.",
       "memberInactive": "Que demani entrar. L’aproveu demà des de la zona junta.",
       "eventNotOpen": "Comprova que és l’esdeveniment bo i que està publicat.",
+      "notSaved": "No sortirà sol. Que et digui el nom i fes-li l'alta pel nom quan torni la cobertura.",
+      "refused": "No ha entrat. Que et digui el nom i busca'l a l'alta pel nom.",
       "error": "Segueix escanejant. Quan torni la cobertura s’envia sol."
     }
   },

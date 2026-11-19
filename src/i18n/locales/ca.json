@@ -204,7 +204,7 @@
       "isThere": "Fitxer descarregat",
       "again": "Torna'l a baixar",
       "fromTo": "{{day}}, {{from}} – {{to}}",
-      "cannotRead": "L'app no veu el calendari del telèfon, així que no sap si has arribat a afegir-hi l'esdeveniment: obre el fitxer descarregat per fer-ho. Si canvia l'hora, torna'l a baixar i obre'l: l'entrada es posa al dia en comptes de duplicar-se.",
+      "cannotRead": "L'app no veu el calendari del telèfon, així que no sap si has arribat a afegir-hi l'esdeveniment: obre el fitxer descarregat per fer-ho. Si canvia l'hora, torna'l a baixar i obre'l.",
       "failed": "No hem pogut preparar el fitxer. Prova-ho un altre cop."
     },
     "teaser": {

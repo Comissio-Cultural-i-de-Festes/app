@@ -204,7 +204,7 @@
       "isThere": "Archivo descargado",
       "again": "Vuelve a bajarlo",
       "fromTo": "{{day}}, {{from}} – {{to}}",
-      "cannotRead": "La app no ve el calendario del teléfono, así que no sabe si llegaste a añadir el evento: abre el archivo descargado para hacerlo. Si cambia la hora, vuelve a bajarlo y ábrelo: la entrada se pone al día en vez de duplicarse.",
+      "cannotRead": "La app no ve el calendario del teléfono, así que no sabe si llegaste a añadir el evento: abre el archivo descargado para hacerlo. Si cambia la hora, vuelve a bajarlo y ábrelo.",
       "failed": "No hemos podido preparar el archivo. Pruébalo otra vez."
     },
     "teaser": {

@@ -204,7 +204,7 @@
       "isThere": "File downloaded",
       "again": "Download it again",
       "fromTo": "{{day}}, {{from}} – {{to}}",
-      "cannotRead": "The app cannot see your phone's calendar, so it does not know whether you added the event: open the downloaded file to do it. If the time changes, download it again and open it: the entry is brought up to date instead of duplicated.",
+      "cannotRead": "The app cannot see your phone's calendar, so it does not know whether you added the event: open the downloaded file to do it. If the time changes, download it again and open it.",
       "failed": "We could not prepare the file. Try again."
     },
     "teaser": {

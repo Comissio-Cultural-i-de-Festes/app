@@ -31,7 +31,7 @@ const SAFE_PATH = /^\/[A-Za-z0-9._~\-/]+$/
 
 export function isReturnPath(path: string): boolean {
   if (!SAFE_PATH.test(path)) return false
-  if (path.startsWith('//') || path.includes('//')) return false
+  if (path.includes('//')) return false
   if (path.split('/').some((segment) => segment === '.' || segment === '..')) return false
   return ALLOWED_PREFIXES.some((prefix) => path.startsWith(prefix) && path.length > prefix.length)
 }
@@ -57,7 +57,7 @@ export function rememberReturn(path: string, now = Date.now()): void {
   }
 }
 
-/** De un sol ús: es llegeix i s'esborra, valgui o no. */
+/** D'un sol ús: es llegeix i s'esborra, valgui o no. */
 export function takeReturn(now = Date.now()): string | null {
   let raw: string | null
   try {

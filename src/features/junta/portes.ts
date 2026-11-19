@@ -28,7 +28,9 @@ export function portaTriada(portes: readonly DoorNow[], triada: string | null): 
   return portes.find((p) => p.id === triada) ?? portes[0] ?? null
 }
 
-const KEY = 'comi.junta.porta'
+/** Exportada perquè tancar la sessió l'esborri (`oblidaLesPortes`). */
+export const PORTA_TRIADA_KEY = 'comi.junta.porta'
+const KEY = PORTA_TRIADA_KEY
 
 // L'emmagatzematge pot no existir —finestra privada, dades esborrades— i
 // llavors la porta és la primera, que és un bon lloc on caure.

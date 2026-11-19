@@ -1233,6 +1233,10 @@
     "home": {
       "doorNow": "Ara mateix a la porta",
       "doorPick": "{{n}} activitats a la porta · tria la teva",
+      "recordades": {
+        "title": "Portes desades {{dia}} a les {{hora}}",
+        "note": "Són les de l'últim cop que hi va haver xarxa. L'escàner desa el que fitxis i ho puja quan torni."
+      },
       "doorYes": "han dit sí",
       "doorIn": "han fitxat",
       "doorFree": "places lliures",

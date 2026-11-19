@@ -1,41 +1,27 @@
-import type { Session } from '@supabase/supabase-js'
-import { Suspense, lazy, useEffect, useState } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { type ComponentProps, Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, Route, Routes, useLocation } from 'react-router'
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router'
 
 import { EntryScreen } from '@/features/entry/EntryScreen'
-import { EventScreen } from '@/features/event/EventScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
-import { InsideScreen } from '@/features/event/InsideScreen'
-import { DiptychScreen } from '@/features/photos/DiptychScreen'
-import { DoorPhotoScreen } from '@/features/photos/DoorPhotoScreen'
-import { IdeasScreen } from '@/features/proposals/IdeasScreen'
-import { NewIdeaScreen } from '@/features/proposals/NewIdeaScreen'
-import { MyRideScreen } from '@/features/rides/MyRideScreen'
-import { OfferRideScreen } from '@/features/rides/OfferRideScreen'
-import { RidesScreen } from '@/features/rides/RidesScreen'
 import { useCheckinQueue } from '@/features/checkin/useCheckinQueue'
 import { useKeepPushFresh } from '@/features/event/useKeepPushFresh'
-import { SociScreen } from '@/features/member/SociScreen'
-import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
-import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen'
-import { BadgesScreen } from '@/features/badges/BadgesScreen'
-import { GalleryScreen } from '@/features/gallery/GalleryScreen'
-import { ProvesScreen } from '@/features/gimcana/ProvesScreen'
-import { ScoreboardScreen } from '@/features/gimcana/ScoreboardScreen'
-import { SubmitScreen } from '@/features/gimcana/SubmitScreen'
-import { EditProfileScreen } from '@/features/profile/EditProfileScreen'
-import { ProfileScreen } from '@/features/profile/ProfileScreen'
-import { QrScreen } from '@/features/qr/QrScreen'
-import { JuntaLayout } from '@/features/shell/JuntaLayout'
+import { useBootSession } from '@/features/session/useBootSession'
+import { useQrPrefetch } from '@/features/qr/useQrPrefetch'
+import { GateWaiting } from '@/features/shell/Gate'
 import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
-import { INVITE_PARAM, readInviteCode } from '@/features/entry/useInvite'
+import { discardInvite, pendingInvite } from '@/features/entry/pendingInvite'
+import { ReturnToLink } from '@/features/entry/ReturnToLink'
+import { forgetReturn } from '@/features/entry/returnTo'
+import { useForgetReturn } from '@/features/entry/useForgetReturn'
+import { readInviteCode } from '@/features/entry/useInvite'
+import { useRedeemFromLink } from '@/features/entry/useRedeemFromLink'
 import { InstallScreen } from '@/features/install/InstallScreen'
-import { PrivacyScreen } from '@/features/legal/PrivacyScreen'
-import { TermsScreen } from '@/features/legal/TermsScreen'
+import { LogoMark } from '@/ui/Logo/Logo'
 import {
   SNOOZE_DONE_MS,
   SNOOZE_LATER_MS,
@@ -43,7 +29,9 @@ import {
   shouldPromptInstall,
   snoozeInstall,
 } from '@/features/install/installGate'
-import { supabase } from '@/lib/supabase'
+import { forgetOnUserChange } from '@/lib/forgetSession'
+import { useStalled } from '@/lib/useAvailability'
+import { useOnline } from '@/lib/useOnline'
 import { useStorageSweep } from '@/lib/useStorageSweep'
 
 /**
@@ -132,27 +120,117 @@ const InvitesScreen = lazy(() =>
 const PaymentsScreen = lazy(() =>
   import('@/features/junta/PaymentsScreen').then((m) => ({ default: m.PaymentsScreen })),
 )
-const JuntaHome = lazy(() =>
-  import('@/features/junta/JuntaHome').then((m) => ({ default: m.JuntaHome })),
+const loadJuntaHome = () => import('@/features/junta/JuntaHome')
+const JuntaHome = lazy(() => loadJuntaHome().then((m) => ({ default: m.JuntaHome })))
+// El marc de la zona també és un tros, i el rebedor no es demanaria fins que el
+// marc ja hagués arribat i pintat el seu `Outlet`: dues voltes de xarxa una
+// darrere l'altra per entrar a `/junta`. Es demanen alhora. Si s'entra per una
+// altra pantalla de la zona, el rebedor ve igualment de franc: és a la precache
+// i és on porta la fletxa de tornada.
+const JuntaLayout = lazy(() => {
+  loadJuntaHome().catch(() => undefined)
+  return import('@/features/shell/JuntaLayout').then((m) => ({ default: m.JuntaLayout }))
+})
+
+/**
+ * Les pantalles de soci, també a demanda, totes menys l'Inici.
+ *
+ * El primer que baixa un telèfon era l'app sencera: qui arriba amb la
+ * invitació, per la wifi de la casa rural, s'enduia el rànquing, la gimcana i
+ * els cotxes per veure una porta amb un botó. Ara baixa la porta i l'Inici, i
+ * la resta quan s'hi entra. Un cop instal·lada no costa res: el service worker
+ * té tots aquests trossos a la precache, o sigui que sense xarxa s'obren igual.
+ *
+ * L'Inici no. Es va provar diferit i el LCP empitjorava: és la primera
+ * pantalla de qui ja ha entrat, i fer-la esperar un tros que només es pot
+ * demanar quan l'entrada ja s'ha executat és afegir un viatge sencer davant
+ * del que es mesura. Tampoc la d'entrada ni la d'instal·lació, pel mateix
+ * motiu des de l'altra banda: són el primer que veu qui encara no ha entrat.
+ */
+const EventScreen = lazy(() =>
+  import('@/features/event/EventScreen').then((m) => ({ default: m.EventScreen })),
+)
+const InsideScreen = lazy(() =>
+  import('@/features/event/InsideScreen').then((m) => ({ default: m.InsideScreen })),
+)
+const DiptychScreen = lazy(() =>
+  import('@/features/photos/DiptychScreen').then((m) => ({ default: m.DiptychScreen })),
+)
+const DoorPhotoScreen = lazy(() =>
+  import('@/features/photos/DoorPhotoScreen').then((m) => ({ default: m.DoorPhotoScreen })),
+)
+const IdeasScreen = lazy(() =>
+  import('@/features/proposals/IdeasScreen').then((m) => ({ default: m.IdeasScreen })),
+)
+const NewIdeaScreen = lazy(() =>
+  import('@/features/proposals/NewIdeaScreen').then((m) => ({ default: m.NewIdeaScreen })),
+)
+const MyRideScreen = lazy(() =>
+  import('@/features/rides/MyRideScreen').then((m) => ({ default: m.MyRideScreen })),
+)
+const OfferRideScreen = lazy(() =>
+  import('@/features/rides/OfferRideScreen').then((m) => ({ default: m.OfferRideScreen })),
+)
+const RidesScreen = lazy(() =>
+  import('@/features/rides/RidesScreen').then((m) => ({ default: m.RidesScreen })),
+)
+const SociScreen = lazy(() =>
+  import('@/features/member/SociScreen').then((m) => ({ default: m.SociScreen })),
+)
+const RankingScreen = lazy(() =>
+  import('@/features/ranking/RankingScreen').then((m) => ({ default: m.RankingScreen })),
+)
+const OnboardingScreen = lazy(() =>
+  import('@/features/onboarding/OnboardingScreen').then((m) => ({ default: m.OnboardingScreen })),
+)
+const BadgesScreen = lazy(() =>
+  import('@/features/badges/BadgesScreen').then((m) => ({ default: m.BadgesScreen })),
+)
+const GalleryScreen = lazy(() =>
+  import('@/features/gallery/GalleryScreen').then((m) => ({ default: m.GalleryScreen })),
+)
+const ProvesScreen = lazy(() =>
+  import('@/features/gimcana/ProvesScreen').then((m) => ({ default: m.ProvesScreen })),
+)
+const ScoreboardScreen = lazy(() =>
+  import('@/features/gimcana/ScoreboardScreen').then((m) => ({ default: m.ScoreboardScreen })),
+)
+const SubmitScreen = lazy(() =>
+  import('@/features/gimcana/SubmitScreen').then((m) => ({ default: m.SubmitScreen })),
+)
+const EditProfileScreen = lazy(() =>
+  import('@/features/profile/EditProfileScreen').then((m) => ({ default: m.EditProfileScreen })),
+)
+const ProfileScreen = lazy(() =>
+  import('@/features/profile/ProfileScreen').then((m) => ({ default: m.ProfileScreen })),
+)
+const QrScreen = lazy(() => import('@/features/qr/QrScreen').then((m) => ({ default: m.QrScreen })))
+const PrivacyScreen = lazy(() =>
+  import('@/features/legal/PrivacyScreen').then((m) => ({ default: m.PrivacyScreen })),
+)
+const TermsScreen = lazy(() =>
+  import('@/features/legal/TermsScreen').then((m) => ({ default: m.TermsScreen })),
 )
 
 /**
- * The order of the gates, and why.
- *
- * On iOS the home-screen app has its own storage, so a session created in
- * Safari is not there when the icon is tapped. Asking people to install before
- * they sign in is the only order that does not end with somebody opening the
- * icon and finding themselves signed out.
- *
- * It is a prompt, not a wall: skipping it goes straight on to the door.
+ * La porta de la sessió que no s'obre, també a demanda, i per un sol motiu: el
+ * QR desat que ensenya porta el generador de QR sencer, i el generador era el
+ * tros més gran que l'arrencada carregava per a una pantalla que no veu
+ * gairebé ningú. Surt sense xarxa, però és a la precache com qualsevol altre
+ * tros: el telèfon que la necessita ja l'ha baixat.
  */
-/**
- * Només per penjar el hook de la cua a l'arbre.
- *
- * Un component i no una crida dins d'`App`: allà hi ha retorns condicionals
- * abans d'aquest punt —la pantalla d'instal·lació, la d'entrada— i un hook
- * darrere d'un `return` és un hook que unes vegades s'executa i altres no.
- */
+const SessionGateScreen = lazy(() =>
+  import('@/features/shell/SessionGate').then((m) => ({ default: m.SessionGate })),
+)
+
+function SessionGate(props: ComponentProps<typeof SessionGateScreen>) {
+  return (
+    <Suspense fallback={<GateWaiting />}>
+      <SessionGateScreen {...props} />
+    </Suspense>
+  )
+}
+
 /**
  * Les dues rutes que es llegeixen sense sessió.
  *
@@ -162,6 +240,16 @@ const JuntaHome = lazy(() =>
 export const PRIVACY_PATH = '/privadesa'
 export const TERMS_PATH = '/condicions'
 
+/** Vegeu la porta de la sessió, a `App`. */
+const OFFLINE_GRACE_MS = 500
+
+/**
+ * Només per penjar el hook de la cua a l'arbre.
+ *
+ * Un component i no una crida dins d'`App`: allà hi ha retorns condicionals
+ * abans d'aquest punt —la pantalla d'instal·lació, la d'entrada— i un hook
+ * darrere d'un `return` és un hook que unes vegades s'executa i altres no.
+ */
 function DrainCheckins() {
   useCheckinQueue()
   return null
@@ -172,69 +260,159 @@ function SweepStorage({ userId }: { readonly userId: string }) {
   return null
 }
 
+/** El mateix per al QR: es desa en entrar, i no el dia que es busca a la porta. */
+function PrefetchQr() {
+  useQrPrefetch()
+  return null
+}
+
 function KeepPushFresh() {
   useKeepPushFresh()
   return null
 }
 
+/**
+ * On s'espera una pantalla de soci que encara no ha arribat.
+ *
+ * Una ruta sense camí entre la barra de pestanyes i les pantalles, i no un
+ * `Suspense` al voltant de tot l'arbre: així el que es substitueix mentre
+ * arriba el tros és la pantalla, i la barra no desapareix i torna.
+ */
+function ScreenOutlet() {
+  return (
+    <Suspense fallback={<GateWaiting />}>
+      <Outlet />
+    </Suspense>
+  )
+}
+
+/**
+ * L'app, darrere de l'espera de l'idioma.
+ *
+ * Qui ha triat el castellà o l'anglès no el té dins del paquet (vegeu
+ * `i18n/index.ts`), i fins que arriba `useTranslation` suspèn. Aquí es
+ * pinta el fons de l'app i la marca bategant, sense cap paraula: qualsevol
+ * frase, fins i tot «Un segon…», sortiria en català a qui no l'ha triat.
+ *
+ * Amb el català no s'arriba a veure; amb un altre ja desat, dura el que es
+ * triga a llegir-lo de la memòria cau del service worker; i com a molt,
+ * quatre segons (`i18n/backend.ts`).
+ */
 export default function App() {
+  return (
+    <Suspense
+      fallback={
+        <main aria-busy="true" className="flex min-h-dvh items-center justify-center bg-app">
+          <LogoMark size={44} className="animate-pulse" />
+        </main>
+      }
+    >
+      <Gates />
+    </Suspense>
+  )
+}
+
+/**
+ * The order of the gates, and why.
+ *
+ * On iOS the home-screen app has its own storage, so a session created in
+ * Safari is not there when the icon is tapped. Asking people to install before
+ * they sign in is the only order that does not end with somebody opening the
+ * icon and finding themselves signed out.
+ *
+ * Unless the link carries an invitation. The code lives only in the URL, and
+ * the icon opens `/` in a storage jar that has never seen it, so installing
+ * first meant arriving at the icon's door as a stranger. With a code the door
+ * goes first, the code is redeemed right there in Safari, and the account is
+ * active on the server before anybody installs anything; from the icon it
+ * takes one more Google sign-in and nothing else. `InstallCard` offers the
+ * install afterwards, on the home screen. Android's native dialog steps aside
+ * too, because accepting it can open the installed app at `/` just the same.
+ *
+ * It is a prompt, not a wall: skipping it goes straight on to the door.
+ */
+function Gates() {
   const { t } = useTranslation()
-  const [session, setSession] = useState<Session | null>(null)
+  const client = useQueryClient()
+  const lastUser = useRef<string | null>(null)
+  const signedIn = useRef(false)
+  const { phase, session } = useBootSession({
+    onRead: (read) => {
+      lastUser.current = read?.user.id ?? null
+      signedIn.current = read !== null
+    },
+    onChange: (event, next) => {
+      // Aquí i no al botó del perfil: també es tanca sessió quan el token ja
+      // no es pot refrescar, o des d'una altra pestanya. Un codi que esperava
+      // el bescanvi era del compte que se'n va, i el següent que entri en
+      // aquesta pestanya no se l'ha de quedar, ni del desat ni de la barra.
+      //
+      // Només si algú l'havia començat a fer servir. Una sessió vella que no
+      // es pot refrescar també dona `SIGNED_OUT`, en arrencar i abans de tot:
+      // esborrar-hi el `?codi=` deixaria qui acaba d'obrir l'enllaç sense la
+      // invitació a la porta.
+      if (event === 'SIGNED_OUT' && (signedIn.current || pendingInvite() !== null)) {
+        discardInvite()
+        forgetReturn()
+      }
+      signedIn.current = next !== null
+      // Abans de pintar res amb la sessió nova: qui entra no ha de veure ni un
+      // instant el que tenia a la cau qui marxa.
+      lastUser.current = forgetOnUserChange(client, lastUser.current, next?.user.id ?? null)
+    },
+  })
+  const stalled = useStalled(phase === 'waiting')
+  const online = useOnline()
+  const offlineSettled = useStalled(phase === 'waiting' && !online, 0, OFFLINE_GRACE_MS)
   const { pathname } = useLocation()
-  const [ready, setReady] = useState(false)
-  const [promptInstall, setPromptInstall] = useState(() => shouldPromptInstall())
+  // Llegit en muntar, abans que el bescanvi l'esborri de la barra d'adreces. A
+  // partir d'aquí ja hi ha sessió, i la pantalla d'instal·lació no torna.
+  const [invited] = useState(() => readInviteCode() !== null)
+  const [promptInstall, setPromptInstall] = useState(() =>
+    shouldPromptInstall(Date.now(), { invited }),
+  )
 
   // A Android el `beforeinstallprompt` sol arribar després del muntatge, i
   // aquest estat es llegeix un sol cop: sense tornar-hi, la pantalla no
   // sortiria mai on hi ha diàleg natiu.
   useEffect(() => {
     return onNativeInstallPrompt(() => {
-      setPromptInstall(shouldPromptInstall())
+      setPromptInstall(shouldPromptInstall(Date.now(), { invited }))
     })
-  }, [])
+  }, [invited])
+
+  useRedeemFromLink(session?.user.id ?? null)
 
   useEffect(() => {
-    void supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
-      setReady(true)
-    })
-
-    const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
-      setSession(next)
-    })
-    return () => {
-      sub.subscription.unsubscribe()
-    }
-  }, [])
-
-  // Redeem the invitation once, as soon as there is a session to redeem it
-  // against. The code travelled in the redirect URL so this works even when
-  // the link is opened on a different device from the one that asked for it.
-  useEffect(() => {
-    if (!session) return
     // The round trip came back here, so the stranded marker has done its job.
-    clearOAuthMark()
-
-    const code = readInviteCode()
-    if (code === null) return
-
-    void (async () => {
-      const { error } = await supabase.rpc('redeem_invite', { p_codi: code })
-      // The code is only rubbed out of the address bar once it has been spent.
-      // Removing it either way left somebody pending, with the one string that
-      // could have got them in already gone.
-      if (error) return
-      const url = new URL(window.location.href)
-      url.searchParams.delete(INVITE_PARAM)
-      window.history.replaceState({}, '', url.toString())
-    })()
+    if (session) clearOAuthMark()
   }, [session])
 
-  if (!ready) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center bg-app">
-        <p className="text-fg-muted">{t('state.loading')}</p>
-      </main>
+  useForgetReturn(session?.user.id ?? null)
+
+  // Tornar-ho a provar és recarregar, i no tornar a cridar `getSession()`: una
+  // renovació penjada no es deixa substituir —la biblioteca hi enganxa la
+  // crida nova— i la que ha fallat queda desada un minut. Recarregar és l'única
+  // manera de llançar-ne una de nova, i l'app la serveix el service worker
+  // també sense xarxa.
+  const reload = (): void => {
+    window.location.reload()
+  }
+
+  // Sense xarxa, supabase-js s'hi passa uns vint-i-cinc segons reintentant la
+  // renovació abans de rendir-se. No cal esperar-lo per dir-ho: si el
+  // navegador diu que no hi ha xarxa, és que no n'hi ha. Però no al primer
+  // frame: amb una sessió vàlida `getSession()` contesta en mil·lisegons sense
+  // tocar la xarxa, i en mode avió tothom veia una frase vermella un instant
+  // abans d'entrar. Mig segon de «Un segon…» primer.
+  if (phase === 'waiting') {
+    if (offlineSettled) {
+      return <SessionGate message={t('errors.sessionUnreachable')} onRetry={reload} />
+    }
+    return stalled ? (
+      <SessionGate message={t('errors.stalled')} onRetry={reload} />
+    ) : (
+      <GateWaiting />
     )
   }
 
@@ -252,8 +430,30 @@ export default function App() {
   //
   // El `*` torna l'arbre de sempre, o sigui que per a tota la resta això no hi
   // és.
-  if (pathname === PRIVACY_PATH) return <PrivacyScreen />
-  if (pathname === TERMS_PATH) return <TermsScreen />
+  if (pathname === PRIVACY_PATH || pathname === TERMS_PATH) {
+    return (
+      <Suspense fallback={<GateWaiting />}>
+        {pathname === PRIVACY_PATH ? <PrivacyScreen /> : <TermsScreen />}
+      </Suspense>
+    )
+  }
+
+  // Hi ha una sessió desada que no s'ha pogut renovar. La pantalla d'entrada
+  // seria mentir —ja has entrat— i, a més, no hi ha res que s'hi pugui fer
+  // sense xarxa. Davant del porter d'instal·lació pel mateix motiu: aquell és
+  // per a qui encara no ha entrat.
+  //
+  // «Sense connexió» només si el navegador ho diu. La biblioteca també dona
+  // per reintentable un 502, 503 o 504 del servidor d'entrada, i allà la
+  // cobertura no hi té res a veure.
+  if (!session && phase === 'unreachable') {
+    return (
+      <SessionGate
+        message={t(online ? 'errors.network' : 'errors.sessionUnreachable')}
+        onRetry={reload}
+      />
+    )
+  }
 
   if (promptInstall && !session) {
     return (
@@ -279,45 +479,60 @@ export default function App() {
           es torna a obrir. */}
       <DrainCheckins />
       <SweepStorage userId={session.user.id} />
+      <PrefetchQr />
       <KeepPushFresh />
       <Routes>
         {/* Asked once, and it has to be its own route rather than a gate in
             front of everything: a redirect that fires on every render would
             trap somebody who came in through a shared link to an event. */}
-        <Route path="/primer-cop" element={<OnboardingScreen />} />
+        <Route element={<ScreenOutlet />}>
+          <Route path="/primer-cop" element={<OnboardingScreen />} />
+        </Route>
 
         <Route element={<RequireOnboarding />}>
           <Route element={<TabLayout />}>
-            <Route path="/" element={<HomeScreen />} />
-            <Route path="/ranquing" element={<RankingScreen />} />
-            <Route path="/qr" element={<QrScreen />} />
-            <Route path="/idees" element={<IdeasScreen />} />
-            <Route path="/idees/nova" element={<NewIdeaScreen />} />
-            <Route path="/perfil" element={<ProfileScreen />} />
-            <Route path="/perfil/insignies" element={<BadgesScreen />} />
-            <Route path="/perfil/editar" element={<EditProfileScreen />} />
-            <Route path="/esdeveniment/:id" element={<EventScreen />} />
-            <Route path="/esdeveniment/:eventId/dins" element={<InsideScreen />} />
-            <Route path="/esdeveniment/:id/fotos" element={<GalleryScreen />} />
-            <Route path="/esdeveniment/:id/gimcana" element={<ProvesScreen />} />
-            <Route path="/esdeveniment/:id/gimcana/marcador" element={<ScoreboardScreen />} />
-            <Route path="/esdeveniment/:id/gimcana/:provaId" element={<SubmitScreen />} />
-            <Route path="/perfil/nits" element={<DiptychScreen />} />
-            <Route path="/perfil/nits/:eventId" element={<DiptychScreen />} />
-            <Route path="/esdeveniment/:eventId/cotxes" element={<RidesScreen />} />
-            <Route path="/esdeveniment/:eventId/cotxes/nou" element={<OfferRideScreen />} />
-            <Route path="/esdeveniment/:eventId/cotxes/:rideId" element={<MyRideScreen />} />
+            <Route
+              path="/"
+              element={
+                <>
+                  <ReturnToLink />
+                  <HomeScreen />
+                </>
+              }
+            />
+            <Route element={<ScreenOutlet />}>
+              <Route path="/ranquing" element={<RankingScreen />} />
+              <Route path="/qr" element={<QrScreen />} />
+              <Route path="/idees" element={<IdeasScreen />} />
+              <Route path="/idees/nova" element={<NewIdeaScreen />} />
+              <Route path="/perfil" element={<ProfileScreen />} />
+              <Route path="/perfil/insignies" element={<BadgesScreen />} />
+              <Route path="/perfil/editar" element={<EditProfileScreen />} />
+              <Route path="/esdeveniment/:id" element={<EventScreen />} />
+              <Route path="/esdeveniment/:eventId/dins" element={<InsideScreen />} />
+              <Route path="/esdeveniment/:id/fotos" element={<GalleryScreen />} />
+              <Route path="/esdeveniment/:id/gimcana" element={<ProvesScreen />} />
+              <Route path="/esdeveniment/:id/gimcana/marcador" element={<ScoreboardScreen />} />
+              <Route path="/esdeveniment/:id/gimcana/:provaId" element={<SubmitScreen />} />
+              <Route path="/perfil/nits" element={<DiptychScreen />} />
+              <Route path="/perfil/nits/:eventId" element={<DiptychScreen />} />
+              <Route path="/esdeveniment/:eventId/cotxes" element={<RidesScreen />} />
+              <Route path="/esdeveniment/:eventId/cotxes/nou" element={<OfferRideScreen />} />
+              <Route path="/esdeveniment/:eventId/cotxes/:rideId" element={<MyRideScreen />} />
+            </Route>
           </Route>
 
-          {/* The camera goes outside the tab bar, like the scanner: a tab bar
-              over a shutter button is a mis-tap waiting to happen. */}
-          <Route path="/perfil/nits/:eventId/camera" element={<DoorPhotoScreen />} />
+          <Route element={<ScreenOutlet />}>
+            {/* The camera goes outside the tab bar, like the scanner: a tab bar
+                over a shutter button is a mis-tap waiting to happen. */}
+            <Route path="/perfil/nits/:eventId/camera" element={<DoorPhotoScreen />} />
 
-          {/* El perfil d'un altre soci, també fora de la barra: s'hi entra des
-              d'una cara en una llista i se'n torna a sortir per on s'ha entrat,
-              que és el que la fletxa de la capçalera sap fer i una pestanya
-              marcada no. */}
-          <Route path="/soci/:id" element={<SociScreen />} />
+            {/* El perfil d'un altre soci, també fora de la barra: s'hi entra des
+                d'una cara en una llista i se'n torna a sortir per on s'ha
+                entrat, que és el que la fletxa de la capçalera sap fer i una
+                pestanya marcada no. */}
+            <Route path="/soci/:id" element={<SociScreen />} />
+          </Route>
 
           {/* No tab bar in here: these are places you go into and come back
               out of, and each one draws its own way out. */}

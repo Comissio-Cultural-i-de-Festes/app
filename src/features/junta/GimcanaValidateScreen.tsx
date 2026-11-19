@@ -5,7 +5,8 @@ import { useParams } from 'react-router'
 
 import { decideProva, fetchQueue, gimcanaKeys, undoProva } from '@/features/gimcana/api'
 import { teamName } from '@/features/gimcana/teamName'
-import { errorKey } from '@/lib/errors'
+import { useAvailability } from '@/lib/useAvailability'
+import { SendNote } from '@/features/shell/SendNote'
 import { GIMCANA_PHOTOS } from '@/lib/storage'
 import { useSignedUrls } from '@/lib/useSignedUrls'
 import { Notice } from '@/ui/Notice/Notice'
@@ -46,6 +47,10 @@ export function GimcanaValidateScreen() {
     enabled: eventId !== '',
   })
 
+  // La cua es valida a la mateixa nit i al mateix lloc on es juga, o sigui
+  // sovint sense cobertura: «sense xarxa» i no l'esquelet per sempre.
+  const view = useAvailability(queue)
+
   const rows = queue.data ?? []
   const current = rows[0] ?? null
 
@@ -78,6 +83,7 @@ export function GimcanaValidateScreen() {
   return (
     <main className="min-h-dvh bg-app pb-10">
       <JuntaHeader
+        viaHistory
         to="/junta"
         label={t('junta.back')}
         title={t('junta.gimcana.validateTitle')}
@@ -92,11 +98,11 @@ export function GimcanaValidateScreen() {
       />
 
       <div className={`pt-7 ${GUTTER}`}>
-        {queue.isPending ? (
+        {view.loading ? (
           <QueueSkeleton />
-        ) : queue.isError ? (
+        ) : view.unavailable ? (
           <p role="alert" className="py-8 text-md font-bold text-error [text-wrap:pretty]">
-            {t(errorKey(queue.error))}
+            {t(view.messageKey)}
           </p>
         ) : current === null ? (
           <p className="py-8 text-md text-fg-muted [text-wrap:pretty]">
@@ -188,11 +194,9 @@ export function GimcanaValidateScreen() {
               />
             ) : null}
 
-            {decide.isError ? (
-              <p role="alert" className="mt-5 text-md font-bold text-error [text-wrap:pretty]">
-                {t(errorKey(decide.error))}
-              </p>
-            ) : null}
+            {/* Sense xarxa la decisió es posa en pausa, i els dos botons es
+                quedaven apagats sense cap frase. */}
+            <SendNote send={decide} className="mt-5" />
           </>
         )}
 

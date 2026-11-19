@@ -55,6 +55,7 @@ export function IdeasReviewScreen() {
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
       <JuntaHeader
+        viaHistory
         to="/junta"
         label={t('junta.back')}
         title={t('ideas.juntaTitle')}
@@ -244,6 +245,7 @@ function Panel({
         }}
         rows={3}
         maxLength={500}
+        aria-label={accepta ? t('ideas.whyYes') : t('ideas.whyNot')}
         placeholder={accepta ? t('ideas.whyYes') : t('ideas.whyNotPlaceholder')}
         className={`${INPUT} resize-y`}
       />

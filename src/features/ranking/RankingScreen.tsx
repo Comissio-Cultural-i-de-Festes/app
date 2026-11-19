@@ -9,7 +9,6 @@ import { ShareCard } from '@/features/share/ShareCard'
 import { formatOrdinal } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { type Card, loadCardImage } from '@/lib/cards'
-import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { Avatar } from '@/ui/Avatar/Avatar'
 
@@ -163,7 +162,7 @@ export function RankingScreen() {
 
       {board.isError ? (
         <div role="alert" className={`flex items-center justify-between gap-3 py-4 ${GUTTER}`}>
-          <p className="text-sm text-error [text-wrap:pretty]">{t(errorKey(board.error))}</p>
+          <p className="text-sm text-error [text-wrap:pretty]">{t(board.messageKey)}</p>
           <button
             type="button"
             onClick={board.refetch}

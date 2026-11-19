@@ -44,7 +44,7 @@ import { creaPendent, pendentsKeys } from './pendentsApi'
  * queda en pausa i ho diu, com `AvisForm`.
  */
 
-const BAD = 'border-warning'
+const BAD = 'border-warning focus:border-warning'
 const GUTTER = 'px-[var(--ds-gutter)]'
 
 export function AvisPendentFormScreen() {
@@ -139,7 +139,12 @@ export function AvisPendentFormScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
-      <JuntaHeader to="/junta" label={t('junta.back')} title={t('junta.pendents.form.title')} />
+      <JuntaHeader
+        viaHistory
+        to="/junta"
+        label={t('junta.back')}
+        title={t('junta.pendents.form.title')}
+      />
 
       <div className={`pt-8 ${GUTTER}`}>
         <p className="pb-9 text-md text-fg-secondary [text-wrap:pretty]">

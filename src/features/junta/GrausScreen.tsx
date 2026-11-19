@@ -114,7 +114,7 @@ function GrausBlock() {
                           setConfirming(null)
                           setDraft(draftOf(grau))
                         }}
-                        className="min-w-0 flex-1 py-2 text-left text-lg font-semibold [text-wrap:pretty]"
+                        className="min-h-[44px] min-w-0 flex-1 py-2 text-left text-lg font-semibold [text-wrap:pretty]"
                       >
                         {grau.nom}
                       </button>
@@ -238,7 +238,7 @@ function DraftForm({
           onChange={(e) => {
             onChange({ ...draft, ordre: e.target.value })
           }}
-          className="min-h-[46px] w-[86px] flex-none border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none"
+          className="min-h-[46px] w-[86px] flex-none border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none focus:border-brand-strong"
         />
         <button
           type="button"
@@ -274,6 +274,7 @@ export function GrausScreen() {
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
       <JuntaHeader
+        viaHistory
         to="/junta"
         label={t('junta.back')}
         title={t('junta.config.graus.title')}

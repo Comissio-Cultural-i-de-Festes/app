@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 
-import { count as queueCount } from '@/lib/queue'
+import { type QueuedScan, onReconnect, pending, usable } from '@/lib/queue'
 
 import { flushQueue } from './api'
 
@@ -13,7 +13,15 @@ import { flushQueue } from './api'
  * queue that never drains.
  */
 export interface QueueState {
+  /** Waiting to be sent. */
   readonly queued: number
+  /** Set aside, not waiting for anything: somebody has to look. See `Held`. */
+  readonly held: readonly QueuedScan[]
+  /**
+   * Whether this phone can write the queue at all. False means a scan with no
+   * signal goes nowhere, and the junta should know before the first one.
+   */
+  readonly usable: boolean
   readonly online: boolean
   readonly refresh: () => void
 }
@@ -21,15 +29,28 @@ export interface QueueState {
 const RETRY_MS = 20_000
 
 export function useQueue(): QueueState {
-  const [queued, setQueued] = useState(0)
+  const [rows, setRows] = useState<{ queued: number; held: readonly QueuedScan[] }>({
+    queued: 0,
+    held: [],
+  })
+  const [canWrite, setCanWrite] = useState(true)
   const [online, setOnline] = useState(() => navigator.onLine)
 
+  // The rows and not `count()`: the held ones are in the same store and are
+  // not waiting for anything, so a single number would count them as queued.
   const refresh = useCallback(() => {
-    void queueCount().then(setQueued)
+    void pending().then((all) => {
+      const held = all.filter((row) => row.held !== undefined)
+      setRows({ queued: all.length - held.length, held })
+    })
+    void usable().then(setCanWrite)
   }, [])
 
+  // An open that answered after the deadline, or once an older tab let go.
+  // Without this, "no es pot desar la cua" stayed up over a queue that works.
   useEffect(() => {
     refresh()
+    return onReconnect(refresh)
   }, [refresh])
 
   useEffect(() => {
@@ -59,5 +80,26 @@ export function useQueue(): QueueState {
     }
   }, [refresh])
 
-  return { queued, online, refresh }
+  return { ...rows, usable: canWrite, online, refresh }
+}
+
+/**
+ * The line beside the count on both door screens, or null when all is well.
+ *
+ * A queue that cannot be written comes first, whatever the count says: "0 a
+ * la cua, sense xarxa" reads as a door that is coping, and with no queue it is
+ * a door where every scan goes nowhere. Those two keys take no count — they
+ * are not plurals, and passing one would send i18next looking for `_one`.
+ */
+export function queueNotice(
+  state: QueueState,
+): { readonly key: string; readonly params: { count?: number } } | null {
+  if (!state.usable) {
+    return { key: state.online ? 'door.noQueue' : 'door.noQueueOffline', params: {} }
+  }
+  if (state.queued === 0 && state.online) return null
+  return {
+    key: state.online ? 'door.queued' : 'door.queuedOffline',
+    params: { count: state.queued },
+  }
 }

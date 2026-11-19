@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 
 import { env } from '@/config/env'
 import { eventKeys, fetchEvent } from '@/features/event/api'
@@ -11,6 +11,7 @@ import { formatTime, formatWeekdayLong } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { useBack } from '@/lib/useBack'
 
 import {
   type InviteResult,
@@ -41,9 +42,9 @@ const GUTTER = 'px-[var(--ds-gutter)]'
 export function MyRideScreen() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
-  const navigate = useNavigate()
   const { eventId, rideId } = useParams()
   const id = eventId ?? ''
+  const { back } = useBack(`/esdeveniment/${id}/cotxes`)
   const ride = rideId ?? ''
   const client = useQueryClient()
   const { data: profile } = useMyProfile()
@@ -91,7 +92,7 @@ export function MyRideScreen() {
     mutationFn: () => withdrawRide(ride),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: rideKeys.list(id) })
-      await navigate(`/esdeveniment/${id}/cotxes`)
+      back()
     },
   })
 
@@ -107,7 +108,8 @@ export function MyRideScreen() {
           t('rides.nudgeText', {
             who: profile?.nombre ?? '',
             event: event.data?.titulo ?? '',
-            when: when === null ? '' : `${formatWeekdayLong(when, locale)} ${formatTime(when, locale)}`,
+            when:
+              when === null ? '' : `${formatWeekdayLong(when, locale)} ${formatTime(when, locale)}`,
             from: mine.origen,
           }),
         )}`
@@ -115,6 +117,7 @@ export function MyRideScreen() {
   return (
     <main className="with-tabbar min-h-dvh bg-app">
       <JuntaHeader
+        viaHistory
         to={`/esdeveniment/${id}/cotxes`}
         label={t('rides.title')}
         title={t('rides.mine')}
@@ -193,9 +196,10 @@ export function MyRideScreen() {
                   onChange={(e) => {
                     setQuery(e.target.value)
                   }}
+                  aria-label={t('rides.inviteSearch')}
                   placeholder={t('rides.inviteSearch')}
                   autoComplete="off"
-                  className="mt-5 min-h-[48px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-5 text-md font-semibold text-fg outline-none placeholder:font-medium placeholder:text-fg-faint"
+                  className="mt-5 min-h-[48px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-5 text-md font-semibold text-fg outline-none focus:border-brand-strong placeholder:font-medium placeholder:text-fg-faint"
                 />
                 <ul className="mt-4 max-h-[280px] overflow-y-auto">
                   {(candidates.data ?? [])
@@ -248,7 +252,10 @@ export function MyRideScreen() {
             )}
 
             {held === null ? null : (
-              <p role="status" className="pt-6 text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]">
+              <p
+                role="status"
+                className="pt-6 text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]"
+              >
                 {t(held === 'convidat' ? 'rides.invitedOk' : `rides.${holdNoteKey(held)}`)}
               </p>
             )}

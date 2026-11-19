@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router'
+import { useBack } from '@/lib/useBack'
 
 /**
  * The way out of a junta screen.
@@ -23,6 +24,7 @@ export function JuntaHeader({
   title,
   aside,
   className = '',
+  viaHistory = false,
 }: {
   readonly to: string
   readonly label: string
@@ -38,7 +40,17 @@ export function JuntaHeader({
    * visible: dues navegacions, una sobre l'altra, a mig ample de portatil.
    */
   readonly className?: string
+  /**
+   * La fletxa torna d'on s'ha vingut quan hi ha historial de l'app, i `to` és
+   * el destí només si no n'hi ha (un enllaç compartit). Sense això, una
+   * pantalla a què s'arriba des de molts llocs —la fitxa d'un esdeveniment, la
+   * junta— portava sempre al mateix lloc, i pujar a un pare amb un `<Link>`
+   * afegia una entrada més i feia un bucle entre pare i filla. Només cal
+   * deixar-lo apagat si la pantalla vol un destí fix passi el que passi.
+   */
+  readonly viaHistory?: boolean
 }) {
+  const { onClick } = useBack(to)
   return (
     <header
       className={`sticky top-[var(--ds-sticky-top)] z-20 border-b border-surface-5 bg-app px-[var(--ds-gutter)] pt-[max(calc(var(--ds-safe-top)+4px),12px)] pb-4 ${className}`}
@@ -46,6 +58,7 @@ export function JuntaHeader({
       <div className="flex items-center justify-between gap-3">
         <Link
           to={to}
+          onClick={viaHistory ? onClick : undefined}
           className="-ml-2 flex min-h-[44px] items-center gap-1 px-2 text-md font-bold text-fg-muted no-underline"
         >
           <span aria-hidden="true" className="text-lg">

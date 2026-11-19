@@ -3,7 +3,6 @@ import { type ReactNode, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 
-import { warmDecoder } from '@/features/door/decoder'
 import { fetchPeriods, rankingKeys } from '@/features/ranking/api'
 import { useMyProfile } from '@/features/session/useMyProfile'
 import {
@@ -111,12 +110,6 @@ export function JuntaHome() {
     if (hash === '#avisos-pendents') document.getElementById('avisos-pendents')?.scrollIntoView()
   }, [hash])
 
-  // Fetched here rather than at the door: this screen is opened on the way to
-  // the venue, and the scanner is opened inside it, where there is no signal.
-  useEffect(() => {
-    if (navigator.onLine) void warmDecoder()
-  }, [])
-
   // Les dades abans que l'error: el perquè és a `doorView.ts`.
   const door = doorView(home, events.data)
   const retrying = home.fetchStatus !== 'idle'
@@ -128,6 +121,7 @@ export function JuntaHome() {
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+24px)]">
       <JuntaHeader
+        viaHistory
         to="/perfil"
         label={t('nav.profile')}
         title={t('junta.title')}

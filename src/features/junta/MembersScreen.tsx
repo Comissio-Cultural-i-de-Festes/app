@@ -96,6 +96,7 @@ export function MembersScreen() {
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
       <JuntaHeader
+        viaHistory
         to="/junta"
         label={t('junta.back')}
         title={t('junta.members.title')}
@@ -141,7 +142,7 @@ export function MembersScreen() {
           autoComplete="off"
           autoCapitalize="off"
           spellCheck={false}
-          className="mt-5 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] py-[13px] text-lg font-semibold text-fg outline-none placeholder:font-medium placeholder:text-fg-faint"
+          className="mt-5 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] py-[13px] text-lg font-semibold text-fg outline-none focus:border-brand-strong placeholder:font-medium placeholder:text-fg-faint"
         />
 
         <DoneLine

@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { DbError } from '@/lib/db'
 import { errorKey } from '@/lib/errors'
-import { invalidateData } from '@/lib/signedQuery'
+import { invalidateAccess } from '@/lib/signedQuery'
 import { rpc } from '@/lib/supabase'
 import { Button } from '@/ui/Button/Button'
 import { TextField } from '@/ui/Field/Field'
@@ -64,8 +64,9 @@ export function InviteCodeSheet({ onClose }: { readonly onClose: () => void }) {
     },
     onSuccess: async () => {
       // Canvia tot el que la RLS deixa veure, o sigui que es refresca tot,
-      // menys les URL signades que ja funcionaven (vegeu `invalidateData`).
-      await invalidateData(queryClient)
+      // menys les URL signades que ja funcionaven, però amb les que van tornar
+      // `null` quan encara no se'n podia veure cap (vegeu `invalidateAccess`).
+      await invalidateAccess(queryClient)
       onClose()
     },
   })

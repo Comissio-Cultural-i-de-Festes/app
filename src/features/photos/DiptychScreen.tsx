@@ -151,6 +151,7 @@ export function DiptychScreen() {
             {night.exit_photo_url === null ? (
               <Link
                 to={`/perfil/nits/${night.event_id}/camera`}
+                state={{ from: 'diptych' }}
                 className="flex min-h-[56px] w-full items-center justify-center bg-brand-cta px-8 py-7 text-lg font-bold text-on-brand no-underline [text-wrap:balance]"
               >
                 {t('diptych.takeExit')}
@@ -242,7 +243,7 @@ function Shell({ children }: { readonly children: React.ReactNode }) {
   const { t } = useTranslation()
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <JuntaHeader to="/perfil" label={t('nav.profile')} title={t('diptych.title')} />
+      <JuntaHeader viaHistory to="/perfil" label={t('nav.profile')} title={t('diptych.title')} />
       {children}
     </main>
   )

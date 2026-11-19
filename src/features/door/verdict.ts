@@ -186,7 +186,14 @@ function detailOf(result: CheckInResult, priceCents: number | null): DetailPart[
  * apuntat» demanen que algú faci alguna cosa, i ningú no ho sabria. Una entrada
  * normal no demana res i calla; una que no ha arribat ja surt al comptador de
  * la cua.
+ *
+ * TRET DE LES DUES QUE NO HI SURTEN. Una que no s'ha pogut desar no és a cap
+ * comptador ni l'enviarà ningú, i una que el servidor ha refusat tampoc no hi
+ * queda: totes dues són algú que ha passat sense constar, i si la targeta ja és
+ * d'un altre, aquesta línia és l'únic lloc on es pot dir.
  */
 export function displacedWorthSaying(outcome: DoorOutcome): boolean {
+  if (outcome.kind === 'unsaved') return true
+  if (outcome.kind === 'failed') return outcome.refused === true
   return outcome.kind === 'sent' && SCAN_PRESENTATION[outcome.result.status].tone !== 'success'
 }

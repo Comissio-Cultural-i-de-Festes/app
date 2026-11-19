@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router'
 
 import { doorKeys } from '@/features/door/api'
 import { fetchPointValues } from '@/features/junta/eventFormApi'
@@ -9,6 +9,8 @@ import { Field, INPUT } from '@/features/junta/formBits'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { useUserId } from '@/features/session/useUserId'
 import { errorKey } from '@/lib/errors'
+import { NotSaved } from '@/lib/queue'
+import { useBack } from '@/lib/useBack'
 import { useQuery } from '@tanstack/react-query'
 
 import { propose, proposalKeys } from './api'
@@ -28,7 +30,7 @@ const GUTTER = 'px-[var(--ds-gutter)]'
 
 export function NewIdeaScreen() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const { back } = useBack('/idees')
   const userId = useUserId()
   const client = useQueryClient()
   const [params] = useSearchParams()
@@ -54,15 +56,19 @@ export function NewIdeaScreen() {
     mutationFn: () => propose(titol, descripcio, userId),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: proposalKeys.list() })
-      await navigate('/idees')
+      back()
     },
     // Offline is not a refusal. `propose` writes the idea to the queue before
     // it tries to send it, so it is safe on the phone either way and the list
     // is where the waiting count lives. Anything else — a policy saying no, a
     // title the CHECK refuses — stays on this screen with its reason.
-    onError: () => {
-      if (navigator.onLine) return
-      void navigate('/idees')
+    //
+    // So does an idea the phone could not write down. Leaving would throw the
+    // text away with nothing queued to bring it back; staying keeps it in the
+    // fields, with the reason, for when there is signal.
+    onError: (cause) => {
+      if (navigator.onLine || cause instanceof NotSaved) return
+      back()
     },
   })
 
@@ -73,7 +79,7 @@ export function NewIdeaScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <JuntaHeader to="/idees" label={t('ideas.title')} title={t('ideas.newTitle')} />
+      <JuntaHeader viaHistory to="/idees" label={t('ideas.title')} title={t('ideas.newTitle')} />
 
       <div className={`pt-8 ${GUTTER}`}>
         <h2 className="text-lg font-bold [text-wrap:balance]">{t('ideas.newHeading')}</h2>

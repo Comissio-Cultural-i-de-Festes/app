@@ -93,6 +93,7 @@ export function RolesScreen() {
   return (
     <main className="min-h-dvh bg-app pb-14">
       <JuntaHeader
+        viaHistory
         to="/junta"
         label={t('junta.back')}
         title={t('junta.roles.title')}
@@ -435,7 +436,7 @@ function MemberPicker({
   const shown = needle === '' ? rows : rows.filter((r) => r.nombre.toLowerCase().includes(needle))
 
   return (
-    <div className="border-[1.5px] border-surface-7 bg-surface-1">
+    <div className="border-[1.5px] border-surface-7 bg-surface-1 focus-within:border-brand-strong">
       <div className="flex items-center gap-4 border-b border-surface-5 p-6">
         <input
           value={query}

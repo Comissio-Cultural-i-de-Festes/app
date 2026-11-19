@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 
@@ -7,6 +7,7 @@ import { brand } from '@/config/brand'
 import { SCAN_PRESENTATION, toneVar } from '@/design/states'
 import { fetchEvent } from '@/features/event/api'
 import { eventKeys } from '@/features/event/api'
+import { useBack } from '@/lib/useBack'
 
 import {
   type DoorOutcome,
@@ -17,9 +18,10 @@ import {
   scan,
 } from './api'
 import { ScanGlyph } from './icons'
+import { HeldScans } from './HeldScans'
 import { displacedWorthSaying, statusWords, verdictText } from './verdict'
 import { useCamera } from './useCamera'
-import { useQueue } from './useQueue'
+import { queueNotice, useQueue } from './useQueue'
 import { type Undo, useUndo, undoNoteKey } from './useUndo'
 
 /**
@@ -41,6 +43,7 @@ export function ScannerScreen() {
   const { t } = useTranslation()
   const { eventId } = useParams()
   const id = eventId ?? ''
+  const { onClick: onBack } = useBack('/junta')
 
   const event = useQuery({
     queryKey: eventKeys.one(id),
@@ -59,7 +62,9 @@ export function ScannerScreen() {
   const [displaced, setDisplaced] = useState<DoorOutcome | null>(null)
   const lastToken = useRef<{ value: string; at: number } | null>(null)
   const latestRequest = useRef<string | null>(null)
-  const { queued, online, refresh: refreshQueue } = useQueue()
+  const queue = useQueue()
+  const { refresh: refreshQueue } = queue
+  const notice = queueNotice(queue)
   // The same QR stays in front of the lens for a second or two after it is
   // read. Without this the card would flicker through four identical scans and
   // the person would not know whether they were in.
@@ -101,11 +106,17 @@ export function ScannerScreen() {
           buzz(SCAN_PRESENTATION[result.status].haptic)
         })
         .catch((cause: unknown) => {
-          if (!isLatest()) return
           // Queued, not lost. The person walks in either way, so the card says
           // what actually happened rather than telling the junta to try again.
-          setOutcome(outcomeFromFailure(request, cause))
-          buzz(SCAN_PRESENTATION.error.haptic)
+          // Unless it is not queued at all, which is the one a later scan must
+          // not bury: it is in no count and nothing will send it.
+          const failed = outcomeFromFailure(request, cause)
+          if (!isLatest()) {
+            if (displacedWorthSaying(failed)) setDisplaced(failed)
+            return
+          }
+          setOutcome(failed)
+          buzz(presentationOf(failed).haptic)
         })
         .finally(refreshQueue)
     },
@@ -122,6 +133,11 @@ export function ScannerScreen() {
     refreshQueue()
   }, [roster, refreshQueue])
   const undoLast = useUndo(outcome, afterUndo)
+
+  const names = useMemo(
+    () => new Map((roster.data ?? []).map((row) => [row.user_id, row.nombre])),
+    [roster.data],
+  )
 
   const checkedIn = roster.data?.filter((r) => r.checked_in).length ?? 0
   const expected = roster.data?.filter((r) => r.estado === 'si' || r.checked_in).length ?? 0
@@ -142,6 +158,7 @@ export function ScannerScreen() {
         <div className="flex items-center justify-between gap-6 px-8">
           <Link
             to="/junta"
+            onClick={onBack}
             aria-label={t('actions.close')}
             className="flex size-[56px] flex-none items-center justify-center rounded-full bg-[var(--ds-scrim-chip)] text-xl font-bold text-fg no-underline"
           >
@@ -158,18 +175,24 @@ export function ScannerScreen() {
           <p className="text-md font-bold">
             {t('door.checkedIn', { count: checkedIn, total: expected })}
           </p>
-          {queued > 0 || !online ? (
+          {notice === null ? null : (
             <p className="flex items-center gap-3 text-sm font-bold text-[var(--ds-warning-deep)]">
               <span
                 aria-hidden="true"
                 className="size-[8px] flex-none animate-pulse rounded-full bg-[var(--ds-warning-deep)]"
               />
-              {online
-                ? t('door.queued', { count: queued })
-                : t('door.queuedOffline', { count: queued })}
+              {t(notice.key, notice.params)}
             </p>
-          ) : null}
+          )}
         </div>
+
+        <HeldScans
+          rows={queue.held.filter((row) => row.eventId === id)}
+          names={names}
+          priceCents={event.data?.precio_cents ?? null}
+          onChange={refreshQueue}
+          className="mx-8 mt-4 bg-[var(--ds-scrim-chip)] px-7 pt-5 pb-2"
+        />
       </header>
 
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-[var(--ds-gutter)]">

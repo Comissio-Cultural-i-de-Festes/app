@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import { type RosterRow, closeMeeting, fetchRoster, meetingKeys } from '@/features/event/meetingApi'
@@ -11,6 +11,7 @@ import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
+import { useBack } from '@/lib/useBack'
 
 import { JuntaHeader } from './JuntaHeader'
 import { INPUT } from './formBits'
@@ -73,7 +74,7 @@ export function CloseMeetingScreen() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
   const { id = '' } = useParams()
-  const navigate = useNavigate()
+  const { back } = useBack('/junta')
   const client = useQueryClient()
 
   const event = useQuery({ queryKey: eventKeys.one(id), queryFn: () => fetchEvent(id) })
@@ -96,7 +97,7 @@ export function CloseMeetingScreen() {
       await client.invalidateQueries({ queryKey: eventKeys.one(id) })
       await client.invalidateQueries({ queryKey: meetingListKeys.list() })
       await client.invalidateQueries({ queryKey: juntaHomeKeys.home() })
-      await navigate('/junta')
+      back()
     },
   })
 
@@ -107,6 +108,7 @@ export function CloseMeetingScreen() {
     return (
       <main className="min-h-dvh bg-app">
         <JuntaHeader
+          viaHistory
           to="/junta"
           label={t('junta.back')}
           title={t('meeting.closeTitle')}
@@ -138,6 +140,7 @@ export function CloseMeetingScreen() {
   return (
     <main className="min-h-dvh bg-app pb-14">
       <JuntaHeader
+        viaHistory
         to="/junta"
         label={t('junta.back')}
         title={t('meeting.closeTitle')}
@@ -195,6 +198,7 @@ export function CloseMeetingScreen() {
           value={written}
           onChange={(ev) => setActa(ev.target.value)}
           rows={4}
+          aria-label={t('meeting.actaLabel')}
           placeholder={t('meeting.actaPlaceholder')}
           className={`${INPUT} resize-y`}
         />

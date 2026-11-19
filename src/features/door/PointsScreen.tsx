@@ -10,6 +10,7 @@ import { Avatar } from '@/ui/Avatar/Avatar'
 import { errorKey } from '@/lib/errors'
 import { Button } from '@/ui/Button/Button'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
+import { useBack } from '@/lib/useBack'
 
 import { awardPoints, doorKeys, fetchRoster } from './api'
 import { doorMotives } from './motives'
@@ -31,6 +32,7 @@ export function PointsScreen() {
   const { t } = useTranslation()
   const { eventId } = useParams()
   const id = eventId ?? ''
+  const { onClick: onBack } = useBack('/junta')
   const client = useQueryClient()
 
   const [picked, setPicked] = useState<ReadonlySet<string>>(new Set())
@@ -75,6 +77,7 @@ export function PointsScreen() {
         <div className="flex items-center justify-between gap-6">
           <Link
             to="/junta"
+            onClick={onBack}
             className="-ml-4 flex min-h-[56px] min-w-0 items-center gap-1 px-4 eyebrow text-brand-accent no-underline"
           >
             <span aria-hidden="true">‹</span>

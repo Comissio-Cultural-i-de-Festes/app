@@ -83,9 +83,11 @@
     }
   }
 
-  /* Keyboard focus. Nothing on a phone ever shows this; on a laptop it is the
-   * difference between the junta area being usable without a mouse and not.
-   * :focus-visible, so a tap never draws it. */
+  /* Keyboard focus, for everything that is not a text field. A tap on a button
+   * or a link never draws it (:focus-visible); on a laptop it is the difference
+   * between the junta area being usable without a mouse and not. Text fields
+   * opt out with `outline-none` and mark focus with a brand-coloured border
+   * instead, because :focus-visible always matches on a field, tapped or not. */
   :focus-visible {
     outline: 2px solid var(--ds-brand-strong);
     outline-offset: 2px;

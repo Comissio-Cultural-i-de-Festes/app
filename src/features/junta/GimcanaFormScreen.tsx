@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import {
@@ -17,6 +17,7 @@ import { errorKey } from '@/lib/errors'
 
 import { JuntaHeader } from './JuntaHeader'
 import { teamName } from '@/features/gimcana/teamName'
+import { useBack } from '@/lib/useBack'
 
 /**
  * Muntar la gimcana, des de dins de l'activitat.
@@ -42,7 +43,7 @@ type Mena = (typeof MENES)[number]
 export function GimcanaFormScreen() {
   const { t } = useTranslation()
   const { id = '' } = useParams()
-  const navigate = useNavigate()
+  const { back } = useBack(`/junta/esdeveniment/${id}`)
   const client = useQueryClient()
 
   const event = useQuery({
@@ -89,7 +90,7 @@ export function GimcanaFormScreen() {
       ),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: gimcanaKeys.all() })
-      void navigate(`/junta/esdeveniment/${id}`)
+      back()
     },
   })
 
@@ -113,6 +114,7 @@ export function GimcanaFormScreen() {
   return (
     <main className="min-h-dvh bg-app pb-10">
       <JuntaHeader
+        viaHistory
         to={`/junta/esdeveniment/${id}`}
         label={t('junta.gimcana.leave')}
         className="lg:hidden"
@@ -160,6 +162,7 @@ export function GimcanaFormScreen() {
                 type="number"
                 min={2}
                 max={12}
+                aria-label={t('junta.gimcana.shuffleHowMany')}
                 value={howMany}
                 onChange={(e) => {
                   setHowMany(Number(e.target.value))
@@ -206,6 +209,7 @@ export function GimcanaFormScreen() {
                   type="text"
                   value={n}
                   maxLength={40}
+                  aria-label={t('junta.gimcana.teamLabel', { n: i + 1 })}
                   onChange={(e) => {
                     const next = [...names]
                     next[i] = e.target.value
@@ -256,6 +260,7 @@ export function GimcanaFormScreen() {
                 type="text"
                 value={p.titol}
                 maxLength={120}
+                aria-label={t('junta.gimcana.provaLabel', { n: i + 1 })}
                 placeholder={t('junta.gimcana.provaPlaceholder')}
                 onChange={(e) => {
                   const next = [...list]
@@ -268,6 +273,7 @@ export function GimcanaFormScreen() {
                 type="number"
                 min={0}
                 max={100}
+                aria-label={t('junta.gimcana.provaPuntsLabel', { n: i + 1 })}
                 value={p.punts}
                 onChange={(e) => {
                   const next = [...list]

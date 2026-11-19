@@ -101,6 +101,7 @@ export function GalleryScreen() {
   return (
     <main className="with-tabbar min-h-dvh bg-app">
       <JuntaHeader
+        viaHistory
         to={`/esdeveniment/${id}`}
         label={event.data?.titulo ?? t('gallery.backToEvent')}
       />
@@ -179,6 +180,7 @@ export function GalleryScreen() {
                 onClick={() => {
                   setOpen(i)
                 }}
+                aria-label={t('gallery.thumbLabel', { n: i + 1, total: photos.data?.length ?? 0 })}
                 className="aspect-square bg-surface-3"
               >
                 {urls.data?.get(p.thumb_path) === undefined ? null : (

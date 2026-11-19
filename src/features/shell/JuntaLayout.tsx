@@ -1,10 +1,16 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, Outlet } from 'react-router'
+import { Navigate, Outlet, useLocation, useMatch } from 'react-router'
 
+import { preloadDoor } from '@/features/door/preload'
 import { JuntaNav } from '@/features/junta/JuntaNav'
-import { isJunta, useMyProfile } from '@/features/session/useMyProfile'
-import { errorKey } from '@/lib/errors'
+import { PROFILE_CLOCK, isJunta, useMyProfile } from '@/features/session/useMyProfile'
+import { useAvailability } from '@/lib/useAvailability'
+
+import { GateUnreachable, GateWaiting } from './Gate'
+import { JuntaScreenBoundary } from './JuntaScreenBoundary'
+import { prefetchJunta } from './startPrefetch'
 
 /**
  * The junta area.
@@ -26,7 +32,23 @@ import { errorKey } from '@/lib/errors'
  */
 export function JuntaLayout() {
   const { t } = useTranslation()
-  const { data: profile, isPending, isError, error, refetch } = useMyProfile()
+  const profile = useMyProfile()
+  const view = useAvailability(profile, { clock: PROFILE_CLOCK })
+  const scanner = useMatch('/junta/escaner/:eventId')
+  const { pathname } = useLocation()
+  const lobby = useMatch({ path: '/junta', end: true })
+  const client = useQueryClient()
+  const juntaProfile = isJunta(profile.data)
+
+  // Només al rebedor. Les altres pantalles de la zona no el necessiten, i
+  // l'escàner té la cua `SCANS` competint per la mateixa barra de cobertura.
+  // Quan s'hi entra des d'una altra pantalla el perfil ja hi és, però les
+  // dades de l'entrada encara no. En arrencada en fred ja les ha demanat la
+  // porta de fora, i això no fa res (la cau les té o ja hi són en vol).
+  const atLobby = lobby !== null
+  useEffect(() => {
+    if (juntaProfile && atLobby) void prefetchJunta(client)
+  }, [client, juntaProfile, atLobby])
 
   // On #root rather than in a component, because the width cap lives on #root
   // and a child cannot widen its own parent.
@@ -38,42 +60,49 @@ export function JuntaLayout() {
     }
   }, [])
 
+  // Aquí i no al rebedor: s'hi pot entrar per qualsevol pantalla de la zona, i
+  // el que importa és que la porta quedi baixada abans de ser-hi. El perquè és
+  // a `preload.ts`.
+  useEffect(() => {
+    if (juntaProfile) void preloadDoor()
+  }, [juntaProfile])
+
   // Deciding while the profile is still in flight would bounce every admin
   // out of the door they just came through.
-  if (isPending) {
-    return (
-      <main className="flex min-h-dvh items-center justify-center bg-app">
-        <p className="text-fg-muted">{t('state.loading')}</p>
-      </main>
-    )
-  }
+  if (view.loading) return <GateWaiting />
 
   // A profile that failed to load is not a profile that says "not junta".
   // Redirecting on it bounces an admin out of the door they are standing at,
-  // on one bar of signal, with nothing on screen to explain why.
-  if (isError) {
-    return (
-      <main className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-app px-[var(--ds-gutter)]">
-        <p role="alert" className="text-center text-lg font-bold text-error [text-wrap:pretty]">
-          {t(errorKey(error))}
-        </p>
-        <button
-          type="button"
-          onClick={() => void refetch()}
-          className="min-h-[44px] px-4 text-md font-bold text-brand-label"
-        >
-          {t('actions.retry')}
-        </button>
-      </main>
-    )
+  // on one bar of signal, with nothing on screen to explain why. The same goes
+  // for one that never arrived: offline the query pauses instead of failing,
+  // and this used to wait on it for ever.
+  //
+  // L'escàner és l'excepció. Funciona sense xarxa —cada lectura va a la cua
+  // `SCANS` abans de sortir i el servidor la valida quan arriba—, i la porta
+  // de la casa rural és exactament on la junta l'obrirà sense cobertura i
+  // amb el perfil sense carregar. Aquí no es decideix res de seguretat: qui no
+  // és de la junta i hi arriba veu una càmera, i cada lectura que envia la
+  // refusa el servidor.
+  if (view.unavailable && scanner === null) {
+    return <GateUnreachable message={t(view.messageKey)} onRetry={view.retry} />
   }
 
-  if (!isJunta(profile)) return <Navigate to="/" replace />
+  // Cada pantalla, dins de la seva xarxa: una d'escriptori que no és al mòbil,
+  // sense cobertura, ho diu aquí i no recarrega. El perquè, al fitxer.
+  const screen = (
+    <JuntaScreenBoundary key={pathname}>
+      <Outlet />
+    </JuntaScreenBoundary>
+  )
+
+  if (view.unavailable) return screen
+
+  if (!juntaProfile) return <Navigate to="/" replace />
 
   return (
     <>
       <JuntaNav />
-      <Outlet />
+      {screen}
     </>
   )
 }

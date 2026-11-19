@@ -1,5 +1,5 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { type ComponentProps, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useParams } from 'react-router'
 
@@ -10,9 +10,10 @@ import {
   homeKeys,
   myAnswer,
   placesLeft,
-  setAnswer,
   signedUpToday,
 } from '@/features/home/api'
+import { expectedState } from '@/features/home/answer'
+import { useAnswer } from '@/features/home/useHome'
 import { StreakLine } from '@/features/profile/StreakLine'
 import { useUserId } from '@/features/session/useUserId'
 import {
@@ -25,8 +26,8 @@ import {
 } from '@/i18n/format'
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
 import { type Card, loadCardImage } from '@/lib/cards'
-import { errorKey } from '@/lib/errors'
 import { hasEnded } from '@/lib/eventEnd'
+import { useAvailability } from '@/lib/useAvailability'
 import { ANSWERS, type Answer, type AttendanceState } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -50,7 +51,9 @@ import { Cover, Fact, Places } from './detail'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { DOOR_PHOTOS } from '@/lib/storage'
 import { useSignedUrls } from '@/lib/useSignedUrls'
+import { useBack } from '@/lib/useBack'
 
+import { AnswerNote } from './AnswerNote'
 import { CalendarOffer, CalendarRow } from './Calendar'
 import { MeetingActa, MeetingAnswer, MeetingRoster } from './Meeting'
 import { meetingKeys } from './meetingApi'
@@ -92,6 +95,7 @@ export function EventScreen() {
   const client = useQueryClient()
   const { id = '' } = useParams()
   const { hash: locationHash } = useLocation()
+  const { onClick: goBack } = useBack()
 
   // One reading of the clock for the whole screen, taken once. Calling
   // Date.now() twice during a render can put "already happened" and "signed up
@@ -100,6 +104,7 @@ export function EventScreen() {
   const [justCheckedIn, setJustCheckedIn] = useState(false)
 
   const event = useQuery({ queryKey: eventKeys.one(id), queryFn: () => fetchEvent(id) })
+  const view = useAvailability(event)
   const attendances = useQuery({
     queryKey: homeKeys.attendances([id]),
     queryFn: () => fetchAttendances([id]),
@@ -110,13 +115,7 @@ export function EventScreen() {
   })
   const covers = useCovers([event.data?.cover_url ?? null])
 
-  const answer = useMutation({
-    mutationFn: (estado: Answer) => setAnswer(id, estado),
-    onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: ['home', 'attendances'] })
-      await client.invalidateQueries({ queryKey: eventKeys.waitlist(id) })
-    },
-  })
+  const answer = useAnswer()
 
   // L'Inici hi envia amb `#soc-aqui` quan la finestra és oberta: un toc i cap
   // scroll, que és el que demana algú a la porta amb una mà lliure. L'àncora
@@ -127,21 +126,23 @@ export function EventScreen() {
     document.getElementById('soc-aqui')?.scrollIntoView({ block: 'center' })
   }, [locationHash, event.isSuccess, attendances.isSuccess])
 
-  if (event.isPending) {
+  if (view.loading) {
     return <EventSkeleton />
   }
 
-  if (event.isError) {
+  // Sense xarxa la consulta es posa en pausa i no falla: amb `isError` aquí,
+  // obrir un enllaç a un esdeveniment sota terra era l'esquelet per sempre.
+  if (view.unavailable) {
     return (
       <main
         className={`with-tabbar min-h-dvh bg-app pt-[max(calc(var(--ds-safe-top)+32px),12px)] ${GUTTER}`}
       >
         <p role="alert" className="text-lg font-bold text-error [text-wrap:pretty]">
-          {t(errorKey(event.error))}
+          {t(view.messageKey)}
         </p>
         <button
           type="button"
-          onClick={() => void event.refetch()}
+          onClick={view.retry}
           className="-ml-2 mt-8 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-brand-label"
         >
           {t('actions.retry')}
@@ -159,6 +160,7 @@ export function EventScreen() {
         <p className="mt-6 text-fg-muted [text-wrap:pretty]">{t('event.gone.body')}</p>
         <Link
           to="/"
+          onClick={goBack}
           className="-ml-2 mt-8 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-brand-label"
         >
           {t('event.gone.back')}
@@ -215,6 +217,7 @@ export function EventScreen() {
       {isMeeting ? (
         <JuntaHeader
           to="/"
+          viaHistory
           label={t('nav.home')}
           aside={
             <span className="eyebrow-sm flex-none rounded-xs border border-surface-8 px-4 py-3 text-fg-muted">
@@ -229,6 +232,7 @@ export function EventScreen() {
           corner={
             <Link
               to="/"
+              onClick={goBack}
               aria-label={t('actions.back')}
               className="grid size-[44px] place-items-center rounded-full bg-[oklch(0.15_0.012_25/0.7)] text-2xl text-fg backdrop-blur-[6px]"
             >
@@ -426,16 +430,19 @@ export function EventScreen() {
           pending={answer.isPending}
           onAnswer={(a) => {
             // El recompte «2 de 3 hi seran» surt de `meeting_roster`, que té
-            // la seva pròpia clau: `useAnswer` només invalida les
-            // assistències de l'Inici, o sigui que sense això la xifra es
+            // la seva pròpia clau: `useAnswer` només toca les
+            // assistències, o sigui que sense això la xifra es
             // queda com estava i sembla que la resposta no s'hagi desat.
             // Al `onSuccess` de la crida i no al costat del `mutate`, perquè
             // `mutate` no espera i el refetch sortiria abans de l'escriptura.
-            answer.mutate(a, {
-              onSuccess: () => {
-                void client.invalidateQueries({ queryKey: meetingKeys.roster(e.id) })
+            answer.mutate(
+              { eventId: e.id, estado: a },
+              {
+                onSuccess: () => {
+                  void client.invalidateQueries({ queryKey: meetingKeys.roster(e.id) })
+                },
               },
-            })
+            )
           }}
         />
       ) : (
@@ -447,9 +454,16 @@ export function EventScreen() {
             waitlist.data?.posicio == null ? null : formatOrdinal(waitlist.data.posicio, locale)
           }
           pending={answer.isPending}
-          error={answer.error}
+          answer={answer}
           onAnswer={(a) => {
-            answer.mutate(a)
+            answer.mutate({
+              eventId: e.id,
+              estado: a,
+              expected: expectedState(a, {
+                confirm: e.cal_confirmacio,
+                full: left === 0 && mine !== 'si',
+              }),
+            })
           }}
           when={formatDateLong(starts, locale)}
           where={e.ubicacion}
@@ -671,7 +685,7 @@ function AnswerBlock({
   left,
   position,
   pending,
-  error,
+  answer,
   onAnswer,
   when,
   where,
@@ -683,7 +697,8 @@ function AnswerBlock({
   readonly left: number | null
   readonly position: string | null
   readonly pending: boolean
-  readonly error: Error | null
+  /** L'estat de la crida, per dir què passa quan la resposta no arriba. */
+  readonly answer: ComponentProps<typeof AnswerNote>['answer']
   readonly onAnswer: (a: Answer) => void
   /** Weekday, date and start time in one — formatDateLong already joins them. */
   readonly when: string
@@ -800,11 +815,7 @@ function AnswerBlock({
         })}
       </div>
 
-      {error === null ? null : (
-        <p role="alert" className="mt-6 text-md font-bold text-error [text-wrap:pretty]">
-          {t(errorKey(error))}
-        </p>
-      )}
+      <AnswerNote answer={answer} className="mt-6" />
 
       {/* Next to the button that causes it, not in a footnote at the bottom.
           On a full event the yes button joins a queue instead, and a queue is

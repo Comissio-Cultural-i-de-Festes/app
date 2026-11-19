@@ -1,0 +1,187 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { type FakeControl, installFakeIndexedDb } from '../../tests/fakeIndexedDb'
+
+import type * as Queue from './queue'
+
+/**
+ * Obrir la base local, i dir si s'ha pogut desar.
+ *
+ * EL QUE VA OBRIR AIXÒ: l'obertura es memoritzava per a tota la vida de la
+ * pàgina, l'error inclòs. Un cop que fallava o quedava bloquejada —el dia que
+ * es puja la versió amb una pestanya vella oberta— no es tornava a provar, no
+ * es desava res més, i `enqueue` tornava igual de content. La porta deia «en
+ * cua» d'escanejos que no eren enlloc.
+ *
+ * Cada prova fa un IndexedDB nou i torna a importar el mòdul, perquè el que es
+ * prova és precisament l'estat que el mòdul es guarda entre crides.
+ */
+
+let control: FakeControl
+let queue: typeof Queue
+
+const scan = (id: string) => ({
+  clientRequestId: id,
+  eventId: '00000000-0000-4000-8000-0000000000e1',
+  qrToken: null,
+  userId: null,
+  at: Date.now(),
+  tries: 0,
+})
+
+/** Deixa córrer les microtasques de l'IndexedDB de prova. */
+const settle = () => new Promise((resolve) => setTimeout(resolve, 0))
+
+beforeEach(async () => {
+  control = installFakeIndexedDb()
+  vi.resetModules()
+  queue = await import('./queue')
+})
+
+afterEach(() => {
+  vi.useRealTimers()
+})
+
+describe('desar', () => {
+  it('diu que sí quan ha desat', async () => {
+    await expect(queue.enqueue(scan('a'))).resolves.toBe(true)
+    expect(await queue.pending()).toHaveLength(1)
+  })
+
+  it('diu que no quan el disc refusa l’escriptura', async () => {
+    control.refuseWrites = true
+    await expect(queue.enqueue(scan('a'))).resolves.toBe(false)
+    await expect(queue.put(queue.IDEAS, { id: 'i', at: 0, tries: 0 })).resolves.toBe(false)
+  })
+
+  it('diu que no quan no hi ha IndexedDB', async () => {
+    Reflect.deleteProperty(globalThis, 'indexedDB')
+    vi.resetModules()
+    queue = await import('./queue')
+    await expect(queue.enqueue(scan('a'))).resolves.toBe(false)
+  })
+})
+
+describe('obrir la base', () => {
+  it('torna a provar-ho després d’una obertura que falla', async () => {
+    control.failOpens(1)
+    await expect(queue.enqueue(scan('a'))).resolves.toBe(false)
+
+    await expect(queue.enqueue(scan('b'))).resolves.toBe(true)
+    expect((await queue.pending()).map((row) => row.clientRequestId)).toEqual(['b'])
+  })
+
+  it('no s’hi queda penjada si l’obertura no contesta', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    control.hangOpens(1)
+
+    const first = queue.enqueue(scan('a'))
+    await vi.advanceTimersByTimeAsync(queue.OPEN_DEADLINE_MS)
+    await expect(first).resolves.toBe(false)
+    vi.useRealTimers()
+
+    // Una altra obertura s'encuaria darrere de la penjada i no contestaria
+    // abans que ella: es diu que no de seguida, sense obrir-ne cap.
+    const opens = control.opens
+    await expect(queue.enqueue(scan('b'))).resolves.toBe(false)
+    expect(control.opens).toBe(opens)
+
+    // Si la penjada acaba contestant, s'adopta i es diu a qui ho vulgui saber.
+    const reconnected = vi.fn()
+    queue.onReconnect(reconnected)
+    control.release()
+    await settle()
+    expect(reconnected).toHaveBeenCalledTimes(1)
+    await expect(queue.enqueue(scan('c'))).resolves.toBe(true)
+    expect(control.opens).toBe(opens)
+  })
+
+  it('torna a provar una obertura vençuda passada una estona, però no una bloquejada', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'Date'] })
+    control.hangOpens(1)
+
+    const first = queue.enqueue(scan('a'))
+    await vi.advanceTimersByTimeAsync(queue.OPEN_DEADLINE_MS)
+    await expect(first).resolves.toBe(false)
+    const opens = control.opens
+
+    await vi.advanceTimersByTimeAsync(queue.STALLED_RETRY_MS)
+    const second = queue.enqueue(scan('b'))
+    await vi.advanceTimersByTimeAsync(queue.OPEN_DEADLINE_MS)
+    await expect(second).resolves.toBe(false)
+    // Ho ha provat: una obertura nova, encara que s'hagi encuat darrere de la penjada.
+    expect(control.opens).toBe(opens + 1)
+
+    control.release()
+    await vi.advanceTimersByTimeAsync(0)
+    vi.useRealTimers()
+    await expect(queue.enqueue(scan('c'))).resolves.toBe(true)
+  })
+
+  it('tanca la connexió quan una pestanya nova puja la versió, i no la bloqueja', async () => {
+    await queue.enqueue(scan('a'))
+
+    const blocked = vi.fn()
+    const newer = indexedDB.open('comi', 1000)
+    newer.onblocked = blocked
+    const opened = new Promise((resolve) => {
+      newer.onsuccess = resolve
+    })
+    await opened
+    expect(blocked).not.toHaveBeenCalled()
+
+    // La pestanya vella continua desant, ara a la base de la nova.
+    await expect(queue.enqueue(scan('b'))).resolves.toBe(true)
+    expect(await queue.pending()).toHaveLength(2)
+  })
+
+  it('diu que no mentre una pestanya vella la bloqueja, i desa quan plega', async () => {
+    // Una pestanya amb el codi d'abans: té la base oberta a una versió més
+    // baixa i no escolta `versionchange`.
+    const older = indexedDB.open('comi', 1)
+    const oldTab = await new Promise<IDBDatabase>((resolve) => {
+      older.onsuccess = () => {
+        resolve(older.result)
+      }
+    })
+
+    await expect(queue.enqueue(scan('a'))).resolves.toBe(false)
+    // La segona no s'encua darrere de la bloquejada, que no contestaria mai.
+    const opens = control.opens
+    await expect(queue.enqueue(scan('b'))).resolves.toBe(false)
+    expect(control.opens).toBe(opens)
+
+    const reconnected = vi.fn()
+    queue.onReconnect(reconnected)
+    oldTab.close()
+    await settle()
+    expect(reconnected).toHaveBeenCalledTimes(1)
+
+    await expect(queue.enqueue(scan('c'))).resolves.toBe(true)
+    expect((await queue.pending()).map((row) => row.clientRequestId)).toEqual(['c'])
+  })
+})
+
+describe('apartar una entrada que ja no s’ha d’enviar', () => {
+  const refused = { kind: 'refused', code: '22P02' } as const
+
+  it('la marca amb el motiu i la deixa a la cua', async () => {
+    await queue.enqueue(scan('a'))
+    await queue.setHeld('a', refused)
+    expect(await queue.pending()).toMatchObject([{ clientRequestId: 'a', held: refused }])
+  })
+
+  it('i la torna a la cua quan se li treu la marca', async () => {
+    await queue.enqueue(scan('a'))
+    await queue.setHeld('a', refused)
+    await queue.setHeld('a', null)
+    const [row] = await queue.pending()
+    expect(row).toBeDefined()
+    expect(row?.held).toBeUndefined()
+  })
+
+  it('no reviu una entrada que algú ha tret', async () => {
+    await queue.setHeld('ningú', refused)
+    expect(await queue.pending()).toEqual([])
+  })
+})

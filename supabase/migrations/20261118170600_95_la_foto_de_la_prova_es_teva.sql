@@ -18,11 +18,9 @@
 --
 -- ═══ ON VA LA COMPROVACIÓ, I PER QUÈ ALLÀ ══════════════════════════════════
 --
--- Just després de «nomes socis» i abans de tota la resta:
---
---   ABANS DE `gimcana_join_smallest`, que escriu: en mode lliure, enviar sense
---   equip t'apunta al més petit. Un camí que no passa no ha de deixar ningú en
---   un equip que no ha triat.
+-- Just després de «nomes socis» i abans de tota la resta. No és per no
+-- escriure res abans de refusar —un `raise` desfà també el que hagi escrit
+-- `gimcana_join_smallest`—, sinó pel que contesta:
 --
 --   ABANS DE L'IDEMPOTÈNCIA. Un reenviament legítim de la cua porta el mateix
 --   camí que el primer cop i la foto ja hi és (la pujada torna 409 i el client

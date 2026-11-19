@@ -81,6 +81,26 @@ select id, titol from public.gimcana_proves
 where gimcana_id = (select id from g);
 grant select on p to authenticated;
 
+-- Les fotos, al bucket i a la carpeta de qui les envia: des de la migració 95,
+-- `submit_prova` no accepta cap altre camí.
+create temporary table foto as
+select v.n,
+       format('%s/%s/00000000-0000-4000-8000-0000000029%s.jpg',
+              pr.id, v.u, lpad(v.n::text, 2, '0')) as path,
+       v.u
+from (values
+  (1, 'Algú de primer cantant',         (select alfa from qui)),
+  (2, 'Algú de primer cantant',         (select alfa from qui)),
+  (3, 'El grup sencer davant la porta', (select alfa from qui)),
+  (4, 'Algú de primer cantant',         (select delta from qui)),
+  (5, 'Algú de primer cantant',         (select bravo from qui))
+) as v(n, titol, u)
+join p pr on pr.titol = v.titol;
+grant select on foto to authenticated;
+
+insert into storage.objects (bucket_id, name, owner)
+select 'gimcana-photos', path, u from foto;
+
 select is(
   (select count(*)::int from public.gimcana_equips where gimcana_id = (select id from g)),
   3,
@@ -120,14 +140,14 @@ select tests.authenticate_as('alfa');
 
 select is(
   public.submit_prova(
-    (select id from p where titol = 'Algú de primer cantant'), 'x/y/1.jpg') ->> 'estat',
+    (select id from p where titol = 'Algú de primer cantant'), (select path from foto where n = 1)) ->> 'estat',
   'enviada',
   'qui juga n''envia una'
 );
 
 select is(
   public.submit_prova(
-    (select id from p where titol = 'Algú de primer cantant'), 'x/y/2.jpg') ->> 'estat',
+    (select id from p where titol = 'Algú de primer cantant'), (select path from foto where n = 2)) ->> 'estat',
   'ja_enviada',
   'i mentre la junta la mira, no se''n pot enviar una altra de la mateixa'
 );
@@ -136,7 +156,7 @@ select is(
 -- fer dues files de res.
 select is(
   public.submit_prova(
-    (select id from p where titol = 'El grup sencer davant la porta'), 'x/y/3.jpg',
+    (select id from p where titol = 'El grup sencer davant la porta'), (select path from foto where n = 3),
     '00000000-0000-4000-8000-00000000cc01') ->> 'estat',
   'enviada',
   'una amb identificador de petició entra'
@@ -144,7 +164,7 @@ select is(
 
 select is(
   public.submit_prova(
-    (select id from p where titol = 'El grup sencer davant la porta'), 'x/y/3.jpg',
+    (select id from p where titol = 'El grup sencer davant la porta'), (select path from foto where n = 3),
     '00000000-0000-4000-8000-00000000cc01') ->> 'estat',
   'ja_enviada',
   'i reenviar-la no en fa dues'
@@ -191,7 +211,7 @@ select tests.authenticate_as('delta');
 
 select is(
   public.submit_prova(
-    (select id from p where titol = 'Algú de primer cantant'), 'x/z/9.jpg') ->> 'estat',
+    (select id from p where titol = 'Algú de primer cantant'), (select path from foto where n = 4)) ->> 'estat',
   'ja_feta',
   'un company del mateix equip no la pot tornar a fer'
 );
@@ -202,7 +222,7 @@ select tests.authenticate_as('bravo');
 
 select is(
   public.submit_prova(
-    (select id from p where titol = 'Algú de primer cantant'), 'w/v/1.jpg') ->> 'estat',
+    (select id from p where titol = 'Algú de primer cantant'), (select path from foto where n = 5)) ->> 'estat',
   'enviada',
   'i un altre equip sí, que és precisament el joc'
 );

@@ -1,7 +1,5 @@
 import { useTranslation } from 'react-i18next'
 
-import { useComeback } from './useComeback'
-
 /**
  * «La teva millor ratxa és de 7. La primera que vinguis, en comences una altra.»
  *
@@ -13,13 +11,12 @@ import { useComeback } from './useComeback'
  * no haver vingut no ho és. El to és el de la StreakCard quan una ratxa es
  * trenca —constata, no renya— i per això parla del rècord i no de l'absència.
  *
- * Es busca les seves pròpies dades i es plega sola, com la StreakLine, així que
- * entra a l'Inici en una línia. Amb `millor` a zero no diu res: a qui no ha
+ * La ratxa li arriba de `useComeback`, que el rànquing de l'Inici ja demana, i es
+ * plega sola: entra en una línia. Amb `millor` a zero no diu res: a qui no ha
  * vingut mai no se li pot recordar cap ratxa.
  */
-export function ComebackLine() {
+export function ComebackLine({ best }: { readonly best: number | null }) {
   const { t } = useTranslation()
-  const { best } = useComeback()
   if (best === null) return null
 
   return (

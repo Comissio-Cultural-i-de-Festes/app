@@ -1,6 +1,7 @@
 import {
   type QueryClient,
   type QueryKey,
+  keepPreviousData,
   onlineManager,
   useMutation,
   useQuery,
@@ -55,6 +56,9 @@ export interface Home {
   readonly refetch: () => void
   /** Les assistències encara poden arribar: el botó espera i no s'avança. */
   readonly answersLoading: boolean
+  /** No arribaran sense que passi alguna cosa: el botó no sap què dir. */
+  readonly answersUnavailable: boolean
+  readonly retryAnswers: () => void
   /** El rànquing encara pot arribar: el bloc reserva el seu lloc. */
   readonly rankingLoading: boolean
 }
@@ -87,6 +91,9 @@ export function useHome(): Home {
     queryKey: homeKeys.attendances(eventIds),
     queryFn: () => fetchAttendances(eventIds),
     enabled: upcoming.isSuccess && previous.isSuccess,
+    // Un esdeveniment nou al calendari canvia la clau; sense això les
+    // assistències tornaven a ser un forat i el botó, un esquelet, a mig mirar-lo.
+    placeholderData: keepPreviousData,
   })
 
   // The teaser strip shows the standing over the whole course, which is the
@@ -144,6 +151,8 @@ export function useHome(): Home {
     messageKey: view.messageKey,
     refetch: view.retry,
     answersLoading: answers.loading,
+    answersUnavailable: answers.unavailable,
+    retryAnswers: answers.retry,
     rankingLoading: standing.loading,
   }
 }

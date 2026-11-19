@@ -8,15 +8,15 @@
     "maybe": "Quizá",
     "no": "No puedo",
     "confirm": "Confirma",
-    "cancel": "Cancelar",
+    "cancel": "Cancela",
     "retry": "Inténtalo otra vez",
-    "undo": "Deshacer",
-    "close": "Cerrar",
+    "undo": "Deshaz",
+    "close": "Cierra",
     "back": "Atrás",
-    "save": "Guardar",
-    "share": "Compartir",
+    "save": "Guarda",
+    "share": "Comparte",
     "signIn": "Entra",
-    "signOut": "Cerrar sesión"
+    "signOut": "Cierra la sesión"
   },
   "crash": {
     "title": "Algo se ha roto",
@@ -34,7 +34,7 @@
     "queuedOffline_one": "{{count}} en la cola, sin red",
     "queuedOffline_other": "{{count}} en la cola, sin red",
     "aim": "Apunta al QR. No hace falta tocar nada.",
-    "manual": "Alta manual por el nombre",
+    "manual": "Ficha a mano por el nombre",
     "buzzes": "Vibra en cada QR",
     "unknownPerson": "Este QR",
     "displaced": "Antes, {{nombre}}: {{verdict}}",
@@ -46,25 +46,25 @@
     "heldQr": "Un QR",
     "heldAt": "a las {{hora}}",
     "heldRefused": "no se ha podido aceptar: no ha entrado",
-    "heldRetry": "Volver a enviar",
-    "heldDrop": "Descartar",
+    "heldRetry": "Vuelve a enviar",
+    "heldDrop": "Descarta",
     "heldMore": "y {{n}} más",
-    "heldLess": "Ver menos",
+    "heldLess": "Muestra menos",
     "notPaid": "no ha pagado",
     "camera": {
-      "denied": "No podemos abrir la cámara. Dale permiso en los ajustes del navegador —Ajustes › {{app}} › Cámara— y vuelve, o haz el alta por el nombre.",
-      "missing": "Este aparato no tiene cámara. Haz el alta por el nombre.",
-      "failed": "No se ha podido encender la cámara. Haz el alta por el nombre."
+      "denied": "No podemos abrir la cámara. Dale permiso en los ajustes del navegador —Ajustes › {{app}} › Cámara— y vuelve, o ficha a la gente por el nombre.",
+      "missing": "Este aparato no tiene cámara. Ficha a la gente por el nombre.",
+      "failed": "No se ha podido encender la cámara. Ficha a la gente por el nombre."
     },
     "backToScanner": "Escáner",
-    "manualTitle": "Alta por el nombre",
+    "manualTitle": "Fichaje por el nombre",
     "searchName": "Escribe y van saliendo. Con tres letras basta.",
     "nobodyExpected": "Todavía no hay nadie apuntado ni fichado.",
     "noMatch": "Ningún nombre así en la lista. Prueba por el apellido. Si no está, que pida entrar y lo apruebas mañana.",
     "letIn": "Fíchalo",
     "alreadyIn": "Ya está dentro",
     "undoing": "Deshaciendo…",
-    "undone": "Hecho atrás. {{nombre}} ya no consta.",
+    "undone": "Deshecho. {{nombre}} ya no consta.",
     "undoneQueued": "Fuera de la cola. Este fichaje no había llegado a enviarse.",
     "undoFailed": "No se ha podido deshacer. Inténtalo otra vez; si sigue igual, {{nombre}} sigue fichado.",
     "lastIn": "Último fichado",
@@ -161,7 +161,7 @@
     }
   },
   "errors": {
-    "generic": "No ha salido. Inténtalo otra vez en un momento.",
+    "generic": "No ha salido bien. Inténtalo otra vez en un momento.",
     "network": "No hay manera de conectar. Mira la cobertura y vuelve a intentarlo.",
     "offline": "Necesitas conexión para ver esto.",
     "forbidden": "Esto no lo puedes hacer tú.",
@@ -304,7 +304,7 @@
       "yesNoPlace": "Estás dentro: {{when}}.",
       "yesSub": "Cámbialo cuando quieras, pero dilo pronto: la junta cuenta contigo.",
       "maybe": "Has dicho quizá. Te guardamos la plaza.",
-      "maybeSub": "Si al final no puedes, dilo y la plaza pasa a otro.",
+      "maybeSub": "Si al final no puedes, dilo y la plaza pasa a otra persona.",
       "no": "Has dicho que no. Otra vez será.",
       "noSub": "Si cambias de idea, vuelve mientras queden plazas.",
       "nothing": "Todavía no has dicho nada.",
@@ -611,17 +611,17 @@
     "report": {
       "action": "Denúnciala",
       "already": "Ya lo has pedido",
-      "title": "¿Qué le pasa, a esta foto?",
-      "hi_surto": "Salgo y no quiero salir",
+      "title": "¿Qué le pasa a esta foto?",
+      "hi_surto": "Salgo en ella y no quiero salir",
       "no_es_d_aquella_nit": "No es de esta noche",
       "altra": "Otra cosa",
       "send": "Envíalo a la junta",
-      "note": "La junta la ve y la descuelga si hace falta. Quien la subió no sabrá que lo has pedido tú."
+      "note": "La junta la ve y la retira si hace falta. Quien la subió no sabrá que lo has pedido tú."
     }
   },
   "ideas": {
     "title": "Ideas",
-    "lede": "Qué hacemos los días que no hay nada. La que más votos tiene, la junta se la mira.",
+    "lede": "Qué hacemos los días que no hay nada. La junta se mira la que tenga más votos.",
     "propose": "Propón",
     "count": "{{open}} abiertas · un voto por persona",
     "winning": "Va ganando",
@@ -629,7 +629,7 @@
     "voted": "Votada",
     "accepted": "Aceptada",
     "discarded": "Descartada",
-    "goToEvent": "Ve",
+    "goToEvent": "Ve al evento",
     "hasDate": "{{who}} · ya tiene día: {{when}}",
     "mine": "Las tuyas",
     "mineLede": "Esto solo lo ves tú. Nadie más sabe que te la tumbaron.",
@@ -667,7 +667,7 @@
     "juntaTitle": "Ideas",
     "juntaLede": "La misma lista que ve todo el mundo, con dos botones más.",
     "juntaOpen": "{{count}} abiertas",
-    "accept": "Haz un evento",
+    "accept": "Conviértela en evento",
     "discard": "Descártala",
     "whyNot": "Por qué no",
     "whyNotPlaceholder": "Lo leerá quien la propuso, y nadie más.",
@@ -722,13 +722,13 @@
   "junta": {
     "title": "Zona junta",
     "back": "Junta",
-    "scan": "Escanear",
-    "givePoints": "Dar puntos",
+    "scan": "Escanea",
+    "givePoints": "Da puntos",
     "needsSignalTitle": "Esta pantalla necesita cobertura",
     "needsSignalBody": "Aún no está en el móvil, y sin red no se puede descargar. La puerta sí funciona sin red.",
     "needsSignalBack": "Vuelve a la zona junta",
-    "newEvent": "Crear evento",
-    "newEventSub": "O copiar uno anterior y cambiarle la fecha",
+    "newEvent": "Crea un evento",
+    "newEventSub": "O copia uno anterior y cámbiale la fecha",
     "invitesSub": "El código del grupo y quién quiere entrar",
     "paymentsSub": "Quién ha pagado, quién pide plaza y la lista de espera",
     "noEvents": "Todavía no hay nada en el calendario. Crea el primero.",
@@ -748,8 +748,8 @@
       "copy": "Cópialo para el WhatsApp",
       "copied": "Copiado · ya puedes pegarlo",
       "shareText": "Entra en la comi: {{link}} — el código es {{code}}. Entras con Google y listos.",
-      "killAndRemake": "Matar este código y hacer otro",
-      "makeFirst": "Hacer el primer código",
+      "killAndRemake": "Mata este código y haz otro",
+      "makeFirst": "Haz el primer código",
       "killExplains": "Quien ya ha entrado se queda dentro. Solo deja de funcionar para los nuevos.",
       "killSure": "El código que está pegado en el grupo dejará de funcionar al instante. Los que ya han entrado no se tocan.",
       "none": "Ahora mismo no hay ningún código activo. Nadie puede entrar con invitación.",
@@ -786,7 +786,7 @@
       "queueSub": "En el orden en que se han puesto. Si se libera una plaza, decidís vosotros quién entra.",
       "requests_one": "{{count}} ha pedido plaza",
       "requests_other": "{{count}} han pedido plaza",
-      "requestsSub": "Nadie tiene ninguna hasta que le dices que sí. A quien no confirmes se queda esperando, no le dices que no.",
+      "requestsSub": "Nadie tiene plaza hasta que le dices que sí. Quien no confirmes se queda esperando: no es lo mismo que decirle que no.",
       "confirmIn": "Que entre",
       "refuse": "Esta vez no",
       "refuseSure": "Si dices que no, {{nombre}} sale de la lista y no vuelve. Confirmarlo no le envía nada.",
@@ -803,7 +803,7 @@
         "junta": "No sale en el Inicio de nadie. Los socios no la ven ni sabiendo el enlace, y no da puntos ni racha a nadie.",
         "comi": "Sale en el Inicio de todos, debajo de las fiestas, y todos pueden decir si estarán."
       },
-      "pointsMeetingHint": "Se dan cuando cierres la reunión, no al confirmar: quien dice que estará y no está, no hace puntos.",
+      "pointsMeetingHint": "Se dan cuando cierres la reunión, no al confirmar: quien dice que estará y no está, no suma puntos.",
       "meetingHasNo": "Una reunión no tiene plazas, ni precio, ni portada, ni coches",
       "meetingHasNoSub": "Estos campos desaparecen del formulario en vez de quedarse vacíos. Si te has equivocado de tipo, vuelve y los recuperas tal como estaban.",
       "leaveIt": "Déjalo",
@@ -877,15 +877,15 @@
       "coverFailed": "La portada no se ha podido subir; el evento se ha guardado sin ella. Vuelve a probarlo cuando quieras.",
       "endsBeforeStarts": "El final es antes del inicio.",
       "endsRequired": "Falta la hora de final. Es de donde salen las horas de la memoria.",
-      "revealAfterStarts": "El reveal es después de que empiece: no destaparía nada."
+      "revealAfterStarts": "La revelación es después de que empiece: no destaparía nada."
     },
     "config": {
       "saved": "Guardado.",
       "avisos": {
-        "nums": "El techo de puntos",
+        "nums": "El tope de puntos",
         "pesos": "Lo que pesa cada gravedad",
         "escalons": "Los escalones",
-        "escalonsLede": "Cada persona suma el peso de sus avisos vivos de este curso. Al llegar a un escalón, la ficha lo marca; la app no expulsa ni bloquea a nadie. Un escalón a 0 queda apagado.",
+        "escalonsLede": "Cada persona suma el peso de sus avisos vigentes de este curso. Al llegar a un escalón, la ficha lo marca; la app no expulsa ni bloquea a nadie. Un escalón a 0 queda apagado.",
         "num": {
           "pes_lleu": "Peso de una leve",
           "pes_greu": "Peso de una grave",
@@ -905,7 +905,7 @@
         "newHint": "La clave es el nombre interno y no se puede cambiar después; en minúsculas y con guiones bajos. La etiqueta es lo que leerá la gente si la clave no tiene traducción.",
         "newClau": "Clave, p. ej. se_en_va_aviat",
         "newEtiqueta": "Etiqueta",
-        "newCta": "Añadir el tipo",
+        "newCta": "Añade el tipo",
         "gravetatBad": "La gravedad va de {{min}} a {{max}}.",
         "puntsBad": "Un número entero entre -{{max}} y 0: un aviso no da puntos.",
         "clauBad": "En minúsculas, sin acentos ni espacios, empezando por letra. Los cortes van con guion bajo.",
@@ -990,8 +990,8 @@
       },
       "avisos": {
         "title": "Los avisos",
-        "live_one": "{{count}} vivo",
-        "live_other": "{{count}} vivos",
+        "live_one": "{{count}} vigente",
+        "live_other": "{{count}} vigentes",
         "empty": "Ningún aviso. Que dure.",
         "withdraw": "Retira el aviso",
         "withdrawSure": "El aviso se queda en la ficha, tachado, y si restó puntos se devuelven con una línea nueva en el registro. Escribe por qué se retira.",
@@ -1056,7 +1056,7 @@
         "retirat": "Retirado"
       },
       "motiu": {
-        "avis_sostre": "superaría el techo de puntos del curso",
+        "avis_sostre": "superaría el tope de puntos del curso",
         "avis_fora_del_curs": "la falta no cae dentro del curso",
         "error": "error inesperado ({{codi}})"
       },
@@ -1154,7 +1154,7 @@
       "unknown": "Alguien que ya no está",
       "unknownTarget": "alguien que ya no está",
       "other": "{{actor}} ha hecho algo: {{accio}}",
-      "detail": "Ver el detalle",
+      "detail": "Mira el detalle",
       "more": "Carga más",
       "empty": "Todavía no hay nada en el registro.",
       "end": "Ya no hay nada más.",
@@ -1199,17 +1199,17 @@
       "doorIn": "han fichado",
       "doorFree": "plazas libres",
       "doorHint": "Si alguien no sale en la lista, lo puedes buscar por el nombre desde el escáner.",
-      "doorGimcana": "Validar la gincana",
-      "doorGimcanaQueue_one": "Validar la gincana · {{count}} foto",
-      "doorGimcanaQueue_other": "Validar la gincana · {{count}} fotos",
+      "doorGimcana": "Valida la gincana",
+      "doorGimcanaQueue_one": "Valida la gincana · {{count}} foto",
+      "doorGimcanaQueue_other": "Valida la gincana · {{count}} fotos",
       "doorNone": "En la puerta",
       "doorNoneSub": "Estos días no hay nada. El escáner aparecerá aquí el día antes.",
-      "doorAnyway": "Abrir el escáner igualmente",
+      "doorAnyway": "Abre el escáner igualmente",
       "doorLoading": "Cargando la puerta…",
       "doorFailed": "No se ha podido leer la puerta",
       "doorFailedSub": "No sabemos si hay algo estos días. No es que no lo haya.",
       "doorFailedNote": "El escáner guarda lo que fiches y lo sube cuando vuelva la conexión.",
-      "openScanner": "Abrir el escáner",
+      "openScanner": "Abre el escáner",
       "doorStale": "Datos de hace {{n}} min. No se han podido actualizar.",
       "doorStaleNow": "Datos de hace un momento. No se han podido actualizar.",
       "doorStaleRefreshing": "Datos de hace {{n}} min. Se están actualizando…",
@@ -1247,7 +1247,7 @@
       "soon": "Los que vienen",
       "soonCount": "{{count}} en el calendario",
       "soonEmpty": "Todavía no hay nada en el calendario.",
-      "soonFirst": "Crear el primero",
+      "soonFirst": "Crea el primero",
       "soonFailed": "No se ha podido leer el calendario.",
       "soonFailedSub": "Puede que haya y no los veamos. No crees nada nuevo hasta que cargue.",
       "how": "Cómo funciona la comi",
@@ -1300,7 +1300,7 @@
     },
     "gimcana": {
       "leave": "Déjalo",
-      "lead": "Cuelga de {{event}}: se destapa cuando empiece y se cierra cuando acabe.",
+      "lead": "Va con {{event}}: se destapa cuando empiece y se cierra cuando acabe.",
       "teamsHow": "Cómo se hacen los equipos",
       "mena": {
         "escoles": "Las tres escuelas",
@@ -1349,9 +1349,9 @@
       "by": "{{event}} · subida por {{name}}",
       "times_one": "{{count}} persona lo ha pedido",
       "times_other": "{{count}} personas lo han pedido",
-      "hide": "Descuélgala",
+      "hide": "Retírala",
       "keep": "Déjala",
-      "note": "Descolgarla la esconde de todos al instante, y se puede deshacer. Quien denunció no aparece en ningún sitio; quien la subió solo ve que ya no está."
+      "note": "Retirarla la oculta a todo el mundo al instante, y se puede deshacer. Quien la denunció no aparece en ningún sitio; quien la subió solo ve que ya no está."
     },
     "geo": {
       "hint": "Escríbela y elígela de la lista: así la gente la lee y, a la vez, puede fichar. Sin punto en el mapa solo queda el escáner.",
@@ -1383,7 +1383,7 @@
       "via": {
         "qr": "por QR",
         "ubicacio": "por ubicación",
-        "manual": "alta a mano"
+        "manual": "fichaje a mano"
       }
     },
     "hores": {
@@ -1479,7 +1479,7 @@
         "title": "Las fotos",
         "p1": "Hay de tres tipos y no se ven igual. La de la puerta la ves tú y la ve la junta; la de la salida solo la ves tú, y la puedes borrar; las de la galería de una noche las ven todos los socios.",
         "p2": "Ninguna es pública en internet: todas se piden con un enlace que caduca en una hora. Antes de subirse se les quitan los metadatos, o sea el modelo del móvil y la ubicación que llevaran grabada.",
-        "p3": "Si una foto tuya no te gusta, la puedes denunciar desde la propia foto y la junta la descuelga. Quien la subió verá que ya no está, pero no verá quién lo ha pedido."
+        "p3": "Si una foto tuya no te gusta, la puedes denunciar desde la propia foto y la junta la retira. Quien la subió verá que ya no está, pero no verá quién lo ha pedido."
       },
       "where": {
         "title": "Dónde estabas al fichar",
@@ -1493,7 +1493,7 @@
       "keep": {
         "title": "Cuánto tiempo lo guardamos",
         "p1": "Ahora mismo, y dicho claro: salvo el registro, nada se borra solo. Ni el perfil, ni el teléfono, ni las fotos, ni el histórico. Si te das de baja dejas de salir en todas partes, pero los datos se quedan hasta que alguien los quite a mano.",
-        "p2": "Es algo que queremos arreglar antes de que esto crezca, y mientras tanto no te diremos ningún plazo que no cumplimos."
+        "p2": "Es algo que queremos arreglar antes de que esto crezca, y mientras tanto no te daremos ningún plazo que no vayamos a cumplir."
       },
       "others": {
         "title": "Quién más lo toca",
@@ -1539,12 +1539,12 @@
       },
       "junta": {
         "title": "Lo que puede hacer la junta",
-        "p1": "Aceptar y dar de baja socios, publicar y borrar eventos, corregir puntos, descolgar una foto y cerrar una reunión con el acta. Todo eso queda anotado en el registro con el nombre de quien lo ha hecho."
+        "p1": "Aceptar y dar de baja socios, publicar y borrar eventos, corregir puntos, retirar una foto y cerrar una reunión con el acta. Todo eso queda anotado en el registro con el nombre de quien lo ha hecho."
       },
       "moderation": {
         "title": "Si una foto no debería estar",
         "p1": "En cada foto de la galería hay un botón para pedir que la miren. Puedes decir que sales tú y no quieres, o que hay otra cosa que no toca.",
-        "p2": "Lo mira la junta y decide. Si la descuelgan, desaparece para todos al instante y se puede deshacer si fue un error. Quien la subió ve que ya no está; quien lo pidió no aparece en ningún sitio.",
+        "p2": "Lo mira la junta y decide. Si la retiran, desaparece para todos al instante y se puede deshacer si fue un error. Quien la subió ve que ya no está; quien lo pidió no aparece en ningún sitio.",
         "p3": "No hay ningún plazo prometido. Son cuatro personas, y el compromiso honesto es que lo miran cuando lo ven, no que lo miren en veinticuatro horas."
       },
       "stop": {
@@ -1670,10 +1670,10 @@
     },
     "year": {
       "label": "Curso",
-      "1": "1º",
-      "2": "2º",
-      "3": "3º",
-      "4": "4º",
+      "1": "1.º",
+      "2": "2.º",
+      "3": "3.º",
+      "4": "4.º",
       "5": "5.º"
     },
     "phone": {
@@ -1690,9 +1690,9 @@
       "invalid": "Esto no es un nombre de usuario. Solo letras, cifras, punto y guion bajo, y sin la dirección entera."
     },
     "cta": {
-      "ready": "Entrar",
+      "ready": "Entra",
       "pickSchoolPending": "Elige la escuela y sigues",
-      "readyPending": "Continuar",
+      "readyPending": "Continúa",
       "pickSchool": "Elige la escuela y entras",
       "fix": "Repasa el teléfono o el Instagram"
     },
@@ -1852,7 +1852,7 @@
       "juntaSub": "Escáner, puntos, invitaciones",
       "nights": "Tus noches",
       "nightsSub": "El díptico de entrada y salida de cada fiesta",
-      "calendar": "Las mías al calendario",
+      "calendar": "Las mías, al calendario",
       "calendarSub_one": "La que has dicho que sí, de una tirada",
       "calendarSub_other": "Las {{count}} a las que has dicho que sí, de una tirada"
     },
@@ -1938,8 +1938,8 @@
     "canLabel": "Ya puedes",
     "can": "Mirar el calendario",
     "cannotLabel": "Todavía no",
-    "cannot": "Apuntarte, tener QR, hacer puntos",
-    "collapse": "Pliega",
+    "cannot": "Apuntarte, tener QR, sumar puntos",
+    "collapse": "Oculta",
     "expand": "¿Qué puedo hacer?",
     "haveCode": "Tengo un código de invitación",
     "haveCodeHint": "Con el código entras al instante. Sin código, alguien de la junta te tiene que aprobar a mano.",
@@ -1973,14 +1973,14 @@
     "periodLabel": "Periodo",
     "period": {
       "curs": "Todo el curso",
-      "t1": "1r trim.",
-      "t2": "2º trim.",
-      "t3": "3r trim."
+      "t1": "1.er trim.",
+      "t2": "2.º trim.",
+      "t3": "3.er trim."
     },
     "you": "Vas {{position}} de {{total}}",
     "youSub": "Aún estás a tiempo, eh",
     "schools": "Escuelas",
-    "schoolsLede": "Todo lo que haces suma para tu escuela, tanto si vas 3º como 60º.",
+    "schoolsLede": "Todo lo que haces suma para tu escuela, tanto si vas 3.º como 60.º.",
     "schoolFoot_one": "{{members}} miembros · {{count}} evento",
     "schoolFoot_other": "{{members}} miembros · {{count}} eventos",
     "yours": "la tuya",
@@ -2055,7 +2055,7 @@
     "failedGroup": "Escribe al grupo",
     "failedKeep": "Si ya te habías subido, sigues: esto no lo pierde nadie.",
     "driverPhones": "Estos teléfonos solo los ves tú, y solo de quien ha subido a tu coche. Ellos no ven el tuyo, ni los teléfonos entre ellos.",
-    "call": "Llamar",
+    "call": "Llama",
     "nudge": "Avísales a todos",
     "nudgeText": "Soy {{who}} y llevo el coche a {{event}}: {{when}} desde {{from}}.",
     "withdraw": "Retiro el coche",
@@ -2100,12 +2100,12 @@
       "okWalkinReview": "Mira que pague antes de entrar, o apúntalo.",
       "okWalkinReviewFree": "Hay plazas contadas. Apúntalo para que el número cuadre.",
       "okWalkinReviewUnknown": "Apúntalo para que la junta lo pueda cuadrar.",
-      "alreadyCheckedIn": "Ya había pasado. Si insiste, míralo en el alta manual.",
+      "alreadyCheckedIn": "Ya había pasado. Si insiste, búscalo en el fichaje manual.",
       "notAMember": "Que te diga el nombre y lo buscas a mano. No lo dejes pasar sin apuntarlo.",
       "memberInactive": "Que pida entrar. Lo aprobáis mañana desde la zona junta.",
       "eventNotOpen": "Comprueba que es el evento correcto y que está publicado.",
-      "notSaved": "No se enviará solo. Que te diga el nombre y dale de alta por el nombre cuando vuelva la cobertura.",
-      "refused": "No ha entrado. Que te diga el nombre y búscalo en el alta por el nombre.",
+      "notSaved": "No se enviará solo. Que te diga el nombre y fíchalo por el nombre cuando vuelva la cobertura.",
+      "refused": "No ha entrado. Que te diga el nombre y búscalo en el fichaje por el nombre.",
       "error": "Sigue escaneando. Cuando vuelva la cobertura se envía solo."
     }
   },

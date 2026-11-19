@@ -143,7 +143,7 @@ describe('prefetchHome', () => {
     expect(client.getQueryData(rankingKeys.periods())).toEqual(PERIODS)
     expect(client.getQueryState(photoKeys.nights())?.status).toBe('success')
     expect(client.getQueryState(profileScreenKeys.streak(ME))?.status).toBe('success')
-    expect(client.getQueryState(homeKeys.attendances(['e-1', 'e-2', 'e-1', 'e-2']))?.status).toBe(
+    expect(client.getQueryState(homeKeys.summaries(['e-1', 'e-2', 'e-1', 'e-2']))?.status).toBe(
       'success',
     )
     expect(client.getQueryState(rankingKeys.individual(bounds))?.status).toBe('success')
@@ -174,7 +174,12 @@ describe('prefetchHome', () => {
     const firstWave = ['events_public', 'events_public', 'ranking_periods', 'rpc/my_streak']
     expect(log.slice(0, 4).sort()).toEqual([...firstWave].sort())
     expect(log.slice(4).sort()).toEqual(
-      ['attendances', 'rpc/my_photos', 'rpc/ranking_escoles_period', 'rpc/ranking_period'].sort(),
+      [
+        'rpc/my_photos',
+        'rpc/ranking_escoles_period',
+        'rpc/ranking_period',
+        'rpc/resum_assistencies',
+      ].sort(),
     )
   })
 

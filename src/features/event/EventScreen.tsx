@@ -3,19 +3,11 @@ import { type ComponentProps, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useParams } from 'react-router'
 
-import {
-  type AttendanceRow,
-  fetchAttendances,
-  goingRows,
-  homeKeys,
-  myAnswer,
-  placesLeft,
-  signedUpToday,
-} from '@/features/home/api'
+import { fetchSummaries, homeKeys, placesLeft } from '@/features/home/api'
 import { expectedState } from '@/features/home/answer'
+import { signedUpToday, summaryOf } from '@/features/home/summary'
 import { useAnswer } from '@/features/home/useHome'
 import { StreakLine } from '@/features/profile/StreakLine'
-import { useUserId } from '@/features/session/useUserId'
 import {
   formatDateLong,
   formatDateTime,
@@ -87,7 +79,6 @@ const FACES = 5
 export function EventScreen() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
-  const userId = useUserId()
   // Qui encara és pendent no llegeix les assistències dels altres ni pot
   // contestar: tot el que en depèn queda fora de la pantalla en lloc de
   // pintar-se a zero o de fallar en prémer-ho.
@@ -105,9 +96,11 @@ export function EventScreen() {
 
   const event = useQuery({ queryKey: eventKeys.one(id), queryFn: () => fetchEvent(id) })
   const view = useAvailability(event)
-  const attendances = useQuery({
-    queryKey: homeKeys.attendances([id]),
-    queryFn: () => fetchAttendances([id]),
+  // El resum i no les files: aquí es pinten cinc cares, uns recomptes i la
+  // meva resposta, i la llista sencera de qui és dins té la seva pantalla.
+  const summaries = useQuery({
+    queryKey: homeKeys.summaries([id]),
+    queryFn: () => fetchSummaries([id]),
   })
   const waitlist = useQuery({
     queryKey: eventKeys.waitlist(id),
@@ -124,7 +117,7 @@ export function EventScreen() {
   useEffect(() => {
     if (locationHash !== '#soc-aqui') return
     document.getElementById('soc-aqui')?.scrollIntoView({ block: 'center' })
-  }, [locationHash, event.isSuccess, attendances.isSuccess])
+  }, [locationHash, event.isSuccess, summaries.isSuccess])
 
   if (view.loading) {
     return <EventSkeleton />
@@ -170,10 +163,9 @@ export function EventScreen() {
   }
 
   const e = event.data
-  const rows: readonly AttendanceRow[] = attendances.data ?? []
-  const going = goingRows(rows, id)
-  const mine = myAnswer(rows, id, userId)
-  const left = placesLeft(e, going.length)
+  const summary = summaryOf(summaries.data ?? [], id)
+  const { going, faces, mine } = summary
+  const left = placesLeft(e, going)
   const starts = new Date(e.starts_at)
   const isPast = starts.getTime() < now.getTime()
   // El títol no arriba fins a la revelació, i és el que decideix mitja
@@ -185,10 +177,10 @@ export function EventScreen() {
   // pantalla canvia, i el que la decideix és `tipo`.
   const isMeeting = e.tipo === 'reunio'
   const price = formatPrice(e.precio_cents, INTL_LOCALE[locale])
-  const movement = signedUpToday(rows, id, userId, now)
+  const movement = signedUpToday(summary, now)
   // Only worth a tap once the door has let somebody in. Before that the
   // screen has nothing on it, and a link to nothing is a dead end.
-  const inside = rows.filter((r) => r.event_id === id && r.estado === 'asistio').length
+  const inside = summary.attended
   // `isPast` starts the moment the event does, which is right for everything
   // else on this page and wrong here: a party in progress is the one time
   // "who is inside" is worth asking. The pulse stops when the party does.
@@ -282,24 +274,24 @@ export function EventScreen() {
 
       {isMeeting && !closed ? <MeetingRoster event={e} /> : null}
 
-      {isMeeting || closed || going.length === 0 ? null : (
+      {isMeeting || closed || going === 0 ? null : (
         <section className={`pt-9 ${GUTTER}`}>
           <div className="flex items-center gap-4">
             <div className="flex items-center">
-              {going.slice(0, FACES).map((row, index) => (
+              {faces.slice(0, FACES).map((face, index) => (
                 <span
-                  key={row.user_id}
+                  key={face.user_id}
                   className="relative rounded-full border-2 border-app [box-sizing:content-box]"
                   style={{ marginLeft: index === 0 ? 0 : -11, zIndex: FACES - index }}
                 >
-                  <Avatar src={row.profiles?.avatar_url ?? null} size={34} />
+                  <Avatar src={face.avatar_url} size={34} />
                 </span>
               ))}
             </div>
             <p className="text-md font-bold text-fg-secondary [text-wrap:pretty]">
               {isPast
-                ? t('event.whoCame', { count: going.length })
-                : t('event.whoComes', { count: going.length })}
+                ? t('event.whoCame', { count: going })
+                : t('event.whoComes', { count: going })}
             </p>
           </div>
           <p className="mt-4 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
@@ -370,7 +362,7 @@ export function EventScreen() {
           total={e.plazas}
           puntos={e.puntos}
           left={left}
-          going={going.length}
+          going={going}
           isPast={isPast}
           waiting={waitlist.data?.total ?? 0}
         />
@@ -475,7 +467,7 @@ export function EventScreen() {
           Only for whoever the door actually let in. */}
       {mine === 'asistio' && !ended ? (
         <section className={`pt-12 ${GUTTER}`}>
-          <CheckinShare event={e} cover={cover} going={going.length} />
+          <CheckinShare event={e} cover={cover} going={going} />
         </section>
       ) : null}
 
@@ -507,7 +499,7 @@ export function EventScreen() {
                   eyebrow: `${formatDayMonth(starts, locale)} · ${t('share.recap')}`,
                   headline: eventTitle(e.titulo),
                   stats: [
-                    { value: String(going.length), label: t('share.wereThere') },
+                    { value: String(going), label: t('share.wereThere') },
                     ...(e.puntos > 0
                       ? [{ value: `+${String(e.puntos)}`, label: t('share.pointsFor') }]
                       : []),

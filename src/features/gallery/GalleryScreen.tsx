@@ -5,7 +5,7 @@ import { useParams } from 'react-router'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import { fetchSummaries, homeKeys } from '@/features/home/api'
-import { summaryOf } from '@/features/home/summary'
+import { dayStartIso, summaryOf } from '@/features/home/summary'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { isJunta, useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
@@ -67,9 +67,10 @@ export function GalleryScreen() {
   const thumbs = (photos.data ?? []).map((p) => p.thumb_path)
   const urls = useSignedUrls(EVENT_PHOTOS, thumbs)
 
+  const desde = dayStartIso(new Date())
   const mine = useQuery({
-    queryKey: homeKeys.summaries([id]),
-    queryFn: () => fetchSummaries([id]),
+    queryKey: homeKeys.summaries([id], desde),
+    queryFn: () => fetchSummaries([id], desde),
     enabled: id !== '',
   })
   const wasThere = summaryOf(mine.data ?? [], id).mine === 'asistio'

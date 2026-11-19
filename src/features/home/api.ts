@@ -43,7 +43,11 @@ export function horizonIso(now: number = Date.now()): string {
 export const homeKeys = {
   upcoming: (horizon: string) => ['home', 'upcoming', horizon] as const,
   previous: (horizon: string) => ['home', 'previous', horizon] as const,
-  summaries: (eventIds: readonly string[]) => ['home', 'summaries', ...eventIds] as const,
+  /** El prefix de les d'uns esdeveniments, per invalidar-les o trobar-les sigui quin sigui el dia. */
+  summariesFor: (eventIds: readonly string[]) => ['home', 'summaries', ...eventIds] as const,
+  /** El dia va al final: canvia a mitjanit, i «avui» és un altre recompte. */
+  summaries: (eventIds: readonly string[], desde: string) =>
+    ['home', 'summaries', ...eventIds, desde] as const,
 }
 
 /** The hero plus the "què més ve" list, in one request. */
@@ -80,12 +84,15 @@ export async function fetchPrevious(horizon: string): Promise<EventRow[]> {
  * baixava unes sis-centes files a cada obertura. La funció és `security
  * invoker`, o sigui que compta el que la RLS deixa llegir a qui pregunta: tots
  * els sí i els fitxats, més les meves respostes, siguin quines siguin; a un
- * pendent, només les seves.
+ * pendent, només les seves. `desde` és l'inici del meu «avui» (`dayStartIso`).
  */
-export async function fetchSummaries(eventIds: readonly string[]): Promise<EventSummary[]> {
+export async function fetchSummaries(
+  eventIds: readonly string[],
+  desde: string,
+): Promise<EventSummary[]> {
   if (eventIds.length === 0) return []
   return unwrapAs<EventSummary[]>(
-    supabase.rpc('resum_assistencies', { p_event_ids: [...eventIds] }),
+    supabase.rpc('resum_assistencies', { p_event_ids: [...eventIds], p_desde: desde }),
   )
 }
 

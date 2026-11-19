@@ -34,7 +34,7 @@ import {
   horizonIso,
   setAnswer,
 } from './api'
-import type { EventSummary } from './summary'
+import { type EventSummary, dayStartIso } from './summary'
 
 export interface Home {
   readonly profile: MyProfile | null
@@ -88,9 +88,10 @@ export function useHome(): Home {
   const view = useAvailability([upcoming, previous])
 
   const eventIds = [...(upcoming.data ?? NOTHING), ...(previous.data ?? NOTHING)].map((e) => e.id)
+  const desde = dayStartIso(new Date())
   const summaries = useQuery({
-    queryKey: homeKeys.summaries(eventIds),
-    queryFn: () => fetchSummaries(eventIds),
+    queryKey: homeKeys.summaries(eventIds, desde),
+    queryFn: () => fetchSummaries(eventIds, desde),
     enabled: upcoming.isSuccess && previous.isSuccess,
     // Un esdeveniment nou al calendari canvia la clau; sense això les
     // assistències tornaven a ser un forat i el botó, un esquelet, a mig mirar-lo.
@@ -191,7 +192,7 @@ type Snapshot = readonly {
   readonly previous: EventSummary | undefined
 }[]
 
-const SUMMARIES: QueryKey = ['home', 'summaries']
+const SUMMARIES: QueryKey = homeKeys.summariesFor([])
 
 function concerning(client: QueryClient, eventId: string) {
   return client

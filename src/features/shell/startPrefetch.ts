@@ -9,6 +9,7 @@ import {
   homeKeys,
   horizonIso,
 } from '@/features/home/api'
+import { dayStartIso } from '@/features/home/summary'
 import { avisosKeys, fetchAvisComptes } from '@/features/junta/avisosApi'
 import { fetchPointValues } from '@/features/junta/eventFormApi'
 import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from '@/features/junta/eventsApi'
@@ -85,11 +86,12 @@ export async function prefetchHome(client: QueryClient, userId: string): Promise
   if (upcoming !== undefined && previous !== undefined) {
     // L'ordre és el de `useHome`: la clau porta els ids tal qual.
     const ids = [...upcoming, ...previous].map((e) => e.id)
+    const desde = dayStartIso(new Date())
     if (ids.length > 0) {
       second.push(
         client.prefetchQuery({
-          queryKey: homeKeys.summaries(ids),
-          queryFn: () => fetchSummaries(ids),
+          queryKey: homeKeys.summaries(ids, desde),
+          queryFn: () => fetchSummaries(ids, desde),
         }),
       )
     }

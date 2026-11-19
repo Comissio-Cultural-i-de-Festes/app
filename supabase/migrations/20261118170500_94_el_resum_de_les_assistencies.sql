@@ -30,100 +30,142 @@
 -- cal cap privilegi que qui truca no tingui. `search_path` buit igualment: no
 -- és obligatori en una `invoker`, però no costa res.
 --
+-- És `plpgsql` només per poder refusar una llista massa llarga (més avall).
+--
 -- ═══ QUÈ TORNA ═══════════════════════════════════════════════════════════
 --
 -- Una fila per cada id demanat, també quan no hi ha cap resposta: «zero» és
 -- una dada, i la pantalla no ha de distingir «no n'hi ha» de «no ha vingut».
 --
---   going     sí + fitxats: el número de «hi van» i el que resta de les places.
---   attended  només els fitxats: «hi van ser» i «qui hi ha dins».
---   mine      la meva resposta, o null; `mine_at` quan la vaig crear, perquè
---             la pantalla pugui posar la meva cara al lloc on la posarà el
---             servidor quan dic que sí abans que contesti.
---   faces     les cinc últimes persones que hi van (la fitxa n'ensenya cinc,
---             l'Inici tres), amb `created_at` per la mateixa raó.
---   recent    nom i hora de qui hi va i ha contestat les últimes 26 hores,
---             sense mi. «Avui» és un dia de la zona de l'associació, i la zona
---             és configuració del client (`VITE_TIME_ZONE`): el servidor dona
---             una finestra que cobreix qualsevol «avui», també el de 25 hores
---             del canvi d'hora, i el client hi fa el tall com abans.
+--   going         sí + fitxats: el número de «hi van» i el que resta de les
+--                 places.
+--   attended      només els fitxats: «hi van ser» i «qui hi ha dins».
+--   mine          la meva resposta, o null; `mine_at` quan la vaig crear,
+--                 perquè la pantalla pugui posar la meva cara al lloc on la
+--                 posarà el servidor quan dic que sí abans que contesti.
+--   faces         les cinc últimes persones que hi van (la fitxa n'ensenya
+--                 cinc, l'Inici tres), amb `created_at` per la mateixa raó.
+--   recent_total  quanta gent hi va i ha contestat des de `p_desde`, sense mi.
+--   recent        els dos noms més nous d'aquests: «S'hi han apuntat avui:
+--                 Marc, Júlia i 3 més» no en diu cap altre.
+--
+-- `p_desde` és l'inici de l'«avui» de qui pregunta. La zona de l'associació
+-- és configuració del client (`VITE_TIME_ZONE`), i és el client qui sap on
+-- comença el dia; el servidor només compta d'aquí endavant.
+--
+-- NOMÉS DOS NOMS, I NO TOTS. La primera versió tornava tots els noms de les
+-- últimes 26 hores perquè el client fes el tall: l'endemà d'anunciar una festa
+-- grossa eren 245 noms i 48 KB per dir-ne dos i un número.
 --
 -- Ni correus, ni telèfons, ni l'escola: el que pintava l'`embed` i prou.
+--
+-- ═══ UNA SOLA LECTURA PER ESDEVENIMENT ═══════════════════════════════════
+--
+-- Les files de cada esdeveniment es llegeixen una vegada, amb el perfil al
+-- costat, i d'allà surten els recomptes, les cares i els noms. Les dues
+-- numeracions (`cara`, `nou`) fan de `limit` dins de cada esdeveniment: la de
+-- les cares només entre qui hi va, la dels noms només entre els que compten
+-- com a moviment, cadascuna amb l'ordre de la pantalla.
+--
+-- ═══ CINQUANTA ESDEVENIMENTS COM A MOLT ══════════════════════════════════
+--
+-- L'Inici en demana set i la fitxa un. Una llista sense sostre és una consulta
+-- que qualsevol soci pot fer tan grossa com vulgui; més de cinquanta és un
+-- error de qui crida, i es diu (22023) en lloc de servir-ho.
 
-create or replace function public.resum_assistencies(p_event_ids uuid[])
-returns table (
-  event_id  uuid,
-  going     int,
-  attended  int,
-  mine      text,
-  mine_at   timestamptz,
-  faces     jsonb,
-  recent    jsonb
+create or replace function public.resum_assistencies(
+  p_event_ids uuid[],
+  p_desde     timestamptz
 )
-language sql
+returns table (
+  event_id      uuid,
+  going         int,
+  attended      int,
+  mine          text,
+  mine_at       timestamptz,
+  faces         jsonb,
+  recent_total  int,
+  recent        text[]
+)
+language plpgsql
 stable
 security invoker
 set search_path = ''
-as $$
+as $fn$
+#variable_conflict use_column
+begin
+  if cardinality(p_event_ids) > 50 then
+    raise exception 'massa esdeveniments: % (com a molt 50)', cardinality(p_event_ids)
+      using errcode = '22023';
+  end if;
+
+  return query
+  with ids as (
+    select distinct unnest(p_event_ids) as event_id
+  ),
+  files as (
+    select a.event_id,
+           a.user_id,
+           a.estado,
+           a.created_at,
+           p.nombre,
+           p.avatar_url,
+           a.user_id = (select auth.uid()) as meva,
+           a.estado in ('si', 'asistio') as hi_va,
+           a.estado in ('si', 'asistio')
+             and a.user_id is distinct from (select auth.uid())
+             and a.created_at >= p_desde
+             and coalesce(p.nombre, '') <> '' as es_nou
+      from public.attendances a
+      left join public.profiles p on p.id = a.user_id
+     where a.event_id = any (p_event_ids)
+  ),
+  numerades as (
+    select f.*,
+           row_number() over (
+             partition by f.event_id, f.hi_va
+             order by f.created_at desc, f.user_id
+           ) as cara,
+           row_number() over (
+             partition by f.event_id, f.es_nou
+             order by f.created_at desc, f.user_id
+           ) as nou
+      from files f
+  )
   select ids.event_id,
-         coalesce(n.going, 0),
-         coalesce(n.attended, 0),
-         m.estado,
-         m.created_at,
-         coalesce(f.faces, '[]'::jsonb),
-         coalesce(r.recent, '[]'::jsonb)
-    from (select distinct unnest(p_event_ids) as event_id) ids
-    left join lateral (
-      select count(*) filter (where a.estado in ('si', 'asistio'))::int as going,
-             count(*) filter (where a.estado = 'asistio')::int as attended
-        from public.attendances a
-       where a.event_id = ids.event_id
-    ) n on true
-    left join lateral (
-      select a.estado, a.created_at
-        from public.attendances a
-       where a.event_id = ids.event_id
-         and a.user_id = (select auth.uid())
-    ) m on true
-    left join lateral (
-      select jsonb_agg(
-               jsonb_build_object(
-                 'user_id', x.user_id,
-                 'avatar_url', x.avatar_url,
-                 'created_at', x.created_at
-               )
-               order by x.created_at desc, x.user_id
-             ) as faces
-        from (
-          select a.user_id, a.created_at, p.avatar_url
-            from public.attendances a
-            left join public.profiles p on p.id = a.user_id
-           where a.event_id = ids.event_id
-             and a.estado in ('si', 'asistio')
-           order by a.created_at desc, a.user_id
-           limit 5
-        ) x
-    ) f on true
-    left join lateral (
-      select jsonb_agg(
-               jsonb_build_object('nombre', p.nombre, 'created_at', a.created_at)
-               order by a.created_at desc, a.user_id
-             ) as recent
-        from public.attendances a
-        join public.profiles p on p.id = a.user_id
-       where a.event_id = ids.event_id
-         and a.estado in ('si', 'asistio')
-         and a.user_id is distinct from (select auth.uid())
-         and a.created_at >= now() - interval '26 hours'
-         and p.nombre <> ''
-    ) r on true
-$$;
+         (count(n.user_id) filter (where n.hi_va))::int,
+         (count(n.user_id) filter (where n.estado = 'asistio'))::int,
+         (array_agg(n.estado) filter (where n.meva))[1],
+         (array_agg(n.created_at) filter (where n.meva))[1],
+         coalesce(
+           jsonb_agg(
+             jsonb_build_object(
+               'user_id', n.user_id,
+               'avatar_url', n.avatar_url,
+               'created_at', n.created_at
+             )
+             order by n.created_at desc, n.user_id
+           ) filter (where n.hi_va and n.cara <= 5),
+           '[]'::jsonb
+         ),
+         (count(n.user_id) filter (where n.es_nou))::int,
+         coalesce(
+           array_agg(n.nombre order by n.created_at desc, n.user_id)
+             filter (where n.es_nou and n.nou <= 2),
+           '{}'::text[]
+         )
+    from ids
+    left join numerades n on n.event_id = ids.event_id
+   group by ids.event_id;
+end $fn$;
 
-revoke all on function public.resum_assistencies(uuid[]) from public, anon;
-grant execute on function public.resum_assistencies(uuid[]) to authenticated, service_role;
+revoke all on function public.resum_assistencies(uuid[], timestamptz) from public, anon;
+grant execute on function public.resum_assistencies(uuid[], timestamptz)
+  to authenticated, service_role;
 
-comment on function public.resum_assistencies(uuid[]) is
+comment on function public.resum_assistencies(uuid[], timestamptz) is
   'Per esdeveniment: quants hi van, quants hi han fitxat, la meva resposta, les '
-  'cinc últimes cares i qui hi ha dit que sí les últimes 26 hores. SECURITY '
-  'INVOKER: les polítiques d''attendances i profiles decideixen què es compta, '
-  'exactament com quan el client llegia les files.';
+  'cinc últimes cares i quanta gent hi ha dit que sí des de p_desde, amb els dos '
+  'noms més nous. Com a molt 50 esdeveniments. SECURITY INVOKER: les polítiques '
+  'd''attendances i profiles decideixen què es compta, exactament com quan el '
+  'client llegia les files.';

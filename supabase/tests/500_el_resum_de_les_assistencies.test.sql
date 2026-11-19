@@ -13,7 +13,7 @@
 -- reunió de junta i un esborrany. Les persones i els ids són nous i inventats.
 
 begin;
-select plan(25);
+select plan(28);
 
 reset role;
 
@@ -116,37 +116,43 @@ select i.event_id,
           from (select f.user_id, f.created_at from files f
                  where f.event_id = i.event_id and f.estado in ('si', 'asistio')
                  order by f.created_at desc, f.user_id limit 5) g) as cares,
-       (select coalesce(array_agg(f.nombre order by f.created_at desc, f.user_id), '{}')
-          from files f
+       (select coalesce(array_agg(g.nombre order by g.created_at desc, g.user_id), '{}')
+          from (select f.nombre, f.created_at, f.user_id from files f
+                 where f.event_id = i.event_id and f.estado in ('si', 'asistio')
+                   and f.user_id <> auth.uid() and f.nombre is not null and f.nombre <> ''
+                   and f.created_at >= now() - interval '26 hours'
+                 order by f.created_at desc, f.user_id limit 2) g) as noms,
+       (select count(*)::int from files f
          where f.event_id = i.event_id and f.estado in ('si', 'asistio')
            and f.user_id <> auth.uid() and f.nombre is not null and f.nombre <> ''
-           and f.created_at >= now() - interval '26 hours') as noms
+           and f.created_at >= now() - interval '26 hours') as total
   from ids i;
 grant select on client_ho_veu to authenticated;
 
 create temp view el_resum with (security_invoker = true) as
 select r.event_id, r.going, r.attended, r.mine,
        array(select (c ->> 'user_id')::uuid from jsonb_array_elements(r.faces) c) as cares,
-       array(select n ->> 'nombre' from jsonb_array_elements(r.recent) n) as noms
+       r.recent as noms,
+       r.recent_total as total
   from public.resum_assistencies(array[
          '00000000-0000-4000-8000-000000f5e001',
          '00000000-0000-4000-8000-000000f5e002',
          '00000000-0000-4000-8000-000000f5e003',
          '00000000-0000-4000-8000-000000f5e004',
          '00000000-0000-4000-8000-000000f5e005'
-       ]::uuid[]) r;
+       ]::uuid[], now() - interval '26 hours') r;
 grant select on el_resum to authenticated;
 
 -- ── la forma ────────────────────────────────────────────────────────────────
 
 select is(
-  (select prosecdef from pg_proc where oid = 'public.resum_assistencies(uuid[])'::regprocedure),
+  (select prosecdef from pg_proc where oid = 'public.resum_assistencies(uuid[], timestamptz)'::regprocedure),
   false,
   'és security invoker: les polítiques decideixen, no una còpia de les polítiques'
 );
 
 select ok(
-  not has_function_privilege('anon', 'public.resum_assistencies(uuid[])', 'execute'),
+  not has_function_privilege('anon', 'public.resum_assistencies(uuid[], timestamptz)', 'execute'),
   'anon no la pot cridar'
 );
 
@@ -175,16 +181,24 @@ select is(
 
 select is(
   (select array_agg(c ->> 'avatar_url' order by ord)
-     from public.resum_assistencies(array['00000000-0000-4000-8000-000000f5e001']::uuid[]) r,
+     from public.resum_assistencies(array['00000000-0000-4000-8000-000000f5e001']::uuid[], now() - interval '26 hours') r,
           jsonb_array_elements(r.faces) with ordinality as e(c, ord)),
   array[null, '00000000-0000-4000-8000-000000f5000a'::uuid || '/1.jpg', '00000000-0000-4000-8000-000000f5000b'::uuid || '/1.jpg', null, '00000000-0000-4000-8000-000000f5000f'::uuid || '/1.jpg'],
   'soci actiu: la baixa i el pendent hi són sense foto, com amb el perfil incrustat'
 );
 
-select is(
-  (select noms from el_resum where event_id = '00000000-0000-4000-8000-000000f5e001'),
-  array['Res_a', 'Res_b'],
-  'soci actiu: els noms de les 26 hores, sense els perfils que no veu ni el de fa dos dies'
+select results_eq(
+  $$ select noms, total from el_resum where event_id = '00000000-0000-4000-8000-000000f5e001' $$,
+  $$ values (array['Res_a', 'Res_b'], 2) $$,
+  'soci actiu: els noms des de p_desde, sense els perfils que no veu ni el de fa dos dies'
+);
+
+select results_eq(
+  $$ select recent, recent_total
+       from public.resum_assistencies(array['00000000-0000-4000-8000-000000f5e001']::uuid[],
+                                      now() - interval '90 minutes') $$,
+  $$ values (array['Res_a'], 1) $$,
+  'soci actiu: p_desde és el que talla: d''una hora i mitja ençà només n''hi ha un'
 );
 
 select is(
@@ -203,7 +217,7 @@ select ok(
 
 select is(
   (select r.mine_at
-     from public.resum_assistencies(array['00000000-0000-4000-8000-000000f5e001']::uuid[]) r),
+     from public.resum_assistencies(array['00000000-0000-4000-8000-000000f5e001']::uuid[], now() - interval '26 hours') r),
   (select created_at from public.attendances
     where event_id = '00000000-0000-4000-8000-000000f5e001' and user_id = '00000000-0000-4000-8000-000000f50002'::uuid),
   'soci actiu: quan vaig contestar, per posar la meva cara al seu lloc'
@@ -214,26 +228,40 @@ select is(
      '00000000-0000-4000-8000-000000f5e001',
      '00000000-0000-4000-8000-000000f5e001',
      '00000000-0000-4000-8000-000000f5e999'
-   ]::uuid[])),
+   ]::uuid[], now() - interval '26 hours')),
   2,
   'una fila per id: els repetits un cop, i un que no existeix també, a zero'
 );
 
 select results_eq(
-  $$ select going, attended, mine, faces, recent
-       from public.resum_assistencies(array['00000000-0000-4000-8000-000000f5e999']::uuid[]) $$,
-  $$ values (0, 0, null::text, '[]'::jsonb, '[]'::jsonb) $$,
+  $$ select going, attended, mine, faces, recent_total, recent
+       from public.resum_assistencies(array['00000000-0000-4000-8000-000000f5e999']::uuid[], now() - interval '26 hours') $$,
+  $$ values (0, 0, null::text, '[]'::jsonb, 0, '{}'::text[]) $$,
   'un esdeveniment sense res és zero i llistes buides, no null'
 );
 
 select ok(
   not exists (
     select 1
-      from public.resum_assistencies(array['00000000-0000-4000-8000-000000f5e001']::uuid[]) r,
+      from public.resum_assistencies(array['00000000-0000-4000-8000-000000f5e001']::uuid[], now() - interval '26 hours') r,
            jsonb_array_elements(r.faces) c
      where c ?| array['nombre', 'email', 'telefon', 'escola']
   ),
   'una cara és id, foto i hora: cap altra dada'
+);
+
+select throws_ok(
+  $$ select * from public.resum_assistencies(
+       array(select gen_random_uuid() from generate_series(1, 51)), now()) $$,
+  '22023',
+  null,
+  'més de cinquanta esdeveniments és un error de qui crida'
+);
+
+select lives_ok(
+  $$ select * from public.resum_assistencies(
+       array(select gen_random_uuid() from generate_series(1, 50)), now()) $$,
+  'cinquanta sí'
 );
 
 -- ── pendent ─────────────────────────────────────────────────────────────────
@@ -281,10 +309,10 @@ select results_eq(
   'junta: també la reunió de junta i l''esborrany'
 );
 
-select is(
-  (select noms from el_resum where event_id = '00000000-0000-4000-8000-000000f5e001'),
-  array['Res_x', 'Res_a', 'Res_b', 'Res_pend'],
-  'junta: veu els noms dels perfils que un soci no veu'
+select results_eq(
+  $$ select noms, total from el_resum where event_id = '00000000-0000-4000-8000-000000f5e001' $$,
+  $$ values (array['Res_x', 'Res_a'], 4) $$,
+  'junta: veu els noms dels perfils que un soci no veu, i només els dos més nous'
 );
 
 -- ── baixa ───────────────────────────────────────────────────────────────────

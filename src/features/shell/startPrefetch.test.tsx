@@ -6,6 +6,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { doorKeys } from '@/features/door/api'
 import { homeKeys, horizonIso } from '@/features/home/api'
+import { dayStartIso } from '@/features/home/summary'
 import { useHome } from '@/features/home/useHome'
 import { avisosKeys } from '@/features/junta/avisosApi'
 import { juntaEventKeys, juntaHorizonIso } from '@/features/junta/eventsApi'
@@ -143,9 +144,11 @@ describe('prefetchHome', () => {
     expect(client.getQueryData(rankingKeys.periods())).toEqual(PERIODS)
     expect(client.getQueryState(photoKeys.nights())?.status).toBe('success')
     expect(client.getQueryState(profileScreenKeys.streak(ME))?.status).toBe('success')
-    expect(client.getQueryState(homeKeys.summaries(['e-1', 'e-2', 'e-1', 'e-2']))?.status).toBe(
-      'success',
-    )
+    expect(
+      client.getQueryState(
+        homeKeys.summaries(['e-1', 'e-2', 'e-1', 'e-2'], dayStartIso(new Date())),
+      )?.status,
+    ).toBe('success')
     expect(client.getQueryState(rankingKeys.individual(bounds))?.status).toBe('success')
     expect(client.getQueryState(rankingKeys.schools(bounds))?.status).toBe('success')
   })

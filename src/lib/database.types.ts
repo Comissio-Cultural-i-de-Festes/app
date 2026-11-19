@@ -2103,7 +2103,7 @@ export type Database = {
         Returns: Json
       }
       resum_assistencies: {
-        Args: { p_event_ids: string[] }
+        Args: { p_desde: string; p_event_ids: string[] }
         Returns: {
           attended: number
           event_id: string
@@ -2111,7 +2111,8 @@ export type Database = {
           going: number
           mine: string
           mine_at: string
-          recent: Json
+          recent: string[]
+          recent_total: number
         }[]
       }
       retira_avis: {

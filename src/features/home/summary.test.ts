@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { type EventSummary, emptySummary, isGoing, signedUpToday, summaryOf } from './summary'
+import { type EventSummary, dayStartIso, emptySummary, isGoing, summaryOf } from './summary'
 
 function summary(over: Partial<EventSummary> = {}): EventSummary {
   return { ...emptySummary('e1'), ...over }
@@ -20,6 +20,7 @@ describe('summaryOf', () => {
       mine: null,
       mine_at: null,
       faces: [],
+      recent_total: 0,
       recent: [],
     })
   })
@@ -35,35 +36,27 @@ describe('who counts as coming', () => {
   })
 })
 
-describe('the movement line', () => {
-  const now = new Date('2026-09-20T11:30:00Z')
-
-  it('names the people who signed up today, and not yesterday', () => {
-    const s = summary({
-      recent: [
-        { nombre: 'Alfa Bravo', created_at: '2026-09-20T09:00:00Z' },
-        { nombre: 'Charlie Delta', created_at: '2026-09-19T09:00:00Z' },
-      ],
-    })
-    expect(signedUpToday(s, now)).toEqual(['Alfa Bravo'])
+describe('dayStartIso', () => {
+  it('és la mitjanit de Madrid, no la d’UTC', () => {
+    expect(dayStartIso(new Date('2026-09-20T11:30:00Z'))).toBe('2026-09-19T22:00:00.000Z')
   })
 
-  it('counts somebody who signed up at half past midnight', () => {
-    // 22:30Z is already 00:30 the next day in Madrid. Measuring "today" from an
-    // instant computed as UTC midnight drops exactly this person, and the line
-    // goes missing on the nights it has the most to say.
-    const s = summary({ recent: [{ nombre: 'Alfa Bravo', created_at: '2026-09-19T22:30:00Z' }] })
-    expect(signedUpToday(s, now)).toEqual(['Alfa Bravo'])
+  it('a les dotze i mitja de la nit ja és el dia nou', () => {
+    // 22:30Z ja són les 00:30 del 20 a Madrid: qui s'hi apunta ara és d'avui.
+    expect(dayStartIso(new Date('2026-09-19T22:30:00Z'))).toBe('2026-09-19T22:00:00.000Z')
   })
 
-  it('reads the timestamps the way Postgres writes them inside JSON', () => {
-    const s = summary({
-      recent: [{ nombre: 'Alfa Bravo', created_at: '2026-09-20T09:00:00.123456+00:00' }],
-    })
-    expect(signedUpToday(s, now)).toEqual(['Alfa Bravo'])
+  it('el dia que es retarda l’hora, la mitjanit és encara la d’estiu', () => {
+    expect(dayStartIso(new Date('2026-10-25T20:00:00Z'))).toBe('2026-10-24T22:00:00.000Z')
   })
 
-  it('is empty when nobody moved', () => {
-    expect(signedUpToday(summary(), now)).toEqual([])
+  it('el dia que s’avança l’hora, la mitjanit és encara la d’hivern', () => {
+    expect(dayStartIso(new Date('2026-03-29T12:00:00Z'))).toBe('2026-03-28T23:00:00.000Z')
+  })
+
+  it('és el mateix tot el dia, que és el que el fa servir de clau', () => {
+    expect(dayStartIso(new Date('2026-09-20T08:00:00Z'))).toBe(
+      dayStartIso(new Date('2026-09-20T21:59:00Z')),
+    )
   })
 })

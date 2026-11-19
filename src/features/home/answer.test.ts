@@ -119,8 +119,8 @@ describe('withMyAnswer', () => {
   })
 
   it('no toca els noms d’avui: el meu no hi és mai', () => {
-    const recent = [{ nombre: 'Alfa', created_at: '2026-09-20T09:00:00Z' }]
-    const out = withMyAnswer([summary({ recent })], 'e1', ME, 'si', NOW, null)
+    const recent = ['Alfa']
+    const out = withMyAnswer([summary({ recent, recent_total: 1 })], 'e1', ME, 'si', NOW, null)
     expect(one(out)?.recent).toBe(recent)
   })
 })

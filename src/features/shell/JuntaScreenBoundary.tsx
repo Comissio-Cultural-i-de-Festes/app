@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
 import { type JuntaHomeData, juntaHomeKeys } from '@/features/junta/homeApi'
+import { JuntaStringsUnavailable, juntaStrings } from '@/i18n/junta'
 
 import { isMissingChunk } from './missingChunk'
 
@@ -25,6 +26,12 @@ import { isMissingChunk } from './missingChunk'
  * el d'un desplegament— es torna a llançar, i el resol la xarxa de sota com
  * sempre.
  *
+ * ELS TEXTOS DE LA JUNTA, en canvi, sempre acaben aquí, amb xarxa o sense
+ * (`src/i18n/junta.ts`). Amb una wifi connectada que no dona internet,
+ * `navigator.onLine` diu que sí: recarregar no portava res, i la xarxa de sota
+ * acabava anunciant una versió nova que no existia. La fallada s'oblida en
+ * ensenyar-la, perquè la pantalla següent que s'obri ho torni a provar.
+ *
  * Es munta amb la ruta com a `key`, i per això tornar al rebedor el reinicia.
  * Un `lazy()` que ha fallat queda fallat fins que es recarrega la pàgina: si es
  * torna a tocar la mateixa pantalla quan ja hi ha xarxa, l'error puja i la
@@ -42,9 +49,14 @@ export class JuntaScreenBoundary extends Component<{ readonly children: ReactNod
     return { error: { value: error } }
   }
 
+  override componentDidCatch(error: unknown): void {
+    if (error instanceof JuntaStringsUnavailable) juntaStrings.forgetFailures()
+  }
+
   override render(): ReactNode {
     const { error } = this.state
     if (error === null) return this.props.children
+    if (error.value instanceof JuntaStringsUnavailable) return <NeedsSignal />
     if (!isMissingChunk(error.value) || navigator.onLine) throw error.value
     return <NeedsSignal />
   }

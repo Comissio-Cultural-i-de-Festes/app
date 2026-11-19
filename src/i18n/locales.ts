@@ -11,6 +11,19 @@ export type Locale = (typeof SUPPORTED_LOCALES)[number]
  * one of the three is ignored rather than trusted.
  */
 export const DEFAULT_LOCALE: Locale = isLocale(env.defaultLocale) ? env.defaultLocale : 'ca'
+
+/** The one language that travels inside the bundle; see `i18n/index.ts`. */
+export const BUNDLED_LOCALE: Locale = 'ca'
+
+/**
+ * What i18next falls back to, in order: the configured default, and the
+ * bundled language last. With a default other than Catalan that cannot be
+ * fetched, a chain that ended in it would end in nothing, and the screen
+ * would show raw keys.
+ */
+export function fallbackLocales(defaultLocale: Locale): Locale[] {
+  return [...new Set([defaultLocale, BUNDLED_LOCALE])]
+}
 export const LOCALE_STORAGE_KEY = 'comi.locale'
 
 /**

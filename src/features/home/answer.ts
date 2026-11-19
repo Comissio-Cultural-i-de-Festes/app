@@ -68,7 +68,7 @@ export function restoreMyRow(
   return previous === null ? others : [previous, ...others]
 }
 
-export type HomeCta = 'checkin' | 'going' | 'queued' | 'requested' | 'join'
+export type HomeCta = 'waiting' | 'checkin' | 'going' | 'queued' | 'requested' | 'join'
 
 /**
  * Què posa l'Inici sota el hero segons la meva resposta.
@@ -77,8 +77,19 @@ export type HomeCta = 'checkin' | 'going' | 'queued' | 'requested' | 'join'
  * podia fer: el botó d'apuntar-s'hi tornava a aparèixer i invitava a tornar-ho
  * a demanar, que és exactament el que l'estat optimista havia de evitar. Aquí
  * hi va una línia que diu on és, no un botó.
+ *
+ * MENTRE LES ASSISTÈNCIES NO HAN ARRIBAT, ESPERA. Sense elles `mine` és `null`
+ * per a tothom, i qui ja hi anava veia «M'hi apunto» uns segons i després un
+ * altre botó al mateix lloc. `answersKnown` és fals només mentre encara
+ * poden arribar: si no arriben (sense xarxa, penjades, error) ja és cert, i
+ * el botó d'apuntar-s'hi torna a ser el que era.
  */
-export function homeCta(mine: AttendanceState | null, canCheckIn: boolean): HomeCta {
+export function homeCta(
+  mine: AttendanceState | null,
+  canCheckIn: boolean,
+  answersKnown: boolean,
+): HomeCta {
+  if (!answersKnown) return 'waiting'
   if (mine === 'espera') return 'queued'
   if (mine === 'sollicitat') return 'requested'
   if (canCheckIn && (mine === 'si' || mine === 'potser')) return 'checkin'

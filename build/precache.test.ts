@@ -103,6 +103,10 @@ describe('the install', () => {
     ['verdict', 'src/features/door/verdict.ts'],
     ['decoder', 'src/features/door/decoder.ts'],
     ['ponyfill', 'barcode-detector/dist/es/zxing-exported.js'],
+    ['JuntaLayout, the frame that draws the junta home', 'src/features/shell/JuntaLayout.tsx'],
+    ['SessionGate, the saved QR with no session', 'src/features/shell/SessionGate.tsx'],
+    ['Spanish', 'src/i18n/locales/es.json'],
+    ['English', 'src/i18n/locales/en.json'],
   ])('keeps the door: %s', (_name, path) => {
     // La porta s'ha d'obrir sense xarxa després de cada desplegament, també si
     // ningú no ha tornat a entrar a la zona de junta: el perquè, a precache.ts.

@@ -1,38 +1,16 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import { type ComponentProps, Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, Route, Routes, useLocation } from 'react-router'
+import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router'
 
 import { EntryScreen } from '@/features/entry/EntryScreen'
-import { EventScreen } from '@/features/event/EventScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
-import { InsideScreen } from '@/features/event/InsideScreen'
-import { DiptychScreen } from '@/features/photos/DiptychScreen'
-import { DoorPhotoScreen } from '@/features/photos/DoorPhotoScreen'
-import { IdeasScreen } from '@/features/proposals/IdeasScreen'
-import { NewIdeaScreen } from '@/features/proposals/NewIdeaScreen'
-import { MyRideScreen } from '@/features/rides/MyRideScreen'
-import { OfferRideScreen } from '@/features/rides/OfferRideScreen'
-import { RidesScreen } from '@/features/rides/RidesScreen'
 import { useCheckinQueue } from '@/features/checkin/useCheckinQueue'
 import { useKeepPushFresh } from '@/features/event/useKeepPushFresh'
-import { SociScreen } from '@/features/member/SociScreen'
-import { RankingScreen } from '@/features/ranking/RankingScreen'
 import { UserIdContext } from '@/features/session/context'
 import { useBootSession } from '@/features/session/useBootSession'
-import { OnboardingScreen } from '@/features/onboarding/OnboardingScreen'
-import { BadgesScreen } from '@/features/badges/BadgesScreen'
-import { GalleryScreen } from '@/features/gallery/GalleryScreen'
-import { ProvesScreen } from '@/features/gimcana/ProvesScreen'
-import { ScoreboardScreen } from '@/features/gimcana/ScoreboardScreen'
-import { SubmitScreen } from '@/features/gimcana/SubmitScreen'
-import { EditProfileScreen } from '@/features/profile/EditProfileScreen'
-import { ProfileScreen } from '@/features/profile/ProfileScreen'
-import { QrScreen } from '@/features/qr/QrScreen'
 import { useQrPrefetch } from '@/features/qr/useQrPrefetch'
-import { JuntaLayout } from '@/features/shell/JuntaLayout'
 import { GateWaiting } from '@/features/shell/Gate'
-import { SessionGate } from '@/features/shell/SessionGate'
 import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
@@ -43,8 +21,7 @@ import { useForgetReturn } from '@/features/entry/useForgetReturn'
 import { readInviteCode } from '@/features/entry/useInvite'
 import { useRedeemFromLink } from '@/features/entry/useRedeemFromLink'
 import { InstallScreen } from '@/features/install/InstallScreen'
-import { PrivacyScreen } from '@/features/legal/PrivacyScreen'
-import { TermsScreen } from '@/features/legal/TermsScreen'
+import { LogoMark } from '@/ui/Logo/Logo'
 import {
   SNOOZE_DONE_MS,
   SNOOZE_LATER_MS,
@@ -142,9 +119,116 @@ const InvitesScreen = lazy(() =>
 const PaymentsScreen = lazy(() =>
   import('@/features/junta/PaymentsScreen').then((m) => ({ default: m.PaymentsScreen })),
 )
-const JuntaHome = lazy(() =>
-  import('@/features/junta/JuntaHome').then((m) => ({ default: m.JuntaHome })),
+const loadJuntaHome = () => import('@/features/junta/JuntaHome')
+const JuntaHome = lazy(() => loadJuntaHome().then((m) => ({ default: m.JuntaHome })))
+// El marc de la zona també és un tros, i el rebedor no es demanaria fins que el
+// marc ja hagués arribat i pintat el seu `Outlet`: dues voltes de xarxa una
+// darrere l'altra per entrar a `/junta`. Es demanen alhora. Si s'entra per una
+// altra pantalla de la zona, el rebedor ve igualment de franc: és a la precache
+// i és on porta la fletxa de tornada.
+const JuntaLayout = lazy(() => {
+  loadJuntaHome().catch(() => undefined)
+  return import('@/features/shell/JuntaLayout').then((m) => ({ default: m.JuntaLayout }))
+})
+
+/**
+ * Les pantalles de soci, també a demanda, totes menys l'Inici.
+ *
+ * El primer que baixa un telèfon era l'app sencera: qui arriba amb la
+ * invitació, per la wifi de la casa rural, s'enduia el rànquing, la gimcana i
+ * els cotxes per veure una porta amb un botó. Ara baixa la porta i l'Inici, i
+ * la resta quan s'hi entra. Un cop instal·lada no costa res: el service worker
+ * té tots aquests trossos a la precache, o sigui que sense xarxa s'obren igual.
+ *
+ * L'Inici no. Es va provar diferit i el LCP empitjorava: és la primera
+ * pantalla de qui ja ha entrat, i fer-la esperar un tros que només es pot
+ * demanar quan l'entrada ja s'ha executat és afegir un viatge sencer davant
+ * del que es mesura. Tampoc la d'entrada ni la d'instal·lació, pel mateix
+ * motiu des de l'altra banda: són el primer que veu qui encara no ha entrat.
+ */
+const EventScreen = lazy(() =>
+  import('@/features/event/EventScreen').then((m) => ({ default: m.EventScreen })),
 )
+const InsideScreen = lazy(() =>
+  import('@/features/event/InsideScreen').then((m) => ({ default: m.InsideScreen })),
+)
+const DiptychScreen = lazy(() =>
+  import('@/features/photos/DiptychScreen').then((m) => ({ default: m.DiptychScreen })),
+)
+const DoorPhotoScreen = lazy(() =>
+  import('@/features/photos/DoorPhotoScreen').then((m) => ({ default: m.DoorPhotoScreen })),
+)
+const IdeasScreen = lazy(() =>
+  import('@/features/proposals/IdeasScreen').then((m) => ({ default: m.IdeasScreen })),
+)
+const NewIdeaScreen = lazy(() =>
+  import('@/features/proposals/NewIdeaScreen').then((m) => ({ default: m.NewIdeaScreen })),
+)
+const MyRideScreen = lazy(() =>
+  import('@/features/rides/MyRideScreen').then((m) => ({ default: m.MyRideScreen })),
+)
+const OfferRideScreen = lazy(() =>
+  import('@/features/rides/OfferRideScreen').then((m) => ({ default: m.OfferRideScreen })),
+)
+const RidesScreen = lazy(() =>
+  import('@/features/rides/RidesScreen').then((m) => ({ default: m.RidesScreen })),
+)
+const SociScreen = lazy(() =>
+  import('@/features/member/SociScreen').then((m) => ({ default: m.SociScreen })),
+)
+const RankingScreen = lazy(() =>
+  import('@/features/ranking/RankingScreen').then((m) => ({ default: m.RankingScreen })),
+)
+const OnboardingScreen = lazy(() =>
+  import('@/features/onboarding/OnboardingScreen').then((m) => ({ default: m.OnboardingScreen })),
+)
+const BadgesScreen = lazy(() =>
+  import('@/features/badges/BadgesScreen').then((m) => ({ default: m.BadgesScreen })),
+)
+const GalleryScreen = lazy(() =>
+  import('@/features/gallery/GalleryScreen').then((m) => ({ default: m.GalleryScreen })),
+)
+const ProvesScreen = lazy(() =>
+  import('@/features/gimcana/ProvesScreen').then((m) => ({ default: m.ProvesScreen })),
+)
+const ScoreboardScreen = lazy(() =>
+  import('@/features/gimcana/ScoreboardScreen').then((m) => ({ default: m.ScoreboardScreen })),
+)
+const SubmitScreen = lazy(() =>
+  import('@/features/gimcana/SubmitScreen').then((m) => ({ default: m.SubmitScreen })),
+)
+const EditProfileScreen = lazy(() =>
+  import('@/features/profile/EditProfileScreen').then((m) => ({ default: m.EditProfileScreen })),
+)
+const ProfileScreen = lazy(() =>
+  import('@/features/profile/ProfileScreen').then((m) => ({ default: m.ProfileScreen })),
+)
+const QrScreen = lazy(() => import('@/features/qr/QrScreen').then((m) => ({ default: m.QrScreen })))
+const PrivacyScreen = lazy(() =>
+  import('@/features/legal/PrivacyScreen').then((m) => ({ default: m.PrivacyScreen })),
+)
+const TermsScreen = lazy(() =>
+  import('@/features/legal/TermsScreen').then((m) => ({ default: m.TermsScreen })),
+)
+
+/**
+ * La porta de la sessió que no s'obre, també a demanda, i per un sol motiu: el
+ * QR desat que ensenya porta el generador de QR sencer, i el generador era el
+ * tros més gran que l'arrencada carregava per a una pantalla que no veu
+ * gairebé ningú. Surt sense xarxa, però és a la precache com qualsevol altre
+ * tros: el telèfon que la necessita ja l'ha baixat.
+ */
+const SessionGateScreen = lazy(() =>
+  import('@/features/shell/SessionGate').then((m) => ({ default: m.SessionGate })),
+)
+
+function SessionGate(props: ComponentProps<typeof SessionGateScreen>) {
+  return (
+    <Suspense fallback={<GateWaiting />}>
+      <SessionGateScreen {...props} />
+    </Suspense>
+  )
+}
 
 /**
  * Les dues rutes que es llegeixen sense sessió.
@@ -182,6 +266,47 @@ function KeepPushFresh() {
 }
 
 /**
+ * On s'espera una pantalla de soci que encara no ha arribat.
+ *
+ * Una ruta sense camí entre la barra de pestanyes i les pantalles, i no un
+ * `Suspense` al voltant de tot l'arbre: així el que es substitueix mentre
+ * arriba el tros és la pantalla, i la barra no desapareix i torna.
+ */
+function ScreenOutlet() {
+  return (
+    <Suspense fallback={<GateWaiting />}>
+      <Outlet />
+    </Suspense>
+  )
+}
+
+/**
+ * L'app, darrere de l'espera de l'idioma.
+ *
+ * Qui ha triat el castellà o l'anglès no el té dins del paquet (vegeu
+ * `i18n/index.ts`), i fins que arriba `useTranslation` suspèn. Aquí es
+ * pinta el fons de l'app i la marca bategant, sense cap paraula: qualsevol
+ * frase, fins i tot «Un segon…», sortiria en català a qui no l'ha triat.
+ *
+ * Amb el català no s'arriba a veure; amb un altre ja desat, dura el que es
+ * triga a llegir-lo de la precache; i com a molt, quatre segons
+ * (`i18n/backend.ts`).
+ */
+export default function App() {
+  return (
+    <Suspense
+      fallback={
+        <main aria-busy="true" className="flex min-h-dvh items-center justify-center bg-app">
+          <LogoMark size={44} className="animate-pulse" />
+        </main>
+      }
+    >
+      <Gates />
+    </Suspense>
+  )
+}
+
+/**
  * The order of the gates, and why.
  *
  * On iOS the home-screen app has its own storage, so a session created in
@@ -200,7 +325,7 @@ function KeepPushFresh() {
  *
  * It is a prompt, not a wall: skipping it goes straight on to the door.
  */
-export default function App() {
+function Gates() {
   const { t } = useTranslation()
   const client = useQueryClient()
   const lastUser = useRef<string | null>(null)
@@ -299,8 +424,13 @@ export default function App() {
   //
   // El `*` torna l'arbre de sempre, o sigui que per a tota la resta això no hi
   // és.
-  if (pathname === PRIVACY_PATH) return <PrivacyScreen />
-  if (pathname === TERMS_PATH) return <TermsScreen />
+  if (pathname === PRIVACY_PATH || pathname === TERMS_PATH) {
+    return (
+      <Suspense fallback={<GateWaiting />}>
+        {pathname === PRIVACY_PATH ? <PrivacyScreen /> : <TermsScreen />}
+      </Suspense>
+    )
+  }
 
   // Hi ha una sessió desada que no s'ha pogut renovar. La pantalla d'entrada
   // seria mentir —ja has entrat— i, a més, no hi ha res que s'hi pugui fer
@@ -348,7 +478,9 @@ export default function App() {
         {/* Asked once, and it has to be its own route rather than a gate in
             front of everything: a redirect that fires on every render would
             trap somebody who came in through a shared link to an event. */}
-        <Route path="/primer-cop" element={<OnboardingScreen />} />
+        <Route element={<ScreenOutlet />}>
+          <Route path="/primer-cop" element={<OnboardingScreen />} />
+        </Route>
 
         <Route element={<RequireOnboarding />}>
           <Route element={<TabLayout />}>
@@ -361,35 +493,39 @@ export default function App() {
                 </>
               }
             />
-            <Route path="/ranquing" element={<RankingScreen />} />
-            <Route path="/qr" element={<QrScreen />} />
-            <Route path="/idees" element={<IdeasScreen />} />
-            <Route path="/idees/nova" element={<NewIdeaScreen />} />
-            <Route path="/perfil" element={<ProfileScreen />} />
-            <Route path="/perfil/insignies" element={<BadgesScreen />} />
-            <Route path="/perfil/editar" element={<EditProfileScreen />} />
-            <Route path="/esdeveniment/:id" element={<EventScreen />} />
-            <Route path="/esdeveniment/:eventId/dins" element={<InsideScreen />} />
-            <Route path="/esdeveniment/:id/fotos" element={<GalleryScreen />} />
-            <Route path="/esdeveniment/:id/gimcana" element={<ProvesScreen />} />
-            <Route path="/esdeveniment/:id/gimcana/marcador" element={<ScoreboardScreen />} />
-            <Route path="/esdeveniment/:id/gimcana/:provaId" element={<SubmitScreen />} />
-            <Route path="/perfil/nits" element={<DiptychScreen />} />
-            <Route path="/perfil/nits/:eventId" element={<DiptychScreen />} />
-            <Route path="/esdeveniment/:eventId/cotxes" element={<RidesScreen />} />
-            <Route path="/esdeveniment/:eventId/cotxes/nou" element={<OfferRideScreen />} />
-            <Route path="/esdeveniment/:eventId/cotxes/:rideId" element={<MyRideScreen />} />
+            <Route element={<ScreenOutlet />}>
+              <Route path="/ranquing" element={<RankingScreen />} />
+              <Route path="/qr" element={<QrScreen />} />
+              <Route path="/idees" element={<IdeasScreen />} />
+              <Route path="/idees/nova" element={<NewIdeaScreen />} />
+              <Route path="/perfil" element={<ProfileScreen />} />
+              <Route path="/perfil/insignies" element={<BadgesScreen />} />
+              <Route path="/perfil/editar" element={<EditProfileScreen />} />
+              <Route path="/esdeveniment/:id" element={<EventScreen />} />
+              <Route path="/esdeveniment/:eventId/dins" element={<InsideScreen />} />
+              <Route path="/esdeveniment/:id/fotos" element={<GalleryScreen />} />
+              <Route path="/esdeveniment/:id/gimcana" element={<ProvesScreen />} />
+              <Route path="/esdeveniment/:id/gimcana/marcador" element={<ScoreboardScreen />} />
+              <Route path="/esdeveniment/:id/gimcana/:provaId" element={<SubmitScreen />} />
+              <Route path="/perfil/nits" element={<DiptychScreen />} />
+              <Route path="/perfil/nits/:eventId" element={<DiptychScreen />} />
+              <Route path="/esdeveniment/:eventId/cotxes" element={<RidesScreen />} />
+              <Route path="/esdeveniment/:eventId/cotxes/nou" element={<OfferRideScreen />} />
+              <Route path="/esdeveniment/:eventId/cotxes/:rideId" element={<MyRideScreen />} />
+            </Route>
           </Route>
 
-          {/* The camera goes outside the tab bar, like the scanner: a tab bar
-              over a shutter button is a mis-tap waiting to happen. */}
-          <Route path="/perfil/nits/:eventId/camera" element={<DoorPhotoScreen />} />
+          <Route element={<ScreenOutlet />}>
+            {/* The camera goes outside the tab bar, like the scanner: a tab bar
+                over a shutter button is a mis-tap waiting to happen. */}
+            <Route path="/perfil/nits/:eventId/camera" element={<DoorPhotoScreen />} />
 
-          {/* El perfil d'un altre soci, també fora de la barra: s'hi entra des
-              d'una cara en una llista i se'n torna a sortir per on s'ha entrat,
-              que és el que la fletxa de la capçalera sap fer i una pestanya
-              marcada no. */}
-          <Route path="/soci/:id" element={<SociScreen />} />
+            {/* El perfil d'un altre soci, també fora de la barra: s'hi entra des
+                d'una cara en una llista i se'n torna a sortir per on s'ha
+                entrat, que és el que la fletxa de la capçalera sap fer i una
+                pestanya marcada no. */}
+            <Route path="/soci/:id" element={<SociScreen />} />
+          </Route>
 
           {/* No tab bar in here: these are places you go into and come back
               out of, and each one draws its own way out. */}

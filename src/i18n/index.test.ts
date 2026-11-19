@@ -3,6 +3,7 @@ import { afterAll, describe, expect, it } from 'vitest'
 import i18n from '@/i18n'
 
 import ca from './locales/ca.json'
+import bundled from './locales/ca.json?app'
 import en from './locales/en.json'
 import es from './locales/es.json'
 
@@ -21,8 +22,15 @@ afterAll(async () => {
 
 describe('the languages', () => {
   it('starts with Catalan in memory and Spanish not', () => {
-    expect(i18n.getResourceBundle('ca', 'translation')).toEqual(ca)
+    expect(i18n.getResourceBundle('ca', 'translation')).toEqual(bundled)
     expect(i18n.hasResourceBundle('es', 'translation')).toBe(false)
+  })
+
+  it("leaves most of the junta's strings to the junta's screens", () => {
+    // Which ones, and the rest of the story, in `junta.test.ts`.
+    const size = (tree: unknown) => JSON.stringify(tree).length
+    const bundle = i18n.getResourceBundle('ca', 'translation') as { junta: unknown }
+    expect(size(bundle.junta)).toBeLessThan(size(ca.junta) / 2)
   })
 
   it('fetches Spanish when somebody switches to it, and only then answers', async () => {

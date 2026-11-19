@@ -1,3 +1,5 @@
+import { preloadJuntaStrings } from '@/i18n/junta'
+
 /**
  * La porta, baixada abans d'arribar-hi.
  *
@@ -20,7 +22,10 @@
  * socis, invitacions i fitxatges—, que no són a la precache. Amb el rebedor
  * obert a la porta i sense cobertura, «3 no pagats» és el primer que es toca;
  * així s'obre igualment si s'ha entrat a la zona amb xarxa des de l'últim
- * desplegament. Si no, ho diu `JuntaScreenBoundary` i no es perd res.
+ * desplegament. Si no, ho diu `JuntaScreenBoundary` i no es perd res. I amb
+ * elles els textos de la junta en l'idioma de la pantalla, que aquestes quatre
+ * esperen abans de pintar (`src/i18n/junta.ts`): sense, s'obririen i es
+ * quedarien esperant uns textos que no arribarien.
  *
  * Es va descartar baixar tota la zona: el formulari d'esdeveniment porta el mapa,
  * que és el tros més gros de tots, i la resta són pantalles d'escriptori que no
@@ -43,5 +48,6 @@ export function preloadDoor(): Promise<unknown> {
     import('@/features/junta/InvitesScreen'),
     import('@/features/junta/CheckinsScreen'),
     import('./decoder').then((m) => m.warmDecoder()),
+    preloadJuntaStrings(),
   ])
 }

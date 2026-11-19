@@ -21,6 +21,12 @@ vi.mock('@/features/junta/PaymentsScreen', () => (requested.push('Payments'), {}
 vi.mock('@/features/junta/MembersScreen', () => (requested.push('Members'), {}))
 vi.mock('@/features/junta/InvitesScreen', () => (requested.push('Invites'), {}))
 vi.mock('@/features/junta/CheckinsScreen', () => (requested.push('Checkins'), {}))
+vi.mock('@/i18n/junta', () => ({
+  preloadJuntaStrings: () => {
+    requested.push('junta strings')
+    return Promise.resolve()
+  },
+}))
 vi.mock('./decoder', () => ({
   warmDecoder: () => {
     requested.push('decoder')
@@ -40,7 +46,7 @@ afterEach(() => {
 })
 
 describe('preloadDoor', () => {
-  it('asks for the junta home, what its door block and work rows open, and the QR decoder', async () => {
+  it('asks for the junta home, what its door block and work rows open, their strings, and the QR decoder', async () => {
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(true)
     await preloadDoor()
     expect([...requested].sort()).toEqual(
@@ -55,6 +61,7 @@ describe('preloadDoor', () => {
         'PointsScreen',
         'ScannerScreen',
         'decoder',
+        'junta strings',
       ].sort(),
     )
   })

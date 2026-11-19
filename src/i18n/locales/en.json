@@ -45,7 +45,7 @@
     "held_other": "{{count}} queued scans need a look:",
     "heldQr": "A QR code",
     "heldAt": "at {{hora}}",
-    "heldRefused": "the server won't accept it: not checked in",
+    "heldRefused": "could not be accepted: not checked in",
     "heldRetry": "Send again",
     "heldDrop": "Dismiss",
     "heldMore": "and {{n}} more",
@@ -169,7 +169,7 @@
     "notAnImage": "I cannot read that photo. Try another one, or take it with the camera.",
     "notSaved": "It couldn't be sent or saved on this phone, so it won't go by itself. Try again when you have signal.",
     "rateLimited": "Too many tries in a row. Give it a couple of minutes.",
-    "behindServer": "This is not on the server yet: the app was deployed ahead of the database. If you are on the committee, push the migrations; if not, tell them.",
+    "behindServer": "This is not available yet: the app was updated before the data. Try again in a little while; if it stays the same, tell the committee.",
     "stalled": "The connection is not answering: nothing is getting through. Try again, or find somewhere with better signal.",
     "sessionUnreachable": "Without a connection we cannot open your session. When the network is back, the app will open by itself.",
     "sendPaused": "No connection. It is waiting here and will go out when the network is back: do not close the app.",
@@ -539,7 +539,7 @@
     },
     "yourNight": "Your night",
     "pending": "(to be filled in)",
-    "staysHere": "This button stays for good, even a fortnight later. The card on the home screen goes away; this one does not.",
+    "staysHere": "There is no deadline: you can take it whenever you like.",
     "seeIt": "See the diptych"
   },
   "exitCard": {
@@ -584,11 +584,11 @@
     "openEmpty": "Open the gallery",
     "upload": "Add yours",
     "whoCanUpload": "Anybody who checked in that night can add photos.",
-    "thumbsNote": "These are all thumbnails. The full-size one loads only when you open it.",
+    "thumbsNote": "Tap a photo to see it full size.",
     "thumbLabel": "Photo {{n}} of {{total}}",
     "uploading": "Uploading",
     "uploadCount": "{{n}} of {{total}}",
-    "uploadNote": "They go one at a time and the thumbnail is made right here before uploading. Keep the screen open until it finishes; anything that fails stays here.",
+    "uploadNote": "They upload one at a time. Keep the screen open until it finishes; anything that fails stays here.",
     "delete": "Delete it",
     "state": {
       "esperant": "waiting",
@@ -649,7 +649,6 @@
     "emptyCta": "Propose the first one",
     "emptyFoot": "It does not have to be good: people will vote. And if it goes ahead, {{points}} for whoever said it.",
     "loading": "Loading the ideas…",
-    "loadingNote": "The propose button waits for nothing: you can tap it straight away.",
     "failed": "The ideas could not be read",
     "failedSub": "We do not know how many there are. That is not the same as none.",
     "failedAnyway": "Propose one anyway",
@@ -731,11 +730,11 @@
     "newEvent": "Create an event",
     "newEventSub": "Or copy an earlier one and change the date",
     "invitesSub": "The group code and who wants in",
-    "paymentsSub": "Mark who has paid and name admins",
+    "paymentsSub": "Who has paid, who has asked for a place and the waiting list",
     "noEvents": "Nothing on the calendar yet. Create the first one.",
     "draft": "draft",
     "youAreAdmin": "You are an admin: you can create events, check people in, give points and name other admins.",
-    "youAreOwner": "You are the owner: on top of what an admin does, you can take points away and hand over the owner role.",
+    "youAreOwner": "You are the owner: on top of what an admin does, you can remove admins and hand over the owner role.",
     "invites": {
       "title": "Invitations",
       "whoEnters": "Who gets in",
@@ -927,7 +926,7 @@
         "lede": "Motives are the buttons on the awarding screen. Types only pre-fill a new event and never restate one that already exists.",
         "motius": "Motives",
         "tipus": "Event types",
-        "cantAdd": "Adding a new one cannot be done from here: it also needs a change in the database, and a row on its own would be a button that fails when somebody presses it.",
+        "cantAdd": "New ones cannot be added from here.",
         "rowSub": "What each thing is worth"
       },
       "graus": {
@@ -1144,7 +1143,7 @@
         "adminsOnly": "Admins only. Handing ownership to somebody who runs nothing is handing it to somebody who does not know they have it.",
         "noAdmins": "There is no admin yet. Name one first, just above.",
         "willBe": "{{name}} will be the owner",
-        "consequence": "You will become an admin. From then on only whoever receives it can give it back, and if they lose their Google account somebody will have to go into the database.",
+        "consequence": "You will become an admin. From then on only whoever receives it can give it back, and if they lose their Google account you will have to ask whoever maintains the app for help.",
         "agreed": "I have talked to {{name}} and they know",
         "confirm": "Make {{name}} the owner"
       }
@@ -1252,8 +1251,8 @@
       "soonFailed": "The calendar could not be read.",
       "soonFailedSub": "There may be events we cannot see. Do not create anything new until it loads.",
       "how": "How the committee works",
-      "howSub": "Touched once a year, and today only with SQL.",
-      "proposalsSub": "Proposals will carry a number, like the approvals",
+      "howSub": "The periods, the scale, the degrees and the log",
+      "proposalsSub": "What people have proposed, waiting for a decision",
       "periodsStale": "The terms do not cover today",
       "periodsOk": "When each term starts and ends"
     },
@@ -1263,25 +1262,23 @@
       "lead": "Data since September. It updates itself; nothing to export.",
       "drifting": {
         "title": "Drifting away",
-        "lead": "They came often and have missed the last two events in a row. This is the number this phase exists for.",
+        "lead": "They came often and have missed the last two events in a row.",
         "none": "Nobody drifting right now. Good.",
         "was": "Came to {{n}} of the {{total}} that counted for them",
         "last": "Last: {{event}} · {{when}}",
         "never": "No events yet",
         "write": "Message them",
         "noPhone": "No phone number",
-        "action": "→ Split the list between you: one personal message each. The group chat does not work."
+        "action": "Remember: split the list between you, one personal message each. The group chat does not work."
       },
       "attendance": {
         "title": "Attendance through the course",
-        "avg": "{{n}} on average per event.",
-        "action": "→ The week after exams, something free and on a Thursday."
+        "avg": "{{n}} on average per event."
       },
       "types": {
         "title": "What kind works",
         "avg": "{{n}} on average",
-        "alwaysFull": "Always full, with a waiting list.",
-        "action": "→ In January: one party and one weekday activity, not two activities."
+        "alwaysFull": "Always full, with a waiting list."
       },
       "schools": {
         "title": "The three schools",
@@ -1293,13 +1290,11 @@
         "notSources": "Not points anyone earned",
         "cases_one": "{{count}} case",
         "cases_other": "{{count}} cases",
-        "notSourcesNote": "They take points away or cancel out, so they stay off the chart. A withdrawn warning shows as zero: it happened and it cost nothing.",
-        "action": "→ Setting up and bringing people are easy points to hand out in January: announce them before each plan."
+        "notSourcesNote": "They take points away or cancel out, so they stay off the chart. A withdrawn warning shows as zero: it happened and it cost nothing."
       },
       "limits": {
         "title": "Limits and data",
         "years": "“Who had been coming for years” cannot be said yet: the data starts in September. The dashboard reads the rhythm within the course.",
-        "noTables": "No new tables: it is all queries over check-ins, points, profiles and periods.",
         "write": "“Message them” opens WhatsApp with the number the junta already sees. Nothing is sent automatically."
       }
     },
@@ -1574,14 +1569,13 @@
     "saidNo": "You said you cannot be there.",
     "saidNoSub": "If you change your mind, come back and say so: there are few of you and it matters whether it happens.",
     "nothing": "You have not said anything yet.",
-    "nothingSub": "Two buttons and not three: in a meeting of three people, a \"maybe\" does not help decide whether it happens.",
+    "nothingSub": "Tap one of the two buttons so the committee knows whether you will be there.",
     "willBe": "{{quants}} of {{total}} will be there",
     "were": "{{quants}} of {{total}} were there",
-    "whoKnows": "At a meeting you do get to see who is not coming: there are few of you and it matters whether anybody will be there.",
     "points": "+{{punts}} if you are there",
     "noPoints": "No points: this is a committee meeting",
     "acta": "The minutes",
-    "actaEmpty": "They will appear here once the committee closes the meeting. If there are none, this block is not here.",
+    "actaEmpty": "The minutes will appear here once the committee closes the meeting.",
     "closed": "Closed",
     "close": "Close it",
     "closeTitle": "Close the meeting",
@@ -1971,7 +1965,7 @@
       "heading": "My QR",
       "lead": "It is what you show at the door.",
       "title": "You have not got one yet",
-      "pending": "The door would turn you back, and that is worse than not having one.",
+      "pending": "Once the committee accepts you, your QR will be here.",
       "left": "This account is no longer active. If you think that is a mistake, talk to the committee."
     }
   },
@@ -2055,9 +2049,7 @@
     "emptyTitle": "No cars yet",
     "emptyLede": "If you have a car, say so now: people sign up for the journey before they sign up for the house.",
     "emptyFoot": "Bringing people is worth {{points}}, and you do not have to drink anything to earn them.",
-    "emptyNote": "Empty means empty: nobody has offered one.",
     "loading": "Loading the cars…",
-    "loadingNote": "Offering one does not wait: this button already works.",
     "failed": "The cars could not be read",
     "failedSub": "We do not know whether there are any, or whether you have a seat. Do not stay home over this.",
     "failedGroup": "Message the group",
@@ -2102,7 +2094,7 @@
     "error": "Couldn't connect. Try again",
     "queued": "Saved. It will send once there's signal",
     "notSaved": "Couldn't save it or send it",
-    "refused": "The server won't accept it",
+    "refused": "It could not be accepted",
     "action": {
       "okWalkin": "They were not signed up. It is recorded now.",
       "okWalkinReview": "Check they pay on the way in, or note it down.",

@@ -88,15 +88,6 @@ export function MeetingRoster({ event }: { readonly event: EventRow }) {
         </p>
       </div>
 
-      {/* Per què aquí es veu qui no hi ve i a una festa no. Només quan de debò
-          es veu: la raó que el disseny dóna és «sou pocs», i amb dos-cents
-          socis deixa de ser certa. */}
-      {byName ? (
-        <p className="mt-5 text-sm leading-[1.4] text-fg-muted-lo [text-wrap:pretty]">
-          {t('meeting.whoKnows')}
-        </p>
-      ) : null}
-
       {/* Qui ha dit què, un per línia. A una festa això no hi seria mai, i a
           una assemblea de tota la comi tampoc: la llista sencera de qui no ha
           contestat és una paret de dues-centes línies que diu «No va dir res»,

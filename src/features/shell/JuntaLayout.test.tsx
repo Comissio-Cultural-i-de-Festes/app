@@ -13,8 +13,8 @@ import { JuntaLayout } from './JuntaLayout'
  * que una pantalla que no és al mòbil, sense xarxa, ho digui sense recarregar.
  */
 
-vi.mock('./startPrefetch', () => ({ prefetchJunta: () => Promise.resolve() }))
-vi.mock('@tanstack/react-query', () => ({ useQueryClient: () => ({}) }))
+const prefetchJunta = vi.hoisted(() => vi.fn(() => Promise.resolve()))
+vi.mock('./startPrefetch', () => ({ prefetchJunta }))
 
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -86,6 +86,7 @@ beforeEach(() => {
   profile.current = paused
   client = new QueryClient()
   preloadDoor.mockClear()
+  prefetchJunta.mockClear()
   vi.spyOn(console, 'error').mockImplementation(() => undefined)
 })
 
@@ -114,6 +115,30 @@ describe('JuntaLayout', () => {
     }
     at('/junta/escaner/e1')
     expect(screen.getByText('inici')).toBeInTheDocument()
+  })
+
+  describe("les dades de l'entrada", () => {
+    const as = (role: string) => {
+      profile.current = { ...paused, data: { role }, status: 'success', fetchStatus: 'idle' }
+    }
+
+    it('es demanen al rebedor quan qui hi entra és de la junta', () => {
+      as('admin')
+      at('/junta')
+      expect(prefetchJunta).toHaveBeenCalledTimes(1)
+    })
+
+    it('no es demanen en una subruta, escàner inclòs: la cua SCANS ja competeix per la barra', () => {
+      as('admin')
+      at('/junta/escaner/e1')
+      expect(prefetchJunta).not.toHaveBeenCalled()
+    })
+
+    it('no es demanen per a un soci', () => {
+      as('member')
+      at('/junta')
+      expect(prefetchJunta).not.toHaveBeenCalled()
+    })
   })
 
   it('amb un perfil de la junta, demana la porta per avançat', () => {

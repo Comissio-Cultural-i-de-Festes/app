@@ -14,20 +14,27 @@ import { fetchStreak, profileScreenKeys } from './api'
  * per fi arribava empenyia tot el que hi havia a sota. Demanada des de dalt,
  * va en paral·lel i el bloc entra sencer.
  *
+ * `enabled` és fals per a qui té el perfil tancat: un pendent no té ratxa i
+ * no ha de fer la crida.
+ *
  * `loading` s'acaba sol si la consulta no arriba (sense xarxa, penjada,
  * error): en aquell cas no hi ha línia, que és el que ja passava.
  */
-export function useComeback(): { readonly loading: boolean; readonly best: number | null } {
+export function useComeback(enabled = true): {
+  readonly loading: boolean
+  readonly best: number | null
+} {
   const userId = useUserId()
   const streak = useQuery({
     queryKey: profileScreenKeys.streak(userId),
     queryFn: fetchStreak,
+    enabled,
   })
   const view = useAvailability(streak)
 
   const best = streak.data?.millor ?? 0
   return {
-    loading: view.loading,
+    loading: enabled && view.loading,
     best: streak.data?.actual === 0 && best > 0 ? best : null,
   }
 }

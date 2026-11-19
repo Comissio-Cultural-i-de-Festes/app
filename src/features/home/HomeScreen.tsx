@@ -48,7 +48,7 @@ import {
   placesLeft,
   signedUpToday,
 } from './api'
-import { expectedState, homeCta } from './answer'
+import { type AnswersState, expectedState, homeCta } from './answer'
 import { type Home, useAnswer, useHome } from './useHome'
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -71,6 +71,11 @@ export function HomeScreen() {
   // counted from them has to stay off the screen: «hi van 0» and «queden 30
   // places» are not what the calendar says, they are what a closed door shows.
   const access = accessOf(home.profile)
+  const answers: AnswersState = home.answersLoading
+    ? 'waiting'
+    : home.answersUnavailable
+      ? 'unavailable'
+      : 'known'
   const { closed } = access
 
   // Cada tasca hi va afegir el seu avís i cadascun és correcte pel seu compte;
@@ -135,13 +140,14 @@ export function HomeScreen() {
             event={home.hero}
             attendances={home.attendances}
             closed={closed}
-            waiting={home.answersLoading}
+            answers={answers}
           />
           <CallToAction
             event={home.hero}
             attendances={home.attendances}
             access={access}
-            waiting={home.answersLoading}
+            answers={answers}
+            onRetry={home.retryAnswers}
           />
         </>
       ) : home.isPending ? (
@@ -351,13 +357,13 @@ function Places({
   event,
   attendances,
   closed,
-  waiting,
+  answers,
 }: {
   readonly event: EventRow
   readonly attendances: readonly AttendanceRow[]
   readonly closed: boolean
-  /** Les assistències encara poden arribar: ni places ni cares, encara. */
-  readonly waiting: boolean
+  /** Sense assistències —encara o ja per sempre— ni places ni cares. */
+  readonly answers: AnswersState
 }) {
   const { t } = useTranslation()
   const going = goingRows(attendances, event.id)
@@ -400,8 +406,10 @@ function Places({
             room is left, and an event with no limit has nothing to say there —
             inventing a word for it would be the loudest thing on the screen
             saying nothing at all. */}
-        {left === null ? null : waiting ? (
-          <PlacesFigureSkeleton />
+        {left === null ? null : answers !== 'known' ? (
+          <Placeholder hole={answers === 'unavailable'}>
+            <PlacesFigureSkeleton />
+          </Placeholder>
         ) : (
           <p className="tabular display text-d-md leading-[0.85] tracking-[-0.05em]">
             {left === 0 ? t('home.places.full') : t('home.places.left', { count: left })}
@@ -414,8 +422,10 @@ function Places({
         )}
       </div>
 
-      {closed ? null : waiting ? (
-        <GoingSkeleton />
+      {closed ? null : answers !== 'known' ? (
+        <Placeholder hole={answers === 'unavailable'}>
+          <GoingSkeleton />
+        </Placeholder>
       ) : (
         <div className="flex flex-none items-center gap-4 pb-2">
           <div className="flex min-h-[34px] items-center">
@@ -448,6 +458,29 @@ function Places({
  * canviar-ho. I el número no cap en una línia al costat de les cares, així
  * que en arribar es plegava en dues i empenyia el botó; l'esquelet ja són dues.
  */
+/**
+ * L'esquelet, o el seu forat si no arribarà res.
+ *
+ * Sense assistències, «queden 30» són les places de l'esdeveniment sencer i
+ * «hi van 0» és un buit, no un recompte: cap dels dos és veritat. El forat té
+ * l'alçada i l'amplada que tindrien, perquè el dia que tornin no salti res.
+ */
+function Placeholder({
+  hole,
+  children,
+}: {
+  readonly hole: boolean
+  readonly children: React.ReactNode
+}) {
+  return hole ? (
+    <div aria-hidden="true" className="invisible">
+      {children}
+    </div>
+  ) : (
+    children
+  )
+}
+
 function PlacesFigureSkeleton() {
   return (
     <Skeleton>
@@ -490,13 +523,14 @@ function CallToAction({
   event,
   attendances,
   access,
-  waiting,
+  answers,
+  onRetry,
 }: {
   readonly event: EventRow
   readonly attendances: readonly AttendanceRow[]
   readonly access: Access
-  /** Les assistències encara poden arribar. */
-  readonly waiting: boolean
+  readonly answers: AnswersState
+  readonly onRetry: () => void
 }) {
   const { t, i18n } = useTranslation()
   const userId = useUserId()
@@ -525,7 +559,7 @@ function CallToAction({
   const cta = homeCta(
     mine,
     isOpen(checkinWindow(event.starts_at, event.ends_at), now.getTime()),
-    !waiting,
+    answers,
   )
 
   const base =
@@ -570,6 +604,25 @@ function CallToAction({
         <Skeleton>
           <SkeletonBar w="w-full" h="h-[56px]" />
         </Skeleton>
+      ) : cta === 'unknown' ? (
+        // Un «Apunta-t'hi» aquí podria trepitjar una llista d'espera o una
+        // sol·licitud que no veiem. Del mateix alt que el botó, perquè quan
+        // arribin les assistències no salti res.
+        <div
+          role="status"
+          className="flex min-h-[56px] items-center justify-between gap-3 rounded-cta border-[1.5px] border-surface-9 bg-surface-2 px-[18px] py-[10px]"
+        >
+          <p className="text-md-lo font-bold text-fg-secondary [text-wrap:pretty]">
+            {t('home.cta.unknown')}
+          </p>
+          <button
+            type="button"
+            onClick={onRetry}
+            className="-mr-3 min-h-[44px] flex-none px-3 text-sm font-bold text-brand-label"
+          >
+            {t('actions.retry')}
+          </button>
+        </div>
       ) : cta === 'checkin' ? (
         <Link
           to={`/esdeveniment/${event.id}#soc-aqui`}
@@ -638,6 +691,8 @@ function CallToAction({
 
       {cta === 'waiting' ? (
         <SkeletonBar w="w-[72%]" h="h-[20px]" className="mt-[10px]" />
+      ) : cta === 'unknown' ? (
+        <div aria-hidden="true" className="mt-[10px] h-[20px]" />
       ) : names.length > 0 ? (
         <p className="mt-[10px] flex items-center gap-[9px] text-md-lo text-fg-muted">
           <span
@@ -656,12 +711,15 @@ function CallToAction({
 function RankingTeaser({ home, closed }: { readonly home: Home; readonly closed: boolean }) {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
-  const comeback = useComeback()
+  const comeback = useComeback(!closed)
   // Fins que arriba tot el que el bloc pot dir —rànquing, escoles i la línia
   // de «torna»— hi ha l'esquelet: el bloc entrava en tres temps i cada un
   // empenyia el recap i el calendari avall. Un pendent no hi surt mai, i
   // per a ell no s'hi reserva res.
-  if (!closed && (home.rankingLoading || comeback.loading)) return <RankingSkeleton />
+  // Qui s'ha amagat del rànquing tampoc no hi surt mai: sense fila, el bloc
+  // no es pinta, i un esquelet que després s'esfuma és un salt de 131 px.
+  const hidden = home.profile?.hide_from_ranking === true
+  if (!closed && !hidden && (home.rankingLoading || comeback.loading)) return <RankingSkeleton />
   if (!home.me) return null
 
   const mine = home.profile?.escola ?? null
@@ -728,7 +786,7 @@ function RankingTeaser({ home, closed }: { readonly home: Home; readonly closed:
       </p>
 
       {/* Sota el ganxo col·lectiu, el personal: qui fa un mes que no ve. */}
-      <ComebackLine />
+      <ComebackLine best={comeback.best} />
     </section>
   )
 }

@@ -1681,7 +1681,7 @@
       "label": "Phone",
       "prefix": "+34",
       "placeholder": "600 00 00 00",
-      "why": "Only so we can add you to the WhatsApp group. It does not appear on your profile and nobody outside the comi sees it.",
+      "why": "Only so we can add you to the WhatsApp group. It does not appear on your profile, and only the board sees it.",
       "invalid": "That number does not look right. Leave it blank if you would rather not."
     },
     "instagram": {

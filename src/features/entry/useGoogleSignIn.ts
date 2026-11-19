@@ -1,6 +1,7 @@
 import { isStandalone } from '@/lib/platform'
 import { supabase } from '@/lib/supabase'
 
+import { rememberReturn } from './returnTo'
 import { INVITE_PARAM } from './useInvite'
 
 /**
@@ -75,6 +76,7 @@ export async function signInWithGoogle(inviteCode: string | null): Promise<Googl
   if (inviteCode !== null) redirect.searchParams.set(INVITE_PARAM, inviteCode)
 
   mark()
+  rememberReturn(window.location.pathname)
 
   const { error } = await supabase.auth.signInWithOAuth({
     provider: 'google',

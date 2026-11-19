@@ -6,21 +6,29 @@ import { join } from 'node:path'
 import { build } from 'vite'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { isJuntaModule, juntaOnlyFiles, staticClosure, type BundleItem } from './precache'
+import {
+  closure,
+  isJuntaModule,
+  isJuntaOnly,
+  juntaOnlyFiles,
+  keptFiles,
+  staticClosure,
+  type BundleItem,
+} from './precache'
 
 /**
  * El que es baixa a la instal·lació, comprovat sobre un build de debò.
  *
  * Un build i no el `vite.config.ts` llegit com a text: el que importa és quins
  * trossos acaben a la llista del service worker, i això depèn de com els parteix
- * rolldown, que no es veu al fitxer de configuració. El primer intent d'aquesta
- * feina s'hauria equivocat justament aquí: `Button-*.js` és un tros a part, però
- * l'importa l'Inici i ha de ser a la precache.
+ * rolldown, que no es veu al fitxer de configuració. Llegint noms de fitxer s'hi
+ * cau de seguida: `Button-*.js` és un tros a part, però l'importa l'Inici i ha
+ * de ser a la precache.
  *
- * Els dos sentits fallen. Un tros de la junta, de la porta o del mapa que torna a
- * la llista és pes a cada telèfon que s'instal·la l'app; un tros d'un soci que en
- * surt és una pantalla que no s'obre sense cobertura, i això no ho veu ningú fins
- * que és a la casa rural.
+ * Els dos sentits fallen. Una pantalla d'escriptori de la junta o el mapa que
+ * tornen a la llista són pes a cada telèfon que instal·la l'app; un tros d'un
+ * soci o de la porta que en surt és una pantalla que no s'obre sense cobertura,
+ * i això no ho veu ningú fins que és a la casa rural.
  */
 
 type Chunk = Extract<BundleItem, { type: 'chunk' }> & {
@@ -66,6 +74,9 @@ afterAll(() => {
 const chunkNamed = (name: string) =>
   chunks.find((c) => c.isDynamicEntry && c.name === name && c.facadeModuleId !== null)
 
+const chunkWith = (path: string) =>
+  chunks.find((c) => c.moduleIds.some((id) => id.replaceAll('\\', '/').endsWith(path)))
+
 describe('the install', () => {
   it('precaches everything the first screen loads', () => {
     const html = readFileSync(join(OUT, 'index.html'), 'utf8')
@@ -79,13 +90,28 @@ describe('the install', () => {
   })
 
   it.each([
-    ['ScannerScreen', 'la porta'],
-    ['ManualScreen', 'la porta'],
-    ['PointsScreen', 'la porta'],
-    ['JuntaHome', 'la junta'],
+    ['ScannerScreen', 'src/features/door/ScannerScreen.tsx'],
+    ['ManualScreen', 'src/features/door/ManualScreen.tsx'],
+    ['PointsScreen', 'src/features/door/PointsScreen.tsx'],
+    ['GimcanaValidateScreen', 'src/features/junta/GimcanaValidateScreen.tsx'],
+    ['JuntaHome, the only way to the scanner', 'src/features/junta/JuntaHome.tsx'],
+    ['verdict', 'src/features/door/verdict.ts'],
+    ['decoder', 'src/features/door/decoder.ts'],
+    ['ponyfill', 'barcode-detector/dist/es/zxing-exported.js'],
+  ])('keeps the door: %s', (_name, path) => {
+    // La porta s'ha d'obrir sense xarxa després de cada desplegament, també si
+    // ningú no ha tornat a entrar a la zona de junta: el perquè, a precache.ts.
+    const chunk = chunkWith(path)
+    expect(chunk, `no chunk carries ${path}: was it moved?`).toBeDefined()
+    expect(precached).toContain(chunk?.fileName)
+  })
+
+  it.each([
     ['EventFormScreen', 'la junta'],
+    ['AuditScreen', 'la junta'],
+    ['DashboardScreen', 'la junta'],
+    ['MemberScreen', 'la junta'],
     ['GeoMap', 'el mapa'],
-    ['ponyfill', 'el lector de QR'],
   ])('leaves %s (%s) out of it', (name) => {
     const chunk = chunkNamed(name)
     expect(chunk, `no dynamic chunk called ${name}: was it renamed?`).toBeDefined()
@@ -98,16 +124,22 @@ describe('the install', () => {
     for (const file of css) expect(precached).not.toContain(file)
   })
 
-  it('leaves out every chunk made only of junta code that startup does not need', () => {
-    const closure = staticClosure(bundle)
-    const juntaOnly = chunks.filter(
-      (c) =>
-        !closure.has(c.fileName) &&
-        c.moduleIds.filter((id) => !id.startsWith('\0')).every(isJuntaModule),
-    )
+  it('brings along everything each precached chunk imports', () => {
+    const inPrecache = chunks.filter((c) => precached.has(c.fileName))
+    expect(inPrecache.length).toBeGreaterThan(10)
+    for (const c of inPrecache) {
+      for (const file of closure(bundle, [c.fileName])) {
+        expect(precached, `${c.fileName} imports ${file}`).toContain(file)
+      }
+    }
+  })
 
-    expect(juntaOnly.length).toBeGreaterThan(20)
-    for (const c of juntaOnly) expect(precached, c.fileName).not.toContain(c.fileName)
+  it('leaves out every junta-only chunk that nothing kept imports', () => {
+    const kept = keptFiles(bundle)
+    const out = chunks.filter((c) => isJuntaOnly(c) && !kept.has(c.fileName))
+
+    expect(out.length).toBeGreaterThan(15)
+    for (const c of out) expect(precached, c.fileName).not.toContain(c.fileName)
   })
 
   it("keeps every chunk that carries any of a member's code", () => {
@@ -120,9 +152,16 @@ describe('the install', () => {
   })
 
   it('serves what it left out from a bounded cache once it has been fetched', () => {
-    expect(sw).toMatch(/cacheName:"chunks"/)
     expect(sw).toMatch(/new \w+\.CacheFirst\(\{cacheName:"chunks"/)
     expect(sw).toMatch(/cacheName:"chunks",plugins:\[[^\]]*ExpirationPlugin\(\{maxEntries:\d+/)
+  })
+
+  it.each(['chunks', 'wasm'])('never stores an html page in the %s cache', (name) => {
+    const rule = new RegExp(`cacheName:"${name}",plugins:\\[(.*?)\\]\\}\\),"GET"\\)`).exec(sw)?.[1]
+    expect(rule, `no ${name} rule in sw.js`).toBeDefined()
+    expect(rule).toMatch(/CacheableResponsePlugin\(\{statuses:\[200\]\}\)/)
+    expect(rule).toMatch(/cacheWillUpdate/)
+    expect(rule).toMatch(/text\/html/)
   })
 })
 
@@ -139,6 +178,7 @@ describe('juntaOnlyFiles', () => {
     moduleIds,
     ...extra,
   })
+  const entry = chunk('index.js', ['/app/src/main.tsx'], { isEntry: true })
 
   it('keeps a junta-only chunk that the entry imports statically', () => {
     // El parany: rolldown treu el codi compartit a trossos propis, i l'entrada
@@ -153,9 +193,9 @@ describe('juntaOnlyFiles', () => {
     expect(juntaOnlyFiles(graph)).toEqual(new Set())
   })
 
-  it('leaves out a lazy chunk with only junta, door or map modules, and its css', () => {
+  it('leaves out a lazy junta or map chunk, and its css', () => {
     const graph = {
-      'index.js': chunk('index.js', ['/app/src/main.tsx'], { isEntry: true }),
+      'index.js': entry,
       'map.js': chunk(
         'map.js',
         [
@@ -169,11 +209,41 @@ describe('juntaOnlyFiles', () => {
     expect(juntaOnlyFiles(graph)).toEqual(new Set(['map.js', 'map.css']))
   })
 
+  it('keeps the door, and the junta-only chunks it imports', () => {
+    const graph = {
+      'index.js': entry,
+      'scanner.js': chunk('scanner.js', ['C:\\app\\src\\features\\door\\ScannerScreen.tsx'], {
+        imports: ['eventsApi.js'],
+      }),
+      'eventsApi.js': chunk('eventsApi.js', ['/app/src/features/junta/eventsApi.ts']),
+      'home.js': chunk('home.js', ['/app/src/features/junta/JuntaHome.tsx']),
+      'audit.js': chunk('audit.js', ['/app/src/features/junta/AuditScreen.tsx'], {
+        imports: ['eventsApi.js'],
+      }),
+    }
+    expect(juntaOnlyFiles(graph)).toEqual(new Set(['audit.js']))
+  })
+
+  it('keeps what a kept lazy chunk imports, however deep', () => {
+    const graph = {
+      'index.js': entry,
+      'gallery.js': chunk('gallery.js', ['/app/src/features/gallery/G.tsx'], {
+        imports: ['a.js'],
+      }),
+      'a.js': chunk('a.js', ['/app/src/features/junta/a.ts'], { imports: ['b.js'] }),
+      'b.js': chunk('b.js', ['/app/src/features/junta/b.ts'], {
+        viteMetadata: { importedCss: new Set(['b.css']) },
+      }),
+      'b.css': { type: 'asset', fileName: 'b.css' },
+    } satisfies Record<string, BundleItem>
+    expect(juntaOnlyFiles(graph)).toEqual(new Set())
+  })
+
   it('keeps a lazy chunk that mixes in anything else', () => {
     const graph = {
-      'index.js': chunk('index.js', ['/app/src/main.tsx'], { isEntry: true }),
+      'index.js': entry,
       'mixed.js': chunk('mixed.js', [
-        '/app/src/features/door/verdict.ts',
+        '/app/src/features/junta/avis.ts',
         '/app/src/features/gimcana/api.ts',
       ]),
     }
@@ -182,16 +252,16 @@ describe('juntaOnlyFiles', () => {
 
   it('ignores virtual modules when deciding', () => {
     const graph = {
-      'index.js': chunk('index.js', ['/app/src/main.tsx'], { isEntry: true }),
-      'door.js': chunk('door.js', ['\0vite/preload-helper.js', '/app/src/features/door/x.ts']),
+      'index.js': entry,
+      'desk.js': chunk('desk.js', ['\0vite/preload-helper.js', '/app/src/features/junta/x.ts']),
       'helper.js': chunk('helper.js', ['\0rolldown/runtime.js']),
     }
-    expect(juntaOnlyFiles(graph)).toEqual(new Set(['door.js']))
+    expect(juntaOnlyFiles(graph)).toEqual(new Set(['desk.js']))
   })
 
   it("keeps a stylesheet that a member's lazy chunk also imports", () => {
     const graph = {
-      'index.js': chunk('index.js', ['/app/src/main.tsx'], { isEntry: true }),
+      'index.js': entry,
       'a.js': chunk('a.js', ['/app/src/features/junta/A.tsx'], {
         viteMetadata: { importedCss: new Set(['shared.css']) },
       }),

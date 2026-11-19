@@ -3,27 +3,40 @@
  *
  * La precache és el que el service worker baixa sencer a la instal·lació, i ho
  * baixa tothom. Fins ara hi entrava tot el que sortia del build, i més d'una
- * quarta part del pes era la zona de junta, la porta i el mapa: codi que obre un
- * de cada vint socis i que la resta arrossegava per la mateixa wifi saturada.
+ * quarta part del pes era la zona de junta i el mapa: codi que obre un de cada
+ * vint socis i que la resta arrossegava per la mateixa wifi saturada.
  *
- * LA REGLA: un tros surt de la precache si l'arrencada no l'importa i tot el que
- * porta és de la zona de junta. Les dues condicions fan falta, i cap no es pot
- * llegir del nom del fitxer:
+ * LA REGLA es diu al revés: es decideix què es QUEDA, i surt la resta.
  *
- *   - Rolldown treu a trossos propis el codi que comparteixen diverses
- *     pantalles. `Button-*.js` és un tros a part i l'importa l'Inici; un dia
- *     n'hi pot haver un que només tingui mòduls de `features/junta/` i que
- *     també l'importi l'Inici (la barra de la junta, per exemple). Treure'l
- *     seria trencar l'arrencada sense xarxa, i per això el que l'arrencada
- *     importa no surt mai.
- *   - Un tros que es carrega a demanda però que porta alguna cosa d'un soci es
- *     queda. Si demà una pantalla de soci passa a `lazy()`, el pitjor que pot
- *     passar és que la precache pesi el mateix que avui.
+ *   1. L'entrada.
+ *   2. Tot tros que porti alguna cosa d'un soci. Rolldown treu a trossos propis
+ *      el codi compartit (`Button-*.js` és un tros a part i l'importa l'Inici), i
+ *      un tros lazy que barreja codi de soci i de junta no és de la junta.
+ *   3. La porta: l'escàner, l'alta a mà, els punts, la cua de la gimcana, el
+ *      lector de QR, i el rebedor de la junta, que és l'únic lloc des d'on
+ *      s'arriba a l'escàner.
+ *   4. Tot el que importen els anteriors, estàticament o com a full d'estils,
+ *      fins que el conjunt ja no creix. Un tros a la precache que importa un tros
+ *      que no hi és no s'obre sense xarxa, i aleshores tenir-lo a la precache no
+ *      serveix de res.
  *
- * O sigui que la decisió es pren sobre el graf del build, amb els camins dels
- * mòduls, i no amb noms de tros ni amb hashos. Es va descartar agrupar la zona
- * en trossos amb nom propi (`manualChunks`): desfeia la partició pantalla per
- * pantalla que fa `App.tsx`, i el nom continuaria sense dir si l'Inici en depèn.
+ * Surten, doncs, les pantalles d'escriptori de la junta i Leaflet.
+ *
+ * PER QUÈ LA PORTA ES QUEDA, encara que la gent de la junta sigui poca. Els
+ * seus trossos importen l'`index-<hash>.js`, que canvia gairebé a cada
+ * desplegament, i per tant ells també. Amb `autoUpdate` el telèfon carrega la
+ * versió nova tot sol; si la porta depengués d'una memòria cau omplerta en
+ * entrar a la zona de junta, després d'un desplegament ningú no l'hauria tornat
+ * a omplir, i a la porta de la casa rural, sense cobertura, l'escàner no
+ * obriria. La precache és atòmica: o hi és tota la versió, o no se n'instal·la
+ * cap. La porta pesa poc i no pot dependre de res més.
+ *
+ * Tot plegat es decideix sobre el graf del build, amb els camins dels mòduls, i
+ * no amb noms de tros ni amb hashos: el nom no diu qui l'importa. Es va
+ * descartar agrupar la zona en trossos amb nom propi (`manualChunks`): desfeia
+ * la partició pantalla per pantalla que fa `App.tsx`, i el nom continuaria sense
+ * dir si l'Inici en depèn. Si demà una pantalla de soci passa a `lazy()`, es
+ * queda a la precache igual que si no ho fos.
  *
  * ELS IDIOMES no hi entren. Avui els tres viatgen dins de l'Inici (s'importen
  * com a JSON), o sigui que no hi ha cap tros a treure. El dia que es carreguin a
@@ -32,9 +45,8 @@
  * dos que no es fan servir s'han de quedar fora, i com arriben sense xarxa.
  *
  * El que surt d'aquí no es perd: el guarda una memòria cau `CacheFirst` la
- * primera vegada que es demana (`vite.config.ts`). La porta, que és el que s'ha
- * d'obrir sense xarxa, es demana per avançat en entrar a la zona de junta
- * (`features/door/preload.ts`).
+ * primera vegada que es demana (`vite.config.ts`), i la zona de junta en demana
+ * una part per avançat en entrar-hi (`features/door/preload.ts`).
  */
 
 /** Prou de la sortida de rolldown per recórrer el graf. */
@@ -63,18 +75,42 @@ const JUNTA_ZONE = [
   /\/node_modules\/zxing-wasm\//,
 ]
 
+/** La part de la zona que s'ha d'obrir sense xarxa, i el camí per arribar-hi. */
+const DOOR = [
+  /\/src\/features\/door\//,
+  /\/node_modules\/barcode-detector\//,
+  /\/node_modules\/zxing-wasm\//,
+  /\/src\/features\/junta\/GimcanaValidateScreen\.tsx$/,
+  /\/src\/features\/junta\/JuntaHome\.tsx$/,
+]
+
+const normal = (id: string) => id.replaceAll('\\', '/')
+
 export function isJuntaModule(id: string): boolean {
-  const path = id.replaceAll('\\', '/')
-  return JUNTA_ZONE.some((zone) => zone.test(path))
+  return JUNTA_ZONE.some((zone) => zone.test(normal(id)))
 }
 
-/** El que es carrega sense cap `import()`: l'entrada i tot el que importa. */
-export function staticClosure(bundle: Readonly<Record<string, BundleItem>>): Set<string> {
-  const seen = new Set<string>()
-  const pending = Object.values(bundle)
-    .filter((item): item is Chunk => item.type === 'chunk' && item.isEntry)
-    .map((chunk) => chunk.fileName)
+export function isDoorModule(id: string): boolean {
+  return DOOR.some((door) => door.test(normal(id)))
+}
 
+/** `\0` és un mòdul virtual —el runtime de rolldown, l'ajudant de precàrrega de
+ * Vite—: no és de ningú, i no decideix res. */
+const realModules = (chunk: Chunk) => chunk.moduleIds.filter((id) => !id.startsWith('\0'))
+
+/** Si un tros és només de la junta: si en té algun de real i tots ho són. */
+export function isJuntaOnly(chunk: Chunk): boolean {
+  const real = realModules(chunk)
+  return real.length > 0 && real.every(isJuntaModule)
+}
+
+/** Els fitxers que arrosseguen `roots`: ells i el que importen, fins al final. */
+export function closure(
+  bundle: Readonly<Record<string, BundleItem>>,
+  roots: Iterable<string>,
+): Set<string> {
+  const seen = new Set<string>()
+  const pending = [...roots]
   for (let file = pending.pop(); file !== undefined; file = pending.pop()) {
     if (seen.has(file)) continue
     seen.add(file)
@@ -86,28 +122,36 @@ export function staticClosure(bundle: Readonly<Record<string, BundleItem>>): Set
   return seen
 }
 
+const chunksOf = (bundle: Readonly<Record<string, BundleItem>>) =>
+  Object.values(bundle).filter((item): item is Chunk => item.type === 'chunk')
+
+/** El que es carrega sense cap `import()`: l'entrada i tot el que importa. */
+export function staticClosure(bundle: Readonly<Record<string, BundleItem>>): Set<string> {
+  return closure(
+    bundle,
+    chunksOf(bundle)
+      .filter((chunk) => chunk.isEntry)
+      .map((chunk) => chunk.fileName),
+  )
+}
+
+/** El que es queda a la precache, d'entre els trossos i els seus fulls d'estil. */
+export function keptFiles(bundle: Readonly<Record<string, BundleItem>>): Set<string> {
+  const roots = chunksOf(bundle)
+    .filter((chunk) => chunk.isEntry || !isJuntaOnly(chunk) || chunk.moduleIds.some(isDoorModule))
+    .map((chunk) => chunk.fileName)
+  return closure(bundle, roots)
+}
+
 /** Els fitxers que no han d'anar a la precache. */
 export function juntaOnlyFiles(bundle: Readonly<Record<string, BundleItem>>): Set<string> {
-  const closure = staticClosure(bundle)
+  const kept = keptFiles(bundle)
   const out = new Set<string>()
-  const cssKept = new Set<string>()
-
-  for (const item of Object.values(bundle)) {
-    if (item.type !== 'chunk' || closure.has(item.fileName)) continue
-    // `\0` és un mòdul virtual —el runtime de rolldown, l'ajudant de
-    // precàrrega de Vite—: no és de ningú, i no decideix res.
-    const real = item.moduleIds.filter((id) => !id.startsWith('\0'))
-    const junta = real.length > 0 && real.every(isJuntaModule)
-    if (junta) out.add(item.fileName)
-    for (const css of item.viteMetadata?.importedCss ?? []) {
-      if (junta) out.add(css)
-      else cssKept.add(css)
-    }
+  for (const chunk of chunksOf(bundle)) {
+    if (kept.has(chunk.fileName)) continue
+    out.add(chunk.fileName)
+    for (const css of chunk.viteMetadata?.importedCss ?? []) if (!kept.has(css)) out.add(css)
   }
-
-  // Un full d'estils que també fa servir un tros que es queda, es queda.
-  for (const css of cssKept) out.delete(css)
-  for (const file of closure) out.delete(file)
   return out
 }
 

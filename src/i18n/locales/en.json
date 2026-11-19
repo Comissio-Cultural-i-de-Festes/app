@@ -202,14 +202,14 @@
     },
     "calendar": {
       "offerTitle": "Want it in your phone's calendar?",
-      "offerBody": "With the time, the place and a link back here. If we change the time, it updates.",
+      "offerBody": "With the time, the place and a link back here. It is a file you open once: if we change the time, you will need to download it again.",
       "addShort": "Add it",
       "add": "Add it to the calendar",
       "noThanks": "No thanks",
-      "isThere": "It is in your calendar",
-      "again": "Do it again",
+      "isThere": "File downloaded",
+      "again": "Download it again",
       "fromTo": "{{day}}, {{from}} – {{to}}",
-      "cannotRead": "\"Do it again\" is there because the app cannot read your phone's calendar: it does not know whether the entry is still there. It says what it knows and lets you do it again, which is harmless because it does not duplicate.",
+      "cannotRead": "The app cannot see your phone's calendar, so it does not know whether you added the event: open the downloaded file to do it. If the time changes, download it again and open it.",
       "failed": "We could not prepare the file. Try again."
     },
     "teaser": {
@@ -684,15 +684,13 @@
     "title": "Put it on your screen",
     "lede": "Two taps and it behaves like a real app: it opens instantly, the QR works with no signal, and you do not sign in again every time.",
     "step1": {
-      "title": "Tap Share, at the bottom",
-      "body": "It's the little square with the arrow pointing up, in the middle of the Safari bar."
+      "title": "Tap Share",
+      "body": "It's the little square with the arrow pointing up. Depending on the iPhone it is in the bottom bar or the top one, next to the address. If you cannot see it, tap the three dots."
     },
     "step2": {
-      "title": "Scroll down to \"Add to Home Screen\"",
-      "body": "It's further down the list. Then Add, top right.",
-      "sheetAbove": "Add to Favourites",
-      "sheetTarget": "Add to Home Screen",
-      "sheetBelow": "Markup"
+      "title": "Look for \"Add to Home Screen\"",
+      "body": "Scroll the list; on some iPhones it is under \"More\". Then tap Add.",
+      "sheetTarget": "Add to Home Screen"
     },
     "payoff": {
       "title": "What you get",

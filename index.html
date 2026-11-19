@@ -29,6 +29,15 @@
          notch. Nothing else has to change. -->
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="apple-mobile-web-app-title" content="%VITE_APP_SHORT_NAME%" />
+    <!-- Supabase answers every request the app makes, and the first one used to
+         pay DNS, TCP and TLS after the script had already run. `crossorigin`
+         because supabase-js talks CORS: a preconnect without it opens a
+         connection the fetch then cannot reuse. The plugin `app-comi:preconnect`
+         in vite.config.ts fills in the origin, and drops both lines when the
+         build has none. The origin is already in connect-src; a preconnect is
+         not a fetch and CSP does not gate it. -->
+    <link rel="preconnect" href="%SUPABASE_ORIGIN%" crossorigin />
+    <link rel="dns-prefetch" href="%SUPABASE_ORIGIN%" />
     <link rel="icon" type="image/png" href="/favicon.png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <title>%VITE_APP_NAME%</title>

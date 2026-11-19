@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
+import { useLocation, useParams, useSearchParams } from 'react-router'
 
 import { brand } from '@/config/brand'
 import { useUserId } from '@/features/session/useUserId'
@@ -10,8 +10,8 @@ import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { captureFrame } from '@/lib/frame'
 import { DOOR_PHOTOS } from '@/lib/storage'
-import { canGoBack, useBack } from '@/lib/useBack'
 import { useSignedUrls } from '@/lib/useSignedUrls'
+import { useBack } from '@/lib/useBack'
 
 import { fetchNights, photoKeys, saveEntryPhoto, saveExitPhoto } from './api'
 import { useSelfie } from './useSelfie'
@@ -44,8 +44,8 @@ export function DoorPhotoScreen() {
   // d'existir la d'arribada.
   const half = params.get('half') === 'entrada' ? 'entrada' : 'sortida'
   const meId = useUserId()
-  const navigate = useNavigate()
   const { back } = useBack(`/esdeveniment/${id}`)
+  const exit = useBack(`/perfil/nits/${id}`)
   const cameFromDiptych = (useLocation().state as { from?: unknown } | null)?.from === 'diptych'
   const queryClient = useQueryClient()
 
@@ -79,12 +79,12 @@ export function DoorPhotoScreen() {
       await queryClient.invalidateQueries({ queryKey: photoKeys.nights() })
       if (half === 'entrada') {
         back()
-      } else if (cameFromDiptych && canGoBack()) {
+      } else if (cameFromDiptych) {
         // El díptic és el pare d'aquesta pantalla només si s'hi ha arribat
         // des d'allà; des de la fitxa o l'inici, enrere no és el díptic.
-        await navigate(-1)
+        exit.back()
       } else {
-        await navigate(`/perfil/nits/${id}`, { replace: true })
+        exit.replace()
       }
     },
   })

@@ -12,7 +12,14 @@ import { errorKey } from '@/lib/errors'
 import { DOOR_PHOTOS } from '@/lib/storage'
 import { useSignedUrls } from '@/lib/useSignedUrls'
 
-import { type Night, fetchNights, pathsOf, photoKeys, removeExitPhoto, shapeOf } from './api'
+import {
+  type Night,
+  fetchNights,
+  pathsOf,
+  photoKeys,
+  removeExitPhoto,
+  shapeOf,
+} from './api'
 
 /**
  * Your nights, two photographs at a time.

@@ -1,4 +1,5 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { useEffect } from 'react'
 import { BrowserRouter, Link, Navigate, Route, Routes, useLocation } from 'react-router'
 import { beforeEach, describe, expect, it } from 'vitest'
 
@@ -28,6 +29,42 @@ function Offer() {
   return (
     <>
       <button onClick={back}>desa</button>
+      <Where />
+    </>
+  )
+}
+
+const lateBack: { current: (() => void) | null } = { current: null }
+
+function Slow() {
+  const { back } = useBack('/esdeveniment/1/cotxes')
+  useEffect(() => {
+    lateBack.current = back
+  })
+  return (
+    <>
+      <Link to="/esdeveniment/1">fitxa</Link>
+      <Where />
+    </>
+  )
+}
+
+function Scanner() {
+  const { onClick } = useBack('/junta')
+  return (
+    <>
+      <Link to="/junta" onClick={onClick}>
+        tanca
+      </Link>
+      <Where />
+    </>
+  )
+}
+
+function Junta() {
+  return (
+    <>
+      <JuntaHeader viaHistory to="/perfil" label="perfil" />
       <Where />
     </>
   )
@@ -72,7 +109,10 @@ function App({ start }: { readonly start: string }) {
         <Route path="/retorn" element={<Navigate to="/esdeveniment/1" replace />} />
         <Route path="/esdeveniment/1" element={<Event />} />
         <Route path="/esdeveniment/1/cotxes" element={<Rides />} />
-        <Route path="/junta" element={<Elsewhere name="junta" />} />
+        <Route path="/junta" element={<Junta />} />
+        <Route path="/junta/escaner" element={<Scanner />} />
+        <Route path="/perfil" element={<Elsewhere name="perfil" />} />
+        <Route path="/lent" element={<Slow />} />
         <Route path="/esdeveniment/1/cotxes/nou" element={<Offer />} />
         <Route path="/formulari" element={<Fixed />} />
       </Routes>
@@ -149,5 +189,36 @@ describe('useBack', () => {
     render(<App start="/esdeveniment/1/cotxes/nou" />)
     fireEvent.click(screen.getByText('desa'))
     expect(where()).toBe('/esdeveniment/1/cotxes')
+  })
+
+  it('en un enllaç directe a la filla, dues fletxes arriben a l inici sense bucle', async () => {
+    render(<App start="/esdeveniment/1/cotxes" />)
+    fireEvent.click(screen.getByText(/fitxa/))
+    await waitFor(() => expect(where()).toBe('/esdeveniment/1'))
+    fireEvent.click(screen.getByText('enrere'))
+    await waitFor(() => expect(where()).toBe('/'))
+  })
+
+  it('a la junta, escàner, tancar i fletxa arriben al perfil', async () => {
+    render(<App start="/junta/escaner" />)
+    fireEvent.click(screen.getByText('tanca'))
+    await waitFor(() => expect(where()).toBe('/junta'))
+    fireEvent.click(screen.getByText(/perfil/))
+    await waitFor(() => expect(where()).toBe('/perfil'))
+  })
+
+  it('un desar que acaba després d haver sortit no fa cap enrere de més', async () => {
+    render(<App start="/ranquing" />)
+    fireEvent.click(screen.getByText('obrir des de ranquing'))
+    const state = { usr: null, key: 'l', idx: 2 }
+    window.history.pushState(state, '', '/lent')
+    window.dispatchEvent(new PopStateEvent('popstate', { state }))
+    await waitFor(() => expect(where()).toBe('/lent'))
+    const late = lateBack.current
+    fireEvent.click(screen.getByText('fitxa'))
+    await waitFor(() => expect(where()).toBe('/esdeveniment/1'))
+    act(() => late?.())
+    await new Promise((r) => setTimeout(r, 50))
+    expect(where()).toBe('/esdeveniment/1')
   })
 })

@@ -48,13 +48,11 @@ export function HoresScreen() {
   const total = horesParts(totalMinuts, locale)
 
   const cerca = busca.trim().toLocaleLowerCase(locale)
-  const vistes =
-    cerca === '' ? files : files.filter((f) => f.nombre.toLocaleLowerCase(locale).includes(cerca))
+  const vistes = cerca === '' ? files : files.filter((f) => f.nombre.toLocaleLowerCase(locale).includes(cerca))
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
-      <JuntaHeader
-        viaHistory
+      <JuntaHeader viaHistory
         to="/junta"
         label={t('junta.back')}
         title={t('junta.hores.title')}
@@ -66,10 +64,7 @@ export function HoresScreen() {
       </p>
 
       {socis.isError ? (
-        <p
-          role="alert"
-          className={`pt-10 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}
-        >
+        <p role="alert" className={`pt-10 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}>
           {t(errorKey(socis.error))}
         </p>
       ) : socis.isPending ? (
@@ -204,7 +199,9 @@ function Fila({ soci }: { readonly soci: HoresSoci }) {
       <Avatar src={soci.avatar_url} size={40} />
       <span className="min-w-0 flex-1">
         <span className="block text-lg font-semibold text-fg">{soci.nombre}</span>
-        {on === '' ? null : <span className="mt-1 block text-sm-lo text-fg-muted-lo">{on}</span>}
+        {on === '' ? null : (
+          <span className="mt-1 block text-sm-lo text-fg-muted-lo">{on}</span>
+        )}
       </span>
       <span className="flex-none text-right">
         <span className="tabular block text-lg font-extrabold">

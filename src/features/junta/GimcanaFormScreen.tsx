@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { useBack } from '@/lib/useBack'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import {
@@ -18,6 +17,7 @@ import { errorKey } from '@/lib/errors'
 
 import { JuntaHeader } from './JuntaHeader'
 import { teamName } from '@/features/gimcana/teamName'
+import { useBack } from '@/lib/useBack'
 
 /**
  * Muntar la gimcana, des de dins de l'activitat.

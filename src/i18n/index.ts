@@ -1,21 +1,63 @@
-import i18n from 'i18next'
+import i18n, { type BackendModule, type ResourceKey } from 'i18next'
 import LanguageDetector from 'i18next-browser-languagedetector'
 import { initReactI18next } from 'react-i18next'
 
 import ca from './locales/ca.json'
-import en from './locales/en.json'
-import es from './locales/es.json'
 import { DEFAULT_LOCALE, LOCALE_STORAGE_KEY, SUPPORTED_LOCALES } from './locales'
 
+/**
+ * One language travels with the app; the other two are fetched when somebody
+ * actually reads in them.
+ *
+ * The three files were about a third of the JavaScript a phone downloaded
+ * before it could draw anything, and any one person reads exactly one of them.
+ * Most people read Catalan, so Catalan is the one in the bundle. Spanish and
+ * English become chunks of their own: the service worker precaches them like
+ * any other chunk, so a choice made once still works with no signal.
+ *
+ * Catalan and not "whatever VITE_DEFAULT_LOCALE says". A static import cannot
+ * be chosen by an env var without a resolve alias in the Vite config, and a
+ * dynamic import of the default would put one more round trip in front of
+ * every first paint. A fork that defaults to another language still works —
+ * its default arrives as a chunk, like a member's own choice does here.
+ *
+ * Whoever has chosen another language waits for it rather than seeing Catalan
+ * for a moment: until it arrives `useTranslation` suspends, and `App` draws an
+ * empty screen in the app's colour. If it cannot arrive — no signal and never
+ * cached — i18next gives up on it and the fallback language shows, which
+ * beats a blank screen.
+ */
+const chunks = import.meta.glob<ResourceKey>('./locales/*.json', { import: 'default' })
+
+const lazyLocales: BackendModule = {
+  type: 'backend',
+  init: () => undefined,
+  read(language, _namespace, callback) {
+    const load = chunks[`./locales/${language}.json`]
+    if (load === undefined) {
+      callback(new Error(`no locale ${language}`), false)
+      return
+    }
+    load().then(
+      (resources) => {
+        callback(null, resources)
+      },
+      (error: unknown) => {
+        callback(error instanceof Error ? error : new Error(String(error)), false)
+      },
+    )
+  },
+}
+
 void i18n
+  .use(lazyLocales)
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
-    resources: {
-      ca: { translation: ca },
-      es: { translation: es },
-      en: { translation: en },
-    },
+    resources: { ca: { translation: ca } },
+    // Without it, handing i18next any resources at all means "these are all
+    // of them", and the backend is never asked for Spanish or English.
+    partialBundledLanguages: true,
     supportedLngs: [...SUPPORTED_LOCALES],
     fallbackLng: DEFAULT_LOCALE,
     load: 'languageOnly', // ca-ES resolves to ca
@@ -51,7 +93,12 @@ function syncHtmlLang(lng: string): void {
   if (typeof document !== 'undefined') document.documentElement.lang = lng
 }
 
-syncHtmlLang(i18n.resolvedLanguage ?? DEFAULT_LOCALE)
-i18n.on('languageChanged', syncHtmlLang)
+// The language on screen, not the one asked for: when a chosen language could
+// not be fetched the page is in the fallback, and `lang` has to say so.
+const syncResolved = (): void => {
+  syncHtmlLang(i18n.resolvedLanguage ?? DEFAULT_LOCALE)
+}
+syncResolved()
+i18n.on('languageChanged', syncResolved)
 
 export default i18n

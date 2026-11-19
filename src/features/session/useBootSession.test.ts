@@ -116,4 +116,41 @@ describe('useBootSession', () => {
       expect(result.current.phase).toBe('unreachable')
     })
   })
+
+  it("avisa App de cada lectura i de cada canvi, abans d'aplicar-lo", async () => {
+    auth.getSession.mockResolvedValue({ data: { session }, error: null })
+    const onRead = vi.fn()
+    const seen: (string | null)[] = []
+    const { result } = renderHook(() =>
+      useBootSession({
+        onRead,
+        onChange: (event, next) => {
+          seen.push(
+            `${event}:${next?.user.id ?? 'ningú'}:${result.current.session?.user.id ?? 'ningú'}`,
+          )
+        },
+      }),
+    )
+    await waitFor(() => {
+      expect(onRead).toHaveBeenCalledWith(session)
+    })
+
+    act(() => {
+      for (const listener of auth.listeners) listener('SIGNED_OUT', null)
+    })
+
+    // Quan arriba el canvi, la sessió de la pantalla encara és la d'abans.
+    expect(seen).toEqual(['SIGNED_OUT:ningú:u1'])
+    expect(result.current.session).toBeNull()
+  })
+
+  it('una sessió que no es pot renovar no passa per onRead', async () => {
+    auth.getSession.mockResolvedValue(unreachable)
+    const onRead = vi.fn()
+    const { result } = renderHook(() => useBootSession({ onRead }))
+    await waitFor(() => {
+      expect(result.current.phase).toBe('unreachable')
+    })
+    expect(onRead).not.toHaveBeenCalled()
+  })
 })

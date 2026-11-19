@@ -79,8 +79,15 @@ describe('la foto d’una prova és de qui l’envia', () => {
 
   afterAll(async () => {
     const svc = serviceClient()
-    if (pujades.length > 0) await svc.storage.from(BUCKET).remove(pujades)
-    await svc.from('events').delete().eq('id', EVENT)
+    if (pujades.length > 0) {
+      const removed = await svc.storage.from(BUCKET).remove(pujades)
+      expect(removed.error).toBeNull()
+    }
+    // Una activitat oberta que es quedés aquí entraria a la finestra de la
+    // porta i del rebedor de la junta a la resta del suite.
+    const gone = await svc.from('events').delete().eq('id', EVENT).select('id')
+    expect(gone.error).toBeNull()
+    expect(gone.data).toHaveLength(1)
   })
 
   it('l’alfa no pot enviar la prova amb la foto que ha pujat el bravo', async () => {
@@ -100,8 +107,10 @@ describe('la foto d’una prova és de qui l’envia', () => {
   })
 
   it('ni pujar-la ell mateix a la carpeta del bravo, que és l’altra meitat', async () => {
+    // L'API d'storage respon 400 i porta el 403 de la política a `statusCode`.
     const { error } = await puja('alfa', cami(F.bravo))
-    expect(error).not.toBeNull()
+    expect(error).toMatchObject({ statusCode: '403' })
+    expect(error?.message).toMatch(/row-level security/)
   })
 
   it('ni enviar un camí seu amb la forma bona que mai ha pujat', async () => {

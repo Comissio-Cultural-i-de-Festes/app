@@ -5,7 +5,8 @@
 -- `validat_by`, `valida_avis()`, el nucli que valida, la notificació i el sostre
 -- compartit. `private.registra_avis`, `avisa()` i `edita_mesura_presa()` tornen
 -- al cos de la 86; `retira_avis()` al de la 73; `enllaca_avis_pendent()` al de
--- la 87; la política de lectura i el CHECK del registre, als d'abans.
+-- la 87; la política de lectura, a la d'abans, i el CHECK del registre, al de
+-- la 90, que va just abans.
 --
 -- AQUEST FITXER DECIDEIX QUÈ FER AMB ELS PROPOSATS QUE ESPEREN, i es diu aquí.
 -- Sense la columna, un proposat seria un avís que compta sense haver restat els
@@ -13,9 +14,17 @@
 -- escrit, abans de treure la columna: la fila es queda com a història i no
 -- compta per a cap escaló. Si la junta els vol, els ha de tornar a posar.
 --
+-- I EL SOCI ELS VEURÀ, i això és el que costa. La política torna a ser «els
+-- teus, o tots si ets de la junta», i sense `validat_at` no hi ha manera de
+-- distingir un rebutjat o un proposat tancat d'una retirada: tots surten al
+-- perfil de qui els va rebre, ratllats com a «Retirat», amb la nota i el motiu
+-- del rebuig, encara que no n'hagués sabut mai res. Si això no és acceptable,
+-- el que cal fer abans d'executar-lo és esborrar aquestes files —`validat_at is
+-- null`— amb la junta d'acord, sabent que es perden.
+--
 -- I PERD INFORMACIÓ: qui va validar cada avís se'n va amb la columna, i les
 -- files del registre de `valida_avis` i `rebutja_avis` s'esborren perquè el
--- CHECK de la 87 no les admet. Si s'ha d'executar, el que cal fer abans és
+-- CHECK de la 90 no les admet. Si s'ha d'executar, el que cal fer abans és
 -- guardar-se-les.
 
 update public.avisos
@@ -26,6 +35,7 @@ update public.avisos
 delete from public.audit_log where accio in ('valida_avis', 'rebutja_avis');
 
 drop function if exists public.valida_avis(uuid);
+drop function if exists public.rebutja_avis(uuid, text);
 drop function if exists private.compta_avis(uuid, uuid);
 drop function if exists private.avisa_push(uuid, text);
 
@@ -378,7 +388,7 @@ begin
   return v_avis;
 end $fn$;
 
--- ── el registre, com a la 87 ───────────────────────────────────────────────
+-- ── el registre, com a la 90 ───────────────────────────────────────────────
 alter table public.audit_log drop constraint audit_log_accio_check;
 
 alter table public.audit_log
@@ -388,6 +398,7 @@ alter table public.audit_log
     'award_points',
     'check_in_here',
     'close_meeting',
+    'consulta_viatgers',
     'create_event',
     'create_invite',
     'decide_attendance',
@@ -405,6 +416,7 @@ alter table public.audit_log
     'save_grau',
     'save_periods',
     'set_avis_tipus',
+    'set_demana_viatger',
     'set_estat',
     'set_hores',
     'set_paid',

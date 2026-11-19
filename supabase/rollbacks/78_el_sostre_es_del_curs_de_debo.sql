@@ -25,8 +25,10 @@
 -- `retira_avis()` i `edita_mesura_presa()` sense canviar-ne cap firma, perquè un
 -- avís el validi una segona persona de la junta. Aplicar aquest fitxer amb la
 -- 93 a sobre tornaria a deixar que una sola persona fes comptar un avís, i el
--- nucli d'aquí escriuria avisos sense `validat_at`: proposats per sempre.
--- Desfés primer la 93 amb el seu rollback.
+-- nucli d'aquí inseriria a `avisos` sense `validat_at`: només els de zero punts
+-- hi entrarien, i quedarien proposats per sempre; els que resten punts petarien
+-- pel CHECK `avisos_proposat_sense_punts`, perquè la seva fila de punts ja hi
+-- seria. Desfés primer la 93 amb el seu rollback.
 --
 -- El que sí que s'arregla aquí, perquè es pot: la neteja de la nota no es torna
 -- a copiar. `private.nota_neta` existeix des de la 77 —anterior a aquesta—, o

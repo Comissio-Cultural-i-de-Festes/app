@@ -74,7 +74,7 @@ describe('the audit log says who did what', () => {
     // `set_avis_tipus`, la 90 `consulta_viatgers` i `set_demana_viatger`, i la
     // 93 `valida_avis` i `rebutja_avis`. Aquest número es toca a mà a posta: és
     // el que obliga que afegir una acció sigui una decisió i no una passada.
-    expect(actions.length).toBe(33)
+    expect(actions.length).toBe(35)
     expect(actions).toContain('transfer_owner')
     expect(new Set(actions).size).toBe(actions.length)
   })

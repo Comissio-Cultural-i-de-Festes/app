@@ -2231,6 +2231,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      rebutja_avis: {
+        Args: { p_avis_id: string; p_nota: string }
+        Returns: undefined
+      }
       redeem_invite: { Args: { p_codi: string }; Returns: Json }
       report_photo: {
         Args: { p_motiu: string; p_photo_id: string }

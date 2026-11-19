@@ -7,9 +7,14 @@
 --   · no el valida qui l'ha proposat (`avis_validacio_propia`) ni qui el rep;
 --   · validar-lo escriu la fila de punts datada el dia de l'avís, el fa visible
 --     al soci i encua una notificació SENSE la nota;
---   · retirar-ne un de proposat és rebutjar-lo: sense compensatòria, amb la seva
---     acció al registre i sense notificació; retirar-ne un de validat torna els
---     punts i avisa;
+--   · rebutjar un proposat és la seva RPC: sense compensatòria, amb la seva
+--     acció al registre i sense notificació; si mentrestant algú l'ha validat,
+--     refusa amb `avis_ja_resolt` en comptes de retirar-lo. Retirar un proposat
+--     es refusa; retirar-ne un de validat torna els punts i avisa;
+--   · qui rep un avís no veu les propostes contra ell, encara que sigui de la
+--     junta, i ningú no s'avisa a si mateix per la porta d'un pendent;
+--   · validar un avís d'un curs que el calendari ja ha deixat enrere no mira el
+--     sostre, que si no el deixaria proposat per sempre;
 --   · el sostre es mira en proposar, comptant els proposats vius, i es torna a
 --     mirar en validar, que és quan mana.
 --
@@ -20,7 +25,7 @@
 -- Persones i fets inventats, com a tot el repo.
 
 begin;
-select plan(47);
+select plan(55);
 
 reset role;
 
@@ -282,7 +287,19 @@ select tests.authenticate_as('junta_bravo');
 select throws_ok(
   format($$ select public.retira_avis(%L, 'me''l trec') $$, (select id from fet where clau = 'de_jb')),
   '42501', 'ningu no es pot tocar els seus propis avisos',
-  'retira_avis(): ningú no es retira (ni rebutja) un avís seu'
+  'retira_avis(): ningú no es retira un avís seu'
+);
+
+select throws_ok(
+  format($$ select public.rebutja_avis(%L, 'me''l trec') $$, (select id from fet where clau = 'de_jb')),
+  '42501', 'ningu no es pot tocar els seus propis avisos',
+  'rebutja_avis(): ni el rebutja'
+);
+
+select is(
+  (select count(*)::int from public.avisos where id = (select id from fet where clau = 'de_jb')),
+  0,
+  'i no veu la proposta contra ell, encara que sigui de la junta'
 );
 
 select throws_ok(
@@ -308,9 +325,15 @@ select lives_ok(
 reset role;
 select tests.authenticate_as('junta_alfa');
 
-select lives_ok(
+select throws_ok(
   format($$ select public.retira_avis(%L, 'no era per tant') $$, (select id from fet where clau = 'de_jb')),
-  'retira_avis(): qui l''ha proposat el rebutja'
+  '22023', 'un avis proposat es rebutja, no es retira',
+  'retira_avis(): un proposat no es retira'
+);
+
+select lives_ok(
+  format($$ select public.rebutja_avis(%L, 'no era per tant') $$, (select id from fet where clau = 'de_jb')),
+  'rebutja_avis(): qui l''ha proposat el rebutja'
 );
 
 reset role;
@@ -343,7 +366,26 @@ select is(
   'rebutjar-lo no avisa ningú: la persona no en va saber mai res'
 );
 
--- ── 8. retirar un validat ───────────────────────────────────────────────────
+-- ── 8. rebutjar el que ja s'ha validat, i retirar un validat ───────────────
+-- LA CARRERA: A obre «Rebutja'l» i, mentre la crida va (o espera la xarxa), B
+-- el valida. La crida d'A arriba a un avís validat i ha de dir-ho, no retirar-lo.
+select tests.authenticate_as('junta_alfa');
+select is(
+  pg_temp.hint_de(format($$ select public.rebutja_avis(%L, 'tard') $$, (select id from fet where clau = 'alfa'))),
+  'avis_ja_resolt',
+  'rebutja_avis(): sobre un avís que ja s''ha validat, refusa en comptes de retirar-lo'
+);
+
+reset role;
+select is(
+  (select (retirat_at is null)::text || '|'
+          || (select count(*) from public.points_log pl
+               where pl.user_id = (select alfa from qui) and pl.motivo = 'avis_retirat')::text
+     from public.avisos where id = (select id from fet where clau = 'alfa')),
+  'true|0',
+  'i l''avís continua viu, sense cap compensatòria'
+);
+
 select tests.authenticate_as('junta_charlie');
 select lives_ok(
   format($$ select public.retira_avis(%L, 'havia avisat, error nostre') $$, (select id from fet where clau = 'alfa')),
@@ -398,6 +440,26 @@ select lives_ok(
   'i amb el sostre de nou a 30, sí'
 );
 
+-- ── 9b. el curs es mou entre la proposta i la validació ─────────────────────
+-- El calendari nou comença demà: l'avís d'avui ja no cau dins de cap curs que la
+-- base sàpiga comptar.
+reset role;
+select tests.authenticate_as('junta_alfa');
+insert into fet
+select 'canvi_curs', public.avisa((select alfa from qui), 'no_va_venir', 'abans del canvi de curs', -5);
+
+reset role;
+update public.ranking_periods set starts_at = now() + interval '1 day' where mena = 'global';
+
+select tests.authenticate_as('junta_bravo');
+select lives_ok(
+  format($$ select public.valida_avis(%L) $$, (select id from fet where clau = 'canvi_curs')),
+  'valida_avis(): un avís d''un curs que ja no és l''actual es valida igual, sense sostre'
+);
+
+reset role;
+update public.ranking_periods set starts_at = now() - interval '30 days' where mena = 'global';
+
 -- ── 10. els pendents ────────────────────────────────────────────────────────
 reset role;
 select tests.authenticate_as('junta_alfa');
@@ -436,6 +498,32 @@ select tests.authenticate_as('junta_charlie');
 select lives_ok(
   format($$ select public.valida_avis(%L) $$, (select id from fet where clau = 'del_pendent')),
   'i una altra persona de la junta, sí'
+);
+
+-- ── 10b. un autoavís per la porta del pendent ───────────────────────────────
+-- La junta alfa escriu un pendent amb el seu propi telèfon. El disparador de la
+-- 88 el voldria enllaçar a ella; el nucli ho refusa i el pendent espera amb el
+-- codi, que és el que la junta ha de mirar.
+reset role;
+update public.profile_contact set telefon = '955 49 80 77' where id = (select ja from qui);
+
+select tests.authenticate_as('junta_alfa');
+insert into fet
+select 'autopendent', public.crea_avis_pendent(
+  'Persona Qualsevol', '955 49 80 77', now() - interval '1 day', 'mal_gest', 'Prova: autoavís');
+
+reset role;
+select is(
+  (select coalesce(motiu, '∅') || '|' || coalesce(motiu_codi, '∅') || '|' || (avis_id is null)::text
+     from public.avisos_pendents where id = (select id from fet where clau = 'autopendent')),
+  'error|42501|true',
+  'el pendent no s''enllaça a qui l''ha escrit: espera, amb el 42501'
+);
+
+select is(
+  (select count(*)::int from public.avisos where user_id = (select ja from qui)),
+  0,
+  'i la junta alfa no té cap avís que s''hagi posat ella mateixa'
 );
 
 -- ── 11. la taula ho garanteix sola ──────────────────────────────────────────

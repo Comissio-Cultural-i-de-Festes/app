@@ -43,26 +43,48 @@
 -- a qui la validarà una setmana després. En validar, sobre el que compta i prou,
 -- que és la que mana: és el moment en què els punts es resten de debò.
 --
--- ═══ RETIRAR I REBUTJAR ══════════════════════════════════════════════════
+-- I LA VALIDACIÓ D'UN AVÍS D'UN CURS QUE JA S'HA TANCAT NO MIRA EL SOSTRE. El
+-- sostre és d'un curs, i el que es mira és el curs de l'avís; si el calendari
+-- s'ha mogut entre la proposta i la validació, aquell curs ja no és el que la
+-- base sap comptar, i refusar-ho amb `avis_fora_del_curs` deixaria l'avís
+-- proposat per sempre sense cap manera de validar-lo.
 --
--- `retira_avis()` fa les dues coses i no n'hi ha una tercera RPC. Sobre un avís
--- validat, és la retirada de sempre: fila compensatòria i nota obligatòria.
--- Sobre un proposat, és REBUTJAR-LO: no hi ha res a tornar perquè no s'havia
--- restat res, i la fila es queda tancada amb el motiu escrit. El registre ho
--- separa —`retira_avis` i `rebutja_avis`— perquè són dues decisions diferents.
+-- UNA PERSONA ALHORA. `registra_avis` i `compta_avis` bloquegen la fila de
+-- `profiles` de qui rep l'avís abans de comptar res: dues propostes o dues
+-- validacions simultànies per a la mateixa persona miraven el sostre amb les
+-- mateixes dades i hi cabien totes dues.
+--
+-- ═══ RETIRAR I REBUTJAR SÓN DUES RPC ═════════════════════════════════════
+--
+-- `rebutja_avis()` tanca un proposat: no hi ha res a tornar perquè no s'havia
+-- restat res, i la fila es queda tancada amb el motiu escrit. `retira_avis()`
+-- és la retirada de sempre d'un validat: fila compensatòria i nota obligatòria.
+-- Cadascuna refusa el que és de l'altra.
+--
+-- PER QUÈ NO UNA DE SOLA QUE DECIDEIXI PEL `validat_at`. Era la primera versió
+-- d'aquest fitxer i tenia una carrera: A prem «Rebutja'l» —o la crida es queda
+-- en pausa sense xarxa— i mentrestant B el valida; quan la crida d'A arriba,
+-- l'avís ja és validat i la mateixa RPC el RETIRA, amb compensatòria i
+-- notificació a la persona, quan la pantalla d'A deia «no comptarà mai». Amb
+-- dues RPC, la d'A arriba a un avís que ja no espera validació i torna 22023
+-- `avis_ja_resolt`, que és el que va passar.
 --
 -- RETIRAR NO DEMANA UNA SEGONA PERSONA, i és una decisió. La segona persona hi
 -- és per protegir qui rep l'avís d'un càstig que una sola persona ha decidit.
 -- Retirar-lo va a favor seu, demana nota, queda al registre i NO el pot fer
 -- l'afectat. Exigir-hi dues persones voldria dir un estat més —«retirada
--- proposada»— i una segona cua per a una acció que no fa mal a ningú. Qui ha
--- proposat un avís sí que el pot rebutjar: és retirar la seva pròpia proposta.
+-- proposada»— i una segona cua. És una decisió pendent del mantenidor, i
+-- l'alternativa és que només `created_by` o `validat_by` el puguin retirar sols
+-- i que qualsevol altre en proposi una retirada que confirma una segona
+-- persona. Qui ha proposat un avís sí que el pot rebutjar: és retirar la seva
+-- pròpia proposta abans que compti.
 --
 -- ═══ ELS AVISOS QUE JA EXISTEIXEN ═════════════════════════════════════════
 --
 -- ES DONEN TOTS PER VALIDATS, amb `validat_at = created_at` i `validat_by` a
 -- null. Es van posar quan la regla era una altra i ja compten: tenen la seva
--- fila a `points_log`, que és append-only per disparador. Tornar-los a
+-- fila a `points_log`, que no es reescriu mai —un disparador hi refusa
+-- l'UPDATE i `authenticated` no hi té cap grant d'escriptura—. Tornar-los a
 -- «proposat» voldria dir escriure una compensatòria per a cadascun i, l'endemà,
 -- tornar-los a restar quan algú els validés: el rànquing i els escalons de tota
 -- l'associació es mourien dues vegades per un canvi de regla, i la persona
@@ -71,12 +93,22 @@
 --
 -- ═══ NINGÚ NO ES TOCA ELS SEUS ═══════════════════════════════════════════
 --
--- `avisa()`, `retira_avis()`, `edita_mesura_presa()`, `valida_avis()` i
--- `enllaca_avis_pendent()` refusen amb 42501 i HINT `avis_propi` quan la
--- persona afectada és qui crida. L'enganxada automàtica d'un pendent (88) no
--- crida ningú —la dispara el soci que desa el telèfon— i per això no passa per
--- aquí: si un pendent troba qui el va escriure, en surt un proposat que aquella
--- persona no podrà validar.
+-- `avisa()`, `retira_avis()`, `rebutja_avis()`, `edita_mesura_presa()`,
+-- `valida_avis()` i `enllaca_avis_pendent()` refusen amb 42501 i HINT
+-- `avis_propi` quan la persona afectada és qui crida.
+--
+-- I EL NUCLI TAMBÉ, que és la porta única. Un pendent el pot escriure algú de
+-- la junta amb el seu propi telèfon, i el disparador de la 88 l'enllaçaria a
+-- ell mateix: un autoavís per la porta del costat. `private.registra_avis`
+-- refusa que qui rep l'avís en sigui l'autor; a l'enganxada automàtica això
+-- deixa el pendent esperant amb `motiu = 'error'` i el codi 42501, que és el
+-- que la junta ha de mirar.
+--
+-- QUI EL REP NO VEU LES PROPOSTES CONTRA ELL, encara que sigui de la junta. La
+-- política mira primer si l'avís és teu: si ho és, només el veus validat; si no,
+-- el veus si ets de la junta. Sense això, un membre de la junta veuria a
+-- «Avisos per validar» el que se li ha proposat abans que ningú l'hagi validat,
+-- que és justament el que no veu un soci.
 --
 -- ═══ LA NOTIFICACIÓ ══════════════════════════════════════════════════════
 --
@@ -103,8 +135,9 @@
 -- ═══ L'AUDITORIA ═════════════════════════════════════════════════════════
 --
 -- Dues accions noves, `valida_avis` i `rebutja_avis`, sense la nota com
--- sempre. La llista sencera del CHECK es reescriu partint de la de la 87, que
--- és l'última de `main`.
+-- sempre. `avis` passa a voler dir que s'ha proposat. La llista sencera del
+-- CHECK es reescriu partint de la de la 90 —que s'aplica abans i hi afegeix
+-- `consulta_viatgers` i `set_demana_viatger`—: 35 accions.
 
 -- ── les columnes ───────────────────────────────────────────────────────────
 alter table public.avisos
@@ -135,15 +168,17 @@ alter table public.avisos
 create index avisos_validat_by_idx on public.avisos (validat_by);
 
 -- ── qui el veu ─────────────────────────────────────────────────────────────
--- El soci, només els seus i només validats. La junta, tots, proposats inclosos:
--- és qui els ha de validar.
+-- Els teus, només validats, siguis qui siguis. Els dels altres, si ets de la
+-- junta, proposats inclosos: és qui els ha de validar.
 drop policy avisos_select_self_or_admin on public.avisos;
 
 create policy avisos_select_self_or_admin on public.avisos
   for select to authenticated
   using (
-    (user_id = (select auth.uid()) and validat_at is not null)
-    or (select private.is_admin())
+    case when user_id = (select auth.uid())
+         then validat_at is not null
+         else (select private.is_admin())
+    end
   );
 
 -- ── el sostre, en un sol lloc ──────────────────────────────────────────────
@@ -283,6 +318,16 @@ begin
     raise exception 'la gravetat va d''1 a 3' using errcode = '22023';
   end if;
 
+  -- La porta única: també el pendent que el disparador de la 88 enllaçaria a
+  -- qui el va escriure.
+  if p_user_id = p_actor then
+    raise exception 'ningu no es pot tocar els seus propis avisos'
+      using errcode = '42501', hint = 'avis_propi';
+  end if;
+
+  -- Una persona alhora: el sostre que es mira a sota ha de ser el de debò.
+  perform 1 from public.profiles p where p.id = p_user_id for update;
+
   if not exists (
     select 1 from public.profiles p
      where p.id = p_user_id and p.estat in ('actiu', 'baixa')
@@ -410,7 +455,16 @@ declare
   v_avis          public.avisos%rowtype;
   v_punts_event   uuid;
   v_points_log_id uuid;
+  v_des_de        timestamptz;
+  v_fins_a        timestamptz;
 begin
+  -- Una persona alhora, com a `registra_avis`: primer la persona i després
+  -- l'avís, en el mateix ordre que allà, perquè dues crides no s'esperin
+  -- l'una a l'altra en creu.
+  perform 1 from public.profiles p
+   where p.id = (select a.user_id from public.avisos a where a.id = p_avis_id)
+     for update;
+
   select * into v_avis from public.avisos where id = p_avis_id for update;
   if not found then
     raise exception 'aquest avis no existeix' using errcode = '22023';
@@ -420,8 +474,15 @@ begin
       using errcode = '22023', hint = 'avis_ja_resolt';
   end if;
 
-  -- El que mana: el que ja compta, sense els altres proposats.
-  perform private.comprova_sostre_avisos(v_avis.user_id, v_avis.punts, v_avis.created_at, false, null);
+  -- El que mana: el que ja compta, sense els altres proposats. Només si
+  -- l'avís és del curs d'ara: si el calendari s'ha mogut des que es va
+  -- proposar, el seu curs ja no es pot comptar, i refusar-lo el deixaria
+  -- proposat per sempre.
+  select pc.des_de, pc.fins_a into v_des_de, v_fins_a from private.periode_curs() pc;
+  if (v_des_de is null or v_avis.created_at >= v_des_de)
+     and (v_fins_a is null or v_avis.created_at < v_fins_a) then
+    perform private.comprova_sostre_avisos(v_avis.user_id, v_avis.punts, v_avis.created_at, false, null);
+  end if;
 
   if v_avis.punts <> 0 then
     v_punts_event := v_avis.event_id;
@@ -577,7 +638,6 @@ declare
   -- tabulador no és un motiu.
   v_nota   text := private.nota_neta(coalesce(p_nota, ''));
   v_comp   uuid;
-  v_valid  boolean;
 begin
   if not private.is_admin() then
     raise exception 'nomes junta' using errcode = '42501';
@@ -604,10 +664,13 @@ begin
     raise exception 'aquest avis ja esta retirat' using errcode = '22023';
   end if;
 
-  v_valid := v_avis.validat_at is not null;
+  -- Un proposat es rebutja, no es retira: vegeu la capçalera.
+  if v_avis.validat_at is null then
+    raise exception 'un avis proposat es rebutja, no es retira'
+      using errcode = '22023', hint = 'avis_proposat';
+  end if;
 
-  -- Un proposat no té punts restats i per tant no té res a tornar.
-  if v_valid and v_avis.points_log_id is not null then
+  if v_avis.points_log_id is not null then
     select pl.puntos into v_punts
       from public.points_log pl where pl.id = v_avis.points_log_id;
 
@@ -626,20 +689,83 @@ begin
   insert into public.audit_log (actor_id, accio, target_id, detall)
   values (
     (select auth.uid()),
-    case when v_valid then 'retira_avis' else 'rebutja_avis' end,
+    'retira_avis',
     v_avis.user_id,
     jsonb_build_object('avis', p_avis_id, 'punts', coalesce(-v_punts, 0))
   );
 
-  if v_valid then
-    perform private.avisa_push(v_avis.user_id, 'retirat');
-  end if;
+  perform private.avisa_push(v_avis.user_id, 'retirat');
 end $fn$;
 
 comment on function public.retira_avis(uuid, text) is
-  'Retira un avis validat i torna els punts amb una fila compensatoria, o '
-  'rebutja un de proposat, que no en te cap per tornar. Nota obligatoria. Ningu '
-  'no es pot retirar els seus. Un avis ja retirat no es pot tornar a retirar.';
+  'Retira un avis validat i torna els punts amb una fila compensatoria. Nota '
+  'obligatoria. Ningu no es pot retirar els seus. Un proposat no es retira: es '
+  'rebutja amb `rebutja_avis()`. Un avis ja retirat no es pot tornar a retirar.';
+
+-- ── rebutjar el que encara no compta ───────────────────────────────────────
+-- Qui l'ha proposat també el pot rebutjar; qui el rep, no.
+create or replace function public.rebutja_avis(p_avis_id uuid, p_nota text)
+returns void
+language plpgsql
+volatile
+security definer
+set search_path = ''
+as $fn$
+declare
+  v_avis public.avisos%rowtype;
+  v_nota text := private.nota_neta(coalesce(p_nota, ''));
+begin
+  if not private.is_admin() then
+    raise exception 'nomes junta' using errcode = '42501';
+  end if;
+
+  if v_nota is null then
+    raise exception 'rebutjar un avis tambe demana un motiu escrit' using errcode = '22023';
+  end if;
+  if length(v_nota) > 500 then
+    raise exception 'la nota es massa llarga' using errcode = '22023';
+  end if;
+
+  select * into v_avis from public.avisos where id = p_avis_id for update;
+  if not found then
+    raise exception 'aquest avis no existeix' using errcode = '22023';
+  end if;
+
+  if v_avis.user_id = (select auth.uid()) then
+    raise exception 'ningu no es pot tocar els seus propis avisos'
+      using errcode = '42501', hint = 'avis_propi';
+  end if;
+
+  -- Validat o ja tancat: el que la pantalla prometia —«no comptarà mai»— ja no
+  -- és cert, i es diu en comptes de fer una altra cosa.
+  if v_avis.validat_at is not null or v_avis.retirat_at is not null then
+    raise exception 'aquest avis ja no espera validacio'
+      using errcode = '22023', hint = 'avis_ja_resolt';
+  end if;
+
+  update public.avisos
+     set retirat_at = now(),
+         retirat_by = (select auth.uid()),
+         retirat_nota = v_nota
+   where id = p_avis_id;
+
+  insert into public.audit_log (actor_id, accio, target_id, detall)
+  values (
+    (select auth.uid()),
+    'rebutja_avis',
+    v_avis.user_id,
+    jsonb_build_object('avis', p_avis_id, 'punts', v_avis.punts)
+  );
+end $fn$;
+
+comment on function public.rebutja_avis(uuid, text) is
+  'Rebutja un avis proposat: el tanca amb el motiu escrit, sense haver comptat '
+  'mai i sense avisar ningu. Nomes la junta, i no qui el rep. Si ja s''ha '
+  'validat, refusa amb `avis_ja_resolt` en comptes de retirar-lo.';
+
+alter function public.rebutja_avis(uuid, text) owner to postgres;
+revoke all on function public.rebutja_avis(uuid, text) from public, anon;
+grant execute on function public.rebutja_avis(uuid, text) to authenticated;
 
 -- ── la mesura presa ────────────────────────────────────────────────────────
 create or replace function public.edita_mesura_presa(p_avis_id uuid, p_mesura text)
@@ -735,7 +861,7 @@ comment on function public.enllaca_avis_pendent(uuid, uuid) is
   'refusos del nucli (sostre, persona) pugen. Auditat.';
 
 -- ── i les dues accions noves al registre ───────────────────────────────────
--- La llista sencera, partint de la de la 87: la migració més nova que la
+-- La llista sencera, partint de la de la 90: la migració més nova que la
 -- declara la porta tota.
 alter table public.audit_log drop constraint audit_log_accio_check;
 
@@ -746,6 +872,7 @@ alter table public.audit_log
     'award_points',
     'check_in_here',
     'close_meeting',
+    'consulta_viatgers',
     'create_event',
     'create_invite',
     'decide_attendance',
@@ -764,6 +891,7 @@ alter table public.audit_log
     'save_grau',
     'save_periods',
     'set_avis_tipus',
+    'set_demana_viatger',
     'set_estat',
     'set_hores',
     'set_paid',

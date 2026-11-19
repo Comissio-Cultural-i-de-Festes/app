@@ -91,12 +91,16 @@ describe('la segona persona, per PostgREST', () => {
     expect(valida.error?.code).toBe('42501')
     expect(valida.error?.hint).toBe('avis_propi')
 
-    const retira = await rpc(jb, 'retira_avis', { p_avis_id: id, p_nota: nota('me’l trec') })
-    expect(retira.error?.code).toBe('42501')
-    expect(retira.error?.hint).toBe('avis_propi')
+    const propi = await rpc(jb, 'rebutja_avis', { p_avis_id: id, p_nota: nota('me’l trec') })
+    expect(propi.error?.code).toBe('42501')
+    expect(propi.error?.hint).toBe('avis_propi')
+
+    // I no la veu: la política li amaga les propostes contra ell.
+    const { data: vist } = await jb.from('avisos').select('id').eq('id', id)
+    expect(vist).toEqual([])
 
     // El control: qui l'ha proposat sí que el pot rebutjar.
-    const rebutja = await rpc(ja, 'retira_avis', { p_avis_id: id, p_nota: nota('rebutjat') })
+    const rebutja = await rpc(ja, 'rebutja_avis', { p_avis_id: id, p_nota: nota('rebutjat') })
     expect(rebutja.error).toBeNull()
   })
 
@@ -117,6 +121,11 @@ describe('la segona persona, per PostgREST', () => {
     expect(dos.error?.code).toBe('22023')
     expect(dos.error?.hint).toBe('avis_ja_resolt')
 
+    // Rebutjar-lo tard —la carrera de qui l'havia obert abans que es validés—
+    // ho diu i no el retira.
+    const tard = await rpc(ja, 'rebutja_avis', { p_avis_id: id, p_nota: nota('tard') })
+    expect(tard.error?.hint).toBe('avis_ja_resolt')
+
     // I es retira, que torna el punt i deixa el sostre com estava.
     const retira = await rpc(await as('junta_charlie'), 'retira_avis', {
       p_avis_id: id,
@@ -127,7 +136,11 @@ describe('la segona persona, per PostgREST', () => {
 
   it('un de rebutjat, el soci no el veu mai', async () => {
     const id = await proposa(F.bravo, 'rebutjat abans de comptar')
-    const { error } = await rpc(ja, 'retira_avis', {
+
+    const retira = await rpc(ja, 'retira_avis', { p_avis_id: id, p_nota: nota('retirar-lo') })
+    expect(retira.error?.hint).toBe('avis_proposat')
+
+    const { error } = await rpc(ja, 'rebutja_avis', {
       p_avis_id: id,
       p_nota: nota('no era per tant'),
     })

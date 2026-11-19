@@ -114,6 +114,13 @@ describe('errorKey', () => {
       }
     })
 
+    // Migració 95: el camí de la foto d'una prova no és el de qui l'envia o no
+    // és al bucket. «Torna-ho a provar» tornaria a enviar el mateix camí; el
+    // que té remei és tornar a triar la foto, que la puja de nou.
+    it('reads a gimcana photo the server would not take off the hint', () => {
+      expect(errorKey(dbHint('22023', 'prova_foto'), true)).toBe('errors.provaFoto')
+    })
+
     it('leaves the same code without a token exactly where it was', () => {
       expect(errorKey(dbHint('22023', ''), true)).toBe('errors.generic')
       expect(errorKey(dbHint('22023', 'una pista qualsevol'), true)).toBe('errors.generic')

@@ -289,8 +289,8 @@ function ScreenOutlet() {
  * frase, fins i tot «Un segon…», sortiria en català a qui no l'ha triat.
  *
  * Amb el català no s'arriba a veure; amb un altre ja desat, dura el que es
- * triga a llegir-lo de la precache; i com a molt, quatre segons
- * (`i18n/backend.ts`).
+ * triga a llegir-lo de la memòria cau del service worker; i com a molt,
+ * quatre segons (`i18n/backend.ts`).
  */
 export default function App() {
   return (

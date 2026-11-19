@@ -6,7 +6,7 @@ import { loadEnv } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
 
-import { juntaOutOfPrecache } from './build/precache.ts'
+import { trimPrecache } from './build/precache.ts'
 
 const REQUIRED_ENV = [
   'VITE_APP_NAME',
@@ -50,7 +50,7 @@ export default defineConfig(({ mode, command }) => {
   // contain is the dot.
   const supabasePattern = new RegExp(`^${supabaseOrigin.split('.').join('\\.')}/`)
 
-  const precache = juntaOutOfPrecache()
+  const precache = trimPrecache()
 
   // Cloudflare Pages respon `index.html` amb un 200 a qualsevol camí que no
   // existeix, també a un tros o a un wasm d'un desplegament anterior. Guardar-lo
@@ -166,9 +166,9 @@ export default defineConfig(({ mode, command }) => {
           // Només la veuen els rastrejadors dels enllaços; un soci no la baixa
           // mai i al precache seria pes mort a cada instal·lació.
           globIgnores: ['og-image.png'],
-          // La zona de junta, la porta i el mapa, fora: el perquè i com es
-          // decideix són a `build/precache.ts`. Els serveix la regla `chunks`
-          // de més avall.
+          // Les pantalles d'escriptori de la junta, el mapa, el castellà i
+          // l'anglès, fora: el perquè i com es decideix són a
+          // `build/precache.ts`. Els serveix la regla `chunks` de més avall.
           manifestTransforms: [precache.manifestTransform],
           cleanupOutdatedCaches: true,
           clientsClaim: true,
@@ -230,7 +230,10 @@ export default defineConfig(({ mode, command }) => {
             },
             {
               // Els trossos que no són a la precache: les pantalles d'escriptori
-              // de la junta i el mapa. Porten hash al nom i no canvien mai, així
+              // de la junta, el mapa i els idiomes que no van dins de l'entrada.
+              // Si la primera visita n'ha baixat algun abans que el service
+              // worker hi manés, `src/lib/firstControl.ts` el torna a demanar
+              // perquè passi per aquí. Porten hash al nom i no canvien mai, així
               // que el que s'ha baixat un cop serveix sense xarxa fins que un
               // desplegament el canvia. La ruta de la precache es registra
               // abans, i el que hi és no arriba mai aquí.
@@ -254,6 +257,14 @@ export default defineConfig(({ mode, command }) => {
                 // s'obre sense xarxa.
                 expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 365 },
                 cacheableResponse: { statuses: [200] },
+                // El que desa `src/lib/firstControl.ts` arriba amb un `fetch()`,
+                // i el que el busca després és un `import()`, que porta
+                // `Origin`. Amb un `Vary: Origin` a la resposta —el de
+                // `vite preview`, i el de qualsevol servidor que faci CORS— les
+                // dues peticions no casen: el tros és a la memòria cau, però
+                // sense xarxa no en surt. Porten hash i no canvien, o sigui que
+                // no hi ha cap variant que distingir.
+                matchOptions: { ignoreVary: true },
                 plugins: [neverHtml],
               },
             },

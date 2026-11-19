@@ -1,5 +1,7 @@
 import { registerSW } from 'virtual:pwa-register'
 
+import { keepWhatCameFirst } from './firstControl'
+
 const UPDATE_INTERVAL_MS = 60 * 60 * 1000
 
 /**
@@ -18,6 +20,15 @@ export const APP_REVALIDATE = 'app:revalidate'
 export function setupPwa(): void {
   const emit = (): void => {
     appRevalidate.dispatchEvent(new Event(APP_REVALIDATE))
+  }
+
+  if ('serviceWorker' in navigator) {
+    keepWhatCameFirst({
+      container: navigator.serviceWorker,
+      loaded: () => performance.getEntriesByType('resource').map((entry) => entry.name),
+      origin: location.origin,
+      fetch: (url) => fetch(url),
+    })
   }
 
   registerSW({

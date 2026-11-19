@@ -19,8 +19,10 @@ import {
  * The three files were about a third of the JavaScript a phone downloaded
  * before it could draw anything, and any one person reads exactly one of them.
  * Most people read Catalan, so Catalan is the one in the bundle. Spanish and
- * English become chunks of their own: the service worker precaches them like
- * any other chunk, so a choice made once still works with no signal.
+ * English become chunks of their own, and they stay out of the precache too:
+ * a phone downloads the one it reads, the first time it reads it, and the
+ * service worker keeps it from then on, so a choice made once still works with
+ * no signal. Why, and what that costs, is in `build/precache.ts`.
  *
  * Catalan and not "whatever VITE_DEFAULT_LOCALE says". A static import cannot
  * be chosen by an env var without a resolve alias in the Vite config, and a

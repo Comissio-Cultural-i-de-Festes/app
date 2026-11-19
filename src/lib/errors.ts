@@ -31,6 +31,9 @@ const HINTS: Readonly<Record<string, string>> = {
   avis_propi: 'errors.avisPropi',
   avis_validacio_propia: 'errors.avisValidacioPropia',
   avis_ja_resolt: 'errors.avisJaResolt',
+  // El disparador de les dades de viatger (migració 90): diu el camp i no el
+  // valor, perquè el valor no acabi als logs de Postgres.
+  viatger_invalid: 'errors.viatgerInvalid',
 }
 
 /**

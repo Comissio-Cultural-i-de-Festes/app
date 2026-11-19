@@ -5,6 +5,7 @@ import { Navigate, Route, Routes, useLocation } from 'react-router'
 
 import { EntryScreen } from '@/features/entry/EntryScreen'
 import { EventScreen } from '@/features/event/EventScreen'
+import { ViatgerScreen } from '@/features/event/ViatgerScreen'
 import { HomeScreen } from '@/features/home/HomeScreen'
 import { InsideScreen } from '@/features/event/InsideScreen'
 import { DiptychScreen } from '@/features/photos/DiptychScreen'
@@ -132,6 +133,9 @@ const PaymentsScreen = lazy(() =>
 )
 const JuntaHome = lazy(() =>
   import('@/features/junta/JuntaHome').then((m) => ({ default: m.JuntaHome })),
+)
+const ViatgersScreen = lazy(() =>
+  import('@/features/junta/ViatgersScreen').then((m) => ({ default: m.ViatgersScreen })),
 )
 
 /**
@@ -285,6 +289,7 @@ export default function App() {
             <Route path="/esdeveniment/:id" element={<EventScreen />} />
             <Route path="/esdeveniment/:eventId/dins" element={<InsideScreen />} />
             <Route path="/esdeveniment/:id/fotos" element={<GalleryScreen />} />
+            <Route path="/esdeveniment/:id/viatger" element={<ViatgerScreen />} />
             <Route path="/esdeveniment/:id/gimcana" element={<ProvesScreen />} />
             <Route path="/esdeveniment/:id/gimcana/marcador" element={<ScoreboardScreen />} />
             <Route path="/esdeveniment/:id/gimcana/:provaId" element={<SubmitScreen />} />
@@ -330,6 +335,7 @@ export default function App() {
             <Route path="esdeveniment/:id" element={<EventFormScreen />} />
             <Route path="esdeveniment/:id/fitxatges" element={<CheckinsScreen />} />
             <Route path="esdeveniment/:id/hores" element={<HoresEventScreen />} />
+            <Route path="esdeveniment/:id/viatgers" element={<ViatgersScreen />} />
             <Route path="hores" element={<HoresScreen />} />
             <Route path="idees" element={<IdeasReviewScreen />} />
             <Route path="socis" element={<MembersScreen />} />

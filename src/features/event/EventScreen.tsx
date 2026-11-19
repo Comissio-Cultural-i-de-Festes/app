@@ -53,6 +53,8 @@ import { useSignedUrls } from '@/lib/useSignedUrls'
 
 import { CalendarOffer, CalendarRow } from './Calendar'
 import { MeetingActa, MeetingAnswer, MeetingRoster } from './Meeting'
+import { ViatgerBlock } from './ViatgerBlock'
+import { viatgerKeys } from './viatgerApi'
 import { meetingKeys } from './meetingApi'
 import { BigCountdown, HiddenChip, InterestBlock } from './Teaser'
 import { eventTitle, titleIsHidden } from './title'
@@ -115,6 +117,8 @@ export function EventScreen() {
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: ['home', 'attendances'] })
       await client.invalidateQueries({ queryKey: eventKeys.waitlist(id) })
+      // Un «no» esborra les dades de viatger a la base (migració 90).
+      await client.invalidateQueries({ queryKey: viatgerKeys.totes(id) })
     },
   })
 
@@ -456,6 +460,8 @@ export function EventScreen() {
           offer={e}
         />
       )}
+
+      {isMeeting ? null : <ViatgerBlock eventId={e.id} />}
 
       {/* Right after fitxar, which is the moment somebody wants to say so.
           Only for whoever the door actually let in. */}

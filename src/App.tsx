@@ -39,6 +39,7 @@ import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
 import { discardInvite, pendingInvite } from '@/features/entry/pendingInvite'
 import { ReturnToLink } from '@/features/entry/ReturnToLink'
 import { forgetReturn } from '@/features/entry/returnTo'
+import { useForgetReturn } from '@/features/entry/useForgetReturn'
 import { readInviteCode } from '@/features/entry/useInvite'
 import { useRedeemFromLink } from '@/features/entry/useRedeemFromLink'
 import { InstallScreen } from '@/features/install/InstallScreen'
@@ -221,6 +222,7 @@ export default function App() {
       // invitació a la porta.
       if (event === 'SIGNED_OUT' && (signedIn.current || pendingInvite() !== null)) {
         discardInvite()
+        forgetReturn()
       }
       signedIn.current = next !== null
       // Abans de pintar res amb la sessió nova: qui entra no ha de veure ni un
@@ -255,14 +257,7 @@ export default function App() {
     if (session) clearOAuthMark()
   }, [session])
 
-  // Si s'ha entrat sense passar per Google —el codi del correu— ja som a la
-  // fitxa, i el que hi havia desat no ha de tornar-se a fer servir en tocar
-  // l'Inici més tard. Només es mira en el moment d'entrar: més endavant la
-  // ruta pot ser `/primer-cop`, i aquell camí encara l'ha d'aprofitar.
-  const userId = session?.user.id ?? null
-  useEffect(() => {
-    if (userId !== null && window.location.pathname !== '/') forgetReturn()
-  }, [userId])
+  useForgetReturn(session?.user.id ?? null)
 
   // Tornar-ho a provar és recarregar, i no tornar a cridar `getSession()`: una
   // renovació penjada no es deixa substituir —la biblioteca hi enganxa la

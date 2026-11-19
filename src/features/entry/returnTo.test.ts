@@ -24,6 +24,7 @@ describe('quines rutes es poden recordar', () => {
     'javascript:alert(1)',
     '/\\evil.example',
     '/esdeveniment/../junta',
+    '/esdeveniment//evil.example',
     '/esdeveniment/',
     '/esdeveniment/x?codi=ABC',
     '/esdeveniment/x#a',

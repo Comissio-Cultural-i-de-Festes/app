@@ -2,6 +2,7 @@
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { gzipSync } from 'node:zlib'
 
 import { build } from 'vite'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
@@ -93,6 +94,16 @@ describe('the install', () => {
       expect(precached, `${file} is loaded at startup`).toContain(file)
     }
     expect(precached).toContain('index.html')
+  })
+
+  it('weighs less than 400 KB gzipped, which is what the issue asked of an install', () => {
+    // Fitxer per fitxer i a nivell 9, cadascun una sola vegada: Workbox no
+    // baixa dues vegades una entrada repetida. Quan això falli, la pregunta no
+    // és com tornar-hi a cabre sinó qui ha de baixar el que s'hi ha afegit.
+    let total = 0
+    for (const file of precached)
+      total += gzipSync(readFileSync(join(out, file)), { level: 9 }).length
+    expect(total, `${(total / 1000).toFixed(1)} KB`).toBeLessThan(400_000)
   })
 
   it('leaves the two install icons to the browser, and keeps the ones a page or a push uses', () => {

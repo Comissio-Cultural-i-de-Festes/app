@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router'
 
 import App from './App'
 import { ErrorBoundary } from './features/shell/ErrorBoundary'
+import { ScrollToTop } from './features/shell/ScrollToTop'
 import './i18n'
 import { QueryProvider } from './lib/QueryProvider'
 import { setupPwa } from './lib/pwa'
@@ -18,6 +19,7 @@ createRoot(container).render(
         que peti muntant-los, que és quan no hi hauria res per a ensenyar. */}
     <ErrorBoundary>
       <BrowserRouter>
+        <ScrollToTop />
         <QueryProvider>
           <App />
         </QueryProvider>

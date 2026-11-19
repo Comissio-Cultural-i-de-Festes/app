@@ -60,7 +60,7 @@ export function DashboardScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-14">
-      <JuntaHeader to="/junta" label={t('junta.back')} className="lg:hidden" />
+      <JuntaHeader viaHistory to="/junta" label={t('junta.back')} className="lg:hidden" />
 
       <div className={`pt-8 ${GUTTER}`}>
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">

@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams, useSearchParams } from 'react-router'
+import { useParams, useSearchParams } from 'react-router'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import { APP_TIME_ZONE, formatDateTime } from '@/i18n/format'
@@ -20,6 +20,7 @@ import { EventPreview, type PreviewData } from './EventPreview'
 import { GeoPicker } from './GeoPicker'
 import { HoresStrip } from './HoresStrip'
 import { Notice } from '@/ui/Notice/Notice'
+import { useBack } from '@/lib/useBack'
 
 import { Field, INPUT } from './formBits'
 import { JuntaHeader } from './JuntaHeader'
@@ -82,7 +83,7 @@ export function EventFormScreen() {
 function EventForm() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
-  const navigate = useNavigate()
+  const { back } = useBack('/junta')
   const client = useQueryClient()
   const { id } = useParams()
   const editing = id !== undefined && id !== 'nou'
@@ -176,7 +177,7 @@ function EventForm() {
     },
     onSuccess: async () => {
       await invalidateData(client)
-      void navigate('/junta', { replace: true })
+      back()
     },
   })
 
@@ -257,6 +258,7 @@ function EventForm() {
       ) : null}
 
       <JuntaHeader
+        viaHistory
         to="/junta"
         className="lg:hidden"
         label={t('junta.form.leaveIt')}
@@ -890,13 +892,13 @@ function blankToNull(value: string): string | null {
  */
 function DeleteEvent({ eventId }: { readonly eventId: string }) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const { back } = useBack('/junta')
   const [asking, setAsking] = useState(false)
 
   const remove = useMutation({
     mutationFn: () => deleteEvent(eventId),
     onSuccess: () => {
-      void navigate('/junta', { replace: true })
+      back()
     },
   })
 

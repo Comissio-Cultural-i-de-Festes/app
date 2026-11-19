@@ -51,6 +51,7 @@ import { Cover, Fact, Places } from './detail'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { DOOR_PHOTOS } from '@/lib/storage'
 import { useSignedUrls } from '@/lib/useSignedUrls'
+import { useBack } from '@/lib/useBack'
 
 import { AnswerNote } from './AnswerNote'
 import { CalendarOffer, CalendarRow } from './Calendar'
@@ -94,6 +95,7 @@ export function EventScreen() {
   const client = useQueryClient()
   const { id = '' } = useParams()
   const { hash: locationHash } = useLocation()
+  const { onClick: goBack } = useBack()
 
   // One reading of the clock for the whole screen, taken once. Calling
   // Date.now() twice during a render can put "already happened" and "signed up
@@ -158,6 +160,7 @@ export function EventScreen() {
         <p className="mt-6 text-fg-muted [text-wrap:pretty]">{t('event.gone.body')}</p>
         <Link
           to="/"
+          onClick={goBack}
           className="-ml-2 mt-8 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-brand-label"
         >
           {t('event.gone.back')}
@@ -214,6 +217,7 @@ export function EventScreen() {
       {isMeeting ? (
         <JuntaHeader
           to="/"
+          viaHistory
           label={t('nav.home')}
           aside={
             <span className="eyebrow-sm flex-none rounded-xs border border-surface-8 px-4 py-3 text-fg-muted">
@@ -228,6 +232,7 @@ export function EventScreen() {
           corner={
             <Link
               to="/"
+              onClick={goBack}
               aria-label={t('actions.back')}
               className="grid size-[44px] place-items-center rounded-full bg-[oklch(0.15_0.012_25/0.7)] text-2xl text-fg backdrop-blur-[6px]"
             >

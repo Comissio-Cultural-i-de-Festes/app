@@ -240,11 +240,11 @@
       "lead": "Hi ha una nit el {{when}}. Encara no podem dir què és, ni on, ni quant.",
       "notYet": "Encara no",
       "notify": "Avisa'm",
-      "notifySub": "No és apuntar-se: encara no hi ha res a què apuntar-se. És dir-nos que t'ho enviem el primer.",
+      "notifySub": "No és apuntar-se: encara no hi ha res a què apuntar-se. És dir-nos que t'ho enviem abans que a ningú.",
       "notifySubShort": "Encara no es pot dir què és. El dia que s'obri, seràs dels primers a saber-ho.",
       "waiting_one": "hi està pendent",
       "waiting_other": "hi estan pendents",
-      "done_one": "Fet. Ets el primer que ho sabrà.",
+      "done_one": "Fet. Ho sabràs abans que ningú.",
       "done_other": "Fet. Ets dels {{count}} que ho sabran primer.",
       "doneSub": "Ho tindràs a l'Inici, destacat, la primera vegada que obris l'app.",
       "undo": "Millor no m'avisis",
@@ -267,7 +267,7 @@
       "until": "{{from}} fins a les {{to}}"
     },
     "full": "Ple del tot",
-    "fullNoQueue": "Encara no hi ha ningú esperant. Apunta-t'hi i seràs el primer si algú es fa enrere.",
+    "fullNoQueue": "Encara no hi ha ningú esperant. Apunta-t'hi i, si algú es fa enrere, la plaça és teva.",
     "fullWithQueue_one": "Hi ha {{count}} persona esperant. La gent es fa enrere sempre.",
     "fullWithQueue_other": "Hi ha {{count}} esperant. La gent es fa enrere sempre.",
     "wereThere": "hi vam ser",
@@ -428,12 +428,12 @@
     },
     "upcoming": {
       "title": "Què més ve",
-      "thatIsAll": "I després, ara mateix res. Tranquil, ja caurà alguna cosa.",
-      "none": "Ara mateix no hi ha res més apuntat. Tranquil, ja caurà alguna cosa."
+      "thatIsAll": "I després, ara mateix res. Sense pressa, ja caurà alguna cosa.",
+      "none": "Ara mateix no hi ha res més apuntat. Sense pressa, ja caurà alguna cosa."
     },
     "empty": {
       "title": "Ara mateix, res",
-      "body": "No hi ha res al calendari. Tranquil, ja caurà alguna cosa."
+      "body": "No hi ha res al calendari. Sense pressa, ja caurà alguna cosa."
     }
   },
   "inside": {
@@ -690,7 +690,7 @@
       "body": "És el quadradet amb la fletxa cap amunt. Segons l'iPhone, és a la barra de baix o a la de dalt, al costat de l'adreça. Si no el veus, toca els tres puntets."
     },
     "step2": {
-      "title": "Busca \"Afegeix a la pantalla d'inici\"",
+      "title": "Busca «Afegeix a la pantalla d'inici»",
       "body": "Baixa per la llista; en alguns iPhone és dins de «Més». Després, toca Afegeix.",
       "sheetTarget": "Afegeix a la pantalla d'inici"
     },
@@ -963,7 +963,7 @@
     "soci": {
       "backLabel": "La seva fitxa",
       "publicProfile": "Veure el seu perfil",
-      "publicProfileSub": "El que qualsevol soci veu d'ell.",
+      "publicProfileSub": "El que qualsevol soci veu d'aquesta persona.",
       "ledger": {
         "title": "El registre de punts",
         "total": "Total de sempre: {{total}}",
@@ -1151,7 +1151,7 @@
     },
     "audit": {
       "title": "El registre",
-      "lede": "Qui ha fet què, i quan. Serveix per saber qui va nomenar un admin i per respondre si algú demana què teniu sobre ell.",
+      "lede": "Qui ha fet què, i quan. Serveix per saber qui va nomenar un admin i per respondre si algú demana quines dades seves teniu.",
       "unknown": "Algú que ja no hi és",
       "unknownTarget": "algú que ja no hi és",
       "other": "{{actor}} ha fet una cosa: {{accio}}",
@@ -1681,7 +1681,7 @@
       "label": "Telèfon",
       "prefix": "+34",
       "placeholder": "600 00 00 00",
-      "why": "Només per afegir-te al grup de WhatsApp. No surt al teu perfil ni el veu ningú més que la comi.",
+      "why": "Només per afegir-te al grup de WhatsApp. No surt al teu perfil ni el veu ningú més que la junta.",
       "invalid": "Aquest número no acaba de quadrar. Deixa-ho en blanc si no el vols posar."
     },
     "instagram": {
@@ -1981,7 +1981,7 @@
     "you": "Tu vas {{position}} de {{total}}",
     "youSub": "Encara hi ets a temps, eh",
     "schools": "Escoles",
-    "schoolsLede": "Tot el que fas suma per la teva escola, tant si vas 3r com 60è.",
+    "schoolsLede": "Tot el que fas suma per la teva escola, tant si ets al lloc 3 com al 60.",
     "schoolFoot_one": "{{members}} membres · {{count}} esdeveniment",
     "schoolFoot_other": "{{members}} membres · {{count}} esdeveniments",
     "yours": "la teva",
@@ -2046,7 +2046,7 @@
     "offerCta": "Ofereix el cotxe",
     "pointsLater": "Els {{points}} són per la gent que puges, i te'ls posem quan torneu.",
     "onlyOne": "De moment n'hi ha un. Ja n'apareixeran més, però aquest ja hi va segur.",
-    "beFirst": "Sigues el primer i tria seient. Els altres cotxes surten quan hi ha gent: sempre passa igual.",
+    "beFirst": "Comença tu i tria seient. Els altres cotxes surten quan hi ha gent: sempre passa igual.",
     "emptyTitle": "Encara no hi ha cap cotxe",
     "emptyLede": "Si tens cotxe, digues-ho ara: la gent s'apunta al viatge abans que a la casa.",
     "emptyFoot": "Portar gent són {{points}} i no cal que beguis res per fer-los.",
@@ -2073,14 +2073,14 @@
     "holdFor": "Per a qui",
     "holdNote": "Li guardes el seient i hi puja quan vulgui.",
     "held": "Guardada",
-    "invited": "Convidat",
+    "invited": "Amb invitació",
     "inviteSearch": "Busca pel nom",
     "inviteNobody": "No queda ningú per convidar: o ja van en un cotxe, o hi ets tu.",
     "yourSeat": "Et guarden una plaça",
     "yourSeatSub": "{{who}} t’ha guardat un seient. Puja-hi si hi vas.",
     "takeIt": "Hi pujo",
     "declineIt": "No hi vaig",
-    "invitedOk": "Plaça guardada. Ara li toca a ell."
+    "invitedOk": "Plaça guardada. Ara li toca decidir."
   },
   "scanner": {
     "ok": "Fitxat. Ja és dins",

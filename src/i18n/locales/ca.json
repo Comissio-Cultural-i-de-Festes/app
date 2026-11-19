@@ -23,7 +23,9 @@
     "body": "No hauria de passar. Torna-ho a carregar i, si segueix igual, digues-ho a la junta.",
     "staleTitle": "Hi ha una versió nova",
     "staleBody": "S'ha actualitzat l'app mentre la tenies oberta. Torna-ho a carregar i hi seràs on eres.",
-    "reload": "Torna-ho a carregar"
+    "reload": "Torna-ho a carregar",
+    "offlineTitle": "Sense cobertura",
+    "offlineBody": "Aquesta part de l'app encara no és al mòbil, i sense xarxa no es pot baixar. Torna-ho a provar quan tinguis cobertura."
   },
   "door": {
     "checkedIn": "{{count}} fitxats de {{total}}",
@@ -724,6 +726,9 @@
     "back": "Junta",
     "scan": "Escanejar",
     "givePoints": "Donar punts",
+    "needsSignalTitle": "Aquesta pantalla necessita cobertura",
+    "needsSignalBody": "Encara no és al mòbil, i sense xarxa no es pot baixar. La porta sí que funciona sense xarxa.",
+    "needsSignalBack": "Torna a la zona junta",
     "newEvent": "Crear esdeveniment",
     "newEventSub": "O copiar-ne un d’abans i canviar-hi la data",
     "invitesSub": "El codi del grup i qui vol entrar",

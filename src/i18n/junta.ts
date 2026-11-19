@@ -12,20 +12,31 @@ import { SUPPORTED_LOCALES } from './locales'
  * door has to open with no signal after any deploy.
  *
  * One promise per language, kept, so that `use()` sees the same one on every
- * render and a second screen does not fetch again. One that failed is
- * forgotten, so the next screen tries again rather than inheriting the error.
+ * render and a second screen does not fetch again.
+ *
+ * ONE THAT FAILED IS KEPT TOO, until the connection comes back. It used to be
+ * forgotten straight away so that the next screen would try again, and with no
+ * signal that never ended: React renders a suspended screen again when its
+ * promise settles, the render asked for a fresh promise, that one failed as
+ * well, and so on. The screen never got to say it needs a connection, and the
+ * one before it stayed on screen. Kept, the failure reaches
+ * `JuntaScreenBoundary` like a screen chunk that is not on the phone. What
+ * forgets it is the browser saying it is online again; with a connection that
+ * does not answer, the boundary reloads once, as it does for a screen.
  */
 
 export type JuntaLoaders = Readonly<Record<string, (() => Promise<ResourceKey>) | undefined>>
 
-export type JuntaStrings = (
-  i18n: Pick<I18n, 'addResourceBundle'>,
-  language: string,
-) => Promise<void>
+export interface JuntaStrings {
+  (i18n: Pick<I18n, 'addResourceBundle'>, language: string): Promise<void>
+  /** Lets the languages that failed be asked for again. */
+  readonly forgetFailures: () => void
+}
 
 export function juntaStringsFrom(loaders: JuntaLoaders): JuntaStrings {
   const loading = new Map<string, Promise<void>>()
-  return (i18n, language) => {
+  const failed = new Set<string>()
+  const strings = (i18n: Pick<I18n, 'addResourceBundle'>, language: string) => {
     const known = loading.get(language)
     if (known !== undefined) return known
 
@@ -40,13 +51,18 @@ export function juntaStringsFrom(loaders: JuntaLoaders): JuntaStrings {
               i18n.addResourceBundle(language, 'translation', strings, true, true)
             },
             (error: unknown) => {
-              loading.delete(language)
+              failed.add(language)
               throw error
             },
           )
     loading.set(language, promise)
     return promise
   }
+  const forgetFailures = () => {
+    for (const language of failed) loading.delete(language)
+    failed.clear()
+  }
+  return Object.assign(strings, { forgetFailures })
 }
 
 const pieces = import.meta.glob<ResourceKey>('./locales/*.json', {
@@ -59,6 +75,10 @@ export const juntaStrings = juntaStringsFrom(
     SUPPORTED_LOCALES.map((locale) => [locale, pieces[`./locales/${locale}.json`]]),
   ),
 )
+
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', juntaStrings.forgetFailures)
+}
 
 /**
  * Ahead of time, for the language on screen. For the service worker to keep a

@@ -54,7 +54,22 @@ describe('the junta strings', () => {
     expect(fetch).toHaveBeenCalledOnce()
   })
 
-  it('try again after a failure instead of handing the old error back', async () => {
+  it('keep a failure, so that a screen that renders again does not ask again', async () => {
+    // Amb una promesa nova a cada intent, React tornava a pintar la pantalla
+    // quan fallava, la pantalla en demanava una altra, i sense xarxa no
+    // s'acabava mai: no arribava a dir que calia xarxa.
+    const i18n = await instance('ca', {})
+    const missing = new TypeError('Failed to fetch dynamically imported module')
+    const fetch = vi.fn<() => Promise<ResourceKey>>().mockRejectedValue(missing)
+    const load = juntaStringsFrom({ ca: fetch })
+
+    const first = load(i18n, 'ca')
+    await expect(first).rejects.toBe(missing)
+    expect(load(i18n, 'ca')).toBe(first)
+    expect(fetch).toHaveBeenCalledOnce()
+  })
+
+  it('try again once the failures are forgotten, which is what coming back online does', async () => {
     const i18n = await instance('ca', {})
     const missing = new TypeError('Failed to fetch dynamically imported module')
     const fetch = vi
@@ -64,10 +79,23 @@ describe('the junta strings', () => {
     const load = juntaStringsFrom({ ca: fetch })
 
     await expect(load(i18n, 'ca')).rejects.toBe(missing)
+    load.forgetFailures()
     await load(i18n, 'ca')
 
     expect(fetch).toHaveBeenCalledTimes(2)
     expect(i18n.t('junta.audit.heading')).toBe('Registre')
+  })
+
+  it('forget only the failures, not what arrived', async () => {
+    const i18n = await instance('ca', {})
+    const fetch = vi.fn(() => Promise.resolve({ junta: {} }))
+    const load = juntaStringsFrom({ ca: fetch })
+
+    const first = load(i18n, 'ca')
+    await first
+    load.forgetFailures()
+
+    expect(load(i18n, 'ca')).toBe(first)
   })
 
   it('ask for nothing in a language there is no file for', async () => {

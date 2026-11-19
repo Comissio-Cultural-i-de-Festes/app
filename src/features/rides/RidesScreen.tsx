@@ -78,6 +78,7 @@ export function RidesScreen() {
   return (
     <main className="with-tabbar min-h-dvh bg-app">
       <JuntaHeader
+        viaHistory
         to={`/esdeveniment/${id}`}
         label={event.data?.titulo ?? t('actions.back')}
         title={t('rides.title')}
@@ -117,11 +118,6 @@ export function RidesScreen() {
         <>
           <p className={`pt-9 text-sm text-fg-muted ${GUTTER}`}>{t('rides.loading')}</p>
           <RidesSkeleton />
-          <p
-            className={`pt-6 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
-          >
-            {t('rides.loadingNote')}
-          </p>
         </>
       ) : rides.isError ? (
         <Failed error={rides.error} onRetry={() => void rides.refetch()} />
@@ -332,9 +328,6 @@ function Empty({ points, eventId }: { readonly points: string; readonly eventId:
           {t('rides.emptyFoot', { points })}
         </p>
       )}
-      <p className="mt-8 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-        {t('rides.emptyNote')}
-      </p>
     </section>
   )
 }

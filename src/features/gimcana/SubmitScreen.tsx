@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { isPermanent } from '@/lib/db'
@@ -9,6 +9,7 @@ import { errorKey } from '@/lib/errors'
 import { useAvailability } from '@/lib/useAvailability'
 import { UnreadableImage } from '@/lib/storage'
 import { Notice } from '@/ui/Notice/Notice'
+import { useBack } from '@/lib/useBack'
 
 import { fetchGimcana, gimcanaKeys, isQueued, NotSaved, submitProva } from './api'
 import { useProvesQueue } from './useProvesQueue'
@@ -34,7 +35,7 @@ const GUTTER = 'px-[var(--ds-gutter)]'
 export function SubmitScreen() {
   const { t } = useTranslation()
   const { id = '', provaId = '' } = useParams()
-  const navigate = useNavigate()
+  const { back } = useBack(`/esdeveniment/${id}/gimcana`)
   const client = useQueryClient()
   const picker = useRef<HTMLInputElement>(null)
   // Els dos van junts, i el blob-URL es crea al gestor que ha triat la foto —
@@ -75,7 +76,7 @@ export function SubmitScreen() {
     onSuccess: async (estat) => {
       await client.invalidateQueries({ queryKey: gimcanaKeys.all() })
       if (estat === 'enviada' || estat === 'ja_enviada' || estat === 'ja_feta') {
-        void navigate(`/esdeveniment/${id}/gimcana`, { replace: true })
+        back()
       }
     },
   })
@@ -95,12 +96,12 @@ export function SubmitScreen() {
     // prova, la nostra encara espera i l'avís és cert.
     if (!isInQueue) return
     void isQueued(provaId).then((waiting) => {
-      if (!waiting) void navigate(`/esdeveniment/${id}/gimcana`, { replace: true })
+      if (!waiting) back()
     })
   })
   return (
     <main className="min-h-dvh bg-app pb-10">
-      <JuntaHeader to={`/esdeveniment/${id}/gimcana`} label={t('gimcana.title')} />
+      <JuntaHeader viaHistory to={`/esdeveniment/${id}/gimcana`} label={t('gimcana.title')} />
 
       <div className={GUTTER}>
         {/* «Aquesta prova ja no hi és» només quan la gimcana ha arribat i no

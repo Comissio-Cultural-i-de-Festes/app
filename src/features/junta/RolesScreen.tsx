@@ -93,6 +93,7 @@ export function RolesScreen() {
   return (
     <main className="min-h-dvh bg-app pb-14">
       <JuntaHeader
+        viaHistory
         to="/junta"
         label={t('junta.back')}
         title={t('junta.roles.title')}

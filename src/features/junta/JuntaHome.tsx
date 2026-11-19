@@ -121,6 +121,7 @@ export function JuntaHome() {
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+24px)]">
       <JuntaHeader
+        viaHistory
         to="/perfil"
         label={t('nav.profile')}
         title={t('junta.title')}

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router'
+import { useBack } from '@/lib/useBack'
 
 /**
  * El marc de les dues pantalles legals, i el que tenen en comú.
@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router'
  * Per això les seves rutes viuen davant del porter de `App.tsx` i no dins de
  * l'arbre de rutes de sempre.
  *
- * I PER AIXÒ EL BOTÓ D'ENRERE ÉS `navigate(-1)` I NO UNA RUTA. Des del perfil
+ * I PER AIXÒ EL BOTÓ D'ENRERE VA PER L'HISTORIAL I NO UNA RUTA. Des del perfil
  * s'ha de tornar al perfil, des de l'alta a l'alta i des de la porta a la
  * porta —i la porta no és cap ruta, o sigui que no hi ha cap `to` que hi
  * apunti—. L'historial sap tornar als tres llocs i nosaltres no.
@@ -30,7 +30,7 @@ export function LegalShell({
   readonly children: ReactNode
 }) {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const { back } = useBack()
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+40px)]">
@@ -39,7 +39,7 @@ export function LegalShell({
       >
         <button
           type="button"
-          onClick={() => void navigate(-1)}
+          onClick={back}
           className="-ml-2 min-h-[44px] px-2 text-md font-bold text-fg-secondary"
         >
           <span aria-hidden="true">‹ </span>

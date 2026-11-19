@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 
 import { doorKeys } from '@/features/door/api'
 import { eventKeys, fetchEvent } from '@/features/event/api'
@@ -11,6 +11,7 @@ import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { useUserId } from '@/features/session/useUserId'
 import { APP_TIME_ZONE } from '@/i18n/format'
 import { errorKey } from '@/lib/errors'
+import { useBack } from '@/lib/useBack'
 
 import { type Sentit, offerRide, rideKeys } from './api'
 import { rideReward } from './reward'
@@ -34,9 +35,9 @@ const LEAD_MS = 90 * 60 * 1000
 
 export function OfferRideScreen() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
   const { eventId } = useParams()
   const id = eventId ?? ''
+  const { back } = useBack(`/esdeveniment/${id}/cotxes`)
   const meId = useUserId()
   const client = useQueryClient()
 
@@ -79,7 +80,7 @@ export function OfferRideScreen() {
       }),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: rideKeys.list(id) })
-      await navigate(`/esdeveniment/${id}/cotxes`)
+      back()
     },
   })
 
@@ -103,6 +104,7 @@ export function OfferRideScreen() {
   return (
     <main className="with-tabbar min-h-dvh bg-app">
       <JuntaHeader
+        viaHistory
         to={`/esdeveniment/${id}/cotxes`}
         label={t('rides.title')}
         title={t('rides.offerShort')}

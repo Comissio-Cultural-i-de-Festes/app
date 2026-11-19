@@ -6,13 +6,18 @@
 -- prova seva, i la junta la veia i la validava.
 --
 -- Ara el camí ha de ser exactament `<prova>/<qui>/<uuid>.jpg`, el que fa el
--- client, i ha de ser al bucket. Si no, 22023 amb la pista `prova_foto`, i no
--- s'escriu res: ni l'enviament ni, en mode lliure, l'equip on hauria caigut.
+-- client, i ha de ser al bucket. Si no, 22023 amb la pista `prova_foto`.
+--
+-- L'ORDRE TAMBÉ ES PROVA. La comprovació va abans de la idempotència i abans
+-- de «tancada»: un camí dolent no rep «ja enviada» encara que porti un
+-- identificador de petició que ja ha entrat, ni «tancada» per una gimcana que
+-- encara no ha obert. I amb un camí bo, els estats d'abans continuen sortint:
+-- `tancada`, `no_hi_es` i `sense_equip`.
 --
 -- Persones, activitats i proves inventades, com a tot el repo.
 
 begin;
-select plan(18);
+select plan(20);
 
 reset role;
 
@@ -26,23 +31,27 @@ grant select on qui to authenticated;
 create temporary table que as
 select
   '00000000-0000-4000-8000-000000009501'::uuid as escoles,
-  '00000000-0000-4000-8000-000000009502'::uuid as lliure;
+  '00000000-0000-4000-8000-000000009502'::uuid as sorteig,
+  '00000000-0000-4000-8000-000000009503'::uuid as dema;
 grant select on que to authenticated;
 
 insert into public.events (id, tipo, starts_at, puntos, published)
 values
   ((select escoles from que), 'fiesta', now() - interval '1 hour', 10, true),
-  ((select lliure from que),  'fiesta', now() - interval '1 hour', 10, true);
+  ((select sorteig from que), 'fiesta', now() - interval '1 hour', 10, true),
+  ((select dema from que),    'fiesta', now() + interval '1 day', 10, true);
 
 insert into public.event_title (event_id, titulo)
 values
   ((select escoles from que), 'Festa Inventada de les Escoles'),
-  ((select lliure from que),  'Festa Inventada Lliure')
+  ((select sorteig from que), 'Festa Inventada del Sorteig'),
+  ((select dema from que),    'Festa Inventada de Demà')
 on conflict (event_id) do update set titulo = excluded.titulo;
 
 insert into public.event_details (event_id, ends_at) values
   ((select escoles from que), now() + interval '4 hours'),
-  ((select lliure from que),  now() + interval '4 hours')
+  ((select sorteig from que), now() + interval '4 hours'),
+  ((select dema from que),    now() + interval '1 day 4 hours')
 on conflict (event_id) do update set ends_at = excluded.ends_at;
 
 select tests.authenticate_as('junta_alfa');
@@ -52,9 +61,15 @@ select public.admin_save_gimcana(
   '[{"titol":"La foto de grup inventada","punts":10,"ordre":1},
     {"titol":"Una cançó inventada","punts":20,"ordre":2}]'::jsonb);
 
+-- En mode sorteig els equips no hi són fins que la junta remena, i aquí no
+-- remena ningú: és el cas de `sense_equip`.
 select public.admin_save_gimcana(
-  (select lliure from que), 'lliure',
-  '[{"titol":"Una prova lliure inventada","punts":10,"ordre":1}]'::jsonb);
+  (select sorteig from que), 'sorteig',
+  '[{"titol":"Una prova de sorteig inventada","punts":10,"ordre":1}]'::jsonb);
+
+select public.admin_save_gimcana(
+  (select dema from que), 'escoles',
+  '[{"titol":"Una prova de demà inventada","punts":10,"ordre":1}]'::jsonb);
 
 reset role;
 
@@ -65,35 +80,47 @@ select
   (select pr.id from public.gimcana_proves pr join public.gimcanes g on g.id = pr.gimcana_id
     where g.event_id = (select escoles from que) and pr.titol = 'Una cançó inventada') as canco,
   (select pr.id from public.gimcana_proves pr join public.gimcanes g on g.id = pr.gimcana_id
-    where g.event_id = (select lliure from que)) as lliure,
-  (select g.id from public.gimcanes g where g.event_id = (select lliure from que)) as g_lliure;
+    where g.event_id = (select sorteig from que)) as sorteig,
+  (select pr.id from public.gimcana_proves pr join public.gimcanes g on g.id = pr.gimcana_id
+    where g.event_id = (select dema from que)) as dema,
+  '00000000-0000-4000-8000-0000000095ff'::uuid as cap;
 grant select on p to authenticated;
-
-select tests.authenticate_as('junta_alfa');
-select public.admin_save_teams((select g_lliure from p), array['Els Inventats', 'Els Altres']);
-reset role;
 
 -- Les fotos, com les deixaria el servei d'storage després de la pujada.
 create temporary table f as
 select
-  format('%s/%s/%s.jpg', (select grup from p),   (select alfa from qui),
+  format('%s/%s/%s.jpg', (select grup from p),    (select alfa from qui),
          '00000000-0000-4000-8000-00000000f501') as alfa_grup,
-  format('%s/%s/%s.jpg', (select canco from p),  (select alfa from qui),
+  format('%s/%s/%s.jpg', (select canco from p),   (select alfa from qui),
          '00000000-0000-4000-8000-00000000f502') as alfa_canco,
-  format('%s/%s/%s.jpg', (select grup from p),   (select bravo from qui),
+  format('%s/%s/%s.jpg', (select grup from p),    (select bravo from qui),
          '00000000-0000-4000-8000-00000000f503') as bravo_grup,
-  format('%s/%s/%s.jpg', (select lliure from p), (select alfa from qui),
-         '00000000-0000-4000-8000-00000000f504') as alfa_lliure,
-  format('%s/%s/%s.jpg', (select grup from p),   (select alfa from qui),
+  format('%s/%s/%s.jpg', (select sorteig from p), (select alfa from qui),
+         '00000000-0000-4000-8000-00000000f504') as alfa_sorteig,
+  format('%s/%s/%s.jpg', (select dema from p),    (select alfa from qui),
+         '00000000-0000-4000-8000-00000000f505') as alfa_dema,
+  format('%s/%s/%s.jpg', (select dema from p),    (select bravo from qui),
+         '00000000-0000-4000-8000-00000000f506') as bravo_dema,
+  -- Una prova que no existeix, amb la foto pujada: la política d'insert del
+  -- bucket no mira la primera carpeta, o sigui que el client la puja abans de
+  -- saber que la prova ja no hi és.
+  format('%s/%s/%s.jpg', (select cap from p),     (select alfa from qui),
+         '00000000-0000-4000-8000-00000000f507') as alfa_cap,
+  format('%s/%s/%s.jpg', (select cap from p),     (select alfa from qui),
+         '00000000-0000-4000-8000-00000000f508') as alfa_cap_mai_pujada,
+  format('%s/%s/%s.jpg', (select grup from p),    (select alfa from qui),
          '00000000-0000-4000-8000-00000000f5ff') as alfa_mai_pujada;
 grant select on f to authenticated;
 
 insert into storage.objects (bucket_id, name, owner)
 values
-  ('gimcana-photos', (select alfa_grup from f),   (select alfa from qui)),
-  ('gimcana-photos', (select alfa_canco from f),  (select alfa from qui)),
-  ('gimcana-photos', (select bravo_grup from f),  (select bravo from qui)),
-  ('gimcana-photos', (select alfa_lliure from f), (select alfa from qui));
+  ('gimcana-photos', (select alfa_grup from f),    (select alfa from qui)),
+  ('gimcana-photos', (select alfa_canco from f),   (select alfa from qui)),
+  ('gimcana-photos', (select bravo_grup from f),   (select bravo from qui)),
+  ('gimcana-photos', (select alfa_sorteig from f), (select alfa from qui)),
+  ('gimcana-photos', (select alfa_dema from f),    (select alfa from qui)),
+  ('gimcana-photos', (select bravo_dema from f),   (select bravo from qui)),
+  ('gimcana-photos', (select alfa_cap from f),     (select alfa from qui));
 
 -- La mateixa foto, però en un altre bucket: el nom coincideix i no compta.
 insert into storage.objects (bucket_id, name, owner)
@@ -195,17 +222,6 @@ select is(
   'i el refús porta la pista `prova_foto`, que és el que la pantalla tradueix'
 );
 
-reset role;
-
-select is(
-  (select count(*)::int from public.gimcana_enviaments
-    where user_id = (select alfa from qui)),
-  0,
-  'i cap dels refusos ha deixat cap fila'
-);
-
-select tests.authenticate_as('alfa');
-
 -- ── la bona ─────────────────────────────────────────────────────────────────
 select is(
   public.submit_prova((select grup from p), (select alfa_grup from f),
@@ -224,37 +240,55 @@ select is(
 reset role;
 
 select is(
-  (select path from public.gimcana_enviaments where user_id = (select alfa from qui)),
+  (select path from public.gimcana_enviaments
+    where user_id = (select alfa from qui) and prova_id = (select grup from p)),
   (select alfa_grup from f),
   'amb el camí que s''ha comprovat'
 );
 
--- ── el refús no escriu res abans ────────────────────────────────────────────
--- En mode lliure, enviar sense equip et fa caure al més petit. Un camí que no
--- passa no ha de deixar ningú apuntat a un equip que no ha triat.
+-- ── l'ordre: abans de la idempotència ──────────────────────────────────────
+-- Amb l'identificador de la que acaba d'entrar i el camí d'un altre, la
+-- resposta és el refús i no «ja enviada».
 select tests.authenticate_as('alfa');
 
 select throws_ok(
-  format('select public.submit_prova(%L, %L)', (select lliure from p), (select bravo_grup from f)),
+  format('select public.submit_prova(%L, %L, %L)', (select grup from p), (select bravo_grup from f),
+         '00000000-0000-4000-8000-00000000f501'),
   '22023', null,
-  'en mode lliure, una foto que no és la seva no passa'
+  'un identificador de petició que ja ha entrat no fa passar el camí d''un altre'
 );
 
-reset role;
-
+-- ── i abans de «tancada» ────────────────────────────────────────────────────
 select is(
-  (select count(*)::int from public.gimcana_membres
-    where gimcana_id = (select g_lliure from p) and user_id = (select alfa from qui)),
-  0,
-  'i no l''ha apuntat a cap equip'
+  public.submit_prova((select dema from p), (select alfa_dema from f)) ->> 'estat',
+  'tancada',
+  'amb la foto bona, una gimcana que encara no ha obert continua dient tancada'
 );
 
-select tests.authenticate_as('alfa');
+select throws_ok(
+  format('select public.submit_prova(%L, %L)', (select dema from p), (select bravo_dema from f)),
+  '22023', null,
+  'però amb la foto d''un altre és el refús, sigui quin sigui l''estat del joc'
+);
 
+-- ── una prova que ja no hi és ───────────────────────────────────────────────
 select is(
-  public.submit_prova((select lliure from p), (select alfa_lliure from f)) ->> 'estat',
-  'enviada',
-  'mentre que amb la seva foto sí que hi cau, i la prova entra'
+  public.submit_prova((select cap from p), (select alfa_cap from f)) ->> 'estat',
+  'no_hi_es',
+  'una prova esborrada, amb la foto que el client acaba de pujar, diu no_hi_es i surt de la cua'
+);
+
+select throws_ok(
+  format('select public.submit_prova(%L, %L)', (select cap from p), (select alfa_cap_mai_pujada from f)),
+  '22023', null,
+  'i sense la foto pujada, la comprovació de l''objecte va primer: és el refús'
+);
+
+-- ── sense equip ─────────────────────────────────────────────────────────────
+select is(
+  public.submit_prova((select sorteig from p), (select alfa_sorteig from f)) ->> 'estat',
+  'sense_equip',
+  'en un sorteig que encara no s''ha fet, la foto bona diu sense_equip com abans'
 );
 
 reset role;

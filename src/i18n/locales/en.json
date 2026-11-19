@@ -926,7 +926,7 @@
         "lede": "Motives are the buttons on the awarding screen. Types only pre-fill a new event and never restate one that already exists.",
         "motius": "Motives",
         "tipus": "Event types",
-        "cantAdd": "New ones cannot be added from here.",
+        "cantAdd": "Neither motives nor event types can be added from here.",
         "rowSub": "What each thing is worth"
       },
       "graus": {
@@ -1032,7 +1032,7 @@
         "surePoints": "{{nombre}} will lose {{punts}} points and drop in the ranking.",
         "sureNoPoints": "No points will be taken: {{nombre}} will not move in the ranking.",
         "sureEscalo": "With this warning, {{nombre}} reaches the “{{estat}}” step: {{queFer}}.",
-        "sureSeen": "{{nombre}} will see it on their profile with the reason you wrote, and the row is never deleted.",
+        "sureSeen": "{{nombre}} will see it on their profile with the reason you wrote, and the notice is never deleted.",
         "sureCta": "Yes, record it",
         "paused": "No connection. It will be recorded on its own once it is back.",
         "done": "Recorded: {{tipus}} for {{nombre}}."
@@ -1366,7 +1366,7 @@
       "paste": "Or paste the coordinates",
       "pasteHint": "For when the search cannot find the place: copy them from anywhere and put them here.",
       "radius": "Radius (m)",
-      "radiusNote": "Fifty metres for a bar, three hundred for a farmhouse. Each phone’s own GPS margin is added to the radius, or people standing in the room would fall outside it.",
+      "radiusNote": "Fifty metres for a bar, three hundred for a farmhouse. Leave some margin: phone GPS is not exact.",
       "metres_one": "{{count}} m",
       "metres_other": "{{count}} m"
     },
@@ -2070,7 +2070,7 @@
     "gone": "That car is no longer there.",
     "hold": "Hold a seat",
     "holdFor": "For whom",
-    "holdNote": "You hold the seat; they take it when they want. Nobody gets in a car because somebody else said so.",
+    "holdNote": "You hold the seat; they take it when they want.",
     "held": "Held",
     "invited": "Invited",
     "inviteSearch": "Search by name",

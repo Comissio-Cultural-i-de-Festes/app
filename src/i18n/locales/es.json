@@ -926,7 +926,7 @@
         "lede": "Los motivos son los botones de dar puntos. Los tipos solo rellenan el valor por defecto de un evento nuevo y nunca reescriben los que ya existen.",
         "motius": "Motivos",
         "tipus": "Tipos de evento",
-        "cantAdd": "Desde aquí no se pueden añadir nuevos.",
+        "cantAdd": "Ni motivos ni tipos de evento se pueden añadir nuevos desde aquí.",
         "rowSub": "Cuánto vale cada cosa"
       },
       "graus": {
@@ -1032,7 +1032,7 @@
         "surePoints": "Se restarán {{punts}} puntos a {{nombre}} y le bajará la posición en el ranking.",
         "sureNoPoints": "No se restará ningún punto: {{nombre}} no se moverá del ranking.",
         "sureEscalo": "Con este aviso, {{nombre}} llega al escalón «{{estat}}»: {{queFer}}.",
-        "sureSeen": "{{nombre}} lo verá en su perfil con el motivo que has escrito, y la fila no se borra nunca.",
+        "sureSeen": "{{nombre}} lo verá en su perfil con el motivo que has escrito, y el aviso no se borra nunca.",
         "sureCta": "Sí, regístralo",
         "paused": "Sin conexión. Se registrará solo cuando vuelva.",
         "done": "Registrado: {{tipus}} para {{nombre}}."
@@ -1252,7 +1252,7 @@
       "soonFailedSub": "Puede que haya y no los veamos. No crees nada nuevo hasta que cargue.",
       "how": "Cómo funciona la comi",
       "howSub": "Los periodos, el baremo, los grados y el registro",
-      "proposalsSub": "Las que ha propuesto la gente, por decidir",
+      "proposalsSub": "Las que ha propuesto la gente, pendientes de decidir",
       "periodsStale": "Los trimestres no cubren el día de hoy",
       "periodsOk": "Cuándo empieza y acaba cada trimestre"
     },
@@ -1269,7 +1269,7 @@
         "never": "Sin ninguna actividad todavía",
         "write": "Escríbele",
         "noPhone": "Sin teléfono",
-        "action": "Recuerda: repartíos la lista, un mensaje personal cada uno. En el grupo no funciona."
+        "action": "Recordad: repartíos la lista, un mensaje personal cada uno. En el grupo no funciona."
       },
       "attendance": {
         "title": "Asistencia a lo largo del curso",
@@ -1366,7 +1366,7 @@
       "paste": "O pega las coordenadas",
       "pasteHint": "Por si la búsqueda no encuentra el sitio: cópialas de donde sea y ponlas aquí.",
       "radius": "Radio (m)",
-      "radiusNote": "Cincuenta metros para un bar, trescientos para una finca. Al radio se le suma el margen del GPS de cada móvil, o habría gente de pie en la sala que no cabría.",
+      "radiusNote": "Cincuenta metros para un bar, trescientos para una finca. Deja algo de margen: el GPS de los móviles no es exacto.",
       "metres_one": "{{count}} m",
       "metres_other": "{{count}} m"
     },
@@ -2070,7 +2070,7 @@
     "gone": "Este coche ya no está.",
     "hold": "Guarda una plaza",
     "holdFor": "Para quién",
-    "holdNote": "Le guardas el asiento; sube él cuando quiera. Nadie sube a un coche porque lo diga otro.",
+    "holdNote": "Le guardas el asiento; sube él cuando quiera.",
     "held": "Guardada",
     "invited": "Invitado",
     "inviteSearch": "Busca por el nombre",

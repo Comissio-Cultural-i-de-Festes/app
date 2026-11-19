@@ -229,7 +229,7 @@ export function MeetingActa({ event }: { readonly event: EventRow }) {
     )
   }
 
-  // Tancada i sense acta: «si no n'hi ha, aquest bloc no hi és».
+  // Tancada i sense acta no hi ha res a mostrar, així que el bloc no es dibuixa.
   if (event.tancada_at !== null) return null
 
   return (

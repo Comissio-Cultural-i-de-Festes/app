@@ -926,7 +926,7 @@
         "lede": "Els motius són els botons de donar punts. Els tipus només omplen el valor per defecte d'un esdeveniment nou i mai no reescriuen els que ja existeixen.",
         "motius": "Motius",
         "tipus": "Tipus d'esdeveniment",
-        "cantAdd": "No se'n poden afegir de nous des d'aquí.",
+        "cantAdd": "Ni motius ni tipus d'esdeveniment se'n poden afegir de nous des d'aquí.",
         "rowSub": "Què val cada cosa"
       },
       "graus": {
@@ -1032,7 +1032,7 @@
         "surePoints": "Es restaran {{punts}} punts a {{nombre}} i li baixarà la posició al rànquing.",
         "sureNoPoints": "No es restarà cap punt: {{nombre}} no es mourà del rànquing.",
         "sureEscalo": "Amb aquest avís, {{nombre}} arriba a l'escaló «{{estat}}»: {{queFer}}.",
-        "sureSeen": "{{nombre}} ho veurà al seu perfil amb el motiu que has escrit, i la fila no s'esborra mai.",
+        "sureSeen": "{{nombre}} ho veurà al seu perfil amb el motiu que has escrit, i l'avís no s'esborra mai.",
         "sureCta": "Sí, registra'l",
         "paused": "Sense connexió. Es registrarà tot sol quan torni.",
         "done": "Registrat: {{tipus}} per a {{nombre}}."
@@ -1269,7 +1269,7 @@
         "never": "Sense cap activitat encara",
         "write": "Escriu-li",
         "noPhone": "Sense telèfon",
-        "action": "Recorda: repartiu-vos la llista, un missatge personal cadascú. Al grup no funciona."
+        "action": "Recordeu: repartiu-vos la llista, un missatge personal cadascú. Al grup no funciona."
       },
       "attendance": {
         "title": "Assistència al llarg del curs",
@@ -1366,7 +1366,7 @@
       "paste": "O enganxa-hi les coordenades",
       "pasteHint": "Per si la cerca no troba el lloc: copia-les d'on sigui i posa-les aquí.",
       "radius": "Radi (m)",
-      "radiusNote": "Cinquanta metres per un bar, tres-cents per una finca. Al radi se li suma el marge del GPS de cada mòbil, o hi hauria gent dreta a la sala que no hi cabria.",
+      "radiusNote": "Cinquanta metres per un bar, tres-cents per una finca. Compta amb una mica de marge: el GPS dels mòbils no és exacte.",
       "metres_one": "{{count}} m",
       "metres_other": "{{count}} m"
     },
@@ -2070,7 +2070,7 @@
     "gone": "Aquest cotxe ja no hi és.",
     "hold": "Guarda una plaça",
     "holdFor": "Per a qui",
-    "holdNote": "Li guardes el seient; hi puja ell quan vulgui. Ningú no puja a un cotxe perquè algú altre ho digui.",
+    "holdNote": "Li guardes el seient; hi puja ell quan vulgui.",
     "held": "Guardada",
     "invited": "Convidat",
     "inviteSearch": "Busca pel nom",

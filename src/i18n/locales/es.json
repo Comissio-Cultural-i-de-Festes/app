@@ -168,6 +168,7 @@
     "notFound": "Esto ya no está.",
     "notAnImage": "Esta foto no la sé leer. Prueba con otra, o hazla desde la cámara.",
     "notSaved": "No se ha podido enviar ni guardar en el móvil, así que no saldrá solo. Vuelve a intentarlo cuando tengas cobertura.",
+    "provaFoto": "Esta foto no ha llegado bien. Vuelve a elegirla y envíala otra vez.",
     "rateLimited": "Demasiados intentos seguidos. Espera un par de minutos y vuelve.",
     "behindServer": "Esto todavía no está disponible: la app se ha actualizado antes que los datos. Vuelve a probar dentro de un rato; si sigue igual, avisa a la junta.",
     "stalled": "La conexión no responde: no llega nada. Vuelve a intentarlo o busca un sitio con más cobertura.",

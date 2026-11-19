@@ -168,6 +168,7 @@
     "notFound": "Això ja no hi és.",
     "notAnImage": "Aquesta foto no la sé llegir. Prova amb una altra, o fes-la des de la càmera.",
     "notSaved": "No s'ha pogut enviar ni desar al telèfon, o sigui que no sortirà sol. Torna-ho a provar quan tinguis cobertura.",
+    "provaFoto": "Aquesta foto no ha arribat bé. Torna-la a triar i envia-la de nou.",
     "rateLimited": "Massa intents seguits. Espera un parell de minuts i torna-hi.",
     "behindServer": "Això encara no està disponible: l'app s'ha actualitzat abans que les dades. Torna-ho a provar d'aquí una estona; si segueix igual, avisa la junta.",
     "stalled": "La connexió no respon: no arriba res. Torna-ho a provar, o busca un lloc amb més cobertura.",

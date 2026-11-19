@@ -1,13 +1,17 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, Outlet, useMatch } from 'react-router'
+import { Navigate, Outlet, useLocation, useMatch } from 'react-router'
 
+import { preloadDoor } from '@/features/door/preload'
 import { JuntaNav } from '@/features/junta/JuntaNav'
 import { PortesRecordadesBlock } from '@/features/junta/PortesRecordadesBlock'
 import { PROFILE_CLOCK, isJunta, useMyProfile } from '@/features/session/useMyProfile'
 import { useAvailability } from '@/lib/useAvailability'
 
 import { GateUnreachable, GateWaiting } from './Gate'
+import { JuntaScreenBoundary } from './JuntaScreenBoundary'
+import { prefetchJunta } from './startPrefetch'
 
 /**
  * The junta area.
@@ -33,6 +37,20 @@ export function JuntaLayout() {
   const view = useAvailability(profile, { clock: PROFILE_CLOCK })
   const scanner = useMatch('/junta/escaner/:eventId')
   const alta = useMatch('/junta/alta/:eventId')
+  const { pathname } = useLocation()
+  const lobby = useMatch({ path: '/junta', end: true })
+  const client = useQueryClient()
+  const juntaProfile = isJunta(profile.data)
+
+  // Només al rebedor. Les altres pantalles de la zona no el necessiten, i
+  // l'escàner té la cua `SCANS` competint per la mateixa barra de cobertura.
+  // Quan s'hi entra des d'una altra pantalla el perfil ja hi és, però les
+  // dades de l'entrada encara no. En arrencada en fred ja les ha demanat la
+  // porta de fora, i això no fa res (la cau les té o ja hi són en vol).
+  const atLobby = lobby !== null
+  useEffect(() => {
+    if (juntaProfile && atLobby) void prefetchJunta(client)
+  }, [client, juntaProfile, atLobby])
 
   // On #root rather than in a component, because the width cap lives on #root
   // and a child cannot widen its own parent.
@@ -43,6 +61,13 @@ export function JuntaLayout() {
       root?.removeAttribute('data-wide')
     }
   }, [])
+
+  // Aquí i no al rebedor: s'hi pot entrar per qualsevol pantalla de la zona, i
+  // el que importa és que la porta quedi baixada abans de ser-hi. El perquè és
+  // a `preload.ts`.
+  useEffect(() => {
+    if (juntaProfile) void preloadDoor()
+  }, [juntaProfile])
 
   // Deciding while the profile is still in flight would bounce every admin
   // out of the door they just came through.
@@ -75,14 +100,22 @@ export function JuntaLayout() {
     )
   }
 
-  if (view.unavailable) return <Outlet />
+  // Cada pantalla, dins de la seva xarxa: una d'escriptori que no és al mòbil,
+  // sense cobertura, ho diu aquí i no recarrega. El perquè, al fitxer.
+  const screen = (
+    <JuntaScreenBoundary key={pathname}>
+      <Outlet />
+    </JuntaScreenBoundary>
+  )
 
-  if (!isJunta(profile.data)) return <Navigate to="/" replace />
+  if (view.unavailable) return screen
+
+  if (!juntaProfile) return <Navigate to="/" replace />
 
   return (
     <>
       <JuntaNav />
-      <Outlet />
+      {screen}
     </>
   )
 }

@@ -23,7 +23,9 @@
     "body": "That should not happen. Reload, and if it keeps happening tell the committee.",
     "staleTitle": "There is a new version",
     "staleBody": "The app updated while you had it open. Reload and you will be where you were.",
-    "reload": "Reload"
+    "reload": "Reload",
+    "offlineTitle": "No signal",
+    "offlineBody": "This part of the app isn't on your phone yet, and it can't be downloaded without signal. Try again once you have signal."
   },
   "door": {
     "checkedIn": "{{count}} of {{total}} in",
@@ -723,6 +725,9 @@
     "back": "Committee",
     "scan": "Scan",
     "givePoints": "Give points",
+    "needsSignalTitle": "This screen needs signal",
+    "needsSignalBody": "It isn't on your phone yet, and it can't be downloaded without signal. The door works offline.",
+    "needsSignalBack": "Back to the committee area",
     "newEvent": "Create an event",
     "newEventSub": "Or copy an earlier one and change the date",
     "invitesSub": "The group code and who wants in",

@@ -3,7 +3,6 @@ import { type ReactNode, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation } from 'react-router'
 
-import { warmDecoder } from '@/features/door/decoder'
 import { fetchPeriods, rankingKeys } from '@/features/ranking/api'
 import { useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
@@ -127,12 +126,6 @@ export function JuntaHome() {
       document.getElementById(hash.slice(1))?.scrollIntoView()
     }
   }, [hash])
-
-  // Fetched here rather than at the door: this screen is opened on the way to
-  // the venue, and the scanner is opened inside it, where there is no signal.
-  useEffect(() => {
-    if (navigator.onLine) void warmDecoder()
-  }, [])
 
   // A quina porta fa porta aquest mòbil, quan n'hi ha més d'una. El perquè de
   // recordar-ho aquí i no a la junta sencera és a `portes.ts`.

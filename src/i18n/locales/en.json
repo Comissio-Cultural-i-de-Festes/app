@@ -168,6 +168,7 @@
     "notFound": "That's not there any more.",
     "notAnImage": "I can't read that photo. Try another one, or take it with the camera.",
     "notSaved": "It couldn't be sent or saved on this phone, so it won't go by itself. Try again when you have signal.",
+    "provaFoto": "That photo didn't come through properly. Pick it again and send it once more.",
     "rateLimited": "Too many tries in a row. Give it a couple of minutes.",
     "behindServer": "This isn't available yet: the app was updated before the data. Try again in a little while; if it stays the same, tell the board.",
     "stalled": "The connection isn't answering: nothing is getting through. Try again, or find somewhere with better signal.",

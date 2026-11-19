@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { isPermanent } from '@/lib/db'
+import { errorKey } from '@/lib/errors'
 import type * as Queue from '@/lib/queue'
 
 /**
@@ -79,6 +81,37 @@ describe('enviar una prova', () => {
     expect(store.size).toBe(0)
   })
 
+  // `submit_prova` (migració 95) només accepta aquest camí, lletra per
+  // lletra: la carpeta de la prova, la de qui envia i un uuid. Si el client
+  // l'escrivís d'una altra manera, totes les proves tornarien un 22023.
+  it('puja i envia el mateix camí, amb la forma que demana el servidor', async () => {
+    getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })
+
+    await submitProva(PROVA, photo)
+
+    const args = rpc.mock.calls[0]?.[1] as { p_path: string; p_client_request_id: string }
+    expect(upload.mock.calls[0]?.[0]).toBe(args.p_path)
+    expect(args.p_path).toBe(`${PROVA}/${USER}/${args.p_client_request_id}.jpg`)
+    expect(args.p_client_request_id).toMatch(
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/,
+    )
+  })
+
+  // Un camí que el servidor no reconeix no és una xarxa caiguda: el botó ho
+  // ha de dir, i no l'avís de «desada, sortirà sola».
+  it('un camí refusat surt com a refús, amb la seva pista', async () => {
+    getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })
+    rpc.mockResolvedValue({
+      data: null,
+      error: { code: '22023', message: 'cami de foto no valid', hint: 'prova_foto' },
+    })
+
+    const err: unknown = await submitProva(PROVA, photo).catch((e: unknown) => e)
+
+    expect(isPermanent(err)).toBe(true)
+    expect(errorKey(err, true)).toBe('errors.provaFoto')
+  })
+
   it('sense sessió no envia res i la foto es queda a la cua', async () => {
     getSession.mockResolvedValue({ data: { session: null }, error: null })
 
@@ -126,6 +159,21 @@ describe('buidar la cua', () => {
     expect(await flushProves()).toBe(0)
 
     expect(store.get('r2')?.tries).toBe(1)
+  })
+
+  // La mateixa foto tornaria a fer el mateix camí: reintentar-la cada quinze
+  // segons seria encallar la cua per sempre.
+  it('un camí de foto refusat també la treu', async () => {
+    store.set('r4', { id: 'r4', tries: 0, provaId: PROVA, photo } as never)
+    getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })
+    rpc.mockResolvedValue({
+      data: null,
+      error: { code: '22023', message: 'cami de foto no valid', hint: 'prova_foto' },
+    })
+
+    expect(await flushProves()).toBe(0)
+
+    expect(store.has('r4')).toBe(false)
   })
 
   it('un refús de la petició mateixa sí que la treu: no entrarà mai', async () => {

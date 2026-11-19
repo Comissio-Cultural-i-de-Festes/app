@@ -34,7 +34,7 @@
     "queuedOffline_one": "{{count}} en la cola, sin red",
     "queuedOffline_other": "{{count}} en la cola, sin red",
     "aim": "Apunta al QR. No hace falta tocar nada.",
-    "manual": "Ficha a mano por el nombre",
+    "manual": "Ficha por el nombre",
     "buzzes": "Vibra en cada QR",
     "unknownPerson": "Este QR",
     "displaced": "Antes, {{nombre}}: {{verdict}}",
@@ -46,14 +46,14 @@
     "heldQr": "Un QR",
     "heldAt": "a las {{hora}}",
     "heldRefused": "no se ha podido aceptar: no ha entrado",
-    "heldRetry": "Vuelve a enviar",
+    "heldRetry": "Vuelve a enviarlo",
     "heldDrop": "Descarta",
     "heldMore": "y {{n}} más",
     "heldLess": "Muestra menos",
     "notPaid": "no ha pagado",
     "camera": {
       "denied": "No podemos abrir la cámara. Dale permiso en los ajustes del navegador —Ajustes › {{app}} › Cámara— y vuelve, o ficha a la gente por el nombre.",
-      "missing": "Este aparato no tiene cámara. Ficha a la gente por el nombre.",
+      "missing": "Este móvil no tiene cámara. Ficha a la gente por el nombre.",
       "failed": "No se ha podido encender la cámara. Ficha a la gente por el nombre."
     },
     "backToScanner": "Escáner",
@@ -296,8 +296,8 @@
     },
     "gone": {
       "title": "Aquí no hay nada",
-      "body": "Este evento ya no está, o todavía no puedes verlo. Vuelve al inicio y mira qué hay.",
-      "back": "Vuelve al inicio"
+      "body": "Este evento ya no está, o todavía no puedes verlo. Vuelve al Inicio y mira qué hay.",
+      "back": "Vuelve al Inicio"
     },
     "said": {
       "yes": "Estás dentro: {{when}}, {{where}}.",
@@ -510,7 +510,7 @@
     },
     "camera": {
       "denied": "No podemos abrir la cámara. Dale permiso en los ajustes del navegador —Ajustes › {{app}} › Cámara— y vuelve, o déjalo: la foto es opcional y ya has fichado.",
-      "missing": "Este aparato no tiene cámara. Ya has fichado igualmente; la foto es lo que te pierdes.",
+      "missing": "Este móvil no tiene cámara. Ya has fichado igualmente; la foto es lo que te pierdes.",
       "failed": "No se ha podido encender la cámara. Vuelve a probarlo, o déjalo: ya has fichado."
     }
   },
@@ -613,7 +613,7 @@
       "action": "Denúnciala",
       "already": "Ya lo has pedido",
       "title": "¿Qué le pasa a esta foto?",
-      "hi_surto": "Salgo en ella y no quiero salir",
+      "hi_surto": "Salgo yo y no quiero aparecer",
       "no_es_d_aquella_nit": "No es de esta noche",
       "altra": "Otra cosa",
       "send": "Envíalo a la junta",
@@ -622,7 +622,7 @@
   },
   "ideas": {
     "title": "Ideas",
-    "lede": "Qué hacemos los días que no hay nada. La junta se mira la que tenga más votos.",
+    "lede": "Qué hacemos los días que no hay nada. La junta estudia la que tenga más votos.",
     "propose": "Propón",
     "count": "{{open}} abiertas · un voto por persona",
     "winning": "Va ganando",
@@ -630,7 +630,7 @@
     "voted": "Votada",
     "accepted": "Aceptada",
     "discarded": "Descartada",
-    "goToEvent": "Ve al evento",
+    "goToEvent": "Ábrelo",
     "hasDate": "{{who}} · ya tiene día: {{when}}",
     "mine": "Las tuyas",
     "mineLede": "Esto solo lo ves tú. Nadie más sabe que te la tumbaron.",
@@ -690,7 +690,7 @@
       "body": "Es el cuadradito con la flecha hacia arriba. Según el iPhone, está en la barra de abajo o en la de arriba, junto a la dirección. Si no lo ves, toca los tres puntitos."
     },
     "step2": {
-      "title": "Busca \"Añadir a pantalla de inicio\"",
+      "title": "Busca «Añadir a pantalla de inicio»",
       "body": "Baja por la lista; en algunos iPhone está dentro de «Más». Después, toca Añadir.",
       "sheetTarget": "Añadir a pantalla de inicio"
     },
@@ -787,7 +787,7 @@
       "queueSub": "En el orden en que se han puesto. Si se libera una plaza, decidís vosotros quién entra.",
       "requests_one": "{{count}} ha pedido plaza",
       "requests_other": "{{count}} han pedido plaza",
-      "requestsSub": "Nadie tiene plaza hasta que le dices que sí. Quien no confirmes se queda esperando: no es lo mismo que decirle que no.",
+      "requestsSub": "Nadie tiene plaza hasta que le dices que sí. Los que no confirmes se quedan esperando: no es lo mismo que decirles que no.",
       "confirmIn": "Que entre",
       "refuse": "Esta vez no",
       "refuseSure": "Si dices que no, {{nombre}} sale de la lista y no vuelve. Confirmarlo no le envía nada.",
@@ -842,18 +842,18 @@
       "previewNoDate": "Pon una hora y se destapará solo",
       "previewHiddenFields": "El sitio, la descripción, la portada y cómo se vuelve: escondidos hasta entonces.",
       "publish": "Publícalo",
-      "publishNow": "Se verá enseguida en el inicio de todos.",
+      "publishNow": "Se verá enseguida en el Inicio de todos.",
       "publishHidden": "Se destapa solo a la hora que has puesto. No tienes que hacer nada más.",
       "saveDraft": "Guarda y cierra",
       "saveChanges": "Guarda los cambios",
-      "saveChangesNote": "Ya está en el inicio de todos: el cambio se ve enseguida.",
+      "saveChangesNote": "Ya está en el Inicio de todos: el cambio se ve enseguida.",
       "live": "Publicado",
       "liveSub_one": "Lo ve {{count}} persona de la comi, ahora mismo.",
       "liveSub_other": "Lo ven {{count}} personas de la comi, ahora mismo.",
       "liveSubPlain": "Lo ve toda la comi, ahora mismo.",
       "draft": "Borrador",
       "draftSub": "No lo ve nadie más que vosotros.",
-      "unpublishAsk": "Si lo despublicas, desaparece del inicio de todos. Los que se han apuntado siguen apuntados.",
+      "unpublishAsk": "Si lo despublicas, desaparece del Inicio de todos. Los que se han apuntado siguen apuntados.",
       "unpublish": "Despublícalo",
       "countdown": "Faltan",
       "leftDaysHours": "{{days}} d {{hours}} h",
@@ -862,7 +862,7 @@
       "delete": "Borra este evento",
       "deleteAsk": "¿Seguro? Desaparece para siempre, con quien se haya apuntado. No se puede deshacer.",
       "deleteConfirm": "Bórralo",
-      "deleteHasPoints": "Este ya tiene puntos dados y no se puede borrar: los puntos se quedarían sin saber de dónde vienen. Despublícalo y desaparece del inicio de todos.",
+      "deleteHasPoints": "Este ya tiene puntos dados y no se puede borrar: los puntos se quedarían sin saber de dónde vienen. Despublícalo y desaparece del Inicio de todos.",
       "preview": "Vista previa",
       "previewLive": "Esto es lo que verá la comi",
       "previewCovered": "Esto es lo que verá la comi hasta que se destape",
@@ -962,7 +962,7 @@
     },
     "soci": {
       "backLabel": "Su ficha",
-      "publicProfile": "Ver su perfil",
+      "publicProfile": "Mira su perfil",
       "publicProfileSub": "Lo que cualquier socio ve de él.",
       "ledger": {
         "title": "El registro de puntos",
@@ -1301,7 +1301,7 @@
     },
     "gimcana": {
       "leave": "Déjalo",
-      "lead": "Va con {{event}}: se destapa cuando empiece y se cierra cuando acabe.",
+      "lead": "Va ligada a {{event}}: se destapa cuando empiece y se cierra cuando acabe.",
       "teamsHow": "Cómo se hacen los equipos",
       "mena": {
         "escoles": "Las tres escuelas",
@@ -1384,7 +1384,7 @@
       "via": {
         "qr": "por QR",
         "ubicacio": "por ubicación",
-        "manual": "fichaje a mano"
+        "manual": "a mano"
       }
     },
     "hores": {
@@ -1474,7 +1474,7 @@
       "going": {
         "title": "Dónde dices que vas",
         "p1": "Cuando dices que vas a algo, sales en la lista de quién va. Cuando entras por la puerta, queda también la hora exacta y si has pagado, y eso lo ve cualquier socio.",
-        "p2": "Sumado, esto es un calendario de tus noches, y cualquier socio puede leerlo. Del ranking sí puedes dejar de salir desde tu perfil: entonces no sales en la lista, pero los puntos siguen sumando para tu escuela y, como las listas de asistencia son abiertas, no es ninguna manera de esconderlos."
+        "p2": "Sumado, esto es un calendario de tus noches, y cualquier socio puede leerlo. Del ranking sí puedes dejar de salir desde tu perfil: entonces no sales en la lista, pero los puntos siguen sumando para tu escuela y, como las listas de asistencia son abiertas, no sirve para esconderlos."
       },
       "photos": {
         "title": "Las fotos",
@@ -2101,7 +2101,7 @@
       "okWalkinReview": "Mira que pague antes de entrar, o apúntalo.",
       "okWalkinReviewFree": "Hay plazas contadas. Apúntalo para que el número cuadre.",
       "okWalkinReviewUnknown": "Apúntalo para que la junta lo pueda cuadrar.",
-      "alreadyCheckedIn": "Ya había pasado. Si insiste, búscalo en el fichaje manual.",
+      "alreadyCheckedIn": "Ya había pasado. Si insiste, búscalo en el fichaje por el nombre.",
       "notAMember": "Que te diga el nombre y lo buscas a mano. No lo dejes pasar sin apuntarlo.",
       "memberInactive": "Que pida entrar. Lo aprobáis mañana desde la zona junta.",
       "eventNotOpen": "Comprueba que es el evento correcto y que está publicado.",

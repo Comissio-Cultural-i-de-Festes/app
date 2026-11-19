@@ -15,8 +15,8 @@ import wasmUrl from 'zxing-wasm/reader/zxing_reader.wasm?url'
  *
  * So the binary ships with the app. It is deliberately NOT precached — a
  * megabyte for two hundred members who will never open the scanner — but a
- * CacheFirst rule keeps it forever once fetched, and the junta screen warms it
- * before anybody walks up to the door.
+ * CacheFirst rule keeps it forever once fetched, and entering the junta area
+ * warms it before anybody walks up to the door (`preload.ts`).
  */
 
 const overrides = {
@@ -34,8 +34,8 @@ export async function loadDetector() {
 /**
  * Fetches the decoder before it is needed.
  *
- * Called from the junta home, which is opened on the way to the door rather
- * than at it. Failure is silent: this is an optimisation, and the scanner
+ * Called on entering the junta area, which happens on the way to the door
+ * rather than at it. Failure is silent: this is an optimisation, and the scanner
  * still works — with signal — without it.
  */
 export async function warmDecoder(): Promise<void> {

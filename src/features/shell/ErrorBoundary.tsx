@@ -2,6 +2,8 @@ import { Component, type ErrorInfo, type ReactNode } from 'react'
 
 import i18n from '@/i18n'
 
+import { isMissingChunk } from './missingChunk'
+
 /**
  * L'única xarxa que hi ha sota tota l'app.
  *
@@ -25,39 +27,29 @@ import i18n from '@/i18n'
  * —amb una marca a `sessionStorage`— perquè si el motiu no era un desplegament
  * sinó que no hi ha cobertura, recarregar en bucle és pitjor que dir-ho.
  *
+ * I MAI SENSE XARXA. Aleshores el tros no ha arribat perquè no hi ha cobertura,
+ * i la recàrrega no el portaria: només perdria el que hi ha a la memòria. A la
+ * porta, això és el perfil, i sense perfil la zona de junta es tanca i el camí
+ * a l'escàner desapareix. Sense xarxa es diu, i es torna a provar a mà.
+ *
  * NO SUBSTITUEIX `errorKey()`. Això és per al que no s'havia previst; una RPC
  * que respon 403 segueix sent una frase a la pantalla i no una caiguda.
  */
 
 const RELOADED = 'comi.chunk.reloaded'
 
-/**
- * Si això és un tros que no ha arribat.
- *
- * Els tres navegadors ho diuen diferent i cap no dona un codi, així que és el
- * text o res. Si un dia canvia la frase, el cas cau al camí general: surt el
- * botó en comptes de recarregar sol, que és una degradació i no una caiguda.
- */
-function isMissingChunk(error: unknown): boolean {
-  const message = error instanceof Error ? error.message : String(error)
-  return (
-    /dynamically imported module/i.test(message) ||
-    /Importing a module script failed/i.test(message) ||
-    /error loading dynamically imported module/i.test(message) ||
-    /Failed to fetch dynamically imported module/i.test(message)
-  )
-}
-
 interface State {
   readonly failed: boolean
   readonly stale: boolean
+  readonly offline: boolean
 }
 
 export class ErrorBoundary extends Component<{ readonly children: ReactNode }, State> {
-  override state: State = { failed: false, stale: false }
+  override state: State = { failed: false, stale: false, offline: false }
 
   static getDerivedStateFromError(error: unknown): State {
-    return { failed: true, stale: isMissingChunk(error) }
+    const missing = isMissingChunk(error)
+    return { failed: true, stale: missing, offline: missing && !navigator.onLine }
   }
 
   override componentDidCatch(error: unknown, info: ErrorInfo): void {
@@ -65,7 +57,7 @@ export class ErrorBoundary extends Component<{ readonly children: ReactNode }, S
     // un per a això voldria dir un tercer més a la política de privadesa.
     console.error('[comi] render error', error, info.componentStack)
 
-    if (isMissingChunk(error) && sessionStorage.getItem(RELOADED) === null) {
+    if (isMissingChunk(error) && navigator.onLine && sessionStorage.getItem(RELOADED) === null) {
       sessionStorage.setItem(RELOADED, '1')
       window.location.reload()
     }
@@ -74,8 +66,11 @@ export class ErrorBoundary extends Component<{ readonly children: ReactNode }, S
   override render(): ReactNode {
     if (!this.state.failed) return this.props.children
 
-    const title = this.state.stale ? i18n.t('crash.staleTitle') : i18n.t('crash.title')
-    const body = this.state.stale ? i18n.t('crash.staleBody') : i18n.t('crash.body')
+    const { stale, offline } = this.state
+    const title = i18n.t(
+      offline ? 'crash.offlineTitle' : stale ? 'crash.staleTitle' : 'crash.title',
+    )
+    const body = i18n.t(offline ? 'crash.offlineBody' : stale ? 'crash.staleBody' : 'crash.body')
 
     return (
       <main className="flex min-h-dvh flex-col justify-center bg-app px-[var(--ds-gutter)]">
@@ -91,7 +86,7 @@ export class ErrorBoundary extends Component<{ readonly children: ReactNode }, S
           }}
           className="mt-9 min-h-[56px] w-full bg-brand-cta px-8 text-lg font-bold text-on-brand [text-wrap:balance]"
         >
-          {i18n.t('crash.reload')}
+          {offline ? i18n.t('actions.retry') : i18n.t('crash.reload')}
         </button>
       </main>
     )

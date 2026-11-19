@@ -52,7 +52,8 @@
  *   - Qui obre l'app en castellà el baixa en arrencar, amb xarxa, i la regla
  *     `chunks` (`vite.config.ts`) el desa. Si la primera visita l'ha baixat abans
  *     que el service worker hi manés, `src/lib/firstControl.ts` el torna a
- *     demanar quan hi mana, i aleshores es desa.
+ *     demanar quan hi mana, també si encara s'estava baixant, i aleshores es
+ *     desa.
  *   - Qui el canvia al perfil el baixa en aquell moment, i es desa igual.
  *   - El nom del tros només canvia quan canvia el fitxer de l'idioma. Si un
  *     desplegament el canvia, `autoUpdate` recarrega la pàgina en activar-se el
@@ -61,8 +62,13 @@
  *
  * El que es perd: triar al perfil, sense cobertura, un idioma que el telèfon
  * no té desat. Surt l'idioma de reserva, en lloc de quedar-se en blanc
- * (`src/i18n/backend.ts`), i el triat surt la primera vegada que hi ha xarxa. Es va considerar baixar els dos idiomes en segon pla després
- * d'instal·lar: és el mateix pes que tenir-los a la precache, només que més tard.
+ * (`src/i18n/backend.ts`). El triat no torna sol quan torna la cobertura: torna
+ * la propera vegada que s'obre o es recarrega l'app amb xarxa. Només si el tros
+ * no falla sinó que triga més de quatre segons, arriba en la mateixa sessió i
+ * la pantalla hi canvia tota sola (`src/i18n/late.ts`).
+ *
+ * Es va considerar baixar els dos idiomes en segon pla després d'instal·lar: és
+ * el mateix pes que tenir-los a la precache, només que més tard.
  *
  * El que surt d'aquí no es perd: el guarda una memòria cau `CacheFirst` la
  * primera vegada que es demana (`vite.config.ts`), i la zona de junta en demana

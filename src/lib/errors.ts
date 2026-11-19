@@ -24,6 +24,10 @@ import { UnreadableImage } from './storage'
  * sense que res es posés vermell.
  */
 const HINTS: Readonly<Record<string, string>> = {
+  // Migració 95: el camí de la foto d'una prova no és el que fa el client, o
+  // la foto no és al bucket. Tornar-ho a provar envia el mateix camí; tornar
+  // a triar la foto la puja de nou.
+  prova_foto: 'errors.provaFoto',
   avis_sostre: 'errors.avisSostre',
   avis_fora_del_curs: 'errors.avisForaDelCurs',
 }

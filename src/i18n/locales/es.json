@@ -202,14 +202,14 @@
     },
     "calendar": {
       "offerTitle": "¿Lo quieres en el calendario del móvil?",
-      "offerBody": "Con la hora, el sitio y un enlace para volver aquí. Si cambiamos la hora, se actualiza.",
+      "offerBody": "Con la hora, el sitio y un enlace para volver aquí. Es un archivo que se abre una vez: si cambiamos la hora, tendrás que volver a bajarlo.",
       "addShort": "Añádelo",
       "add": "Añádelo al calendario",
       "noThanks": "No, gracias",
-      "isThere": "Está en tu calendario",
-      "again": "Vuelve a hacerlo",
+      "isThere": "Archivo descargado",
+      "again": "Vuelve a bajarlo",
       "fromTo": "{{day}}, {{from}} – {{to}}",
-      "cannotRead": "«Vuelve a hacerlo» está porque la app no puede leer el calendario del teléfono: no sabe si la entrada sigue ahí. Dice lo que sabe y te deja hacerlo otra vez, que es inofensivo porque no se duplica.",
+      "cannotRead": "La app no ve el calendario del teléfono, así que no sabe si llegaste a añadir el evento: abre el archivo descargado para hacerlo. Si cambia la hora, vuelve a bajarlo y ábrelo: la entrada se pone al día en vez de duplicarse.",
       "failed": "No hemos podido preparar el archivo. Pruébalo otra vez."
     },
     "teaser": {
@@ -684,15 +684,13 @@
     "title": "Ponla en la pantalla",
     "lede": "Dos toques y la tienes como una app de verdad: se abre al instante, el QR va sin cobertura y no tienes que entrar otra vez cada día.",
     "step1": {
-      "title": "Toca Compartir, abajo",
-      "body": "Es el cuadradito con la flecha hacia arriba, en medio de la barra de Safari."
+      "title": "Toca Compartir",
+      "body": "Es el cuadradito con la flecha hacia arriba. Según el iPhone, está en la barra de abajo o en la de arriba, junto a la dirección. Si no lo ves, toca los tres puntitos."
     },
     "step2": {
-      "title": "Baja hasta \"Añadir a pantalla de inicio\"",
-      "body": "Sale hacia abajo en la lista. Después, Añadir arriba a la derecha.",
-      "sheetAbove": "Añadir a Favoritos",
-      "sheetTarget": "Añadir a pantalla de inicio",
-      "sheetBelow": "Marcar como texto"
+      "title": "Busca \"Añadir a pantalla de inicio\"",
+      "body": "Baja por la lista; en algunos iPhone está dentro de «Más». Después, toca Añadir.",
+      "sheetTarget": "Añadir a pantalla de inicio"
     },
     "payoff": {
       "title": "Qué ganas",

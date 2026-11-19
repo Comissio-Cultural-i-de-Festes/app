@@ -114,6 +114,26 @@ const DOOR = [
   /\/src\/features\/shell\/JuntaLayout\.tsx$/,
 ]
 
+/**
+ * Les pantalles de soci que sense xarxa no fan res, i que per això no hi van.
+ *
+ * Una sola, ara: el formulari de dades de viatger. Les dades no es guarden al
+ * mòbil —ni a la memòria cau, ni a cap cua— i sense xarxa no es poden ni llegir
+ * ni desar (migració 90), o sigui que tenir-lo a la precache només serviria per
+ * pintar un formulari que no pot fer la seva feina. Sense el tros, el que surt
+ * és la pantalla de «cal connexió» de l'`ErrorBoundary`, que és la veritat. Amb
+ * la llista de països són uns 4 KB gzip que no paga cada instal·lació.
+ *
+ * Una llista explícita i no una regla («tot el que necessita xarxa»): gairebé
+ * totes les pantalles en necessiten per a alguna cosa, i deixar-ne una fora
+ * s'ha de decidir pantalla per pantalla, sabent què veurà qui l'obri sense
+ * cobertura.
+ */
+const ONLINE_ONLY = [
+  /\/src\/features\/event\/ViatgerScreen\.tsx$/,
+  /\/src\/features\/event\/paisos\.ts$/,
+]
+
 const normal = (id: string) => id.replaceAll('\\', '/')
 
 export function isJuntaModule(id: string): boolean {
@@ -122,6 +142,10 @@ export function isJuntaModule(id: string): boolean {
 
 export function isDoorModule(id: string): boolean {
   return DOOR.some((door) => door.test(normal(id)))
+}
+
+export function isOnlineOnlyModule(id: string): boolean {
+  return ONLINE_ONLY.some((screen) => screen.test(normal(id)))
 }
 
 /** Un fitxer d'idioma. El que l'entrada importa ja hi va dins, sigui quin sigui. */
@@ -141,6 +165,17 @@ const onlyOf = (chunk: Chunk, belongs: (id: string) => boolean) => {
 /** Si un tros és només de la junta: si en té algun de real i tots ho són. */
 export function isJuntaOnly(chunk: Chunk): boolean {
   return onlyOf(chunk, isJuntaModule)
+}
+
+/**
+ * Si un tros és d'una pantalla que només funciona amb xarxa: en porta alguna, i
+ * la resta és de la junta. Un tros que hi barreja codi d'un altre soci es queda.
+ */
+export function isOnlineOnly(chunk: Chunk): boolean {
+  return (
+    realModules(chunk).some(isOnlineOnlyModule) &&
+    onlyOf(chunk, (id) => isOnlineOnlyModule(id) || isJuntaModule(id))
+  )
 }
 
 /** Si un tros és només un idioma, que és com surt un `import()` d'un JSON. */
@@ -186,7 +221,7 @@ export function keptFiles(bundle: Readonly<Record<string, BundleItem>>): Set<str
       (chunk) =>
         chunk.isEntry ||
         chunk.moduleIds.some(isDoorModule) ||
-        !(isJuntaOnly(chunk) || isLocaleOnly(chunk)),
+        !(isJuntaOnly(chunk) || isLocaleOnly(chunk) || isOnlineOnly(chunk)),
     )
     .map((chunk) => chunk.fileName)
   return closure(bundle, roots)

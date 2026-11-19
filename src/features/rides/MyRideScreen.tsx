@@ -197,7 +197,7 @@ export function MyRideScreen() {
                   aria-label={t('rides.inviteSearch')}
                   placeholder={t('rides.inviteSearch')}
                   autoComplete="off"
-                  className="mt-5 min-h-[48px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-5 text-md font-semibold text-fg outline-none placeholder:font-medium placeholder:text-fg-faint"
+                  className="mt-5 min-h-[48px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-5 text-md font-semibold text-fg outline-none focus:border-brand-strong placeholder:font-medium placeholder:text-fg-faint"
                 />
                 <ul className="mt-4 max-h-[280px] overflow-y-auto">
                   {(candidates.data ?? [])

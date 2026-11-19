@@ -1228,6 +1228,10 @@
     "home": {
       "doorNow": "At the door right now",
       "doorPick": "{{n}} events at the door · pick yours",
+      "recordades": {
+        "title": "Doors saved on {{dia}} at {{hora}}",
+        "note": "These are from the last time there was a connection. The scanner keeps what you check in and uploads it when it is back."
+      },
       "doorYes": "said yes",
       "doorIn": "checked in",
       "doorFree": "places left",

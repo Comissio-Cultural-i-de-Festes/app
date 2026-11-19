@@ -2,14 +2,18 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { recordaPortes } from '@/features/junta/portesRecordades'
+import { UserIdContext } from '@/features/session/context'
+
 import { JuntaLayout } from './JuntaLayout'
 
 /**
- * La porta de la junta sense perfil: tancada, excepte per a l'escàner.
+ * La porta de la junta sense perfil: tancada, excepte per a l'escàner i l'alta,
+ * i amb l'escàner de les portes desades a la mateixa pantalla que la tanca.
  */
 
 vi.mock('react-i18next', () => ({
-  useTranslation: () => ({ t: (key: string) => key }),
+  useTranslation: () => ({ t: (key: string) => key, i18n: { resolvedLanguage: 'ca' } }),
 }))
 vi.mock('@/features/junta/JuntaNav', () => ({ JuntaNav: () => null }))
 
@@ -28,22 +32,28 @@ const paused = {
   refetch: () => Promise.resolve(),
 }
 
+const USER = '00000000-0000-4000-8000-0000000000a1'
+
 function at(path: string) {
   return render(
-    <MemoryRouter initialEntries={[path]}>
-      <Routes>
-        <Route path="/junta" element={<JuntaLayout />}>
-          <Route index element={<p>rebedor</p>} />
-          <Route path="escaner/:eventId" element={<p>escàner</p>} />
-        </Route>
-        <Route path="/" element={<p>inici</p>} />
-      </Routes>
-    </MemoryRouter>,
+    <UserIdContext value={USER}>
+      <MemoryRouter initialEntries={[path]}>
+        <Routes>
+          <Route path="/junta" element={<JuntaLayout />}>
+            <Route index element={<p>rebedor</p>} />
+            <Route path="escaner/:eventId" element={<p>escàner</p>} />
+            <Route path="alta/:eventId" element={<p>alta</p>} />
+          </Route>
+          <Route path="/" element={<p>inici</p>} />
+        </Routes>
+      </MemoryRouter>
+    </UserIdContext>,
   )
 }
 
 beforeEach(() => {
   profile.current = paused
+  localStorage.clear()
 })
 
 describe('JuntaLayout', () => {
@@ -56,6 +66,43 @@ describe('JuntaLayout', () => {
   it("sense xarxa i sense perfil, l'escàner s'obre igualment", () => {
     at('/junta/escaner/e1')
     expect(screen.getByText('escàner')).toBeInTheDocument()
+  })
+
+  it("sense xarxa i sense perfil, l'alta pel nom també", () => {
+    at('/junta/alta/e1')
+    expect(screen.getByText('alta')).toBeInTheDocument()
+  })
+
+  it('i la pantalla tancada ofereix l’escàner de les portes desades que encara són obertes', () => {
+    const ara = Date.now()
+    recordaPortes(
+      USER,
+      [
+        {
+          id: 'casa',
+          titulo: 'Casa rural inventada',
+          starts_at: new Date(ara - 20 * 3_600_000).toISOString(),
+          ends_at: new Date(ara + 30 * 3_600_000).toISOString(),
+          ubicacion: null,
+          plazas: null,
+          diuen_si: 0,
+          fitxats: 0,
+          esperen: 0,
+          no_pagats: 0,
+          gimcana_cua: null,
+        },
+      ],
+      ara - 3_600_000,
+    )
+    at('/junta')
+
+    expect(screen.getByRole('alert')).toHaveTextContent('errors.offline')
+    expect(screen.getByText('Casa rural inventada')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'junta.scan' })).toHaveAttribute(
+      'href',
+      '/junta/escaner/casa',
+    )
+    expect(screen.getByText(/junta.home.recordades.title/)).toBeInTheDocument()
   })
 
   it('amb el perfil que diu que no és de la junta, fora', () => {

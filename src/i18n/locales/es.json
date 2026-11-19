@@ -1228,6 +1228,10 @@
     "home": {
       "doorNow": "Ahora mismo en la puerta",
       "doorPick": "{{n}} actividades en la puerta · elige la tuya",
+      "recordades": {
+        "title": "Puertas guardadas el {{dia}} a las {{hora}}",
+        "note": "Son las de la última vez que hubo conexión. El escáner guarda lo que fiches y lo sube cuando vuelva."
+      },
       "doorYes": "han dicho que sí",
       "doorIn": "han fichado",
       "doorFree": "plazas libres",

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet, useMatch } from 'react-router'
 
 import { JuntaNav } from '@/features/junta/JuntaNav'
+import { PortesRecordadesBlock } from '@/features/junta/PortesRecordadesBlock'
 import { PROFILE_CLOCK, isJunta, useMyProfile } from '@/features/session/useMyProfile'
 import { useAvailability } from '@/lib/useAvailability'
 
@@ -31,6 +32,7 @@ export function JuntaLayout() {
   const profile = useMyProfile()
   const view = useAvailability(profile, { clock: PROFILE_CLOCK })
   const scanner = useMatch('/junta/escaner/:eventId')
+  const alta = useMatch('/junta/alta/:eventId')
 
   // On #root rather than in a component, because the width cap lives on #root
   // and a child cannot widen its own parent.
@@ -58,8 +60,19 @@ export function JuntaLayout() {
   // amb el perfil sense carregar. Aquí no es decideix res de seguretat: qui no
   // és de la junta i hi arriba veu una càmera, i cada lectura que envia la
   // refusa el servidor.
-  if (view.unavailable && scanner === null) {
-    return <GateUnreachable message={t(view.messageKey)} onRetry={view.retry} />
+  //
+  // L'alta pel nom, pel mateix motiu: és l'altra eina de la porta, i quan torna
+  // la xarxa carrega la llista sola. Sense, ella mateixa diu que no hi ha xarxa.
+  //
+  // I la pantalla que diu que no hi ha xarxa ofereix l'escàner de les portes
+  // desades l'últim cop: en fred, sense el perfil ni la porta, és l'únic camí
+  // que no passa per escriure'n l'adreça.
+  if (view.unavailable && scanner === null && alta === null) {
+    return (
+      <GateUnreachable message={t(view.messageKey)} onRetry={view.retry}>
+        <PortesRecordadesBlock className="mt-6 max-w-[430px]" />
+      </GateUnreachable>
+    )
   }
 
   if (view.unavailable) return <Outlet />

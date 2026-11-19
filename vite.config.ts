@@ -6,6 +6,8 @@ import { loadEnv } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
 
+import { juntaOutOfPrecache } from './build/precache.ts'
+
 const REQUIRED_ENV = [
   'VITE_APP_NAME',
   'VITE_APP_SHORT_NAME',
@@ -48,10 +50,25 @@ export default defineConfig(({ mode, command }) => {
   // contain is the dot.
   const supabasePattern = new RegExp(`^${supabaseOrigin.split('.').join('\\.')}/`)
 
+  const precache = juntaOutOfPrecache()
+
+  // Cloudflare Pages respon `index.html` amb un 200 a qualsevol camí que no
+  // existeix, també a un tros o a un wasm d'un desplegament anterior. Guardar-lo
+  // amb aquell nom en una memòria cau `CacheFirst` seria servir per sempre una
+  // pàgina on hi havia d'haver codi. Sense res de fora per la mateixa raó que
+  // `supabasePattern`: Workbox l'escriu tal qual a sw.js.
+  const neverHtml = {
+    cacheWillUpdate: ({ response }: { response: Response }) =>
+      Promise.resolve(
+        response.headers.get('content-type')?.includes('text/html') ? null : response,
+      ),
+  }
+
   return {
     plugins: [
       react(),
       tailwindcss(),
+      precache.plugin,
       {
         // La substitució de `%VITE_*%` que fa Vite deixa el marcador tal qual
         // quan la variable no hi és, i aleshores `content="%VITE_THEME_COLOR%"`
@@ -149,6 +166,10 @@ export default defineConfig(({ mode, command }) => {
           // Només la veuen els rastrejadors dels enllaços; un soci no la baixa
           // mai i al precache seria pes mort a cada instal·lació.
           globIgnores: ['og-image.png'],
+          // La zona de junta, la porta i el mapa, fora: el perquè i com es
+          // decideix són a `build/precache.ts`. Els serveix la regla `chunks`
+          // de més avall.
+          manifestTransforms: [precache.manifestTransform],
           cleanupOutdatedCaches: true,
           clientsClaim: true,
           skipWaiting: true,
@@ -191,7 +212,10 @@ export default defineConfig(({ mode, command }) => {
               options: {
                 cacheName: 'wasm',
                 expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 365 },
-                cacheableResponse: { statuses: [0, 200] },
+                // Del mateix origen: una resposta opaca (0) no hi pot arribar,
+                // i acceptar-la només serviria per guardar-ne una d'errònia.
+                cacheableResponse: { statuses: [200] },
+                plugins: [neverHtml],
               },
             },
             {
@@ -202,6 +226,35 @@ export default defineConfig(({ mode, command }) => {
                 cacheName: 'fonts',
                 expiration: { maxEntries: 12, maxAgeSeconds: 60 * 60 * 24 * 365 },
                 cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              // Els trossos que no són a la precache: les pantalles d'escriptori
+              // de la junta i el mapa. Porten hash al nom i no canvien mai, així
+              // que el que s'ha baixat un cop serveix sense xarxa fins que un
+              // desplegament el canvia. La ruta de la precache es registra
+              // abans, i el que hi és no arriba mai aquí.
+              //
+              // Funció i no RegExp, i sense res de fora: Workbox l'escriu tal
+              // qual a sw.js (vegeu el comentari de `supabaseOrigin`).
+              urlPattern: ({ url, sameOrigin }: { url: URL; sameOrigin: boolean }) =>
+                sameOrigin &&
+                url.pathname.startsWith('/assets/') &&
+                /\.(?:js|css)$/.test(url.pathname),
+              handler: 'CacheFirst' as const,
+              options: {
+                cacheName: 'chunks',
+                // Un build en deixa fora una vintena llarga; n'hi caben uns quants
+                // seguits, i els vells marxen primer. L'edat és la de les altres
+                // regles: amb `CacheFirst` caducar vol dir tornar a la xarxa.
+                //
+                // Sense `purgeOnQuotaError`: buidaria aquesta memòria cau quan
+                // el navegador s'escanyés d'espai per qualsevol altre motiu,
+                // sense dir-ho, i el que no hi hauria després no es veu fins que
+                // s'obre sense xarxa.
+                expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [200] },
+                plugins: [neverHtml],
               },
             },
           ],
@@ -218,7 +271,7 @@ export default defineConfig(({ mode, command }) => {
       environment: 'jsdom',
       globals: true,
       setupFiles: ['./tests/setup.ts'],
-      include: ['tests/**/*.test.{ts,tsx}', 'src/**/*.test.{ts,tsx}'],
+      include: ['tests/**/*.test.{ts,tsx}', 'src/**/*.test.{ts,tsx}', 'build/**/*.test.ts'],
       // tests/rls needs a running Supabase stack, so it has its own config and
       // its own script. `npm test` must work with nothing but node_modules.
       exclude: ['tests/rls/**'],

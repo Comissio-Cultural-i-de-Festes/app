@@ -38,7 +38,7 @@ export type AttendanceRow = Pick<AttendanceTable, 'user_id' | 'event_id' | 'crea
 
 const EVENT_COLUMNS =
   'id, titulo, tipo, starts_at, teaser, reveal_at, revelat, plazas, ' +
-  'precio_cents, puntos, descripcion, ubicacion, ends_at, cover_url'
+  'precio_cents, puntos, cal_confirmacio, descripcion, ubicacion, ends_at, cover_url'
 
 const HOUR_MS = 3_600_000
 

@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import App from './App'
 import { pendingInvite, rememberInvite } from './features/entry/pendingInvite'
+import { rememberReturn, takeReturn } from './features/entry/returnTo'
 import type * as Platform from './lib/platform'
 
 /**
@@ -124,5 +125,18 @@ describe('signing out', () => {
     })
 
     expect(window.location.search).toBe('?codi=ABC-123')
+  })
+
+  it('forgets the saved route along with the code', async () => {
+    mount()
+    await screen.findByText('install.title')
+    rememberInvite('ABC-123')
+    rememberReturn('/esdeveniment/abc')
+
+    act(() => {
+      authListener('SIGNED_OUT', null)
+    })
+
+    expect(takeReturn()).toBeNull()
   })
 })

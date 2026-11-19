@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { takeReturn } from './returnTo'
 import { clearOAuthMark, looksStranded, signInWithGoogle } from './useGoogleSignIn'
 
 let mockStandalone = false
@@ -72,6 +73,22 @@ describe('signing in with Google', () => {
     await signInWithGoogle(null)
     const call = signInWithOAuth.mock.calls[0]?.[0] as { options: { redirectTo: string } }
     expect(new URL(call.options.redirectTo).pathname).toBe('/')
+  })
+})
+
+describe('la fitxa on volia anar', () => {
+  it('es desa abans de marxar a Google', async () => {
+    window.history.replaceState(null, '', '/esdeveniment/abc?codi=XYZ')
+    await signInWithGoogle('XYZ')
+    expect(takeReturn()).toBe('/esdeveniment/abc')
+    window.history.replaceState(null, '', '/')
+  })
+
+  it("no desa res d'una ruta que no és una fitxa", async () => {
+    window.history.replaceState(null, '', '/junta/socis')
+    await signInWithGoogle(null)
+    expect(takeReturn()).toBeNull()
+    window.history.replaceState(null, '', '/')
   })
 })
 

@@ -1,6 +1,7 @@
-import { useState } from 'react'
-import { Navigate, Outlet } from 'react-router'
+import { useEffect, useState } from 'react'
+import { Navigate, Outlet, useLocation } from 'react-router'
 
+import { isReturnPath, rememberReturn } from '@/features/entry/returnTo'
 import { PROFILE_CLOCK, needsOnboarding, useMyProfile } from '@/features/session/useMyProfile'
 import { useAvailability } from '@/lib/useAvailability'
 
@@ -32,6 +33,17 @@ export function RequireOnboarding() {
   useStartPrefetch(profile.data)
   const { loading } = useAvailability(profile, { clock: PROFILE_CLOCK })
   const [through, setThrough] = useState(false)
+  const { pathname } = useLocation()
+  const toOnboarding = !profile.isError && needsOnboarding(profile.data)
+
+  // Qui entra amb el codi del correu a la mateixa pestanya d'una fitxa ja hi
+  // és, i `App` ha esborrat la ruta desada en veure-ho. Se'n va a `/primer-cop`
+  // i en acabar torna a `/`: si aquí no es torna a deixar, la fitxa es perd.
+  // Només si la ruta és de les que es recorden: `rememberReturn('/')` buidaria
+  // la que va deixar el camí de Google.
+  useEffect(() => {
+    if (toOnboarding && isReturnPath(pathname)) rememberReturn(pathname)
+  }, [toOnboarding, pathname])
 
   // Un cop oberta, no es torna a tancar. Una consulta fallada torna a «pending»
   // quan qualsevol pantalla de dins la torna a demanar en muntar-se, i tornar a

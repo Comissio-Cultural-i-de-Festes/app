@@ -37,6 +37,9 @@ import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
 import { discardInvite, pendingInvite } from '@/features/entry/pendingInvite'
+import { ReturnToLink } from '@/features/entry/ReturnToLink'
+import { forgetReturn } from '@/features/entry/returnTo'
+import { useForgetReturn } from '@/features/entry/useForgetReturn'
 import { readInviteCode } from '@/features/entry/useInvite'
 import { useRedeemFromLink } from '@/features/entry/useRedeemFromLink'
 import { InstallScreen } from '@/features/install/InstallScreen'
@@ -219,6 +222,7 @@ export default function App() {
       // invitació a la porta.
       if (event === 'SIGNED_OUT' && (signedIn.current || pendingInvite() !== null)) {
         discardInvite()
+        forgetReturn()
       }
       signedIn.current = next !== null
       // Abans de pintar res amb la sessió nova: qui entra no ha de veure ni un
@@ -252,6 +256,8 @@ export default function App() {
     // The round trip came back here, so the stranded marker has done its job.
     if (session) clearOAuthMark()
   }, [session])
+
+  useForgetReturn(session?.user.id ?? null)
 
   // Tornar-ho a provar és recarregar, i no tornar a cridar `getSession()`: una
   // renovació penjada no es deixa substituir —la biblioteca hi enganxa la
@@ -346,7 +352,15 @@ export default function App() {
 
         <Route element={<RequireOnboarding />}>
           <Route element={<TabLayout />}>
-            <Route path="/" element={<HomeScreen />} />
+            <Route
+              path="/"
+              element={
+                <>
+                  <ReturnToLink />
+                  <HomeScreen />
+                </>
+              }
+            />
             <Route path="/ranquing" element={<RankingScreen />} />
             <Route path="/qr" element={<QrScreen />} />
             <Route path="/idees" element={<IdeasScreen />} />

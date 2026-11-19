@@ -23,7 +23,9 @@
     "body": "No hauria de passar. Torna-ho a carregar i, si segueix igual, digues-ho a la junta.",
     "staleTitle": "Hi ha una versió nova",
     "staleBody": "S'ha actualitzat l'app mentre la tenies oberta. Torna-ho a carregar i hi seràs on eres.",
-    "reload": "Torna-ho a carregar"
+    "reload": "Torna-ho a carregar",
+    "offlineTitle": "Sense cobertura",
+    "offlineBody": "Aquesta part de l'app encara no és al mòbil, i sense xarxa no es pot baixar. Torna-ho a provar quan tinguis cobertura."
   },
   "door": {
     "checkedIn": "{{count}} fitxats de {{total}}",
@@ -202,14 +204,14 @@
     },
     "calendar": {
       "offerTitle": "Ho vols al calendari del mòbil?",
-      "offerBody": "Amb l'hora, el lloc i un enllaç per tornar aquí. Si canviem l'hora, s'actualitza.",
+      "offerBody": "Amb l'hora, el lloc i un enllaç per tornar aquí. És un fitxer que s'obre un cop: si canviem l'hora, l'hauràs de tornar a baixar.",
       "addShort": "Afegeix-ho",
       "add": "Afegeix-ho al calendari",
       "noThanks": "No, gràcies",
-      "isThere": "És al teu calendari",
-      "again": "Torna-hi",
+      "isThere": "Fitxer descarregat",
+      "again": "Torna'l a baixar",
       "fromTo": "{{day}}, {{from}} – {{to}}",
-      "cannotRead": "«Torna-hi» hi és perquè l'app no pot llegir el calendari del telèfon: no sap si l'entrada encara existeix. Diu el que sap i et deixa fer-ho un altre cop, que és inofensiu perquè no es duplica.",
+      "cannotRead": "L'app no veu el calendari del telèfon, així que no sap si has arribat a afegir-hi l'esdeveniment: obre el fitxer descarregat per fer-ho. Si canvia l'hora, torna'l a baixar i obre'l.",
       "failed": "No hem pogut preparar el fitxer. Prova-ho un altre cop."
     },
     "teaser": {
@@ -684,15 +686,13 @@
     "title": "Posa-la a la pantalla",
     "lede": "Dos tocs i la tens com una app de veritat: s'obre a l'instant, el QR va sense cobertura i no has de tornar a entrar cada vegada.",
     "step1": {
-      "title": "Toca Comparteix, a baix",
-      "body": "És el quadradet amb la fletxa cap amunt, al mig de la barra del Safari."
+      "title": "Toca Comparteix",
+      "body": "És el quadradet amb la fletxa cap amunt. Segons l'iPhone, és a la barra de baix o a la de dalt, al costat de l'adreça. Si no el veus, toca els tres puntets."
     },
     "step2": {
-      "title": "Baixa fins a \"Afegeix a la pantalla d'inici\"",
-      "body": "Surt cap avall a la llista. Després, Afegeix a dalt a la dreta.",
-      "sheetAbove": "Afegeix a Preferits",
-      "sheetTarget": "Afegeix a la pantalla d'inici",
-      "sheetBelow": "Marca com a text"
+      "title": "Busca \"Afegeix a la pantalla d'inici\"",
+      "body": "Baixa per la llista; en alguns iPhone és dins de «Més». Després, toca Afegeix.",
+      "sheetTarget": "Afegeix a la pantalla d'inici"
     },
     "payoff": {
       "title": "Què guanyes",
@@ -725,6 +725,9 @@
     "back": "Junta",
     "scan": "Escanejar",
     "givePoints": "Donar punts",
+    "needsSignalTitle": "Aquesta pantalla necessita cobertura",
+    "needsSignalBody": "Encara no és al mòbil, i sense xarxa no es pot baixar. La porta sí que funciona sense xarxa.",
+    "needsSignalBack": "Torna a la zona junta",
     "newEvent": "Crear esdeveniment",
     "newEventSub": "O copiar-ne un d’abans i canviar-hi la data",
     "invitesSub": "El codi del grup i qui vol entrar",

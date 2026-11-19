@@ -2,6 +2,8 @@ import { render, screen } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { rememberReturn, takeReturn } from '@/features/entry/returnTo'
+
 import { RequireOnboarding } from './RequireOnboarding'
 
 /**
@@ -43,12 +45,13 @@ const base: Fake = {
   refetch: () => Promise.resolve(),
 }
 
-function mount() {
+function mount(at = '/') {
   return render(
-    <MemoryRouter initialEntries={['/']}>
+    <MemoryRouter initialEntries={[at]}>
       <Routes>
         <Route element={<RequireOnboarding />}>
           <Route path="/" element={<p>dins</p>} />
+          <Route path="/esdeveniment/:id" element={<p>fitxa</p>} />
         </Route>
         <Route path="/primer-cop" element={<p>primer cop</p>} />
       </Routes>
@@ -57,6 +60,7 @@ function mount() {
 }
 
 beforeEach(() => {
+  localStorage.clear()
   profile.current = { ...base }
 })
 
@@ -94,5 +98,31 @@ describe('RequireOnboarding', () => {
     profile.current = { ...base, data: { escola: null }, status: 'success', fetchStatus: 'idle' }
     mount()
     expect(screen.getByText('primer cop')).toBeInTheDocument()
+  })
+
+  it("deixa desada la fitxa des d'on s'ha anat al primer cop", () => {
+    profile.current = { ...base, data: { escola: null }, status: 'success', fetchStatus: 'idle' }
+    mount('/esdeveniment/abc')
+    expect(screen.getByText('primer cop')).toBeInTheDocument()
+    expect(takeReturn()).toBe('/esdeveniment/abc')
+  })
+
+  it("des de l'Inici no toca la ruta que ja hi havia desada", () => {
+    rememberReturn('/esdeveniment/abc')
+    profile.current = { ...base, data: { escola: null }, status: 'success', fetchStatus: 'idle' }
+    mount('/')
+    expect(takeReturn()).toBe('/esdeveniment/abc')
+  })
+
+  it("amb l'escola triada no desa res", () => {
+    profile.current = {
+      ...base,
+      data: { escola: 'politecnica' },
+      status: 'success',
+      fetchStatus: 'idle',
+    }
+    mount('/esdeveniment/abc')
+    expect(screen.getByText('fitxa')).toBeInTheDocument()
+    expect(takeReturn()).toBeNull()
   })
 })

@@ -3,7 +3,8 @@ import { type ReactNode, useEffect, useState } from 'react'
 
 import { APP_REVALIDATE, appRevalidate } from './pwa'
 import { createQueryClient } from './queryClient'
-import { invalidateData } from './signedQuery'
+import { forgetSigned, invalidateData } from './signedQuery'
+import { type Removed, STORAGE_REMOVED, storageRemovals } from './storage'
 
 /**
  * The client lives in state, not in a module constant, so that a test can
@@ -16,6 +17,9 @@ import { invalidateData } from './signedQuery'
  * Everything except signed image URLs. Invalidating those too re-signed every
  * cover and every face each time the phone came out of a pocket, and a new
  * signature is a new URL the browser downloads in full — see `signedQuery.ts`.
+ *
+ * And when an object is removed, its signed URL goes with it: `storage.ts`
+ * cannot reach this client, so it announces the removal and this listens.
  */
 export function QueryProvider({ children }: { children: ReactNode }) {
   const [client] = useState(createQueryClient)
@@ -24,9 +28,15 @@ export function QueryProvider({ children }: { children: ReactNode }) {
     const refresh = (): void => {
       void invalidateData(client)
     }
+    const forget = (event: Event): void => {
+      const { bucket, paths } = (event as CustomEvent<Removed>).detail
+      forgetSigned(client, bucket, paths)
+    }
     appRevalidate.addEventListener(APP_REVALIDATE, refresh)
+    storageRemovals.addEventListener(STORAGE_REMOVED, forget)
     return () => {
       appRevalidate.removeEventListener(APP_REVALIDATE, refresh)
+      storageRemovals.removeEventListener(STORAGE_REMOVED, forget)
     }
   }, [client])
 

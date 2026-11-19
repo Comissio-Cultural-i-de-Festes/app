@@ -7,8 +7,10 @@ import { eventKeys, fetchEvent } from '@/features/event/api'
 import { eventTitle } from '@/features/event/title'
 import { decideProva, fetchQueue, gimcanaKeys, undoProva } from '@/features/gimcana/api'
 import { teamName } from '@/features/gimcana/teamName'
-import { errorKey } from '@/lib/errors'
-import { GIMCANA_PHOTOS, signedUrls } from '@/lib/storage'
+import { useAvailability } from '@/lib/useAvailability'
+import { SendNote } from '@/features/shell/SendNote'
+import { GIMCANA_PHOTOS } from '@/lib/storage'
+import { useSignedUrls } from '@/lib/useSignedUrls'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
@@ -56,14 +58,14 @@ export function GimcanaValidateScreen() {
     enabled: eventId !== '',
   })
 
+  // La cua es valida a la mateixa nit i al mateix lloc on es juga, o sigui
+  // sovint sense cobertura: «sense xarxa» i no l'esquelet per sempre.
+  const view = useAvailability(queue)
+
   const rows = queue.data ?? []
   const current = rows[0] ?? null
 
-  const urls = useQuery({
-    queryKey: ['junta', 'gimcana', 'urls', current?.path ?? ''],
-    queryFn: () => signedUrls(GIMCANA_PHOTOS, [current?.path ?? '']),
-    enabled: current !== null,
-  })
+  const urls = useSignedUrls(GIMCANA_PHOTOS, [current?.path ?? null])
 
   const decide = useMutation({
     mutationFn: ({ id, val }: { id: string; val: boolean }) =>
@@ -108,11 +110,11 @@ export function GimcanaValidateScreen() {
             {eventTitle(event.data.titulo)}
           </p>
         )}
-        {queue.isPending ? (
+        {view.loading ? (
           <QueueSkeleton />
-        ) : queue.isError ? (
+        ) : view.unavailable ? (
           <p role="alert" className="py-8 text-md font-bold text-error [text-wrap:pretty]">
-            {t(errorKey(queue.error))}
+            {t(view.messageKey)}
           </p>
         ) : current === null ? (
           <p className="py-8 text-md text-fg-muted [text-wrap:pretty]">
@@ -200,11 +202,9 @@ export function GimcanaValidateScreen() {
               />
             ) : null}
 
-            {decide.isError ? (
-              <p role="alert" className="mt-5 text-md font-bold text-error [text-wrap:pretty]">
-                {t(errorKey(decide.error))}
-              </p>
-            ) : null}
+            {/* Sense xarxa la decisió es posa en pausa, i els dos botons es
+                quedaven apagats sense cap frase. */}
+            <SendNote send={decide} className="mt-5" />
           </>
         )}
 

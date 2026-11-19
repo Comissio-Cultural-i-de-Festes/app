@@ -1,5 +1,5 @@
-import { DbError, unwrapAs } from '@/lib/db'
-import { IDEAS, type Queued, drop, put, waiting } from '@/lib/queue'
+import { DbError, isPermanent, unwrapAs } from '@/lib/db'
+import { IDEAS, NotSaved, type Queued, drop, put, waiting } from '@/lib/queue'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -121,12 +121,18 @@ export async function propose(titol: string, descripcio: string, userId: string)
     at: Date.now(),
     tries: 0,
   }
-  await put(IDEAS, idea)
+  const saved = await put(IDEAS, idea)
 
   try {
     await send(idea)
-    await drop(IDEAS, idea.id)
+    if (saved) await drop(IDEAS, idea.id)
   } catch (cause) {
+    // A refusal is said as a refusal, saved or not: "could not be saved"
+    // would send somebody looking for signal over a title the CHECK rejects.
+    if (!saved && isPermanent(cause)) throw cause
+    // Not written down and not sent: the screen must keep the text and say
+    // so, rather than send the member off to a list it will never reach.
+    if (!saved) throw new NotSaved(cause)
     // Left in the queue on purpose: the idea is written down either way.
     await put(IDEAS, { ...idea, tries: idea.tries + 1 })
     throw cause

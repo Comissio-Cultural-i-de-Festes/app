@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import type * as Queue from '@/lib/queue'
+
 /**
  * La cua de proves i el compte d'Auth.
  *
@@ -35,16 +37,17 @@ vi.mock('@/lib/storage', () => ({
   UnreadableImage: class UnreadableImage extends Error {},
 }))
 
-vi.mock('@/lib/queue', () => ({
+vi.mock('@/lib/queue', async (importOriginal) => ({
+  ...(await importOriginal<typeof Queue>()),
   PROVES: 'gimcana-queue',
   put: (_s: string, item: { id: string; tries: number }) => {
-    if (putFails.on) return Promise.resolve()
+    if (putFails.on) return Promise.resolve(false)
     store.set(item.id, item)
-    return Promise.resolve()
+    return Promise.resolve(true)
   },
   drop: (_s: string, id: string) => {
     store.delete(id)
-    return Promise.resolve()
+    return Promise.resolve(true)
   },
   waiting: () => Promise.resolve([...store.values()]),
 }))
@@ -107,6 +110,33 @@ describe('buidar la cua', () => {
     expect(store.get('r1')?.tries).toBe(1)
     expect(getUser).not.toHaveBeenCalled()
   })
+
+  // Vist contra la passarel·la local: amb la sessió perduda la petició surt
+  // com a `anon`, que no pot executar `submit_prova`, i la resposta és 42501
+  // «permission denied for function». És de qui crida, no de la foto: quan
+  // torna la sessió, la mateixa foto entra. Esborrar-la era perdre-la.
+  it('un 42501 de qui crida no esborra la foto: es queda i suma un intent', async () => {
+    store.set('r2', { id: 'r2', tries: 0, provaId: PROVA, photo } as never)
+    getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })
+    rpc.mockResolvedValue({
+      data: null,
+      error: { code: '42501', message: 'permission denied for function submit_prova' },
+    })
+
+    expect(await flushProves()).toBe(0)
+
+    expect(store.get('r2')?.tries).toBe(1)
+  })
+
+  it('un refús de la petició mateixa sí que la treu: no entrarà mai', async () => {
+    store.set('r3', { id: 'r3', tries: 0, provaId: PROVA, photo } as never)
+    getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })
+    rpc.mockResolvedValue({ data: null, error: { code: '22P02', message: 'invalid input' } })
+
+    expect(await flushProves()).toBe(0)
+
+    expect(store.has('r3')).toBe(false)
+  })
 })
 
 describe('enviaments concurrents', () => {
@@ -163,7 +193,7 @@ describe('el que no ha arribat a desar-se', () => {
     expect(upload).not.toHaveBeenCalled()
   })
 
-  // El `put` real de la cua no peta: sense IndexedDB torna sense dir res.
+  // El `put` real de la cua no peta: sense IndexedDB torna `false`.
   it("un IndexedDB que no desa, amb l'enviament fallat, surt com a no desada", async () => {
     putFails.on = true
     getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })

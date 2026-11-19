@@ -1,3 +1,6 @@
+import { queryOptions } from '@tanstack/react-query'
+
+import { SIGNED_TTL_SECONDS, signedKey } from './signedQuery'
 import { supabase } from './supabase'
 
 /**
@@ -20,8 +23,6 @@ export const DOOR_PHOTOS = 'door-photos'
 export const EVENT_PHOTOS = 'event-photos'
 export const GIMCANA_PHOTOS = 'gimcana-photos'
 export const AVATARS = 'avatars'
-
-const SIGNED_TTL_SECONDS = 3600
 
 /** Longest edge, in pixels, of anything that goes up. */
 const MAX_EDGE = 1600
@@ -303,42 +304,74 @@ export async function uploadDoorPhoto(
 }
 
 /**
- * A URL for one stored object, good for an hour.
+ * Les URL signades: una consulta per objecte, i les peticions juntes.
  *
- * Returns null rather than throwing: a cover that will not load is a missing
- * picture, and the screen already knows how to draw one of those.
+ * UNA CLAU PER CAMÍ. Abans la galeria signava amb una sola clau feta de tots
+ * els camins, o sigui que una foto nova —o una d'esborrada, o una d'amagada per
+ * la junta— canviava la clau, i en tornar a l'app es tornaven a signar i a
+ * baixar totes les miniatures. Una nit de casa rural amb dues-centes fotos són
+ * gigues. Amb una entrada per camí, el que ja estava signat es queda com era i
+ * la miniatura que surt a l'inici i a la galeria és la mateixa URL.
+ *
+ * UNA PETICIÓ PER CUBELL I MICROTASK. Una entrada per camí no vol dir una
+ * petició per camí: tot el que React demana en un mateix pas de render entra
+ * en una sola crida a `createSignedUrls`. És el lot que ja feien els avatars,
+ * fet general.
+ *
+ * UN ERROR ÉS UN ERROR. `createSignedUrls` no llança quan falla la xarxa:
+ * torna `{ data: null, error }`. Abans això acabava en un `Map` buit desat com
+ * a èxit, que no es tornava a demanar fins al cap de cinquanta minuts, i la
+ * portada quedava en blanc tota aquella estona. Ara la crida es reintenta, i si
+ * tampoc així arriba la consulta falla, i una consulta fallida es torna a
+ * demanar en tornar a l'app. Una fila sense URL —l'objecte ja no hi és, o no és teu de veure— sí
+ * que és una resposta, i es desa com a `null`.
+ *
+ * ELS REINTENTS VIUEN AQUÍ, NO A REACT QUERY. Cada consulta reintentava en el
+ * seu propi `setTimeout`, i cada reintent era una petició: amb sis camins i la
+ * primera crida caiguda, [6, 1, 1, 1, 1, 1, 1]. Una galeria de dues-centes
+ * fotos amb la xarxa caiguda un moment en feia centenars, justament quan la
+ * xarxa és el que menys en pot aguantar. Reintentar dins del lot ho deixa en
+ * una sola petició per reintent, i `withSignedDefaults` posa `retry: false`.
+ * Es va descartar obrir el lot amb un `setTimeout(0)`: els reintents de cada
+ * consulta venen de temporitzadors diferents, i res no garanteix que caiguin
+ * dins de la mateixa finestra.
+ *
+ * No s'exporta res que signi fora d'aquí: l'única porta és `signedUrlQuery`,
+ * que porta la marca de `signedKey` (vegeu `signedQuery.ts`).
  */
-export async function signedUrl(bucket: string, path: string | null): Promise<string | null> {
-  if (path === null || path === '') return null
 
-  // Anything already absolute was written before the bucket existed, or by
-  // hand. Left alone rather than mangled into a storage path.
-  if (path.startsWith('http://') || path.startsWith('https://')) return path
+const batches = new Map<
+  string,
+  { readonly paths: Set<string>; readonly ready: Promise<Map<string, string>> }
+>()
 
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .createSignedUrl(path, SIGNED_TTL_SECONDS)
-  if (error) return null
-  return data.signedUrl
+/** Esperes abans de cada reintent: les que React Query fa servir per defecte. */
+const RETRY_DELAYS_MS = [1000, 2000]
+
+/** Un 4xx és una resposta, no un tall; el 408 i el 429 sí que passen sols. */
+function worthRetrying(error: unknown): boolean {
+  const status: unknown =
+    typeof error === 'object' && error !== null && 'status' in error ? error.status : undefined
+  if (typeof status !== 'number') return true
+  return status < 400 || status >= 500 || status === 408 || status === 429
 }
 
-/** The same, for a list — one round trip instead of one per row. */
-export async function signedUrls(
-  bucket: string,
-  paths: readonly (string | null)[],
-): Promise<Map<string, string>> {
-  const wanted = [...new Set(paths.filter((p): p is string => p !== null && p !== ''))]
-  const relative = wanted.filter((p) => !p.startsWith('http'))
+async function signWithRetries(bucket: string, paths: readonly string[]) {
+  for (let attempt = 0; ; attempt++) {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .createSignedUrls([...paths], SIGNED_TTL_SECONDS)
+    if (!error) return data
+    const delay = RETRY_DELAYS_MS[attempt]
+    if (delay === undefined || !worthRetrying(error)) throw error
+    await new Promise((resolve) => setTimeout(resolve, delay))
+  }
+}
+
+async function signBatch(bucket: string, paths: readonly string[]): Promise<Map<string, string>> {
+  const data = await signWithRetries(bucket, paths)
+
   const out = new Map<string, string>()
-
-  for (const absolute of wanted.filter((p) => p.startsWith('http'))) out.set(absolute, absolute)
-  if (relative.length === 0) return out
-
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .createSignedUrls(relative, SIGNED_TTL_SECONDS)
-
-  if (error || data === null) return out
   for (const row of data) {
     // Both fields are nullable in the response type: a batch call reports a
     // per-object error by returning nulls for that row rather than failing the
@@ -350,4 +383,27 @@ export async function signedUrls(
     }
   }
   return out
+}
+
+function enqueue(bucket: string, path: string): Promise<string | null> {
+  let batch = batches.get(bucket)
+  if (batch === undefined) {
+    const paths = new Set<string>()
+    const ready = Promise.resolve().then(() => {
+      batches.delete(bucket)
+      return signBatch(bucket, [...paths])
+    })
+    batch = { paths, ready }
+    batches.set(bucket, batch)
+  }
+  batch.paths.add(path)
+  return batch.ready.then((urls) => urls.get(path) ?? null)
+}
+
+/** La consulta d'un objecte: la seva clau marcada i la seva URL, o `null`. */
+export function signedUrlQuery(bucket: string, path: string) {
+  return queryOptions({
+    queryKey: signedKey(bucket, path),
+    queryFn: () => enqueue(bucket, path),
+  })
 }

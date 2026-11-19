@@ -18,6 +18,7 @@ import { SUPPORTED_LOCALES, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { HERE, IDEAS, PROVES, SCANS, clearAllQueues, count } from '@/lib/queue'
+import { invalidateData } from '@/lib/signedQuery'
 import { Confirm } from '@/ui/Confirm/Confirm'
 import { PERSON_AVATAR, PersonHead, PersonHeadSkeleton } from '@/ui/PersonHead/PersonHead'
 import { NavRow, ROW } from '@/ui/Row/Row'
@@ -78,7 +79,7 @@ export function ProfileScreen() {
   const hide = useMutation({
     mutationFn: (hidden: boolean) => setHideFromRanking(userId, hidden),
     onSuccess: async () => {
-      await client.invalidateQueries()
+      await invalidateData(client)
     },
   })
 

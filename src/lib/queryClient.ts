@@ -1,6 +1,7 @@
 import { QueryClient } from '@tanstack/react-query'
 
 import { isPermanent } from './db'
+import { withSignedDefaults } from './signedQuery'
 
 const MINUTE = 60_000
 
@@ -17,7 +18,7 @@ export const STALE_TIME_MS = MINUTE
  * places-left number goes stale in minutes, not hours.
  */
 export function createQueryClient(): QueryClient {
-  return new QueryClient({
+  const client = new QueryClient({
     defaultOptions: {
       queries: {
         // Long enough that moving between the two tabs does not refetch, short
@@ -33,4 +34,7 @@ export function createQueryClient(): QueryClient {
       },
     },
   })
+  // Les URL signades tenen els seus propis temps, lligats a la vida de la firma
+  // i no a la de les dades: vegeu `signedQuery.ts`.
+  return withSignedDefaults(client)
 }

@@ -70,7 +70,7 @@ import { adjustPoints, fetchAjustEvents, memberPointsKeys } from './memberPoints
  */
 
 const BOX = 'mt-10 border border-surface-8 bg-surface-2 p-9'
-const BAD = 'border-warning'
+const BAD = 'border-warning focus:border-warning'
 // Les classes van i vénen; el `<p>` es queda. Sense classes i sense text no
 // ocupa res —Tailwind ja li ha tret els marges—, o sigui que muntar-lo sempre
 // no mou la pantalla ni un píxel.

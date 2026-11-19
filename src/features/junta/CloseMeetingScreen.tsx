@@ -195,6 +195,7 @@ export function CloseMeetingScreen() {
           value={written}
           onChange={(ev) => setActa(ev.target.value)}
           rows={4}
+          aria-label={t('meeting.actaLabel')}
           placeholder={t('meeting.actaPlaceholder')}
           className={`${INPUT} resize-y`}
         />

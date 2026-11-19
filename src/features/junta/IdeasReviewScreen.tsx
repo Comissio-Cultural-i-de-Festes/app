@@ -244,6 +244,7 @@ function Panel({
         }}
         rows={3}
         maxLength={500}
+        aria-label={accepta ? t('ideas.whyYes') : t('ideas.whyNot')}
         placeholder={accepta ? t('ideas.whyYes') : t('ideas.whyNotPlaceholder')}
         className={`${INPUT} resize-y`}
       />

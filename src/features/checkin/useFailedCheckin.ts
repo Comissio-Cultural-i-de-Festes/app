@@ -14,8 +14,9 @@ import { checkinQueueKeys } from './useCheckinPending'
  * una fotografia del muntatge, l'avís no sortia fins a la següent obertura, i
  * la feina de dir-ho el mateix dia quedava sense fer.
  *
- * L'`invalidateQueries()` sense clau del drenatge ja recull aquesta consulta,
- * igual que fa amb el rètol de pendents del costat.
+ * L'`invalidateData()` del drenatge, que ho invalida tot menys les URL
+ * signades, ja recull aquesta consulta, igual que fa amb el rètol de pendents
+ * del costat.
  */
 export function useFailedCheckin(): FailedCheckin | undefined {
   const failed = useQuery({

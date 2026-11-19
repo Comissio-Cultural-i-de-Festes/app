@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import type { CheckInStatus } from '@/design/states'
+import type * as Queue from '@/lib/queue'
 
 /**
  * The queue behind the scanner.
@@ -13,6 +14,8 @@ import type { CheckInStatus } from '@/design/states'
 
 const rpc = vi.fn()
 const store = new Map<string, unknown>()
+/** The phone refusing to write anything down: private mode, a full disk, a blocked open. */
+const disk = { refuses: false }
 
 // `check_in` goes through a builder that takes a signal, and an aborted request
 // resolves with an error rather than rejecting, which is what postgrest-js does
@@ -36,13 +39,20 @@ vi.mock('@/lib/supabase', () => ({
   },
 }))
 
-vi.mock('@/lib/queue', () => ({
+vi.mock('@/lib/queue', async (importOriginal) => ({
+  ...(await importOriginal<typeof Queue>()),
   enqueue: (scan: { clientRequestId: string }) => {
+    if (disk.refuses) return Promise.resolve(false)
     store.set(scan.clientRequestId, scan)
-    return Promise.resolve()
+    return Promise.resolve(true)
   },
   dequeue: (id: string) => {
     store.delete(id)
+    return Promise.resolve(true)
+  },
+  setHeld: (id: string, held: unknown) => {
+    const row = store.get(id) as Record<string, unknown> | undefined
+    if (row !== undefined) store.set(id, { ...row, held: held ?? undefined })
     return Promise.resolve()
   },
   // Like the real one: an entry somebody removed is not written back.
@@ -55,6 +65,7 @@ vi.mock('@/lib/queue', () => ({
   pending: () => Promise.resolve([...store.values()]),
 }))
 
+const { NotSaved } = await import('@/lib/queue')
 const {
   DOOR_TIMEOUT_MS,
   DoorTimeout,
@@ -62,6 +73,7 @@ const {
   flushQueue,
   outcomeFromFailure,
   presentationOf,
+  resendHeld,
   scan,
   undo,
   undoTargetOf,
@@ -76,6 +88,7 @@ function request(id: string) {
 
 beforeEach(() => {
   store.clear()
+  disk.refuses = false
   rpc.mockReset()
   vi.useRealTimers()
   vi.restoreAllMocks()
@@ -161,6 +174,198 @@ describe('a scan at the door', () => {
     // And it is free again once it is done.
     store.set('three', { ...request('three'), at: 3, tries: 0 })
     await expect(flushQueue()).resolves.toEqual({ sent: 1, left: 0 })
+  })
+})
+
+describe('a scan the phone could not write down', () => {
+  it('is sent all the same, and a landed answer is an answer like any other', async () => {
+    disk.refuses = true
+    rpc.mockResolvedValue({ data: { status: 'ok', nombre: 'Alfa' }, error: null })
+
+    await expect(scan(request('d1'))).resolves.toMatchObject({ status: 'ok' })
+    expect(rpc).toHaveBeenCalledWith(
+      'check_in',
+      expect.objectContaining({ p_client_request_id: 'd1' }),
+    )
+  })
+
+  it('says it was not saved when it did not get through either, never "queued"', async () => {
+    disk.refuses = true
+    rpc.mockResolvedValue({ data: null, error: { message: 'network', code: '' } })
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
+    const req = request('d2')
+
+    const cause = await scan(req).catch((error: unknown) => error)
+    expect(cause).toBeInstanceOf(NotSaved)
+
+    const outcome = outcomeFromFailure(req, cause)
+    expect(outcome.kind).toBe('unsaved')
+    expect(presentationOf(outcome).messageKey).toBe('scanner.notSaved')
+    expect(presentationOf(outcome).actionKey).toBe('scanner.action.notSaved')
+    // There is nothing to take back: no row anywhere.
+    expect(undoTargetOf(outcome)).toBeNull()
+  })
+
+  it('is not saved after a timeout either, even though one that was saved is "queued"', async () => {
+    vi.useFakeTimers()
+    disk.refuses = true
+    rpc.mockReturnValue(new Promise<never>(() => undefined))
+    const req = request('d3')
+
+    const caught = scan(req).catch((error: unknown) => error)
+    await vi.advanceTimersByTimeAsync(DOOR_TIMEOUT_MS)
+
+    expect(outcomeFromFailure(req, await caught).kind).toBe('unsaved')
+  })
+})
+
+describe('a scan the server refuses for good', () => {
+  const refusal = {
+    data: null,
+    error: { message: 'invalid input syntax for type uuid', code: '22P02' },
+  }
+
+  it('is not left in the queue, and the card does not say it goes on its own', async () => {
+    rpc.mockResolvedValue(refusal)
+    const req = request('r1')
+
+    const cause = await scan(req).catch((error: unknown) => error)
+    expect(store.has('r1')).toBe(false)
+
+    const outcome = outcomeFromFailure(req, cause)
+    expect(outcome).toMatchObject({ kind: 'failed', refused: true })
+    expect(presentationOf(outcome).actionKey).toBe('scanner.action.refused')
+    expect(undoTargetOf(outcome)).toBeNull()
+  })
+
+  it('does not hold up the queue behind it when it is first in line', async () => {
+    store.set('bad', { ...request('bad'), at: 1, tries: 0 })
+    store.set('good', { ...request('good'), at: 2, tries: 0 })
+    rpc.mockImplementation((_name: string, args: { p_client_request_id: string }) =>
+      Promise.resolve(
+        args.p_client_request_id === 'bad' ? refusal : { data: { status: 'ok' }, error: null },
+      ),
+    )
+
+    await expect(flushQueue()).resolves.toEqual({ sent: 1, left: 0 })
+    expect(store.has('good')).toBe(false)
+    expect(store.get('bad')).toMatchObject({ held: { kind: 'refused', code: '22P02' } })
+
+    // Set aside, so the next run does not ask again.
+    rpc.mockClear()
+    await expect(flushQueue()).resolves.toEqual({ sent: 0, left: 0 })
+    expect(rpc).not.toHaveBeenCalled()
+  })
+
+  it('is sent again, after the flush already running, when somebody asks', async () => {
+    store.set('bad', {
+      ...request('bad'),
+      at: 1,
+      tries: 0,
+      held: { kind: 'refused', code: '22P02' },
+    })
+    store.set('slow', { ...request('slow'), at: 2, tries: 0 })
+    let finish!: (value: unknown) => void
+    rpc.mockImplementation((_name: string, args: { p_client_request_id: string }) =>
+      args.p_client_request_id === 'slow'
+        ? new Promise((resolve) => {
+            finish = resolve
+          })
+        : Promise.resolve({ data: { status: 'ok' }, error: null }),
+    )
+
+    const running = flushQueue()
+    await new Promise((resolve) => setTimeout(resolve, 0))
+    const retried = resendHeld()
+    finish({ data: { status: 'ok' }, error: null })
+    await running
+
+    // The run in progress read its list before the mark came off; the retry
+    // waits for it and then runs its own, which is the one that sends `bad`.
+    await expect(retried).resolves.toEqual({ sent: 1, left: 0 })
+    expect(store.size).toBe(0)
+  })
+})
+
+describe('a refusal that is about whoever sent it, not the scan', () => {
+  // `check_in` raises 42501 from `is_admin()`: a session that lapsed and went
+  // out as `anon`, or a junta role taken away. Never about the scan.
+  const notJunta = { data: null, error: { message: 'nomes junta', code: '42501' } }
+
+  it('leaves the flush to try again, instead of setting good scans aside', async () => {
+    store.set('one', { ...request('one'), at: 1, tries: 0 })
+    store.set('two', { ...request('two'), at: 2, tries: 0 })
+    rpc.mockResolvedValue(notJunta)
+
+    await expect(flushQueue()).resolves.toEqual({ sent: 0, left: 2 })
+    expect(store.get('one')).toMatchObject({ tries: 1 })
+    expect(store.get('one')).not.toHaveProperty('held')
+    expect(rpc).toHaveBeenCalledTimes(1)
+
+    // The session comes back, and both go.
+    rpc.mockReset()
+    rpc.mockResolvedValue({ data: { status: 'ok' }, error: null })
+    await expect(flushQueue()).resolves.toEqual({ sent: 2, left: 0 })
+    expect(store.size).toBe(0)
+  })
+
+  it('keeps a live scan in the queue rather than dropping it', async () => {
+    rpc.mockResolvedValue(notJunta)
+    const req = request('n1')
+
+    const cause = await scan(req).catch((error: unknown) => error)
+
+    expect(store.get('n1')).toMatchObject({ tries: 1 })
+    expect(outcomeFromFailure(req, cause)).not.toHaveProperty('refused')
+  })
+})
+
+describe('an answer from a flush that asks somebody to act', () => {
+  it('goes out again when it was about the event, not the scan', async () => {
+    // Unpublished for ten minutes by mistake: everything flushed meanwhile
+    // came back `event_not_open`, and the junta must be able to send it again.
+    store.set('closed', { ...request('closed'), at: 1, tries: 0 })
+    store.set('stranger', { ...request('stranger'), at: 2, tries: 0 })
+    rpc.mockImplementation((_name: string, args: { p_client_request_id: string }) =>
+      Promise.resolve({
+        data: { status: args.p_client_request_id === 'closed' ? 'event_not_open' : 'not_a_member' },
+        error: null,
+      }),
+    )
+    await flushQueue()
+    expect(store.get('closed')).toMatchObject({ held: { status: 'event_not_open' } })
+
+    rpc.mockReset()
+    rpc.mockResolvedValue({ data: { status: 'ok' }, error: null })
+    await expect(resendHeld()).resolves.toEqual({ sent: 1, left: 0 })
+
+    // Only that one: a stranger's answer would only replay.
+    expect([...store.keys()]).toEqual(['stranger'])
+    expect(rpc).toHaveBeenCalledTimes(1)
+  })
+
+  it('is kept with its status and name, and not sent again', async () => {
+    store.set('stranger', { ...request('stranger'), at: 1, tries: 0 })
+    store.set('dup', { ...request('dup'), at: 2, tries: 0 })
+    store.set('fine', { ...request('fine'), at: 3, tries: 0 })
+    const answers: Record<string, unknown> = {
+      stranger: { status: 'member_inactive', nombre: 'Persona Inventada' },
+      dup: { status: 'already_checked_in', nombre: 'Alfa' },
+      fine: { status: 'ok', nombre: 'Beta' },
+    }
+    rpc.mockImplementation((_name: string, args: { p_client_request_id: string }) =>
+      Promise.resolve({ data: answers[args.p_client_request_id], error: null }),
+    )
+
+    await expect(flushQueue()).resolves.toEqual({ sent: 3, left: 0 })
+    expect([...store.keys()]).toEqual(['stranger'])
+    expect(store.get('stranger')).toMatchObject({
+      held: { kind: 'answered', status: 'member_inactive', nombre: 'Persona Inventada' },
+    })
+
+    rpc.mockClear()
+    await flushQueue()
+    expect(rpc).not.toHaveBeenCalled()
   })
 })
 

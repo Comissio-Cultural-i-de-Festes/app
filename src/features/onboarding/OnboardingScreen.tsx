@@ -11,6 +11,7 @@ import { useUserId } from '@/features/session/useUserId'
 import { INSTAGRAM_MAX, isInstagramHandle, normaliseInstagram } from '@/features/profile/instagram'
 import { errorKey } from '@/lib/errors'
 import { ESCOLES, type Escola } from '@/lib/model'
+import { invalidateData } from '@/lib/signedQuery'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { Wordmark } from '@/ui/Logo/Logo'
 
@@ -137,7 +138,7 @@ export function OnboardingScreen() {
       })
     },
     onSuccess: async () => {
-      await client.invalidateQueries()
+      await invalidateData(client)
       void navigate('/', { replace: true })
     },
   })

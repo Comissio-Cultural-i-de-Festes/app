@@ -15,8 +15,19 @@ import type { Database } from './database.types'
  * not a corner case, it is the normal path. See features/entry: the same email
  * also carries a six-digit code, and that is what covers it.
  */
+/**
+ * On es desa la sessió. És exactament la clau que supabase-js tria per defecte
+ * —`sb-<primer tros del host>-auth-token`—, escrita aquí perquè la porta de
+ * l'app la necessita llegir sense passar per la biblioteca: amb el testimoni
+ * caducat i sense xarxa, `getSession()` torna `null`, però la sessió segueix
+ * desada i diu de qui és el mòbil, que és el que cal per ensenyar el QR.
+ * Canviar-la tancaria la sessió de tothom.
+ */
+export const AUTH_STORAGE_KEY = `sb-${new URL(env.supabaseUrl).hostname.split('.')[0] ?? ''}-auth-token`
+
 export const supabase = createClient<Database>(env.supabaseUrl, env.supabaseAnonKey, {
   auth: {
+    storageKey: AUTH_STORAGE_KEY,
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,

@@ -90,7 +90,7 @@ import { useNormativa } from './useNormativa'
  * sent un `alert`: aquell no el produeix teclejar, el produeix apretar.
  */
 
-const BAD = 'border-warning'
+const BAD = 'border-warning focus:border-warning'
 
 export function AvisForm({
   userId,

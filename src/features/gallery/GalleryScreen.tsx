@@ -10,8 +10,10 @@ import { isJunta, useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
 import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
+import { EVENT_PHOTOS } from '@/lib/storage'
+import { useSignedUrls } from '@/lib/useSignedUrls'
 
-import { fetchPhotos, fetchUrls, galleryKeys, uploadPhoto } from './api'
+import { fetchPhotos, galleryKeys, uploadPhoto } from './api'
 import { Viewer } from './Viewer'
 
 /**
@@ -61,12 +63,8 @@ export function GalleryScreen() {
     enabled: id !== '',
   })
 
-  const paths = (photos.data ?? []).flatMap((p) => [p.thumb_path, p.path])
-  const urls = useQuery({
-    queryKey: galleryKeys.urls(paths),
-    queryFn: () => fetchUrls(paths),
-    enabled: paths.length > 0,
-  })
+  const thumbs = (photos.data ?? []).map((p) => p.thumb_path)
+  const urls = useSignedUrls(EVENT_PHOTOS, thumbs)
 
   const mine = useQuery({
     queryKey: homeKeys.attendances([id]),
@@ -181,6 +179,7 @@ export function GalleryScreen() {
                 onClick={() => {
                   setOpen(i)
                 }}
+                aria-label={t('gallery.thumbLabel', { n: i + 1, total: photos.data?.length ?? 0 })}
                 className="aspect-square bg-surface-3"
               >
                 {urls.data?.get(p.thumb_path) === undefined ? null : (
@@ -205,7 +204,6 @@ export function GalleryScreen() {
         <Viewer
           photos={photos.data}
           index={open}
-          urls={urls.data ?? new Map()}
           isAdmin={isJunta(profile)}
           onClose={() => {
             setOpen(null)

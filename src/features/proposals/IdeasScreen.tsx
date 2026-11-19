@@ -10,6 +10,7 @@ import { useUserId } from '@/features/session/useUserId'
 import { formatDateLong } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
+import { useAvailability } from '@/lib/useAvailability'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { Notice } from '@/ui/Notice/Notice'
 import { SafeTop } from '@/ui/SafeTop/SafeTop'
@@ -41,6 +42,7 @@ export function IdeasScreen() {
   const client = useQueryClient()
 
   const list = useQuery({ queryKey: proposalKeys.list(), queryFn: fetchProposals })
+  const view = useAvailability(list)
   const votes = useQuery({ queryKey: proposalKeys.myVotes(), queryFn: fetchMyVotes })
   const values = useQuery({ queryKey: doorKeys.pointValues(), queryFn: fetchPointValues })
 
@@ -107,7 +109,7 @@ export function IdeasScreen() {
         </p>
       )}
 
-      {list.isPending ? (
+      {view.loading ? (
         <>
           <p className={`pb-6 text-sm-lo font-semibold text-fg-muted ${GUTTER}`}>
             {t('ideas.loading')}
@@ -119,8 +121,8 @@ export function IdeasScreen() {
             {t('ideas.loadingNote')}
           </p>
         </>
-      ) : list.isError ? (
-        <Failed error={list.error} onRetry={() => void list.refetch()} />
+      ) : view.unavailable ? (
+        <Failed messageKey={view.messageKey} onRetry={view.retry} />
       ) : rows.length === 0 ? (
         <Empty points={points} />
       ) : (
@@ -447,8 +449,18 @@ function Empty({ points }: { readonly points: string }) {
  * This screen never says the list is empty when it could not be read, because
  * the two lead somewhere different: one invites and the other warns. Proposing
  * still works, and so does saying so.
+ *
+ * "Could not be read" includes never having been asked. Offline the query
+ * pauses instead of failing, and this used to sit on the skeleton for as long
+ * as there was no signal — `useAvailability` counts that as unavailable too.
  */
-function Failed({ error, onRetry }: { readonly error: unknown; readonly onRetry: () => void }) {
+function Failed({
+  messageKey,
+  onRetry,
+}: {
+  readonly messageKey: string
+  readonly onRetry: () => void
+}) {
   const { t } = useTranslation()
 
   return (
@@ -457,7 +469,7 @@ function Failed({ error, onRetry }: { readonly error: unknown; readonly onRetry:
         {t('ideas.failed')}
       </p>
       <p className="mt-5 text-md text-fg-secondary [text-wrap:pretty]">{t('ideas.failedSub')}</p>
-      <p className="mt-3 text-sm text-fg-muted [text-wrap:pretty]">{t(errorKey(error))}</p>
+      <p className="mt-3 text-sm text-fg-muted [text-wrap:pretty]">{t(messageKey)}</p>
 
       <div className="mt-8 flex flex-wrap gap-5">
         <button

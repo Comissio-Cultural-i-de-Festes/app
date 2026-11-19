@@ -1,9 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
-import { decidePhoto, fetchReported, fetchUrls, galleryKeys } from '@/features/gallery/api'
+import { decidePhoto, fetchReported, galleryKeys } from '@/features/gallery/api'
 import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
+import { EVENT_PHOTOS } from '@/lib/storage'
+import { useSignedUrls } from '@/lib/useSignedUrls'
 
 import { JuntaHeader } from './JuntaHeader'
 
@@ -29,11 +31,7 @@ export function PhotoReportsScreen() {
   const reports = useQuery({ queryKey: galleryKeys.reports(), queryFn: fetchReported })
 
   const thumbs = (reports.data ?? []).map((r) => r.thumb_path)
-  const urls = useQuery({
-    queryKey: galleryKeys.urls(thumbs),
-    queryFn: () => fetchUrls(thumbs),
-    enabled: thumbs.length > 0,
-  })
+  const urls = useSignedUrls(EVENT_PHOTOS, thumbs)
 
   const decide = useMutation({
     mutationFn: ({ id, hide }: { id: string; hide: boolean }) => decidePhoto(id, hide),

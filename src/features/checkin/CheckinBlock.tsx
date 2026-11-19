@@ -11,6 +11,8 @@ import { insideKeys } from '@/features/event/insideApi'
 import { photoKeys } from '@/features/photos/api'
 import { formatTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
+import { errorKey } from '@/lib/errors'
+import { NotSaved } from '@/lib/queue'
 import type { EventRow } from '@/lib/schema'
 import { Notice } from '@/ui/Notice/Notice'
 
@@ -38,6 +40,8 @@ type State =
   | { readonly kind: 'nofix'; readonly why: PositionFailure['kind'] }
   /** Sense cobertura: apuntat a la cua i s'enviarà sol. */
   | { readonly kind: 'queued' }
+  /** Sense cobertura i sense on apuntar-ho: no sortirà sol, s'ha de tornar a prémer. */
+  | { readonly kind: 'notSaved'; readonly error: NotSaved }
 
 export function CheckinBlock({
   event,
@@ -94,6 +98,10 @@ export function CheckinBlock({
         setState({ kind: 'nofix', why: cause.kind })
         return
       }
+      if (cause instanceof NotSaved) {
+        setState({ kind: 'notSaved', error: cause })
+        return
+      }
       // Qualsevol altra cosa vol dir que no hi ha arribat: el fitxatge ja és a
       // la cua i sortirà sol quan torni la xarxa.
       setState({ kind: 'queued' })
@@ -146,6 +154,12 @@ export function CheckinBlock({
           </button>
 
           {state.kind === 'queued' ? <Note tone="warn">{t('checkin.queued')}</Note> : null}
+
+          {state.kind === 'notSaved' ? (
+            <p role="alert" className="mt-6 text-md font-bold text-error [text-wrap:pretty]">
+              {t(errorKey(state.error))}
+            </p>
+          ) : null}
 
           {state.kind === 'nofix' ? (
             <Note tone="warn">{t(`checkin.nofix.${state.why}`, { app: brand.shortName })}</Note>

@@ -43,7 +43,7 @@ import {
  *
  * LES MATEIXES CLAUS QUE LES PANTALLES, de les mateixes fàbriques i amb les
  * mateixes funcions: la pantalla que es munta després troba la dada a la cau
- * i no demana res. Si una clau canvia, `startPrefetch.test.ts` falla; no hi
+ * i no demana res. Si una clau canvia, `startPrefetch.test.tsx` falla; no hi
  * ha una segona llista de claus per mantenir.
  *
  * `prefetchQuery` no llança mai: un error aquí deixa la consulta sense dades i
@@ -65,9 +65,8 @@ export async function prefetchHome(client: QueryClient, userId: string): Promise
       queryFn: () => fetchPrevious(horizon),
     }),
     client.prefetchQuery({ queryKey: rankingKeys.periods(), queryFn: fetchPeriods }),
-    // Dues targetes de més avall de l'Inici: no pengen de res, però es
-    // muntaven de les últimes i la seva petició sortia a la volta quatre.
-    client.prefetchQuery({ queryKey: photoKeys.nights(), queryFn: fetchNights }),
+    // La targeta de la ratxa no penja de res, però es munta de les últimes i
+    // la seva petició sortia a la volta quatre.
     client.prefetchQuery({
       queryKey: profileScreenKeys.streak(userId),
       queryFn: fetchStreak,
@@ -79,6 +78,10 @@ export async function prefetchHome(client: QueryClient, userId: string): Promise
   const periods = client.getQueryData<Period[]>(rankingKeys.periods())
 
   const second: Promise<void>[] = []
+  // Les nits, com `useExitOffer`: només si hi ha un esdeveniment anterior.
+  if (previous?.[0] !== undefined) {
+    second.push(client.prefetchQuery({ queryKey: photoKeys.nights(), queryFn: fetchNights }))
+  }
   if (upcoming !== undefined && previous !== undefined) {
     // L'ordre és el de `useHome`: la clau porta els ids tal qual.
     const ids = [...upcoming, ...previous].map((e) => e.id)
@@ -109,9 +112,14 @@ export async function prefetchHome(client: QueryClient, userId: string): Promise
   await Promise.all(second)
 }
 
-/** El tros de codi de l'entrada a la junta, que viu a part. */
-export function loadJuntaHome(): Promise<unknown> {
-  return import('@/features/junta/JuntaHome')
+/**
+ * El tros de codi de l'entrada a la junta, que viu a part. Només en arrencada
+ * en fred, quan la porta de fora encara espera el perfil, i només amb xarxa:
+ * un `import()` que falla es queda recordat fins que es recarrega.
+ */
+export function preloadJuntaHome(): void {
+  if (!navigator.onLine) return
+  import('@/features/junta/JuntaHome').catch(() => undefined)
 }
 
 /**
@@ -119,10 +127,6 @@ export function loadJuntaHome(): Promise<unknown> {
  * RLS li torna buit o 42501, i seria una petició per sentir «no».
  */
 export async function prefetchJunta(client: QueryClient): Promise<void> {
-  // El tros de codi també: sense això, el JS de la pantalla es baixava quan el
-  // perfil ja era aquí, just abans de poder demanar res.
-  void loadJuntaHome()
-
   const horizon = juntaHorizonIso()
   await Promise.all([
     client.prefetchQuery({ queryKey: juntaHomeKeys.home(), queryFn: fetchJuntaHome }),

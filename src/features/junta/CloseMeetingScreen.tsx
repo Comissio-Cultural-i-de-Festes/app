@@ -96,7 +96,7 @@ export function CloseMeetingScreen() {
       await client.invalidateQueries({ queryKey: eventKeys.one(id) })
       await client.invalidateQueries({ queryKey: meetingListKeys.list() })
       await client.invalidateQueries({ queryKey: juntaHomeKeys.home() })
-      await navigate('/junta')
+      await navigate('/junta', { replace: true })
     },
   })
 
@@ -106,7 +106,7 @@ export function CloseMeetingScreen() {
   if (e === null || e === undefined) {
     return (
       <main className="min-h-dvh bg-app">
-        <JuntaHeader
+        <JuntaHeader viaHistory
           to="/junta"
           label={t('junta.back')}
           title={t('meeting.closeTitle')}
@@ -137,7 +137,7 @@ export function CloseMeetingScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-14">
-      <JuntaHeader
+      <JuntaHeader viaHistory
         to="/junta"
         label={t('junta.back')}
         title={t('meeting.closeTitle')}

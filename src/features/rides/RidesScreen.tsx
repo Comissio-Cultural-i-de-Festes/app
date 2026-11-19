@@ -77,7 +77,7 @@ export function RidesScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <JuntaHeader
+      <JuntaHeader viaHistory
         to={`/esdeveniment/${id}`}
         label={event.data?.titulo ?? t('actions.back')}
         title={t('rides.title')}

@@ -160,6 +160,7 @@ export function EventScreen() {
         <p className="mt-6 text-fg-muted [text-wrap:pretty]">{t('event.gone.body')}</p>
         <Link
           to="/"
+          onClick={goBack}
           className="-ml-2 mt-8 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-brand-label"
         >
           {t('event.gone.back')}

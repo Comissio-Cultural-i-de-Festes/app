@@ -91,7 +91,7 @@ export function MyRideScreen() {
     mutationFn: () => withdrawRide(ride),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: rideKeys.list(id) })
-      await navigate(`/esdeveniment/${id}/cotxes`)
+      await navigate(`/esdeveniment/${id}/cotxes`, { replace: true })
     },
   })
 
@@ -115,7 +115,7 @@ export function MyRideScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <JuntaHeader
+      <JuntaHeader viaHistory
         to={`/esdeveniment/${id}/cotxes`}
         label={t('rides.title')}
         title={t('rides.mine')}

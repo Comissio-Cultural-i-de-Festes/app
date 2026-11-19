@@ -61,7 +61,7 @@ export function ProvesScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <JuntaHeader to={`/esdeveniment/${id}`} label={event.data?.titulo ?? t('gimcana.back')} />
+      <JuntaHeader viaHistory to={`/esdeveniment/${id}`} label={event.data?.titulo ?? t('gimcana.back')} />
 
       <div className={GUTTER}>
         <h1 className="display text-d-s tracking-[-0.045em]">{t('gimcana.title')}</h1>

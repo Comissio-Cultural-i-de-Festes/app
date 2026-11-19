@@ -89,7 +89,7 @@ export function GimcanaFormScreen() {
       ),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: gimcanaKeys.all() })
-      void navigate(`/junta/esdeveniment/${id}`)
+      void navigate(`/junta/esdeveniment/${id}`, { replace: true })
     },
   })
 
@@ -112,7 +112,7 @@ export function GimcanaFormScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-10">
-      <JuntaHeader
+      <JuntaHeader viaHistory
         to={`/junta/esdeveniment/${id}`}
         label={t('junta.gimcana.leave')}
         className="lg:hidden"

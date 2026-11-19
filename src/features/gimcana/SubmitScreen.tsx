@@ -100,7 +100,7 @@ export function SubmitScreen() {
   })
   return (
     <main className="min-h-dvh bg-app pb-10">
-      <JuntaHeader to={`/esdeveniment/${id}/gimcana`} label={t('gimcana.title')} />
+      <JuntaHeader viaHistory to={`/esdeveniment/${id}/gimcana`} label={t('gimcana.title')} />
 
       <div className={GUTTER}>
         {/* «Aquesta prova ja no hi és» només quan la gimcana ha arribat i no

@@ -88,7 +88,7 @@ export function MemberScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
-      <JuntaHeader to="/junta/socis" label={t('junta.members.title')} className="lg:hidden" />
+      <JuntaHeader viaHistory to="/junta/socis" label={t('junta.members.title')} className="lg:hidden" />
 
       <div className={`pt-8 ${GUTTER}`}>
         {soci.isPending ? (

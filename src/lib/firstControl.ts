@@ -20,9 +20,23 @@
  * un sol fitxer. La llista de la pàgina ja el porta, i de passada desa també
  * qualsevol altra pantalla que s'hagi obert abans d'hora.
  *
+ * EL QUE ENCARA ESTÀ EN CAMÍ. Amb mala cobertura, el castellà pot haver sortit
+ * abans que el service worker prengués el control i arribar després. Aquella
+ * petició ja no passa per ell, i a la llista del moment del control encara no
+ * hi és. Per això, a partir d'aleshores, s'escolten els recursos que van
+ * acabant, i es torna a demanar el que va començar abans del control. El que
+ * comença després ja hi passa sol, i no cal tornar-ho a demanar.
+ *
  * Només la primera vegada. Quan el service worker ja hi mana tot hi passa sol,
  * i quan un de nou el substitueix `autoUpdate` recarrega la pàgina.
  */
+
+/** Prou d'una entrada de `PerformanceResourceTiming`. */
+export interface Resource {
+  readonly name: string
+  /** En el rellotge de `performance.now()`. */
+  readonly startTime: number
+}
 
 /** El mateix criteri que la regla `chunks` de `vite.config.ts`. */
 export function assetsToKeep(urls: Iterable<string>, origin: string): string[] {
@@ -55,19 +69,44 @@ export interface FirstControl {
       options: AddEventListenerOptions,
     ): void
   }
-  /** Les URL que la pàgina ha carregat fins ara; es llegeixen en el moment. */
-  readonly loaded: () => readonly string[]
+  /** Els recursos que la pàgina ha acabat de carregar fins ara. */
+  readonly loaded: () => readonly Resource[]
+  /** Els que acabin d'aquí endavant, a mesura que acaben. */
+  readonly later: (listener: (entries: readonly Resource[]) => void) => void
+  readonly now: () => number
   readonly origin: string
   readonly fetch: (url: string) => Promise<unknown>
 }
 
-export function keepWhatCameFirst({ container, loaded, origin, fetch }: FirstControl): void {
+export function keepWhatCameFirst({
+  container,
+  loaded,
+  later,
+  now,
+  origin,
+  fetch,
+}: FirstControl): void {
   if (container.controller !== null) return
   container.addEventListener(
     'controllerchange',
     () => {
-      // Una fallada no es diu enlloc: la propera visita amb xarxa el desa igual.
-      for (const url of assetsToKeep(loaded(), origin)) fetch(url).catch(() => undefined)
+      const control = now()
+      const asked = new Set<string>()
+      const ask = (entries: readonly Resource[]) => {
+        const before = entries.filter((entry) => entry.startTime < control)
+        const urls = assetsToKeep(
+          before.map((entry) => entry.name),
+          origin,
+        )
+        for (const url of urls) {
+          if (asked.has(url)) continue
+          asked.add(url)
+          // Una fallada no es diu enlloc: la propera visita amb xarxa el desa.
+          fetch(url).catch(() => undefined)
+        }
+      }
+      ask(loaded())
+      later(ask)
     },
     { once: true },
   )

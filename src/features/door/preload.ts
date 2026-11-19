@@ -1,17 +1,20 @@
 /**
  * La porta, baixada abans d'arribar-hi.
  *
- * Les pantalles de la porta no són a la precache (`build/precache.ts`): les
- * guarda el service worker la primera vegada que es demanen, i a partir
- * d'aleshores s'obren sense xarxa. Si l'única manera de demanar-les fos obrir-les,
- * la primera vegada seria a la porta de la casa rural, que és justament on no
- * hi ha cobertura.
+ * La porta NO depèn d'això. Els seus trossos són a la precache
+ * (`build/precache.ts`), que s'instal·la sencera amb cada versió; el perquè hi
+ * és explicat. El que aquí encara fa falta és el wasm del lector de QR: un
+ * megabyte que no va a la precache, i que sense això es baixaria el primer cop
+ * que s'obrís l'escàner, a la porta, on no hi ha cobertura. El wasm només canvia
+ * quan canvia la biblioteca, o sigui que un cop baixat aguanta els desplegaments.
  *
- * Per això es demanen en entrar a la zona de junta, que es fa a casa o pel camí:
+ * Per això, en entrar a la zona de junta, que es fa a casa o pel camí, es demanen
  * el rebedor i el que s'obre des del seu bloc de la porta —l'escàner, l'alta a
  * mà, els punts i la cua de la gimcana—, i el lector de QR amb el seu wasm. Amb
  * el mateix especificador que fa servir `App.tsx`, o sigui els mateixos trossos
- * que el router demanarà després.
+ * que el router demanarà després. Les pantalles ja hi serien; demanar-les no
+ * costa res, i si un dia la regla de la precache se'n deixés alguna, aquí
+ * quedaria a la memòria cau.
  *
  * Es va descartar baixar tota la zona: el formulari d'esdeveniment porta el mapa,
  * que és el tros més gros de tots, i la resta són pantalles d'escriptori, que es

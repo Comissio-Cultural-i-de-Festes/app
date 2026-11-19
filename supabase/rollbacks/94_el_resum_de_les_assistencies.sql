@@ -9,4 +9,4 @@
 -- que tornés a llegir les files. Es desfà després d'haver desplegat el client
 -- d'abans, no abans.
 
-drop function if exists public.resum_assistencies(uuid[]);
+drop function if exists public.resum_assistencies(uuid[], timestamptz);

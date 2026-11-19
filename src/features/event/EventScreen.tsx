@@ -5,7 +5,7 @@ import { Link, useLocation, useParams } from 'react-router'
 
 import { fetchSummaries, homeKeys, placesLeft } from '@/features/home/api'
 import { expectedState } from '@/features/home/answer'
-import { signedUpToday, summaryOf } from '@/features/home/summary'
+import { FACES, dayStartIso, summaryOf } from '@/features/home/summary'
 import { useAnswer } from '@/features/home/useHome'
 import { StreakLine } from '@/features/profile/StreakLine'
 import {
@@ -73,8 +73,6 @@ function whenText(e: EventRow, starts: Date, locale: ReturnType<typeof toLocale>
  * knowing before rather than after.
  */
 
-const FACES = 5
-
 export function EventScreen() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
@@ -96,9 +94,10 @@ export function EventScreen() {
   const view = useAvailability(event)
   // El resum i no les files: aquí es pinten cinc cares, uns recomptes i la
   // meva resposta, i la llista sencera de qui és dins té la seva pantalla.
+  const desde = dayStartIso(now)
   const summaries = useQuery({
-    queryKey: homeKeys.summaries([id]),
-    queryFn: () => fetchSummaries([id]),
+    queryKey: homeKeys.summaries([id], desde),
+    queryFn: () => fetchSummaries([id], desde),
   })
   const waitlist = useQuery({
     queryKey: eventKeys.waitlist(id),
@@ -174,7 +173,6 @@ export function EventScreen() {
   // pantalla canvia, i el que la decideix és `tipo`.
   const isMeeting = e.tipo === 'reunio'
   const price = formatPrice(e.precio_cents, INTL_LOCALE[locale])
-  const movement = signedUpToday(summary, now)
   // Only worth a tap once the door has let somebody in. Before that the
   // screen has nothing on it, and a link to nothing is a dead end.
   const inside = summary.attended
@@ -292,14 +290,14 @@ export function EventScreen() {
           <p className="mt-4 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
             {t('event.onlyYeses')}
           </p>
-          {movement.length > 0 ? (
+          {summary.recent_total > 0 ? (
             <p className="mt-6 flex items-center gap-[9px] text-md-lo text-fg-muted">
               <span
                 aria-hidden="true"
                 className="size-[9px] flex-none rounded-full bg-brand [animation:comi-pulse_var(--ds-pulse-dur)_ease-in-out_infinite]"
               />
               <span className="flex-1 [text-wrap:pretty]">
-                {t('event.movement', { count: movement.length })}
+                {t('event.movement', { count: summary.recent_total })}
               </span>
             </p>
           ) : null}

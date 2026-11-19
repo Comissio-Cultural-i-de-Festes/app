@@ -25,7 +25,8 @@ vi.mock('./api', async (original) => ({
 
 const ME = 'me'
 const EVENT = 'e1'
-const KEY = homeKeys.summaries([EVENT, 'e2'])
+const DESDE = '2026-09-19T22:00:00.000Z'
+const KEY = homeKeys.summaries([EVENT, 'e2'], DESDE)
 
 const OTHER = { user_id: 'other', avatar_url: null, created_at: '2026-09-19T10:00:00Z' }
 
@@ -177,7 +178,7 @@ describe('useAnswer', () => {
   it('escriu també a la consulta de la fitxa, que és només [id]', async () => {
     setAnswer.mockReturnValue(deferred<AnswerResult>().promise)
     const { result } = setup()
-    const sheet = homeKeys.summaries([EVENT])
+    const sheet = homeKeys.summaries([EVENT], DESDE)
     client.setQueryData<EventSummary[]>(sheet, [summary()])
 
     act(() => {
@@ -191,7 +192,7 @@ describe('useAnswer', () => {
   it("no toca la consulta d'un altre esdeveniment", async () => {
     setAnswer.mockReturnValue(deferred<AnswerResult>().promise)
     const { result } = setup()
-    const elsewhere = homeKeys.summaries(['e9'])
+    const elsewhere = homeKeys.summaries(['e9'], DESDE)
     client.setQueryData<EventSummary[]>(elsewhere, [])
 
     act(() => {

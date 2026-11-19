@@ -40,7 +40,7 @@ vi.mock('@/features/event/api', () => ({
   fetchEvent: () => Promise.resolve({ titulo: 'Nit' }),
 }))
 vi.mock('@/features/home/api', () => ({
-  homeKeys: { summaries: (ids: string[]) => ['resum', ...ids] },
+  homeKeys: { summaries: (ids: string[], desde: string) => ['resum', ...ids, desde] },
   fetchSummaries: () => Promise.resolve([]),
 }))
 vi.mock('@/features/session/useMyProfile', () => ({

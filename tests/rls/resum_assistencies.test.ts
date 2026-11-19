@@ -25,7 +25,8 @@ interface Summary {
   readonly mine: string | null
   readonly mine_at: string | null
   readonly faces: readonly Face[]
-  readonly recent: readonly { readonly nombre: string; readonly created_at: string }[]
+  readonly recent_total: number
+  readonly recent: readonly string[]
 }
 
 const EVENTS = [
@@ -38,11 +39,14 @@ const EVENTS = [
   '00000000-0000-4000-8000-0000000000ea',
 ]
 
-const DAY_AND_A_BIT_MS = 26 * 3_600_000
+// Un sol instant per a la crida i per a la comparació: «des de quan» ha de ser
+// el mateix a totes dues bandes, o la vora es mou entre l'una i l'altra.
+const DESDE = new Date(Date.now() - 26 * 3_600_000).toISOString()
 
 async function summaries(client: Client): Promise<Summary[]> {
   const { data, error } = await rpc<Summary[]>(client, 'resum_assistencies', {
     p_event_ids: EVENTS,
+    p_desde: DESDE,
   })
   expect(error).toBeNull()
   return [...(data ?? [])].sort((a, b) => a.event_id.localeCompare(b.event_id))
@@ -73,14 +77,18 @@ async function fromRows(client: Client) {
       attended: here.filter((r) => r.estado === 'asistio').length,
       mine: here.find((r) => r.user_id === me)?.estado ?? null,
       faces: going.slice(0, 5).map((r) => [r.user_id, r.profiles?.avatar_url ?? null]),
-      recent: going
-        .filter(
+      ...(() => {
+        const recent = going.filter(
           (r) =>
             r.user_id !== me &&
-            Date.parse(r.created_at) >= Date.now() - DAY_AND_A_BIT_MS &&
+            Date.parse(r.created_at) >= Date.parse(DESDE) &&
             (r.profiles?.nombre ?? '') !== '',
         )
-        .map((r) => r.profiles?.nombre),
+        return {
+          recent_total: recent.length,
+          recent: recent.slice(0, 2).map((r) => r.profiles?.nombre),
+        }
+      })(),
     }
   })
 }
@@ -92,7 +100,8 @@ function comparable(list: readonly Summary[]) {
     attended: s.attended,
     mine: s.mine,
     faces: s.faces.map((f) => [f.user_id, f.avatar_url]),
-    recent: s.recent.map((r) => r.nombre),
+    recent_total: s.recent_total,
+    recent: s.recent,
   }))
 }
 
@@ -138,16 +147,29 @@ describe('resum_assistencies', () => {
   })
 
   it('anon no la pot cridar', async () => {
-    const { error } = await rpc(anonClient(), 'resum_assistencies', { p_event_ids: EVENTS })
+    const { error } = await rpc(anonClient(), 'resum_assistencies', {
+      p_event_ids: EVENTS,
+      p_desde: DESDE,
+    })
     expect(error?.code).toBe('42501')
   })
 
-  it('una cara és id, foto i hora, i un nom és nom i hora: res més', async () => {
+  it('més de cinquanta esdeveniments és 22023', async () => {
+    const many = Array.from(
+      { length: 51 },
+      (_, i) => `00000000-0000-4000-8000-${String(i).padStart(12, '0')}`,
+    )
+    const { error } = await rpc(member, 'resum_assistencies', { p_event_ids: many, p_desde: DESDE })
+    expect(error?.code).toBe('22023')
+  })
+
+  it('una cara és id, foto i hora, i dels noms només n’arriben dos: res més', async () => {
     const list = await summaries(junta)
     for (const s of list) {
       for (const f of s.faces)
         expect(Object.keys(f).sort()).toEqual(['avatar_url', 'created_at', 'user_id'])
-      for (const r of s.recent) expect(Object.keys(r).sort()).toEqual(['created_at', 'nombre'])
+      expect(s.recent.length).toBeLessThanOrEqual(2)
+      for (const r of s.recent) expect(typeof r).toBe('string')
     }
   })
 
@@ -167,7 +189,12 @@ describe('resum_assistencies', () => {
     // la prova es pot tornar a executar sense desfer res.
     const hotel = await as('hotel')
     const ask = async () =>
-      (await rpc<Summary[]>(hotel, 'resum_assistencies', { p_event_ids: [F.e1] })).data?.[0]
+      (
+        await rpc<Summary[]>(hotel, 'resum_assistencies', {
+          p_event_ids: [F.e1],
+          p_desde: DESDE,
+        })
+      ).data?.[0]
 
     await hotel.rpc('set_attendance', { p_event_id: F.e1, p_estado: 'potser' })
     const before = await ask()

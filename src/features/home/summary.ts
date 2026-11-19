@@ -9,19 +9,14 @@ import type { AttendanceState } from '@/lib/model'
  * pròpia. Ara `resum_assistencies()` ho compta al servidor, amb la RLS de qui
  * pregunta —és `security invoker`—, i en baixa una fila per esdeveniment.
  *
- * El tall de «avui» es queda aquí. La zona de l'associació és configuració del
- * client, i el servidor dona els noms de les últimes 26 hores, que cobreixen
- * qualsevol «avui»; on comença el dia ho decideix `zonedDayStart`, com abans.
+ * On comença «avui» ho decideix el client, perquè la zona de l'associació és
+ * configuració seva (`VITE_TIME_ZONE`): la consulta porta l'instant
+ * (`dayStartIso`) i el servidor compta d'aquí endavant.
  */
 
 export interface Face {
   readonly user_id: string
   readonly avatar_url: string | null
-  readonly created_at: string
-}
-
-export interface Recent {
-  readonly nombre: string
   readonly created_at: string
 }
 
@@ -36,8 +31,10 @@ export interface EventSummary {
   readonly mine_at: string | null
   /** Les cinc últimes persones que hi van, de la més nova a la més vella. */
   readonly faces: readonly Face[]
-  /** Qui hi va i ha contestat les últimes 26 hores, sense mi. */
-  readonly recent: readonly Recent[]
+  /** Quanta gent hi va i ha contestat avui, sense mi. */
+  readonly recent_total: number
+  /** Els dos noms més nous d'aquests. */
+  readonly recent: readonly string[]
 }
 
 /** Quantes cares torna el servidor: les que pinta la fitxa. */
@@ -51,6 +48,7 @@ export function emptySummary(eventId: string): EventSummary {
     mine: null,
     mine_at: null,
     faces: [],
+    recent_total: 0,
     recent: [],
   }
 }
@@ -71,20 +69,38 @@ export function isGoing(estado: AttendanceState | null): boolean {
   return estado === 'si' || estado === 'asistio'
 }
 
+const MINUTE_MS = 60_000
+const HOUR_MS = 3_600_000
+const dayStarts = new Map<number, string>()
+
 /**
- * The names behind "en Marc, la Júlia i 3 més s'han apuntat avui".
+ * L'instant en què ha començat avui a la zona de l'associació, en ISO.
  *
- * Yours never arrives — the server leaves it out, because you know you signed
- * up and the line exists to show movement by other people.
+ * És el `p_desde` de «s'hi han apuntat avui». Comptar des d'una mitjanit
+ * calculada en UTC és la versió que perd en silenci tothom qui s'apunta entre
+ * les dotze i les dues de la nit, que en aquesta associació no és un cas rar.
  *
- * "Today" is the same calendar day in the association's zone, compared day
- * index to day index. Comparing against a midnight computed as an instant is
- * the version that quietly loses everything signed up between midnight and two
- * in the morning, which at this association is not an edge case.
+ * Es busca el primer minut del dia amb `zonedDayStart`, que ja sap la zona i
+ * els canvis d'hora, en lloc de restar un desplaçament: el dia del canvi
+ * d'hora, el desplaçament d'ara no és el de la mitjanit. La mitjanit local cau
+ * sempre entre catorze hores abans i dotze després de la mitjanit UTC del
+ * mateix dia, i hi arriba en una dotzena de passos.
+ *
+ * El resultat és part de la clau de la consulta, i es desa per dia per no
+ * tornar-lo a buscar a cada render.
  */
-export function signedUpToday(summary: EventSummary, now: Date): string[] {
-  const today = zonedDayStart(now)
-  return summary.recent
-    .filter((r) => zonedDayStart(new Date(r.created_at)) === today)
-    .map((r) => r.nombre)
+export function dayStartIso(now: Date): string {
+  const day = zonedDayStart(now)
+  const hit = dayStarts.get(day)
+  if (hit !== undefined) return hit
+  let lo = (day - 14 * HOUR_MS) / MINUTE_MS
+  let hi = (day + 12 * HOUR_MS) / MINUTE_MS
+  while (lo < hi) {
+    const mid = Math.floor((lo + hi) / 2)
+    if (zonedDayStart(new Date(mid * MINUTE_MS)) >= day) hi = mid
+    else lo = mid + 1
+  }
+  const iso = new Date(lo * MINUTE_MS).toISOString()
+  dayStarts.set(day, iso)
+  return iso
 }

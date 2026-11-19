@@ -41,7 +41,7 @@ import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { type EventRow, placesLeft } from './api'
 import { type AnswersState, expectedState, homeCta } from './answer'
-import { type EventSummary, signedUpToday, summaryOf } from './summary'
+import { type EventSummary, summaryOf } from './summary'
 import { type Home, useAnswer, useHome } from './useHome'
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -524,10 +524,7 @@ function CallToAction({
   })
   const locale = toLocale(i18n.resolvedLanguage)
 
-  // Un sol instant per a tot el render: llegir l'hora dues vegades pot posar
-  // «encara s'hi pot fitxar» i «s'hi han apuntat avui» en desacord.
   const [now] = useState(() => new Date())
-  const names = signedUpToday(summary, now)
 
   // Fitxar era el flux més car de l'app: obrir, tocar el hero, recórrer avall
   // per cares, fets i places, i llavors «Sóc aquí». Mentre la finestra és
@@ -674,13 +671,15 @@ function CallToAction({
         <SkeletonBar w="w-[72%]" h="h-[20px]" className="mt-[10px]" />
       ) : cta === 'unknown' ? (
         <div aria-hidden="true" className="mt-[10px] h-[20px]" />
-      ) : names.length > 0 ? (
+      ) : summary.recent_total > 0 ? (
         <p className="mt-[10px] flex items-center gap-[9px] text-md-lo text-fg-muted">
           <span
             aria-hidden="true"
             className="size-[9px] flex-none rounded-full bg-brand [animation:comi-pulse_var(--ds-pulse-dur)_ease-in-out_infinite]"
           />
-          <span className="flex-1 [text-wrap:pretty]">{movementLine(names, t)}</span>
+          <span className="flex-1 [text-wrap:pretty]">
+            {movementLine(summary.recent, summary.recent_total, t)}
+          </span>
         </p>
       ) : null}
     </section>

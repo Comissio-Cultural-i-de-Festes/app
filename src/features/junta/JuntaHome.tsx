@@ -6,6 +6,7 @@ import { Link, useLocation } from 'react-router'
 import { warmDecoder } from '@/features/door/decoder'
 import { fetchPeriods, rankingKeys } from '@/features/ranking/api'
 import { useMyProfile } from '@/features/session/useMyProfile'
+import { useUserId } from '@/features/session/useUserId'
 import {
   formatDateLong,
   formatDayRange,
@@ -31,7 +32,9 @@ import { fetchMeetings, meetingListKeys } from './meetingsApi'
 import { JuntaHeader } from './JuntaHeader'
 import { demanenFeina, estatDelPendent } from './pendents'
 import { fetchPendentsEsperen, pendentsKeys } from './pendentsApi'
-import { portaRecordada, recordaPorta } from './portes'
+import { portaRecordada, portesDe, recordaPorta } from './portes'
+import { recordaPortes } from './portesRecordades'
+import { PortesRecordadesBlock } from './PortesRecordadesBlock'
 import { useEstatsAvisos } from './useEstatsAvisos'
 import { useNormativa } from './useNormativa'
 
@@ -66,6 +69,13 @@ export function JuntaHome() {
   const { data: profile } = useMyProfile()
 
   const home = useQuery({ queryKey: juntaHomeKeys.home(), queryFn: fetchJuntaHome })
+
+  // Cada resposta de la porta es desa en aquest mòbil, perquè l'endemà, en
+  // fred i sense cobertura, l'escàner sigui a un toc (`portesRecordades.ts`).
+  const userId = useUserId()
+  useEffect(() => {
+    if (home.data !== undefined) recordaPortes(userId, portesDe(home.data), home.dataUpdatedAt)
+  }, [userId, home.data, home.dataUpdatedAt])
 
   const horizon = juntaHorizonIso()
   const events = useQuery({
@@ -154,13 +164,19 @@ export function JuntaHome() {
       />
 
       {door.kind === 'loading' ? (
-        <DoorLoading scannerTo={scannerTo(door.scannerEventId)} />
+        <>
+          <DoorLoading scannerTo={scannerTo(door.scannerEventId)} />
+          {door.scannerEventId === null ? <Recordades /> : null}
+        </>
       ) : door.kind === 'failed' ? (
-        <DoorFailed
-          scannerTo={scannerTo(door.scannerEventId)}
-          retrying={retrying}
-          onRetry={retry}
-        />
+        <>
+          <DoorFailed
+            scannerTo={scannerTo(door.scannerEventId)}
+            retrying={retrying}
+            onRetry={retry}
+          />
+          {door.scannerEventId === null ? <Recordades /> : null}
+        </>
       ) : (
         <>
           {door.stale === null ? null : (
@@ -491,6 +507,16 @@ function periodsCoverToday(
       p.ends_at !== null &&
       Date.parse(p.starts_at) <= now &&
       Date.parse(p.ends_at) > now,
+  )
+}
+
+/**
+ * Les portes desades, quan ni la porta ni la llista no han arribat: és l'únic
+ * camí a l'escàner que queda en obrir l'app en fred sense xarxa.
+ */
+function Recordades() {
+  return (
+    <PortesRecordadesBlock className="border-b border-surface-5 bg-surface-1 px-[var(--ds-gutter)] py-9" />
   )
 }
 

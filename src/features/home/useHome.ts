@@ -1,4 +1,13 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import {
+  type QueryClient,
+  type QueryKey,
+  onlineManager,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query'
+
+import { eventKeys } from '@/features/event/api'
 
 import {
   type Period,
@@ -11,9 +20,10 @@ import { defaultPeriod, usePeriods } from '@/features/ranking/useRanking'
 import { fetchRanking, fetchSchools } from '@/features/ranking/api'
 import { type MyProfile, fetchProfile, profileKeys } from '@/features/session/profile'
 import { useUserId } from '@/features/session/useUserId'
-import type { Answer } from '@/lib/model'
+import type { Answer, AttendanceState } from '@/lib/model'
 import { useAvailability } from '@/lib/useAvailability'
 
+import { withMyAnswer } from './answer'
 import {
   type AttendanceRow,
   type EventRow,
@@ -127,21 +137,76 @@ export function useHome(): Home {
 }
 
 /**
- * Saying yes from the home screen.
+ * Saying yes, from any of the three places that has the button.
  *
  * Through set_attendance(), because the row may not exist yet or may say
  * 'potser' and PostgREST's own upsert cannot express that with the privileges
  * the client has. RLS allows exactly si/potser/no, so there is no way for this
  * path to mark somebody as having attended.
+ *
+ * OPTIMISTA, I EL SERVIDOR TÉ L'ÚLTIMA PARAULA. En prémer, la meva fila ja diu
+ * el que s'espera (`expected`) i el botó canvia a l'instant: abans tornava a
+ * «M'hi apunto» el temps d'una recàrrega, i amb 4G lent la gent el tornava a
+ * prémer. En acabar, la fila diu el que ha tornat la crida —llista d'espera,
+ * «sol·licitat»—, que pot no ser el que s'esperava, i la recàrrega només
+ * confirma, sense fer esperar el botó. Si falla, tot torna a com estava.
+ *
+ * SENSE XARXA NO ÉS OPTIMISTA. La mutació queda en pausa i no ha sortit res:
+ * dir «Ets dins» seria mentir. Es queda el botó ocupat amb la línia del
+ * `AnswerNote`, que ja diu que s'enviarà sola quan torni la xarxa.
  */
+export interface AnswerVars {
+  readonly eventId: string
+  readonly estado: Answer
+  /** El que es mostra mentre no hi ha resposta; per defecte, el demanat. */
+  readonly expected?: AttendanceState
+}
+
+type Snapshot = readonly (readonly [QueryKey, AttendanceRow[] | undefined])[]
+
+const ATTENDANCES: QueryKey = ['home', 'attendances']
+
+function concerning(client: QueryClient, eventId: string) {
+  return client
+    .getQueryCache()
+    .findAll({ queryKey: ATTENDANCES })
+    .filter((q) => q.queryKey.slice(2).includes(eventId))
+}
+
 export function useAnswer() {
   const client = useQueryClient()
+  const userId = useUserId()
+
+  const show = (eventId: string, estado: AttendanceState) => {
+    for (const q of concerning(client, eventId)) {
+      client.setQueryData<AttendanceRow[]>(q.queryKey, (rows) =>
+        rows === undefined ? rows : withMyAnswer(rows, eventId, userId, estado, new Date()),
+      )
+    }
+  }
 
   return useMutation({
-    mutationFn: ({ eventId, estado }: { eventId: string; estado: Answer }) =>
-      setAnswer(eventId, estado),
-    onSuccess: () => {
-      void client.invalidateQueries({ queryKey: ['home', 'attendances'] })
+    mutationFn: ({ eventId, estado }: AnswerVars) => setAnswer(eventId, estado),
+    onMutate: async ({ eventId, estado, expected }): Promise<{ readonly before: Snapshot }> => {
+      if (!onlineManager.isOnline()) return { before: [] }
+      // Una recàrrega que ja volava portaria l'estat d'abans i el pintaria a
+      // sobre del que acabem de posar.
+      await client.cancelQueries({ queryKey: ATTENDANCES })
+      const before = concerning(client, eventId).map(
+        (q) => [q.queryKey, client.getQueryData<AttendanceRow[]>(q.queryKey)] as const,
+      )
+      show(eventId, expected ?? estado)
+      return { before }
+    },
+    onError: (_err, _vars, context) => {
+      for (const [key, rows] of context?.before ?? []) client.setQueryData(key, rows)
+    },
+    onSuccess: (result, { eventId }) => {
+      show(eventId, result.estado)
+    },
+    onSettled: (_data, _err, { eventId }) => {
+      void client.invalidateQueries({ queryKey: ATTENDANCES })
+      void client.invalidateQueries({ queryKey: eventKeys.waitlist(eventId) })
     },
   })
 }

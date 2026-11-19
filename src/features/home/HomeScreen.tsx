@@ -45,6 +45,7 @@ import {
   placesLeft,
   signedUpToday,
 } from './api'
+import { expectedState } from './answer'
 import { type Home, useAnswer, useHome } from './useHome'
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -510,7 +511,13 @@ function CallToAction({
           type="button"
           disabled={answer.isPending}
           onClick={() => {
-            answer.mutate({ eventId: event.id, estado: 'si' })
+            answer.mutate({
+              eventId: event.id,
+              estado: 'si',
+              expected: expectedState('si', {
+                full: placesLeft(event, goingRows(attendances, event.id).length) === 0,
+              }),
+            })
           }}
           className={`${base} bg-brand-cta text-on-brand disabled:opacity-70`}
         >

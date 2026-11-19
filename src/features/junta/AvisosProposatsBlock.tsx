@@ -21,11 +21,10 @@ import { ValidacioAvis } from './ValidacioAvis'
  * rebedor és on la junta mira què hi ha per fer, i el número de «Hi ha feina»
  * hi porta.
  *
- * TOTS, TAMBÉ ELS QUE NO POTS VALIDAR. Qui l'ha proposat el veu a la llista amb
- * «L'has proposat tu» i el botó de rebutjar-lo; qui el rep el veu sense cap
- * botó. Amagar-los-hi faria que la mateixa llista digués coses diferents a
- * cadascú, i qui ha proposat un avís és qui més vol saber si ja l'ha validat
- * algú.
+ * TAMBÉ ELS QUE HAS PROPOSAT TU, amb «L'has proposat tu» i el botó de
+ * rebutjar-lo: qui ha proposat un avís és qui més vol saber si ja l'ha validat
+ * algú. ELS QUE ET PROPOSEN A TU NO HI SURTEN: la política d'`avisos` els amaga
+ * a qui els rep fins que algú altre els valida, sigui o no de la junta.
  *
  * EL NOM PORTA A LA FITXA, que és on hi ha l'històric de la persona: qui valida
  * un avís hauria de mirar abans què porta.

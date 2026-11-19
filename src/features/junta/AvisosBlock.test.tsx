@@ -58,6 +58,7 @@ vi.mock('./useNormativa', () => ({
 
 const retiraAvis = vi.fn<(id: string, nota: string) => Promise<void>>()
 const validaAvis = vi.fn<(id: string) => Promise<void>>()
+const rebutjaAvis = vi.fn<(id: string, nota: string) => Promise<void>>()
 
 vi.mock('./avisosApi', async (original) => {
   const real = await original<typeof AvisosApi>()
@@ -67,6 +68,7 @@ vi.mock('./avisosApi', async (original) => {
     fetchAvisTipus: () => Promise.resolve([]),
     retiraAvis: (id: string, nota: string) => retiraAvis(id, nota),
     validaAvis: (id: string) => validaAvis(id),
+    rebutjaAvis: (id: string, nota: string) => rebutjaAvis(id, nota),
   }
 })
 
@@ -184,12 +186,33 @@ describe('AvisosBlock, un avís proposat (migració 93)', () => {
     expect(screen.getByRole('button', { name: 'junta.soci.avisos.rebutja' })).toBeInTheDocument()
   })
 
-  it('a la seva pròpia fitxa, ni botons ni formulari', async () => {
-    jo = SOCI
-    files = [PROPOSAT, FILES[0]!]
+  it('rebutjar crida la seva RPC i no la de retirar', async () => {
+    // Si algú altre l'ha validat mentrestant, la de rebutjar ho diu; la de
+    // retirar el retiraria i notificaria la persona.
+    rebutjaAvis.mockResolvedValue()
+    jo = PROPOSA
+    files = [PROPOSAT]
     munta()
 
-    expect(await screen.findByText('junta.soci.avisos.proposatMeu')).toBeInTheDocument()
+    fireEvent.click(await screen.findByRole('button', { name: 'junta.soci.avisos.rebutja' }))
+    fireEvent.change(screen.getByLabelText('junta.soci.avisos.rebutjaNote'), {
+      target: { value: 'No va anar així' },
+    })
+    fireEvent.click(screen.getAllByRole('button', { name: 'junta.soci.avisos.rebutja' }).at(-1)!)
+
+    await waitFor(() => {
+      expect(rebutjaAvis).toHaveBeenCalledWith(PROPOSAT.id, 'No va anar així')
+    })
+    expect(retiraAvis).not.toHaveBeenCalled()
+  })
+
+  it('a la seva pròpia fitxa, ni botons ni formulari', async () => {
+    // Els proposats contra ell no hi arriben —la política els hi amaga—; el
+    // validat sí, i sense cap botó.
+    jo = SOCI
+    munta()
+
+    expect(await screen.findByText(FILES[0]!.nota)).toBeInTheDocument()
     expect(screen.getByText('junta.soci.avisos.propi')).toBeInTheDocument()
     for (const nom of [
       'junta.soci.avisos.valida',

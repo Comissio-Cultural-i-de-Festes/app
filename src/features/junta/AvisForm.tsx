@@ -164,8 +164,9 @@ export function AvisForm({
       setMesura('')
       setEventId('')
       setConfirmant(false)
-      await client.invalidateQueries({ queryKey: avisosKeys.ofMember(userId) })
-      await client.invalidateQueries({ queryKey: avisosKeys.comptesTots() })
+      // L'arrel sencera: la fitxa, el comptador i la llista «Avisos per validar»
+      // del rebedor, on el proposat ha d'aparèixer.
+      await client.invalidateQueries({ queryKey: ['junta', 'avisos'] })
       await client.invalidateQueries({ queryKey: profileScreenKeys.points(userId) })
       await client.invalidateQueries({ queryKey: ['ranking'] })
     },

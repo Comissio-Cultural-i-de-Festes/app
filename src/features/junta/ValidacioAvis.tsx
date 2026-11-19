@@ -7,7 +7,7 @@ import { errorKey } from '@/lib/errors'
 import { Confirm } from '@/ui/Confirm/Confirm'
 
 import { notaValida } from './avis'
-import { type AvisRow, retiraAvis, validaAvis } from './avisosApi'
+import { type AvisRow, rebutjaAvis, validaAvis } from './avisosApi'
 import { accionsSobre } from './estatAvisos'
 import { INPUT } from './formBits'
 
@@ -20,16 +20,16 @@ import { INPUT } from './formBits'
  * i amb dues còpies una acabaria oferint el que l'altra amaga.
  *
  * ELS BOTONS SÓN ELS QUE LA BASE ACCEPTARÀ. `accionsSobre()` és la regla de
- * `valida_avis()` i `retira_avis()` escrita al client: qui rep l'avís no hi té
- * cap botó, i qui l'ha proposat només pot rebutjar-lo. En lloc del botó que
+ * `valida_avis()` i `rebutja_avis()` escrita al client: qui l'ha proposat només
+ * pot rebutjar-lo. En lloc del botó que
  * falta, la fila diu per què falta.
  *
  * VALIDAR DIU LES CONSEQÜÈNCIES abans de prémer, com el formulari que l'ha
  * proposat: punts, escaló i la notificació al mòbil. És el botó que fa que
  * l'avís passi de debò, i qui el prem és la segona persona que se'l mira.
  *
- * REBUTJAR DEMANA UN MOTIU, com retirar: és `retira_avis()` sobre un avís que
- * encara no compta, i la base refusa una nota en blanc igual.
+ * REBUTJAR DEMANA UN MOTIU, com retirar, i és una RPC pròpia: si mentrestant
+ * algú altre l'ha validat, `rebutja_avis()` ho diu en comptes de retirar-lo.
  *
  * SENSE XARXA ES QUEDA EN PAUSA I HO DIU, com la retirada de la fitxa. Cap de
  * les dues mutacions escriu a cap cua i no necessiten `networkMode: 'always'`.
@@ -61,16 +61,14 @@ export function ValidacioAvis({
 
   const valida = useMutation({ mutationFn: () => validaAvis(avis.id), onSuccess: fet })
   const rebutja = useMutation({
-    mutationFn: () => retiraAvis(avis.id, nota.trim()),
+    mutationFn: () => rebutjaAvis(avis.id, nota.trim()),
     onSuccess: fet,
   })
 
+  // Qui el rep no el veu mai aquí: la política li amaga els proposats contra
+  // ell encara que sigui de la junta.
   const qui =
-    avis.user_id === jo
-      ? t('junta.soci.avisos.proposatMeu')
-      : avis.created_by === jo
-        ? t('junta.soci.avisos.proposatPerMi')
-        : t('junta.soci.avisos.proposat')
+    avis.created_by === jo ? t('junta.soci.avisos.proposatPerMi') : t('junta.soci.avisos.proposat')
 
   return (
     <div className="mt-4">

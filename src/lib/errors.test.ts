@@ -98,6 +98,7 @@ describe('errorKey', () => {
         'errors.avisValidacioPropia',
       )
       expect(errorKey(dbHint('22023', 'avis_ja_resolt'), true)).toBe('errors.avisJaResolt')
+      expect(errorKey(dbHint('22023', 'avis_proposat'), true)).toBe('errors.avisProposat')
       expect(errorKey(dbHint('42501', ''), true)).toBe('errors.forbidden')
     })
 

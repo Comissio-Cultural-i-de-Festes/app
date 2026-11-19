@@ -10,8 +10,9 @@ import { rpc, supabase } from '@/lib/supabase'
  * el que escriu aquí baixa per una RPC `security definer`, i per això aquest
  * fitxer no té ni un sol `.insert()`.
  *
- * QUI LLEGEIX QUÈ. `avisos` té una sola política: els teus VALIDATS, o tots si
- * ets de la junta (migració 93). O sigui que `fetchAvisos(userId)` filtra per `user_id` encara que la
+ * QUI LLEGEIX QUÈ. `avisos` té una sola política: els teus, només VALIDATS
+ * encara que siguis de la junta; els dels altres, si ets de la junta
+ * (migració 93). O sigui que `fetchAvisos(userId)` filtra per `user_id` encara que la
  * política ja ho faria per a un soci —és la mateixa raó que hi ha escrita a
  * `profile/api.ts`: recolzar-se en l'RLS per acotar funciona perfectament per a
  * un soci i ensenya a algú de la junta el registre sencer com si fos el seu.
@@ -294,8 +295,21 @@ export async function validaAvis(avisId: string): Promise<void> {
 }
 
 /**
- * I retirar-ne un, que no l'esborra. Sobre un proposat, és rebutjar-lo: no hi
- * ha res a tornar.
+ * Rebutjar-ne un de proposat: es tanca amb el motiu escrit, sense haver comptat
+ * mai i sense avisar ningú.
+ *
+ * NO ÉS `retiraAvis` (migració 93). Si mentrestant algú altre l'ha validat, la
+ * base refusa amb `avis_ja_resolt` en comptes de retirar-lo: la pantalla
+ * prometia «no comptarà mai», i retirar un validat compensa punts i notifica.
+ */
+export async function rebutjaAvis(avisId: string, nota: string): Promise<void> {
+  const { error } = await supabase.rpc('rebutja_avis', { p_avis_id: avisId, p_nota: nota })
+  if (error) throw new DbError(error)
+}
+
+/**
+ * I retirar-ne un de validat, que no l'esborra. Un proposat no es retira: es
+ * rebutja amb `rebutjaAvis`.
  *
  * La fila es queda i surt ratllada; el que passa és que `retirat_at` s'omple i,
  * si l'avís havia restat punts, `retira_avis()` escriu la fila compensatòria al

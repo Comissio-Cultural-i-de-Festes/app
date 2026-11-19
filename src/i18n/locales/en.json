@@ -2080,7 +2080,7 @@
     "yourSeatSub": "{{who}} is holding you a seat. Take it if you are going.",
     "takeIt": "I am in",
     "declineIt": "Not going",
-    "invitedOk": "Seat held. It is their call now."
+    "invitedOk": "Seat held. Now it's their call."
   },
   "scanner": {
     "ok": "Checked in",

@@ -33,6 +33,30 @@ const paused = {
 }
 
 const USER = '00000000-0000-4000-8000-0000000000a1'
+const CASA_ID = '00000000-0000-4000-8000-0000000089c1'
+
+function desaLaCasaRural() {
+  const ara = Date.now()
+  recordaPortes(
+    USER,
+    [
+      {
+        id: CASA_ID,
+        titulo: 'Casa rural inventada',
+        starts_at: new Date(ara - 20 * 3_600_000).toISOString(),
+        ends_at: new Date(ara + 30 * 3_600_000).toISOString(),
+        ubicacion: null,
+        plazas: null,
+        diuen_si: 0,
+        fitxats: 0,
+        esperen: 0,
+        no_pagats: 0,
+        gimcana_cua: null,
+      },
+    ],
+    ara - 3_600_000,
+  )
+}
 
 function at(path: string) {
   return render(
@@ -79,7 +103,7 @@ describe('JuntaLayout', () => {
       USER,
       [
         {
-          id: 'casa',
+          id: CASA_ID,
           titulo: 'Casa rural inventada',
           starts_at: new Date(ara - 20 * 3_600_000).toISOString(),
           ends_at: new Date(ara + 30 * 3_600_000).toISOString(),
@@ -100,9 +124,47 @@ describe('JuntaLayout', () => {
     expect(screen.getByText('Casa rural inventada')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: 'junta.scan' })).toHaveAttribute(
       'href',
-      '/junta/escaner/casa',
+      `/junta/escaner/${CASA_ID}`,
     )
     expect(screen.getByText(/junta.home.recordades.title/)).toBeInTheDocument()
+  })
+
+  it('sense res desat —un soci que no ha vist mai la porta— no s’ofereix cap escàner', () => {
+    at('/junta')
+    expect(screen.getByRole('alert')).toHaveTextContent('errors.offline')
+    expect(screen.queryByRole('link')).toBeNull()
+    expect(screen.queryByText(/junta.home.recordades.title/)).toBeNull()
+  })
+
+  it('a l’escàner i a l’alta sense perfil s’hi entra, i no s’hi afegeix res', () => {
+    desaLaCasaRural()
+    for (const [path, text] of [
+      ['/junta/escaner/e1', 'escàner'],
+      ['/junta/alta/e1', 'alta'],
+    ] as const) {
+      const { unmount } = at(path)
+      expect(screen.getByText(text)).toBeInTheDocument()
+      expect(screen.queryByRole('link')).toBeNull()
+      expect(screen.queryByText(/junta.home.recordades.title/)).toBeNull()
+      unmount()
+    }
+  })
+
+  it('amb portes desades però un perfil que diu que no és de la junta, fora igualment', () => {
+    // Les portes desades no són un permís: qui hereta el mòbil d'algú de la
+    // junta i entra amb el seu compte va a l'inici, desades o no.
+    desaLaCasaRural()
+    profile.current = {
+      ...paused,
+      data: { role: 'member' },
+      status: 'success',
+      fetchStatus: 'idle',
+    }
+    for (const path of ['/junta', `/junta/escaner/${CASA_ID}`, `/junta/alta/${CASA_ID}`]) {
+      const { unmount } = at(path)
+      expect(screen.getByText('inici')).toBeInTheDocument()
+      unmount()
+    }
   })
 
   it('amb el perfil que diu que no és de la junta, fora', () => {

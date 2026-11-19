@@ -26,6 +26,7 @@ import { countdown, countdownLabel, countdownShape } from '@/features/event/coun
 import { RevealedCard } from '@/features/event/RevealedCard'
 import { InterestBlock, InterestCount } from '@/features/event/Teaser'
 import { eventTitle, titleIsHidden } from '@/features/event/title'
+import { InstallCard } from '@/features/install/InstallCard'
 import { ExitPhotoCard } from '@/features/photos/ExitPhotoCard'
 import { useExitOffer } from '@/features/photos/useExitOffer'
 import { errorKey } from '@/lib/errors'
@@ -138,6 +139,8 @@ export function HomeScreen() {
       {/* Els que han perdut el torn. Segueixen sent visibles i segueixen sent
           certs; el que no fan és competir amb la decisió de la nit. */}
       {notices.slice(1).map(notice)}
+
+      <InstallCard />
 
       <RankingTeaser home={home} />
       {home.previous ? (

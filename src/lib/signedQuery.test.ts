@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest'
 import { createQueryClient } from './queryClient'
 import {
   SIGNED_TTL_SECONDS,
+  invalidateAccess,
   invalidateData,
   isSignedKey,
   revalidates,
@@ -83,21 +84,37 @@ describe('invalidateData', () => {
     expect(revalidates(door!)).toBe(false)
   })
 
-  it('una entrada signada sense URL sí que es torna a demanar', async () => {
-    // El cas real: una persona pendent no pot signar portades; quan bescanvia
-    // un codi, sí. No hi havia cap URL, o sigui que no hi ha res a rebaixar.
+  it('una entrada signada sense URL tampoc es torna a signar a cada tornada', async () => {
+    // Un camí que torna `null` per sempre —l'objecte ja no hi és— no ha de
+    // fer una petició cada cop que el telèfon surt de la butxaca.
     const client = createQueryClient()
     client.setQueryData(signedKey('event-covers', 'c/1.jpg'), null)
-    client.setQueryData(signedKey('event-covers', 'c/2.jpg'), 'https://cdn.test/c2')
 
     await invalidateData(client)
 
-    const cache = client.getQueryCache()
     expect(
-      cache.find({ queryKey: signedKey('event-covers', 'c/1.jpg') })?.state.isInvalidated,
-    ).toBe(true)
-    expect(
-      cache.find({ queryKey: signedKey('event-covers', 'c/2.jpg') })?.state.isInvalidated,
+      client.getQueryCache().find({ queryKey: signedKey('event-covers', 'c/1.jpg') })?.state
+        .isInvalidated,
     ).toBe(false)
+  })
+})
+
+describe('invalidateAccess', () => {
+  it('després d’un canvi de permisos, torna a demanar les sense URL i només aquestes', async () => {
+    // El cas real: una persona pendent no pot signar portades; quan bescanvia
+    // un codi, sí. No hi havia cap URL, o sigui que no hi ha res a rebaixar.
+    const client = createQueryClient()
+    client.setQueryData(['events', 'home'], { reveal: false })
+    client.setQueryData(signedKey('event-covers', 'c/1.jpg'), null)
+    client.setQueryData(signedKey('event-covers', 'c/2.jpg'), 'https://cdn.test/c2')
+
+    await invalidateAccess(client)
+
+    const cache = client.getQueryCache()
+    const invalidated = (key: readonly unknown[]) =>
+      cache.find({ queryKey: key })?.state.isInvalidated
+    expect(invalidated(['events', 'home'])).toBe(true)
+    expect(invalidated(signedKey('event-covers', 'c/1.jpg'))).toBe(true)
+    expect(invalidated(signedKey('event-covers', 'c/2.jpg'))).toBe(false)
   })
 })

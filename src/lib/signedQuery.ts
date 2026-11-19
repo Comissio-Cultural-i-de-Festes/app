@@ -55,14 +55,14 @@ export function isSignedKey(key: QueryKey): boolean {
 /**
  * Si una consulta s'ha de refrescar quan l'app torna o quan han canviat dades.
  *
- * Una entrada signada sense URL sí: o la firma no ha arribat, o el servidor no
- * l'ha volguda donar. El segon cas canvia quan canvia el que la RLS deixa
- * veure —una persona pendent que bescanvia un codi passa a poder veure les
- * portades—, i com que no hi havia cap URL, tornar-la a demanar no torna a
- * baixar cap imatge.
+ * Una entrada signada, amb URL o sense, no: es refresca pels seus temps. Una
+ * sense URL —l'objecte ja no hi és, o el servidor no l'ha volguda donar— és una
+ * resposta com una altra, i tornar-la a demanar a cada tornada era una petició
+ * per camí cada vegada, per a res. Quan sí que pot haver canviat és quan canvia
+ * el que la RLS deixa veure: vegeu `invalidateAccess`.
  */
 export function revalidates(query: Query): boolean {
-  return !isSignedKey(query.queryKey) || query.state.data == null
+  return !isSignedKey(query.queryKey)
 }
 
 /**
@@ -81,10 +81,30 @@ export function invalidateData(client: QueryClient): Promise<void> {
   return client.invalidateQueries({ predicate: revalidates })
 }
 
+/**
+ * Després d'una mutació que canvia què pot veure qui la fa: bescanviar un
+ * codi d'invitació, per exemple.
+ *
+ * Tot el que fa `invalidateData`, i a més les firmes que van tornar `null`:
+ * una persona pendent no podia signar cap portada, i ara sí. Les que ja tenen
+ * URL es queden com són; tornar-les a signar seria baixar-les un altre cop sense
+ * que res hagi canviat.
+ */
+export function invalidateAccess(client: QueryClient): Promise<void> {
+  return client.invalidateQueries({
+    predicate: (query) =>
+      revalidates(query) || (isSignedKey(query.queryKey) && query.state.data == null),
+  })
+}
+
 export function withSignedDefaults(client: QueryClient): QueryClient {
   client.setQueryDefaults([SIGNED], {
     staleTime: 50 * MINUTE,
     gcTime: SIGNED_TTL_SECONDS * 1000,
+    // Els reintents els fa el lot (`storage.ts`), tots junts. Amb `retry:
+    // false` la regla `isPermanent` de `queryClient.ts` ja no s'hi aplica: qui
+    // decideix què val la pena reintentar és `worthRetrying`, allà.
+    retry: false,
   })
   return client
 }

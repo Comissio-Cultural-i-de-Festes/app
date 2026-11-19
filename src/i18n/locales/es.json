@@ -37,6 +37,17 @@
     "unknownPerson": "Este QR",
     "displaced": "Antes, {{nombre}}: {{verdict}}",
     "displacedUnknown": "El escaneo anterior: {{verdict}}",
+    "noQueue": "Este móvil no puede guardar la cola. Recarga la app",
+    "noQueueOffline": "Sin red y sin cola: no se guarda nada. Recarga la app",
+    "held_one": "{{count}} escaneo de la cola necesita que lo mires:",
+    "held_other": "{{count}} escaneos de la cola necesitan que los mires:",
+    "heldQr": "Un QR",
+    "heldAt": "a las {{hora}}",
+    "heldRefused": "el servidor no lo acepta: no ha entrado",
+    "heldRetry": "Volver a enviar",
+    "heldDrop": "Descartar",
+    "heldMore": "y {{n}} más",
+    "heldLess": "Ver menos",
     "notPaid": "no ha pagado",
     "camera": {
       "denied": "No podemos abrir la cámara. Dale permiso en los ajustes del navegador —Ajustes › {{app}} › Cámara— y vuelve, o haz el alta por el nombre.",
@@ -100,6 +111,12 @@
       "noCodeValue": "Ningún código",
       "noCodeAside": "Lo aprueba la junta"
     },
+    "app": {
+      "title": "Entra",
+      "lede": "Entra con tu cuenta de Google. Si ya te han aceptado, entra y listo; si no, una vez dentro verás cómo va.",
+      "reassurance": "De la cuenta solo cogemos el nombre, el correo y la foto. Si aún no te han aceptado, la junta te dará acceso a mano, normalmente el mismo día.",
+      "hasCodeHint": "Escríbelo en el aviso de arriba una vez dentro."
+    },
     "invite": {
       "label": "Invitación",
       "expiresSoon": "Caduca enseguida",
@@ -148,6 +165,7 @@
     "forbidden": "Esto no lo puedes hacer tú.",
     "notFound": "Esto ya no está.",
     "notAnImage": "Esta foto no la sé leer. Prueba con otra, o hazla desde la cámara.",
+    "notSaved": "No se ha podido enviar ni guardar en el móvil, así que no saldrá solo. Vuelve a intentarlo cuando tengas cobertura.",
     "rateLimited": "Demasiados intentos seguidos. Espera un par de minutos y vuelve.",
     "behindServer": "Esto todavía no está en el servidor: la app se ha actualizado antes que la base de datos. Si eres de la junta, sube las migraciones; si no, avísalos.",
     "avisSostre": "Este curso ya se le han restado a esta persona todos los puntos que el tope permite. Sube «Máximo de puntos por curso» en El baremo, o registra el aviso sin puntos.",
@@ -557,6 +575,7 @@
     "upload": "Sube las tuyas",
     "whoCanUpload": "Puede subirlas quien fichó aquella noche.",
     "thumbsNote": "Aquí todo son miniaturas. La buena, con todo el detalle, se carga solo cuando abres una.",
+    "thumbLabel": "Foto {{n}} de {{total}}",
     "uploading": "Subiendo",
     "uploadCount": "{{n}} de {{total}}",
     "uploadNote": "Van de una en una y la miniatura se hace aquí mismo antes de subir. Deja la pantalla abierta hasta que acabe; las que fallen se quedan aquí.",
@@ -675,6 +694,19 @@
     "later": "Ahora no, ya me apañaré",
     "laterWarning": "Puedes seguir aquí en el navegador. Cuando la pongas en la pantalla de inicio tendrás que entrar otra vez, porque el iPhone las trata como dos cosas distintas.",
     "iconPreview": "Así quedará entre tus apps. El icono rojo se ve de lejos cuando lo buscas con prisa.",
+    "opened": {
+      "title": "Ahora, desde el icono",
+      "body": "Ya puedes cerrar Safari. Abre la app desde el icono de la pantalla de inicio y entra desde allí: es donde se queda la sesión.",
+      "stay": "Prefiero seguir en el navegador"
+    },
+    "card": {
+      "eyebrow": "Para tenerla a mano",
+      "title": "Ponla en la pantalla de inicio",
+      "body": "Dos toques en Safari y se abre al instante, a pantalla completa y con el QR listo aunque no haya cobertura.",
+      "cta": "Enséñame cómo",
+      "later": "Ahora no",
+      "again": "Cuando la abras desde el icono, entra una vez más con Google y con la misma cuenta. El iPhone guarda la app y Safari por separado, pero la cuenta es la misma."
+    },
     "android": {
       "lede": "Un toque y la tienes en la pantalla de inicio: a pantalla completa, con el QR a mano y sin pasar por el navegador.",
       "cta": "Instala la app"
@@ -1285,6 +1317,10 @@
       "saveTeams": "Guarda los equipos",
       "proves": "Pruebas",
       "provaPlaceholder": "Qué tienen que fotografiar",
+      "shuffleHowMany": "Número de equipos",
+      "teamLabel": "Equipo {{n}}",
+      "provaLabel": "Prueba {{n}}",
+      "provaPuntsLabel": "Puntos de la prueba {{n}}",
       "addProva": "+ Añade una prueba",
       "provesNote": "Pruebas que se puedan fotografiar y puntos redondos. Las caras del juego: entre cinco y diez.",
       "publish": "Publícala con la fiesta",
@@ -2051,6 +2087,8 @@
     "eventNotOpen": "Este evento no está abierto",
     "error": "No se ha podido conectar. Vuelve a probar",
     "queued": "Guardado. Se enviará cuando haya cobertura",
+    "notSaved": "No se ha podido guardar ni enviar",
+    "refused": "El servidor no lo acepta",
     "action": {
       "okWalkin": "No estaba apuntado. Ya consta que ha venido.",
       "okWalkinReview": "Mira que pague antes de entrar, o apúntalo.",
@@ -2060,6 +2098,8 @@
       "notAMember": "Que te diga el nombre y lo buscas a mano. No lo dejes pasar sin apuntarlo.",
       "memberInactive": "Que pida entrar. Lo aprobáis mañana desde la zona junta.",
       "eventNotOpen": "Comprueba que es el evento correcto y que está publicado.",
+      "notSaved": "No se enviará solo. Que te diga el nombre y dale de alta por el nombre cuando vuelva la cobertura.",
+      "refused": "No ha entrado. Que te diga el nombre y búscalo en el alta por el nombre.",
       "error": "Sigue escaneando. Cuando vuelva la cobertura se envía solo."
     }
   },

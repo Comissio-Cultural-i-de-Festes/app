@@ -116,8 +116,18 @@ jobs:
       # pinned search_path, the partial unique index. Vitest asserts what has
       # no SQL signature — PostgREST embedding, the filtered count, the status
       # codes the UI branches on.
+      #
+      # A `todo` that passes is a reminder nobody reads: the bug it covered is
+      # closed and the file stays green if it opens again. prove reports it in
+      # its summary as "TODO passed:", and that line is the whole signal.
       - name: policy tests (pgTAP)
-        run: npx supabase test db
+        run: |
+          set -o pipefail
+          npx supabase test db 2>&1 | tee pgtap.log
+          if grep -q '^ *TODO passed:' pgtap.log; then
+            echo '::error::a pgTAP todo assertion now passes: remove its todo_start/todo_end'
+            exit 1
+          fi
 
       - name: policy tests (through PostgREST)
         run: npm run test:rls

@@ -1,5 +1,5 @@
 import { QueryClientProvider, focusManager } from '@tanstack/react-query'
-import { renderHook, waitFor } from '@testing-library/react'
+import { act, renderHook, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
@@ -57,6 +57,7 @@ function setup() {
 }
 
 afterEach(() => {
+  vi.useRealTimers()
   sign.mockReset()
   focusManager.setFocused(undefined)
 })
@@ -125,27 +126,59 @@ describe('useSignedUrls', () => {
   })
 
   it('si la firma falla per la xarxa, ho torna a provar i la imatge surt', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout'] })
     sign.mockImplementationOnce(down).mockImplementation(ok)
     const { wrapper } = setup()
 
     const { result } = renderHook(() => useSignedUrls('event-covers', ['e/cover.jpg']), {
       wrapper,
     })
-    await waitFor(() => {
-      expect(result.current.data.get('e/cover.jpg')).toMatch(/^https:\/\/cdn\.test\//)
-    })
+    await act(() => vi.advanceTimersByTimeAsync(10_000))
+    expect(result.current.data.get('e/cover.jpg')).toMatch(/^https:\/\/cdn\.test\//)
     expect(sign).toHaveBeenCalledTimes(2)
   })
 
+  it('els reintents surten junts: sis camins amb la primera crida caiguda són dues peticions', async () => {
+    // Abans cada consulta reintentava pel seu compte, en el seu setTimeout, i
+    // cada reintent era una petició: [6, 1, 1, 1, 1, 1, 1]. Una galeria de dues
+    // centes fotos amb la xarxa caiguda un moment en feia centenars.
+    vi.useFakeTimers({ toFake: ['setTimeout'] })
+    sign.mockImplementationOnce(down).mockImplementation(ok)
+    const { wrapper } = setup()
+    const paths = [1, 2, 3, 4, 5, 6].map((n) => `e/${String(n)}.thumb.jpg`)
+
+    const { result } = renderHook(() => useSignedUrls('event-photos', paths), { wrapper })
+    await act(() => vi.advanceTimersByTimeAsync(10_000))
+
+    expect(result.current.data.size).toBe(6)
+    expect(sign.mock.calls.map((c) => c[0].length)).toEqual([6, 6])
+  })
+
+  it('si tots els reintents fallen, la consulta falla i no en surt cap de nou sola', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout'] })
+    sign.mockImplementation(down)
+    const { client, wrapper } = setup()
+
+    renderHook(() => useSignedUrls('event-photos', ['e/1.jpg', 'e/2.jpg']), { wrapper })
+    await act(() => vi.advanceTimersByTimeAsync(60_000))
+
+    expect(client.getQueryState(signedKey('event-photos', 'e/1.jpg'))?.status).toBe('error')
+    expect(sign.mock.calls.length).toBeLessThanOrEqual(3)
+    const settled = sign.mock.calls.length
+    await act(() => vi.advanceTimersByTimeAsync(120_000))
+    expect(sign).toHaveBeenCalledTimes(settled)
+  })
+
   it('i si falla del tot, en tornar a l’app es torna a demanar', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout'] })
     sign.mockImplementation(down)
     const { client, wrapper } = setup()
 
     const { result } = renderHook(() => useSignedUrls('gimcana-photos', ['g/1.jpg']), { wrapper })
-    await waitFor(() => {
-      expect(client.getQueryState(signedKey('gimcana-photos', 'g/1.jpg'))?.status).toBe('error')
-    })
+    await act(() => vi.advanceTimersByTimeAsync(60_000))
+    expect(client.getQueryState(signedKey('gimcana-photos', 'g/1.jpg'))?.status).toBe('error')
     expect(result.current.data.size).toBe(0)
+    vi.useRealTimers()
 
     sign.mockImplementation(ok)
     focusManager.setFocused(false)
@@ -176,5 +209,116 @@ describe('useSignedUrls', () => {
     await waitFor(() => {
       expect(sign).toHaveBeenCalledWith(['e/vella.jpg'])
     })
+  })
+
+  it('una miniatura ja carregada no desapareix amb la pantalla oberta més d’una hora', async () => {
+    // Sense cap muntatge ni focus pel mig, la llista canvia (una foto nova) i
+    // les entrades velles queden fora del que s'ensenya: s'han de tornar a
+    // demanar soles, i un cop signades tornen.
+    vi.useFakeTimers({ toFake: ['setTimeout', 'Date'] })
+    sign.mockImplementation(ok)
+    const { wrapper } = setup()
+
+    const { result, rerender } = renderHook(
+      ({ paths }: { paths: string[] }) => useSignedUrls('event-photos', paths),
+      { wrapper, initialProps: { paths: ['e/1.thumb.jpg', 'e/2.thumb.jpg'] } },
+    )
+    await act(() => vi.advanceTimersByTimeAsync(0))
+    expect(result.current.data.size).toBe(2)
+    const before = sign.mock.calls.length
+
+    // El rellotge salta sense disparar el temporitzador de caducitat, que té el
+    // seu propi test: aquí es prova el camí de la llista que canvia.
+    vi.setSystemTime(Date.now() + 61 * 60_000)
+    rerender({ paths: ['e/0.thumb.jpg', 'e/1.thumb.jpg', 'e/2.thumb.jpg'] })
+    await act(() => vi.advanceTimersByTimeAsync(0))
+
+    expect(result.current.data.size).toBe(3)
+    expect(sign.mock.calls.length).toBe(before + 1)
+    expect([...sign.mock.calls[before]![0]].sort()).toEqual([
+      'e/0.thumb.jpg',
+      'e/1.thumb.jpg',
+      'e/2.thumb.jpg',
+    ])
+  })
+
+  it('i si la nova firma falla, no es queda en un bucle', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'Date'] })
+    sign.mockImplementation(ok)
+    const { wrapper } = setup()
+    const { result } = renderHook(() => useSignedUrls('event-photos', ['e/1.thumb.jpg']), {
+      wrapper,
+    })
+    await act(() => vi.advanceTimersByTimeAsync(0))
+    expect(result.current.data.size).toBe(1)
+
+    sign.mockImplementation(down)
+    await act(() => vi.advanceTimersByTimeAsync(61 * 60_000))
+    await act(() => vi.advanceTimersByTimeAsync(60_000))
+    const settled = sign.mock.calls.length
+    await act(() => vi.advanceTimersByTimeAsync(10 * 60_000))
+    expect(sign).toHaveBeenCalledTimes(settled)
+  })
+
+  it('una galeria oberta tota la nit sense canvis es torna a signar quan caduca', async () => {
+    // Res no torna a avaluar res: ni foco, ni llista nova. El temporitzador és
+    // l'únic que pot adonar-se que una URL ha fet l'hora.
+    vi.useFakeTimers({ toFake: ['setTimeout', 'Date'] })
+    sign.mockImplementation(ok)
+    const { wrapper } = setup()
+    const { result } = renderHook(
+      () => useSignedUrls('event-photos', ['e/1.thumb.jpg', 'e/2.thumb.jpg']),
+      { wrapper },
+    )
+    await act(() => vi.advanceTimersByTimeAsync(0))
+    expect(result.current.data.size).toBe(2)
+    expect(sign).toHaveBeenCalledTimes(1)
+
+    await act(() => vi.advanceTimersByTimeAsync(59 * 60_000))
+    expect(sign).toHaveBeenCalledTimes(1)
+
+    await act(() => vi.advanceTimersByTimeAsync(2 * 60_000))
+    expect(sign).toHaveBeenCalledTimes(2)
+    expect([...sign.mock.calls[1]![0]].sort()).toEqual(['e/1.thumb.jpg', 'e/2.thumb.jpg'])
+    expect(result.current.data.size).toBe(2)
+  })
+
+  it('i en desmuntar no queda cap temporitzador viu', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'Date'] })
+    sign.mockImplementation(ok)
+    const { wrapper } = setup()
+    const { unmount } = renderHook(() => useSignedUrls('event-photos', ['e/1.thumb.jpg']), {
+      wrapper,
+    })
+    await act(() => vi.advanceTimersByTimeAsync(0))
+    unmount()
+    await act(() => vi.advanceTimersByTimeAsync(3 * 60 * 60_000))
+    expect(sign).toHaveBeenCalledTimes(1)
+  })
+
+  it('un 401 no es reintenta: una sola crida', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout'] })
+    sign.mockImplementation(() =>
+      Promise.resolve({ data: null, error: Object.assign(new Error('jwt'), { status: 401 }) }),
+    )
+    const { client, wrapper } = setup()
+    renderHook(() => useSignedUrls('event-photos', ['e/1.jpg']), { wrapper })
+    await act(() => vi.advanceTimersByTimeAsync(60_000))
+    expect(sign).toHaveBeenCalledTimes(1)
+    expect(client.getQueryState(signedKey('event-photos', 'e/1.jpg'))?.status).toBe('error')
+  })
+
+  it('un 429 sí que es reintenta', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout'] })
+    sign
+      .mockImplementationOnce(() =>
+        Promise.resolve({ data: null, error: Object.assign(new Error('slow'), { status: 429 }) }),
+      )
+      .mockImplementation(ok)
+    const { wrapper } = setup()
+    const { result } = renderHook(() => useSignedUrls('event-photos', ['e/1.jpg']), { wrapper })
+    await act(() => vi.advanceTimersByTimeAsync(10_000))
+    expect(sign).toHaveBeenCalledTimes(2)
+    expect(result.current.data.size).toBe(1)
   })
 })

@@ -111,17 +111,15 @@ select tests.authenticate_as('junta_alfa');
 -- (`length(btrim(nota)) between 1 and 500`, migració 73) té el mateix forat,
 -- o sigui que la fila hi cap.
 --
--- VAN COM A `todo` I NO COM A FALLADES: el forat és obert avui i aquest fitxer
--- no l'arregla —arreglar-lo vol una migració, i les migracions no es toquen
--- des d'aquí—. Amb `todo` la verja no es queda vermella per a tothom i el dia
--- que algú ho tapi, pgTAP dirà que aquestes assercions passen quan no ho
--- havien de fer, que és el recordatori de treure el `todo_start`.
+-- El forat que aquí hi havia —la 78 va reescriure `avisa` sense cridar
+-- `private.nota_neta`— ja és tancat, i aquestes assercions van un temps
+-- embolcallades en un `todo` que ho deixava dit. Ara són assercions de debò: si
+-- algú reobre el forat, aquest fitxer es posa vermell. El CI també falla si hi
+-- torna a haver un `todo` que passa, que és com s'ha vist que sobrava.
 --
--- Reproduït per Kong i PostgREST amb el token d'un admin que no és l'owner:
--- `avisa(p_nota => E'\t', p_punts => -5)` torna 200 i la fila surt a la
--- pantalla del soci com «Avís · −5» amb el motiu en blanc.
-
-select todo_start('la 78 va reescriure `avisa` sense cridar `private.nota_neta`');
+-- Quan era obert, per Kong i PostgREST amb el token d'un admin que no és
+-- l'owner, `avisa(p_nota => E'\t', p_punts => -5)` tornava 200 i la fila sortia
+-- a la pantalla del soci com «Avís · −5» amb el motiu en blanc.
 
 select throws_ok(
   $$ select public.avisa('00000000-0000-4000-8000-000000000001',
@@ -140,8 +138,6 @@ select throws_ok(
        'mal_gest', U&'\feff', -5) $$,
   '22023', 'un avis sense motiu escrit no es un avis',
   'ni una marca d''ordre de bytes');
-
-select todo_end();
 
 -- La tanca de l'altra banda, aquesta sí que de debò: l'espai normal el refusa
 -- des del primer dia, o sigui que el que falla és la llista i no la regla.

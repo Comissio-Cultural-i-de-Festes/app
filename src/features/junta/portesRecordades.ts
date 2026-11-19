@@ -1,5 +1,6 @@
 import { aLaPorta } from './finestra'
 import type { DoorNow } from './homeApi'
+import { PORTA_TRIADA_KEY } from './portes'
 
 /**
  * Les portes de l'últim cop que hi va haver xarxa, desades en aquest mòbil.
@@ -37,7 +38,8 @@ export interface Recordades {
   readonly portes: readonly PortaRecordada[]
 }
 
-const key = (userId: string) => `comi.junta.portes.${userId}`
+const PREFIX = 'comi.junta.portes.'
+const key = (userId: string) => `${PREFIX}${userId}`
 
 export function recordaPortes(
   userId: string,
@@ -76,24 +78,60 @@ export function portesRecordades(userId: string, now: number = Date.now()): Reco
   return portes.length === 0 ? null : { desat: parsed.desat, portes }
 }
 
+/**
+ * Esborra les portes desades de tothom en aquest mòbil, i la tria de porta.
+ *
+ * En tancar la sessió. De TOTHOM i no només de qui marxa: és l'únic moment en
+ * què es pot fer sense saber qui és, i el que es perd ho torna a desar la
+ * propera resposta amb xarxa. El que no es pot fer és deixar al mòbil, després
+ * de tancar sessió, la llista de les activitats de la junta.
+ */
+export function oblidaLesPortes(): void {
+  try {
+    const claus: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i)
+      if (k?.startsWith(PREFIX) === true) claus.push(k)
+    }
+    for (const k of claus) localStorage.removeItem(k)
+    localStorage.removeItem(PORTA_TRIADA_KEY)
+  } catch {
+    // Sense accés a l'emmagatzematge tampoc no hi pot haver res desat.
+  }
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
+/**
+ * Una data que `Date` sap pintar. `Number.isFinite` no n'hi ha prou:
+ * `1e300` ho és, i `new Date(1e300)` és una data invàlida que fa petar
+ * `formatTime` a la pantalla d'error, on no hi ha cap altra sortida.
+ */
+const dataValida = (ms: number) => Number.isFinite(ms) && !Number.isNaN(new Date(ms).getTime())
+
 // El que hi ha a `localStorage` ho pot haver escrit una altra versió de l'app,
-// i un camp que no hi és no ha de petar la pantalla d'error.
+// o qualsevol cosa amb accés al mòbil, i res del que s'hi trobi no ha de petar
+// la pantalla d'error: és la que es veu quan no hi ha res més.
 function esRecordades(x: unknown): x is Recordades {
   if (typeof x !== 'object' || x === null) return false
   const r = x as { desat?: unknown; portes?: unknown }
   return (
     typeof r.desat === 'number' &&
+    dataValida(r.desat) &&
     Array.isArray(r.portes) &&
-    r.portes.every(
-      (p: unknown) =>
-        typeof p === 'object' &&
-        p !== null &&
-        typeof (p as PortaRecordada).id === 'string' &&
-        ((p as PortaRecordada).titulo === null ||
-          typeof (p as PortaRecordada).titulo === 'string') &&
-        typeof (p as PortaRecordada).starts_at === 'string' &&
-        ((p as PortaRecordada).ends_at === null ||
-          typeof (p as PortaRecordada).ends_at === 'string'),
-    )
+    r.portes.every(esPorta)
+  )
+}
+
+function esPorta(x: unknown): x is PortaRecordada {
+  if (typeof x !== 'object' || x === null) return false
+  const p = x as Record<string, unknown>
+  return (
+    typeof p.id === 'string' &&
+    UUID.test(p.id) &&
+    (p.titulo === null || typeof p.titulo === 'string') &&
+    typeof p.starts_at === 'string' &&
+    dataValida(Date.parse(p.starts_at)) &&
+    (p.ends_at === null || (typeof p.ends_at === 'string' && dataValida(Date.parse(p.ends_at))))
   )
 }

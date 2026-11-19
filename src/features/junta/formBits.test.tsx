@@ -46,6 +46,38 @@ describe('Field', () => {
     expect(screen.getByRole('textbox', { name: 'Nom complet' })).toBeInTheDocument()
   })
 
+  it('dona nom a un control amb id però sense cap label que hi apunti', () => {
+    render(
+      <Field label="Clau">
+        <input id="clau" />
+      </Field>,
+    )
+    expect(screen.getByRole('textbox', { name: 'Clau' })).toBeInTheDocument()
+  })
+
+  it('dona nom a cada un dels controls fills directes del camp', () => {
+    render(
+      <Field label="Punts">
+        <input aria-label="Mínim" />
+        <input />
+        <input />
+      </Field>,
+    )
+    expect(screen.getByRole('textbox', { name: 'Mínim' })).toBeInTheDocument()
+    expect(screen.getAllByRole('textbox', { name: 'Punts' })).toHaveLength(2)
+  })
+
+  it('no cobreix un control dins d’un div: ha de portar el seu nom', () => {
+    render(
+      <Field label="Nom">
+        <div>
+          <input />
+        </div>
+      </Field>,
+    )
+    expect(screen.queryByRole('textbox', { name: 'Nom' })).toBeNull()
+  })
+
   it('no toca els botons d’un grup', () => {
     render(
       <Field label="Abast">

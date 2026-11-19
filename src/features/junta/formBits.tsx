@@ -30,11 +30,9 @@ const CONTROLS = new Set(['input', 'textarea', 'select'])
 function isUnnamedControl(node: ReactNode): node is ReactElement<Record<string, unknown>> {
   if (!isValidElement<Record<string, unknown>>(node)) return false
   if (typeof node.type !== 'string' || !CONTROLS.has(node.type)) return false
-  return (
-    node.props['aria-label'] === undefined &&
-    node.props['aria-labelledby'] === undefined &&
-    node.props.id === undefined
-  )
+  // Un `id` no compta: sense un `<label htmlFor>` que hi apunti no dóna cap
+  // nom, i els camps d'aquí no en duen.
+  return node.props['aria-label'] === undefined && node.props['aria-labelledby'] === undefined
 }
 
 export function Field({
@@ -72,8 +70,9 @@ export function Field({
   // El nom del control, per tant, el posa `Field`: cada `input`, `textarea` o
   // `select` fill directe que no en dugui apunta a la mateixa etiqueta. Així
   // els quaranta-quatre camps que passen per aquí en tenen sense que cadascun
-  // hagi de repetir l'`aria-label`, que és el que s'oblidava. Un control dins
-  // d'un altre element, o amb nom propi, no es toca.
+  // hagi de repetir l'`aria-label`, que és el que s'oblidava. Amb nom propi no es
+  // toca. UN CONTROL DINS D'UN ALTRE ELEMENT (un `div`, un fragment) NO ES
+  // COBREIX: no es recorre l'arbre, i qui el posi així ha de portar el seu nom.
   const id = useId()
   const named = Children.map(children, (child) =>
     isUnnamedControl(child) ? cloneElement(child, { 'aria-labelledby': id }) : child,

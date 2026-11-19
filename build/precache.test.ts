@@ -95,6 +95,14 @@ describe('the install', () => {
     expect(precached).toContain('index.html')
   })
 
+  it('leaves the two install icons to the browser, and keeps the ones a page or a push uses', () => {
+    expect(precached).not.toContain('pwa-512x512.png')
+    expect(precached).not.toContain('pwa-maskable-512x512.png')
+    for (const icon of ['pwa-192x192.png', 'apple-touch-icon.png', 'favicon.png']) {
+      expect(precached).toContain(icon)
+    }
+  })
+
   it.each([
     ['ScannerScreen', 'src/features/door/ScannerScreen.tsx'],
     ['ManualScreen', 'src/features/door/ManualScreen.tsx'],

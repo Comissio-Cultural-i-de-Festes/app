@@ -114,6 +114,9 @@ export default defineConfig(({ mode, command }) => {
         registerType: 'autoUpdate',
         injectRegister: null, // registered explicitly in src/lib/pwa.ts
         includeAssets: ['favicon.png', 'apple-touch-icon.png'],
+        // Sense això les icones del manifest hi tornen per una altra porta, i
+        // `globIgnores` no les veu. El perquè, a `globIgnores`.
+        includeManifestIcons: false,
         manifest: {
           id: '/',
           // A manifest holds one name, so it is the Catalan one.
@@ -165,7 +168,15 @@ export default defineConfig(({ mode, command }) => {
           globPatterns: ['**/*.{js,css,html,png,ico,webmanifest}'],
           // Només la veuen els rastrejadors dels enllaços; un soci no la baixa
           // mai i al precache seria pes mort a cada instal·lació.
-          globIgnores: ['og-image.png'],
+          //
+          // Les dues icones de 512, tampoc: uns 21 KiB gzip. Les fa servir el
+          // navegador en instal·lar l'app a la pantalla d'inici, i aleshores
+          // les baixa ell, amb la xarxa amb què acaba d'obrir la pàgina; un cop
+          // instal·lada, la icona i la pantalla d'arrencada són del sistema.
+          // Cap pàgina ni cap avís no les demana. La de 192 sí que es queda:
+          // és la de les notificacions (`public/push.js`). I l'iPhone fa servir
+          // `apple-touch-icon.png`, que també es queda.
+          globIgnores: ['og-image.png', 'pwa-512x512.png', 'pwa-maskable-512x512.png'],
           // Les pantalles d'escriptori de la junta, el mapa, el castellà i
           // l'anglès, fora: el perquè i com es decideix són a
           // `build/precache.ts`. Els serveix la regla `chunks` de més avall.

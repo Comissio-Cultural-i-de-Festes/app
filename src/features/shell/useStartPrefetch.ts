@@ -6,7 +6,7 @@ import type { MyProfile } from '@/features/session/profile'
 import { useUserId } from '@/features/session/useUserId'
 
 import { readStartHint, startPlan, writeStartHint } from './startHint'
-import { prefetchHome, prefetchJunta, preloadJuntaHome } from './startPrefetch'
+import { prefetchHome, prefetchJunta } from './startPrefetch'
 
 /**
  * Posa en marxa l'arrencada en paral·lel i recorda per a la propera.
@@ -25,10 +25,7 @@ export function useStartPrefetch(profile: MyProfile | null | undefined): void {
   useEffect(() => {
     const plan = startPlan(first, readStartHint(userId))
     if (plan === 'home') void prefetchHome(client, userId)
-    if (plan === 'junta') {
-      preloadJuntaHome()
-      void prefetchJunta(client)
-    }
+    if (plan === 'junta') void prefetchJunta(client)
   }, [client, userId, first])
 
   useEffect(() => {

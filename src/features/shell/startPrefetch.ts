@@ -113,16 +113,6 @@ export async function prefetchHome(client: QueryClient, userId: string): Promise
 }
 
 /**
- * El tros de codi de l'entrada a la junta, que viu a part. Només en arrencada
- * en fred, quan la porta de fora encara espera el perfil, i només amb xarxa:
- * un `import()` que falla es queda recordat fins que es recarrega.
- */
-export function preloadJuntaHome(): void {
-  if (!navigator.onLine) return
-  import('@/features/junta/JuntaHome').catch(() => undefined)
-}
-
-/**
  * Les consultes de l'entrada a la junta. Només per a qui ho és: a un soci la
  * RLS li torna buit o 42501, i seria una petició per sentir «no».
  */

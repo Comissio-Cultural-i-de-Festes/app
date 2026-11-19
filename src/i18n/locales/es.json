@@ -23,7 +23,9 @@
     "body": "No debería pasar. Vuelve a cargar y, si sigue igual, díselo a la junta.",
     "staleTitle": "Hay una versión nueva",
     "staleBody": "La app se ha actualizado mientras la tenías abierta. Vuelve a cargar y estarás donde estabas.",
-    "reload": "Vuelve a cargar"
+    "reload": "Vuelve a cargar",
+    "offlineTitle": "Sin cobertura",
+    "offlineBody": "Esta parte de la app aún no está en el móvil, y sin red no se puede descargar. Vuelve a intentarlo cuando tengas cobertura."
   },
   "door": {
     "checkedIn": "{{count}} fichados de {{total}}",
@@ -43,7 +45,7 @@
     "held_other": "{{count}} escaneos de la cola necesitan que los mires:",
     "heldQr": "Un QR",
     "heldAt": "a las {{hora}}",
-    "heldRefused": "el servidor no lo acepta: no ha entrado",
+    "heldRefused": "no se ha podido aceptar: no ha entrado",
     "heldRetry": "Volver a enviar",
     "heldDrop": "Descartar",
     "heldMore": "y {{n}} más",
@@ -167,7 +169,7 @@
     "notAnImage": "Esta foto no la sé leer. Prueba con otra, o hazla desde la cámara.",
     "notSaved": "No se ha podido enviar ni guardar en el móvil, así que no saldrá solo. Vuelve a intentarlo cuando tengas cobertura.",
     "rateLimited": "Demasiados intentos seguidos. Espera un par de minutos y vuelve.",
-    "behindServer": "Esto todavía no está en el servidor: la app se ha actualizado antes que la base de datos. Si eres de la junta, sube las migraciones; si no, avísalos.",
+    "behindServer": "Esto todavía no está disponible: la app se ha actualizado antes que los datos. Vuelve a probar dentro de un rato; si sigue igual, avisa a la junta.",
     "stalled": "La conexión no responde: no llega nada. Vuelve a intentarlo o busca un sitio con más cobertura.",
     "sessionUnreachable": "Sin conexión no podemos abrir tu sesión. Cuando vuelva la red, la app se abrirá sola.",
     "sendPaused": "Sin conexión. Queda en espera y se enviará cuando vuelva la red: no cierres la app.",
@@ -397,7 +399,8 @@
     "cta": {
       "join": "Apúntate",
       "confirm": "Dijiste quizá · confirma",
-      "going": "Ya vas · cámbialo"
+      "going": "Ya vas · cámbialo",
+      "unknown": "No podemos saber si vas."
     },
     "movement": {
       "line_one": "Se ha apuntado hoy: {{people}}",
@@ -537,7 +540,7 @@
     },
     "yourNight": "Tu noche",
     "pending": "(por completar)",
-    "staysHere": "Este botón se queda para siempre, aunque hayan pasado dos semanas. La tarjeta del Inicio se va; este no.",
+    "staysHere": "No tiene fecha límite: puedes hacerla cuando quieras.",
     "seeIt": "Mira el díptico"
   },
   "exitCard": {
@@ -582,11 +585,11 @@
     "openEmpty": "Abre la galería",
     "upload": "Sube las tuyas",
     "whoCanUpload": "Puede subirlas quien fichó aquella noche.",
-    "thumbsNote": "Aquí todo son miniaturas. La buena, con todo el detalle, se carga solo cuando abres una.",
+    "thumbsNote": "Toca una foto para verla a tamaño completo.",
     "thumbLabel": "Foto {{n}} de {{total}}",
     "uploading": "Subiendo",
     "uploadCount": "{{n}} de {{total}}",
-    "uploadNote": "Van de una en una y la miniatura se hace aquí mismo antes de subir. Deja la pantalla abierta hasta que acabe; las que fallen se quedan aquí.",
+    "uploadNote": "Se suben de una en una. Deja la pantalla abierta hasta que acabe; las que fallen se quedan aquí.",
     "delete": "Bórrala",
     "state": {
       "esperant": "esperando",
@@ -647,7 +650,6 @@
     "emptyCta": "Propón la primera",
     "emptyFoot": "No hace falta que sea buena: ya la votarán. Y si sale adelante, {{points}} para quien la dijo.",
     "loading": "Cargando las ideas…",
-    "loadingNote": "El botón de proponer no espera nada: se puede tocar enseguida.",
     "failed": "No se han podido leer las ideas",
     "failedSub": "No sabemos cuántas hay. No es que no haya ninguna.",
     "failedAnyway": "Propón una igualmente",
@@ -723,14 +725,17 @@
     "back": "Junta",
     "scan": "Escanear",
     "givePoints": "Dar puntos",
+    "needsSignalTitle": "Esta pantalla necesita cobertura",
+    "needsSignalBody": "Aún no está en el móvil, y sin red no se puede descargar. La puerta sí funciona sin red.",
+    "needsSignalBack": "Vuelve a la zona junta",
     "newEvent": "Crear evento",
     "newEventSub": "O copiar uno anterior y cambiarle la fecha",
     "invitesSub": "El código del grupo y quién quiere entrar",
-    "paymentsSub": "Marcar quién ha pagado y nombrar admins",
+    "paymentsSub": "Quién ha pagado, quién pide plaza y la lista de espera",
     "noEvents": "Todavía no hay nada en el calendario. Crea el primero.",
     "draft": "borrador",
     "youAreAdmin": "Eres admin: puedes crear eventos, fichar gente, dar puntos y nombrar otros admins.",
-    "youAreOwner": "Eres owner: además de lo que hace un admin, puedes restar puntos y traspasar el rol owner.",
+    "youAreOwner": "Eres owner: además de lo que hace un admin, puedes quitar admins y traspasar el rol owner.",
     "invites": {
       "title": "Invitaciones",
       "whoEnters": "Quién entra",
@@ -922,7 +927,7 @@
         "lede": "Los motivos son los botones de dar puntos. Los tipos solo rellenan el valor por defecto de un evento nuevo y nunca reescriben los que ya existen.",
         "motius": "Motivos",
         "tipus": "Tipos de evento",
-        "cantAdd": "Añadir uno nuevo no se puede hacer desde aquí: también hay que tocar la base de datos, y una fila sola sería un botón que falla cuando alguien lo pulsa.",
+        "cantAdd": "Ni motivos ni tipos de evento se pueden añadir nuevos desde aquí.",
         "rowSub": "Cuánto vale cada cosa"
       },
       "graus": {
@@ -1028,7 +1033,7 @@
         "surePoints": "Se restarán {{punts}} puntos a {{nombre}} y le bajará la posición en el ranking.",
         "sureNoPoints": "No se restará ningún punto: {{nombre}} no se moverá del ranking.",
         "sureEscalo": "Con este aviso, {{nombre}} llega al escalón «{{estat}}»: {{queFer}}.",
-        "sureSeen": "{{nombre}} lo verá en su perfil con el motivo que has escrito, y la fila no se borra nunca.",
+        "sureSeen": "{{nombre}} lo verá en su perfil con el motivo que has escrito, y el aviso no se borra nunca.",
         "sureCta": "Sí, regístralo",
         "paused": "Sin conexión. Se registrará solo cuando vuelva.",
         "done": "Registrado: {{tipus}} para {{nombre}}."
@@ -1139,7 +1144,7 @@
         "adminsOnly": "Solo admins. Pasar la propiedad a alguien que no lleva nada sería dársela a quien no sabe que la tiene.",
         "noAdmins": "Todavía no hay ningún admin. Nombra uno primero, aquí arriba.",
         "willBe": "{{name}} será el owner",
-        "consequence": "Tú pasarás a admin. Desde ese momento solo quien la reciba puede devolvértela, y si pierde la cuenta de Google habrá que entrar en la base de datos.",
+        "consequence": "Tú pasarás a admin. Desde ese momento solo quien la reciba puede devolvértela, y si pierde la cuenta de Google tendrás que pedir ayuda a quien mantiene la app.",
         "agreed": "Lo he hablado con {{name}} y lo sabe",
         "confirm": "Haz owner a {{name}}"
       }
@@ -1247,8 +1252,8 @@
       "soonFailed": "No se ha podido leer el calendario.",
       "soonFailedSub": "Puede que haya y no los veamos. No crees nada nuevo hasta que cargue.",
       "how": "Cómo funciona la comi",
-      "howSub": "Se toca una vez al año y hoy solo se toca con SQL.",
-      "proposalsSub": "Las propuestas llevarán número, como las aprobaciones",
+      "howSub": "Los periodos, el baremo, los grados y el registro",
+      "proposalsSub": "Las que ha propuesto la gente, pendientes de decidir",
       "periodsStale": "Los trimestres no cubren el día de hoy",
       "periodsOk": "Cuándo empieza y acaba cada trimestre"
     },
@@ -1258,25 +1263,23 @@
       "lead": "Datos desde septiembre. Se actualiza solo; no hay que exportar nada.",
       "drifting": {
         "title": "Se están descolgando",
-        "lead": "Venían a menudo y hace dos actividades seguidas que no vienen. Es el número que justifica la fase.",
+        "lead": "Venían a menudo y hace dos actividades seguidas que no vienen.",
         "none": "Nadie descolgado ahora mismo. Mejor.",
         "was": "Vino a {{n}} de las {{total}} que le contaban",
         "last": "Última: {{event}} · {{when}}",
         "never": "Sin ninguna actividad todavía",
         "write": "Escríbele",
         "noPhone": "Sin teléfono",
-        "action": "→ Repartíos la lista: un mensaje personal cada uno. En el grupo no funciona."
+        "action": "Recordad: repartíos la lista, un mensaje personal cada uno. En el grupo no funciona."
       },
       "attendance": {
         "title": "Asistencia a lo largo del curso",
-        "avg": "{{n}} de media por actividad.",
-        "action": "→ La semana después de los exámenes, algo gratuito y de jueves."
+        "avg": "{{n}} de media por actividad."
       },
       "types": {
         "title": "Qué tipo funciona",
         "avg": "{{n}} de media",
-        "alwaysFull": "Siempre llena, con lista de espera.",
-        "action": "→ En enero: una fiesta y una actividad entre semana, no dos actividades."
+        "alwaysFull": "Siempre llena, con lista de espera."
       },
       "schools": {
         "title": "Las tres escuelas",
@@ -1288,13 +1291,11 @@
         "notSources": "No son puntos ganados",
         "cases_one": "{{count}} caso",
         "cases_other": "{{count}} casos",
-        "notSourcesNote": "Restan o se compensan, y por eso quedan fuera del gráfico. Un aviso retirado sale a cero: existió y no ha costado nada.",
-        "action": "→ Montar y traer gente son puntos fáciles de repartir en enero: anunciadlos antes de cada plan."
+        "notSourcesNote": "Restan o se compensan, y por eso quedan fuera del gráfico. Un aviso retirado sale a cero: existió y no ha costado nada."
       },
       "limits": {
         "title": "Límites y datos",
         "years": "«Quién llevaba años viniendo» todavía no se puede decir: los datos empiezan en septiembre. El panel lee el ritmo dentro del curso.",
-        "noTables": "Ninguna tabla nueva: todo son consultas sobre fichajes, puntos, perfiles y periodos.",
         "write": "«Escríbele» abre WhatsApp con el teléfono que la junta ya ve. No se envía nada automático."
       }
     },
@@ -1366,7 +1367,7 @@
       "paste": "O pega las coordenadas",
       "pasteHint": "Por si la búsqueda no encuentra el sitio: cópialas de donde sea y ponlas aquí.",
       "radius": "Radio (m)",
-      "radiusNote": "Cincuenta metros para un bar, trescientos para una finca. Al radio se le suma el margen del GPS de cada móvil, o habría gente de pie en la sala que no cabría.",
+      "radiusNote": "Cincuenta metros para un bar, trescientos para una finca. Deja algo de margen: el GPS de los móviles no es exacto.",
       "metres_one": "{{count}} m",
       "metres_other": "{{count}} m"
     },
@@ -1569,14 +1570,13 @@
     "saidNo": "Has dicho que no puedes estar.",
     "saidNoSub": "Si cambias de idea, vuelve y dilo: sois pocos y hay que saber si se hace.",
     "nothing": "Todavía no has dicho nada.",
-    "nothingSub": "Dos botones y no tres: en una reunión de tres personas, un «quizá» no ayuda a decidir si se hace.",
+    "nothingSub": "Toca uno de los dos botones para que la junta sepa si estarás.",
     "willBe": "{{quants}} de {{total}} estarán",
     "were": "{{quants}} de {{total}} estaban",
-    "whoKnows": "En una reunión sí que se sabe quién no viene: sois pocos y hay que saber si habrá alguien.",
     "points": "+{{punts}} si estás",
     "noPoints": "Ningún punto: es una reunión de junta",
     "acta": "El acta",
-    "actaEmpty": "Saldrá aquí cuando la junta cierre la reunión. Si no hay, este bloque no está.",
+    "actaEmpty": "Saldrá aquí cuando la junta cierre la reunión.",
     "closed": "Cerrada",
     "close": "Ciérrala",
     "closeTitle": "Cierra la reunión",
@@ -1966,7 +1966,7 @@
       "heading": "Mi QR",
       "lead": "Es lo que enseñas en la puerta.",
       "title": "Todavía no tienes",
-      "pending": "La puerta te haría volver atrás, y eso es peor que no tener.",
+      "pending": "Cuando la junta te acepte, aquí tendrás tu QR.",
       "left": "Esta cuenta ya no está activa. Si crees que es un error, habla con la junta."
     }
   },
@@ -2050,9 +2050,7 @@
     "emptyTitle": "Todavía no hay ningún coche",
     "emptyLede": "Si tienes coche, dilo ahora: la gente se apunta al viaje antes que a la casa.",
     "emptyFoot": "Traer gente son {{points}} y no hace falta que bebas nada para hacerlos.",
-    "emptyNote": "Vacío quiere decir vacío: nadie ha ofrecido ninguno.",
     "loading": "Cargando los coches…",
-    "loadingNote": "Ofrecer uno no espera: este botón ya se puede tocar.",
     "failed": "No se han podido leer los coches",
     "failedSub": "No sabemos si hay alguno ni si tienes plaza. No te quedes en casa por esto.",
     "failedGroup": "Escribe al grupo",
@@ -2073,7 +2071,7 @@
     "gone": "Este coche ya no está.",
     "hold": "Guarda una plaza",
     "holdFor": "Para quién",
-    "holdNote": "Le guardas el asiento; sube él cuando quiera. Nadie sube a un coche porque lo diga otro.",
+    "holdNote": "Le guardas el asiento y sube cuando quiera.",
     "held": "Guardada",
     "invited": "Invitado",
     "inviteSearch": "Busca por el nombre",
@@ -2097,7 +2095,7 @@
     "error": "No se ha podido conectar. Vuelve a probar",
     "queued": "Guardado. Se enviará cuando haya cobertura",
     "notSaved": "No se ha podido guardar ni enviar",
-    "refused": "El servidor no lo acepta",
+    "refused": "No se ha podido aceptar",
     "action": {
       "okWalkin": "No estaba apuntado. Ya consta que ha venido.",
       "okWalkinReview": "Mira que pague antes de entrar, o apúntalo.",

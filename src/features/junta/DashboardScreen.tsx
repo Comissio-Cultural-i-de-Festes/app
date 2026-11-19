@@ -27,9 +27,11 @@ import { JuntaHeader } from './JuntaHeader'
  * L'ÚNIC DE LA FASE PENSAT PER A PANTALLA GRAN, i l'únic que no es mira des
  * d'una festa. Al mòbil es queda en una columna, com tota la zona junta.
  *
- * UNA SOLA PREGUNTA: qui s'està despenjant i què hi fem. Cada targeta acaba en
- * una fletxa amb l'acció, i un número que no en canvia cap no hi hauria de ser
- * — per això no hi ha ni un total de socis ni un compte d'activitats fetes.
+ * UNA SOLA PREGUNTA: qui s'està despenjant i què hi fem. Un número que no
+ * canvia cap decisió no hi hauria de ser — per això no hi ha ni un total de
+ * socis ni un compte d'activitats fetes. Només la llista de despenjats porta
+ * un recordatori, perquè és l'única que demana una acció; la resta són dades
+ * i no pretenen concloure res.
  *
  * I EL ZERO TAMBÉ ES DIU. «Ningú despenjat ara mateix. Millor.» és informació;
  * una targeta que desapareix quan tot va bé fa que la junta no sàpiga mai si ho
@@ -199,7 +201,6 @@ function Cards({
           <p className="tabular mt-7 text-sm text-fg-secondary [text-wrap:pretty]">
             {t('junta.dashboard.attendance.avg', { n: average(data.assistencia) })}
           </p>
-          <p className={ACTION}>{t('junta.dashboard.attendance.action')}</p>
         </section>
 
         {/* Quin tipus funciona. «Sempre plena» hi és perquè sense ella la
@@ -230,7 +231,6 @@ function Cards({
               </div>
             ))}
           </div>
-          <p className={ACTION}>{t('junta.dashboard.types.action')}</p>
         </section>
 
         <section className={CARD}>
@@ -319,8 +319,6 @@ function Cards({
               </p>
             </div>
           )}
-
-          <p className={ACTION}>{t('junta.dashboard.points.action')}</p>
         </section>
 
         {/* El que el tauler encara no pot dir, escrit a la pantalla i no en un
@@ -329,7 +327,6 @@ function Cards({
           <h2 className="eyebrow-sm text-brand-accent">{t('junta.dashboard.limits.title')}</h2>
           <ul className="mt-5 grid gap-4 text-sm text-fg-secondary">
             <li className="[text-wrap:pretty]">— {t('junta.dashboard.limits.years')}</li>
-            <li className="[text-wrap:pretty]">— {t('junta.dashboard.limits.noTables')}</li>
             <li className="[text-wrap:pretty]">— {t('junta.dashboard.limits.write')}</li>
           </ul>
         </section>

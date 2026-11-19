@@ -38,6 +38,23 @@ describe('keyRefs', () => {
   it('no llegeix els comentaris com a crides', () => {
     expect(keyRefs("// t('junta.form.title')\n/* t('junta.audit.title') */")).toEqual([])
   })
+
+  it('i un /* dins d’una cadena no obre cap comentari', () => {
+    // El que passava amb les regex: `'./locales/*.json'` s'empassava el codi
+    // fins al primer tancament de comentari que hi hagués més avall.
+    const source = `
+      const pieces = import.meta.glob('./locales/*.json')
+      t('junta.title')
+      /* res */
+    `
+    expect(keyRefs(source)).toEqual([{ key: 'junta.title', prefix: false }])
+  })
+
+  it('llegeix les claus dels atributs JSX', () => {
+    expect(keyRefs('<Row label="junta.payments.paid" />')).toEqual([
+      { key: 'junta.payments.paid', prefix: false },
+    ])
+  })
 })
 
 describe('keysOutsideDesk', () => {
@@ -46,12 +63,14 @@ describe('keysOutsideDesk', () => {
     [
       `${SRC}/features/junta/JuntaHome.tsx`,
       `import { Block } from './Block'
-       import type { Row } from "@/features/junta/types"
+       import { ROW } from "@/features/junta/types"
+       import type { Form } from './FormScreen'
        const Audit = lazy(() => import('./AuditScreen'))
        t('junta.home.title')`,
     ],
     [`${SRC}/features/junta/Block.tsx`, "export const Block = () => t('junta.pendents.title')"],
-    [`${SRC}/features/junta/types.ts`, "export type Row = 'junta.types.row'"],
+    [`${SRC}/features/junta/types.ts`, "export const ROW = 'junta.types.row'"],
+    [`${SRC}/features/junta/FormScreen.tsx`, "export type Form = 1; t('junta.form.title')"],
     [`${SRC}/features/junta/AuditScreen.tsx`, "t('junta.audit.heading')"],
     [`${SRC}/features/junta/Lonely.tsx`, "t('junta.lonely')"],
   ])
@@ -73,6 +92,10 @@ describe('keysOutsideDesk', () => {
   it('i no segueix un import(): és el que separa una pantalla d’escriptori', () => {
     expect(found).not.toContain('junta.audit.heading')
     expect(found).not.toContain('junta.lonely')
+  })
+
+  it('ni un import de tipus, que no porta codi', () => {
+    expect(found).not.toContain('junta.form.title')
   })
 })
 

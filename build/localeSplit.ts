@@ -1,6 +1,8 @@
 import { globSync, readFileSync } from 'node:fs'
 import { join, posix } from 'node:path'
 
+import ts from 'typescript'
+
 import { isDoorModule, isJuntaModule } from './precache.ts'
 
 /**
@@ -64,50 +66,89 @@ export interface KeyRef {
   readonly prefix: boolean
 }
 
-/** El mateix que fa `tests/i18n-usage.test.ts`: un exemple en un comentari no és una crida. */
-function stripComments(source: string): string {
-  return source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1')
+/** El que importa d'un fitxer: les claus de la junta que esmenta, i què importa. */
+export interface Facts {
+  readonly refs: readonly KeyRef[]
+  readonly imports: readonly string[]
 }
-
-const KEY = new RegExp(`['"\`](${DESK}\\.[\\w.]*)(\\$\\{)?`, 'g')
 
 /**
- * Tota cadena que comenci per `junta.`, dins d'un `t()` o no: hi ha claus que
- * passen per una variable abans d'arribar-hi. Una de més aquí és un text de més
- * a l'entrada; una de menys, una clau crua.
+ * Llegit amb l'analitzador de TypeScript, i no amb expressions regulars. Amb
+ * regex, treure els comentaris abans de buscar-hi claus es menjava el codi que
+ * venia després d'un `'./locales/*.json'`, fins al primer `*\/`: el `/*` de dins
+ * la cadena semblava l'obertura d'un comentari. Avui no queia cap clau, però és
+ * el tipus d'error que un dia en fa caure una de la porta. L'arbre sap què és
+ * una cadena, què és un comentari i què és un `import`.
+ *
+ * Totes les cadenes que comencen per `junta.`, dins d'un `t()` o no: hi ha claus
+ * que passen per una variable abans d'arribar-hi. Una de més aquí és un text de
+ * més a l'entrada; una de menys, una clau crua. D'una plantilla, el principi fix.
+ *
+ * Els `import` estàtics, també els que només executen el fitxer i els
+ * `export … from`. Els de tipus no, que no porten codi; ni els `import()`.
  */
-export function keyRefs(source: string): KeyRef[] {
-  return [...stripComments(source).matchAll(KEY)].map((m) => ({
-    key: m[1] ?? '',
-    prefix: m[2] !== undefined || (m[1] ?? '').endsWith('.'),
-  }))
+export function factsOf(file: string, source: string): Facts {
+  const kind = file.endsWith('.tsx') ? ts.ScriptKind.TSX : ts.ScriptKind.TS
+  const tree = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, false, kind)
+  const refs: KeyRef[] = []
+  const imports: string[] = []
+  const visit = (node: ts.Node): void => {
+    if (
+      (ts.isImportDeclaration(node) || ts.isExportDeclaration(node)) &&
+      node.moduleSpecifier !== undefined &&
+      ts.isStringLiteral(node.moduleSpecifier)
+    ) {
+      const typeOnly = ts.isImportDeclaration(node)
+        ? node.importClause?.isTypeOnly === true
+        : node.isTypeOnly
+      if (!typeOnly) imports.push(node.moduleSpecifier.text)
+      return
+    }
+    if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
+      if (node.text.startsWith(`${DESK}.`))
+        refs.push({ key: node.text, prefix: node.text.endsWith('.') })
+    } else if (ts.isTemplateExpression(node) && node.head.text.startsWith(`${DESK}.`)) {
+      refs.push({ key: node.head.text, prefix: true })
+    }
+    ts.forEachChild(node, visit)
+  }
+  visit(tree)
+  return { refs, imports }
 }
 
-const IMPORT =
-  /(?:^|[\s;])(?:import|export)\s+(?:type\s+)?(?:[\w$*{}\s,]+\s+from\s+)?['"]([^'"\n]+)['"]/g
+/** Per a les proves: les claus d'un tros de codi. */
+export function keyRefs(source: string): KeyRef[] {
+  return [...factsOf('x.tsx', source).refs]
+}
+
+/** Analitzar un fitxer costa; si el codi no ha canviat, el resultat tampoc. */
+const analysed = new Map<string, { readonly source: string; readonly facts: Facts }>()
+
+function cachedFacts(file: string, source: string): Facts {
+  const hit = analysed.get(file)
+  if (hit?.source === source) return hit.facts
+  const facts = factsOf(file, source)
+  analysed.set(file, { source, facts })
+  return facts
+}
 
 const EXTENSIONS = ['', '.ts', '.tsx', '/index.ts', '/index.tsx']
 
 /**
- * Els `import` estàtics d'un fitxer, ja resolts als fitxers que hi ha a
- * `sources`. Tots els camins amb `/`, també a Windows.
+ * Un `import` resolt al fitxer de `sources` que porta. Tots els camins amb `/`,
+ * també a Windows.
  */
-export function staticImports(
+function resolveImport(
   file: string,
-  source: string,
+  spec: string,
   sources: ReadonlyMap<string, string>,
   src: string,
-): string[] {
-  const found: string[] = []
-  for (const [, spec = ''] of stripComments(source).matchAll(IMPORT)) {
-    let base: string
-    if (spec.startsWith('@/')) base = posix.join(src, spec.slice(2))
-    else if (spec.startsWith('.')) base = posix.join(posix.dirname(file), spec)
-    else continue
-    const hit = EXTENSIONS.map((ext) => base + ext).find((path) => sources.has(path))
-    if (hit !== undefined) found.push(hit)
-  }
-  return found
+): string | undefined {
+  let base: string
+  if (spec.startsWith('@/')) base = posix.join(src, spec.slice(2))
+  else if (spec.startsWith('.')) base = posix.join(posix.dirname(file), spec)
+  else return undefined
+  return EXTENSIONS.map((ext) => base + ext).find((path) => sources.has(path))
 }
 
 /**
@@ -126,9 +167,12 @@ export function keysOutsideDesk(
   for (let file = pending.pop(); file !== undefined; file = pending.pop()) {
     if (seen.has(file)) continue
     seen.add(file)
-    const source = sources.get(file) ?? ''
-    refs.push(...keyRefs(source))
-    pending.push(...staticImports(file, source, sources, src))
+    const facts = cachedFacts(file, sources.get(file) ?? '')
+    refs.push(...facts.refs)
+    for (const spec of facts.imports) {
+      const hit = resolveImport(file, spec, sources, src)
+      if (hit !== undefined) pending.push(hit)
+    }
   }
   return refs
 }
@@ -189,25 +233,48 @@ function readSources(root: string): Map<string, string> {
   )
 }
 
+/** Les claus que es queden, en una cadena que es pot comparar. */
+function keptSignature(refs: readonly KeyRef[]): string {
+  return JSON.stringify(
+    [...new Set(refs.map(({ key, prefix }) => `${key}${prefix ? '*' : ''}`))].sort(),
+  )
+}
+
 /** Les dues parts d'un fitxer d'idioma, llegint el codi de `root`. */
 export function localePart(root: string, file: string, part: 'app' | 'junta'): Tree {
   const tree = JSON.parse(readFileSync(file, 'utf8')) as Tree
-  const refs = keysOutsideDesk(readSources(root), isRoot, normal(join(root, 'src')))
-  return splitLocale(tree, refs)[part]
+  return splitLocale(tree, refsOf(root))[part]
+}
+
+function refsOf(root: string): KeyRef[] {
+  return keysOutsideDesk(readSources(root), isRoot, normal(join(root, 'src')))
+}
+
+/** Prou del servidor de `dev` per fer-hi tornar a carregar els idiomes. */
+interface DevServer {
+  readonly moduleGraph: {
+    getModulesByFile(file: string): ReadonlySet<object> | undefined
+    invalidateModule(module: object): void
+  }
+  readonly ws: { send(payload: { type: 'full-reload' }): void }
 }
 
 /**
- * El connector. Torna JSON, i el converteix en mòdul el de Vite, com qualsevol
- * altre `.json`.
+ * El connector. Torna el mòdul ja fet, `export default JSON.parse(…)`, que és
+ * el que Vite fa amb un `.json` gran; el seu connector de JSON no el toca,
+ * perquè la consulta el deixa passar en `dev` i no en el build.
  *
- * El codi es torna a llegir cada vegada que es carrega una part, que és en cada
- * build i, en `dev`, quan canvia el fitxer d'idioma. En `dev` una clau de la
- * junta que una pantalla de la porta comenci a fer servir sense que el fitxer
- * d'idioma canviï no arriba a l'entrada fins que es torna a arrencar; a la zona
- * de junta no es nota, perquè el marc ja ha demanat la part de la junta.
+ * El codi es torna a llegir cada vegada que es carrega una part: en cada build
+ * i, en `dev`, quan canvia el fitxer d'idioma. En `dev`, a més, quan es desa un
+ * fitxer de codi es mira si ha canviat quines claus de la junta es queden a
+ * l'app, i només si ha canviat es tornen a fer les parts i es recarrega la
+ * pàgina: una clau nova en una pantalla de la porta no demana tornar a arrencar
+ * Vite, i desar qualsevol altra cosa continua sent un canvi en calent. Tornar a
+ * mirar-ho només analitza el fitxer que ha canviat.
  */
 export function localeSplit() {
   let root = process.cwd()
+  let kept = ''
   return {
     name: 'app-comi:locale-split',
     enforce: 'pre' as const,
@@ -217,8 +284,25 @@ export function localeSplit() {
     load(id: string) {
       const part = partOf(id)
       if (part === null) return null
-      const json = JSON.stringify(localePart(root, id.slice(0, id.indexOf('?')), part))
+      const file = id.slice(0, id.indexOf('?'))
+      const refs = refsOf(root)
+      kept = keptSignature(refs)
+      const tree = JSON.parse(readFileSync(file, 'utf8')) as Tree
+      const json = JSON.stringify(splitLocale(tree, refs)[part])
       return `export default JSON.parse(${JSON.stringify(json)})`
+    },
+    handleHotUpdate({ file, server }: { readonly file: string; readonly server: DevServer }) {
+      const path = normal(file)
+      if (kept === '' || !/\/src\/.+\.tsx?$/.test(path) || /\.test\.tsx?$/.test(path)) return
+      const now = keptSignature(refsOf(root))
+      if (now === kept) return
+      kept = now
+      for (const locale of globSync('src/i18n/locales/*.json', { cwd: root })) {
+        const modules = server.moduleGraph.getModulesByFile(normal(join(root, locale)))
+        for (const module of modules ?? []) server.moduleGraph.invalidateModule(module)
+      }
+      server.ws.send({ type: 'full-reload' })
+      return []
     },
   }
 }

@@ -397,26 +397,24 @@ No rebuild is needed after this. The app derives its redirect from
 `window.location.origin` at run time, so it follows whatever address it is
 served from.
 
-### 7. GitHub — the keepalive variables
+### 7. GitHub — the keepalive URLs and keys
 
-Settings → Secrets and variables → Actions → **Variables** (not Secrets: the
-URL and the anon key are public by design):
+Settings → Secrets and variables → Actions. The URLs go under **Variables**,
+the anon keys under **Secrets**:
 
-| Variable                    | Value                                   |
-| --------------------------- | --------------------------------------- |
-| `SUPABASE_URL`              | production, `https://<ref>.supabase.co` |
-| `SUPABASE_ANON_KEY`         | production's anon key                   |
-| `STAGING_SUPABASE_URL`      | Staging, `https://<ref>.supabase.co`    |
-| `STAGING_SUPABASE_ANON_KEY` | Staging's anon key                      |
+| Name                        | Kind     | Value                                   |
+| --------------------------- | -------- | --------------------------------------- |
+| `SUPABASE_URL`              | Variable | production, `https://<ref>.supabase.co` |
+| `SUPABASE_ANON_KEY`         | Secret   | production's anon key                   |
+| `STAGING_SUPABASE_URL`      | Variable | Staging, `https://<ref>.supabase.co`    |
+| `STAGING_SUPABASE_ANON_KEY` | Secret   | Staging's anon key                      |
 
 Free-tier projects pause after a week without activity, and over the summer
 that will happen. The workflow runs every day and reads one row from each
 project, production and Staging separately, so one being down does not skip
-the other and the run turns red showing which. An empty variable fails the job
-with a message naming it.
-
-Being variables, their values show in the run logs; that is acceptable because
-they are public.
+the other and the run turns red showing which. An empty variable or secret
+fails the job with a message naming it. A Variable and a Secret with the same
+name are different things, so a key saved in the wrong tab reads as empty.
 
 To check it, run `gh workflow run keepalive.yml` (it only works once the file
 is on `main`) and open the run: both `ping (production)` and `ping (staging)`
@@ -780,7 +778,7 @@ password manager, which is the one place nobody has to ask a predecessor for.
 
 | Service                            | What it is                                                                                                                                                            | Owner (role)                            | Where the credential lives                                                           | If it is lost                                                                                                                                                  |
 | ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| GitHub organisation                | The code, CI, and the daily keepalive ([step 7](#7-github--the-keepalive-variables)). Two-factor authentication must be required of every member ([#33][i33]).        | Two or more organisation owners, always | Each person's own account, with 2FA; recovery codes in the shared manager            | With a single owner gone, nobody can add the next one and the repository is frozen. That is why there are two.                                                 |
+| GitHub organisation                | The code, CI, and the daily keepalive ([step 7](#7-github--the-keepalive-urls-and-keys)). Two-factor authentication must be required of every member ([#33][i33]).    | Two or more organisation owners, always | Each person's own account, with 2FA; recovery codes in the shared manager            | With a single owner gone, nobody can add the next one and the repository is frozen. That is why there are two.                                                 |
 | Supabase, production and Staging   | The database, auth, storage and the Edge Function. Two projects, each with its own `<project-ref>`. Everything else depends on these.                                 | The technology role                     | The account's login; the database passwords and both anon keys in the shared manager | Nobody can push a migration, take a backup or read the logs. Support can recover an account only if the sign-up address still receives mail.                   |
 | Google Cloud                       | The OAuth client behind _Entra amb Google_ ([step 3](#3-google-cloud--the-production-oauth-client)). The consent screen must read **In production** ([#32][i32]).     | The same role as Supabase               | The Google account that owns the project; client ID and secret in the shared manager | Nobody can sign in. If the screen says _Testing_, only accounts added by hand can enter and nothing says why.                                                  |
 | Cloudflare Pages                   | Hosting and the build. Holds every `VITE_*` variable of `.env.example` (`VITE_APP_NAME`, `VITE_SUPABASE_URL`, `VITE_SITE_URL`, `VITE_VAPID_PUBLIC_KEY` and the rest). | The same role as Supabase               | The account's login; a copy of the variables list in the shared manager              | The site cannot be rebuilt. The live one keeps working until the next deploy. The values are public, but nobody remembers all of them.                         |
@@ -834,10 +832,10 @@ when a paused project or a disabled workflow goes unnoticed.
    phone. Apple changes this behaviour without notice, and nothing else tells
    you.
 6. **The keepalive.** Open Actions → _keepalive_ and check the last run: both
-   `ping (production)` and `ping (staging)` green. The four variables
+   `ping (production)` and `ping (staging)` green. The four names
    (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `STAGING_SUPABASE_URL`,
    `STAGING_SUPABASE_ANON_KEY`) are in
-   [step 7](#7-github--the-keepalive-variables). Then look at the date of the
+   [step 7](#7-github--the-keepalive-urls-and-keys). Then look at the date of the
    last commit: GitHub switches scheduled workflows off after 60 days without
    one, and the only warning is an email to the owner, so the new owner must
    be on an address that is read. If it is off, make a commit or re-enable it

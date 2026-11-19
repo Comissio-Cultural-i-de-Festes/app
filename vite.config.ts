@@ -80,6 +80,19 @@ export default defineConfig(({ mode, command }) => {
         },
       },
       {
+        // L'origen de Supabase és a l'entorn i no a l'HTML estàtic. Sense
+        // origen (un `dev` sense .env) les dues línies se'n van senceres: un
+        // `href` buit no és un error però tampoc fa res de bo.
+        name: 'app-comi:preconnect',
+        transformIndexHtml(html: string) {
+          if (supabaseOrigin !== '') return html.replaceAll('%SUPABASE_ORIGIN%', supabaseOrigin)
+          return html
+            .split('\n')
+            .filter((line) => !line.includes('%SUPABASE_ORIGIN%'))
+            .join('\n')
+        },
+      },
+      {
         // `og:image` ha de ser una URL absoluta: WhatsApp i Facebook no
         // resolen la relativa contra la pàgina. L'origen no surt de res de
         // l'HTML estàtic, així que ve de VITE_SITE_URL. Buida, no fa petar el

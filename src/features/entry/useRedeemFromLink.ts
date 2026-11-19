@@ -1,7 +1,7 @@
 import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
-import { invalidateData } from '@/lib/signedQuery'
+import { invalidateAccess } from '@/lib/signedQuery'
 import { supabase } from '@/lib/supabase'
 
 import { discardInvite, pendingInvite, rememberInvite } from './pendingInvite'
@@ -28,6 +28,10 @@ import { readInviteCode } from './useInvite'
  *   `online`.
  * - Cada intent té un temps límit. Un que no tornava mai deixava el següent
  *   esperant per sempre.
+ *
+ * `invalidateAccess` sense `await`: esborrar el codi no ha de dependre que
+ * acabin els refetch, que amb la xarxa en pausa no acaben. A més de les dades,
+ * torna a signar les portades que van tornar `null` abans d'entrar.
  *
  * Només un `ok: true` refresca les dades: el perfil es demana alhora que el
  * bescanvi i sol arribar abans, encara dient `pendent`, i ho seguia dient fins
@@ -89,7 +93,7 @@ export function useRedeemFromLink(userId: string | null): void {
       // either way left somebody pending, with the one string that could have
       // got them in already gone.
       discardInvite()
-      if ((data as RedeemResult | null)?.ok === true) void invalidateData(queryClient)
+      if ((data as RedeemResult | null)?.ok === true) void invalidateAccess(queryClient)
     }
 
     const again = () => {

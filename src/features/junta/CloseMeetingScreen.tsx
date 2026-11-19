@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
+import { useBack } from '@/lib/useBack'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import { type RosterRow, closeMeeting, fetchRoster, meetingKeys } from '@/features/event/meetingApi'
@@ -73,7 +74,7 @@ export function CloseMeetingScreen() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
   const { id = '' } = useParams()
-  const navigate = useNavigate()
+  const { back } = useBack('/junta')
   const client = useQueryClient()
 
   const event = useQuery({ queryKey: eventKeys.one(id), queryFn: () => fetchEvent(id) })
@@ -96,7 +97,7 @@ export function CloseMeetingScreen() {
       await client.invalidateQueries({ queryKey: eventKeys.one(id) })
       await client.invalidateQueries({ queryKey: meetingListKeys.list() })
       await client.invalidateQueries({ queryKey: juntaHomeKeys.home() })
-      await navigate('/junta', { replace: true })
+      back()
     },
   })
 
@@ -106,7 +107,8 @@ export function CloseMeetingScreen() {
   if (e === null || e === undefined) {
     return (
       <main className="min-h-dvh bg-app">
-        <JuntaHeader viaHistory
+        <JuntaHeader
+          viaHistory
           to="/junta"
           label={t('junta.back')}
           title={t('meeting.closeTitle')}
@@ -137,7 +139,8 @@ export function CloseMeetingScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-14">
-      <JuntaHeader viaHistory
+      <JuntaHeader
+        viaHistory
         to="/junta"
         label={t('junta.back')}
         title={t('meeting.closeTitle')}

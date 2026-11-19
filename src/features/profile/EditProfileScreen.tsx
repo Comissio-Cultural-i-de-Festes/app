@@ -130,7 +130,12 @@ export function EditProfileScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <JuntaHeader viaHistory to="/perfil" label={t('nav.profile')} title={t('profile.photo.title')} />
+      <JuntaHeader
+        viaHistory
+        to="/perfil"
+        label={t('nav.profile')}
+        title={t('profile.photo.title')}
+      />
 
       <section className={`pt-14 text-center ${GUTTER}`}>
         <span className="relative inline-block">

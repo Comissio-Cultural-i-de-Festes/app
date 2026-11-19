@@ -1,7 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router'
+import { useBack } from '@/lib/useBack'
 
 import { doorKeys } from '@/features/door/api'
 import { fetchPointValues } from '@/features/junta/eventFormApi'
@@ -29,7 +30,7 @@ const GUTTER = 'px-[var(--ds-gutter)]'
 
 export function NewIdeaScreen() {
   const { t } = useTranslation()
-  const navigate = useNavigate()
+  const { back } = useBack('/idees')
   const userId = useUserId()
   const client = useQueryClient()
   const [params] = useSearchParams()
@@ -55,7 +56,7 @@ export function NewIdeaScreen() {
     mutationFn: () => propose(titol, descripcio, userId),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: proposalKeys.list() })
-      await navigate('/idees', { replace: true })
+      back()
     },
     // Offline is not a refusal. `propose` writes the idea to the queue before
     // it tries to send it, so it is safe on the phone either way and the list
@@ -67,7 +68,7 @@ export function NewIdeaScreen() {
     // fields, with the reason, for when there is signal.
     onError: (cause) => {
       if (navigator.onLine || cause instanceof NotSaved) return
-      void navigate('/idees', { replace: true })
+      back()
     },
   })
 

@@ -100,7 +100,8 @@ export function GalleryScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <JuntaHeader viaHistory
+      <JuntaHeader
+        viaHistory
         to={`/esdeveniment/${id}`}
         label={event.data?.titulo ?? t('gallery.backToEvent')}
       />

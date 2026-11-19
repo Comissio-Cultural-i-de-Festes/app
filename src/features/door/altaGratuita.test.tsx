@@ -61,6 +61,7 @@ vi.mock('react-i18next', () => ({
 
 vi.mock('react-router', () => ({
   useParams: () => ({ eventId: EVENT }),
+  useNavigate: () => () => undefined,
   Link: ({ children }: { readonly children: ReactNode }) => <a href="#">{children}</a>,
 }))
 

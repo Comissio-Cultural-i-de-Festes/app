@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
+import { useBack } from '@/lib/useBack'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import {
@@ -42,7 +43,7 @@ type Mena = (typeof MENES)[number]
 export function GimcanaFormScreen() {
   const { t } = useTranslation()
   const { id = '' } = useParams()
-  const navigate = useNavigate()
+  const { back } = useBack(`/junta/esdeveniment/${id}`)
   const client = useQueryClient()
 
   const event = useQuery({
@@ -89,7 +90,7 @@ export function GimcanaFormScreen() {
       ),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: gimcanaKeys.all() })
-      void navigate(`/junta/esdeveniment/${id}`, { replace: true })
+      back()
     },
   })
 
@@ -112,7 +113,8 @@ export function GimcanaFormScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-10">
-      <JuntaHeader viaHistory
+      <JuntaHeader
+        viaHistory
         to={`/junta/esdeveniment/${id}`}
         label={t('junta.gimcana.leave')}
         className="lg:hidden"

@@ -54,7 +54,8 @@ export function IdeasReviewScreen() {
 
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+32px)]">
-      <JuntaHeader viaHistory
+      <JuntaHeader
+        viaHistory
         to="/junta"
         label={t('junta.back')}
         title={t('ideas.juntaTitle')}

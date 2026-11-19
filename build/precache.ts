@@ -9,9 +9,10 @@
  * LA REGLA es diu al revés: es decideix què es QUEDA, i surt la resta.
  *
  *   1. L'entrada.
- *   2. Tot tros que porti alguna cosa d'un soci. Rolldown treu a trossos propis
- *      el codi compartit (`Button-*.js` és un tros a part i l'importa l'Inici), i
- *      un tros lazy que barreja codi de soci i de junta no és de la junta.
+ *   2. Tot tros que porti alguna cosa d'un soci que no sigui un idioma.
+ *      Rolldown treu a trossos propis el codi compartit (`Button-*.js` és un
+ *      tros a part i l'importa l'Inici), i un tros lazy que barreja codi de
+ *      soci i de junta no és de la junta.
  *   3. La porta: l'escàner, l'alta a mà, els punts, la cua de la gimcana, el
  *      lector de QR, el rebedor de la junta, que és l'únic lloc des d'on
  *      s'arriba a l'escàner, i el marc de la zona que el pinta.
@@ -20,7 +21,8 @@
  *      que no hi és no s'obre sense xarxa, i aleshores tenir-lo a la precache no
  *      serveix de res.
  *
- * Surten, doncs, les pantalles d'escriptori de la junta i Leaflet.
+ * Surten, doncs, les pantalles d'escriptori de la junta, Leaflet, el castellà i
+ * l'anglès.
  *
  * PER QUÈ LA PORTA ES QUEDA, encara que la gent de la junta sigui poca. Els
  * seus trossos importen l'`index-<hash>.js`, que canvia gairebé a cada
@@ -38,14 +40,29 @@
  * dir si l'Inici en depèn. Si demà una pantalla de soci passa a `lazy()`, es
  * queda a la precache igual que si no ho fos.
  *
- * ELS IDIOMES es queden tots tres. El català va dins de l'entrada; el castellà
- * i l'anglès són trossos propis que es demanen quan algú els tria
- * (`src/i18n/index.ts`). No són de la junta, o sigui que la regla ja els
- * deixaria, però el test els anomena a part: un idioma triat que no és al
- * telèfon és una pantalla que, sense xarxa, surt en un altre idioma. Treure'n
- * els dos que una persona no fa servir estalviaria uns 60 KiB gzip a la
- * instal·lació, a canvi que canviar d'idioma a la casa rural, sense cobertura,
- * no fes res. Es van preferir els 60 KiB.
+ * ELS IDIOMES: només hi va el que porta l'entrada, el català. El castellà i
+ * l'anglès són trossos propis (`src/i18n/index.ts`), uns 31 KiB gzip cadascun,
+ * i cada persona en llegeix un o cap. A la precache eren 62 KiB de cada
+ * instal·lació que gairebé ningú no feia servir.
+ *
+ * Al principi s'hi van quedar, perquè un idioma triat que no és al telèfon és
+ * una pantalla que, sense xarxa, surt en un altre idioma. El que ho resol sense
+ * la precache és que el tros es desi la primera vegada que es llegeix:
+ *
+ *   - Qui obre l'app en castellà el baixa en arrencar, amb xarxa, i la regla
+ *     `chunks` (`vite.config.ts`) el desa. Si la primera visita l'ha baixat abans
+ *     que el service worker hi manés, `src/lib/firstControl.ts` el torna a
+ *     demanar quan hi mana, i aleshores es desa.
+ *   - Qui el canvia al perfil el baixa en aquell moment, i es desa igual.
+ *   - El nom del tros només canvia quan canvia el fitxer de l'idioma. Si un
+ *     desplegament el canvia, `autoUpdate` recarrega la pàgina en activar-se el
+ *     service worker nou, que s'acaba d'instal·lar amb xarxa, i la pàgina nova
+ *     demana el tros nou de seguida.
+ *
+ * El que es perd: triar al perfil, sense cobertura, un idioma que el telèfon
+ * no té desat. Surt l'idioma de reserva, en lloc de quedar-se en blanc
+ * (`src/i18n/backend.ts`), i el triat surt la primera vegada que hi ha xarxa. Es va considerar baixar els dos idiomes en segon pla després
+ * d'instal·lar: és el mateix pes que tenir-los a la precache, només que més tard.
  *
  * El que surt d'aquí no es perd: el guarda una memòria cau `CacheFirst` la
  * primera vegada que es demana (`vite.config.ts`), i la zona de junta en demana
@@ -101,14 +118,28 @@ export function isDoorModule(id: string): boolean {
   return DOOR.some((door) => door.test(normal(id)))
 }
 
+/** Un fitxer d'idioma. El que l'entrada importa ja hi va dins, sigui quin sigui. */
+export function isLocaleModule(id: string): boolean {
+  return /\/src\/i18n\/locales\/[^/]+\.json$/.test(normal(id))
+}
+
 /** `\0` és un mòdul virtual —el runtime de rolldown, l'ajudant de precàrrega de
  * Vite—: no és de ningú, i no decideix res. */
 const realModules = (chunk: Chunk) => chunk.moduleIds.filter((id) => !id.startsWith('\0'))
 
+const onlyOf = (chunk: Chunk, belongs: (id: string) => boolean) => {
+  const real = realModules(chunk)
+  return real.length > 0 && real.every(belongs)
+}
+
 /** Si un tros és només de la junta: si en té algun de real i tots ho són. */
 export function isJuntaOnly(chunk: Chunk): boolean {
-  const real = realModules(chunk)
-  return real.length > 0 && real.every(isJuntaModule)
+  return onlyOf(chunk, isJuntaModule)
+}
+
+/** Si un tros és només un idioma, que és com surt un `import()` d'un JSON. */
+export function isLocaleOnly(chunk: Chunk): boolean {
+  return onlyOf(chunk, isLocaleModule)
 }
 
 /** Els fitxers que arrosseguen `roots`: ells i el que importen, fins al final. */
@@ -145,13 +176,18 @@ export function staticClosure(bundle: Readonly<Record<string, BundleItem>>): Set
 /** El que es queda a la precache, d'entre els trossos i els seus fulls d'estil. */
 export function keptFiles(bundle: Readonly<Record<string, BundleItem>>): Set<string> {
   const roots = chunksOf(bundle)
-    .filter((chunk) => chunk.isEntry || !isJuntaOnly(chunk) || chunk.moduleIds.some(isDoorModule))
+    .filter(
+      (chunk) =>
+        chunk.isEntry ||
+        chunk.moduleIds.some(isDoorModule) ||
+        !(isJuntaOnly(chunk) || isLocaleOnly(chunk)),
+    )
     .map((chunk) => chunk.fileName)
   return closure(bundle, roots)
 }
 
 /** Els fitxers que no han d'anar a la precache. */
-export function juntaOnlyFiles(bundle: Readonly<Record<string, BundleItem>>): Set<string> {
+export function leftOutFiles(bundle: Readonly<Record<string, BundleItem>>): Set<string> {
   const kept = keptFiles(bundle)
   const out = new Set<string>()
   for (const chunk of chunksOf(bundle)) {
@@ -170,14 +206,14 @@ export function juntaOnlyFiles(bundle: Readonly<Record<string, BundleItem>>): Se
  * el filtre pot llegir el que el connector ha deixat. Si un dia no hi arriba, el
  * conjunt és buit i la precache torna a tenir-ho tot: més pes, res trencat.
  */
-export function juntaOutOfPrecache() {
+export function trimPrecache() {
   let excluded = new Set<string>()
   return {
     plugin: {
-      name: 'app-comi:precache-junta',
+      name: 'app-comi:precache',
       apply: 'build' as const,
       generateBundle(_options: unknown, bundle: Record<string, BundleItem>) {
-        excluded = juntaOnlyFiles(bundle)
+        excluded = leftOutFiles(bundle)
       },
     },
     manifestTransform: <T extends { readonly url: string }>(entries: T[]) => ({

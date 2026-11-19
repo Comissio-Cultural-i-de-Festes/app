@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 
 import { UserIdContext } from '@/features/session/context'
+import { forgetOnUserChange } from '@/lib/forgetSession'
 
 import { ViatgerBlock } from './ViatgerBlock'
 import { ViatgerScreen } from './ViatgerScreen'
@@ -144,6 +145,24 @@ describe('les dades de viatger en un mòbil compartit', () => {
     expect(screen.queryByDisplayValue('12345678Z')).toBeNull()
     expect(screen.getByRole('textbox', { name: 'viatger.field.nom' })).toHaveValue('')
     expect(fetchMevesDades).toHaveBeenLastCalledWith(EVENT, B)
+  })
+
+  it('tancar la sessió se les emporta encara que la pantalla sigui oberta', async () => {
+    // El camí que fa servir l'app: el canvi d'usuari de la sessió buida la cau
+    // (`App.tsx` → `forgetOnUserChange`). Aquí amb el formulari i la fitxa
+    // muntats alhora, que és el cas en què `gcTime: 0` no ajuda: mentre algú
+    // mira la pantalla, la consulta té observadors i no es recull.
+    const client = new QueryClient()
+    obre(client, A, <ViatgerScreen />)
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('12345678Z')).toBeInTheDocument()
+    })
+    expect(cauAmb(client, '12345678Z')).toBe(true)
+
+    forgetOnUserChange(client, A, null)
+
+    expect(cauAmb(client, '12345678Z')).toBe(false)
+    expect(client.getQueryCache().findAll({ queryKey: ['event', EVENT, 'viatger'] })).toEqual([])
   })
 
   it('el bloc de la fitxa només pregunta si hi són', async () => {

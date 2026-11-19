@@ -42,3 +42,21 @@ export function withMyAnswer(
     ...rows,
   ]
 }
+
+export type HomeCta = 'checkin' | 'going' | 'queued' | 'requested' | 'join'
+
+/**
+ * Què posa l'Inici sota el hero segons la meva resposta.
+ *
+ * Qui és a la llista d'espera o té la sol·licitud pendent ja ha fet el que
+ * podia fer: el botó d'apuntar-s'hi tornava a aparèixer i invitava a tornar-ho
+ * a demanar, que és exactament el que l'estat optimista havia de evitar. Aquí
+ * hi va una línia que diu on és, no un botó.
+ */
+export function homeCta(mine: AttendanceState | null, canCheckIn: boolean): HomeCta {
+  if (mine === 'espera') return 'queued'
+  if (mine === 'sollicitat') return 'requested'
+  if (canCheckIn && (mine === 'si' || mine === 'potser')) return 'checkin'
+  if (mine === 'si' || mine === 'asistio') return 'going'
+  return 'join'
+}

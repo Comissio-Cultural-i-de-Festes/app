@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import type { AttendanceRow } from './api'
-import { expectedState, withMyAnswer } from './answer'
+import { expectedState, homeCta, withMyAnswer } from './answer'
 
 const NOW = new Date('2026-09-20T10:00:00Z')
 
@@ -50,5 +50,27 @@ describe('withMyAnswer', () => {
     const out = withMyAnswer([elsewhere], 'e1', 'u1', 'si', NOW)
     expect(out).toHaveLength(2)
     expect(out[1]).toBe(elsewhere)
+  })
+})
+
+describe('homeCta', () => {
+  it('qui no ha contestat, o ha dit potser, veu el botó', () => {
+    expect(homeCta(null, false)).toBe('join')
+    expect(homeCta('potser', false)).toBe('join')
+    expect(homeCta('no', false)).toBe('join')
+    expect(homeCta('rebutjat', false)).toBe('join')
+  })
+  it('qui hi va veu l’enllaç a la fitxa', () => {
+    expect(homeCta('si', false)).toBe('going')
+    expect(homeCta('asistio', false)).toBe('going')
+  })
+  it('la llista d’espera i el sol·licitat no conviden a tornar-ho a demanar', () => {
+    expect(homeCta('espera', false)).toBe('queued')
+    expect(homeCta('sollicitat', false)).toBe('requested')
+  })
+  it('amb la finestra oberta, qui hi va o ho dubta fitxa', () => {
+    expect(homeCta('si', true)).toBe('checkin')
+    expect(homeCta('potser', true)).toBe('checkin')
+    expect(homeCta('espera', true)).toBe('queued')
   })
 })

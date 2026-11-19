@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 /**
@@ -46,5 +48,20 @@ describe('preloadDoor', () => {
     vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
     await preloadDoor()
     expect(requested).toEqual([])
+  })
+
+  it('asks for every door screen the router loads on demand', () => {
+    // Llegit del codi i no de la llista de dalt: una pantalla nova de la porta
+    // que entra a `App.tsx` amb `lazy()` i no aquí ha de fer fallar alguna cosa.
+    const app = readFileSync('src/App.tsx', 'utf8')
+    const preload = readFileSync('src/features/door/preload.ts', 'utf8')
+    const routed = [...app.matchAll(/import\('@\/features\/door\/(\w+)'\)/g)].map((m) => m[1])
+
+    expect(routed.length).toBeGreaterThanOrEqual(3)
+    for (const screen of routed) {
+      expect(preload, `${screen} is lazy in App.tsx and not preloaded`).toMatch(
+        new RegExp(`import\\('(?:\\./|@/features/door/)${screen}'\\)`),
+      )
+    }
   })
 })

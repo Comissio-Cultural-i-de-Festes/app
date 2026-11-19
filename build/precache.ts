@@ -13,8 +13,8 @@
  *      el codi compartit (`Button-*.js` és un tros a part i l'importa l'Inici), i
  *      un tros lazy que barreja codi de soci i de junta no és de la junta.
  *   3. La porta: l'escàner, l'alta a mà, els punts, la cua de la gimcana, el
- *      lector de QR, i el rebedor de la junta, que és l'únic lloc des d'on
- *      s'arriba a l'escàner.
+ *      lector de QR, el rebedor de la junta, que és l'únic lloc des d'on
+ *      s'arriba a l'escàner, i el marc de la zona que el pinta.
  *   4. Tot el que importen els anteriors, estàticament o com a full d'estils,
  *      fins que el conjunt ja no creix. Un tros a la precache que importa un tros
  *      que no hi és no s'obre sense xarxa, i aleshores tenir-lo a la precache no
@@ -38,11 +38,14 @@
  * dir si l'Inici en depèn. Si demà una pantalla de soci passa a `lazy()`, es
  * queda a la precache igual que si no ho fos.
  *
- * ELS IDIOMES no hi entren. Avui els tres viatgen dins de l'Inici (s'importen
- * com a JSON), o sigui que no hi ha cap tros a treure. El dia que es carreguin a
- * demanda seran trossos lazy que no són de la junta, i aquesta regla els deixarà
- * a la precache, que és el costat segur: qui els separi ha de decidir si els
- * dos que no es fan servir s'han de quedar fora, i com arriben sense xarxa.
+ * ELS IDIOMES es queden tots tres. El català va dins de l'entrada; el castellà
+ * i l'anglès són trossos propis que es demanen quan algú els tria
+ * (`src/i18n/index.ts`). No són de la junta, o sigui que la regla ja els
+ * deixaria, però el test els anomena a part: un idioma triat que no és al
+ * telèfon és una pantalla que, sense xarxa, surt en un altre idioma. Treure'n
+ * els dos que una persona no fa servir estalviaria uns 60 KiB gzip a la
+ * instal·lació, a canvi que canviar d'idioma a la casa rural, sense cobertura,
+ * no fes res. Es van preferir els 60 KiB.
  *
  * El que surt d'aquí no es perd: el guarda una memòria cau `CacheFirst` la
  * primera vegada que es demana (`vite.config.ts`), i la zona de junta en demana
@@ -82,6 +85,10 @@ const DOOR = [
   /\/node_modules\/zxing-wasm\//,
   /\/src\/features\/junta\/GimcanaValidateScreen\.tsx$/,
   /\/src\/features\/junta\/JuntaHome\.tsx$/,
+  // El marc de la zona, ara també un tros a demanda: sense ell no es pinta ni
+  // el rebedor. No és de la junta pel camí, i la regla general ja el deixaria,
+  // però és la porta d'entrada a la porta i no ha de dependre d'aquest detall.
+  /\/src\/features\/shell\/JuntaLayout\.tsx$/,
 ]
 
 const normal = (id: string) => id.replaceAll('\\', '/')

@@ -399,7 +399,8 @@
     "cta": {
       "join": "Count me in",
       "confirm": "You said maybe · confirm",
-      "going": "You're going · change it"
+      "going": "You're going · change it",
+      "unknown": "We can't tell if you're going."
     },
     "movement": {
       "line_one": "Signed up today: {{people}}",

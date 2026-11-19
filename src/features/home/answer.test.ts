@@ -55,27 +55,31 @@ describe('withMyAnswer', () => {
 
 describe('homeCta', () => {
   it('qui no ha contestat, o ha dit potser, veu el botó', () => {
-    expect(homeCta(null, false, true)).toBe('join')
-    expect(homeCta('potser', false, true)).toBe('join')
-    expect(homeCta('no', false, true)).toBe('join')
-    expect(homeCta('rebutjat', false, true)).toBe('join')
+    expect(homeCta(null, false, 'known')).toBe('join')
+    expect(homeCta('potser', false, 'known')).toBe('join')
+    expect(homeCta('no', false, 'known')).toBe('join')
+    expect(homeCta('rebutjat', false, 'known')).toBe('join')
   })
   it('qui hi va veu l’enllaç a la fitxa', () => {
-    expect(homeCta('si', false, true)).toBe('going')
-    expect(homeCta('asistio', false, true)).toBe('going')
+    expect(homeCta('si', false, 'known')).toBe('going')
+    expect(homeCta('asistio', false, 'known')).toBe('going')
   })
   it('la llista d’espera i el sol·licitat no conviden a tornar-ho a demanar', () => {
-    expect(homeCta('espera', false, true)).toBe('queued')
-    expect(homeCta('sollicitat', false, true)).toBe('requested')
+    expect(homeCta('espera', false, 'known')).toBe('queued')
+    expect(homeCta('sollicitat', false, 'known')).toBe('requested')
   })
   it('amb la finestra oberta, qui hi va o ho dubta fitxa', () => {
-    expect(homeCta('si', true, true)).toBe('checkin')
-    expect(homeCta('potser', true, true)).toBe('checkin')
-    expect(homeCta('espera', true, true)).toBe('queued')
+    expect(homeCta('si', true, 'known')).toBe('checkin')
+    expect(homeCta('potser', true, 'known')).toBe('checkin')
+    expect(homeCta('espera', true, 'known')).toBe('queued')
   })
   it('mentre no han arribat les assistències no es diu res de la meva resposta', () => {
-    expect(homeCta(null, false, false)).toBe('waiting')
-    expect(homeCta('si', true, false)).toBe('waiting')
-    expect(homeCta('espera', false, false)).toBe('waiting')
+    expect(homeCta(null, false, 'waiting')).toBe('waiting')
+    expect(homeCta('si', true, 'waiting')).toBe('waiting')
+    expect(homeCta('espera', false, 'waiting')).toBe('waiting')
+  })
+  it('si les assistències no arriben, no se sap res i no es convida a apuntar-s’hi', () => {
+    expect(homeCta(null, false, 'unavailable')).toBe('unknown')
+    expect(homeCta('espera', true, 'unavailable')).toBe('unknown')
   })
 })

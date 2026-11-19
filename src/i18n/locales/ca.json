@@ -399,7 +399,8 @@
     "cta": {
       "join": "Apunta-t'hi",
       "confirm": "Has dit potser · confirma",
-      "going": "Ja hi vas · canvia-ho"
+      "going": "Ja hi vas · canvia-ho",
+      "unknown": "No podem saber si hi vas."
     },
     "movement": {
       "line_one": "S'hi ha apuntat avui: {{people}}",

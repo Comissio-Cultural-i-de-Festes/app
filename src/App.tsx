@@ -119,12 +119,17 @@ const InvitesScreen = lazy(() =>
 const PaymentsScreen = lazy(() =>
   import('@/features/junta/PaymentsScreen').then((m) => ({ default: m.PaymentsScreen })),
 )
-const JuntaHome = lazy(() =>
-  import('@/features/junta/JuntaHome').then((m) => ({ default: m.JuntaHome })),
-)
-const JuntaLayout = lazy(() =>
-  import('@/features/shell/JuntaLayout').then((m) => ({ default: m.JuntaLayout })),
-)
+const loadJuntaHome = () => import('@/features/junta/JuntaHome')
+const JuntaHome = lazy(() => loadJuntaHome().then((m) => ({ default: m.JuntaHome })))
+// El marc de la zona també és un tros, i el rebedor no es demanaria fins que el
+// marc ja hagués arribat i pintat el seu `Outlet`: dues voltes de xarxa una
+// darrere l'altra per entrar a `/junta`. Es demanen alhora. Si s'entra per una
+// altra pantalla de la zona, el rebedor ve igualment de franc: és a la precache
+// i és on porta la fletxa de tornada.
+const JuntaLayout = lazy(() => {
+  loadJuntaHome().catch(() => undefined)
+  return import('@/features/shell/JuntaLayout').then((m) => ({ default: m.JuntaLayout }))
+})
 
 /**
  * Les pantalles de soci, també a demanda, totes menys l'Inici.

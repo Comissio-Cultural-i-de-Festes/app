@@ -4,6 +4,8 @@ import { Suspense } from 'react'
 import { MemoryRouter } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { JuntaStringsUnavailable } from '@/i18n/junta'
+
 import { JuntaScreenBoundary } from './JuntaScreenBoundary'
 import { JuntaStrings } from './JuntaStrings'
 
@@ -15,13 +17,22 @@ import { JuntaStrings } from './JuntaStrings'
 const strings = vi.hoisted(() => ({
   asked: [] as string[],
   promise: Promise.resolve(),
+  forgotten: 0,
 }))
 
-vi.mock('@/i18n/junta', () => ({
-  juntaStrings: (_i18n: unknown, language: string) => {
-    strings.asked.push(language)
-    return strings.promise
-  },
+vi.mock('@/i18n/junta', async (importOriginal) => ({
+  ...(await importOriginal<Record<string, unknown>>()),
+  juntaStrings: Object.assign(
+    (_i18n: unknown, language: string) => {
+      strings.asked.push(language)
+      return strings.promise
+    },
+    {
+      forgetFailures: () => {
+        strings.forgotten += 1
+      },
+    },
+  ),
 }))
 
 vi.mock('react-i18next', () => ({
@@ -71,6 +82,7 @@ function pending() {
 
 beforeEach(() => {
   strings.asked = []
+  strings.forgotten = 0
   vi.spyOn(console, 'error').mockImplementation(() => undefined)
 })
 
@@ -108,17 +120,23 @@ describe('JuntaStrings', () => {
     expect(screen.getByText('pantalla')).toBeInTheDocument()
   })
 
-  it('si no arriben sense xarxa, diu que cal xarxa com una pantalla que no hi és', async () => {
-    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
+  it.each([
+    ['sense xarxa', false],
+    // Una wifi connectada que no dona internet: abans pujava a la xarxa de
+    // sota, que recarregava i anunciava una versió nova que no existia.
+    ['amb una wifi sense internet', true],
+  ])('si no arriben %s, diu que cal cobertura, i ho deixa tornar a provar', async (_, online) => {
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(online)
     const arrival = pending()
     strings.promise = arrival.promise
     await suspended('/junta/registre')
 
     await act(async () => {
-      arrival.reject(new TypeError('Failed to fetch dynamically imported module: /assets/es-x.js'))
+      arrival.reject(new JuntaStringsUnavailable('es', new Error('timed out')))
       await arrival.promise.catch(() => undefined)
     })
     expect(screen.getByRole('alert')).toHaveTextContent('junta.needsSignalTitle')
     expect(screen.queryByText('pantalla')).toBeNull()
+    expect(strings.forgotten).toBeGreaterThan(0)
   })
 })

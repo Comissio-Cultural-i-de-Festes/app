@@ -1,7 +1,7 @@
 import { createInstance, type ResourceKey } from 'i18next'
 import { describe, expect, it, vi } from 'vitest'
 
-import { juntaStrings, juntaStringsFrom } from './junta'
+import { JuntaStringsUnavailable, juntaStrings, juntaStringsFrom } from './junta'
 import { SUPPORTED_LOCALES } from './locales'
 import ca from './locales/ca.json'
 import en from './locales/en.json'
@@ -64,12 +64,13 @@ describe('the junta strings', () => {
     const load = juntaStringsFrom({ ca: fetch })
 
     const first = load(i18n, 'ca')
-    await expect(first).rejects.toBe(missing)
+    await expect(first).rejects.toBeInstanceOf(JuntaStringsUnavailable)
+    await expect(first).rejects.toHaveProperty('cause', missing)
     expect(load(i18n, 'ca')).toBe(first)
     expect(fetch).toHaveBeenCalledOnce()
   })
 
-  it('try again once the failures are forgotten, which is what coming back online does', async () => {
+  it('try again once the failures are forgotten, which the screen that showed one does', async () => {
     const i18n = await instance('ca', {})
     const missing = new TypeError('Failed to fetch dynamically imported module')
     const fetch = vi
@@ -78,12 +79,42 @@ describe('the junta strings', () => {
       .mockResolvedValueOnce({ junta: { audit: { heading: 'Registre' } } })
     const load = juntaStringsFrom({ ca: fetch })
 
-    await expect(load(i18n, 'ca')).rejects.toBe(missing)
+    await expect(load(i18n, 'ca')).rejects.toHaveProperty('cause', missing)
     load.forgetFailures()
     await load(i18n, 'ca')
 
     expect(fetch).toHaveBeenCalledTimes(2)
     expect(i18n.t('junta.audit.heading')).toBe('Registre')
+  })
+
+  it('give up on a request that never answers, and keep what turns up later', async () => {
+    vi.useFakeTimers()
+    try {
+      const i18n = await instance('ca', {})
+      let arrive: (strings: ResourceKey) => void = () => undefined
+      const load = juntaStringsFrom(
+        {
+          ca: () =>
+            new Promise((resolve) => {
+              arrive = resolve
+            }),
+        },
+        8000,
+      )
+
+      const first = load(i18n, 'ca')
+      const settled = expect(first).rejects.toBeInstanceOf(JuntaStringsUnavailable)
+      await vi.advanceTimersByTimeAsync(7999)
+      expect(i18n.exists('junta.audit.heading')).toBe(false)
+      await vi.advanceTimersByTimeAsync(1)
+      await settled
+
+      arrive({ junta: { audit: { heading: 'Registre' } } })
+      await vi.advanceTimersByTimeAsync(0)
+      expect(i18n.t('junta.audit.heading')).toBe('Registre')
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('forget only the failures, not what arrived', async () => {

@@ -25,7 +25,15 @@ export function setupPwa(): void {
   if ('serviceWorker' in navigator) {
     keepWhatCameFirst({
       container: navigator.serviceWorker,
-      loaded: () => performance.getEntriesByType('resource').map((entry) => entry.name),
+      loaded: () => performance.getEntriesByType('resource'),
+      // Sense `disconnect`: a partir del control tot el que acaba és posterior
+      // i es descarta, i el que encara no ha acabat pot trigar el que vulgui.
+      later: (listener) => {
+        new PerformanceObserver((list) => {
+          listener(list.getEntries())
+        }).observe({ type: 'resource' })
+      },
+      now: () => performance.now(),
       origin: location.origin,
       fetch: (url) => fetch(url),
     })

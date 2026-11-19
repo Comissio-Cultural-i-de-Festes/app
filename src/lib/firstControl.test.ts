@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { assetsToKeep, keepWhatCameFirst } from './firstControl'
+import { assetsToKeep, keepWhatCameFirst, type Resource } from './firstControl'
 
 const ORIGIN = 'https://app.example.test'
 
@@ -26,74 +26,111 @@ describe('assetsToKeep', () => {
   })
 })
 
-function container(controller: object | null) {
-  const target = new EventTarget()
-  return Object.assign(target, { controller })
+interface Setup {
+  readonly controller?: object | null
+  readonly loaded?: () => readonly Resource[]
+  readonly fetch?: () => Promise<unknown>
 }
 
+/** A page whose resources, worker and clock the test moves by hand. */
+function page({ controller = null, loaded = () => [], fetch: answer }: Setup = {}) {
+  const sw = Object.assign(new EventTarget(), { controller })
+  const fetch = vi.fn<(url: string) => Promise<unknown>>(
+    answer ?? (() => Promise.resolve(new Response(''))),
+  )
+  let listener: ((entries: readonly Resource[]) => void) | undefined
+  let clock = 0
+  keepWhatCameFirst({
+    container: sw,
+    loaded,
+    later: (l) => {
+      listener = l
+    },
+    now: () => clock,
+    origin: ORIGIN,
+    fetch,
+  })
+  return {
+    fetch,
+    control: (at: number) => {
+      clock = at
+      sw.dispatchEvent(new Event('controllerchange'))
+    },
+    finish: (...entries: Resource[]) => listener?.(entries),
+    observing: () => listener !== undefined,
+  }
+}
+
+const at = (path: string, startTime: number): Resource => ({
+  name: `${ORIGIN}${path}`,
+  startTime,
+})
+
 describe('keepWhatCameFirst', () => {
-  it('asks again for what loaded before the worker was in charge, once it is', async () => {
-    const sw = container(null)
-    const fetch = vi.fn(() => Promise.resolve(new Response('')))
-    keepWhatCameFirst({
-      container: sw,
-      loaded: () => [`${ORIGIN}/assets/es-A.js`, `${ORIGIN}/index.html`],
-      origin: ORIGIN,
-      fetch,
-    })
+  it('asks again for what loaded before the worker was in charge, once it is', () => {
+    const p = page({ loaded: () => [at('/assets/es-A.js', 10), at('/index.html', 0)] })
 
-    expect(fetch).not.toHaveBeenCalled()
-    sw.dispatchEvent(new Event('controllerchange'))
-    sw.dispatchEvent(new Event('controllerchange'))
-    await Promise.resolve()
+    expect(p.fetch).not.toHaveBeenCalled()
+    p.control(500)
+    p.control(600)
 
-    expect(fetch).toHaveBeenCalledTimes(1)
-    expect(fetch).toHaveBeenCalledWith(`${ORIGIN}/assets/es-A.js`)
+    expect(p.fetch.mock.calls).toEqual([[`${ORIGIN}/assets/es-A.js`]])
   })
 
   it('reads what loaded at the moment the worker takes over, not before', () => {
-    const sw = container(null)
-    const fetch = vi.fn(() => Promise.resolve(new Response('')))
-    const loaded = [`${ORIGIN}/assets/index-A.js`]
-    keepWhatCameFirst({ container: sw, loaded: () => loaded, origin: ORIGIN, fetch })
+    const loaded = [at('/assets/index-A.js', 5)]
+    const p = page({ loaded: () => loaded })
 
-    loaded.push(`${ORIGIN}/assets/en-B.js`)
-    sw.dispatchEvent(new Event('controllerchange'))
+    loaded.push(at('/assets/en-B.js', 40))
+    p.control(500)
 
-    expect(fetch.mock.calls).toEqual([
+    expect(p.fetch.mock.calls).toEqual([
       [`${ORIGIN}/assets/index-A.js`],
       [`${ORIGIN}/assets/en-B.js`],
     ])
   })
 
+  it('also asks for what was still on its way when the worker took over', () => {
+    // El castellà en una xarxa lenta: ha sortit abans del control, i acaba
+    // després. Aquella petició no ha passat pel service worker.
+    const p = page({ loaded: () => [at('/assets/index-A.js', 5)] })
+    p.control(500)
+
+    p.finish(at('/assets/es-A.js', 120), at('/assets/Ideas-B.js', 800))
+
+    expect(p.fetch.mock.calls).toEqual([
+      [`${ORIGIN}/assets/index-A.js`],
+      [`${ORIGIN}/assets/es-A.js`],
+    ])
+  })
+
+  it('does not ask twice for the same file', () => {
+    const p = page({ loaded: () => [at('/assets/es-A.js', 5)] })
+    p.control(500)
+
+    p.finish(at('/assets/es-A.js', 5))
+
+    expect(p.fetch).toHaveBeenCalledTimes(1)
+  })
+
   it('does nothing when a worker already serves the page', () => {
-    const sw = container({})
-    const fetch = vi.fn(() => Promise.resolve(new Response('')))
-    keepWhatCameFirst({
-      container: sw,
-      loaded: () => [`${ORIGIN}/assets/es-A.js`],
-      origin: ORIGIN,
-      fetch,
-    })
+    const p = page({ controller: {}, loaded: () => [at('/assets/es-A.js', 5)] })
 
-    sw.dispatchEvent(new Event('controllerchange'))
+    p.control(500)
 
-    expect(fetch).not.toHaveBeenCalled()
+    expect(p.fetch).not.toHaveBeenCalled()
+    expect(p.observing()).toBe(false)
   })
 
   it('swallows a request that fails: the next visit with a signal stores it', async () => {
-    const sw = container(null)
-    const fetch = vi.fn(() => Promise.reject(new TypeError('Failed to fetch')))
-    keepWhatCameFirst({
-      container: sw,
-      loaded: () => [`${ORIGIN}/assets/es-A.js`],
-      origin: ORIGIN,
-      fetch,
+    const p = page({
+      loaded: () => [at('/assets/es-A.js', 5)],
+      fetch: () => Promise.reject(new TypeError('Failed to fetch')),
     })
 
-    sw.dispatchEvent(new Event('controllerchange'))
+    p.control(500)
     await new Promise((resolve) => setTimeout(resolve, 0))
 
-    expect(fetch).toHaveBeenCalledTimes(1)
+    expect(p.fetch).toHaveBeenCalledTimes(1)
   })
 })

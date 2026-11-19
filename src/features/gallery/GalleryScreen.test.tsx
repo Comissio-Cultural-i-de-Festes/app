@@ -40,9 +40,8 @@ vi.mock('@/features/event/api', () => ({
   fetchEvent: () => Promise.resolve({ titulo: 'Nit' }),
 }))
 vi.mock('@/features/home/api', () => ({
-  homeKeys: { attendances: (ids: string[]) => ['att', ...ids] },
-  fetchAttendances: () => Promise.resolve([]),
-  myAnswer: () => null,
+  homeKeys: { summaries: (ids: string[]) => ['resum', ...ids] },
+  fetchSummaries: () => Promise.resolve([]),
 }))
 vi.mock('@/features/session/useMyProfile', () => ({
   isJunta: () => false,

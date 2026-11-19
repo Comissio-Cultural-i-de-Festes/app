@@ -3,8 +3,8 @@ import type { QueryClient } from '@tanstack/react-query'
 import { doorKeys } from '@/features/door/api'
 import {
   type EventRow,
-  fetchAttendances,
   fetchPrevious,
+  fetchSummaries,
   fetchUpcoming,
   homeKeys,
   horizonIso,
@@ -37,7 +37,7 @@ import {
  * en pengen, i encara alguna targeta que es munta tard. Amb 150 ms d'anada i
  * tornada cada volta és mig segon abans de comptar el que baixa. Aquí es
  * llança tot el que no depèn de res a la vegada que el perfil, i el que
- * depèn d'una resposta —les assistències d'uns esdeveniments, el rànquing
+ * depèn d'una resposta —el resum de les assistències d'uns esdeveniments, el rànquing
  * d'un període— surt quan aquesta resposta arriba, sense esperar que React
  * munti res.
  *
@@ -88,8 +88,8 @@ export async function prefetchHome(client: QueryClient, userId: string): Promise
     if (ids.length > 0) {
       second.push(
         client.prefetchQuery({
-          queryKey: homeKeys.attendances(ids),
-          queryFn: () => fetchAttendances(ids),
+          queryKey: homeKeys.summaries(ids),
+          queryFn: () => fetchSummaries(ids),
         }),
       )
     }

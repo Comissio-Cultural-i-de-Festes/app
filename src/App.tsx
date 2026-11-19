@@ -21,6 +21,7 @@ import { useForgetReturn } from '@/features/entry/useForgetReturn'
 import { readInviteCode } from '@/features/entry/useInvite'
 import { useRedeemFromLink } from '@/features/entry/useRedeemFromLink'
 import { InstallScreen } from '@/features/install/InstallScreen'
+import { LogoMark } from '@/ui/Logo/Logo'
 import {
   SNOOZE_DONE_MS,
   SNOOZE_LATER_MS,
@@ -279,13 +280,22 @@ function ScreenOutlet() {
  *
  * Qui ha triat el castellà o l'anglès no el té dins del paquet (vegeu
  * `i18n/index.ts`), i fins que arriba `useTranslation` suspèn. Aquí es
- * pinta el fons de l'app i res més: qualsevol frase, fins i tot «Un segon…»,
- * sortiria en català a qui no l'ha triat. Amb el català no s'arriba a veure;
- * amb un altre ja desat, dura el que es triga a llegir-lo de la precache.
+ * pinta el fons de l'app i la marca bategant, sense cap paraula: qualsevol
+ * frase, fins i tot «Un segon…», sortiria en català a qui no l'ha triat.
+ *
+ * Amb el català no s'arriba a veure; amb un altre ja desat, dura el que es
+ * triga a llegir-lo de la precache; i com a molt, quatre segons
+ * (`i18n/backend.ts`).
  */
 export default function App() {
   return (
-    <Suspense fallback={<main className="min-h-dvh bg-app" />}>
+    <Suspense
+      fallback={
+        <main aria-busy="true" className="flex min-h-dvh items-center justify-center bg-app">
+          <LogoMark size={44} className="animate-pulse" />
+        </main>
+      }
+    >
       <Gates />
     </Suspense>
   )

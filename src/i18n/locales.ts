@@ -1,7 +1,16 @@
+import { env } from '@/config/env'
+
 export const SUPPORTED_LOCALES = ['ca', 'es', 'en'] as const
 export type Locale = (typeof SUPPORTED_LOCALES)[number]
 
-export const DEFAULT_LOCALE: Locale = 'ca'
+/**
+ * What a first visit falls back to when the phone's language is none of the
+ * three, and what any missing string falls back to. It was a literal `'ca'`
+ * while `.env.example` and the README already offered the variable, so a fork
+ * that set it changed the manifest and nothing on screen. A value that is not
+ * one of the three is ignored rather than trusted.
+ */
+export const DEFAULT_LOCALE: Locale = isLocale(env.defaultLocale) ? env.defaultLocale : 'ca'
 export const LOCALE_STORAGE_KEY = 'comi.locale'
 
 /**

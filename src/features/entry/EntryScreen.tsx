@@ -14,6 +14,7 @@ import { Notice } from '@/ui/Notice/Notice'
 
 import { GoogleButton } from './GoogleButton'
 import { InAppBrowserNotice } from './InAppBrowserNotice'
+import { rememberReturn } from './returnTo'
 import { looksStranded, signInWithGoogle } from './useGoogleSignIn'
 import { INVITE_PARAM, readInviteCode, useInvite } from './useInvite'
 
@@ -97,6 +98,7 @@ export function EntryScreen() {
     event.preventDefault()
     if (busy) return
     setPhase({ step: 'sending' })
+    rememberReturn(window.location.pathname)
 
     const redirect = new URL(window.location.origin)
     if (code !== null) redirect.searchParams.set(INVITE_PARAM, code)

@@ -37,6 +37,8 @@ import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
 import { discardInvite, pendingInvite } from '@/features/entry/pendingInvite'
+import { ReturnToLink } from '@/features/entry/ReturnToLink'
+import { forgetReturn } from '@/features/entry/returnTo'
 import { readInviteCode } from '@/features/entry/useInvite'
 import { useRedeemFromLink } from '@/features/entry/useRedeemFromLink'
 import { InstallScreen } from '@/features/install/InstallScreen'
@@ -253,6 +255,15 @@ export default function App() {
     if (session) clearOAuthMark()
   }, [session])
 
+  // Si s'ha entrat sense passar per Google —el codi del correu— ja som a la
+  // fitxa, i el que hi havia desat no ha de tornar-se a fer servir en tocar
+  // l'Inici més tard. Només es mira en el moment d'entrar: més endavant la
+  // ruta pot ser `/primer-cop`, i aquell camí encara l'ha d'aprofitar.
+  const userId = session?.user.id ?? null
+  useEffect(() => {
+    if (userId !== null && window.location.pathname !== '/') forgetReturn()
+  }, [userId])
+
   // Tornar-ho a provar és recarregar, i no tornar a cridar `getSession()`: una
   // renovació penjada no es deixa substituir —la biblioteca hi enganxa la
   // crida nova— i la que ha fallat queda desada un minut. Recarregar és l'única
@@ -346,7 +357,15 @@ export default function App() {
 
         <Route element={<RequireOnboarding />}>
           <Route element={<TabLayout />}>
-            <Route path="/" element={<HomeScreen />} />
+            <Route
+              path="/"
+              element={
+                <>
+                  <ReturnToLink />
+                  <HomeScreen />
+                </>
+              }
+            />
             <Route path="/ranquing" element={<RankingScreen />} />
             <Route path="/qr" element={<QrScreen />} />
             <Route path="/idees" element={<IdeasScreen />} />

@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import App from './App'
 import { pendingInvite, rememberInvite } from './features/entry/pendingInvite'
 import { rememberReturn, takeReturn } from './features/entry/returnTo'
+import { PORTA_TRIADA_KEY } from './features/junta/portes'
 import type * as Platform from './lib/platform'
 
 /**
@@ -125,6 +126,23 @@ describe('signing out', () => {
     })
 
     expect(window.location.search).toBe('?codi=ABC-123')
+  })
+
+  it('forgets the junta doors saved for the scanner, and which one was picked', async () => {
+    // Desades perquè l'escàner s'obri sense xarxa (`portesRecordades.ts`): el
+    // mòbil d'algú que ha tancat sessió no ha de guardar les activitats de la
+    // junta, tampoc en un tancament que ningú havia començat a fer servir.
+    mount()
+    await screen.findByText('install.title')
+    localStorage.setItem('comi.junta.portes.u1', '{"desat":0,"portes":[]}')
+    localStorage.setItem(PORTA_TRIADA_KEY, '00000000-0000-4000-8000-0000000089c1')
+
+    act(() => {
+      authListener('SIGNED_OUT', null)
+    })
+
+    expect(localStorage.getItem('comi.junta.portes.u1')).toBeNull()
+    expect(localStorage.getItem(PORTA_TRIADA_KEY)).toBeNull()
   })
 
   it('forgets the saved route along with the code', async () => {

@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Navigate, Outlet, useMatch } from 'react-router'
+import { Navigate, Outlet, useLocation, useMatch } from 'react-router'
 
 import { preloadDoor } from '@/features/door/preload'
 import { JuntaNav } from '@/features/junta/JuntaNav'
@@ -8,6 +8,7 @@ import { PROFILE_CLOCK, isJunta, useMyProfile } from '@/features/session/useMyPr
 import { useAvailability } from '@/lib/useAvailability'
 
 import { GateUnreachable, GateWaiting } from './Gate'
+import { JuntaScreenBoundary } from './JuntaScreenBoundary'
 
 /**
  * The junta area.
@@ -32,6 +33,7 @@ export function JuntaLayout() {
   const profile = useMyProfile()
   const view = useAvailability(profile, { clock: PROFILE_CLOCK })
   const scanner = useMatch('/junta/escaner/:eventId')
+  const { pathname } = useLocation()
 
   // On #root rather than in a component, because the width cap lives on #root
   // and a child cannot widen its own parent.
@@ -71,14 +73,22 @@ export function JuntaLayout() {
     return <GateUnreachable message={t(view.messageKey)} onRetry={view.retry} />
   }
 
-  if (view.unavailable) return <Outlet />
+  // Cada pantalla, dins de la seva xarxa: una d'escriptori que no és al mòbil,
+  // sense cobertura, ho diu aquí i no recarrega. El perquè, al fitxer.
+  const screen = (
+    <JuntaScreenBoundary key={pathname}>
+      <Outlet />
+    </JuntaScreenBoundary>
+  )
+
+  if (view.unavailable) return screen
 
   if (!isJunta(profile.data)) return <Navigate to="/" replace />
 
   return (
     <>
       <JuntaNav />
-      <Outlet />
+      {screen}
     </>
   )
 }

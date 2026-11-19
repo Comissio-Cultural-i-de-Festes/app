@@ -53,6 +53,10 @@ export interface Home {
   readonly isError: boolean
   readonly messageKey: string
   readonly refetch: () => void
+  /** Les assistències encara poden arribar: el botó espera i no s'avança. */
+  readonly answersLoading: boolean
+  /** El rànquing encara pot arribar: el bloc reserva el seu lloc. */
+  readonly rankingLoading: boolean
 }
 
 const NOTHING: readonly EventRow[] = []
@@ -102,6 +106,12 @@ export function useHome(): Home {
     enabled: periods.isSuccess,
   })
 
+  // Cadascuna amb el seu rellotge: que les assistències o el rànquing no
+  // arribin no pot tenir el botó o el bloc en espera per sempre, i tampoc no
+  // és un error de tota la pantalla.
+  const answers = useAvailability(attendances)
+  const standing = useAvailability([periods, ranking, schools])
+
   const events = upcoming.data ?? NOTHING
 
   // Una reunió no competeix amb una festa pel hero. El hero és la decisió de
@@ -133,6 +143,8 @@ export function useHome(): Home {
     isError: view.unavailable,
     messageKey: view.messageKey,
     refetch: view.retry,
+    answersLoading: answers.loading,
+    rankingLoading: standing.loading,
   }
 }
 

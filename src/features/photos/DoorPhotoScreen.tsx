@@ -10,6 +10,7 @@ import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { captureFrame } from '@/lib/frame'
 import { DOOR_PHOTOS } from '@/lib/storage'
+import { useBack } from '@/lib/useBack'
 import { useSignedUrls } from '@/lib/useSignedUrls'
 
 import { fetchNights, photoKeys, saveEntryPhoto, saveExitPhoto } from './api'
@@ -80,9 +81,7 @@ export function DoorPhotoScreen() {
     },
   })
 
-  const back = () => {
-    void navigate(-1)
-  }
+  const { back } = useBack(`/esdeveniment/${id}`)
 
   return (
     <main className="relative flex min-h-dvh flex-col bg-[var(--ds-bg-door)] text-fg">

@@ -23,7 +23,9 @@
     "body": "No hauria de passar. Torna-ho a carregar i, si segueix igual, digues-ho a la junta.",
     "staleTitle": "Hi ha una versió nova",
     "staleBody": "S'ha actualitzat l'app mentre la tenies oberta. Torna-ho a carregar i hi seràs on eres.",
-    "reload": "Torna-ho a carregar"
+    "reload": "Torna-ho a carregar",
+    "offlineTitle": "Sense cobertura",
+    "offlineBody": "Aquesta part de l'app encara no és al mòbil, i sense xarxa no es pot baixar. Torna-ho a provar quan tinguis cobertura."
   },
   "door": {
     "checkedIn": "{{count}} fitxats de {{total}}",
@@ -43,7 +45,7 @@
     "held_other": "{{count}} escanejos de la cua demanen que els miris:",
     "heldQr": "Un QR",
     "heldAt": "a les {{hora}}",
-    "heldRefused": "el servidor no l'accepta: no ha entrat",
+    "heldRefused": "no l'hem pogut acceptar: no ha entrat",
     "heldRetry": "Torna-ho a enviar",
     "heldDrop": "Descarta",
     "heldMore": "i {{n}} més",
@@ -167,7 +169,7 @@
     "notAnImage": "Aquesta foto no la sé llegir. Prova amb una altra, o fes-la des de la càmera.",
     "notSaved": "No s'ha pogut enviar ni desar al telèfon, o sigui que no sortirà sol. Torna-ho a provar quan tinguis cobertura.",
     "rateLimited": "Massa intents seguits. Espera un parell de minuts i torna-hi.",
-    "behindServer": "Això encara no hi és al servidor: l'app s'ha actualitzat abans que la base de dades. Si ets de la junta, apuja les migracions; si no, avisa'ls.",
+    "behindServer": "Això encara no està disponible: l'app s'ha actualitzat abans que les dades. Torna-ho a provar d'aquí una estona; si segueix igual, avisa la junta.",
     "stalled": "La connexió no respon: no arriba res. Torna-ho a provar, o busca un lloc amb més cobertura.",
     "sessionUnreachable": "Sense connexió no podem obrir la teva sessió. Quan torni la xarxa, l'app s'obrirà sola.",
     "sendPaused": "Sense connexió. Queda en espera i s'enviarà quan torni la xarxa: no tanquis l'app.",
@@ -243,11 +245,11 @@
       "lead": "Hi ha una nit el {{when}}. Encara no podem dir què és, ni on, ni quant.",
       "notYet": "Encara no",
       "notify": "Avisa'm",
-      "notifySub": "No és apuntar-se: encara no hi ha res a què apuntar-se. És dir-nos que t'ho enviem el primer.",
+      "notifySub": "No és apuntar-se: encara no hi ha res a què apuntar-se. És dir-nos que t'ho enviem abans que a ningú.",
       "notifySubShort": "Encara no es pot dir què és. El dia que s'obri, seràs dels primers a saber-ho.",
       "waiting_one": "hi està pendent",
       "waiting_other": "hi estan pendents",
-      "done_one": "Fet. Ets el primer que ho sabrà.",
+      "done_one": "Fet. Ho sabràs abans que ningú.",
       "done_other": "Fet. Ets dels {{count}} que ho sabran primer.",
       "doneSub": "Ho tindràs a l'Inici, destacat, la primera vegada que obris l'app.",
       "undo": "Millor no m'avisis",
@@ -270,7 +272,7 @@
       "until": "{{from}} fins a les {{to}}"
     },
     "full": "Ple del tot",
-    "fullNoQueue": "Encara no hi ha ningú esperant. Apunta-t'hi i seràs el primer si algú es fa enrere.",
+    "fullNoQueue": "Encara no hi ha ningú esperant. Apunta-t'hi i, si algú es fa enrere, la plaça és teva.",
     "fullWithQueue_one": "Hi ha {{count}} persona esperant. La gent es fa enrere sempre.",
     "fullWithQueue_other": "Hi ha {{count}} esperant. La gent es fa enrere sempre.",
     "wereThere": "hi vam ser",
@@ -402,7 +404,8 @@
     "cta": {
       "join": "Apunta-t'hi",
       "confirm": "Has dit potser · confirma",
-      "going": "Ja hi vas · canvia-ho"
+      "going": "Ja hi vas · canvia-ho",
+      "unknown": "No podem saber si hi vas."
     },
     "movement": {
       "line_one": "S'hi ha apuntat avui: {{people}}",
@@ -430,12 +433,12 @@
     },
     "upcoming": {
       "title": "Què més ve",
-      "thatIsAll": "I després, ara mateix res. Tranquil, ja caurà alguna cosa.",
-      "none": "Ara mateix no hi ha res més apuntat. Tranquil, ja caurà alguna cosa."
+      "thatIsAll": "I després, ara mateix res. Sense pressa, ja caurà alguna cosa.",
+      "none": "Ara mateix no hi ha res més apuntat. Sense pressa, ja caurà alguna cosa."
     },
     "empty": {
       "title": "Ara mateix, res",
-      "body": "No hi ha res al calendari. Tranquil, ja caurà alguna cosa."
+      "body": "No hi ha res al calendari. Sense pressa, ja caurà alguna cosa."
     }
   },
   "inside": {
@@ -542,7 +545,7 @@
     },
     "yourNight": "La teva nit",
     "pending": "(per completar)",
-    "staysHere": "Aquest botó es queda per sempre, encara que hagin passat dues setmanes. La targeta de l'Inici marxa; aquest no.",
+    "staysHere": "No té data límit: la pots fer quan vulguis.",
     "seeIt": "Mira el díptic"
   },
   "exitCard": {
@@ -587,11 +590,11 @@
     "openEmpty": "Obre la galeria",
     "upload": "Puja les teves",
     "whoCanUpload": "Pot pujar-ne qui va fitxar aquella nit.",
-    "thumbsNote": "Aquí tot són miniatures. La bona, amb tot el detall, es carrega només quan n’obres una.",
+    "thumbsNote": "Toca una foto per veure-la a mida completa.",
     "thumbLabel": "Foto {{n}} de {{total}}",
     "uploading": "Pujant",
     "uploadCount": "{{n}} de {{total}}",
-    "uploadNote": "Van d’una en una i la miniatura es fa aquí mateix abans de pujar. Deixa la pantalla oberta fins que acabi; les que fallin es queden aquí.",
+    "uploadNote": "Es pugen d’una en una. Deixa la pantalla oberta fins que acabi; les que fallin es queden aquí.",
     "delete": "Esborra-la",
     "state": {
       "esperant": "esperant",
@@ -652,7 +655,6 @@
     "emptyCta": "Proposa la primera",
     "emptyFoot": "No cal que sigui bona: ja la votaran. I si tira endavant, {{points}} per a qui la va dir.",
     "loading": "Carregant les idees…",
-    "loadingNote": "El botó de proposar no espera res: es pot tocar de seguida.",
     "failed": "No s’han pogut llegir les idees",
     "failedSub": "No sabem quantes n’hi ha. No és que no n’hi hagi cap.",
     "failedAnyway": "Proposa’n una igualment",
@@ -693,7 +695,7 @@
       "body": "És el quadradet amb la fletxa cap amunt. Segons l'iPhone, és a la barra de baix o a la de dalt, al costat de l'adreça. Si no el veus, toca els tres puntets."
     },
     "step2": {
-      "title": "Busca \"Afegeix a la pantalla d'inici\"",
+      "title": "Busca «Afegeix a la pantalla d'inici»",
       "body": "Baixa per la llista; en alguns iPhone és dins de «Més». Després, toca Afegeix.",
       "sheetTarget": "Afegeix a la pantalla d'inici"
     },
@@ -728,14 +730,17 @@
     "back": "Junta",
     "scan": "Escanejar",
     "givePoints": "Donar punts",
+    "needsSignalTitle": "Aquesta pantalla necessita cobertura",
+    "needsSignalBody": "Encara no és al mòbil, i sense xarxa no es pot baixar. La porta sí que funciona sense xarxa.",
+    "needsSignalBack": "Torna a la zona junta",
     "newEvent": "Crear esdeveniment",
     "newEventSub": "O copiar-ne un d’abans i canviar-hi la data",
     "invitesSub": "El codi del grup i qui vol entrar",
-    "paymentsSub": "Marcar qui ha pagat i nomenar admins",
+    "paymentsSub": "Qui ha pagat, qui demana plaça i la llista d'espera",
     "noEvents": "Encara no hi ha res al calendari. Crea el primer.",
     "draft": "esborrany",
     "youAreAdmin": "Ets admin: pots crear esdeveniments, fitxar gent, donar punts i nomenar altres admins.",
-    "youAreOwner": "Ets owner: a més del que fa un admin, pots restar punts i traspassar el rol owner.",
+    "youAreOwner": "Ets owner: a més del que fa un admin, pots treure admins i traspassar el rol owner.",
     "invites": {
       "title": "Invitacions",
       "whoEnters": "Qui entra",
@@ -927,7 +932,7 @@
         "lede": "Els motius són els botons de donar punts. Els tipus només omplen el valor per defecte d'un esdeveniment nou i mai no reescriuen els que ja existeixen.",
         "motius": "Motius",
         "tipus": "Tipus d'esdeveniment",
-        "cantAdd": "Afegir-ne un de nou no es pot fer des d'aquí: també s'ha de tocar la base de dades, i una fila sola seria un botó que peta quan algú l'apreta.",
+        "cantAdd": "Ni motius ni tipus d'esdeveniment se'n poden afegir de nous des d'aquí.",
         "rowSub": "Què val cada cosa"
       },
       "graus": {
@@ -963,7 +968,7 @@
     "soci": {
       "backLabel": "La seva fitxa",
       "publicProfile": "Veure el seu perfil",
-      "publicProfileSub": "El que qualsevol soci veu d'ell.",
+      "publicProfileSub": "El que qualsevol soci veu d'aquesta persona.",
       "ledger": {
         "title": "El registre de punts",
         "total": "Total de sempre: {{total}}",
@@ -1046,7 +1051,7 @@
         "surePoints": "Quan es validi, es restaran {{punts}} punts a {{nombre}} i li baixarà la posició al rànquing.",
         "sureNoPoints": "No es restarà cap punt: {{nombre}} no es mourà del rànquing.",
         "sureEscalo": "Si es valida, {{nombre}} arriba a l'escaló «{{estat}}»: {{queFer}}.",
-        "sureSeen": "No comptarà fins que el validi algú altre de la junta. Llavors {{nombre}} el veurà al seu perfil amb el motiu que has escrit i rebrà un avís al mòbil. La fila no s'esborra mai.",
+        "sureSeen": "No comptarà fins que el validi algú altre de la junta. Llavors {{nombre}} el veurà al seu perfil amb el motiu que has escrit i rebrà un avís al mòbil. L'avís no s'esborra mai.",
         "sureCta": "Sí, proposa'l",
         "paused": "Sense connexió. Es proposarà tot sol quan torni.",
         "done": "Proposat: {{tipus}} per a {{nombre}}. Falta que el validi algú altre de la junta."
@@ -1166,14 +1171,14 @@
         "adminsOnly": "Només admins. Passar la propietat a algú que no porta res seria donar-la a qui no sap que la té.",
         "noAdmins": "Encara no hi ha cap admin. Nomena'n un primer, aquí sobre.",
         "willBe": "{{name}} serà l'owner",
-        "consequence": "Tu passaràs a admin. Des d'aquest moment només qui la rebi pot tornar-te-la, i si perd el compte del Google caldrà entrar a la base de dades.",
+        "consequence": "Tu passaràs a admin. Des d'aquest moment només qui la rebi pot tornar-te-la, i si perd el compte del Google hauràs de demanar ajuda a qui manté l'app.",
         "agreed": "Ho he parlat amb {{name}} i ho sap",
         "confirm": "Fes {{name}} owner"
       }
     },
     "audit": {
       "title": "El registre",
-      "lede": "Qui ha fet què, i quan. Serveix per saber qui va nomenar un admin i per respondre si algú demana què teniu sobre ell.",
+      "lede": "Qui ha fet què, i quan. Serveix per saber qui va nomenar un admin i per respondre si algú demana quines dades seves teniu.",
       "unknown": "Algú que ja no hi és",
       "unknownTarget": "algú que ja no hi és",
       "other": "{{actor}} ha fet una cosa: {{accio}}",
@@ -1281,8 +1286,8 @@
       "soonFailed": "No s'ha pogut llegir el calendari.",
       "soonFailedSub": "Pot ser que n'hi hagi i no els veiem. No creïs res nou fins que carregui.",
       "how": "Com funciona la comi",
-      "howSub": "Es toca un cop l’any i avui només es toca amb SQL.",
-      "proposalsSub": "Les propostes portaran número, com les aprovacions",
+      "howSub": "Els períodes, el barem, els graus i el registre",
+      "proposalsSub": "Les que ha proposat la gent, per decidir",
       "periodsStale": "Els trimestres no cobreixen el dia d'avui",
       "periodsOk": "Quan comença i acaba cada trimestre"
     },
@@ -1292,25 +1297,23 @@
       "lead": "Dades des del setembre. S’actualitza sol; no cal exportar res.",
       "drifting": {
         "title": "S’estan despenjant",
-        "lead": "Venien sovint i fa dues activitats seguides que no vénen. És el número que justifica la fase.",
+        "lead": "Venien sovint i fa dues activitats seguides que no vénen.",
         "none": "Ningú despenjat ara mateix. Millor.",
         "was": "Va venir a {{n}} de les {{total}} que li comptaven",
         "last": "Última: {{event}} · {{when}}",
         "never": "Sense cap activitat encara",
         "write": "Escriu-li",
         "noPhone": "Sense telèfon",
-        "action": "→ Repartiu-vos la llista: un missatge personal cadascú. Al grup no funciona."
+        "action": "Recordeu: repartiu-vos la llista, un missatge personal cadascú. Al grup no funciona."
       },
       "attendance": {
         "title": "Assistència al llarg del curs",
-        "avg": "{{n}} de mitjana per activitat.",
-        "action": "→ La setmana després dels exàmens, alguna cosa gratuïta i de dijous."
+        "avg": "{{n}} de mitjana per activitat."
       },
       "types": {
         "title": "Quin tipus funciona",
         "avg": "{{n}} de mitjana",
-        "alwaysFull": "Sempre plena, amb llista d’espera.",
-        "action": "→ Al gener: una festa i una activitat entre setmana, no dues activitats."
+        "alwaysFull": "Sempre plena, amb llista d’espera."
       },
       "schools": {
         "title": "Les tres escoles",
@@ -1322,13 +1325,11 @@
         "notSources": "No són punts guanyats",
         "cases_one": "{{count}} cas",
         "cases_other": "{{count}} casos",
-        "notSourcesNote": "Resten o es compensen, i per això queden fora del gràfic. Un avís retirat surt a zero: hi va ser i no ha costat res.",
-        "action": "→ Muntar i portar gent són punts fàcils de repartir al gener: anuncieu-los abans de cada pla."
+        "notSourcesNote": "Resten o es compensen, i per això queden fora del gràfic. Un avís retirat surt a zero: hi va ser i no ha costat res."
       },
       "limits": {
         "title": "Límits i dades",
         "years": "«Qui feia anys que venia» encara no es pot dir: les dades comencen al setembre. El tauler llegeix el ritme dins del curs.",
-        "noTables": "Cap taula nova: tot són consultes sobre fitxatges, punts, perfils i períodes.",
         "write": "«Escriu-li» obre el WhatsApp amb el telèfon que la junta ja veu. No s’envia res automàtic."
       }
     },
@@ -1400,7 +1401,7 @@
       "paste": "O enganxa-hi les coordenades",
       "pasteHint": "Per si la cerca no troba el lloc: copia-les d'on sigui i posa-les aquí.",
       "radius": "Radi (m)",
-      "radiusNote": "Cinquanta metres per un bar, tres-cents per una finca. Al radi se li suma el marge del GPS de cada mòbil, o hi hauria gent dreta a la sala que no hi cabria.",
+      "radiusNote": "Cinquanta metres per un bar, tres-cents per una finca. Compta amb una mica de marge: el GPS dels mòbils no és exacte.",
       "metres_one": "{{count}} m",
       "metres_other": "{{count}} m"
     },
@@ -1732,14 +1733,13 @@
     "saidNo": "Has dit que no hi pots ser.",
     "saidNoSub": "Si canvies d'idea, torna-hi i digues-ho: sou pocs i cal saber si es fa.",
     "nothing": "Encara no has dit res.",
-    "nothingSub": "Dos botons i no tres: en una reunió de tres persones, un «potser» no ajuda a decidir si es fa.",
+    "nothingSub": "Toca un dels dos botons perquè la junta sàpiga si hi seràs.",
     "willBe": "{{quants}} de {{total}} hi seran",
     "were": "{{quants}} de {{total}} hi eren",
-    "whoKnows": "A una reunió sí que se sap qui no hi ve: sou pocs i cal saber si hi haurà ningú.",
     "points": "+{{punts}} si hi ets",
     "noPoints": "Cap punt: és una reunió de junta",
     "acta": "L'acta",
-    "actaEmpty": "Sortirà aquí quan la junta tanqui la reunió. Si no n'hi ha, aquest bloc no hi és.",
+    "actaEmpty": "Sortirà aquí quan la junta tanqui la reunió.",
     "closed": "Tancada",
     "close": "Tanca-la",
     "closeTitle": "Tanca la reunió",
@@ -1844,7 +1844,7 @@
       "label": "Telèfon",
       "prefix": "+34",
       "placeholder": "600 00 00 00",
-      "why": "Només per afegir-te al grup de WhatsApp. No surt al teu perfil ni el veu ningú més que la comi.",
+      "why": "Només per afegir-te al grup de WhatsApp. No surt al teu perfil ni el veu ningú més que la junta.",
       "invalid": "Aquest número no acaba de quadrar. Deixa-ho en blanc si no el vols posar."
     },
     "instagram": {
@@ -2129,7 +2129,7 @@
       "heading": "El meu QR",
       "lead": "És el que ensenyes a la porta.",
       "title": "Encara no en tens",
-      "pending": "La porta et faria tornar enrere, i això és pitjor que no tenir-ne.",
+      "pending": "Quan la junta t'accepti, aquí tindràs el teu QR.",
       "left": "Aquest compte ja no és actiu. Si creus que és un error, parla amb la junta."
     }
   },
@@ -2144,7 +2144,7 @@
     "you": "Tu vas {{position}} de {{total}}",
     "youSub": "Encara hi ets a temps, eh",
     "schools": "Escoles",
-    "schoolsLede": "Tot el que fas suma per la teva escola, tant si vas 3r com 60è.",
+    "schoolsLede": "Tot el que fas suma per la teva escola, tant si ets al lloc 3 com al 60.",
     "schoolFoot_one": "{{members}} membres · {{count}} esdeveniment",
     "schoolFoot_other": "{{members}} membres · {{count}} esdeveniments",
     "yours": "la teva",
@@ -2209,13 +2209,11 @@
     "offerCta": "Ofereix el cotxe",
     "pointsLater": "Els {{points}} són per la gent que puges, i te'ls posem quan torneu.",
     "onlyOne": "De moment n'hi ha un. Ja n'apareixeran més, però aquest ja hi va segur.",
-    "beFirst": "Sigues el primer i tria seient. Els altres cotxes surten quan hi ha gent: sempre passa igual.",
+    "beFirst": "Comença tu i tria seient. Els altres cotxes surten quan hi ha gent: sempre passa igual.",
     "emptyTitle": "Encara no hi ha cap cotxe",
     "emptyLede": "Si tens cotxe, digues-ho ara: la gent s'apunta al viatge abans que a la casa.",
     "emptyFoot": "Portar gent són {{points}} i no cal que beguis res per fer-los.",
-    "emptyNote": "Buit vol dir buit: ningú n'ha ofert cap.",
     "loading": "Carregant els cotxes…",
-    "loadingNote": "Oferir-ne un no espera: aquest botó ja es pot tocar.",
     "failed": "No s'han pogut llegir els cotxes",
     "failedSub": "No sabem si n’hi ha cap ni si hi tens plaça. No et quedis a casa per això.",
     "failedGroup": "Escriu al grup",
@@ -2236,16 +2234,16 @@
     "gone": "Aquest cotxe ja no hi és.",
     "hold": "Guarda una plaça",
     "holdFor": "Per a qui",
-    "holdNote": "Li guardes el seient; hi puja ell quan vulgui. Ningú no puja a un cotxe perquè algú altre ho digui.",
+    "holdNote": "Li guardes el seient i hi puja quan vulgui.",
     "held": "Guardada",
-    "invited": "Convidat",
+    "invited": "Amb invitació",
     "inviteSearch": "Busca pel nom",
     "inviteNobody": "No queda ningú per convidar: o ja van en un cotxe, o hi ets tu.",
     "yourSeat": "Et guarden una plaça",
     "yourSeatSub": "{{who}} t’ha guardat un seient. Puja-hi si hi vas.",
     "takeIt": "Hi pujo",
     "declineIt": "No hi vaig",
-    "invitedOk": "Plaça guardada. Ara li toca a ell."
+    "invitedOk": "Plaça guardada. Ara li toca decidir."
   },
   "scanner": {
     "ok": "Fitxat. Ja és dins",
@@ -2260,7 +2258,7 @@
     "error": "No s'ha pogut connectar. Torna-ho a provar",
     "queued": "Desat. S'enviarà quan hi hagi cobertura",
     "notSaved": "No s'ha pogut desar ni enviar",
-    "refused": "El servidor no l'accepta",
+    "refused": "No s'ha pogut acceptar",
     "action": {
       "okWalkin": "No estava apuntat. Ja consta que ha vingut.",
       "okWalkinReview": "Mira que pagui abans d’entrar, o apunta-ho.",

@@ -54,7 +54,7 @@ export function BadgesScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <JuntaHeader to="/perfil" label={t('nav.profile')} />
+      <JuntaHeader viaHistory to="/perfil" label={t('nav.profile')} />
 
       <div className={`pt-2 pb-8 ${GUTTER}`}>
         <div className="flex items-baseline justify-between gap-5">

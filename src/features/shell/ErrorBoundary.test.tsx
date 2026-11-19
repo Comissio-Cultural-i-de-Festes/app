@@ -67,6 +67,23 @@ describe('ErrorBoundary', () => {
     expect(screen.getByText(/versió nova|versión nueva|new version/i)).toBeInTheDocument()
   })
 
+  // Sense xarxa, la recàrrega no porta el tros i sí que perd el que hi havia a
+  // la memòria: a la porta, el perfil, i amb ell el camí a l'escàner.
+  it('sense xarxa, un tros que no ha arribat no recarrega: ho diu', () => {
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false)
+    render(
+      <ErrorBoundary>
+        <Peta amb={new Error('Failed to fetch dynamically imported module: /assets/x.js')} />
+      </ErrorBoundary>,
+    )
+    expect(reload).not.toHaveBeenCalled()
+    expect(sessionStorage.getItem(RELOADED)).toBeNull()
+    expect(screen.getByText(/sense cobertura|sin cobertura|no signal/i)).toBeInTheDocument()
+    expect(screen.getByRole('button')).toHaveTextContent(
+      /torna-ho a provar|inténtalo otra vez|try again/i,
+    )
+  })
+
   // El control positiu del de dalt: un error corrent no ha de recarregar mai.
   it('i un error qualsevol no recarrega, només ho diu', () => {
     render(

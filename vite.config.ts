@@ -6,6 +6,8 @@ import { loadEnv } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
 
+import { trimPrecache } from './build/precache.ts'
+
 const REQUIRED_ENV = [
   'VITE_APP_NAME',
   'VITE_APP_SHORT_NAME',
@@ -48,10 +50,25 @@ export default defineConfig(({ mode, command }) => {
   // contain is the dot.
   const supabasePattern = new RegExp(`^${supabaseOrigin.split('.').join('\\.')}/`)
 
+  const precache = trimPrecache()
+
+  // Cloudflare Pages respon `index.html` amb un 200 a qualsevol camí que no
+  // existeix, també a un tros o a un wasm d'un desplegament anterior. Guardar-lo
+  // amb aquell nom en una memòria cau `CacheFirst` seria servir per sempre una
+  // pàgina on hi havia d'haver codi. Sense res de fora per la mateixa raó que
+  // `supabasePattern`: Workbox l'escriu tal qual a sw.js.
+  const neverHtml = {
+    cacheWillUpdate: ({ response }: { response: Response }) =>
+      Promise.resolve(
+        response.headers.get('content-type')?.includes('text/html') ? null : response,
+      ),
+  }
+
   return {
     plugins: [
       react(),
       tailwindcss(),
+      precache.plugin,
       {
         // La substitució de `%VITE_*%` que fa Vite deixa el marcador tal qual
         // quan la variable no hi és, i aleshores `content="%VITE_THEME_COLOR%"`
@@ -60,6 +77,19 @@ export default defineConfig(({ mode, command }) => {
         name: 'app-comi:theme-color',
         transformIndexHtml(html: string) {
           return html.replaceAll('%VITE_THEME_COLOR%', env.VITE_THEME_COLOR || FALLBACK_COLOR)
+        },
+      },
+      {
+        // L'origen de Supabase és a l'entorn i no a l'HTML estàtic. Sense
+        // origen (un `dev` sense .env) les dues línies se'n van senceres: un
+        // `href` buit no és un error però tampoc fa res de bo.
+        name: 'app-comi:preconnect',
+        transformIndexHtml(html: string) {
+          if (supabaseOrigin !== '') return html.replaceAll('%SUPABASE_ORIGIN%', supabaseOrigin)
+          return html
+            .split('\n')
+            .filter((line) => !line.includes('%SUPABASE_ORIGIN%'))
+            .join('\n')
         },
       },
       {
@@ -84,6 +114,9 @@ export default defineConfig(({ mode, command }) => {
         registerType: 'autoUpdate',
         injectRegister: null, // registered explicitly in src/lib/pwa.ts
         includeAssets: ['favicon.png', 'apple-touch-icon.png'],
+        // Sense això les icones del manifest hi tornen per una altra porta, i
+        // `globIgnores` no les veu. El perquè, a `globIgnores`.
+        includeManifestIcons: false,
         manifest: {
           id: '/',
           // A manifest holds one name, so it is the Catalan one.
@@ -135,7 +168,19 @@ export default defineConfig(({ mode, command }) => {
           globPatterns: ['**/*.{js,css,html,png,ico,webmanifest}'],
           // Només la veuen els rastrejadors dels enllaços; un soci no la baixa
           // mai i al precache seria pes mort a cada instal·lació.
-          globIgnores: ['og-image.png'],
+          //
+          // Les dues icones de 512, tampoc: uns 21 KiB gzip. Les fa servir el
+          // navegador en instal·lar l'app a la pantalla d'inici, i aleshores
+          // les baixa ell, amb la xarxa amb què acaba d'obrir la pàgina; un cop
+          // instal·lada, la icona i la pantalla d'arrencada són del sistema.
+          // Cap pàgina ni cap avís no les demana. La de 192 sí que es queda:
+          // és la de les notificacions (`public/push.js`). I l'iPhone fa servir
+          // `apple-touch-icon.png`, que també es queda.
+          globIgnores: ['og-image.png', 'pwa-512x512.png', 'pwa-maskable-512x512.png'],
+          // Les pantalles d'escriptori de la junta, el mapa, el castellà i
+          // l'anglès, fora: el perquè i com es decideix són a
+          // `build/precache.ts`. Els serveix la regla `chunks` de més avall.
+          manifestTransforms: [precache.manifestTransform],
           cleanupOutdatedCaches: true,
           clientsClaim: true,
           skipWaiting: true,
@@ -178,7 +223,10 @@ export default defineConfig(({ mode, command }) => {
               options: {
                 cacheName: 'wasm',
                 expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 365 },
-                cacheableResponse: { statuses: [0, 200] },
+                // Del mateix origen: una resposta opaca (0) no hi pot arribar,
+                // i acceptar-la només serviria per guardar-ne una d'errònia.
+                cacheableResponse: { statuses: [200] },
+                plugins: [neverHtml],
               },
             },
             {
@@ -189,6 +237,46 @@ export default defineConfig(({ mode, command }) => {
                 cacheName: 'fonts',
                 expiration: { maxEntries: 12, maxAgeSeconds: 60 * 60 * 24 * 365 },
                 cacheableResponse: { statuses: [0, 200] },
+              },
+            },
+            {
+              // Els trossos que no són a la precache: les pantalles d'escriptori
+              // de la junta, el mapa i els idiomes que no van dins de l'entrada.
+              // Si la primera visita n'ha baixat algun abans que el service
+              // worker hi manés, `src/lib/firstControl.ts` el torna a demanar
+              // perquè passi per aquí. Porten hash al nom i no canvien mai, així
+              // que el que s'ha baixat un cop serveix sense xarxa fins que un
+              // desplegament el canvia. La ruta de la precache es registra
+              // abans, i el que hi és no arriba mai aquí.
+              //
+              // Funció i no RegExp, i sense res de fora: Workbox l'escriu tal
+              // qual a sw.js (vegeu el comentari de `supabaseOrigin`).
+              urlPattern: ({ url, sameOrigin }: { url: URL; sameOrigin: boolean }) =>
+                sameOrigin &&
+                url.pathname.startsWith('/assets/') &&
+                /\.(?:js|css)$/.test(url.pathname),
+              handler: 'CacheFirst' as const,
+              options: {
+                cacheName: 'chunks',
+                // Un build en deixa fora una vintena llarga; n'hi caben uns quants
+                // seguits, i els vells marxen primer. L'edat és la de les altres
+                // regles: amb `CacheFirst` caducar vol dir tornar a la xarxa.
+                //
+                // Sense `purgeOnQuotaError`: buidaria aquesta memòria cau quan
+                // el navegador s'escanyés d'espai per qualsevol altre motiu,
+                // sense dir-ho, i el que no hi hauria després no es veu fins que
+                // s'obre sense xarxa.
+                expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 365 },
+                cacheableResponse: { statuses: [200] },
+                // El que desa `src/lib/firstControl.ts` arriba amb un `fetch()`,
+                // i el que el busca després és un `import()`, que porta
+                // `Origin`. Amb un `Vary: Origin` a la resposta —el de
+                // `vite preview`, i el de qualsevol servidor que faci CORS— les
+                // dues peticions no casen: el tros és a la memòria cau, però
+                // sense xarxa no en surt. Porten hash i no canvien, o sigui que
+                // no hi ha cap variant que distingir.
+                matchOptions: { ignoreVary: true },
+                plugins: [neverHtml],
               },
             },
           ],
@@ -205,7 +293,7 @@ export default defineConfig(({ mode, command }) => {
       environment: 'jsdom',
       globals: true,
       setupFiles: ['./tests/setup.ts'],
-      include: ['tests/**/*.test.{ts,tsx}', 'src/**/*.test.{ts,tsx}'],
+      include: ['tests/**/*.test.{ts,tsx}', 'src/**/*.test.{ts,tsx}', 'build/**/*.test.ts'],
       // tests/rls needs a running Supabase stack, so it has its own config and
       // its own script. `npm test` must work with nothing but node_modules.
       exclude: ['tests/rls/**'],

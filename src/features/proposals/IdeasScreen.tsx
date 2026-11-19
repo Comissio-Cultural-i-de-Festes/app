@@ -115,11 +115,6 @@ export function IdeasScreen() {
             {t('ideas.loading')}
           </p>
           <IdeasSkeleton />
-          <p
-            className={`pt-8 text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty] ${GUTTER}`}
-          >
-            {t('ideas.loadingNote')}
-          </p>
         </>
       ) : view.unavailable ? (
         <Failed messageKey={view.messageKey} onRetry={view.retry} />

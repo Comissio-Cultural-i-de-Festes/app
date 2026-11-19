@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 
 import { env } from '@/config/env'
 import { eventKeys, fetchEvent } from '@/features/event/api'
@@ -11,6 +11,7 @@ import { formatTime, formatWeekdayLong } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { useBack } from '@/lib/useBack'
 
 import {
   type InviteResult,
@@ -41,9 +42,9 @@ const GUTTER = 'px-[var(--ds-gutter)]'
 export function MyRideScreen() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
-  const navigate = useNavigate()
   const { eventId, rideId } = useParams()
   const id = eventId ?? ''
+  const { back } = useBack(`/esdeveniment/${id}/cotxes`)
   const ride = rideId ?? ''
   const client = useQueryClient()
   const { data: profile } = useMyProfile()
@@ -91,7 +92,7 @@ export function MyRideScreen() {
     mutationFn: () => withdrawRide(ride),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: rideKeys.list(id) })
-      await navigate(`/esdeveniment/${id}/cotxes`)
+      back()
     },
   })
 
@@ -116,6 +117,7 @@ export function MyRideScreen() {
   return (
     <main className="with-tabbar min-h-dvh bg-app">
       <JuntaHeader
+        viaHistory
         to={`/esdeveniment/${id}/cotxes`}
         label={t('rides.title')}
         title={t('rides.mine')}

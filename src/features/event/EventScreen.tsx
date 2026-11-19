@@ -1,4 +1,4 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { type ComponentProps, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useParams } from 'react-router'
@@ -10,9 +10,10 @@ import {
   homeKeys,
   myAnswer,
   placesLeft,
-  setAnswer,
   signedUpToday,
 } from '@/features/home/api'
+import { expectedState } from '@/features/home/answer'
+import { useAnswer } from '@/features/home/useHome'
 import { StreakLine } from '@/features/profile/StreakLine'
 import { useUserId } from '@/features/session/useUserId'
 import {
@@ -50,12 +51,12 @@ import { Cover, Fact, Places } from './detail'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { DOOR_PHOTOS } from '@/lib/storage'
 import { useSignedUrls } from '@/lib/useSignedUrls'
+import { useBack } from '@/lib/useBack'
 
 import { AnswerNote } from './AnswerNote'
 import { CalendarOffer, CalendarRow } from './Calendar'
 import { MeetingActa, MeetingAnswer, MeetingRoster } from './Meeting'
 import { ViatgerBlock } from './ViatgerBlock'
-import { viatgerKeys } from './viatgerApi'
 import { meetingKeys } from './meetingApi'
 import { BigCountdown, HiddenChip, InterestBlock } from './Teaser'
 import { eventTitle, titleIsHidden } from './title'
@@ -95,6 +96,7 @@ export function EventScreen() {
   const client = useQueryClient()
   const { id = '' } = useParams()
   const { hash: locationHash } = useLocation()
+  const { onClick: goBack } = useBack()
 
   // One reading of the clock for the whole screen, taken once. Calling
   // Date.now() twice during a render can put "already happened" and "signed up
@@ -114,15 +116,7 @@ export function EventScreen() {
   })
   const covers = useCovers([event.data?.cover_url ?? null])
 
-  const answer = useMutation({
-    mutationFn: (estado: Answer) => setAnswer(id, estado),
-    onSuccess: async () => {
-      await client.invalidateQueries({ queryKey: ['home', 'attendances'] })
-      await client.invalidateQueries({ queryKey: eventKeys.waitlist(id) })
-      // Un «no» esborra les dades de viatger a la base (migració 90).
-      await client.invalidateQueries({ queryKey: viatgerKeys.totes(id) })
-    },
-  })
+  const answer = useAnswer()
 
   // L'Inici hi envia amb `#soc-aqui` quan la finestra és oberta: un toc i cap
   // scroll, que és el que demana algú a la porta amb una mà lliure. L'àncora
@@ -167,6 +161,7 @@ export function EventScreen() {
         <p className="mt-6 text-fg-muted [text-wrap:pretty]">{t('event.gone.body')}</p>
         <Link
           to="/"
+          onClick={goBack}
           className="-ml-2 mt-8 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-brand-label"
         >
           {t('event.gone.back')}
@@ -223,6 +218,7 @@ export function EventScreen() {
       {isMeeting ? (
         <JuntaHeader
           to="/"
+          viaHistory
           label={t('nav.home')}
           aside={
             <span className="eyebrow-sm flex-none rounded-xs border border-surface-8 px-4 py-3 text-fg-muted">
@@ -237,6 +233,7 @@ export function EventScreen() {
           corner={
             <Link
               to="/"
+              onClick={goBack}
               aria-label={t('actions.back')}
               className="grid size-[44px] place-items-center rounded-full bg-[oklch(0.15_0.012_25/0.7)] text-2xl text-fg backdrop-blur-[6px]"
             >
@@ -434,16 +431,19 @@ export function EventScreen() {
           pending={answer.isPending}
           onAnswer={(a) => {
             // El recompte «2 de 3 hi seran» surt de `meeting_roster`, que té
-            // la seva pròpia clau: `useAnswer` només invalida les
-            // assistències de l'Inici, o sigui que sense això la xifra es
+            // la seva pròpia clau: `useAnswer` només toca les
+            // assistències, o sigui que sense això la xifra es
             // queda com estava i sembla que la resposta no s'hagi desat.
             // Al `onSuccess` de la crida i no al costat del `mutate`, perquè
             // `mutate` no espera i el refetch sortiria abans de l'escriptura.
-            answer.mutate(a, {
-              onSuccess: () => {
-                void client.invalidateQueries({ queryKey: meetingKeys.roster(e.id) })
+            answer.mutate(
+              { eventId: e.id, estado: a },
+              {
+                onSuccess: () => {
+                  void client.invalidateQueries({ queryKey: meetingKeys.roster(e.id) })
+                },
               },
-            })
+            )
           }}
         />
       ) : (
@@ -457,7 +457,14 @@ export function EventScreen() {
           pending={answer.isPending}
           answer={answer}
           onAnswer={(a) => {
-            answer.mutate(a)
+            answer.mutate({
+              eventId: e.id,
+              estado: a,
+              expected: expectedState(a, {
+                confirm: e.cal_confirmacio,
+                full: left === 0 && mine !== 'si',
+              }),
+            })
           }}
           when={formatDateLong(starts, locale)}
           where={e.ubicacion}

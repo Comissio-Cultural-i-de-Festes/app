@@ -38,8 +38,8 @@ const AVIS = {
     retirat: ['La junta te ha retirado un aviso', 'Toca para verlo en tu perfil.'],
   },
   en: {
-    nou: ['You have a new warning from the junta', 'Tap to see it on your profile.'],
-    retirat: ['The junta has withdrawn a warning', 'Tap to see it on your profile.'],
+    nou: ['You have a new warning from the board', 'Tap to see it on your profile.'],
+    retirat: ['The board has withdrawn a warning', 'Tap to see it on your profile.'],
   },
 }
 

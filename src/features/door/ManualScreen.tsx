@@ -7,6 +7,7 @@ import { toneVar } from '@/design/states'
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import { useAvailability } from '@/lib/useAvailability'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { useBack } from '@/lib/useBack'
 
 import {
   type DoorOutcome,
@@ -63,6 +64,7 @@ export function ManualScreen() {
   const { t } = useTranslation()
   const { eventId } = useParams()
   const id = eventId ?? ''
+  const { onClick: onBack } = useBack(`/junta/escaner/${id}`)
   const [query, setQuery] = useState('')
   const [done, setDone] = useState<Record<string, DoorOutcome>>({})
   const [busy, setBusy] = useState<string | null>(null)
@@ -151,6 +153,7 @@ export function ManualScreen() {
         <div className="flex items-center justify-between gap-6">
           <Link
             to={`/junta/escaner/${id}`}
+            onClick={onBack}
             className="-ml-4 flex min-h-[56px] items-center gap-1 px-4 text-md font-bold text-fg-muted no-underline"
           >
             <span aria-hidden="true" className="text-lg">

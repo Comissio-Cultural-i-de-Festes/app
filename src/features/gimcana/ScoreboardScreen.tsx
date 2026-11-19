@@ -46,7 +46,7 @@ export function ScoreboardScreen() {
 
   return (
     <main className="with-tabbar min-h-dvh bg-app">
-      <JuntaHeader to={`/esdeveniment/${id}/gimcana`} label={t('gimcana.title')} />
+      <JuntaHeader viaHistory to={`/esdeveniment/${id}/gimcana`} label={t('gimcana.title')} />
 
       <div className={GUTTER}>
         <h1 className="display text-d-s tracking-[-0.045em]">{t('gimcana.board')}</h1>

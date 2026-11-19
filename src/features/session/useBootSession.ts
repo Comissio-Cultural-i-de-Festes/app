@@ -1,5 +1,9 @@
-import { type Session, isAuthRetryableFetchError } from '@supabase/supabase-js'
-import { useEffect, useState } from 'react'
+import {
+  type AuthChangeEvent,
+  type Session,
+  isAuthRetryableFetchError,
+} from '@supabase/supabase-js'
+import { useEffect, useEffectEvent, useState } from 'react'
 
 import { supabase } from '@/lib/supabase'
 
@@ -44,24 +48,44 @@ async function readSession(): Promise<{ readonly session: Session | null } | nul
   return { session: data.session }
 }
 
-export function useBootSession(): Boot {
+/**
+ * El que `App` ha de fer amb cada sessió que arriba, abans que es pinti: oblidar
+ * la cau de qui marxa, o el codi d'invitació que esperava. Aquí només es
+ * reenvia; el que es fa és cosa d'`App`.
+ */
+export interface BootHooks {
+  /** Cada lectura de la sessió desada que ha contestat. */
+  readonly onRead?: (session: Session | null) => void
+  /** Cada esdeveniment de supabase-js, abans d'aplicar-lo. */
+  readonly onChange?: (event: AuthChangeEvent, next: Session | null) => void
+}
+
+export function useBootSession({ onRead, onChange }: BootHooks = {}): Boot {
   const [session, setSession] = useState<Session | null>(null)
   const [phase, setPhase] = useState<BootPhase>('waiting')
+  const read = useEffectEvent((next: Session | null) => {
+    onRead?.(next)
+  })
+  const changed = useEffectEvent((event: AuthChangeEvent, next: Session | null) => {
+    onChange?.(event, next)
+  })
 
   useEffect(() => {
     let live = true
 
-    void readSession().then((read) => {
+    void readSession().then((result) => {
       if (!live) return
-      if (read === null) {
+      if (result === null) {
         setPhase((now) => (now === 'ready' ? now : 'unreachable'))
         return
       }
-      setSession(read.session)
+      read(result.session)
+      setSession(result.session)
       setPhase('ready')
     })
 
     const { data: sub } = supabase.auth.onAuthStateChange((event, next) => {
+      changed(event, next)
       setSession(next)
       // Una sessió que arriba sempre obre la porta. Una que se'n va només
       // quan és de debò: l'INITIAL_SESSION buit d'una renovació que no ha
@@ -82,9 +106,10 @@ export function useBootSession(): Boot {
     if (phase !== 'unreachable') return
     let live = true
     const again = (): void => {
-      void readSession().then((read) => {
-        if (!live || read === null) return
-        setSession(read.session)
+      void readSession().then((result) => {
+        if (!live || result === null) return
+        read(result.session)
+        setSession(result.session)
         setPhase('ready')
       })
     }

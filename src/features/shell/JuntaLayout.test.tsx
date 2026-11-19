@@ -13,6 +13,9 @@ import { JuntaLayout } from './JuntaLayout'
  * que una pantalla que no és al mòbil, sense xarxa, ho digui sense recarregar.
  */
 
+vi.mock('./startPrefetch', () => ({ prefetchJunta: () => Promise.resolve() }))
+vi.mock('@tanstack/react-query', () => ({ useQueryClient: () => ({}) }))
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }))

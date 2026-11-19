@@ -786,7 +786,7 @@ function RankingTeaser({ home, closed }: { readonly home: Home; readonly closed:
       </p>
 
       {/* Sota el ganxo col·lectiu, el personal: qui fa un mes que no ve. */}
-      <ComebackLine best={comeback.best} />
+      <ComebackLine />
     </section>
   )
 }

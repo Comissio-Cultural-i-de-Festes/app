@@ -130,9 +130,9 @@ export function ProfileScreen() {
     await clearAllQueues()
     // I l'avís d'un fitxatge refusat, pel mateix motiu: diu on eres i quin dia.
     clearFailedCheckins()
+    clearStartHint()
     // La cau de React Query —les dades de viatger incloses— la buida
     // `forgetOnUserChange` a `App.tsx` quan la sessió canvia de persona.
-    clearStartHint()
     await supabase.auth.signOut()
   }
 

@@ -17,6 +17,7 @@ import { formatOrdinal } from '@/i18n/format'
 import { SUPPORTED_LOCALES, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
+import { clearStartHint } from '@/features/shell/startHint'
 import { HERE, IDEAS, PROVES, SCANS, clearAllQueues, count } from '@/lib/queue'
 import { invalidateData } from '@/lib/signedQuery'
 import { Confirm } from '@/ui/Confirm/Confirm'
@@ -129,6 +130,7 @@ export function ProfileScreen() {
     await clearAllQueues()
     // I l'avís d'un fitxatge refusat, pel mateix motiu: diu on eres i quin dia.
     clearFailedCheckins()
+    clearStartHint()
     await supabase.auth.signOut()
   }
 

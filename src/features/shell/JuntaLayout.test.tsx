@@ -8,7 +8,8 @@ import { JuntaLayout } from './JuntaLayout'
  * La porta de la junta sense perfil: tancada, excepte per a l'escàner.
  */
 
-vi.mock('./startPrefetch', () => ({ prefetchJunta: () => Promise.resolve() }))
+const prefetchJunta = vi.hoisted(() => vi.fn(() => Promise.resolve()))
+vi.mock('./startPrefetch', () => ({ prefetchJunta }))
 vi.mock('@tanstack/react-query', () => ({ useQueryClient: () => ({}) }))
 
 vi.mock('react-i18next', () => ({
@@ -47,6 +48,7 @@ function at(path: string) {
 
 beforeEach(() => {
   profile.current = paused
+  prefetchJunta.mockClear()
 })
 
 describe('JuntaLayout', () => {
@@ -70,5 +72,29 @@ describe('JuntaLayout', () => {
     }
     at('/junta/escaner/e1')
     expect(screen.getByText('inici')).toBeInTheDocument()
+  })
+
+  describe("les dades de l'entrada", () => {
+    const as = (role: string) => {
+      profile.current = { ...paused, data: { role }, status: 'success', fetchStatus: 'idle' }
+    }
+
+    it('es demanen al rebedor quan qui hi entra és de la junta', () => {
+      as('admin')
+      at('/junta')
+      expect(prefetchJunta).toHaveBeenCalledTimes(1)
+    })
+
+    it('no es demanen en una subruta, escàner inclòs: la cua SCANS ja competeix per la barra', () => {
+      as('admin')
+      at('/junta/escaner/e1')
+      expect(prefetchJunta).not.toHaveBeenCalled()
+    })
+
+    it('no es demanen per a un soci', () => {
+      as('member')
+      at('/junta')
+      expect(prefetchJunta).not.toHaveBeenCalled()
+    })
   })
 })

@@ -33,16 +33,19 @@ export function JuntaLayout() {
   const profile = useMyProfile()
   const view = useAvailability(profile, { clock: PROFILE_CLOCK })
   const scanner = useMatch('/junta/escaner/:eventId')
+  const lobby = useMatch({ path: '/junta', end: true })
   const client = useQueryClient()
   const juntaProfile = isJunta(profile.data)
 
-  // Quan s'hi entra des d'una altra pantalla el perfil ja hi és, però el tros
-  // de codi de l'entrada i les seves dades encara no: surten a la vegada, no
-  // l'una darrere l'altra. En arrencada en fred ja les ha demanat la porta de
-  // fora, i això no fa res (la cau les té o ja hi són en vol).
+  // Només al rebedor. Les altres pantalles de la zona no el necessiten, i
+  // l'escàner té la cua `SCANS` competint per la mateixa barra de cobertura.
+  // Quan s'hi entra des d'una altra pantalla el perfil ja hi és, però les
+  // dades de l'entrada encara no. En arrencada en fred ja les ha demanat la
+  // porta de fora, i això no fa res (la cau les té o ja hi són en vol).
+  const atLobby = lobby !== null
   useEffect(() => {
-    if (juntaProfile) void prefetchJunta(client)
-  }, [client, juntaProfile])
+    if (juntaProfile && atLobby) void prefetchJunta(client)
+  }, [client, juntaProfile, atLobby])
 
   // On #root rather than in a component, because the width cap lives on #root
   // and a child cannot widen its own parent.
@@ -76,7 +79,7 @@ export function JuntaLayout() {
 
   if (view.unavailable) return <Outlet />
 
-  if (!isJunta(profile.data)) return <Navigate to="/" replace />
+  if (!juntaProfile) return <Navigate to="/" replace />
 
   return (
     <>

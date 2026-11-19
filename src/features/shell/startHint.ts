@@ -20,6 +20,8 @@ export interface StartHint {
   readonly user: string
   readonly estat: MyProfile['estat']
   readonly role: MyProfile['role']
+  /** Sense escola l'Inici no és el seu: la porta el porta al primer cop. */
+  readonly escola: boolean
 }
 
 const KEY = 'comi.start-hint'
@@ -34,7 +36,8 @@ export function readStartHint(userId: string): StartHint | null {
       return null
     }
     if (parsed.role !== 'member' && parsed.role !== 'admin' && parsed.role !== 'owner') return null
-    return { user: userId, estat: parsed.estat, role: parsed.role }
+    if (typeof parsed.escola !== 'boolean') return null
+    return { user: userId, estat: parsed.estat, role: parsed.role, escola: parsed.escola }
   } catch {
     return null
   }
@@ -42,10 +45,24 @@ export function readStartHint(userId: string): StartHint | null {
 
 export function writeStartHint(userId: string, profile: MyProfile): void {
   try {
-    const hint: StartHint = { user: userId, estat: profile.estat, role: profile.role }
+    const hint: StartHint = {
+      user: userId,
+      estat: profile.estat,
+      role: profile.role,
+      escola: profile.escola !== null,
+    }
     localStorage.setItem(KEY, JSON.stringify(hint))
   } catch {
     /* Sense pista l'arrencada és la de sempre, una volta més lenta. */
+  }
+}
+
+/** En tancar sessió, com les cues: la pista és de qui hi era. */
+export function clearStartHint(): void {
+  try {
+    localStorage.removeItem(KEY)
+  } catch {
+    /* Res a fer, i tampoc no hi havia res a esborrar. */
   }
 }
 
@@ -54,7 +71,7 @@ export type StartPlan = 'home' | 'junta' | null
 /** Què val la pena demanar abans que arribi el perfil, i només per a qui ho aprofitarà. */
 export function startPlan(pathname: string, hint: StartHint | null): StartPlan {
   if (hint?.estat !== 'actiu') return null
-  if (pathname === '/') return 'home'
+  if (pathname === '/') return hint.escola ? 'home' : null
   if (pathname === '/junta' && (hint.role === 'admin' || hint.role === 'owner')) return 'junta'
   return null
 }

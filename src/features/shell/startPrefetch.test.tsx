@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { renderHook, waitFor } from '@testing-library/react'
+import { render, renderHook, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { MemoryRouter } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -20,7 +20,11 @@ import { periodBounds, rankingKeys } from '@/features/ranking/api'
 import { UserIdContext } from '@/features/session/context'
 import { type MyProfile, profileKeys } from '@/features/session/profile'
 
-import { writeStartHint } from './startHint'
+import { ComebackLine } from '@/features/profile/ComebackLine'
+import { useExitOffer } from '@/features/photos/useExitOffer'
+import { JuntaHome } from '@/features/junta/JuntaHome'
+
+import { clearStartHint, readStartHint, writeStartHint } from './startHint'
 import { prefetchHome, prefetchJunta } from './startPrefetch'
 import { useStartPrefetch } from './useStartPrefetch'
 
@@ -62,10 +66,30 @@ vi.mock('@/lib/supabase', () => {
   }
 })
 
-vi.mock('@/features/junta/JuntaHome', () => ({ JuntaHome: () => null }))
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({ t: (key: string) => key, i18n: { resolvedLanguage: 'ca' } }),
+}))
+vi.mock('@/features/door/decoder', () => ({ warmDecoder: () => Promise.resolve() }))
 
 const ME = 'u-1'
-const EVENTS = [{ id: 'e-1' }, { id: 'e-2' }]
+const EVENTS = [
+  {
+    id: 'e-1',
+    titulo: 'Alfa',
+    tipo: 'fiesta',
+    starts_at: '2026-09-25T19:00:00Z',
+    published: true,
+    acta: null,
+  },
+  {
+    id: 'e-2',
+    titulo: 'Beta',
+    tipo: 'fiesta',
+    starts_at: '2026-09-26T19:00:00Z',
+    published: true,
+    acta: null,
+  },
+]
 const PERIODS = [
   {
     codi: 'curs',
@@ -102,6 +126,8 @@ beforeEach(() => {
   for (const k of Object.keys(answers)) delete answers[k]
   answers.events_public = EVENTS
   answers.ranking_periods = PERIODS
+  answers['rpc/junta_home'] = { porta: null, pendents: 0, esborranys: 0, propers: 0, socis: 0 }
+  answers['rpc/admin_hores_pendents'] = { activitats: 0 }
   localStorage.clear()
 })
 
@@ -145,18 +171,33 @@ describe('prefetchHome', () => {
     const client = clientWith()
     await prefetchHome(client, ME)
 
-    // Totes les de la primera volta (cinc) abans de la primera de la segona.
-    const firstWave = [
-      'events_public',
-      'events_public',
-      'ranking_periods',
-      'rpc/my_photos',
-      'rpc/my_streak',
-    ]
-    expect(log.slice(0, 5).sort()).toEqual([...firstWave].sort())
-    expect(log.slice(5).sort()).toEqual(
-      ['attendances', 'rpc/ranking_escoles_period', 'rpc/ranking_period'].sort(),
+    const firstWave = ['events_public', 'events_public', 'ranking_periods', 'rpc/my_streak']
+    expect(log.slice(0, 4).sort()).toEqual([...firstWave].sort())
+    expect(log.slice(4).sort()).toEqual(
+      ['attendances', 'rpc/my_photos', 'rpc/ranking_escoles_period', 'rpc/ranking_period'].sort(),
     )
+  })
+
+  it('no demana les nits si no hi ha cap esdeveniment anterior, com useExitOffer', async () => {
+    answers.events_public = []
+    const client = clientWith()
+    await prefetchHome(client, ME)
+    expect(count('rpc/my_photos')).toBe(0)
+  })
+
+  it('la targeta de la ratxa i la targeta de sortida troben la cau i només demanen el que no és seu', async () => {
+    const client = clientWith()
+    await prefetchHome(client, ME)
+    const before = log.length
+
+    render(<ComebackLine />, { wrapper: wrapper(client) })
+    const exit = renderHook(() => useExitOffer(EVENTS[0] as never), { wrapper: wrapper(client) })
+    await waitFor(() => {
+      expect(client.getQueryState(photoKeys.nights())?.status).toBe('success')
+    })
+    await new Promise((r) => setTimeout(r, 30))
+    expect(exit.result.current).toBeNull()
+    expect(log.slice(before)).toEqual([])
   })
 })
 
@@ -177,9 +218,30 @@ describe('prefetchJunta', () => {
   })
 })
 
+describe("l'entrada de la junta", () => {
+  it('la pantalla troba a la cau tot el que l’arrencada ha demanat', async () => {
+    const client = clientWith()
+    await prefetchJunta(client)
+    const before = Object.fromEntries(log.map((l) => [l, count(l)]))
+
+    render(<JuntaHome />, { wrapper: wrapper(client, '/junta') })
+    await new Promise((r) => setTimeout(r, 100))
+
+    // Qualsevol cosa que ja s'havia demanat no es torna a demanar. Les que són
+    // de blocs de més avall (avisos, tipus) poden aparèixer, i no compten.
+    // `profiles` és la llista de socis, que l'arrencada demana, i alhora el
+    // perfil propi, que no: aquest és l'únic que s'hi suma.
+    for (const label of Object.keys(before)) {
+      expect(count(label), label).toBe(
+        label === 'profiles' ? (before[label] ?? 0) + 1 : before[label],
+      )
+    }
+  })
+})
+
 describe('useStartPrefetch', () => {
   it('per a un soci actiu a l’Inici llança les de l’Inici i cap de la junta', async () => {
-    writeStartHint(ME, { estat: 'actiu', role: 'member' } as never)
+    writeStartHint(ME, { estat: 'actiu', role: 'member', escola: true } as never)
     const client = clientWith()
     renderHook(() => useStartPrefetch(undefined), { wrapper: wrapper(client, '/') })
 
@@ -191,7 +253,7 @@ describe('useStartPrefetch', () => {
   })
 
   it('un soci que obre /junta no fa cap petició de la junta', async () => {
-    writeStartHint(ME, { estat: 'actiu', role: 'member' } as never)
+    writeStartHint(ME, { estat: 'actiu', role: 'member', escola: true } as never)
     const client = clientWith()
     renderHook(() => useStartPrefetch(undefined), { wrapper: wrapper(client, '/junta') })
 
@@ -200,7 +262,7 @@ describe('useStartPrefetch', () => {
   })
 
   it('la junta que obre /junta les llança sense esperar el perfil', async () => {
-    writeStartHint(ME, { estat: 'actiu', role: 'admin' } as never)
+    writeStartHint(ME, { estat: 'actiu', role: 'admin', escola: true } as never)
     const client = clientWith()
     renderHook(() => useStartPrefetch(undefined), { wrapper: wrapper(client, '/junta') })
 
@@ -211,7 +273,7 @@ describe('useStartPrefetch', () => {
   })
 
   it('un pendent no fa cap petició que la RLS hagi de deixar buida', async () => {
-    writeStartHint(ME, { estat: 'pendent', role: 'member' } as never)
+    writeStartHint(ME, { estat: 'pendent', role: 'member', escola: true } as never)
     const client = clientWith()
     renderHook(() => useStartPrefetch(undefined), { wrapper: wrapper(client, '/') })
 
@@ -233,8 +295,24 @@ describe('useStartPrefetch', () => {
     expect(localStorage.getItem('comi.start-hint')).toContain('"estat":"actiu"')
   })
 
+  it('un soci actiu sense escola no avança l’Inici: la porta el porta al primer cop', async () => {
+    writeStartHint(ME, { estat: 'actiu', role: 'member', escola: null } as never)
+    const client = clientWith()
+    renderHook(() => useStartPrefetch(undefined), { wrapper: wrapper(client, '/') })
+
+    await new Promise((r) => setTimeout(r, 30))
+    expect(log).toEqual([])
+  })
+
+  it('la pista s’esborra en tancar sessió', () => {
+    writeStartHint(ME, { estat: 'actiu', role: 'admin', escola: 'x' } as never)
+    expect(readStartHint(ME)).not.toBeNull()
+    clearStartHint()
+    expect(readStartHint(ME)).toBeNull()
+  })
+
   it('la pista d’un altre usuari no compta', async () => {
-    writeStartHint('un-altre', { estat: 'actiu', role: 'admin' } as never)
+    writeStartHint('un-altre', { estat: 'actiu', role: 'admin', escola: true } as never)
     const client = clientWith()
     renderHook(() => useStartPrefetch(undefined), { wrapper: wrapper(client, '/junta') })
 

@@ -37,7 +37,7 @@ type Chunk = Extract<BundleItem, { type: 'chunk' }> & {
   readonly isDynamicEntry: boolean
 }
 
-const OUT = mkdtempSync(join(tmpdir(), 'precache-'))
+let out = ''
 let bundle: Record<string, BundleItem> = {}
 let chunks: Chunk[] = []
 let precached = new Set<string>()
@@ -47,14 +47,19 @@ beforeAll(async () => {
   // Les del CI. L'entorn de les proves no porta el color, i `vite.config.ts`
   // no deixa construir sense; i `NODE_ENV=test` faria un build de React de
   // desenvolupament, amb trossos que no són els que es publiquen.
+  out = mkdtempSync(join(tmpdir(), 'precache-'))
   vi.stubEnv('VITE_THEME_COLOR', '#100909')
   vi.stubEnv('NODE_ENV', 'production')
-  const result = await build({
-    configFile: 'vite.config.ts',
-    logLevel: 'silent',
-    build: { outDir: OUT, emptyOutDir: true, sourcemap: false },
-  })
-  vi.unstubAllEnvs()
+  let result: Awaited<ReturnType<typeof build>>
+  try {
+    result = await build({
+      configFile: 'vite.config.ts',
+      logLevel: 'silent',
+      build: { outDir: out, emptyOutDir: true, sourcemap: false },
+    })
+  } finally {
+    vi.unstubAllEnvs()
+  }
 
   const output = (Array.isArray(result) ? result[0] : result) as {
     output: readonly BundleItem[]
@@ -62,13 +67,13 @@ beforeAll(async () => {
   bundle = Object.fromEntries(output.output.map((item) => [item.fileName, item]))
   chunks = output.output.filter((item): item is Chunk => item.type === 'chunk')
 
-  sw = readFileSync(join(OUT, 'sw.js'), 'utf8')
+  sw = readFileSync(join(out, 'sw.js'), 'utf8')
   const list = /precacheAndRoute\(\[(.*?)\]/s.exec(sw)?.[1] ?? ''
   precached = new Set([...list.matchAll(/url:"([^"]+)"/g)].map((m) => m[1] ?? ''))
 }, 180_000)
 
 afterAll(() => {
-  rmSync(OUT, { recursive: true, force: true })
+  if (out !== '') rmSync(out, { recursive: true, force: true })
 })
 
 const chunkNamed = (name: string) =>
@@ -79,7 +84,7 @@ const chunkWith = (path: string) =>
 
 describe('the install', () => {
   it('precaches everything the first screen loads', () => {
-    const html = readFileSync(join(OUT, 'index.html'), 'utf8')
+    const html = readFileSync(join(out, 'index.html'), 'utf8')
     const fromHtml = [...html.matchAll(/(?:src|href)="\/(assets\/[^"]+)"/g)].map((m) => m[1])
 
     expect(fromHtml.length).toBeGreaterThan(1)

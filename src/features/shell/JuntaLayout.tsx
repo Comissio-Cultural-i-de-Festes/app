@@ -46,7 +46,7 @@ export function JuntaLayout() {
   // Aquí i no al rebedor: s'hi pot entrar per qualsevol pantalla de la zona, i
   // el que importa és que la porta quedi baixada abans de ser-hi. El perquè és
   // a `preload.ts`.
-  const junta = isJunta(profile)
+  const junta = isJunta(profile.data)
   useEffect(() => {
     if (junta) void preloadDoor()
   }, [junta])

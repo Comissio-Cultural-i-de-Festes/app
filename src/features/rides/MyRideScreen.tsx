@@ -107,7 +107,8 @@ export function MyRideScreen() {
           t('rides.nudgeText', {
             who: profile?.nombre ?? '',
             event: event.data?.titulo ?? '',
-            when: when === null ? '' : `${formatWeekdayLong(when, locale)} ${formatTime(when, locale)}`,
+            when:
+              when === null ? '' : `${formatWeekdayLong(when, locale)} ${formatTime(when, locale)}`,
             from: mine.origen,
           }),
         )}`
@@ -193,6 +194,7 @@ export function MyRideScreen() {
                   onChange={(e) => {
                     setQuery(e.target.value)
                   }}
+                  aria-label={t('rides.inviteSearch')}
                   placeholder={t('rides.inviteSearch')}
                   autoComplete="off"
                   className="mt-5 min-h-[48px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-5 text-md font-semibold text-fg outline-none placeholder:font-medium placeholder:text-fg-faint"
@@ -248,7 +250,10 @@ export function MyRideScreen() {
             )}
 
             {held === null ? null : (
-              <p role="status" className="pt-6 text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]">
+              <p
+                role="status"
+                className="pt-6 text-md font-bold text-[var(--ds-warning)] [text-wrap:pretty]"
+              >
                 {t(held === 'convidat' ? 'rides.invitedOk' : `rides.${holdNoteKey(held)}`)}
               </p>
             )}

@@ -160,6 +160,7 @@ export function GimcanaFormScreen() {
                 type="number"
                 min={2}
                 max={12}
+                aria-label={t('junta.gimcana.shuffleHowMany')}
                 value={howMany}
                 onChange={(e) => {
                   setHowMany(Number(e.target.value))
@@ -206,6 +207,7 @@ export function GimcanaFormScreen() {
                   type="text"
                   value={n}
                   maxLength={40}
+                  aria-label={t('junta.gimcana.teamLabel', { n: i + 1 })}
                   onChange={(e) => {
                     const next = [...names]
                     next[i] = e.target.value
@@ -256,6 +258,7 @@ export function GimcanaFormScreen() {
                 type="text"
                 value={p.titol}
                 maxLength={120}
+                aria-label={t('junta.gimcana.provaLabel', { n: i + 1 })}
                 placeholder={t('junta.gimcana.provaPlaceholder')}
                 onChange={(e) => {
                   const next = [...list]
@@ -268,6 +271,7 @@ export function GimcanaFormScreen() {
                 type="number"
                 min={0}
                 max={100}
+                aria-label={t('junta.gimcana.provaPuntsLabel', { n: i + 1 })}
                 value={p.punts}
                 onChange={(e) => {
                   const next = [...list]

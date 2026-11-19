@@ -52,6 +52,18 @@ export default defineConfig(({ mode, command }) => {
 
   const precache = juntaOutOfPrecache()
 
+  // Cloudflare Pages respon `index.html` amb un 200 a qualsevol camí que no
+  // existeix, també a un tros o a un wasm d'un desplegament anterior. Guardar-lo
+  // amb aquell nom en una memòria cau `CacheFirst` seria servir per sempre una
+  // pàgina on hi havia d'haver codi. Sense res de fora per la mateixa raó que
+  // `supabasePattern`: Workbox l'escriu tal qual a sw.js.
+  const neverHtml = {
+    cacheWillUpdate: ({ response }: { response: Response }) =>
+      Promise.resolve(
+        response.headers.get('content-type')?.includes('text/html') ? null : response,
+      ),
+  }
+
   return {
     plugins: [
       react(),
@@ -187,7 +199,10 @@ export default defineConfig(({ mode, command }) => {
               options: {
                 cacheName: 'wasm',
                 expiration: { maxEntries: 4, maxAgeSeconds: 60 * 60 * 24 * 365 },
-                cacheableResponse: { statuses: [0, 200] },
+                // Del mateix origen: una resposta opaca (0) no hi pot arribar,
+                // i acceptar-la només serviria per guardar-ne una d'errònia.
+                cacheableResponse: { statuses: [200] },
+                plugins: [neverHtml],
               },
             },
             {
@@ -201,11 +216,11 @@ export default defineConfig(({ mode, command }) => {
               },
             },
             {
-              // Els trossos que no són a la precache: la zona de junta, la porta
-              // i el mapa. Porten hash al nom i no canvien mai, així que el que
-              // s'ha baixat un cop serveix sense xarxa per sempre, que és el que
-              // la porta necessita. La ruta de la precache es registra abans, i
-              // el que hi és no arriba mai aquí.
+              // Els trossos que no són a la precache: les pantalles d'escriptori
+              // de la junta i el mapa. Porten hash al nom i no canvien mai, així
+              // que el que s'ha baixat un cop serveix sense xarxa fins que un
+              // desplegament el canvia. La ruta de la precache es registra
+              // abans, i el que hi és no arriba mai aquí.
               //
               // Funció i no RegExp, i sense res de fora: Workbox l'escriu tal
               // qual a sw.js (vegeu el comentari de `supabaseOrigin`).
@@ -216,30 +231,17 @@ export default defineConfig(({ mode, command }) => {
               handler: 'CacheFirst' as const,
               options: {
                 cacheName: 'chunks',
-                // Un build en fa una cinquantena; n'hi caben uns quants
+                // Un build en deixa fora una vintena llarga; n'hi caben uns quants
                 // seguits, i els vells marxen primer. L'edat és la de les altres
-                // regles: amb `CacheFirst` caducar vol dir tornar a la xarxa, i
-                // a la porta no n'hi ha.
-                expiration: {
-                  maxEntries: 200,
-                  maxAgeSeconds: 60 * 60 * 24 * 365,
-                  purgeOnQuotaError: true,
-                },
+                // regles: amb `CacheFirst` caducar vol dir tornar a la xarxa.
+                //
+                // Sense `purgeOnQuotaError`: buidaria aquesta memòria cau quan
+                // el navegador s'escanyés d'espai per qualsevol altre motiu,
+                // sense dir-ho, i el que no hi hauria després no es veu fins que
+                // s'obre sense xarxa.
+                expiration: { maxEntries: 200, maxAgeSeconds: 60 * 60 * 24 * 365 },
                 cacheableResponse: { statuses: [200] },
-                plugins: [
-                  {
-                    // Cloudflare Pages respon `index.html` amb un 200 a qualsevol
-                    // camí que no existeix, també a un tros d'un desplegament
-                    // anterior. Guardar-lo amb el nom del tros seria guardar una
-                    // pàgina on hi havia d'haver codi.
-                    cacheWillUpdate: ({ response }: { response: Response }) =>
-                      Promise.resolve(
-                        response.headers.get('content-type')?.includes('text/html')
-                          ? null
-                          : response,
-                      ),
-                  },
-                ],
+                plugins: [neverHtml],
               },
             },
           ],

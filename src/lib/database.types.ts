@@ -2102,6 +2102,19 @@ export type Database = {
         Args: { p_motiu: string; p_photo_id: string }
         Returns: Json
       }
+      resum_assistencies: {
+        Args: { p_desde: string; p_event_ids: string[] }
+        Returns: {
+          attended: number
+          event_id: string
+          faces: Json
+          going: number
+          mine: string
+          mine_at: string
+          recent: string[]
+          recent_total: number
+        }[]
+      }
       retira_avis: {
         Args: { p_avis_id: string; p_nota: string }
         Returns: undefined

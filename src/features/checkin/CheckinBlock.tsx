@@ -84,7 +84,7 @@ export function CheckinBlock({
         // perfil canvien totes tres amb això.
         await Promise.all([
           queryClient.invalidateQueries({ queryKey: insideKeys.list(event.id) }),
-          queryClient.invalidateQueries({ queryKey: homeKeys.attendances([event.id]) }),
+          queryClient.invalidateQueries({ queryKey: homeKeys.summariesFor([event.id]) }),
           queryClient.invalidateQueries({ queryKey: photoKeys.nights() }),
           // Fitxar pot haver-ne guanyat una —la primera, la cinquena, la de
           // fitxar dels cinc primers— i és `my_badges()` qui la reparteix. Sense

@@ -7,12 +7,13 @@ import { eventKeys } from '@/features/event/api'
 import { UserIdContext } from '@/features/session/context'
 import { profileKeys } from '@/features/session/profile'
 
-import type { AnswerResult, AttendanceRow } from './api'
+import type { AnswerResult } from './api'
 import { homeKeys } from './api'
+import { type EventSummary, emptySummary } from './summary'
 import { useAnswer } from './useHome'
 
 /**
- * El «sí» és optimista: la fila canvia en prémer, el servidor té l'última
+ * El «sí» és optimista: el resum canvia en prémer, el servidor té l'última
  * paraula i un error ho desfà.
  */
 
@@ -24,23 +25,19 @@ vi.mock('./api', async (original) => ({
 
 const ME = 'me'
 const EVENT = 'e1'
-const KEY = homeKeys.attendances([EVENT, 'e2'])
+const DESDE = '2026-09-19T22:00:00.000Z'
+const KEY = homeKeys.summaries([EVENT, 'e2'], DESDE)
 
-function row(over: Partial<AttendanceRow>): AttendanceRow {
-  return {
-    user_id: 'other',
-    event_id: EVENT,
-    estado: 'si',
-    created_at: '2026-09-19T10:00:00Z',
-    profiles: null,
-    ...over,
-  }
+const OTHER = { user_id: 'other', avatar_url: null, created_at: '2026-09-19T10:00:00Z' }
+
+function summary(over: Partial<EventSummary> = {}): EventSummary {
+  return { ...emptySummary(EVENT), going: 1, faces: [OTHER], ...over }
 }
 
 let client: QueryClient
 
 function setup() {
-  client.setQueryData<AttendanceRow[]>(KEY, [row({})])
+  client.setQueryData<EventSummary[]>(KEY, [summary(), summary({ event_id: 'e2' })])
   const wrapper = ({ children }: { children: ReactNode }) => (
     <QueryClientProvider client={client}>
       <UserIdContext.Provider value={ME}>{children}</UserIdContext.Provider>
@@ -49,9 +46,9 @@ function setup() {
   return renderHook(() => useAnswer(), { wrapper })
 }
 
-const mineRow = (event = EVENT) =>
-  client.getQueryData<AttendanceRow[]>(KEY)?.find((r) => r.user_id === ME && r.event_id === event)
-const mine = (event = EVENT) => mineRow(event)?.estado ?? null
+const summaryIn = (event = EVENT, key: readonly unknown[] = KEY) =>
+  client.getQueryData<EventSummary[]>(key)?.find((s) => s.event_id === event)
+const mine = (event = EVENT) => summaryIn(event)?.mine ?? null
 
 function deferred<T>() {
   let resolve!: (v: T) => void
@@ -136,8 +133,7 @@ describe('useAnswer', () => {
     await waitFor(() => {
       expect(result.current.isError).toBe(true)
     })
-    expect(mine()).toBeNull()
-    expect(client.getQueryData<AttendanceRow[]>(KEY)).toHaveLength(1)
+    expect(summaryIn()).toEqual(summary())
   })
 
   it('sense xarxa no diu res que no hagi sortit', async () => {
@@ -182,23 +178,22 @@ describe('useAnswer', () => {
   it('escriu també a la consulta de la fitxa, que és només [id]', async () => {
     setAnswer.mockReturnValue(deferred<AnswerResult>().promise)
     const { result } = setup()
-    client.setQueryData<AttendanceRow[]>(homeKeys.attendances([EVENT]), [])
+    const sheet = homeKeys.summaries([EVENT], DESDE)
+    client.setQueryData<EventSummary[]>(sheet, [summary()])
 
     act(() => {
       result.current.mutate({ eventId: EVENT, estado: 'si' })
     })
     await waitFor(() => {
-      expect(client.getQueryData<AttendanceRow[]>(homeKeys.attendances([EVENT]))?.[0]?.estado).toBe(
-        'si',
-      )
+      expect(summaryIn(EVENT, sheet)?.mine).toBe('si')
     })
   })
 
   it("no toca la consulta d'un altre esdeveniment", async () => {
     setAnswer.mockReturnValue(deferred<AnswerResult>().promise)
     const { result } = setup()
-    const elsewhere = homeKeys.attendances(['e9'])
-    client.setQueryData<AttendanceRow[]>(elsewhere, [])
+    const elsewhere = homeKeys.summaries(['e9'], DESDE)
+    client.setQueryData<EventSummary[]>(elsewhere, [])
 
     act(() => {
       result.current.mutate({ eventId: EVENT, estado: 'si' })
@@ -206,10 +201,10 @@ describe('useAnswer', () => {
     await waitFor(() => {
       expect(mine()).toBe('si')
     })
-    expect(client.getQueryData<AttendanceRow[]>(elsewhere)).toEqual([])
+    expect(client.getQueryData<EventSummary[]>(elsewhere)).toEqual([])
   })
 
-  it('la fila nova porta el meu nom i la meva cara', async () => {
+  it('el recompte puja i la meva cara hi surt, amb la foto del perfil', async () => {
     setAnswer.mockReturnValue(deferred<AnswerResult>().promise)
     const { result } = setup()
     client.setQueryData(profileKeys.of(ME), { nombre: 'Alfa', avatar_url: 'a/me.jpg' })
@@ -218,11 +213,31 @@ describe('useAnswer', () => {
       result.current.mutate({ eventId: EVENT, estado: 'si' })
     })
     await waitFor(() => {
-      expect(mineRow()?.profiles).toEqual({ nombre: 'Alfa', avatar_url: 'a/me.jpg' })
+      expect(summaryIn()?.going).toBe(2)
     })
+    expect(summaryIn()?.faces[0]).toMatchObject({ user_id: ME, avatar_url: 'a/me.jpg' })
   })
 
-  it("en acabar recarrega amb filtre: les assistències i la llista d'espera", async () => {
+  it('si falla, el recompte i les cares tornen a com eren', async () => {
+    const call = deferred<AnswerResult>()
+    setAnswer.mockReturnValue(call.promise)
+    const { result } = setup()
+
+    act(() => {
+      result.current.mutate({ eventId: EVENT, estado: 'si' })
+    })
+    await waitFor(() => {
+      expect(summaryIn()?.going).toBe(2)
+    })
+    call.reject(new Error('boom'))
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true)
+    })
+    expect(summaryIn()?.going).toBe(1)
+    expect(summaryIn()?.faces).toEqual([OTHER])
+  })
+
+  it("en acabar recarrega amb filtre: els resums i la llista d'espera", async () => {
     setAnswer.mockResolvedValue({ estado: 'si', ple: false, posicio: null })
     const { result } = setup()
     const spy = vi.spyOn(client, 'invalidateQueries')
@@ -234,7 +249,7 @@ describe('useAnswer', () => {
       expect(result.current.isSuccess).toBe(true)
     })
     const filters = spy.mock.calls.map(([f]) => f?.queryKey)
-    expect(filters).toContainEqual(['home', 'attendances'])
+    expect(filters).toContainEqual(['home', 'summaries'])
     expect(filters).toContainEqual(eventKeys.waitlist(EVENT))
     expect(filters).not.toContain(undefined)
   })

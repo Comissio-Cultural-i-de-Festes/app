@@ -15,16 +15,17 @@ type Translate = ReturnType<typeof useTranslation>['t']
  * with something missing.
  *
  * The verb still agrees with how many people there are in total, not with how
- * many are named.
+ * many are named. The server sends the two newest names and the total, not
+ * every name: the day after a big party is announced that was 245 of them.
  */
-export function movementLine(names: readonly string[], t: Translate): string {
+export function movementLine(names: readonly string[], total: number, t: Translate): string {
   const shown = names.slice(0, 2).map(firstName)
-  const others = names.length - shown.length
+  const others = Math.max(0, total - shown.length)
 
   // The "i" belongs to whatever ends the list. With a count after them the two
   // names are separated by a comma, or the line reads "Marc i Júlia i 2 més".
   const listed = shown.join(others > 0 ? t('home.movement.comma') : t('home.movement.and'))
   const people = others > 0 ? t('home.movement.more', { people: listed, count: others }) : listed
 
-  return t('home.movement.line', { people, count: names.length })
+  return t('home.movement.line', { people, count: Math.max(total, shown.length) })
 }

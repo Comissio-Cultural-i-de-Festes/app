@@ -61,7 +61,7 @@
     "searchName": "Escribe y van saliendo. Con tres letras basta.",
     "nobodyExpected": "Todavía no hay nadie apuntado ni fichado.",
     "noMatch": "Ningún nombre así en la lista. Prueba por el apellido. Si no está, que pida entrar y lo apruebas mañana.",
-    "letIn": "Fíchalo",
+    "letIn": "Ficha",
     "alreadyIn": "Ya está dentro",
     "undoing": "Deshaciendo…",
     "undone": "Deshecho. {{nombre}} ya no consta.",
@@ -244,7 +244,7 @@
       "notifySubShort": "Todavía no se puede decir qué es. El día que se abra, serás de los primeros en saberlo.",
       "waiting_one": "está pendiente",
       "waiting_other": "están pendientes",
-      "done_one": "Hecho. Eres el primero que lo sabrá.",
+      "done_one": "Hecho. Lo sabrás antes que nadie.",
       "done_other": "Hecho. Eres de los {{count}} que lo sabrán primero.",
       "doneSub": "Lo tendrás en el Inicio, destacado, la primera vez que abras la app.",
       "undo": "Mejor no me avises",
@@ -267,7 +267,7 @@
       "until": "{{from}} hasta las {{to}}"
     },
     "full": "Lleno del todo",
-    "fullNoQueue": "Todavía no espera nadie. Apúntate y serás el primero si alguien se echa atrás.",
+    "fullNoQueue": "Todavía no espera nadie. Apúntate y, si alguien se echa atrás, la plaza es tuya.",
     "fullWithQueue_one": "Hay {{count}} persona esperando. La gente se echa atrás siempre.",
     "fullWithQueue_other": "Hay {{count}} esperando. La gente se echa atrás siempre.",
     "wereThere": "fuimos",
@@ -428,12 +428,12 @@
     },
     "upcoming": {
       "title": "Qué más viene",
-      "thatIsAll": "Y después, ahora mismo nada. Tranquilo, ya caerá algo.",
-      "none": "Ahora mismo no hay nada más apuntado. Tranquilo, ya caerá algo."
+      "thatIsAll": "Y después, ahora mismo nada. Sin prisa, ya caerá algo.",
+      "none": "Ahora mismo no hay nada más apuntado. Sin prisa, ya caerá algo."
     },
     "empty": {
       "title": "Ahora mismo, nada",
-      "body": "No hay nada en el calendario. Tranquilo, ya caerá algo."
+      "body": "No hay nada en el calendario. Sin prisa, ya caerá algo."
     }
   },
   "inside": {
@@ -963,7 +963,7 @@
     "soci": {
       "backLabel": "Su ficha",
       "publicProfile": "Mira su perfil",
-      "publicProfileSub": "Lo que cualquier socio ve de él.",
+      "publicProfileSub": "Lo que cualquier socio ve de esta persona.",
       "ledger": {
         "title": "El registro de puntos",
         "total": "Total de siempre: {{total}}",
@@ -1151,7 +1151,7 @@
     },
     "audit": {
       "title": "El registro",
-      "lede": "Quién ha hecho qué, y cuándo. Sirve para saber quién nombró a un admin y para responder si alguien pide qué tenéis sobre él.",
+      "lede": "Quién ha hecho qué, y cuándo. Sirve para saber quién nombró a un admin y para responder si alguien pide qué datos suyos tenéis.",
       "unknown": "Alguien que ya no está",
       "unknownTarget": "alguien que ya no está",
       "other": "{{actor}} ha hecho algo: {{accio}}",
@@ -1649,7 +1649,7 @@
     "profile": "Perfil"
   },
   "onboarding": {
-    "titlePending": "Casi listo",
+    "titlePending": "Ya casi está",
     "title": "Ya estás dentro",
     "lede": "Cinco cosas y entras. El nombre y la foto ya los tenemos de tu Google, mira que estén bien.",
     "ledePending": "Cinco cosas y lo tienes todo listo. El nombre y la foto ya los tenemos de tu Google; la junta te tiene que aceptar antes de que puedas apuntarte a nada.",
@@ -1981,7 +1981,7 @@
     "you": "Vas {{position}} de {{total}}",
     "youSub": "Aún estás a tiempo, eh",
     "schools": "Escuelas",
-    "schoolsLede": "Todo lo que haces suma para tu escuela, tanto si vas 3.º como 60.º.",
+    "schoolsLede": "Todo lo que haces suma para tu escuela, tanto si estás en el puesto 3 como en el 60.",
     "schoolFoot_one": "{{members}} miembros · {{count}} evento",
     "schoolFoot_other": "{{members}} miembros · {{count}} eventos",
     "yours": "la tuya",
@@ -2046,7 +2046,7 @@
     "offerCta": "Ofrece el coche",
     "pointsLater": "Los {{points}} son por la gente que subes, y te los ponemos cuando volváis.",
     "onlyOne": "De momento hay uno. Ya aparecerán más, pero este ya va seguro.",
-    "beFirst": "Sé el primero y elige asiento. Los otros coches salen cuando hay gente: siempre pasa igual.",
+    "beFirst": "Empieza tú y elige asiento. Los otros coches salen cuando hay gente: siempre pasa igual.",
     "emptyTitle": "Todavía no hay ningún coche",
     "emptyLede": "Si tienes coche, dilo ahora: la gente se apunta al viaje antes que a la casa.",
     "emptyFoot": "Traer gente son {{points}} y no hace falta que bebas nada para hacerlos.",
@@ -2073,7 +2073,7 @@
     "holdFor": "Para quién",
     "holdNote": "Le guardas el asiento y sube cuando quiera.",
     "held": "Guardada",
-    "invited": "Invitado",
+    "invited": "Con invitación",
     "inviteSearch": "Busca por el nombre",
     "inviteNobody": "No queda nadie por invitar: o ya van en un coche, o eres tú.",
     "yourSeat": "Te guardan una plaza",

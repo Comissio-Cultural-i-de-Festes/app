@@ -20,7 +20,7 @@
   },
   "crash": {
     "title": "Something broke",
-    "body": "That should not happen. Reload, and if it keeps happening tell the committee.",
+    "body": "That should not happen. Reload, and if it keeps happening tell the board.",
     "staleTitle": "There is a new version",
     "staleBody": "The app updated while you had it open. Reload and you will be where you were.",
     "reload": "Reload",
@@ -59,20 +59,20 @@
     "backToScanner": "Scanner",
     "manualTitle": "Check in by name",
     "searchName": "Type and they appear. Three letters is enough.",
-    "nobodyExpected": "Nobody has signed up or come in yet.",
-    "noMatch": "No name like that. Try the surname. If they are not there, have them ask to join and approve it tomorrow.",
-    "letIn": "Let them in",
+    "nobodyExpected": "Nobody has signed up or checked in yet.",
+    "noMatch": "No name like that. Try the surname. If they are not there, have them ask to join and approve them tomorrow.",
+    "letIn": "Check in",
     "alreadyIn": "Already in",
     "undoing": "Undoing…",
-    "undone": "Taken back. {{nombre}} is no longer in.",
+    "undone": "Undone. {{nombre}} is no longer checked in.",
     "undoneQueued": "Out of the queue. This check-in had not been sent yet.",
     "undoFailed": "That could not be undone. Try again; if it stays like this, {{nombre}} is still checked in.",
-    "lastIn": "Last one in",
+    "lastIn": "Last checked in",
     "clear": "Clear",
     "pointsTitle": "Give points",
     "pointsLede": "Tick whoever helped and tap the reason. Two taps and done.",
-    "whoIsHere": "Who is in · {{count}}",
-    "nobodyHere": "Nobody has come in yet. Points go to people who are already here.",
+    "whoIsHere": "Checked in · {{count}}",
+    "nobodyHere": "Nobody has checked in yet. Points go to people who are already in.",
     "pointsUndo": "Points land straight away. If you get one wrong, correct it from the person's page under Members: nothing is deleted, the correction is added.",
     "chosen_zero": "Nobody ticked yet",
     "chosen_one": "{{count}} person ticked",
@@ -80,14 +80,14 @@
     "gave_one": "Done: {{count}} person, +{{points}}",
     "gave_other": "Done: {{count}} people, +{{points}} each",
     "tapReason": "Tap a reason",
-    "rosterRefused": "The list came back empty, which is what happens when you no longer have access. Sign in again, and if it stays like this ask somebody on the committee.",
+    "rosterRefused": "The list came back empty, which is what happens when you no longer have access. Sign in again, and if it stays like this ask somebody on the board.",
     "pointsUnavailable": "We could not read what each reason is worth. Without that the points would be wrong."
   },
   "entry": {
     "inApp": {
       "title": "Open it in your browser",
       "ledeInvited": "Someone in the group sent you the link. Open it in your phone's browser and you will sign in with Google there.",
-      "ledeOpen": "You arrived without an invitation. Open the link in your phone's browser, sign in with Google and the committee will give you access by hand, usually the same day.",
+      "ledeOpen": "You arrived without an invitation. Open the link in your phone's browser, sign in with Google and the board will give you access by hand, usually the same day.",
       "body": "You are inside another app's browser (Instagram, Facebook…) and Google does not allow signing in from here. Open this link in your phone's browser and you can sign in as usual.",
       "ios": "Tap the three dots or the share icon and choose the option to open it in your browser or in Safari. If you cannot find it, copy the link and paste it into Safari.",
       "androidCta": "Open in Chrome",
@@ -102,21 +102,21 @@
       "title": "You're invited",
       "lede": "Somebody in the group sent you the link. Sign in with your Google account and you are one of us. No new password.",
       "cta": "Sign in with Google",
-      "reassurance": "From the account we take only your name, your email and your photo. The invitation is what grants access, and the committee can cut it off if it leaks."
+      "reassurance": "From the account we take only your name, your email and your photo. The invitation is what grants access, and the board can cut it off if it leaks."
     },
     "open": {
       "title": "Ask to join",
-      "lede": "You got here without an invitation. Sign in with Google and the committee will let you in by hand, usually the same day.",
+      "lede": "You got here without an invitation. Sign in with Google and the board will let you in by hand, usually the same day.",
       "cta": "Sign in with Google",
       "reassurance": "From the account we take only your name, your email and your photo. Until you are approved you can see the events, but you cannot sign up for them.",
       "noCodeLabel": "No invitation",
       "noCodeValue": "No code",
-      "noCodeAside": "The committee approves it"
+      "noCodeAside": "The board approves it"
     },
     "app": {
       "title": "Sign in",
       "lede": "Sign in with your Google account. If you've already been accepted, that's all; if not, you'll see how it works once you're in.",
-      "reassurance": "We only take your name, email and photo from the account. If you haven't been accepted yet, the committee will let you in by hand, usually the same day.",
+      "reassurance": "We only take your name, email and photo from the account. If you haven't been accepted yet, the board will let you in by hand, usually the same day.",
       "hasCodeHint": "Type it into the notice at the top once you're in."
     },
     "invite": {
@@ -126,7 +126,7 @@
       "expiresHours_other": "Expires in {{count}} h",
       "expiresDays_one": "Expires in {{count}} day",
       "expiresDays_other": "Expires in {{count}} days",
-      "stale": "This invitation link is no longer valid. Ask for a new one in the group, or come in anyway and wait for the junta to approve you."
+      "stale": "This invitation link is no longer valid. Ask for a new one in the group, or come in anyway and wait for the board to approve you."
     },
     "email": {
       "label": "Your email",
@@ -152,7 +152,7 @@
       "badCode": "That code is not right, or it has expired. Ask for another.",
       "googleFailed": "We could not reach Google. Please try again in a moment."
     },
-    "stranded": "It looks like you signed in but the session stayed in the browser rather than here. Open the app from Safari, or tell the committee and we will sort it out.",
+    "stranded": "It looks like you signed in but the session stayed in the browser rather than here. Open the app from Safari, or tell the board and we will sort it out.",
     "emailFallback": "Or, if Google is not working for you, sign in with your email.",
     "emailCta": "Email me a link",
     "hasCode": {
@@ -169,14 +169,14 @@
     "notAnImage": "I cannot read that photo. Try another one, or take it with the camera.",
     "notSaved": "It couldn't be sent or saved on this phone, so it won't go by itself. Try again when you have signal.",
     "rateLimited": "Too many tries in a row. Give it a couple of minutes.",
-    "behindServer": "This is not available yet: the app was updated before the data. Try again in a little while; if it stays the same, tell the committee.",
+    "behindServer": "This is not available yet: the app was updated before the data. Try again in a little while; if it stays the same, tell the board.",
     "stalled": "The connection is not answering: nothing is getting through. Try again, or find somewhere with better signal.",
     "sessionUnreachable": "Without a connection we cannot open your session. When the network is back, the app will open by itself.",
     "sendPaused": "No connection. It is waiting here and will go out when the network is back: do not close the app.",
     "sendSlow": "The connection is very slow: it has not arrived yet.",
     "sendOffline": "No connection, so it did not go out. Try again when you have signal.",
-    "avisSostre": "This course has already taken every point the cap allows for this person. Raise “Most points per course” on The scale, or log the warning with no points.",
-    "avisForaDelCurs": "Today falls inside no course, and with no course there is no cap to count. Open the course under “The ranking periods”, or log the warning with no points."
+    "avisSostre": "This person has already lost every point the cap allows this year. Raise “Most points per year” in The points table, or log the warning with no points.",
+    "avisForaDelCurs": "Today falls outside every academic year, and with no year there is no cap to count. Open the year under “The ranking periods”, or log the warning with no points."
   },
   "escola": {
     "politecnica": "Polytechnic",
@@ -217,15 +217,15 @@
     "teaser": {
       "pushEyebrow": "So you do not find out the next day",
       "pushTitle": "Want your phone to tell you?",
-      "pushBody": "The good places go in the first hour. One notification, on the day of the reveal, and no others: the committee does not send notifications about anything else.",
+      "pushBody": "The good places go in the first hour. One notification, on the day of the reveal, and no others: the comi does not send notifications about anything else.",
       "pushYes": "Yes, tell me",
       "pushNo": "No need",
       "pushWhenSub": "The system prompt comes after this \"Yes\".",
       "pushFail": {
-        "unsupported": "This browser does not do notifications. On iPhone the app has to be added to the home screen. You will still find it on your home screen the day it opens.",
-        "unconfigured": "Phone notifications are not plugged in yet. You will find it on your home screen the day it opens.",
-        "denied": "You said no to notifications, and this page cannot ask again. You will still find it on your home screen the day it opens.",
-        "failed": "We could not turn the phone notification on. You will still find it on your home screen the day it opens."
+        "unsupported": "This browser does not do notifications. On iPhone the app has to be added to the home screen. You will still find it on Home the day it opens.",
+        "unconfigured": "Phone notifications are not plugged in yet. You will find it on Home the day it opens.",
+        "denied": "You said no to notifications, and this page cannot ask again. You will still find it on Home the day it opens.",
+        "failed": "We could not turn the phone notification on. You will still find it on Home the day it opens."
       },
       "chip": "Still hidden",
       "willBeKnown": "Known in",
@@ -244,10 +244,10 @@
       "notifySubShort": "We cannot say what it is yet. The day it opens, you will be among the first to know.",
       "waiting_one": "is waiting",
       "waiting_other": "are waiting",
-      "done_one": "Done. You are the first who will know.",
-      "done_other": "Done. You are one of the {{count}} who will know first.",
-      "doneSub": "It will be on your home screen, at the top, the first time you open the app.",
-      "undo": "Actually, do not tell me",
+      "done_one": "Done. You'll be the first to know.",
+      "done_other": "Done. You're one of the {{count}} who will know first.",
+      "doneSub": "It will be at the top of Home the first time you open the app.",
+      "undo": "Actually, don't tell me",
       "willKnowIn": "Known in {{count}} days",
       "willKnowInOne": "Known tomorrow"
     },
@@ -279,20 +279,20 @@
       "queue": "Join list",
       "yesWarning": "If you say yes, your face goes on the list above and everybody sees it.",
       "yesPublic": "Your face is on the list above.",
-      "privateAnswer": "Maybes and can't-makes go to the committee only.",
-      "queuePrivate": "Being on the list does not show anywhere. Only the committee sees it.",
-      "queueWarning": "Joining the list does not show anywhere. If a place frees up, the committee will tell you.",
-      "confirmTitle": "Want to come? The committee hands out the places",
+      "privateAnswer": "Maybes and can't-makes go to the board only.",
+      "queuePrivate": "Being on the list does not show anywhere. Only the board sees it.",
+      "queueWarning": "Joining the list does not show anywhere. If a place frees up, the board will tell you.",
+      "confirmTitle": "Want to come? The board hands out the places",
       "request": "Ask for a place",
-      "requestWarning": "Asking is not having. The committee decides, and we tell you in the group.",
-      "requestedPrivate": "Nobody can see that you asked. Only the committee.",
+      "requestWarning": "Asking is not having. The board decides, and we tell you in the group.",
+      "requestedPrivate": "Nobody can see that you asked. Only the board.",
       "paused": "No connection. Your answer is waiting here and will go out when the network is back: do not close the app.",
       "offline": "No connection, so your answer did not go out. Try again when you have signal.",
       "slow": "The connection is very slow: your answer has not arrived yet."
     },
     "queue": {
-      "onList": "You are on the waiting list. If somebody drops out, the committee will tell you.",
-      "position": "You are {{position}} on the waiting list. If somebody drops out, the committee will tell you."
+      "onList": "You are on the waiting list. If somebody drops out, the board will tell you.",
+      "position": "You are {{position}} on the waiting list. If somebody drops out, the board will tell you."
     },
     "gone": {
       "title": "Nothing here",
@@ -302,19 +302,19 @@
     "said": {
       "yes": "You're in: {{when}}, {{where}}.",
       "yesNoPlace": "You're in: {{when}}.",
-      "yesSub": "Change it whenever you like, but say so early: the committee is counting on you.",
+      "yesSub": "Change it whenever you like, but say so early: the board is counting on you.",
       "maybe": "You said maybe. We are holding your place.",
       "maybeSub": "If it turns out you can’t, say so and the place goes to someone else.",
       "no": "You said no. Another time.",
       "noSub": "If you change your mind, come back while there are places left.",
       "nothing": "You have not said anything yet.",
       "nothingSub": "Three taps and you are done. Maybe counts too.",
-      "requested": "You have asked. The committee still has to confirm it.",
+      "requested": "You have asked. The board still has to confirm it.",
       "requestedSub": "Do not buy tickets yet. We will tell you in the group once it is decided.",
       "refused": "Not this time.",
       "refusedSub": "There were more people than beds. Ask again if anything changes."
     },
-    "lastOne": "of {{total}}. Move.",
+    "lastOne": "of {{total}}. Hurry.",
     "lastOneSub": "This will not last half an hour.",
     "shareText": "{{title}} — coming? {{link}}",
     "shared": "Copied"
@@ -326,7 +326,7 @@
     "reunio": "Meeting"
   },
   "gimcana": {
-    "title": "The gymkhana",
+    "title": "The scavenger hunt",
     "back": "The event",
     "none": "This event does not have one.",
     "closed": "Nothing shows until the party starts. It closes when the party ends.",
@@ -338,7 +338,7 @@
     "doneCount_one": "{{count}} challenge cleared",
     "doneCount_other": "{{count}} challenges cleared",
     "sentBy": "Sent by {{name}}",
-    "juntaLooking": "the junta is looking at it",
+    "juntaLooking": "the board is checking it",
     "worth": "Worth +{{n}} to the team",
     "worthEyebrow": "Challenge · worth +{{n}}",
     "tryAgain": "That one did not count. Have another go.",
@@ -348,11 +348,11 @@
     "rule": "Anybody on the team can do any challenge. One challenge, one photo: the first one that counts, scores.",
     "boardLink": "The scoreboard",
     "board": "Scoreboard",
-    "boardLead_one": "It moves when the junta approves. Right now there is {{count}} photo in the queue.",
-    "boardLead_other": "It moves when the junta approves. Right now there are {{count}} photos in the queue.",
-    "boardLeadEmpty": "It moves when the junta approves.",
+    "boardLead_one": "It moves when the board approves. Right now there is {{count}} photo in the queue.",
+    "boardLead_other": "It moves when the board approves. Right now there are {{count}} photos in the queue.",
+    "boardLeadEmpty": "It moves when the board approves.",
     "boardEmpty": "Nothing approved yet. The first photos are already in the queue: this will move shortly.",
-    "boardNote": "The scoreboard is for tonight only: it does not touch the course ranking. If the winning team gets something, you decide that at the party.",
+    "boardNote": "The scoreboard is for tonight only: it does not touch the year's ranking. If the winning team gets something, you decide that at the party.",
     "yours": "yours",
     "state": {
       "validada": "approved",
@@ -360,7 +360,7 @@
     },
     "takePhoto": "Take the photo or pick one from your camera roll",
     "send": "Send it to be approved",
-    "sendNote": "Somebody on the junta looks at it the same night. The points land when they say it counts.",
+    "sendNote": "Somebody on the board looks at it the same night. The points land when they say it counts.",
     "offlineNote": "It works with no signal too: it is saved and sent by itself when the network comes back.",
     "queued": "Saved. It will send itself when the network comes back — you can close the app.",
     "notSaved": "The photo could not be saved. Try again, or pick another one.",
@@ -444,7 +444,7 @@
     "countPast_one": "{{count}} got in",
     "countPast_other": "{{count}} got in",
     "lede": "The ones who checked in. Each from their own phone on arrival, or with the scanner when the phone could not.",
-    "ledePast": "The ones the scanner let in at the door.",
+    "ledePast": "The ones who checked in at the door.",
     "ofExpected": "of {{count}} signed up",
     "nobody": "Nobody has checked in yet",
     "note": "The faces are a sample. The number in the middle is the real count.",
@@ -454,16 +454,16 @@
   "checkin": {
     "title": "Are you there?",
     "lede": "Check in from right here. It looks at where you are, and if you are at the place, that is it: nobody has to scan anything.",
-    "here": "I am here",
+    "here": "I'm here",
     "locating": "Finding you…",
     "sending": "Checking in…",
     "done_one": "Checked in. {{count}} point.",
     "done_other": "Checked in. {{count}} points.",
     "doneNoPoints": "Checked in. You already had tonight’s points.",
     "already": "You were already in from {{hora}}.",
-    "far": "You are {{metres}} m from the place. If you really are there, it is the GPS: try stepping outside for a moment, or tell the junta and they will add you by hand.",
+    "far": "You are {{metres}} m from the place. If you really are there, it is the GPS: try stepping outside for a moment, or tell the board and they will add you by hand.",
     "closed": "Check-in is not open yet, or it is over.",
-    "noPlace": "This event has no place on the map yet. Tell the junta and they will set it in a moment.",
+    "noPlace": "This event has no place on the map yet. Tell the board and they will set it in a moment.",
     "gone": "This event is not there any more.",
     "queued": "No signal. We wrote it down with the time and the place you are at now, and it will go on its own when the network comes back.",
     "pending_one": "{{count}} to send",
@@ -471,12 +471,12 @@
     "pendingOffline_one": "{{count}} pending",
     "pendingOffline_other": "{{count}} pending",
     "takePhoto": "Take your arrival photo",
-    "photoNote": "Optional, and only you and the junta see it. Take it and you get the diptych with the one on the way out.",
+    "photoNote": "Optional, and only you and the board see it. Take it and you get the diptych with the one on the way out.",
     "nofix": {
-      "denied": "You are not letting us see where you are. Your browser settings can give this page location permission — Settings › {{app}} › Location — and then come back, or tell the junta and they will add you by hand.",
+      "denied": "You are not letting us see where you are. Your browser settings can give this page location permission — Settings › {{app}} › Location — and then come back, or tell the board and they will add you by hand.",
       "unavailable": "The phone cannot work out where it is. Stepping outside for a moment or turning the GPS on usually fixes it.",
       "timeout": "That took too long. Try again.",
-      "unsupported": "This browser cannot tell where you are. Tell the junta and they will add you by hand."
+      "unsupported": "This browser cannot tell where you are. Tell the board and they will add you by hand."
     },
     "failed": {
       "lluny": "The check-in from {{dia}} could not be validated: you were {{metres}} m from the place. No points were added.",
@@ -501,12 +501,12 @@
     "entrada": {
       "eyebrow": "On the way in",
       "title": "However you are arriving",
-      "note": "Only you and the junta see this one, and they use it to work out who came in. Take the one on the way out too and you get the diptych."
+      "note": "Only you and the board see this one, and they use it to work out who came in. Take the one on the way out too and you get the diptych."
     },
     "sortida": {
       "eyebrow": "On the way out",
       "title": "However you are right now",
-      "note": "Nobody else sees this photo. Not the junta, not the group, not the ranking: it goes in your profile and the diptych is yours to look at."
+      "note": "Nobody else sees this photo. Not the board, not the group, not the ranking: it goes in your profile and the diptych is yours to look at."
     },
     "camera": {
       "denied": "We cannot open the camera. Give it permission in your browser settings — Settings › {{app}} › Camera — and come back, or leave it: the photo is optional and you are already checked in.",
@@ -523,7 +523,7 @@
     "worseOut": "You come out worse than you went in. That is the whole point.",
     "stillTime": "Still time: you can take it whenever, two weeks from now included. Different jumper, same idea.",
     "takeExit": "Take the one on the way out",
-    "nobodyElse": "Nobody else sees these two photos: not the junta, not the group. If you share it, you share it.",
+    "nobodyElse": "Nobody else sees these two photos: not the board, not the group. If you share it, you share it.",
     "forgetExit": "Delete the one on the way out",
     "previous": "Earlier ones",
     "youWereThere": "you were there {{long}}",
@@ -535,7 +535,7 @@
     "noNights": "You have not checked in at a door yet. When you do, the night shows up here.",
     "neither": {
       "title": "No photos from that night",
-      "body": "The junta had the door camera off that day, and you never took the one on the way out. You were there all the same.",
+      "body": "The board had the door camera off that day, and you never took the one on the way out. You were there all the same.",
       "nextTime": "Next time you can take the way-out one even without the door one: the diptych then shows your arrival time instead of the picture."
     },
     "yourNight": "Your night",
@@ -559,7 +559,7 @@
     "failed": "The card could not be made",
     "nothingAuto": "Nothing gets posted on its own. You decide, every time.",
     "downloadNote": "This phone cannot share images from the browser. It is in your photos and you post it.",
-    "checkin": "I am in",
+    "checkin": "I'm in",
     "ranking": "Comi ranking",
     "recap": "already over",
     "weAre": "{{dins}} of {{total}} are in",
@@ -616,13 +616,13 @@
       "hi_surto": "I am in it and I do not want to be",
       "no_es_d_aquella_nit": "It is not from this night",
       "altra": "Something else",
-      "send": "Send it to the junta",
-      "note": "The junta sees it and takes it down if needed. Whoever added it will not know you asked."
+      "send": "Send it to the board",
+      "note": "The board sees it and takes it down if needed. Whoever added it will not know you asked."
     }
   },
   "ideas": {
     "title": "Ideas",
-    "lede": "What to do on the days when nothing is on. The committee looks at whichever has most votes.",
+    "lede": "What to do on the days when nothing is on. The board looks at whichever has most votes.",
     "propose": "Propose",
     "count": "{{open}} open · one vote each",
     "winning": "Winning",
@@ -635,7 +635,7 @@
     "mine": "Yours",
     "mineLede": "Only you see this. Nobody else knows yours was turned down.",
     "minePaid": "points, because it went ahead",
-    "juntaSays": "The committee says",
+    "juntaSays": "The board says",
     "decidedBy": "{{who}}, {{when}}",
     "privateNote": "A turned-down idea is on nobody else's list. Not even the title.",
     "withdraw": "Delete it",
@@ -662,8 +662,8 @@
     "newNamePlaceholder": "Ping-pong tournament in the hall",
     "newBody": "Description",
     "newBodyPlaceholder": "Where, when and what is needed. Four words will do.",
-    "newPublic": "It goes up with your name and your face, and everybody in the committee can vote for it.",
-    "newPaid": "If the committee turns it into an event, {{points}} for you.",
+    "newPublic": "It goes up with your name and your face, and everybody in the comi can vote for it.",
+    "newPaid": "If the board turns it into an event, {{points}} for you.",
     "publish": "Publish it",
     "juntaTitle": "Ideas",
     "juntaLede": "The same list everybody sees, with two more buttons.",
@@ -672,7 +672,7 @@
     "discard": "Turn it down",
     "whyNot": "Why not",
     "whyNotPlaceholder": "Whoever proposed it will read this, and nobody else.",
-    "whyYes": "Why yes, if you want to say",
+    "whyYes": "Why it's a yes, if you want to say",
     "pickEvent": "Which event",
     "noEvents": "An event has to exist already before an idea can become one.",
     "alreadyDecided": "Somebody else has already decided it.",
@@ -721,13 +721,13 @@
     }
   },
   "junta": {
-    "title": "Committee area",
-    "back": "Committee",
+    "title": "Board area",
+    "back": "Board",
     "scan": "Scan",
     "givePoints": "Give points",
     "needsSignalTitle": "This screen needs signal",
     "needsSignalBody": "It isn't on your phone yet, and it can't be downloaded without signal. The door works offline.",
-    "needsSignalBack": "Back to the committee area",
+    "needsSignalBack": "Back to the board area",
     "newEvent": "Create an event",
     "newEventSub": "Or copy an earlier one and change the date",
     "invitesSub": "The group code and who wants in",
@@ -748,7 +748,7 @@
       "willPaste": "This gets pasted",
       "copy": "Copy it for WhatsApp",
       "copied": "Copied · paste it anywhere",
-      "shareText": "Join us: {{link}} — the code is {{code}}. Sign in with Google and that is it.",
+      "shareText": "Join the comi: {{link}} — the code is {{code}}. Sign in with Google and you're done.",
       "killAndRemake": "Kill this code and make another",
       "makeFirst": "Make the first code",
       "killExplains": "Anybody already in stays in. It only stops working for new people.",
@@ -764,7 +764,7 @@
       "rejectDone": "{{name}} does not get in. They are not told anything."
     },
     "payments": {
-      "title": "Payments and committee",
+      "title": "Payments and board",
       "pickEvent": "Which event",
       "pickPrompt": "Pick an event",
       "whoPaid": "Who has paid",
@@ -779,7 +779,7 @@
       "paid": "Paid",
       "pending": "Pending",
       "nobody": "Nobody has signed up yet. They appear here once they say yes.",
-      "notInList": "This event is no longer on the junta list. Pick one from the selector above.",
+      "notInList": "This event is no longer on the board's list. Pick one from the selector above.",
       "chaseThem": "Anyone still unpaid on Friday morning, message them yourself. The group chat does not work.",
       "whoRuns": "Who runs this",
       "queue_one": "Waiting list · {{count}}",
@@ -797,12 +797,12 @@
     "form": {
       "who": "Who has to come",
       "abast": {
-        "junta": "The committee only",
-        "comi": "Everybody"
+        "junta": "The board only",
+        "comi": "The whole comi"
       },
       "abastSub": {
-        "junta": "It appears on nobody's home screen. Members cannot see it even with the link, and it gives nobody points or streak.",
-        "comi": "It appears on everybody's home screen, under the parties, and everyone can say whether they will be there."
+        "junta": "It appears on nobody's Home. Members cannot see it even with the link, and it gives nobody points or streak.",
+        "comi": "It appears on everybody's Home, under the parties, and everyone can say whether they will be there."
       },
       "pointsMeetingHint": "They are given when you close the meeting, not when people confirm: whoever says they will be there and is not, earns none.",
       "meetingHasNo": "A meeting has no places, no price, no cover and no cars",
@@ -850,7 +850,7 @@
       "live": "Published",
       "liveSub_one": "{{count}} person can see it right now.",
       "liveSub_other": "{{count}} people can see it right now.",
-      "liveSubPlain": "Everybody can see it right now.",
+      "liveSubPlain": "The whole comi can see it right now.",
       "draft": "Draft",
       "draftSub": "Nobody but you can see it.",
       "unpublishAsk": "Unpublish it and it disappears from everyone’s Home. Anyone already signed up stays signed up.",
@@ -864,12 +864,12 @@
       "deleteConfirm": "Delete it",
       "deleteHasPoints": "This one has points on it and cannot be deleted: the points would be left with nothing to say where they came from. Unpublish it and it disappears from everyone’s Home.",
       "preview": "Preview",
-      "previewLive": "This is what the association will see",
-      "previewCovered": "This is what they will see until it opens",
+      "previewLive": "This is what the comi will see",
+      "previewCovered": "This is what the comi will see until it opens",
       "previewBack": "Back to editing",
       "confirm": "Who gets in",
-      "confirmHint": "Tick this and signing up becomes asking: nobody has a place until the committee confirms it, one by one. Ticked by default for a country house.",
-      "confirmOn": "The committee decides who gets in",
+      "confirmHint": "Tick this and signing up becomes asking: nobody has a place until the board confirms it, one by one. Ticked by default for a country house.",
+      "confirmOn": "The board decides who gets in",
       "confirmOff": "Signing up gives you a place straight away",
       "cars": "Getting there",
       "carsHint": "Tick this and the shared-cars block appears on the event. Ticked by default for a country house; untick it if people can walk.",
@@ -886,7 +886,7 @@
         "nums": "The points cap",
         "pesos": "What each severity weighs",
         "escalons": "The steps",
-        "escalonsLede": "Each person adds up the weight of their live warnings this course. On reaching a step, their record is marked; the app never expels or blocks anyone. A step set to 0 is off.",
+        "escalonsLede": "Each person adds up the weight of their standing warnings this year. On reaching a step, their record is marked; the app never expels or blocks anyone. A step set to 0 is off.",
         "num": {
           "pes_lleu": "Weight of a minor one",
           "pes_greu": "Weight of a serious one",
@@ -894,7 +894,7 @@
           "llindar_avis": "Warning step",
           "llindar_risc": "At-risk step",
           "llindar_expulsio": "Expulsion-vote step",
-          "sostre_curs": "Most points per course"
+          "sostre_curs": "Most points per year"
         },
         "heading": "The warning catalogue",
         "lede": "What each thing weighs. The points here only pre-fill the form: once a warning exists its points are its own, and changing this figure in June does not rewrite what a night in October was worth.",
@@ -916,18 +916,18 @@
       "periods": {
         "title": "The ranking periods",
         "lede": "Where one term ends the next begins, so there is only one date between any two. They save together: if one is wrong, none of them is saved.",
-        "startsCourse": "The course and the {{label}} begin",
+        "startsCourse": "The year and the {{label}} begin",
         "starts": "The {{label}} begins",
-        "ends": "The course ends",
+        "ends": "The year ends",
         "outOfOrder": "The dates have to run from first to last, and none can be missing.",
         "none": "No terms defined yet."
       },
       "scale": {
-        "title": "The scale",
-        "lede": "Motives are the buttons on the awarding screen. Types only pre-fill a new event and never restate one that already exists.",
-        "motius": "Motives",
+        "title": "The points table",
+        "lede": "Reasons are the buttons on the points screen. Types only pre-fill a new event and never rewrite one that already exists.",
+        "motius": "Reasons",
         "tipus": "Event types",
-        "cantAdd": "Neither motives nor event types can be added from here.",
+        "cantAdd": "Neither reasons nor event types can be added from here.",
         "rowSub": "What each thing is worth"
       },
       "graus": {
@@ -946,22 +946,22 @@
       "title": "Members",
       "search": "Search by name",
       "active": "Active",
-      "gone": "Signed out",
+      "gone": "Left",
       "noMatch": "No name like that.",
       "emptyActive": "Nobody active yet.",
-      "emptyGone": "Nobody signed out. Good.",
-      "signOut": "Sign them out",
+      "emptyGone": "Nobody has left. Good.",
+      "signOut": "Mark as left",
       "signOutSure": "They stop seeing events and drop out of the ranking. Points and attendance stay exactly where they are; this deletes nothing.",
       "bringBack": "Bring them back",
-      "lede": "Who has left, who is back. Signing somebody out deletes nothing: they stop getting into the app and what they did still counts in the history.",
-      "rowSub": "{{count}} people. Sign out whoever has left",
-      "rowSubPlain": "Sign out whoever has left",
+      "lede": "Who has left, who is back. Marking somebody as left deletes nothing: they stop getting into the app and what they did still counts in the history.",
+      "rowSub": "{{count}} people. Mark whoever has left",
+      "rowSubPlain": "Mark whoever has left",
       "avisos_one": "{{count}} warning",
       "avisos_other": "{{count}} warnings",
       "avisosPes": "weight {{total}}"
     },
     "soci": {
-      "backLabel": "Their sheet",
+      "backLabel": "Their record",
       "publicProfile": "See their profile",
       "publicProfileSub": "What any member sees of them.",
       "ledger": {
@@ -995,7 +995,7 @@
         "live_other": "{{count}} standing",
         "empty": "No warnings. Long may it last.",
         "withdraw": "Withdraw the warning",
-        "withdrawSure": "The warning stays on the sheet, struck through, and any points it took come back as a new line in the ledger. Write why it is being withdrawn.",
+        "withdrawSure": "The warning stays on their record, struck through, and any points it took come back as a new line in the points record. Write why it is being withdrawn.",
         "withdrawNote": "Why it is withdrawn",
         "withdrawPlaceholder": "They had told us, our mistake",
         "withdrawPaused": "No connection. The withdrawal waits here and will go when the network is back: keep this screen open.",
@@ -1010,10 +1010,10 @@
         "title": "Record a warning",
         "lede": "It is written down and never deleted. It may take points or not: you can warn somebody without touching the ranking.",
         "tipus": "What happened",
-        "tipusHint": "The catalogue lives in \"The scale\".",
+        "tipusHint": "The catalogue lives in “The points table”.",
         "tipusNone": "Pick one",
         "gravetat": "Severity",
-        "gravetatHint": "The type suggests: {{gravetat}}. The junta chooses, and that is what it will weigh.",
+        "gravetatHint": "The type suggests: {{gravetat}}. The board chooses, and that is what it will weigh.",
         "punts": "Points",
         "puntsHint": "They come from the catalogue and can be changed. Zero means a warning that leaves the ranking alone.",
         "puntsBad": "A whole number between -{{max}} and 0.",
@@ -1026,14 +1026,14 @@
         "mesuraPlaceholder": "Meeting on the 3rd; agreed to let us know",
         "mesuraBad": "At most {{max}} characters.",
         "event": "Which night",
-        "eventHint": "Optional. If it happened at a junta meeting, the warning stays with it and the points go without an event.",
+        "eventHint": "Optional. If it happened at a board meeting, the warning stays with it and the points go without an event.",
         "eventNone": "No particular one",
         "save": "Record the warning",
         "sureTitle": "Before recording it",
         "surePoints": "{{nombre}} will lose {{punts}} points and drop in the ranking.",
         "sureNoPoints": "No points will be taken: {{nombre}} will not move in the ranking.",
         "sureEscalo": "With this warning, {{nombre}} reaches the “{{estat}}” step: {{queFer}}.",
-        "sureSeen": "{{nombre}} will see it on their profile with the reason you wrote, and the notice is never deleted.",
+        "sureSeen": "{{nombre}} will see it on their profile with the reason you wrote, and the warning is never deleted.",
         "sureCta": "Yes, record it",
         "paused": "No connection. It will be recorded on its own once it is back.",
         "done": "Recorded: {{tipus}} for {{nombre}}."
@@ -1057,8 +1057,8 @@
         "retirat": "Withdrawn"
       },
       "motiu": {
-        "avis_sostre": "it would go over the course points cap",
-        "avis_fora_del_curs": "it did not happen within the course",
+        "avis_sostre": "it would go over the year's points cap",
+        "avis_fora_del_curs": "it did not happen within an academic year",
         "error": "unexpected error ({{codi}})"
       },
       "retira": "Withdraw it",
@@ -1073,25 +1073,25 @@
         "title": "Pending warning",
         "lede": "For someone who does not have an account yet. When they join with this phone number, the warning becomes theirs, dated the day it happened.",
         "nom": "Name",
-        "nomHint": "However you know them. Only the junta sees it.",
+        "nomHint": "However you know them. Only the board sees it.",
         "nomBad": "At most {{max}} characters.",
         "telefon": "Phone",
         "telefonHint": "As you have it. The last nine digits are enough to find them.",
         "telefonBad": "That does not look like a phone number.",
         "dia": "What day it was",
-        "diaHint": "The warning will count in the course and term of that day.",
+        "diaHint": "The warning will count in the year and term of that day.",
         "diaBad": "It cannot be a day that has not come yet.",
         "noteHint": "Required. The person will read it once they have an account.",
         "mesuraHint": "Optional. What was done about it. The person will read it too.",
         "save": "Log the pending warning",
         "sure": "{{nom}} does not have an account yet. The warning will link on its own when someone joins with this phone number; if someone already has, right now.",
-        "surePoints": "When it does, {{punts}} points will come off in the course it happened in.",
+        "surePoints": "When it does, {{punts}} points will come off in the year it happened in.",
         "sureNoPoints": "No points come off: it is only written down.",
         "done": "Logged: {{nom}}."
       }
     },
     "role": {
-      "admin": "Committee",
+      "admin": "Board",
       "owner": "Owner"
     },
     "roles": {
@@ -1109,7 +1109,7 @@
       "searchMember": "Find a member",
       "noMembers": "No member to name.",
       "demoteTitle": "{{name}} becomes an ordinary member",
-      "demoteBody": "They lose the committee panel, the scanner and the payments. It is not a removal: they stay in the association, with their points and their QR. It can be undone from here with another tap.",
+      "demoteBody": "They lose the board panel, the scanner and the payments. It does not mean leaving: they stay in the association, with their points and their QR. It can be undone from here with another tap.",
       "demote": "Take the admin away",
       "now": "{{name}} · {{role}}",
       "recent": "The last changes",
@@ -1123,9 +1123,9 @@
         "owner": "Owner"
       },
       "means": {
-        "member": "They lose the committee panel. The points, the attendances and the photos stay.",
+        "member": "They lose the board panel. The points, the attendances and the photos stay.",
         "admin": "Creates events, scans, approves members and names admins.",
-        "owner": "There can only be one. It is given from \u00abHand over ownership\u00bb."
+        "owner": "There can only be one. It is given from “Hand over ownership”."
       },
       "log": {
         "named": "{{actor}} made {{target}} an admin",
@@ -1135,7 +1135,7 @@
       },
       "transfer": {
         "title": "Hand over ownership",
-        "why": "In June, when the committee changes. There must always be exactly one owner, so when you give it away you stop having it.",
+        "why": "In June, when the board changes. There must always be exactly one owner, so when you give it away you stop having it.",
         "start": "Hand it to somebody else",
         "step1": "Step 1 of 2 · to whom",
         "step2": "Step 2 of 2 · confirm",
@@ -1172,10 +1172,10 @@
         "set_estat": "{{actor}} changed a member's status",
         "set_role": "{{actor}} changed somebody's role",
         "set_paid": "{{actor}} touched a payment",
-        "undo_checkin": "{{actor}} took back a check-in",
+        "undo_checkin": "{{actor}} undid a check-in",
         "decide_attendance": "{{actor}} decided who gets in",
         "save_periods": "{{actor}} moved the ranking periods",
-        "set_point_value": "{{actor}} changed the scale",
+        "set_point_value": "{{actor}} changed the points table",
         "save_grau": "{{actor}} saved a degree",
         "delete_grau": "{{actor}} took a degree off the list",
         "check_in_here": "{{actor}} checked somebody in by location",
@@ -1200,9 +1200,9 @@
       "doorIn": "checked in",
       "doorFree": "places left",
       "doorHint": "If somebody is not on the list, you can find them by name from the scanner.",
-      "doorGimcana": "Review the gimcana",
-      "doorGimcanaQueue_one": "Review the gimcana · {{count}} photo",
-      "doorGimcanaQueue_other": "Review the gimcana · {{count}} photos",
+      "doorGimcana": "Review the scavenger hunt",
+      "doorGimcanaQueue_one": "Review the scavenger hunt · {{count}} photo",
+      "doorGimcanaQueue_other": "Review the scavenger hunt · {{count}} photos",
       "doorNone": "At the door",
       "doorNoneSub": "Nothing on for now. The scanner turns up here the day before.",
       "doorAnyway": "Open the scanner anyway",
@@ -1235,11 +1235,11 @@
       "draftsSub": "Work done that is not doing anything yet",
       "avisos_one": "has reached the warning step",
       "avisos_other": "have reached the warning step",
-      "avisosSub": "Weight {{total}} or more this course. Worth a look, nothing else",
+      "avisosSub": "Weight {{total}} or more this year. Worth a look, nothing else",
       "estats": {
-        "title": "Warnings this course",
-        "sub": "How many people are on each step. Expulsion is a junta vote, not a removal.",
-        "aria": "Warning steps this course. Opens the member list"
+        "title": "Warnings this year",
+        "sub": "How many people are on each step. Expulsion is a board vote, not the same as leaving.",
+        "aria": "Warning steps this year. Opens the member list"
       },
       "pendentsFeina_one": "pending warning needs a decision",
       "pendentsFeina_other": "pending warnings need a decision",
@@ -1251,8 +1251,8 @@
       "soonFirst": "Create the first one",
       "soonFailed": "The calendar could not be read.",
       "soonFailedSub": "There may be events we cannot see. Do not create anything new until it loads.",
-      "how": "How the committee works",
-      "howSub": "The periods, the scale, the degrees and the log",
+      "how": "How the comi works",
+      "howSub": "The periods, the points table, the degrees and the log",
       "proposalsSub": "What people have proposed, waiting for a decision",
       "periodsStale": "The terms do not cover today",
       "periodsOk": "When each term starts and ends"
@@ -1273,7 +1273,7 @@
         "action": "Remember: split the list between you, one personal message each. The group chat does not work."
       },
       "attendance": {
-        "title": "Attendance through the course",
+        "title": "Attendance through the year",
         "avg": "{{n}} on average per event."
       },
       "types": {
@@ -1295,8 +1295,8 @@
       },
       "limits": {
         "title": "Limits and data",
-        "years": "“Who had been coming for years” cannot be said yet: the data starts in September. The dashboard reads the rhythm within the course.",
-        "write": "“Message them” opens WhatsApp with the number the junta already sees. Nothing is sent automatically."
+        "years": "“Who had been coming for years” cannot be said yet: the data starts in September. The dashboard reads the rhythm within the year.",
+        "write": "“Message them” opens WhatsApp with the number the board already sees. Nothing is sent automatically."
       }
     },
     "gimcana": {
@@ -1305,7 +1305,7 @@
       "teamsHow": "How teams are made",
       "mena": {
         "escoles": "The three schools",
-        "junta": "The junta makes them",
+        "junta": "The board makes them",
         "sorteig": "At random",
         "lliure": "People pick their own"
       },
@@ -1332,7 +1332,7 @@
       "provesNote": "Challenges that can be photographed, and round numbers. The face of the game: between five and ten.",
       "publish": "Publish it with the party",
       "publishNote": "Nobody sees it until the party starts. The challenges can be changed until then.",
-      "validateTitle": "Approve the gymkhana",
+      "validateTitle": "Review the scavenger hunt",
       "inQueue_one": "{{count}} in the queue",
       "inQueue_other": "{{count}} in the queue",
       "queueEmpty": "No photos waiting. Come back in a while.",
@@ -1358,9 +1358,9 @@
       "hint": "Type it and pick it from the list: that way people read it and can also check in. With no point on the map, only the scanner is left.",
       "placeholder": "Sala Alfa, Carrer Inventat 12…",
       "searching": "Searching…",
-      "noPoint": "No point yet. Pick a result, press \"I am here\", or paste the coordinates.",
+      "noPoint": "No point yet. Pick a result, press “I'm here”, or paste the coordinates.",
       "mapLabel": "Map showing the event’s point",
-      "here": "I am here",
+      "here": "I'm here",
       "locating": "Finding you…",
       "clear": "Remove the point",
       "noFix": "We could not work out where you are. Pick a search result or paste the coordinates.",
@@ -1423,8 +1423,8 @@
       "signedBy": "Signed off on {{data}} by {{qui}}",
       "signedSub": "{{gent}} · {{h}} · already on everybody's profile",
       "unsign": "Undo the sign-off",
-      "unsignAsk": "Undoing it turns the hours provisional again for {{gent}}. The numbers do not change; what changes is that they say «pending» again.",
-      "summaryLede": "How many hours each member has this year. They count once the committee signs off an activity held at the university.",
+      "unsignAsk": "Undoing it turns the hours provisional again for {{gent}}. The numbers do not change; what changes is that they say “pending” again.",
+      "summaryLede": "How many hours each member has this year. They count once the board signs off an activity held at the university.",
       "totalCourse": "in total this year",
       "withHours": "members with hours",
       "pendingWork_one": "{{h}} still to sign off, across {{count}} activity.",
@@ -1460,7 +1460,7 @@
       "who": {
         "title": "Who answers for this",
         "p1": "The data here is the responsibility of {{entity}}, tax number {{taxId}}, at {{address}}. Not of whoever built the app.",
-        "p2": "For anything on this page, write to {{contact}}. That is where it actually arrives, and the committee reads it."
+        "p2": "For anything on this page, write to {{contact}}. That is where it actually arrives, and the board reads it."
       },
       "identity": {
         "title": "Who you are",
@@ -1469,27 +1469,27 @@
       },
       "contact": {
         "title": "Your email and phone",
-        "p1": "Your email is seen by you and by the committee. Your phone likewise, with one exception: if you get into somebody's car, that driver sees your number in case they have to wait for you. The other passengers do not. The screen tells you before you get in."
+        "p1": "Your email is seen by you and by the board. Your phone likewise, with one exception: if you get into somebody's car, that driver sees your number in case they have to wait for you. The other passengers do not. The screen tells you before you get in."
       },
       "going": {
         "title": "Where you say you are going",
         "p1": "When you say you are going to something, you appear on the list of who is going. When you come through the door, the exact time and whether you have paid are recorded too, and any member can see that.",
-        "p2": "Added up, that is a calendar of your nights out, and any member can read it. You can take yourself off the leaderboard from your profile: you then do not appear on the list, but your points still count towards your school and, since attendance lists are open, it is no way of hiding them."
+        "p2": "Added up, that is a calendar of your nights out, and any member can read it. You can take yourself off the ranking from your profile: you then do not appear on the list, but your points still count towards your school and, since attendance lists are open, it is no way of hiding them."
       },
       "photos": {
         "title": "Photographs",
-        "p1": "There are three kinds and they are not seen alike. The door photo is seen by you and by the committee; the leaving photo only by you, and you can delete it; a night's gallery is seen by every member.",
+        "p1": "There are three kinds and they are not seen alike. The door photo is seen by you and by the board; the leaving photo only by you, and you can delete it; a night's gallery is seen by every member.",
         "p2": "None of them is public on the internet: every one is fetched through a link that expires within the hour. Before upload the metadata is stripped, meaning the phone model and any location recorded in the file.",
-        "p3": "If you do not like a photo of yourself, you can report it from the photo itself and the committee takes it down. Whoever posted it will see that it is gone, but not who asked."
+        "p3": "If you do not like a photo of yourself, you can report it from the photo itself and the board takes it down. Whoever posted it will see that it is gone, but not who asked."
       },
       "where": {
         "title": "Where you were when you checked in",
-        "p1": "If you check in from your phone instead of the QR code, the phone sends where you are so we can tell you are at the venue. The coordinate is stored, but nobody sees it through the app: the committee only sees how many metres from the venue you were, which is what it takes to spot somebody checking in from home."
+        "p1": "If you check in from your phone instead of the QR code, the phone sends where you are so we can tell you are at the venue. The coordinate is stored, but nobody sees it through the app: the board only sees how many metres from the venue you were, which is what it takes to spot somebody checking in from home."
       },
       "log": {
-        "title": "The committee's log",
-        "p1": "Everything the committee does — awarding points, admitting somebody, publishing an event — is recorded with who did it and when. The committee reads that log and it deletes itself after two years. It is the only thing in the whole app that expires on its own.",
-        "p2": "There is also a screen where the committee sees who has not been around for a while, worked out from recent activities. It is good for nothing except writing to you and asking whether everything is all right."
+        "title": "The board's log",
+        "p1": "Everything the board does — awarding points, admitting somebody, publishing an event — is recorded with who did it and when. The board reads that log and it deletes itself after two years. It is the only thing in the whole app that expires on its own.",
+        "p2": "There is also a screen where the board sees who has not been around for a while, worked out from recent activities. It is good for nothing except writing to you and asking whether everything is all right."
       },
       "keep": {
         "title": "How long we keep it",
@@ -1509,7 +1509,7 @@
       },
       "rights": {
         "title": "What you can ask for",
-        "p1": "You can see and change your profile in the app, take yourself off the leaderboard, delete your leaving photo and leave the association. That works on its own and takes effect at once.",
+        "p1": "You can see and change your profile in the app, take yourself off the ranking, delete your leaving photo and leave the association. That works on its own and takes effect at once.",
         "p2": "For anything else — a copy of everything we hold about you, a correction, or deletion — write to {{contact}}. There is no button for it yet: a person does it by hand, which is why it can take a few days."
       },
       "changes": {
@@ -1521,36 +1521,36 @@
       "lead": "Not much, and no small print. This is a student association's app, run by four people between lectures, and the rules are the ones you were already expecting.",
       "what": {
         "title": "What this is",
-        "p1": "An app for seeing what is on, signing up, getting through the door and watching the leaderboard. It is not a service we have sold to anybody and we charge nothing for it."
+        "p1": "An app for seeing what is on, signing up, getting through the door and keeping an eye on the ranking. It is not a service we have sold to anybody and we charge nothing for it."
       },
       "who": {
         "title": "Who can join",
-        "p1": "You need an invitation from the committee. Until they admit you your account is pending: you can see what is on, but you cannot sign up for anything. If you leave the association the committee marks you as gone and you stop appearing on the lists."
+        "p1": "You need an invitation from the board. Until they admit you your account is pending: you can see what is on, but you cannot sign up for anything. If you leave the association the board marks you as having left and you stop appearing on the lists."
       },
       "you": {
         "title": "What we expect of you",
         "p1": "Your QR code is yours: hand it to somebody and they come in under your name and you keep the points. Do not do it.",
         "p2": "In the gallery, do not post photographs of people who would rather not be in them. It is the usual rule at a party, written down.",
-        "p3": "And what you write in ideas and comments is read by everyone in the association, with your name next to it."
+        "p3": "And what you write in ideas and comments is read by everyone in the comi, with your name next to it."
       },
       "points": {
         "title": "Points",
-        "p1": "You earn them by turning up and helping: checking in at the door, driving people, setting up, proposing an idea that ends up happening. The committee or the door awards them, and the scale is public in the committee area.",
-        "p2": "If somebody gets it wrong, it gets corrected. Points are not bought and do not move from one person to another, and the leaderboard runs by academic year: when a new one starts, it goes back to zero."
+        "p1": "You earn them by turning up and helping: checking in at the door, driving people, setting up, proposing an idea that ends up happening. The board or the door awards them, and the points table is public in the board area.",
+        "p2": "If somebody gets it wrong, it gets corrected. Points are not bought and do not move from one person to another, and the ranking runs by academic year: when a new one starts, it goes back to zero."
       },
       "junta": {
-        "title": "What the committee can do",
+        "title": "What the board can do",
         "p1": "Admit and remove members, publish and delete events, correct points, take a photograph down, and close a meeting with its minutes. All of it is recorded in the log with the name of whoever did it."
       },
       "moderation": {
         "title": "If a photograph should not be there",
         "p1": "Every gallery photograph has a button to ask for it to be looked at. You can say that you are in it and would rather not be, or that there is something else wrong with it.",
-        "p2": "The committee looks and decides. If they take it down it disappears for everybody at once, and it can be undone if it was a mistake. Whoever posted it sees that it is gone; whoever asked does not appear anywhere.",
+        "p2": "The board looks and decides. If they take it down it disappears for everybody at once, and it can be undone if it was a mistake. Whoever posted it sees that it is gone; whoever asked does not appear anywhere.",
         "p3": "No deadline is promised. There are four of them, and the honest commitment is that they look when they see it, not that they look within twenty-four hours."
       },
       "stop": {
         "title": "If you leave",
-        "p1": "Tell the committee and they will mark you as gone. You stop appearing on the lists and on the leaderboard. What already happened — the points from a party, the photographs of a night — stays, because it belongs to everybody who was there and not only to you."
+        "p1": "Tell the board and they will mark you as having left. You stop appearing on the lists and in the ranking. What already happened — the points from a party, the photographs of a night — stays, because it belongs to everybody who was there and not only to you."
       },
       "noguarantee": {
         "title": "This is not a product",
@@ -1560,28 +1560,28 @@
   },
   "meeting": {
     "chip": "Meeting",
-    "chipScope": "Meeting · committee",
+    "chipScope": "Meeting · board",
     "canYou": "Can you be there?",
-    "yes": "I will be there",
-    "no": "I cannot be there",
+    "yes": "I'll be there",
+    "no": "I can't be there",
     "saidYes": "You said you will be there.",
     "saidYesSub": "The +{{punts}} points arrive when the meeting is closed and you are on the list.",
     "saidYesNoPoints": "You said you will be there.",
     "saidNo": "You said you cannot be there.",
     "saidNoSub": "If you change your mind, come back and say so: there are few of you and it matters whether it happens.",
     "nothing": "You have not said anything yet.",
-    "nothingSub": "Tap one of the two buttons so the committee knows whether you will be there.",
+    "nothingSub": "Tap one of the two buttons so the board knows whether you will be there.",
     "willBe": "{{quants}} of {{total}} will be there",
     "were": "{{quants}} of {{total}} were there",
     "points": "+{{punts}} if you are there",
-    "noPoints": "No points: this is a committee meeting",
+    "noPoints": "No points: this is a board meeting",
     "acta": "The minutes",
-    "actaEmpty": "The minutes will appear here once the committee closes the meeting.",
+    "actaEmpty": "The minutes will appear here once the board closes the meeting.",
     "closed": "Closed",
     "close": "Close it",
     "closeTitle": "Close the meeting",
     "closeLead": "Mark who was actually there. The points come out when you close it, and not before.",
-    "closeLeadNoPoints": "Mark who was actually there. A committee meeting awards no points.",
+    "closeLeadNoPoints": "Mark who was actually there. A board meeting awards no points.",
     "wasThere": "Was there",
     "saidNoShort": "Had said they could not be there",
     "saidYesShort": "Had said they would be there",
@@ -1594,7 +1594,7 @@
     "actaPlaceholder": "Four lines on what was decided. Whoever was not there will read it.",
     "actaHint": "Optional. If you leave it blank the meeting still closes and the minutes block appears to nobody.",
     "done": "{{quants}} of {{total}} were there",
-    "juntaOnly": "The committee ones are only visible to you.",
+    "juntaOnly": "Board meetings are only visible to you.",
     "title": "Meetings",
     "callNew": "Call a meeting",
     "none": "No meetings yet.",
@@ -1632,12 +1632,12 @@
       "gravetat": {
         "1": "Verbal warning",
         "2": "Written warning",
-        "3": "Meeting with the junta"
+        "3": "Meeting with the board"
       },
       "estat": {
         "avis": "Formal reminder of the rules",
         "risc": "Meeting and final warning",
-        "expulsio": "The junta votes on expulsion at the next meeting"
+        "expulsio": "The board votes on expulsion at the next meeting"
       }
     }
   },
@@ -1652,8 +1652,8 @@
     "titlePending": "Nearly there",
     "title": "You're in",
     "lede": "Five things and you are in. We already have your name and photo from Google — check they look right.",
-    "ledePending": "Five things and you are all set. We already have your name and photo from Google; the committee has to accept you before you can sign up for anything.",
-    "nameHint": "If it is not your real name, change it in your profile: the committee has to find you on the list.",
+    "ledePending": "Five things and you are all set. We already have your name and photo from Google; the board has to accept you before you can sign up for anything.",
+    "nameHint": "If it is not your real name, change it in your profile: the board has to find you on the list.",
     "school": {
       "label": "Your school",
       "required": "Required",
@@ -1681,7 +1681,7 @@
       "label": "Phone",
       "prefix": "+34",
       "placeholder": "600 00 00 00",
-      "why": "Only so we can add you to the WhatsApp group. It does not appear on your profile and nobody outside the committee sees it.",
+      "why": "Only so we can add you to the WhatsApp group. It does not appear on your profile and nobody outside the comi sees it.",
       "invalid": "That number does not look right. Leave it blank if you would rather not."
     },
     "instagram": {
@@ -1752,7 +1752,7 @@
       "title": "Setting up",
       "hint": "Come and help set an event up",
       "done": "You came to set up",
-      "about": "You turned up before anybody else to do the part nobody sees. The junta awards it with the set-up points.",
+      "about": "You turned up before anybody else to do the part nobody sees. The board awards it with the set-up points.",
       "won": "You came to set up. It stays on your profile."
     },
     "copilot": {
@@ -1766,14 +1766,14 @@
       "title": "That was my idea",
       "hint": "An idea of yours that goes ahead",
       "done": "An idea of yours, taken up",
-      "about": "You suggested something and the junta took it. Of all the badges, this is the one that leaves the most behind.",
+      "about": "You suggested something and the board took it up. Of all the badges, this is the one that leaves the most behind.",
       "won": "Your idea is going ahead. It stays on your profile."
     },
     "entradaISortida": {
       "title": "In and out",
       "hint": "Both photos from one night",
       "done": "Both photos from one night",
-      "about": "The face arriving and the face leaving, from the same party. The diptych is yours and the junta cannot see it.",
+      "about": "The face arriving and the face leaving, from the same party. The diptych is yours and the board cannot see it.",
       "won": "You have the whole diptych. It stays on your profile."
     },
     "deLesPrimeres": {
@@ -1798,7 +1798,7 @@
     },
     "name": {
       "label": "What you are called",
-      "hint": "What people actually call you, not a nickname: the committee has to find you on the payments list.",
+      "hint": "What people actually call you, not a nickname: the board has to find you on the payments list.",
       "saved": "Saved",
       "waiting": "No signal. It saves itself when the network is back: no need to press again.",
       "everywhere": "It will show everywhere right away."
@@ -1813,10 +1813,10 @@
       "title": "This is not changed here",
       "school": "School, year and degree",
       "none": "You have not said yet",
-      "why": "Points go to your school, and changing it mid-year would move everybody's ranking. If it is wrong, write to the committee."
+      "why": "Points go to your school, and changing it mid-year would move everybody's ranking. If it is wrong, write to the board."
     },
     "memberSince": "member since {{year}}",
-    "youAreJunta": "You are on the committee",
+    "youAreJunta": "You are on the board",
     "stats": {
       "points": "points",
       "position": "of {{total}}",
@@ -1834,7 +1834,7 @@
     },
     "avisos": {
       "title": "Your warnings",
-      "lede": "What the junta recorded this course and why. A struck-through one has been withdrawn: it no longer counts.",
+      "lede": "What the board recorded this year and why. A struck-through one has been withdrawn: it no longer counts.",
       "withdrawn": "Withdrawn",
       "mesura": "Action taken:"
     },
@@ -1849,7 +1849,7 @@
       "public": "Show me in the public ranking",
       "publicOn": "You appear with your name and face.",
       "publicOff": "You do not appear, but your points still count for your school.",
-      "junta": "Committee area",
+      "junta": "Board area",
       "juntaSub": "Scanner, points, invitations",
       "nights": "Your nights",
       "nightsSub": "The in-and-out diptych from every party",
@@ -1894,9 +1894,9 @@
     "today": "today",
     "always": "everything you have done",
     "pending": "{{h}} still to sign off",
-    "empty": "None yet. What counts is what happens at the university: get-ins, fairs, workshops and committee meetings.",
-    "note": "Only what happens at the university counts towards the end-of-year report. The committee signs the hours off once the activity is over.",
-    "signed": "The committee signs the hours off once the activity is over.",
+    "empty": "None yet. What counts is what happens at the university: set-ups, fairs, workshops and board meetings.",
+    "note": "Only what happens at the university counts towards the end-of-year report. The board signs the hours off once the activity is over.",
+    "signed": "The board signs the hours off once the activity is over.",
     "nota": {
       "reunio": "meeting",
       "sense_sortida": "no exit",
@@ -1906,15 +1906,15 @@
   "member": {
     "gone": {
       "title": "This member is no longer here",
-      "body": "A profile stops being visible when somebody leaves the comi. What they did stays in the committee's ledger."
+      "body": "A profile stops being visible when somebody leaves the comi. What they did stays in the board's log."
     },
     "isYou": "This is you",
     "instagram": "Instagram profile",
     "footer": "This is what any member sees of you. Your phone number and your exit photos are not here.",
     "juntaSheet": "Their points record",
-    "juntaSheetSub": "Ledger, adjustments and warnings. Only the committee sees it.",
+    "juntaSheetSub": "Ledger, adjustments and warnings. Only the board sees it.",
     "standing": {
-      "hidden": "They have asked to stay out of the leaderboard, so their points are not shown here."
+      "hidden": "They have asked to stay out of the ranking, so their points are not shown here."
     },
     "streak": {
       "none": "no streak running",
@@ -1934,8 +1934,8 @@
   },
   "pending": {
     "eyebrow": "You are not in yet",
-    "title": "The committee has to let you in",
-    "body": "Signing in with Google tells us who you are. Being one of the committee's people is another thing, and somebody on the committee has to say so.",
+    "title": "The board has to let you in",
+    "body": "Signing in with Google tells us who you are. Being part of the comi is another thing, and somebody on the board has to say so.",
     "canLabel": "You can already",
     "can": "See the calendar",
     "cannotLabel": "Not yet",
@@ -1943,15 +1943,15 @@
     "collapse": "Collapse",
     "expand": "What can I do?",
     "haveCode": "I have an invitation code",
-    "haveCodeHint": "With a code you are in at once. Without one, somebody on the committee has to approve you by hand.",
+    "haveCodeHint": "With a code you are in at once. Without one, somebody on the board has to approve you by hand.",
     "codeTitle": "The invitation code",
-    "codeBody": "The one the committee hands out in the group. Enter one and you are in.",
+    "codeBody": "The one the board hands out in the group. Enter one and you are in.",
     "codeLabel": "The code",
     "codePlaceholder": "Paste it here",
     "codeCta": "Go in with the code",
     "codeSending": "One moment…",
-    "codeBad": "That code does not work. Ask the committee for another.",
-    "note": "Places, replies and points open up once the committee accepts you."
+    "codeBad": "That code does not work. Ask the board for another.",
+    "note": "Places, replies and points open up once the board accepts you."
   },
   "qr": {
     "codeLabel": "Your QR code",
@@ -1966,8 +1966,8 @@
       "heading": "My QR",
       "lead": "It is what you show at the door.",
       "title": "You have not got one yet",
-      "pending": "Once the committee accepts you, your QR will be here.",
-      "left": "This account is no longer active. If you think that is a mistake, talk to the committee."
+      "pending": "Once the board accepts you, your QR will be here.",
+      "left": "This account is no longer active. If you think that is a mistake, talk to the board."
     }
   },
   "ranking": {
@@ -2012,7 +2012,7 @@
     "riding_one": "{{count}} riding",
     "riding_other": "{{count}} riding",
     "goUp": "Get a lift",
-    "iDrive": "I am driving and have seats",
+    "iDrive": "I'm driving and have seats",
     "drivingPays": "Bringing people in your car is worth {{points}}. It is the only way to score that does not go through the bar.",
     "lede": "Whoever wants a lift. You can sort the petrol out between you.",
     "offer": "Offer your car · {{points}}",
@@ -2058,7 +2058,7 @@
     "driverPhones": "Only you see these numbers, and only for the people in your car. They do not see yours, or each other’s.",
     "call": "Call",
     "nudge": "Tell them all",
-    "nudgeText": "It is {{who}} — I am driving to {{event}}: {{when}} from {{from}}.",
+    "nudgeText": "It's {{who}} — I'm driving to {{event}}: {{when}} from {{from}}.",
     "withdraw": "Take the car back",
     "withdrawSure": "If you take it back, the {{count}} of them lose their seats. Tell them in the group yourself, and do it early, not on Friday.",
     "boarded_one": "{{count}} is in",
@@ -2078,7 +2078,7 @@
     "inviteNobody": "Nobody left to invite: they are either already in a car, or they are you.",
     "yourSeat": "A seat is being held for you",
     "yourSeatSub": "{{who}} is holding you a seat. Take it if you are going.",
-    "takeIt": "I am in",
+    "takeIt": "I'm in",
     "declineIt": "Not going",
     "invitedOk": "Seat held. Now it's their call."
   },
@@ -2100,10 +2100,10 @@
       "okWalkin": "They were not signed up. It is recorded now.",
       "okWalkinReview": "Check they pay on the way in, or note it down.",
       "okWalkinReviewFree": "Places are capped. Note it down so the count adds up.",
-      "okWalkinReviewUnknown": "Note it down so the junta can square it up.",
-      "alreadyCheckedIn": "They already came through. If they insist, check the manual list.",
+      "okWalkinReviewUnknown": "Note it down so the board can square it up.",
+      "alreadyCheckedIn": "They already came through. If they insist, look them up under check-in by name.",
       "notAMember": "Ask their name and find them by hand. Do not wave them through unrecorded.",
-      "memberInactive": "Have them ask to join. You approve it tomorrow from the junta area.",
+      "memberInactive": "Have them ask to join. Approve them tomorrow from the board area.",
       "eventNotOpen": "Check this is the right event and that it is published.",
       "notSaved": "It won't go by itself. Ask their name and check them in by name once the signal is back.",
       "refused": "They're not in. Ask their name and look them up under check-in by name.",

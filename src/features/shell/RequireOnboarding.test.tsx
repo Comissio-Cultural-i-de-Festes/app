@@ -12,6 +12,8 @@ import { RequireOnboarding } from './RequireOnboarding'
  * pausa sense xarxa.
  */
 
+vi.mock('./useStartPrefetch', () => ({ useStartPrefetch: () => undefined }))
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key, i18n: { resolvedLanguage: 'ca' } }),
 }))

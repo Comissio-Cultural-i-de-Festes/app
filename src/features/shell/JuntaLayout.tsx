@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet, useMatch } from 'react-router'
@@ -7,6 +8,7 @@ import { PROFILE_CLOCK, isJunta, useMyProfile } from '@/features/session/useMyPr
 import { useAvailability } from '@/lib/useAvailability'
 
 import { GateUnreachable, GateWaiting } from './Gate'
+import { prefetchJunta } from './startPrefetch'
 
 /**
  * The junta area.
@@ -31,6 +33,16 @@ export function JuntaLayout() {
   const profile = useMyProfile()
   const view = useAvailability(profile, { clock: PROFILE_CLOCK })
   const scanner = useMatch('/junta/escaner/:eventId')
+  const client = useQueryClient()
+  const juntaProfile = isJunta(profile.data)
+
+  // Quan s'hi entra des d'una altra pantalla el perfil ja hi és, però el tros
+  // de codi de l'entrada i les seves dades encara no: surten a la vegada, no
+  // l'una darrere l'altra. En arrencada en fred ja les ha demanat la porta de
+  // fora, i això no fa res (la cau les té o ja hi són en vol).
+  useEffect(() => {
+    if (juntaProfile) void prefetchJunta(client)
+  }, [client, juntaProfile])
 
   // On #root rather than in a component, because the width cap lives on #root
   // and a child cannot widen its own parent.

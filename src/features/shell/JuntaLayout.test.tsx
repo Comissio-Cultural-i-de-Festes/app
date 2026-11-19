@@ -8,6 +8,9 @@ import { JuntaLayout } from './JuntaLayout'
  * La porta de la junta sense perfil: tancada, excepte per a l'escàner.
  */
 
+vi.mock('./startPrefetch', () => ({ prefetchJunta: () => Promise.resolve() }))
+vi.mock('@tanstack/react-query', () => ({ useQueryClient: () => ({}) }))
+
 vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }))

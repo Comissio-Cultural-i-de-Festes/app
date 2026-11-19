@@ -5,6 +5,7 @@ import { PROFILE_CLOCK, needsOnboarding, useMyProfile } from '@/features/session
 import { useAvailability } from '@/lib/useAvailability'
 
 import { GateWaiting } from './Gate'
+import { useStartPrefetch } from './useStartPrefetch'
 
 /**
  * Nobody gets past the door without a school.
@@ -28,6 +29,7 @@ import { GateWaiting } from './Gate'
  */
 export function RequireOnboarding() {
   const profile = useMyProfile()
+  useStartPrefetch(profile.data)
   const { loading } = useAvailability(profile, { clock: PROFILE_CLOCK })
   const [through, setThrough] = useState(false)
 

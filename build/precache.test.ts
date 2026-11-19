@@ -7,7 +7,7 @@ import { gzipSync } from 'node:zlib'
 import { build } from 'vite'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
-import { type KeyRef, keyRefs, localePart } from './localeSplit'
+import { localePart } from './localeSplit'
 import {
   closure,
   isJuntaModule,
@@ -203,31 +203,33 @@ describe('the install', () => {
   )
 
   it('keeps in the entry every junta string that a precached chunk asks for', () => {
-    // El tall es decideix llegint el codi (`localeSplit.ts`); aquí es contrasta
-    // amb el que rolldown ha posat de debò a la precache. Una clau que hi falti
-    // és una clau crua a la porta de la casa rural, sense xarxa.
+    // El tall es decideix llegint el codi font (`localeSplit.ts`); aquí es
+    // contrasta amb el que rolldown ha posat de debò a la precache, llegint el
+    // que en surt i no el codi font. Així la prova no comparteix l'analitzador
+    // amb el connector: al codi construït no hi ha comentaris, ni JSX, ni
+    // tipus, i una clau que hi és és una clau que el telèfon demanarà. Una que
+    // no sigui a l'app és una clau crua a la porta de la casa rural, sense xarxa.
     const keys = Object.keys(
       flat(localePart(process.cwd(), join('src', 'i18n', 'locales', 'ca.json'), 'app')),
     )
-    const sources = new Set(
-      chunks
-        .filter((c) => precached.has(c.fileName))
-        .flatMap((c) => c.moduleIds.map((id) => id.replaceAll('\\', '/')))
-        .filter((id) => /\/src\/.+\.tsx?$/.test(id)),
-    )
-    expect(sources.size).toBeGreaterThan(100)
-
-    const resolves = ({ key, prefix }: KeyRef) =>
-      keys.some((k) =>
-        prefix
-          ? k.startsWith(key)
-          : k === key || k.startsWith(`${key}.`) || k.replace(/_[a-z]+$/, '') === key,
+    const refs = [...precached]
+      .filter((f) => f.endsWith('.js'))
+      .flatMap((f) =>
+        [...readFileSync(join(out, f), 'utf8').matchAll(/[`'"](junta\.[\w.]*)(\$\{)?/g)].map(
+          (m) => ({ key: m[1] ?? '', prefix: m[2] !== undefined || (m[1] ?? '').endsWith('.'), f }),
+        ),
       )
-    const missing = [...sources].flatMap((file) =>
-      keyRefs(readFileSync(file, 'utf8'))
-        .filter((ref) => !resolves(ref))
-        .map(({ key }) => `${key}  (${file})`),
-    )
+    expect(refs.length).toBeGreaterThan(100)
+
+    const missing = refs
+      .filter(({ key, prefix }) =>
+        keys.every((k) =>
+          prefix
+            ? !k.startsWith(key)
+            : k !== key && !k.startsWith(`${key}.`) && k.replace(/_[a-z]+$/, '') !== key,
+        ),
+      )
+      .map(({ key, f }) => `${key}  (${f})`)
     expect(missing).toEqual([])
   })
 

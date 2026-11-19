@@ -1,5 +1,5 @@
 import { useQueryClient } from '@tanstack/react-query'
-import { Suspense, lazy, useEffect, useRef, useState } from 'react'
+import { type ComponentProps, Suspense, lazy, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Navigate, Outlet, Route, Routes, useLocation } from 'react-router'
 
@@ -10,9 +10,7 @@ import { useKeepPushFresh } from '@/features/event/useKeepPushFresh'
 import { UserIdContext } from '@/features/session/context'
 import { useBootSession } from '@/features/session/useBootSession'
 import { useQrPrefetch } from '@/features/qr/useQrPrefetch'
-import { JuntaLayout } from '@/features/shell/JuntaLayout'
 import { GateWaiting } from '@/features/shell/Gate'
-import { SessionGate } from '@/features/shell/SessionGate'
 import { RequireOnboarding } from '@/features/shell/RequireOnboarding'
 import { TabLayout } from '@/features/shell/TabLayout'
 import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
@@ -123,6 +121,9 @@ const PaymentsScreen = lazy(() =>
 const JuntaHome = lazy(() =>
   import('@/features/junta/JuntaHome').then((m) => ({ default: m.JuntaHome })),
 )
+const JuntaLayout = lazy(() =>
+  import('@/features/shell/JuntaLayout').then((m) => ({ default: m.JuntaLayout })),
+)
 
 /**
  * Les pantalles de soci, també a demanda, totes menys l'Inici.
@@ -203,6 +204,25 @@ const PrivacyScreen = lazy(() =>
 const TermsScreen = lazy(() =>
   import('@/features/legal/TermsScreen').then((m) => ({ default: m.TermsScreen })),
 )
+
+/**
+ * La porta de la sessió que no s'obre, també a demanda, i per un sol motiu: el
+ * QR desat que ensenya porta el generador de QR sencer, i el generador era el
+ * tros més gran que l'arrencada carregava per a una pantalla que no veu
+ * gairebé ningú. Surt sense xarxa, però és a la precache com qualsevol altre
+ * tros: el telèfon que la necessita ja l'ha baixat.
+ */
+const SessionGateScreen = lazy(() =>
+  import('@/features/shell/SessionGate').then((m) => ({ default: m.SessionGate })),
+)
+
+function SessionGate(props: ComponentProps<typeof SessionGateScreen>) {
+  return (
+    <Suspense fallback={<GateWaiting />}>
+      <SessionGateScreen {...props} />
+    </Suspense>
+  )
+}
 
 /**
  * Les dues rutes que es llegeixen sense sessió.

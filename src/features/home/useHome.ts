@@ -23,7 +23,7 @@ import { useUserId } from '@/features/session/useUserId'
 import type { Answer, AttendanceState } from '@/lib/model'
 import { useAvailability } from '@/lib/useAvailability'
 
-import { withMyAnswer } from './answer'
+import { restoreMyRow, withMyAnswer } from './answer'
 import {
   type AttendanceRow,
   type EventRow,
@@ -162,7 +162,8 @@ export interface AnswerVars {
   readonly expected?: AttendanceState
 }
 
-type Snapshot = readonly (readonly [QueryKey, AttendanceRow[] | undefined])[]
+/** La meva fila d'abans, per consulta; només la meva, que és el que es desfà. */
+type Snapshot = readonly { readonly key: QueryKey; readonly mine: AttendanceRow | null }[]
 
 const ATTENDANCES: QueryKey = ['home', 'attendances']
 
@@ -178,28 +179,45 @@ export function useAnswer() {
   const userId = useUserId()
 
   const show = (eventId: string, estado: AttendanceState) => {
+    const me = client.getQueryData<MyProfile>(profileKeys.of(userId))
+    const profile = me === undefined ? null : { nombre: me.nombre, avatar_url: me.avatar_url }
     for (const q of concerning(client, eventId)) {
       client.setQueryData<AttendanceRow[]>(q.queryKey, (rows) =>
-        rows === undefined ? rows : withMyAnswer(rows, eventId, userId, estado, new Date()),
+        rows === undefined
+          ? rows
+          : withMyAnswer(rows, eventId, userId, estado, new Date(), profile),
       )
     }
   }
 
   return useMutation({
+    // Una a una, de totes les pantalles: una resposta vella que arribés
+    // després d'una de nova la sobreescriuria al servidor. Una sola cua i no
+    // una per esdeveniment perquè `scope` és estàtic i la clau depèn de la
+    // crida; dir «sí» a dos esdeveniments alhora no és un cas que valgui més.
+    scope: { id: 'answer' },
     mutationFn: ({ eventId, estado }: AnswerVars) => setAnswer(eventId, estado),
     onMutate: async ({ eventId, estado, expected }): Promise<{ readonly before: Snapshot }> => {
       if (!onlineManager.isOnline()) return { before: [] }
       // Una recàrrega que ja volava portaria l'estat d'abans i el pintaria a
       // sobre del que acabem de posar.
       await client.cancelQueries({ queryKey: ATTENDANCES })
-      const before = concerning(client, eventId).map(
-        (q) => [q.queryKey, client.getQueryData<AttendanceRow[]>(q.queryKey)] as const,
-      )
+      const before = concerning(client, eventId).map((q) => ({
+        key: q.queryKey,
+        mine:
+          client
+            .getQueryData<AttendanceRow[]>(q.queryKey)
+            ?.find((r) => r.event_id === eventId && r.user_id === userId) ?? null,
+      }))
       show(eventId, expected ?? estado)
       return { before }
     },
-    onError: (_err, _vars, context) => {
-      for (const [key, rows] of context?.before ?? []) client.setQueryData(key, rows)
+    onError: (_err, { eventId }, context) => {
+      for (const { key, mine } of context?.before ?? []) {
+        client.setQueryData<AttendanceRow[]>(key, (rows) =>
+          rows === undefined ? rows : restoreMyRow(rows, eventId, userId, mine),
+        )
+      }
     },
     onSuccess: (result, { eventId }) => {
       show(eventId, result.estado)

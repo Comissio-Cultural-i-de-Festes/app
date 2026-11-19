@@ -16,7 +16,7 @@
 -- Persones i activitats inventades, com a tot el repo.
 
 begin;
-select plan(38);
+select plan(51);
 
 reset role;
 select set_config(
@@ -183,6 +183,45 @@ stable
 as $$
   select coalesce(jsonb_agg(x order by x ->> 'id'), '[]'::jsonb)
   from jsonb_array_elements(public.admin_dashboard(p_from, p_to) -> 'despenjats') x
+$$;
+
+-- El bloc de les escoles d'`admin_dashboard`, migració 82. La 92 hi canvia
+-- com es compten els actius. Ordenat per escola: dues escoles amb els mateixos
+-- punts tampoc no tenen ordre.
+create function pg_temp.old_escoles(p_from timestamptz, p_to timestamptz)
+returns jsonb
+language sql
+stable
+as $$
+  select coalesce(jsonb_agg(x order by x.escola), '[]'::jsonb)
+  from (
+    select
+      p.escola,
+      count(*)::int as socis,
+      count(*) filter (where exists (
+        select 1 from public.attendances a
+        join public.events e on e.id = a.event_id
+        where a.user_id = p.id and a.estado = 'asistio'
+          and e.starts_at >= now() - interval '30 days'))::int as actius,
+      coalesce((
+        select sum(l.puntos)::int from public.points_log l
+        join public.profiles q on q.id = l.user_id
+        where q.escola = p.escola
+          and (p_from is null or l.created_at >= p_from)
+          and (p_to is null or l.created_at < p_to)), 0) as punts
+    from public.profiles p
+    where p.estat = 'actiu' and p.escola is not null
+    group by p.escola
+  ) x
+$$;
+
+create function pg_temp.new_escoles(p_from timestamptz, p_to timestamptz)
+returns jsonb
+language sql
+stable
+as $$
+  select coalesce(jsonb_agg(x order by x ->> 'escola'), '[]'::jsonb)
+  from jsonb_array_elements(public.admin_dashboard(p_from, p_to) -> 'escoles') x
 $$;
 
 -- ── el calendari, buit, i les files d'aquest fitxer ─────────────────────────
@@ -366,6 +405,104 @@ select is(
 from finestres w
 order by w.codi;
 
+-- ── les vores de les tres condicions ────────────────────────────────────────
+-- Comparar amb la definició vella no diu res d'una vora que cap fila no toca.
+-- Aquestes tres persones són a la ratlla de cada condició, perquè un `>=` que
+-- passi a `>` o un `<= 2` que passi a `<= 1` les canviï de costat.
+--
+-- Sòcia des de fa quinze dies: li compten la 107, la 108, la 209 i la 213.
+-- Quatre, el mínim. No ve a les dues últimes i de les dues d'abans ve a una:
+-- mitjana 0,5, el mínim.
+select tests.create_user('r497_quatre', '00000000-0000-4000-8497-000000000006', 'member', 'actiu');
+-- Sòcia des de fa deu dies: la 108, la 209 i la 213. Tres, i ve a la primera.
+select tests.create_user('r497_tres',   '00000000-0000-4000-8497-000000000007', 'member', 'actiu');
+-- Sòcia de fa mig any, per a l'empat: mirat fins just després de la 106, la
+-- 105 i la 201 (mateix minut) són la segona i la tercera.
+select tests.create_user('r497_empat',  '00000000-0000-4000-8497-000000000008', 'member', 'actiu');
+
+update public.profiles set created_at = now() - interval '15 days' where id = tests.uid('r497_quatre');
+update public.profiles set created_at = now() - interval '10 days' where id = tests.uid('r497_tres');
+update public.profiles set created_at = now() - interval '180 days' where id = tests.uid('r497_empat');
+
+insert into public.attendances (user_id, event_id, estado)
+values
+  (tests.uid('r497_quatre'), '00000000-0000-4000-8497-000000000107', 'asistio'),
+  (tests.uid('r497_tres'),   '00000000-0000-4000-8497-000000000108', 'asistio'),
+  -- Ve a la 105 i no a la 201, que és a la mateixa hora. Amb l'id desempatant,
+  -- la 201 és la segona i la 105 la tercera: les dues últimes, buides, i de
+  -- les cinc d'abans en va a tres. Amb l'empat girat la 105 seria de les dues
+  -- últimes i no estaria despenjada.
+  (tests.uid('r497_empat'),  '00000000-0000-4000-8497-000000000105', 'asistio'),
+  (tests.uid('r497_empat'),  '00000000-0000-4000-8497-000000000104', 'asistio'),
+  (tests.uid('r497_empat'),  '00000000-0000-4000-8497-000000000103', 'asistio');
+
+select is(
+  (select row(d.hi_va_anar, d.comptaven)::text
+     from private.drifting_among(array[tests.uid('r497_quatre')], null, null) d),
+  '(1,4)',
+  'quatre activitats i la meitat: es despenja, i el tauler diu 1 de 4'
+);
+
+select is(
+  private.drifting(tests.uid('r497_quatre'), null, null),
+  pg_temp.old_drifting(tests.uid('r497_quatre'), null, null),
+  'i la definició d''abans hi està d''acord'
+);
+
+select is(
+  (select count(*)::int
+     from private.drifting_among(array[tests.uid('r497_tres')], null, null)),
+  0,
+  'amb tres activitats no es despenja ningú, per bé que vingués abans'
+);
+
+select is(
+  private.drifting(tests.uid('r497_tres'), null, null),
+  pg_temp.old_drifting(tests.uid('r497_tres'), null, null),
+  'i la definició d''abans hi està d''acord'
+);
+
+-- Aquí no hi ha comparació amb la vella: amb l'empat a la segona i la tercera,
+-- la vella podia dir qualsevol de les dues coses.
+select ok(
+  exists (
+    select 1 from private.drifting_among(
+      array[tests.uid('r497_empat')],
+      null,
+      (select starts_at + interval '1 second' from public.events
+        where id = '00000000-0000-4000-8497-000000000106'))
+  ),
+  'amb dues activitats al mateix minut, l''id decideix quina és la segona'
+);
+
+-- ── la finestra de fitxar, escrita a dos llocs ──────────────────────────────
+-- `streak_rows_for` repeteix en línia el `tsrange(...)` de `checkin_open_at`.
+-- Les comparacions de dalt ho veuen només si alguna fila cau al marge que ha
+-- canviat; això ho veu sempre: el text de l'una ha de ser dins de l'altra,
+-- sense espais. Si es toca qualsevol de les dues, vermell.
+create temporary table finestra_de_fitxar as
+select left(substring(
+         regexp_replace(lower(p.prosrc), '\s+', '', 'g')
+         from 'tsrange\(.*?\)from'), -4) as expr
+  from pg_proc p
+ where p.oid = 'private.checkin_open_at(uuid)'::regprocedure;
+
+select isnt(
+  (select expr from finestra_de_fitxar),
+  null,
+  'checkin_open_at encara té un tsrange(...) on es pugui llegir'
+);
+
+select ok(
+  strpos(
+    (select regexp_replace(lower(p.prosrc), '\s+', '', 'g')
+       from pg_proc p
+      where p.oid = 'private.streak_rows_for(uuid[])'::regprocedure),
+    (select expr from finestra_de_fitxar)
+  ) > 0,
+  'i streak_rows_for en porta exactament la mateixa finestra'
+);
+
 -- ── el rànquing d'escoles ───────────────────────────────────────────────────
 -- Punts de tota mena: assistència, muntatge apuntat tard (la data és la de
 -- l'esdeveniment), ajustos a mà sense esdeveniment i negatius, un avís i la
@@ -443,6 +580,24 @@ select is(
   (select count(*)::int from public.ranking_escoles_period(null, null) where escola = 'salut'),
   0,
   'i l''escola de dos no hi és'
+);
+
+-- ── les escoles del tauler ──────────────────────────────────────────────────
+select is(
+  pg_temp.new_escoles(w.f, w.t),
+  pg_temp.old_escoles(w.f, w.t),
+  'les escoles del tauler, finestra ' || w.codi
+)
+from finestres w
+order by w.codi;
+
+-- Que n'hi hagi d'actius i de no actius, o la comparació no compararia res: la
+-- fidel i la despenjada han vingut aquest mes, i la majoria del seed no.
+select ok(
+  (select bool_and((x ->> 'actius')::int between 1 and (x ->> 'socis')::int - 1)
+     from jsonb_array_elements(public.admin_dashboard(null, null) -> 'escoles') x
+    where x ->> 'escola' in ('politecnica', 'empresa')),
+  'a la politècnica i a empresa hi ha actius i n''hi ha que no'
 );
 
 -- ── un rang al revés és un error, abans i ara ───────────────────────────────

@@ -2,12 +2,12 @@ import { useQuery } from '@tanstack/react-query'
 import { useCallback, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
-import { useBack } from '@/lib/useBack'
 
 import { toneVar } from '@/design/states'
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import { useAvailability } from '@/lib/useAvailability'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { useBack } from '@/lib/useBack'
 
 import {
   type DoorOutcome,

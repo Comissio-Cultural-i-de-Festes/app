@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
-import { useBack } from '@/lib/useBack'
 
 import { env } from '@/config/env'
 import { eventKeys, fetchEvent } from '@/features/event/api'
@@ -12,6 +11,7 @@ import { formatTime, formatWeekdayLong } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
+import { useBack } from '@/lib/useBack'
 
 import {
   type InviteResult,

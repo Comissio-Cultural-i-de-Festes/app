@@ -2,7 +2,6 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useId, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams, useSearchParams } from 'react-router'
-import { useBack } from '@/lib/useBack'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import { APP_TIME_ZONE, formatDateTime } from '@/i18n/format'
@@ -21,6 +20,7 @@ import { EventPreview, type PreviewData } from './EventPreview'
 import { GeoPicker } from './GeoPicker'
 import { HoresStrip } from './HoresStrip'
 import { Notice } from '@/ui/Notice/Notice'
+import { useBack } from '@/lib/useBack'
 
 import { Field, INPUT } from './formBits'
 import { JuntaHeader } from './JuntaHeader'
@@ -202,7 +202,11 @@ function EventForm() {
   const endsMissing = form.ends_at === ''
 
   const ready =
-    form.titulo.trim() !== '' && form.starts_at !== '' && !endsMissing && !endsBad && !revealBad
+    form.titulo.trim() !== '' &&
+    form.starts_at !== '' &&
+    !endsMissing &&
+    !endsBad &&
+    !revealBad
   const showTemplates = !editing && (templates.data?.length ?? 0) > 0
   // Without templates there is nothing above the fields, so they take both
   // rows rather than leaving a hole where the list would have been.
@@ -619,7 +623,10 @@ function EventForm() {
                 title={t('junta.checkins.title')}
               />
               {isMeeting ? null : (
-                <NavRow to={`/junta/esdeveniment/${id ?? ''}/gimcana`} title={t('gimcana.title')} />
+                <NavRow
+                  to={`/junta/esdeveniment/${id ?? ''}/gimcana`}
+                  title={t('gimcana.title')}
+                />
               )}
             </div>
           ) : null}

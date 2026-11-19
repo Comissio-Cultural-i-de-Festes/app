@@ -1,4 +1,4 @@
-import type { MouseEvent } from 'react'
+import { type MouseEvent, useEffect, useRef } from 'react'
 import { useNavigate } from 'react-router'
 
 /**
@@ -15,9 +15,9 @@ import { useNavigate } from 'react-router'
  * nova a la mateixa primera entrada, i enrere seria sortir de l'app. Sense
  * `state` (cap entrada del router) tampoc no es pot tornar.
  *
- * `back()` és per als botons; `onClick` va en un `<Link to={fallback}>`: sense
- * historial no fa res i l'enllaç porta al destí fix, i amb clic modificat
- * (nova pestanya) tampoc.
+ * `back()` és per als botons; `onClick` va en un `<Link to={fallback}>` (que
+ * conserva l'`href` per a la nova pestanya) i sense historial fa `replace` al
+ * destí, perquè un `push` hi deixaria una entrada de més.
  */
 export function canGoBack(): boolean {
   const state = window.history.state as { idx?: unknown } | null
@@ -27,16 +27,36 @@ export function canGoBack(): boolean {
 
 export function useBack(fallback = '/') {
   const navigate = useNavigate()
+  const mounted = useRef(false)
+
+  // Una mutació que desa acaba, a vegades, després que la persona hagi tocat
+  // la fletxa: aquell `back()` ja no és el d'aquesta pantalla i faria un enrere
+  // de més. Un cop desmuntada, no fa res.
+  useEffect(() => {
+    mounted.current = true
+    return () => {
+      mounted.current = false
+    }
+  }, [])
+
+  const leave = () => void (canGoBack() ? navigate(-1) : navigate(fallback, { replace: true }))
 
   return {
-    back: () => void (canGoBack() ? navigate(-1) : navigate(fallback, { replace: true })),
+    back: () => {
+      if (mounted.current) leave()
+    },
+    // Anar al destí fix sense passar per l'historial, amb la mateixa guarda.
+    replace: () => {
+      if (mounted.current) void navigate(fallback, { replace: true })
+    },
+    // Sempre s'atura l'enllaç: si no hi hagués historial, deixar-lo seguir
+    // faria un push al pare, i la fletxa del pare (`-1`) tornaria aquí en bucle.
     onClick: (event: MouseEvent) => {
-      if (!canGoBack()) return
       if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
         return
       }
       event.preventDefault()
-      void navigate(-1)
+      leave()
     },
   }
 }

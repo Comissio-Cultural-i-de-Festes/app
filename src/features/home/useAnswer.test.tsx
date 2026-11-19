@@ -3,7 +3,9 @@ import { act, renderHook, waitFor } from '@testing-library/react'
 import type { ReactNode } from 'react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { eventKeys } from '@/features/event/api'
 import { UserIdContext } from '@/features/session/context'
+import { profileKeys } from '@/features/session/profile'
 
 import type { AnswerResult, AttendanceRow } from './api'
 import { homeKeys } from './api'
@@ -47,8 +49,9 @@ function setup() {
   return renderHook(() => useAnswer(), { wrapper })
 }
 
-const mine = () =>
-  client.getQueryData<AttendanceRow[]>(KEY)?.find((r) => r.user_id === ME)?.estado ?? null
+const mineRow = (event = EVENT) =>
+  client.getQueryData<AttendanceRow[]>(KEY)?.find((r) => r.user_id === ME && r.event_id === event)
+const mine = (event = EVENT) => mineRow(event)?.estado ?? null
 
 function deferred<T>() {
   let resolve!: (v: T) => void
@@ -150,5 +153,89 @@ describe('useAnswer', () => {
     })
     expect(mine()).toBeNull()
     expect(setAnswer).not.toHaveBeenCalled()
+  })
+  it("desfer un error no trepitja la resposta en vol d'un altre esdeveniment", async () => {
+    const first = deferred<AnswerResult>()
+    setAnswer.mockReturnValueOnce(first.promise)
+    setAnswer.mockReturnValueOnce(deferred<AnswerResult>().promise)
+    const { result } = setup()
+
+    act(() => {
+      result.current.mutate({ eventId: EVENT, estado: 'si' })
+    })
+    await waitFor(() => {
+      expect(mine()).toBe('si')
+    })
+    act(() => {
+      result.current.mutate({ eventId: 'e2', estado: 'si' })
+    })
+    await waitFor(() => {
+      expect(mine('e2')).toBe('si')
+    })
+    first.reject(new Error('boom'))
+    await waitFor(() => {
+      expect(mine()).toBeNull()
+    })
+    expect(mine('e2')).toBe('si')
+  })
+
+  it('escriu també a la consulta de la fitxa, que és només [id]', async () => {
+    setAnswer.mockReturnValue(deferred<AnswerResult>().promise)
+    const { result } = setup()
+    client.setQueryData<AttendanceRow[]>(homeKeys.attendances([EVENT]), [])
+
+    act(() => {
+      result.current.mutate({ eventId: EVENT, estado: 'si' })
+    })
+    await waitFor(() => {
+      expect(client.getQueryData<AttendanceRow[]>(homeKeys.attendances([EVENT]))?.[0]?.estado).toBe(
+        'si',
+      )
+    })
+  })
+
+  it("no toca la consulta d'un altre esdeveniment", async () => {
+    setAnswer.mockReturnValue(deferred<AnswerResult>().promise)
+    const { result } = setup()
+    const elsewhere = homeKeys.attendances(['e9'])
+    client.setQueryData<AttendanceRow[]>(elsewhere, [])
+
+    act(() => {
+      result.current.mutate({ eventId: EVENT, estado: 'si' })
+    })
+    await waitFor(() => {
+      expect(mine()).toBe('si')
+    })
+    expect(client.getQueryData<AttendanceRow[]>(elsewhere)).toEqual([])
+  })
+
+  it('la fila nova porta el meu nom i la meva cara', async () => {
+    setAnswer.mockReturnValue(deferred<AnswerResult>().promise)
+    const { result } = setup()
+    client.setQueryData(profileKeys.of(ME), { nombre: 'Alfa', avatar_url: 'a/me.jpg' })
+
+    act(() => {
+      result.current.mutate({ eventId: EVENT, estado: 'si' })
+    })
+    await waitFor(() => {
+      expect(mineRow()?.profiles).toEqual({ nombre: 'Alfa', avatar_url: 'a/me.jpg' })
+    })
+  })
+
+  it("en acabar recarrega amb filtre: les assistències i la llista d'espera", async () => {
+    setAnswer.mockResolvedValue({ estado: 'si', ple: false, posicio: null })
+    const { result } = setup()
+    const spy = vi.spyOn(client, 'invalidateQueries')
+
+    act(() => {
+      result.current.mutate({ eventId: EVENT, estado: 'si' })
+    })
+    await waitFor(() => {
+      expect(result.current.isSuccess).toBe(true)
+    })
+    const filters = spy.mock.calls.map(([f]) => f?.queryKey)
+    expect(filters).toContainEqual(['home', 'attendances'])
+    expect(filters).toContainEqual(eventKeys.waitlist(EVENT))
+    expect(filters).not.toContain(undefined)
   })
 })

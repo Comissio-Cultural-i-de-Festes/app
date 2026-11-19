@@ -23,8 +23,9 @@ export function expectedState(
 /**
  * La meva fila amb un estat nou, o una de nova si encara no n'hi havia.
  *
- * El nom i la cara es conserven quan la fila ja hi era; en una de nova queden
- * a `null`, que és el que ja tolera el tipus, i la recàrrega els hi posa.
+ * El nom i la cara es conserven quan la fila ja hi era. En una de nova hi van
+ * els de `profile`, el meu perfil que l'app ja té: amb `null` la cara sortia
+ * com l'avatar per defecte fins a la recàrrega.
  */
 export function withMyAnswer(
   rows: readonly AttendanceRow[],
@@ -32,15 +33,39 @@ export function withMyAnswer(
   userId: string,
   estado: AttendanceState,
   now: Date,
+  profile: AttendanceRow['profiles'] = null,
 ): AttendanceRow[] {
   const has = rows.some((r) => r.event_id === eventId && r.user_id === userId)
   if (has) {
     return rows.map((r) => (r.event_id === eventId && r.user_id === userId ? { ...r, estado } : r))
   }
   return [
-    { user_id: userId, event_id: eventId, estado, created_at: now.toISOString(), profiles: null },
+    {
+      user_id: userId,
+      event_id: eventId,
+      estado,
+      created_at: now.toISOString(),
+      profiles: profile,
+    },
     ...rows,
   ]
+}
+
+/**
+ * Torna la meva fila d'un esdeveniment a com era, sense tocar la resta.
+ *
+ * No es restaura la llista sencera: una altra resposta en vol, d'un altre
+ * esdeveniment, ha escrit a la mateixa consulta i una instantània vella la
+ * trepitjaria. `previous` és la fila d'abans, o `null` si no n'hi havia.
+ */
+export function restoreMyRow(
+  rows: readonly AttendanceRow[],
+  eventId: string,
+  userId: string,
+  previous: AttendanceRow | null,
+): AttendanceRow[] {
+  const others = rows.filter((r) => !(r.event_id === eventId && r.user_id === userId))
+  return previous === null ? others : [previous, ...others]
 }
 
 export type HomeCta = 'checkin' | 'going' | 'queued' | 'requested' | 'join'

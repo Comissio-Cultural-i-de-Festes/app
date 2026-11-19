@@ -182,6 +182,23 @@ function KeepPushFresh() {
 }
 
 /**
+ * L'app, darrere de l'espera de l'idioma.
+ *
+ * Qui ha triat el castellà o l'anglès no el té dins del paquet (vegeu
+ * `i18n/index.ts`), i fins que arriba `useTranslation` suspèn. Aquí es
+ * pinta el fons de l'app i res més: qualsevol frase, fins i tot «Un segon…»,
+ * sortiria en català a qui no l'ha triat. Amb el català no s'arriba a veure;
+ * amb un altre ja desat, dura el que es triga a llegir-lo de la precache.
+ */
+export default function App() {
+  return (
+    <Suspense fallback={<main className="min-h-dvh bg-app" />}>
+      <Gates />
+    </Suspense>
+  )
+}
+
+/**
  * The order of the gates, and why.
  *
  * On iOS the home-screen app has its own storage, so a session created in
@@ -200,7 +217,7 @@ function KeepPushFresh() {
  *
  * It is a prompt, not a wall: skipping it goes straight on to the door.
  */
-export default function App() {
+function Gates() {
   const { t } = useTranslation()
   const client = useQueryClient()
   const lastUser = useRef<string | null>(null)

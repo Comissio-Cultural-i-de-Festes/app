@@ -141,7 +141,7 @@ export function MembersScreen() {
           autoComplete="off"
           autoCapitalize="off"
           spellCheck={false}
-          className="mt-5 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] py-[13px] text-lg font-semibold text-fg placeholder:font-medium placeholder:text-fg-faint"
+          className="mt-5 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] py-[13px] text-lg font-semibold text-fg outline-none focus:border-brand-strong placeholder:font-medium placeholder:text-fg-faint"
         />
 
         <DoneLine

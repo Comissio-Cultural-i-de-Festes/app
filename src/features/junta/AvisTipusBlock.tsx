@@ -211,7 +211,7 @@ export function AvisTipusBlock() {
                     onChange={(e) => {
                       change({ gravetat: e.target.value })
                     }}
-                    className="mt-2 min-h-[46px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg"
+                    className="mt-2 min-h-[46px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none focus:border-brand-strong"
                   />
                 </label>
 
@@ -231,8 +231,10 @@ export function AvisTipusBlock() {
                       change({ punts: e.target.value })
                     }}
                     className={
-                      'tabular mt-2 min-h-[46px] w-full border-[1.5px] bg-surface-1 px-4 text-center text-lg font-bold text-fg ' +
-                      (lectura === 'punts' ? 'border-warning' : 'border-surface-7')
+                      'tabular mt-2 min-h-[46px] w-full border-[1.5px] bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none ' +
+                      (lectura === 'punts'
+                        ? 'border-warning'
+                        : 'border-surface-7 focus:border-brand-strong')
                     }
                   />
                 </label>
@@ -316,7 +318,7 @@ export function AvisTipusBlock() {
             placeholder={t('junta.config.avisos.newClau')}
             aria-invalid={malaClau !== null}
             aria-describedby={malaClau === null ? undefined : errClau}
-            className={malaClau === null ? INPUT : `${INPUT} border-warning`}
+            className={malaClau === null ? INPUT : `${INPUT} border-warning focus:border-warning`}
           />
           {/* Abans, una clau amb majúscules o accents només apagava el botó. La
               regla era a la CHECK de la base i al text d'ajuda, i qui escrivia
@@ -356,7 +358,7 @@ export function AvisTipusBlock() {
                   setNou((p) => ({ ...p, gravetat: e.target.value }))
                   setAfegit(null)
                 }}
-                className="mt-2 min-h-[46px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg"
+                className="mt-2 min-h-[46px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none focus:border-brand-strong"
               />
             </label>
             <label className="min-w-0 flex-1">
@@ -374,8 +376,10 @@ export function AvisTipusBlock() {
                   setAfegit(null)
                 }}
                 className={
-                  'tabular mt-2 min-h-[46px] w-full border-[1.5px] bg-surface-1 px-4 text-center text-lg font-bold text-fg ' +
-                  (lecturaNova === 'punts' ? 'border-warning' : 'border-surface-7')
+                  'tabular mt-2 min-h-[46px] w-full border-[1.5px] bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none ' +
+                  (lecturaNova === 'punts'
+                    ? 'border-warning'
+                    : 'border-surface-7 focus:border-brand-strong')
                 }
               />
             </label>

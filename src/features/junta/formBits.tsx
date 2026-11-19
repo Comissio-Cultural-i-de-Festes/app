@@ -18,7 +18,8 @@ import {
 
 export const INPUT =
   'mt-4 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] py-[13px] ' +
-  'text-lg font-semibold text-fg caret-[var(--ds-brand-strong)] ' +
+  'text-lg font-semibold text-fg outline-none caret-[var(--ds-brand-strong)] ' +
+  'focus:border-brand-strong ' +
   'placeholder:font-medium placeholder:text-fg-faint'
 
 const CONTROLS = new Set(['input', 'textarea', 'select'])

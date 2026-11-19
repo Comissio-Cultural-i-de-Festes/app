@@ -44,7 +44,7 @@ import { creaPendent, pendentsKeys } from './pendentsApi'
  * queda en pausa i ho diu, com `AvisForm`.
  */
 
-const BAD = 'border-warning'
+const BAD = 'border-warning focus:border-warning'
 const GUTTER = 'px-[var(--ds-gutter)]'
 
 export function AvisPendentFormScreen() {

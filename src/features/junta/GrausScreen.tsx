@@ -238,7 +238,7 @@ function DraftForm({
           onChange={(e) => {
             onChange({ ...draft, ordre: e.target.value })
           }}
-          className="min-h-[46px] w-[86px] flex-none border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg"
+          className="min-h-[46px] w-[86px] flex-none border-[1.5px] border-surface-7 bg-surface-1 px-4 text-center text-lg font-bold text-fg outline-none focus:border-brand-strong"
         />
         <button
           type="button"

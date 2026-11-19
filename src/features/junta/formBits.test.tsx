@@ -89,7 +89,7 @@ describe('Field', () => {
     expect(screen.getByRole('button', { name: 'Tots' })).toBeInTheDocument()
   })
 
-  it('el camp no apaga el contorn de focus', () => {
-    expect(INPUT).not.toMatch(/(^|\s)outline-none(\s|$)/)
+  it('el camp marca el focus amb la vora de marca, com ui/Field', () => {
+    expect(INPUT).toMatch(/(^|\s)focus:border-brand-strong(\s|$)/)
   })
 })

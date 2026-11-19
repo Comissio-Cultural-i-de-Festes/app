@@ -27,6 +27,7 @@ import {
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
 import { type Card, loadCardImage } from '@/lib/cards'
 import { hasEnded } from '@/lib/eventEnd'
+import { useBack } from '@/lib/useBack'
 import { useAvailability } from '@/lib/useAvailability'
 import { ANSWERS, type Answer, type AttendanceState } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
@@ -94,6 +95,7 @@ export function EventScreen() {
   const client = useQueryClient()
   const { id = '' } = useParams()
   const { hash: locationHash } = useLocation()
+  const { onClick: goBack } = useBack()
 
   // One reading of the clock for the whole screen, taken once. Calling
   // Date.now() twice during a render can put "already happened" and "signed up
@@ -214,6 +216,7 @@ export function EventScreen() {
       {isMeeting ? (
         <JuntaHeader
           to="/"
+          viaHistory
           label={t('nav.home')}
           aside={
             <span className="eyebrow-sm flex-none rounded-xs border border-surface-8 px-4 py-3 text-fg-muted">
@@ -228,6 +231,7 @@ export function EventScreen() {
           corner={
             <Link
               to="/"
+              onClick={goBack}
               aria-label={t('actions.back')}
               className="grid size-[44px] place-items-center rounded-full bg-[oklch(0.15_0.012_25/0.7)] text-2xl text-fg backdrop-blur-[6px]"
             >

@@ -7,10 +7,10 @@ import { useAnswer } from '@/features/home/useHome'
 import { formatDateTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { DbError, unwrapAs } from '@/lib/db'
-import { errorKey } from '@/lib/errors'
 import type { EventRow } from '@/lib/schema'
 import { supabase } from '@/lib/supabase'
 
+import { AnswerNote } from './AnswerNote'
 import { eventKeys } from './api'
 
 /**
@@ -136,11 +136,7 @@ export function RevealedCard() {
             {answer.isPending ? t('state.updating') : t('home.cta.join')}
           </button>
 
-          {answer.error ? (
-            <p role="alert" className="mt-4 text-md font-bold text-error [text-wrap:pretty]">
-              {t(errorKey(answer.error))}
-            </p>
-          ) : null}
+          <AnswerNote answer={answer} className="mt-4" />
         </div>
       </div>
     </section>

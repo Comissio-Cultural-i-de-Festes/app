@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
+import { useAvailability } from '@/lib/useAvailability'
+
 import {
   type Bounds,
   type Period,
@@ -74,9 +76,11 @@ export interface Board {
   readonly deltas: ReadonlyMap<string, number>
   /** Points each school has taken in the last seven days. Empty for a period that has ended. */
   readonly weekly: ReadonlyMap<string, number>
+  /** Encara pot arribar. */
   readonly isPending: boolean
+  /** Fallat, sense xarxa o sense resposta. */
   readonly isError: boolean
-  readonly error: Error | null
+  readonly messageKey: string
   readonly refetch: () => void
 }
 
@@ -121,6 +125,8 @@ export function useBoard(period: Period | null): Board {
     enabled: current,
   })
 
+  const view = useAvailability([rows, schools])
+
   const deltas =
     current && rows.data && prior.data ? positionDeltas(rows.data, prior.data) : NO_DELTAS
 
@@ -135,12 +141,13 @@ export function useBoard(period: Period | null): Board {
     // The two movement queries are deliberately not part of this: the board is
     // usable without them, and a slow second request should not hold the whole
     // table behind a spinner.
-    isPending: rows.isPending || schools.isPending,
-    isError: rows.isError || schools.isError,
-    error: rows.error ?? schools.error,
-    refetch: () => {
-      void rows.refetch()
-      void schools.refetch()
-    },
+    //
+    // `useAvailability` and not `isPending`: offline both pause instead of
+    // failing, and the table said «Un segon…» for as long as there was no
+    // signal.
+    isPending: view.loading,
+    isError: view.unavailable,
+    messageKey: view.messageKey,
+    refetch: view.retry,
   }
 }

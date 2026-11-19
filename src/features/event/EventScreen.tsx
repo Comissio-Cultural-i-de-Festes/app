@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useEffect, useState } from 'react'
+import { type ComponentProps, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useParams } from 'react-router'
 
@@ -25,8 +25,8 @@ import {
 } from '@/i18n/format'
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
 import { type Card, loadCardImage } from '@/lib/cards'
-import { errorKey } from '@/lib/errors'
 import { hasEnded } from '@/lib/eventEnd'
+import { useAvailability } from '@/lib/useAvailability'
 import { ANSWERS, type Answer, type AttendanceState } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -51,6 +51,7 @@ import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { DOOR_PHOTOS } from '@/lib/storage'
 import { useSignedUrls } from '@/lib/useSignedUrls'
 
+import { AnswerNote } from './AnswerNote'
 import { CalendarOffer, CalendarRow } from './Calendar'
 import { MeetingActa, MeetingAnswer, MeetingRoster } from './Meeting'
 import { ViatgerBlock } from './ViatgerBlock'
@@ -102,6 +103,7 @@ export function EventScreen() {
   const [justCheckedIn, setJustCheckedIn] = useState(false)
 
   const event = useQuery({ queryKey: eventKeys.one(id), queryFn: () => fetchEvent(id) })
+  const view = useAvailability(event)
   const attendances = useQuery({
     queryKey: homeKeys.attendances([id]),
     queryFn: () => fetchAttendances([id]),
@@ -131,21 +133,23 @@ export function EventScreen() {
     document.getElementById('soc-aqui')?.scrollIntoView({ block: 'center' })
   }, [locationHash, event.isSuccess, attendances.isSuccess])
 
-  if (event.isPending) {
+  if (view.loading) {
     return <EventSkeleton />
   }
 
-  if (event.isError) {
+  // Sense xarxa la consulta es posa en pausa i no falla: amb `isError` aquí,
+  // obrir un enllaç a un esdeveniment sota terra era l'esquelet per sempre.
+  if (view.unavailable) {
     return (
       <main
         className={`with-tabbar min-h-dvh bg-app pt-[max(calc(var(--ds-safe-top)+32px),12px)] ${GUTTER}`}
       >
         <p role="alert" className="text-lg font-bold text-error [text-wrap:pretty]">
-          {t(errorKey(event.error))}
+          {t(view.messageKey)}
         </p>
         <button
           type="button"
-          onClick={() => void event.refetch()}
+          onClick={view.retry}
           className="-ml-2 mt-8 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-brand-label"
         >
           {t('actions.retry')}
@@ -451,7 +455,7 @@ export function EventScreen() {
             waitlist.data?.posicio == null ? null : formatOrdinal(waitlist.data.posicio, locale)
           }
           pending={answer.isPending}
-          error={answer.error}
+          answer={answer}
           onAnswer={(a) => {
             answer.mutate(a)
           }}
@@ -677,7 +681,7 @@ function AnswerBlock({
   left,
   position,
   pending,
-  error,
+  answer,
   onAnswer,
   when,
   where,
@@ -689,7 +693,8 @@ function AnswerBlock({
   readonly left: number | null
   readonly position: string | null
   readonly pending: boolean
-  readonly error: Error | null
+  /** L'estat de la crida, per dir què passa quan la resposta no arriba. */
+  readonly answer: ComponentProps<typeof AnswerNote>['answer']
   readonly onAnswer: (a: Answer) => void
   /** Weekday, date and start time in one — formatDateLong already joins them. */
   readonly when: string
@@ -806,11 +811,7 @@ function AnswerBlock({
         })}
       </div>
 
-      {error === null ? null : (
-        <p role="alert" className="mt-6 text-md font-bold text-error [text-wrap:pretty]">
-          {t(errorKey(error))}
-        </p>
-      )}
+      <AnswerNote answer={answer} className="mt-6" />
 
       {/* Next to the button that causes it, not in a footnote at the bottom.
           On a full event the yes button joins a queue instead, and a queue is

@@ -21,11 +21,17 @@ export function LegalLinks({ className = '' }: { readonly className?: string }) 
 
   return (
     <p className={`text-sm-lo text-fg-muted-lo [text-wrap:pretty] ${className}`}>
-      <Link to={PRIVACY_PATH} className="text-fg-muted underline-offset-2 hover:underline">
+      <Link
+        to={PRIVACY_PATH}
+        className="inline-block py-[15px] text-fg-muted underline-offset-2 hover:underline"
+      >
         {t('legal.privacy')}
       </Link>
       <span aria-hidden="true"> · </span>
-      <Link to={TERMS_PATH} className="text-fg-muted underline-offset-2 hover:underline">
+      <Link
+        to={TERMS_PATH}
+        className="inline-block py-[15px] text-fg-muted underline-offset-2 hover:underline"
+      >
         {t('legal.terms')}
       </Link>
     </p>

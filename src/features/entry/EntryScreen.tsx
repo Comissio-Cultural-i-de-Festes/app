@@ -15,7 +15,7 @@ import { Notice } from '@/ui/Notice/Notice'
 import { GoogleButton } from './GoogleButton'
 import { InAppBrowserNotice } from './InAppBrowserNotice'
 import { looksStranded, signInWithGoogle } from './useGoogleSignIn'
-import { INVITE_PARAM, useInvite } from './useInvite'
+import { INVITE_PARAM, readInviteCode, useInvite } from './useInvite'
 
 /**
  * The door.
@@ -25,6 +25,18 @@ import { INVITE_PARAM, useInvite } from './useInvite'
  * Without one the invitation block goes and the button asks for access
  * instead — same layout, same order, and the person lands as 'pendent' for an
  * admin to approve.
+ *
+ * The code in the link travels to Google whatever the check said. The check
+ * only chooses the face of the door; `redeem_invite` decides, and a bad code
+ * there costs nothing but an `ok: false`. Holding it back until the check
+ * answered meant that a tap during a slow check —the first thing an iPhone
+ * sees now that the door comes before the install— came back pending.
+ *
+ * A third face, from the home-screen icon with no code: the icon opens `/` and
+ * never carries one, and whoever is there may well have come in through the
+ * browser with an invitation already —on an iPhone or an Android alike—.
+ * "Ask for access" would be telling an active member the junta still has to
+ * let them in, so the door says both things without guessing which.
  *
  * Google identifies people; it does not admit them. The gate is still the
  * invitation, redeemed by public.redeem_invite() once there is a session. An
@@ -64,9 +76,13 @@ export function EntryScreen() {
   const [stranded] = useState(() => looksStranded())
   const [inApp] = useState(() => inAppBrowser() !== null)
 
-  const invited = invite.status === 'valid'
+  const [code] = useState(() => readInviteCode())
+  const [fromIcon] = useState(() => code === null && isStandalone())
+
+  // Mentre es comprova, o si la comprovació no ha arribat, la porta és la de
+  // la invitació: el codi hi és, i res no diu que no valgui.
+  const invited = code !== null && invite.status !== 'invalid'
   const busy = phase.step === 'sending'
-  const code = invite.status === 'valid' ? invite.code : null
 
   async function google() {
     if (busy) return
@@ -120,7 +136,11 @@ export function EntryScreen() {
           — and the title is the whole message. */}
       <div className="mt-24">
         <h1 className="font-display text-d-lg leading-[0.87] tracking-[-0.05em] uppercase">
-          {invited ? t('entry.invited.title') : t('entry.open.title')}
+          {invited
+            ? t('entry.invited.title')
+            : fromIcon
+              ? t('entry.app.title')
+              : t('entry.open.title')}
         </h1>
         <p className="mt-8 max-w-[300px] text-lg text-fg-secondary [text-wrap:pretty]">
           {inApp
@@ -129,7 +149,9 @@ export function EntryScreen() {
               : t('entry.inApp.ledeOpen')
             : invited
               ? t('entry.invited.lede')
-              : t('entry.open.lede')}
+              : fromIcon
+                ? t('entry.app.lede')
+                : t('entry.open.lede')}
         </p>
 
         {/* Right after the lede, ahead of every other notice and the code
@@ -156,36 +178,40 @@ export function EntryScreen() {
             code it holds the code; without one it holds the absence of one,
             dashed, and says who resolves it. An empty space there would just
             read as a screen that had not finished loading. */}
-        <div className="mt-[26px]">
-          {invite.status === 'valid' ? (
-            <FieldShell
-              label={t('entry.invite.label')}
-              aside={
-                expiry ? (
-                  <span className="max-w-[96px] text-right text-sm-lo font-bold text-warning [text-wrap:pretty]">
-                    {expiry}
+        {/* Des de la icona, el bloc del «cap codi · ho aprova la junta» no hi va:
+            qui hi és sol ser algú que ja ha entrat amb una invitació. */}
+        {fromIcon ? null : (
+          <div className="mt-[26px]">
+            {invited ? (
+              <FieldShell
+                label={t('entry.invite.label')}
+                aside={
+                  expiry ? (
+                    <span className="max-w-[96px] text-right text-sm-lo font-bold text-warning [text-wrap:pretty]">
+                      {expiry}
+                    </span>
+                  ) : null
+                }
+              >
+                <div className="mt-[5px] font-display text-d-sm tracking-[0.02em]">{code}</div>
+              </FieldShell>
+            ) : (
+              <FieldShell
+                variant="dashed"
+                label={t('entry.open.noCodeLabel')}
+                aside={
+                  <span className="max-w-[104px] text-right text-sm-lo font-bold text-fg-muted [text-wrap:pretty]">
+                    {t('entry.open.noCodeAside')}
                   </span>
-                ) : null
-              }
-            >
-              <div className="mt-[5px] font-display text-d-sm tracking-[0.02em]">{invite.code}</div>
-            </FieldShell>
-          ) : (
-            <FieldShell
-              variant="dashed"
-              label={t('entry.open.noCodeLabel')}
-              aside={
-                <span className="max-w-[104px] text-right text-sm-lo font-bold text-fg-muted [text-wrap:pretty]">
-                  {t('entry.open.noCodeAside')}
-                </span>
-              }
-            >
-              <div className="mt-[5px] font-display text-d-sm tracking-[-0.02em] text-fg-faint">
-                {t('entry.open.noCodeValue')}
-              </div>
-            </FieldShell>
-          )}
-        </div>
+                }
+              >
+                <div className="mt-[5px] font-display text-d-sm tracking-[-0.02em] text-fg-faint">
+                  {t('entry.open.noCodeValue')}
+                </div>
+              </FieldShell>
+            )}
+          </div>
+        )}
 
         {!inApp && (
           <div className="mt-9">
@@ -203,7 +229,11 @@ export function EntryScreen() {
 
         {!inApp && (
           <p className="mt-6 text-sm text-fg-muted [text-wrap:pretty]">
-            {invited ? t('entry.invited.reassurance') : t('entry.open.reassurance')}
+            {invited
+              ? t('entry.invited.reassurance')
+              : fromIcon
+                ? t('entry.app.reassurance')
+                : t('entry.open.reassurance')}
           </p>
         )}
 
@@ -257,7 +287,9 @@ export function EntryScreen() {
         ) : (
           <p className="mt-[18px] text-md font-bold [text-wrap:pretty]">
             {t('entry.hasCode.question')}{' '}
-            <span className="text-brand-label">{t('entry.hasCode.hint')}</span>
+            <span className="text-brand-label">
+              {fromIcon ? t('entry.app.hasCodeHint') : t('entry.hasCode.hint')}
+            </span>
           </p>
         )}
 

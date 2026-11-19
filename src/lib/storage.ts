@@ -321,10 +321,20 @@ export async function uploadDoorPhoto(
  * UN ERROR ÉS UN ERROR. `createSignedUrls` no llança quan falla la xarxa:
  * torna `{ data: null, error }`. Abans això acabava en un `Map` buit desat com
  * a èxit, que no es tornava a demanar fins al cap de cinquanta minuts, i la
- * portada quedava en blanc tota aquella estona. Ara la consulta falla, React
- * Query la reintenta, i una consulta fallida es torna a demanar en tornar a
- * l'app. Una fila sense URL —l'objecte ja no hi és, o no és teu de veure— sí
+ * portada quedava en blanc tota aquella estona. Ara la crida es reintenta, i si
+ * tampoc així arriba la consulta falla, i una consulta fallida es torna a
+ * demanar en tornar a l'app. Una fila sense URL —l'objecte ja no hi és, o no és teu de veure— sí
  * que és una resposta, i es desa com a `null`.
+ *
+ * ELS REINTENTS VIUEN AQUÍ, NO A REACT QUERY. Cada consulta reintentava en el
+ * seu propi `setTimeout`, i cada reintent era una petició: amb sis camins i la
+ * primera crida caiguda, [6, 1, 1, 1, 1, 1, 1]. Una galeria de dues-centes
+ * fotos amb la xarxa caiguda un moment en feia centenars, justament quan la
+ * xarxa és el que menys en pot aguantar. Reintentar dins del lot ho deixa en
+ * una sola petició per reintent, i `withSignedDefaults` posa `retry: false`.
+ * Es va descartar obrir el lot amb un `setTimeout(0)`: els reintents de cada
+ * consulta venen de temporitzadors diferents, i res no garanteix que caiguin
+ * dins de la mateixa finestra.
  *
  * No s'exporta res que signi fora d'aquí: l'única porta és `signedUrlQuery`,
  * que porta la marca de `signedKey` (vegeu `signedQuery.ts`).
@@ -335,11 +345,31 @@ const batches = new Map<
   { readonly paths: Set<string>; readonly ready: Promise<Map<string, string>> }
 >()
 
+/** Esperes abans de cada reintent: les que React Query fa servir per defecte. */
+const RETRY_DELAYS_MS = [1000, 2000]
+
+/** Un 4xx és una resposta, no un tall; el 408 i el 429 sí que passen sols. */
+function worthRetrying(error: unknown): boolean {
+  const status: unknown =
+    typeof error === 'object' && error !== null && 'status' in error ? error.status : undefined
+  if (typeof status !== 'number') return true
+  return status < 400 || status >= 500 || status === 408 || status === 429
+}
+
+async function signWithRetries(bucket: string, paths: readonly string[]) {
+  for (let attempt = 0; ; attempt++) {
+    const { data, error } = await supabase.storage
+      .from(bucket)
+      .createSignedUrls([...paths], SIGNED_TTL_SECONDS)
+    if (!error) return data
+    const delay = RETRY_DELAYS_MS[attempt]
+    if (delay === undefined || !worthRetrying(error)) throw error
+    await new Promise((resolve) => setTimeout(resolve, delay))
+  }
+}
+
 async function signBatch(bucket: string, paths: readonly string[]): Promise<Map<string, string>> {
-  const { data, error } = await supabase.storage
-    .from(bucket)
-    .createSignedUrls([...paths], SIGNED_TTL_SECONDS)
-  if (error) throw error
+  const data = await signWithRetries(bucket, paths)
 
   const out = new Map<string, string>()
   for (const row of data) {

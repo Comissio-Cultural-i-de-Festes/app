@@ -29,6 +29,11 @@ export type InviteState =
    *  bug: somebody arriving with last week's WhatsApp link got the "ask for
    *  access" screen with no hint that the link they used had failed. */
   | { status: 'invalid' }
+  /** There was a code and the question never got an answer: no signal, or a
+   *  server that did not reply. Saying "no longer valid" here sent people off
+   *  to ask for a link they did not need. Nothing about the code is known, so
+   *  the door shows it as it came and lets the redemption decide. */
+  | { status: 'unverified' }
   | { status: 'valid'; code: string; expiresAt: Date | null }
 
 interface PreviewResult {
@@ -57,7 +62,11 @@ export function useInvite(): InviteState {
       const { data, error } = await rpc<PreviewResult>('invite_preview', { p_codi: code })
       if (cancelled) return
 
-      if (error || !data?.valid) {
+      if (error) {
+        setState({ status: 'unverified' })
+        return
+      }
+      if (!data?.valid) {
         setState({ status: 'invalid' })
         return
       }

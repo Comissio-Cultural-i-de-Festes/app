@@ -43,7 +43,7 @@ export function FieldShell({
   variant = 'solid',
   invalid = false,
 }: FieldShellProps) {
-  const solid = invalid ? 'border-warning' : 'border-border-strong'
+  const solid = invalid ? 'border-warning' : 'border-border-strong focus-within:border-brand-strong'
   const edge = variant === 'dashed' ? 'border-dashed border-[var(--ds-border-input)]' : solid
 
   return (
@@ -78,17 +78,18 @@ interface TextFieldProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'cl
 }
 
 /**
- * `outline-none` a l'`<input>`, i què costa. La regla global de `base.css`
- * dibuixa 2px de marca a `:focus-visible` i aquesta classe l'apaga, o sigui que
- * navegant amb tabulador el camp és l'única parada que no dibuixa res: el que
- * marca on ets és el cursor, que per això és del color de la marca.
+ * `outline-none` a l'`<input>`, i què el substitueix. La regla global de
+ * `base.css` dibuixa 2px de marca a `:focus-visible`, i aquesta classe l'apaga:
+ * el focus d'un camp de text es marca amb la VORA de la caixa (`FieldShell`,
+ * amb `focus-within`) en el color de marca, i el cursor també hi és.
  *
- * No es toca des d'aquí i queda dit per què. `:focus-visible` casa també quan
- * un camp de text es toca amb el dit —és així per definició, perquè s'hi espera
- * teclat—, així que treure l'`outline-none` no afegiria un indicador «només per
- * a teclat»: canviaria com es veu al mòbil TOT camp de text de l'app —el nom,
- * el telèfon, el codi d'invitació— i això és una decisió de disseny sobre com
- * es marca el focus, no un arranjament d'aquesta pantalla.
+ * Vora i no contorn perquè `:focus-visible` casa també quan un camp de text es
+ * toca amb el dit —és així per definició, perquè s'hi espera teclat—, i un
+ * contorn de 2px amb separació a tot camp de l'app canviaria com es veu al
+ * mòbil cada formulari. La vora ja hi és i només canvia de color. `focus-within` i no
+ * `:has(:focus-visible)` perquè és el que entenen tots els iOS que es donen
+ * suport. La mateixa vora (`focus:border-brand-strong`) la porten `INPUT` de
+ * la junta i els camps inlinats: una sola regla per als camps de text.
  */
 export function TextField({ id, label, ref, prefix, ...rest }: TextFieldProps) {
   // Es llegeix d'`aria-invalid` i no d'un prop nou: el camp ja l'ha de portar

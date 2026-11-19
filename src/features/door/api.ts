@@ -1,7 +1,16 @@
 import { type CheckInStatus, SCAN_PRESENTATION, type ScanPresentation } from '@/design/states'
 import { DbError, unwrapAs } from '@/lib/db'
 import type { Escola } from '@/lib/model'
-import { type QueuedScan, bumpTries, dequeue, enqueue, pending } from '@/lib/queue'
+import {
+  type Held,
+  type QueuedScan,
+  NotSaved,
+  bumpTries,
+  dequeue,
+  enqueue,
+  pending,
+  setHeld,
+} from '@/lib/queue'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -137,11 +146,38 @@ export async function fetchRoster(eventId: string): Promise<RosterRow[]> {
 }
 
 /**
+ * Whether `check_in` refused the scan itself, rather than whoever sent it.
+ *
+ * NOT `isPermanent`, WHICH COUNTS 42501, and at `check_in` that code is never
+ * about the scan: it is `private.is_admin()` saying no, which is what a phone
+ * hears when its session lapsed on a bad connection and the request went out
+ * as `anon`, or when somebody's junta role was taken away. Treating it as the
+ * scan's fault set aside every valid scan in the queue during a flush with the
+ * token refresh lost, and nothing sent them again once the session came back.
+ * It is a failure like a dropped connection: the entry stays, and the next
+ * flush tries it.
+ *
+ * What is left is about the request: class 22 — a QR that is not a uuid
+ * (22P02), a QR and a name together (22023) — and class 23, a constraint the
+ * row cannot satisfy. Sending any of those again gets the same answer.
+ */
+export function refusesTheScan(cause: unknown): cause is DbError {
+  return cause instanceof DbError && /^(?:22|23)/.test(cause.code)
+}
+
+/**
  * A scan, whether or not there is any signal.
  *
  * The queue is written first and cleared on success, rather than being a
  * fallback after a failure: a request that times out after thirty seconds
  * would otherwise be lost between the two.
+ *
+ * A queue that could not be written does not stop the scan. It is sent all
+ * the same — `check_in` is idempotent on the id whether or not a copy exists
+ * on the phone — and if it lands, the answer is as good as any other. Only if
+ * it does not land is the difference worth saying, and then it is `NotSaved`:
+ * nothing is going to send it later, so "queued" would be a lie told to
+ * somebody who will wave the person through on the strength of it.
  */
 export async function scan(request: ScanRequest): Promise<CheckInResult> {
   const queued: QueuedScan = {
@@ -152,13 +188,21 @@ export async function scan(request: ScanRequest): Promise<CheckInResult> {
     at: Date.now(),
     tries: 0,
   }
-  await enqueue(queued)
+  const saved = await enqueue(queued)
 
   try {
     const result = await checkIn(request)
-    await dequeue(request.clientRequestId)
+    if (saved) await dequeue(request.clientRequestId)
     return result
   } catch (cause) {
+    // The server has said no and will say it again. The card says so now, and
+    // a copy left behind would only be sent to hear it a second time — and,
+    // first in line, would hold up every scan behind it.
+    if (refusesTheScan(cause)) {
+      if (saved) await dequeue(request.clientRequestId)
+      throw cause
+    }
+    if (!saved) throw new NotSaved(cause)
     // Left in the queue on purpose. The person in front of you goes in either
     // way; the row catches up when the signal does.
     await bumpTries(queued)
@@ -190,7 +234,21 @@ export type DoorOutcome =
        */
       readonly unanswered?: true
     }
-  | { readonly kind: 'failed'; readonly request: ScanRequest }
+  | {
+      readonly kind: 'failed'
+      readonly request: ScanRequest
+      /**
+       * The server answered, and the answer was no for good. Nothing was left
+       * in the queue, so the card must not say it goes on its own.
+       */
+      readonly refused?: true
+    }
+  /**
+   * Neither on the server nor on the phone. Not `queued`, however much it
+   * looks like it from the door: nothing will ever send it, so somebody has to
+   * do it by hand.
+   */
+  | { readonly kind: 'unsaved'; readonly request: ScanRequest }
 
 /**
  * Which of the two a thrown scan was. Offline is the queue working.
@@ -201,6 +259,8 @@ export type DoorOutcome =
  * flush is already going to send.
  */
 export function outcomeFromFailure(request: ScanRequest, cause: unknown): DoorOutcome {
+  if (cause instanceof NotSaved) return { kind: 'unsaved', request }
+  if (refusesTheScan(cause)) return { kind: 'failed', request, refused: true }
   if (cause instanceof DoorTimeout) return { kind: 'queued', request, unanswered: true }
   return navigator.onLine ? { kind: 'failed', request } : { kind: 'queued', request }
 }
@@ -247,6 +307,10 @@ const UNDOABLE: ReadonlySet<CheckInStatus> = new Set<CheckInStatus>([
  */
 export function undoTargetOf(outcome: DoorOutcome): UndoTarget | null {
   const { request } = outcome
+
+  // Nothing was written down, and as far as anybody knows nothing landed.
+  if (outcome.kind === 'unsaved') return null
+  if (outcome.kind === 'failed' && outcome.refused === true) return null
 
   if (outcome.kind === 'sent') {
     const { status, user_id } = outcome.result
@@ -311,7 +375,37 @@ export interface FlushOutcome {
 }
 
 /**
+ * The answers a flush must not swallow.
+ *
+ * At the door these are on the card for somebody to act on. From a flush
+ * there is no card: the scan was "saved" an hour ago and the person is long
+ * inside. Rubbing the entry out would leave a stranger, or somebody nobody
+ * charged, with no trace on any screen.
+ *
+ * Not `already_checked_in`. A QR held in front of the lens with no signal is
+ * read every two seconds and queued each time; the first lands and the rest
+ * all come back "already in". Keeping those would bury the ones above in noise
+ * about one person who is, in fact, in.
+ */
+const NEEDS_A_LOOK: ReadonlySet<CheckInStatus> = new Set<CheckInStatus>([
+  'not_a_member',
+  'member_inactive',
+  'event_not_open',
+  'ok_walkin_review',
+])
+
+/**
  * Sends whatever is waiting. Stops at the first failure rather than hammering.
+ *
+ * EXCEPT A FAILURE THAT WILL NEVER STOP FAILING. A scan `check_in` raises an
+ * error about — a token that is not a uuid, read off somebody else's QR with
+ * no signal — used to sit at the front and end every run at the same place,
+ * so nothing behind it was ever sent again. It is set aside instead, marked
+ * with the code it got, and the run carries on. A scan that is not ours but
+ * well formed does not raise anything: `check_in` answers `not_a_member`,
+ * and that is the other thing set aside, with every answer in `NEEDS_A_LOOK`.
+ * Kept rather than dropped, both of them: somebody walked through the door
+ * and the junta has to see who (`HeldScans`).
  *
  * ONE AT A TIME. It is called by a twenty-second timer, by the `online` event
  * and by both door screens, and with an eight-second deadline per item two
@@ -330,21 +424,75 @@ export function flushQueue(): Promise<FlushOutcome> {
 let flushing: Promise<FlushOutcome> | null = null
 
 async function drain(): Promise<FlushOutcome> {
-  const waiting = await pending()
+  const waiting = (await pending()).filter((item) => item.held === undefined)
   let sent = 0
+  let refused = 0
 
   for (const item of waiting) {
     try {
-      await checkIn(item)
-      await dequeue(item.clientRequestId)
+      const result = await checkIn(item)
+      if (NEEDS_A_LOOK.has(result.status)) {
+        await setHeld(item.clientRequestId, {
+          kind: 'answered',
+          status: result.status,
+          nombre: result.nombre ?? null,
+        })
+      } else {
+        await dequeue(item.clientRequestId)
+      }
       sent += 1
-    } catch {
+    } catch (cause) {
+      if (refusesTheScan(cause)) {
+        await setHeld(item.clientRequestId, { kind: 'refused', code: cause.code })
+        refused += 1
+        continue
+      }
       await bumpTries(item)
       break
     }
   }
 
-  return { sent, left: waiting.length - sent }
+  return { sent, left: waiting.length - sent - refused }
+}
+
+/**
+ * Whether sending a held scan again could get a different answer.
+ *
+ * `event_not_open` can: it is about the event, not the scan. Unpublished for
+ * ten minutes by mistake, every scan flushed in those ten minutes came back
+ * with it, and without a way to send them again they stayed aside for good.
+ * `check_in` answers it before writing anything, so the same id goes through
+ * once the event is open.
+ *
+ * The other answers cannot: they landed, and the same id replays the same
+ * answer. The refused ones are errors about the request, which should come
+ * back the same too; they are let through for the case nobody has thought of
+ * yet, at the cost of one request each.
+ */
+export function resendable(held: Held): boolean {
+  return held.kind === 'refused' || held.status === 'event_not_open'
+}
+
+/**
+ * The held scans that could get another answer (`resendable`), sent once more.
+ *
+ * AFTER THE FLUSH THAT IS RUNNING, NOT INSIDE IT. A run already under way
+ * read its list before the marks came off, and `flushQueue` hands a caller the
+ * run in progress, so the button would have done nothing visible.
+ */
+export async function resendHeld(): Promise<FlushOutcome> {
+  for (const item of await pending()) {
+    if (item.held !== undefined && resendable(item.held)) {
+      await setHeld(item.clientRequestId, null)
+    }
+  }
+  if (flushing !== null) await flushing
+  return flushQueue()
+}
+
+/** Forgets one. The junta has seen the line and dealt with it by hand. */
+export async function discardHeld(clientRequestId: string): Promise<void> {
+  await dequeue(clientRequestId)
 }
 
 export async function awardPoints(
@@ -389,6 +537,22 @@ export async function awardPoints(
  */
 export function presentationOf(outcome: DoorOutcome): ScanPresentation {
   if (outcome.kind === 'sent') return SCAN_PRESENTATION[outcome.result.status]
+  // The error's colour and buzz, and words of its own: "could not connect, it
+  // goes on its own" is what a failed scan says, and this one will not.
+  if (outcome.kind === 'unsaved') {
+    return {
+      ...SCAN_PRESENTATION.error,
+      messageKey: 'scanner.notSaved',
+      actionKey: 'scanner.action.notSaved',
+    }
+  }
+  if (outcome.kind === 'failed' && outcome.refused === true) {
+    return {
+      ...SCAN_PRESENTATION.error,
+      messageKey: 'scanner.refused',
+      actionKey: 'scanner.action.refused',
+    }
+  }
   if (outcome.kind === 'queued') {
     return { ...SCAN_PRESENTATION.ok_walkin_review, messageKey: 'scanner.queued', actionKey: null }
   }

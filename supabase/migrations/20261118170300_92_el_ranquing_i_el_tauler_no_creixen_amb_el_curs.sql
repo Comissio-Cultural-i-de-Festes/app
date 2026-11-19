@@ -56,14 +56,19 @@
 --    protegir quan va fer servir `streak_rows` en comptes d'escriure-ne una
 --    altra.
 --
---    UN DESEMPAT NOU, i és l'únic lloc on el resultat pot canviar. `drifting`
+--    DOS DESEMPATS NOUS, i són l'únic que pot canviar el resultat. `drifting`
 --    numerava les activitats amb `order by starts_at desc` i prou, o sigui que
 --    dues activitats al mateix minut sortien en un ordre qualsevol, i quina era
 --    «l'última» depenia de l'ordenació del moment. Ara l'id desempata, com ja
---    feia `streak_rows`. Amb starts_at diferents no canvia res.
+--    feia `streak_rows`. I la llista del tauler, que s'ordenava per l'última
+--    vegada que cadascú va venir i prou, també desempata per id. En tots dos
+--    casos, sense empat no canvia res.
 --
 -- `admin_dashboard` ES REESCRIU SENCER perquè Postgres no sap editar el cos
--- d'una funció. El cos és el de la 82; només canvia el bloc dels despenjats.
+-- d'una funció. El cos és el de la 82; canvia el bloc dels despenjats i, al
+-- de les escoles, el recompte d'«actius»: era un `exists` per soci (280 socis
+-- per 15 activitats del mes, 4.000 cerques a l'índex) i ara és una sola
+-- llista. Els altres tres blocs són els de la 82 lletra per lletra.
 --
 -- CAP ÍNDEX NOU. Els plans d'abans i de després llegeixen `points_log`,
 -- `events` i `event_details` sencers (pocs milers de files, tot a memòria) i
@@ -280,6 +285,13 @@ alter function private.drifting(uuid, timestamptz, timestamptz) owner to postgre
 revoke all on function private.drifting(uuid, timestamptz, timestamptz)
   from public, anon, authenticated;
 
+comment on function private.drifting(uuid, timestamptz, timestamptz) is
+  'Venia a la meitat o més i fa dues activitats comptables seguides que no ve. '
+  'És private.drifting_among() amb un sol soci (migració 92), i per tant surt '
+  'de private.streak_rows_for(), com la ratxa del perfil: tenir-ne una segona '
+  'definició seria que el tauler i el perfil diguessin coses diferents del '
+  'mateix soci.';
+
 comment on function private.checkin_open_at(uuid) is
   'La finestra de fitxar d''un esdeveniment. private.streak_rows_for() en '
   'repeteix l''expressió en línia per no cridar-la per cada activitat i cada '
@@ -287,7 +299,7 @@ comment on function private.checkin_open_at(uuid) is
   'vigila.';
 
 -- ── el tauler ───────────────────────────────────────────────────────────────
--- El cos de la 82 sencer, tret del bloc dels despenjats.
+-- El cos de la 82 sencer, tret dels despenjats i dels actius de cada escola.
 create or replace function public.admin_dashboard(p_from timestamptz default null, p_to timestamptz default null)
 returns jsonb
 language plpgsql
@@ -308,7 +320,11 @@ begin
 
   -- El número que justifica la fase, amb prou context per escriure-li: què
   -- feia abans, quan va ser l'última vegada, i el telèfon que la junta ja veu.
-  select coalesce(jsonb_agg(x order by x.ultima_at desc nulls last), '[]'::jsonb)
+  --
+  -- L'id desempata (migració 92): dues persones que van venir per última vegada
+  -- a la mateixa festa sortien en un ordre qualsevol, i la llista canviava
+  -- d'ordre d'una càrrega a la següent sense que hagués passat res.
+  select coalesce(jsonb_agg(x order by x.ultima_at desc nulls last, x.id), '[]'::jsonb)
     into v_despenjats
   from (
     select
@@ -391,10 +407,14 @@ begin
     select
       p.escola,
       count(*)::int as socis,
-      count(*) filter (where exists (
-        select 1 from public.attendances a
+      -- `in` i no `exists` correlacionat (migració 92): la llista de qui ha
+      -- vingut aquest mes no depèn del soci, o sigui que es fa una vegada i es
+      -- consulta com a taula de hash, en comptes de buscar-la soci per soci.
+      -- Dona els mateixos números; `attendances.user_id` no és mai NULL.
+      count(*) filter (where p.id in (
+        select a.user_id from public.attendances a
         join public.events e on e.id = a.event_id
-        where a.user_id = p.id and a.estado = 'asistio'
+        where a.estado = 'asistio'
           and e.starts_at >= now() - interval '30 days'))::int as actius,
       coalesce((
         select sum(l.puntos)::int from public.points_log l

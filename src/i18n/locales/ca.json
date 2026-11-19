@@ -168,6 +168,11 @@
     "notSaved": "No s'ha pogut enviar ni desar al telèfon, o sigui que no sortirà sol. Torna-ho a provar quan tinguis cobertura.",
     "rateLimited": "Massa intents seguits. Espera un parell de minuts i torna-hi.",
     "behindServer": "Això encara no hi és al servidor: l'app s'ha actualitzat abans que la base de dades. Si ets de la junta, apuja les migracions; si no, avisa'ls.",
+    "stalled": "La connexió no respon: no arriba res. Torna-ho a provar, o busca un lloc amb més cobertura.",
+    "sessionUnreachable": "Sense connexió no podem obrir la teva sessió. Quan torni la xarxa, l'app s'obrirà sola.",
+    "sendPaused": "Sense connexió. Queda en espera i s'enviarà quan torni la xarxa: no tanquis l'app.",
+    "sendSlow": "La connexió va molt lenta: encara no ha arribat.",
+    "sendOffline": "Sense connexió, no ha sortit. Torna-hi quan tinguis cobertura.",
     "avisSostre": "Aquest curs ja s'han restat a aquesta persona tots els punts que el sostre permet. Puja «Màxim de punts per curs» a El barem, o registra l'avís sense punts.",
     "avisForaDelCurs": "Avui no cau dins de cap curs, i sense curs no hi ha cap sostre a comptar. Obre el curs a «Els períodes del rànquing», o registra l'avís sense punts."
   },
@@ -278,7 +283,10 @@
       "confirmTitle": "Hi vols venir? Les places les reparteix la junta",
       "request": "Demana-hi plaça",
       "requestWarning": "Demanar-ho no és tenir-la. Ho decideix la junta i t'ho diem pel grup.",
-      "requestedPrivate": "Que ho hagis demanat no surt enlloc. Només ho veu la junta."
+      "requestedPrivate": "Que ho hagis demanat no surt enlloc. Només ho veu la junta.",
+      "paused": "Sense connexió. La resposta espera aquí i s'enviarà quan torni la xarxa: no tanquis l'app.",
+      "offline": "Sense connexió, la resposta no ha sortit. Torna-hi quan tinguis cobertura.",
+      "slow": "La connexió va molt lenta: la resposta encara no ha arribat."
     },
     "queue": {
       "onList": "Ets a la llista d'espera. Si algú es fa enrere, la junta t'avisa.",
@@ -1953,6 +1961,9 @@
     "howTo": "El de recanvi: si no pots fitxar des del mòbil, ensenya'l a la porta i espera el «fitxat». Obre aquesta pantalla un cop amb connexió i el codi queda desat al mòbil.",
     "unavailable": "Ara mateix no podem mostrar el teu codi. Prova-ho amb connexió i quedarà desat per la propera.",
     "fallback": "El de la porta et pot buscar pel nom.",
+    "fromPocket": "Mostra el meu QR",
+    "noneSaved": "Aquest mòbil no té cap QR desat: s'ha d'obrir un cop amb connexió. A la porta et poden buscar pel nom.",
+    "pocketBack": "Amaga el QR",
     "notYet": {
       "heading": "El meu QR",
       "lead": "És el que ensenyes a la porta.",

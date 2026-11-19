@@ -7,6 +7,7 @@ import { eventKeys, fetchEvent } from '@/features/event/api'
 import { formatTime } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
+import { useAvailability } from '@/lib/useAvailability'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { Confirm } from '@/ui/Confirm/Confirm'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
@@ -69,6 +70,7 @@ export function CheckinsScreen() {
     },
   })
 
+  const view = useAvailability(rows)
   const list = rows.data ?? []
 
   return (
@@ -84,14 +86,14 @@ export function CheckinsScreen() {
         {t('junta.checkins.lede')}
       </p>
 
-      {rows.isPending ? (
+      {view.loading ? (
         <CheckinsSkeleton />
-      ) : rows.isError ? (
+      ) : view.unavailable ? (
         <p
           role="alert"
           className={`pt-10 text-md font-bold text-error [text-wrap:pretty] ${GUTTER}`}
         >
-          {t(errorKey(rows.error))}
+          {t(view.messageKey)}
         </p>
       ) : list.length === 0 ? (
         <p className={`pt-10 text-md text-fg-muted [text-wrap:pretty] ${GUTTER}`}>

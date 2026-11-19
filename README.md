@@ -74,6 +74,8 @@ It is the one thing a committee does sitting down.
 - [Checking the iPhone round trip](#checking-the-iphone-round-trip) — ten
   minutes with a real phone that no laptop can replace, and what each way of
   failing looks like.
+- [Handover](#handover) — the accounts the app depends on, who must own each,
+  and the checklist for June when the committee changes.
 - [Term dates, and moving them every year](#term-dates-and-moving-them-every-year)
   — the smallest decision in here and the one that best explains the rest.
 
@@ -761,6 +763,122 @@ with an `age`-encrypted dump taken by a read-only role, or this checklist done
 by hand each month. Tracked in
 [#24](https://github.com/Comissio-Cultural-i-de-Festes/app/issues/24); until it
 is decided the checklist is the policy.
+
+## Handover
+
+The committee turns over every year, and the app outlives every committee. This
+section is what the incoming one needs to take it over without calling anybody:
+what exists, who must own it, and what to do in June. It does not repeat how
+things work; it points at the section that does.
+
+### Accounts and services
+
+Owners are **roles, not people**. A credential that belongs to a person leaves
+with them; one that belongs to "the treasurer" or "the secretary" is passed on
+with the post. Every credential below also has a copy in the committee's shared
+password manager, which is the one place nobody has to ask a predecessor for.
+
+| Service                            | What it is                                                                                                                                                            | Owner (role)                            | Where the credential lives                                                           | If it is lost                                                                                                                                                  |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| GitHub organisation                | The code, CI, and the daily keepalive ([step 7](#7-github--the-keepalive-variables)). Two-factor authentication must be required of every member ([#33][i33]).        | Two or more organisation owners, always | Each person's own account, with 2FA; recovery codes in the shared manager            | With a single owner gone, nobody can add the next one and the repository is frozen. That is why there are two.                                                 |
+| Supabase, production and Staging   | The database, auth, storage and the Edge Function. Two projects, each with its own `<project-ref>`. Everything else depends on these.                                 | The technology role                     | The account's login; the database passwords and both anon keys in the shared manager | Nobody can push a migration, take a backup or read the logs. Support can recover an account only if the sign-up address still receives mail.                   |
+| Google Cloud                       | The OAuth client behind _Entra amb Google_ ([step 3](#3-google-cloud--the-production-oauth-client)). The consent screen must read **In production** ([#32][i32]).     | The same role as Supabase               | The Google account that owns the project; client ID and secret in the shared manager | Nobody can sign in. If the screen says _Testing_, only accounts added by hand can enter and nothing says why.                                                  |
+| Cloudflare Pages                   | Hosting and the build. Holds every `VITE_*` variable of `.env.example` (`VITE_APP_NAME`, `VITE_SUPABASE_URL`, `VITE_SITE_URL`, `VITE_VAPID_PUBLIC_KEY` and the rest). | The same role as Supabase               | The account's login; a copy of the variables list in the shared manager              | The site cannot be rebuilt. The live one keeps working until the next deploy. The values are public, but nobody remembers all of them.                         |
+| VAPID keys and `REVEAL_PUSH_TOKEN` | The private key that signs the reveal notifications, and the token the cron presents to `reveal-push` ([step 9](#9-supabase--the-reveal-notification-optional)).      | The same role as Supabase               | Supabase secrets **and** the shared manager. The private half is nowhere else.       | Not recoverable. A new pair can be generated, but every subscription made with the old public key stops working and members have to allow notifications again. |
+| WhatsApp group                     | Where the committee reaches members, and where `VITE_WHATSAPP_URL` points: "ask for an invitation there".                                                             | The president or the secretary          | The admin role inside the group; the invite link in the shared manager               | The invite link on the door screen stops working, so people who need an invitation have nowhere to ask. A new link means changing `VITE_WHATSAPP_URL`.         |
+
+[i32]: https://github.com/Comissio-Cultural-i-de-Festes/app/issues/32
+[i33]: https://github.com/Comissio-Cultural-i-de-Festes/app/issues/33
+
+Two of those are open checks rather than facts, and the first June is when to
+close them:
+
+- **Google Cloud belongs to the association and not to a person.** Open the
+  project in the console and see whose it is, then _Google Auth Platform →
+  Audience_ and check the publishing status. With only the basic scopes that
+  sign-in asks for, _In production_ costs nothing and needs no verification
+  ([#32][i32]).
+- **The private VAPID key and `REVEAL_PUSH_TOKEN` are in the shared manager.**
+  Supabase shows that a secret exists but never what it says, so the only copy
+  that can be read is the one somebody saved ([#32][i32]).
+
+### The June handover
+
+Do this when the new junta takes over, ideally together with the old one and
+before the summer. Over July and August nobody is watching, which is exactly
+when a paused project or a disabled workflow goes unnoticed.
+
+1. **Roles in the app.** The outgoing owner hands ownership over from
+   _Pagaments i junta_, under _Hand over ownership_ (`admin_transfer_owner`).
+   It takes two steps, there is always exactly one owner, and the old one
+   becomes an admin. Then the new owner names the rest of the junta and
+   demotes whoever left. Read the result back in the audit trail on the same
+   screen. If the owner's Google account is gone before they hand it over,
+   somebody has to fix it in the database: see
+   [step 8](#8-supabase--make-the-first-person-the-owner).
+2. **People who are leaving the association.** The junta sets their status to
+   `baixa` in the app rather than deleting them: they stop having access and their
+   points and attendances stay in the history of the course. What to do with
+   their data is the last item below.
+3. **The new course.** Edit the four rows of `ranking_periods`, as in
+   [Term dates, and moving them every year](#term-dates-and-moving-them-every-year).
+   Do it in June for the dates already known and again in September for the
+   rest: a ranking with last year's boundaries is wrong on the first evening.
+4. **The accounts above.** Add the new people to the GitHub organisation (and
+   check it still requires 2FA), Supabase, Google Cloud and Cloudflare, and
+   only then remove the old ones. Remove people from the shared manager too, or
+   rotate what they could read. A departed member who still has the database
+   password or the `service_role` key is the one real risk in here.
+5. **The iPhone round trip.** Run
+   [Checking the iPhone round trip](#checking-the-iphone-round-trip) on a real
+   phone. Apple changes this behaviour without notice, and nothing else tells
+   you.
+6. **The keepalive.** Open Actions → _keepalive_ and check the last run: both
+   `ping (production)` and `ping (staging)` green. The four variables
+   (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `STAGING_SUPABASE_URL`,
+   `STAGING_SUPABASE_ANON_KEY`) are in
+   [step 7](#7-github--the-keepalive-variables). Then look at the date of the
+   last commit: GitHub switches scheduled workflows off after 60 days without
+   one, and the only warning is an email to the owner, so the new owner must
+   be on an address that is read. If it is off, make a commit or re-enable it
+   from the Actions tab.
+7. **A backup, and a restore.** Take the full backup in [Backups](#backups) and
+   keep it outside the repository. Once a year at least, restore it into
+   Staging and open the app; a backup nobody has restored is a hope. The
+   monthly checklist in that section is the policy in between.
+8. **Secrets.** Check the shared manager against the table above: the database
+   passwords, the Google client secret, the VAPID private key and
+   `REVEAL_PUSH_TOKEN` are all there and still open. Rotate whatever a leaving
+   person could read. Rotating `REVEAL_PUSH_TOKEN` means changing it in the
+   Supabase secrets **and** in the Vault entry `reveal_push_token`
+   ([step 9](#9-supabase--the-reveal-notification-optional)), or the cron is
+   turned away at the door and says so only in the logs.
+9. **Storage.** In Supabase → Storage look at the five buckets listed in
+   [The bucket files](#the-bucket-files). `gimcana-photos` grows fastest, one
+   photo per proof, and nothing deletes them: once the year's treasure hunt is
+   over and its results are final, download them into the backup and clear the
+   bucket.
+10. **Free-plan limits.** In each Supabase project's usage page, check
+    database size, storage, egress and monthly active users against the
+    current free-plan limits (they change, so the provider's pricing page is
+    the source, not this README). A project past its ceiling starts refusing
+    work in the middle of an event, which is the worst moment. Cloudflare
+    Pages also has a monthly build limit, which matters in a month with many
+    pull requests.
+11. **Last year's personal data.** The audit trail deletes itself after 24
+    months
+    ([The audit trail](#the-audit-trail-and-answering-a-subject-access-request))
+    and pending notices have their own nightly purge. Nothing else expires:
+    profiles, contacts, points and attendances stay for as long as the
+    database does. Decide as a committee how long that is, write it in the
+    privacy policy, and if it is shorter than forever, delete the rows of the
+    `baixa` members from item 2 once the period is up. Record the decision
+    where the committee keeps decisions.
+
+Where the committee keeps its decisions, and where the shared password manager
+lives, are not things a public repository should say. Write both on the first
+page of whatever the committee hands to the next one, and check in June that
+the new people can open them.
 
 ## Brand colours
 

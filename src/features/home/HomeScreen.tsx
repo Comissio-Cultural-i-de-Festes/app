@@ -23,13 +23,13 @@ import {
 } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
 import { countdown, countdownLabel, countdownShape } from '@/features/event/countdown'
+import { AnswerNote } from '@/features/event/AnswerNote'
 import { RevealedCard } from '@/features/event/RevealedCard'
 import { InterestBlock, InterestCount } from '@/features/event/Teaser'
 import { eventTitle, titleIsHidden } from '@/features/event/title'
 import { InstallCard } from '@/features/install/InstallCard'
 import { ExitPhotoCard } from '@/features/photos/ExitPhotoCard'
 import { useExitOffer } from '@/features/photos/useExitOffer'
-import { errorKey } from '@/lib/errors'
 import type { Escola } from '@/lib/model'
 import { useOnline } from '@/lib/useOnline'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -112,7 +112,7 @@ export function HomeScreen() {
 
       {home.isError ? (
         <ErrorPanel
-          message={t(errorKey(home.error))}
+          message={t(home.messageKey)}
           onRetry={home.refetch}
           label={t('actions.retry')}
         />
@@ -522,11 +522,7 @@ function CallToAction({
         </button>
       )}
 
-      {answer.isError ? (
-        <p role="alert" className="mt-[10px] text-md-lo text-error">
-          {t(errorKey(answer.error))}
-        </p>
-      ) : null}
+      <AnswerNote answer={answer} className="mt-[10px]" />
 
       {names.length > 0 ? (
         <p className="mt-[10px] flex items-center gap-[9px] text-md-lo text-fg-muted">

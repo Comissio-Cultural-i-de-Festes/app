@@ -168,6 +168,11 @@
     "notSaved": "No se ha podido enviar ni guardar en el móvil, así que no saldrá solo. Vuelve a intentarlo cuando tengas cobertura.",
     "rateLimited": "Demasiados intentos seguidos. Espera un par de minutos y vuelve.",
     "behindServer": "Esto todavía no está en el servidor: la app se ha actualizado antes que la base de datos. Si eres de la junta, sube las migraciones; si no, avísalos.",
+    "stalled": "La conexión no responde: no llega nada. Vuelve a intentarlo o busca un sitio con más cobertura.",
+    "sessionUnreachable": "Sin conexión no podemos abrir tu sesión. Cuando vuelva la red, la app se abrirá sola.",
+    "sendPaused": "Sin conexión. Queda en espera y se enviará cuando vuelva la red: no cierres la app.",
+    "sendSlow": "La conexión va muy lenta: todavía no ha llegado.",
+    "sendOffline": "Sin conexión, no ha salido. Vuelve a intentarlo cuando tengas cobertura.",
     "avisSostre": "Este curso ya se le han restado a esta persona todos los puntos que el tope permite. Sube «Máximo de puntos por curso» en El baremo, o registra el aviso sin puntos.",
     "avisForaDelCurs": "Hoy no cae dentro de ningún curso, y sin curso no hay ningún tope que contar. Abre el curso en «Los periodos del ranking», o registra el aviso sin puntos."
   },
@@ -278,7 +283,10 @@
       "confirmTitle": "¿Quieres venir? Las plazas las reparte la junta",
       "request": "Pide plaza",
       "requestWarning": "Pedirla no es tenerla. Lo decide la junta y te lo decimos por el grupo.",
-      "requestedPrivate": "Que lo hayas pedido no sale en ningún sitio. Solo lo ve la junta."
+      "requestedPrivate": "Que lo hayas pedido no sale en ningún sitio. Solo lo ve la junta.",
+      "paused": "Sin conexión. La respuesta espera aquí y se enviará cuando vuelva la red: no cierres la app.",
+      "offline": "Sin conexión, la respuesta no ha salido. Vuelve a intentarlo cuando tengas cobertura.",
+      "slow": "La conexión va muy lenta: la respuesta todavía no ha llegado."
     },
     "queue": {
       "onList": "Estás en la lista de espera. Si alguien se echa atrás, la junta te avisa.",
@@ -1953,6 +1961,9 @@
     "howTo": "El de recambio: si no puedes fichar desde el móvil, enséñalo en la puerta y espera el «fichado». Abre esta pantalla una vez con conexión y el código queda guardado en el móvil.",
     "unavailable": "Ahora mismo no podemos mostrar tu código. Pruébalo con conexión y quedará guardado para la próxima.",
     "fallback": "El de la puerta te puede buscar por el nombre.",
+    "fromPocket": "Muestra mi QR",
+    "noneSaved": "Este móvil no tiene ningún QR guardado: hay que abrirlo una vez con conexión. En la puerta te pueden buscar por el nombre.",
+    "pocketBack": "Oculta el QR",
     "notYet": {
       "heading": "Mi QR",
       "lead": "Es lo que enseñas en la puerta.",

@@ -20,10 +20,16 @@ import { LEDGER_ROW } from './ledger'
  * gravetat— i si s'ha retirat. I un avís de zero punts no hi sortia gens, que és
  * el cas que la migració 73 defensa com el primer avís normal.
  *
- * ES VEU, I ES VEU ENTER. La política d'`avisos` és `user_id = auth.uid() or
- * is_admin()`: qui hi surt el llegeix sencer, amb el motiu escrit. No és una
+ * ES VEU, I ES VEU ENTER. La política d'`avisos` és «els teus validats, o tots
+ * si ets de la junta»: qui hi surt el llegeix sencer, amb el motiu escrit. No és una
  * concessió, és la premissa —el formulari de la junta avisa qui l'escriu que
  * això es publicarà— i amagar-ho aquí convertiria aquella frase en mentida.
+ *
+ * NOMÉS ELS VALIDATS (migració 93). Un avís proposat encara no compta i pot ser
+ * rebutjat; la persona no en sap res fins que una segona persona de la junta el
+ * valida, i llavors li arriba la notificació i surt aquí. La política ja els
+ * amaga a un soci; el filtre de la lectura és per a qui és de la junta i mira
+ * el seu propi perfil, que si no els veuria tots.
  *
  * EL RETIRAT ES RATLLA I ES QUEDA, com a la fitxa de la junta. Que consti que hi
  * va haver un avís i que consti que es va retirar: si desaparegués, la persona
@@ -71,7 +77,7 @@ export function AvisosCard({ userId }: { readonly userId: string }) {
 
   const avisos = useQuery({
     queryKey: avisosKeys.ofMemberPeriode(userId, des_de, fins_a),
-    queryFn: () => fetchAvisos(userId, des_de, fins_a),
+    queryFn: () => fetchAvisos(userId, des_de, fins_a, true),
     enabled: userId !== '' && llest,
   })
   const cataleg = useQuery({

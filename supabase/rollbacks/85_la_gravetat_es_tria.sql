@@ -14,6 +14,15 @@
 -- sobre ja no existeix, i crearia la de cinc al costat de la de set: dues
 -- `avisa()` i PGRST203. Desfés abans la 86.
 --
+-- I LA 93 VA ABANS QUE TOT AIXÒ. Reescriu `avisa()`, `private.registra_avis`,
+-- `retira_avis()` i `edita_mesura_presa()` sense canviar-ne cap firma, perquè un
+-- avís el validi una segona persona de la junta. Aplicar aquest fitxer amb la
+-- 93 a sobre tornaria a deixar que una sola persona fes comptar un avís, i el
+-- nucli d'aquí inseriria a `avisos` sense `validat_at`: només els de zero punts
+-- hi entrarien, i quedarien proposats per sempre; els que resten punts petarien
+-- pel CHECK `avisos_proposat_sense_punts`, perquè la seva fila de punts ja hi
+-- seria. Desfés primer la 93 amb el seu rollback.
+--
 -- QUÈ TORNA A OBRIR: la junta deixa de poder triar la gravetat d'un avís, i el
 -- formulari que la hi envia rebrà PGRST202. Les files ja escrites no es toquen:
 -- la gravetat que es va triar es queda a `avisos.gravetat`, que és on ha de ser.

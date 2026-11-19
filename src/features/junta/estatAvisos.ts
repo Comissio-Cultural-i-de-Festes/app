@@ -170,3 +170,62 @@ export function escaloNou(
   const despres = estatDe({ pes: pesAra + pesDe(gravetat, normativa.pesos) }, normativa.llindars)
   return despres === abans ? null : despres
 }
+
+/**
+ * En quin punt de la seva vida és un avís (migració 93).
+ *
+ * DUES COLUMNES, QUATRE FASES. Un avís neix proposat i compta quan un altre
+ * membre de la junta el valida. Tancat abans de validar-se és un REBUIG: no
+ * havia restat res i la persona no en va saber mai res. Tancat després és una
+ * RETIRADA, amb la compensatòria de sempre. La fitxa les pinta diferent perquè
+ * volen dir coses diferents.
+ */
+export type FaseAvis = 'proposat' | 'validat' | 'rebutjat' | 'retirat'
+
+export function faseDe(avis: {
+  readonly validat_at: string | null
+  readonly retirat_at: string | null
+}): FaseAvis {
+  if (avis.retirat_at !== null) return avis.validat_at === null ? 'rebutjat' : 'retirat'
+  return avis.validat_at === null ? 'proposat' : 'validat'
+}
+
+export interface AccionsAvis {
+  readonly valida: boolean
+  readonly rebutja: boolean
+  readonly retira: boolean
+  readonly mesura: boolean
+}
+
+/**
+ * Quins botons té qui mira un avís.
+ *
+ * ÉS LA REGLA DE LA BASE, escrita perquè la pantalla no ofereixi el que la base
+ * refusarà. `valida_avis()`, `retira_avis()` i `edita_mesura_presa()` tornen
+ * 42501 a qui rep l'avís, i `valida_avis()` també a qui l'ha proposat. Si el
+ * botó hi fos, la persona el premeria i llegiria «Això no ho pots fer tu»
+ * després d'haver-ho intentat; amb el botó apagat, la fila ja diu per què.
+ *
+ * QUI HA PROPOSAT UN AVÍS EL POT REBUTJAR: és retirar la seva pròpia proposta,
+ * i això no castiga ningú. Un `created_by` buit —qui el va proposar ja no té
+ * compte— no impedeix validar-lo a ningú que no el rebi.
+ */
+export function accionsSobre(
+  avis: {
+    readonly user_id: string
+    readonly created_by: string | null
+    readonly validat_at: string | null
+    readonly retirat_at: string | null
+  },
+  jo: string,
+): AccionsAvis {
+  if (avis.user_id === jo) return { valida: false, rebutja: false, retira: false, mesura: false }
+
+  const fase = faseDe(avis)
+  return {
+    valida: fase === 'proposat' && avis.created_by !== jo,
+    rebutja: fase === 'proposat',
+    retira: fase === 'validat',
+    mesura: true,
+  }
+}

@@ -136,3 +136,29 @@ stable
 as $$
   select date_trunc('day', now() at time zone 'Europe/Madrid') at time zone 'Europe/Madrid'
 $$;
+
+-- Validates every proposed avís as `junta_charlie`, through the core and not
+-- through `valida_avis()`. Since migration 93 an avís only counts once a second
+-- junta member validates it, and the files that test the ceiling, the
+-- dashboard or the pending avisos are not about that rule: they need the
+-- points on the ledger to go on asserting what they assert. The gate itself —
+-- who may validate and who may not — is tested in 498 through the real RPC.
+-- Call it after `reset role;`: `tests.*` is out of reach inside a persona.
+create or replace function tests.valida_proposats()
+returns int
+language plpgsql
+as $$
+declare
+  v_id uuid;
+  v_n  int := 0;
+begin
+  for v_id in
+    select a.id from public.avisos a
+     where a.validat_at is null and a.retirat_at is null
+     order by a.created_at, a.id
+  loop
+    perform private.compta_avis(v_id, tests.uid('junta_charlie'));
+    v_n := v_n + 1;
+  end loop;
+  return v_n;
+end $$;

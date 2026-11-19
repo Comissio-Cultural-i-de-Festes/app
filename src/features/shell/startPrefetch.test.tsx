@@ -214,6 +214,7 @@ describe('prefetchJunta', () => {
     expect(client.getQueryState(doorKeys.pointValues())?.status).toBe('success')
     expect(client.getQueryState(memberKeys.list())?.status).toBe('success')
     expect(client.getQueryState(meetingListKeys.list())?.status).toBe('success')
+    expect(client.getQueryState(avisosKeys.proposats())?.status).toBe('success')
     expect(client.getQueryState(avisosKeys.comptes('2026-09-01T00:00:00Z'))?.status).toBe('success')
   })
 })

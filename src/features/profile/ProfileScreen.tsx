@@ -129,12 +129,9 @@ export function ProfileScreen() {
     await clearAllQueues()
     // I l'avís d'un fitxatge refusat, pel mateix motiu: diu on eres i quin dia.
     clearFailedCheckins()
+    // La cau de React Query —les dades de viatger incloses— la buida
+    // `forgetOnUserChange` a `App.tsx` quan la sessió canvia de persona.
     await supabase.auth.signOut()
-    // I la cau de React Query, després de la sessió i no abans: si es buidés
-    // primer, les consultes que encara miren la tornarien a omplir amb el token
-    // que se'n va. Sense això, qui entra després a la mateixa pestanya troba
-    // trenta minuts de dades de qui ha sortit —les de viatger incloses.
-    client.clear()
   }
 
   // Què diu la fila d'Ajustos, que és tres coses diferents: la de Google, una

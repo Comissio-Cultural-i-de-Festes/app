@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
-import { useNavigate, useParams } from 'react-router'
+import { useParams } from 'react-router'
 
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import {
@@ -17,6 +17,7 @@ import { errorKey } from '@/lib/errors'
 
 import { JuntaHeader } from './JuntaHeader'
 import { teamName } from '@/features/gimcana/teamName'
+import { useBack } from '@/lib/useBack'
 
 /**
  * Muntar la gimcana, des de dins de l'activitat.
@@ -42,7 +43,7 @@ type Mena = (typeof MENES)[number]
 export function GimcanaFormScreen() {
   const { t } = useTranslation()
   const { id = '' } = useParams()
-  const navigate = useNavigate()
+  const { back } = useBack(`/junta/esdeveniment/${id}`)
   const client = useQueryClient()
 
   const event = useQuery({
@@ -89,7 +90,7 @@ export function GimcanaFormScreen() {
       ),
     onSuccess: async () => {
       await client.invalidateQueries({ queryKey: gimcanaKeys.all() })
-      void navigate(`/junta/esdeveniment/${id}`)
+      back()
     },
   })
 
@@ -113,6 +114,7 @@ export function GimcanaFormScreen() {
   return (
     <main className="min-h-dvh bg-app pb-10">
       <JuntaHeader
+        viaHistory
         to={`/junta/esdeveniment/${id}`}
         label={t('junta.gimcana.leave')}
         className="lg:hidden"

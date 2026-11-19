@@ -7,6 +7,7 @@ import { brand } from '@/config/brand'
 import { SCAN_PRESENTATION, toneVar } from '@/design/states'
 import { fetchEvent } from '@/features/event/api'
 import { eventKeys } from '@/features/event/api'
+import { useBack } from '@/lib/useBack'
 
 import {
   type DoorOutcome,
@@ -42,6 +43,7 @@ export function ScannerScreen() {
   const { t } = useTranslation()
   const { eventId } = useParams()
   const id = eventId ?? ''
+  const { onClick: onBack } = useBack('/junta')
 
   const event = useQuery({
     queryKey: eventKeys.one(id),
@@ -156,6 +158,7 @@ export function ScannerScreen() {
         <div className="flex items-center justify-between gap-6 px-8">
           <Link
             to="/junta"
+            onClick={onBack}
             aria-label={t('actions.close')}
             className="flex size-[56px] flex-none items-center justify-center rounded-full bg-[var(--ds-scrim-chip)] text-xl font-bold text-fg no-underline"
           >

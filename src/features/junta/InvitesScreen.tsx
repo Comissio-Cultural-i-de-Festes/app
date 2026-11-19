@@ -101,6 +101,7 @@ export function InvitesScreen() {
   return (
     <main className="min-h-dvh bg-app pb-[calc(var(--ds-safe-bottom)+24px)]">
       <JuntaHeader
+        viaHistory
         to="/junta"
         className="lg:hidden"
         label={t('junta.back')}

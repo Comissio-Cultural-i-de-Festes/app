@@ -2,6 +2,7 @@
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { gzipSync } from 'node:zlib'
 
 import { build } from 'vite'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
@@ -10,8 +11,9 @@ import {
   closure,
   isJuntaModule,
   isJuntaOnly,
-  juntaOnlyFiles,
+  isLocaleModule,
   keptFiles,
+  leftOutFiles,
   staticClosure,
   type BundleItem,
 } from './precache'
@@ -94,6 +96,24 @@ describe('the install', () => {
     expect(precached).toContain('index.html')
   })
 
+  it('weighs less than 400 KB gzipped, which is what the issue asked of an install', () => {
+    // Fitxer per fitxer i a nivell 9, cadascun una sola vegada: Workbox no
+    // baixa dues vegades una entrada repetida. Quan això falli, la pregunta no
+    // és com tornar-hi a cabre sinó qui ha de baixar el que s'hi ha afegit.
+    let total = 0
+    for (const file of precached)
+      total += gzipSync(readFileSync(join(out, file)), { level: 9 }).length
+    expect(total, `${(total / 1000).toFixed(1)} KB`).toBeLessThan(400_000)
+  })
+
+  it('leaves the two install icons to the browser, and keeps the ones a page or a push uses', () => {
+    expect(precached).not.toContain('pwa-512x512.png')
+    expect(precached).not.toContain('pwa-maskable-512x512.png')
+    for (const icon of ['pwa-192x192.png', 'apple-touch-icon.png', 'favicon.png']) {
+      expect(precached).toContain(icon)
+    }
+  })
+
   it.each([
     ['ScannerScreen', 'src/features/door/ScannerScreen.tsx'],
     ['ManualScreen', 'src/features/door/ManualScreen.tsx'],
@@ -103,6 +123,8 @@ describe('the install', () => {
     ['verdict', 'src/features/door/verdict.ts'],
     ['decoder', 'src/features/door/decoder.ts'],
     ['ponyfill', 'barcode-detector/dist/es/zxing-exported.js'],
+    ['JuntaLayout, the frame that draws the junta home', 'src/features/shell/JuntaLayout.tsx'],
+    ['SessionGate, the saved QR with no session', 'src/features/shell/SessionGate.tsx'],
   ])('keeps the door: %s', (_name, path) => {
     // La porta s'ha d'obrir sense xarxa després de cada desplegament, també si
     // ningú no ha tornat a entrar a la zona de junta: el perquè, a precache.ts.
@@ -120,6 +142,25 @@ describe('the install', () => {
   ])('leaves %s (%s) out of it', (name) => {
     const chunk = chunkNamed(name)
     expect(chunk, `no dynamic chunk called ${name}: was it renamed?`).toBeDefined()
+    expect(precached).not.toContain(chunk?.fileName)
+  })
+
+  it('keeps Catalan, which travels inside the entry', () => {
+    const chunk = chunkWith('src/i18n/locales/ca.json')
+    expect(chunk?.isEntry).toBe(true)
+    expect(precached).toContain(chunk?.fileName)
+  })
+
+  it.each([
+    ['Spanish', 'src/i18n/locales/es.json'],
+    ['English', 'src/i18n/locales/en.json'],
+  ])('leaves %s out, for the chunks cache to keep once it is read', (_name, path) => {
+    // Cada persona en llegeix un, i la regla `chunks` el desa la primera
+    // vegada que es demana: ha de quedar a sota de `/assets/` i ser un `.js`.
+    const chunk = chunkWith(path)
+    expect(chunk, `no chunk carries ${path}: was it moved?`).toBeDefined()
+    expect(chunk?.isDynamicEntry).toBe(true)
+    expect(chunk?.fileName).toMatch(/^assets\/[^/]+\.js$/)
     expect(precached).not.toContain(chunk?.fileName)
   })
 
@@ -149,7 +190,7 @@ describe('the install', () => {
 
   it("keeps every chunk that carries any of a member's code", () => {
     const members = chunks.filter((c) =>
-      c.moduleIds.some((id) => !id.startsWith('\0') && !isJuntaModule(id)),
+      c.moduleIds.some((id) => !id.startsWith('\0') && !isJuntaModule(id) && !isLocaleModule(id)),
     )
 
     expect(members.length).toBeGreaterThan(3)
@@ -158,11 +199,22 @@ describe('the install', () => {
 
   it('serves what it left out from a bounded cache once it has been fetched', () => {
     expect(sw).toMatch(/new \w+\.CacheFirst\(\{cacheName:"chunks"/)
-    expect(sw).toMatch(/cacheName:"chunks",plugins:\[[^\]]*ExpirationPlugin\(\{maxEntries:\d+/)
+    expect(sw).toMatch(
+      /cacheName:"chunks",(?:matchOptions:\{[^}]*\},)?plugins:\[[^\]]*ExpirationPlugin\(\{maxEntries:\d+/,
+    )
+  })
+
+  it('finds a chunk stored by a fetch() when an import() asks for it', () => {
+    // Una primera visita el desa amb un `fetch()` (src/lib/firstControl.ts);
+    // l'`import()` d'després porta `Origin`, i amb `Vary: Origin` no casaria.
+    const rule = /cacheName:"chunks",(.*?)\}\),"GET"\)/.exec(sw)?.[1]
+    expect(rule).toMatch(/matchOptions:\{ignoreVary:(?:!0|true)\}/)
   })
 
   it.each(['chunks', 'wasm'])('never stores an html page in the %s cache', (name) => {
-    const rule = new RegExp(`cacheName:"${name}",plugins:\\[(.*?)\\]\\}\\),"GET"\\)`).exec(sw)?.[1]
+    const rule = new RegExp(
+      `cacheName:"${name}",(?:matchOptions:\\{[^}]*\\},)?plugins:\\[(.*?)\\]\\}\\),"GET"\\)`,
+    ).exec(sw)?.[1]
     expect(rule, `no ${name} rule in sw.js`).toBeDefined()
     expect(rule).toMatch(/CacheableResponsePlugin\(\{statuses:\[200\]\}\)/)
     expect(rule).toMatch(/cacheWillUpdate/)
@@ -170,7 +222,7 @@ describe('the install', () => {
   })
 })
 
-describe('juntaOnlyFiles', () => {
+describe('leftOutFiles', () => {
   const chunk = (
     fileName: string,
     moduleIds: string[],
@@ -195,7 +247,7 @@ describe('juntaOnlyFiles', () => {
       }),
       'nav.js': chunk('nav.js', ['/app/src/features/junta/JuntaNav.tsx']),
     }
-    expect(juntaOnlyFiles(graph)).toEqual(new Set())
+    expect(leftOutFiles(graph)).toEqual(new Set())
   })
 
   it('leaves out a lazy junta or map chunk, and its css', () => {
@@ -211,7 +263,7 @@ describe('juntaOnlyFiles', () => {
       ),
       'map.css': { type: 'asset', fileName: 'map.css' },
     } satisfies Record<string, BundleItem>
-    expect(juntaOnlyFiles(graph)).toEqual(new Set(['map.js', 'map.css']))
+    expect(leftOutFiles(graph)).toEqual(new Set(['map.js', 'map.css']))
   })
 
   it('keeps the door, and the junta-only chunks it imports', () => {
@@ -226,7 +278,7 @@ describe('juntaOnlyFiles', () => {
         imports: ['eventsApi.js'],
       }),
     }
-    expect(juntaOnlyFiles(graph)).toEqual(new Set(['audit.js']))
+    expect(leftOutFiles(graph)).toEqual(new Set(['audit.js']))
   })
 
   it('keeps what a kept lazy chunk imports, however deep', () => {
@@ -241,7 +293,7 @@ describe('juntaOnlyFiles', () => {
       }),
       'b.css': { type: 'asset', fileName: 'b.css' },
     } satisfies Record<string, BundleItem>
-    expect(juntaOnlyFiles(graph)).toEqual(new Set())
+    expect(leftOutFiles(graph)).toEqual(new Set())
   })
 
   it('keeps a lazy chunk that mixes in anything else', () => {
@@ -252,7 +304,20 @@ describe('juntaOnlyFiles', () => {
         '/app/src/features/gimcana/api.ts',
       ]),
     }
-    expect(juntaOnlyFiles(graph)).toEqual(new Set())
+    expect(leftOutFiles(graph)).toEqual(new Set())
+  })
+
+  it('leaves out a lazy language chunk, and keeps one the entry imports', () => {
+    const graph = {
+      'index.js': chunk('index.js', ['/app/src/main.tsx'], {
+        isEntry: true,
+        imports: ['ca.js'],
+      }),
+      'ca.js': chunk('ca.js', ['/app/src/i18n/locales/ca.json']),
+      'es.js': chunk('es.js', ['C:\\app\\src\\i18n\\locales\\es.json']),
+      'en.js': chunk('en.js', ['/app/src/i18n/locales/en.json']),
+    }
+    expect(leftOutFiles(graph)).toEqual(new Set(['es.js', 'en.js']))
   })
 
   it('ignores virtual modules when deciding', () => {
@@ -261,7 +326,7 @@ describe('juntaOnlyFiles', () => {
       'desk.js': chunk('desk.js', ['\0vite/preload-helper.js', '/app/src/features/junta/x.ts']),
       'helper.js': chunk('helper.js', ['\0rolldown/runtime.js']),
     }
-    expect(juntaOnlyFiles(graph)).toEqual(new Set(['desk.js']))
+    expect(leftOutFiles(graph)).toEqual(new Set(['desk.js']))
   })
 
   it("keeps a stylesheet that a member's lazy chunk also imports", () => {
@@ -275,6 +340,6 @@ describe('juntaOnlyFiles', () => {
       }),
       'shared.css': { type: 'asset', fileName: 'shared.css' },
     } satisfies Record<string, BundleItem>
-    expect(juntaOnlyFiles(graph)).toEqual(new Set(['a.js']))
+    expect(leftOutFiles(graph)).toEqual(new Set(['a.js']))
   })
 })

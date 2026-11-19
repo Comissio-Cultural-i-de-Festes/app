@@ -89,7 +89,11 @@ export function SociScreen() {
   })
 
   const header = (
-    <JuntaHeader to={back.from ?? '/ranquing'} label={back.fromLabel ?? t('nav.ranking')} />
+    <JuntaHeader
+      viaHistory
+      to={back.from ?? '/ranquing'}
+      label={back.fromLabel ?? t('nav.ranking')}
+    />
   )
 
   if (profile.isPending) {

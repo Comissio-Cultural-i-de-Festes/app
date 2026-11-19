@@ -8,6 +8,7 @@ import { useFailedCheckin } from '@/features/checkin/useFailedCheckin'
 import { PendingLine } from '@/features/checkin/PendingLine'
 import { checkinWindow, isOpen } from '@/features/checkin/window'
 import { ComebackLine } from '@/features/profile/ComebackLine'
+import { useComeback } from '@/features/profile/useComeback'
 import { PendingNote } from '@/features/session/PendingNote'
 import { firstName } from '@/features/session/profile'
 import { type Access, accessOf } from '@/features/session/access'
@@ -130,8 +131,18 @@ export function HomeScreen() {
             locale={locale}
             coverUrl={covers.data?.get(home.hero.cover_url ?? '') ?? null}
           />
-          <Places event={home.hero} attendances={home.attendances} closed={closed} />
-          <CallToAction event={home.hero} attendances={home.attendances} access={access} />
+          <Places
+            event={home.hero}
+            attendances={home.attendances}
+            closed={closed}
+            waiting={home.answersLoading}
+          />
+          <CallToAction
+            event={home.hero}
+            attendances={home.attendances}
+            access={access}
+            waiting={home.answersLoading}
+          />
         </>
       ) : home.isPending ? (
         <HeroSkeleton />
@@ -145,7 +156,7 @@ export function HomeScreen() {
 
       <InstallCard />
 
-      <RankingTeaser home={home} />
+      <RankingTeaser home={home} closed={closed} />
       {home.previous ? (
         <Recap
           event={home.previous}
@@ -154,7 +165,18 @@ export function HomeScreen() {
           coverUrl={covers.data?.get(home.previous.cover_url ?? '') ?? null}
         />
       ) : null}
-      <Upcoming events={home.rest} attendances={home.attendances} locale={locale} closed={closed} />
+      {/* Amb el calendari encara per arribar, o fallat, «Ara mateix no hi ha
+          res» seria dir el que no se sap, i la secció entrava buida i es
+          feia gran en arribar-hi les files: tot el que hi ha a sobre ja és al
+          seu lloc, però aquesta és la que s'ho queda tot. */}
+      {home.isPending || home.isError ? null : (
+        <Upcoming
+          events={home.rest}
+          attendances={home.attendances}
+          locale={locale}
+          closed={closed}
+        />
+      )}
     </div>
   )
 }
@@ -329,10 +351,13 @@ function Places({
   event,
   attendances,
   closed,
+  waiting,
 }: {
   readonly event: EventRow
   readonly attendances: readonly AttendanceRow[]
   readonly closed: boolean
+  /** Les assistències encara poden arribar: ni places ni cares, encara. */
+  readonly waiting: boolean
 }) {
   const { t } = useTranslation()
   const going = goingRows(attendances, event.id)
@@ -375,7 +400,9 @@ function Places({
             room is left, and an event with no limit has nothing to say there —
             inventing a word for it would be the loudest thing on the screen
             saying nothing at all. */}
-        {left === null ? null : (
+        {left === null ? null : waiting ? (
+          <PlacesFigureSkeleton />
+        ) : (
           <p className="tabular display text-d-md leading-[0.85] tracking-[-0.05em]">
             {left === 0 ? t('home.places.full') : t('home.places.left', { count: left })}
           </p>
@@ -387,9 +414,11 @@ function Places({
         )}
       </div>
 
-      {closed ? null : (
+      {closed ? null : waiting ? (
+        <GoingSkeleton />
+      ) : (
         <div className="flex flex-none items-center gap-4 pb-2">
-          <div className="flex items-center">
+          <div className="flex min-h-[34px] items-center">
             {going.slice(0, 3).map((row, index) => (
               <span
                 key={row.user_id}
@@ -411,6 +440,42 @@ function Places({
   )
 }
 
+/**
+ * El número de places i les cares, a l'alçada i l'amplada que tindran.
+ *
+ * Fins que no arriben les assistències, les places que queden són les de
+ * l'esdeveniment sencer i no hi ha ningú: pintar-ho seria dir «queden 30» i
+ * canviar-ho. I el número no cap en una línia al costat de les cares, així
+ * que en arribar es plegava en dues i empenyia el botó; l'esquelet ja són dues.
+ */
+function PlacesFigureSkeleton() {
+  return (
+    <Skeleton>
+      <SkeletonBar w="w-[70%]" h="h-[32px]" />
+      <SkeletonBar w="w-[24%]" h="h-[32px]" />
+    </Skeleton>
+  )
+}
+
+function GoingSkeleton() {
+  return (
+    <Skeleton className="flex flex-none items-center gap-4 pb-2">
+      <div className="flex min-h-[34px] items-center">
+        {[0, 1, 2].map((index) => (
+          <span
+            key={index}
+            className="relative rounded-full border-2 border-app [box-sizing:content-box]"
+            style={{ marginLeft: index === 0 ? 0 : -11, zIndex: 3 - index }}
+          >
+            <SkeletonBar w="w-[30px]" h="h-[30px]" className="rounded-full" />
+          </span>
+        ))}
+      </div>
+      <SkeletonBar w="w-[52px]" h="h-[14px]" />
+    </Skeleton>
+  )
+}
+
 // ── the answer ──────────────────────────────────────────────────────────────
 
 /**
@@ -425,10 +490,13 @@ function CallToAction({
   event,
   attendances,
   access,
+  waiting,
 }: {
   readonly event: EventRow
   readonly attendances: readonly AttendanceRow[]
   readonly access: Access
+  /** Les assistències encara poden arribar. */
+  readonly waiting: boolean
 }) {
   const { t, i18n } = useTranslation()
   const userId = useUserId()
@@ -454,7 +522,11 @@ function CallToAction({
   // Només per a qui hi anava. Amb `mine !== 'asistio'` a seques, qui havia dit
   // que no —o no havia contestat— rebia com a acció principal de la nit un
   // botó per fitxar en un lloc on no pensava anar, i perdia el d'apuntar-s'hi.
-  const cta = homeCta(mine, isOpen(checkinWindow(event.starts_at, event.ends_at), now.getTime()))
+  const cta = homeCta(
+    mine,
+    isOpen(checkinWindow(event.starts_at, event.ends_at), now.getTime()),
+    !waiting,
+  )
 
   const base =
     'flex w-full min-h-[56px] items-center justify-center px-[18px] py-[15px] ' +
@@ -490,7 +562,15 @@ function CallToAction({
 
   return (
     <section className={`pt-8 ${GUTTER}`}>
-      {cta === 'checkin' ? (
+      {cta === 'waiting' ? (
+        // Del mateix alt que el botó que serà, i sense paraula: «M'hi apunto»
+        // a qui ja hi va és mentir-li, i un botó apagat que diu «Carregant»
+        // no diu res que l'esquelet no digui. Si les assistències no arriben
+        // (sense xarxa, penjades) `waiting` es desfà sol i surt el botó.
+        <Skeleton>
+          <SkeletonBar w="w-full" h="h-[56px]" />
+        </Skeleton>
+      ) : cta === 'checkin' ? (
         <Link
           to={`/esdeveniment/${event.id}#soc-aqui`}
           className={`${base} bg-brand-cta text-on-brand no-underline`}
@@ -556,7 +636,9 @@ function CallToAction({
 
       <AnswerNote answer={answer} className="mt-[10px]" />
 
-      {names.length > 0 ? (
+      {cta === 'waiting' ? (
+        <SkeletonBar w="w-[72%]" h="h-[20px]" className="mt-[10px]" />
+      ) : names.length > 0 ? (
         <p className="mt-[10px] flex items-center gap-[9px] text-md-lo text-fg-muted">
           <span
             aria-hidden="true"
@@ -571,9 +653,15 @@ function CallToAction({
 
 // ── the ranking strip ───────────────────────────────────────────────────────
 
-function RankingTeaser({ home }: { readonly home: Home }) {
+function RankingTeaser({ home, closed }: { readonly home: Home; readonly closed: boolean }) {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
+  const comeback = useComeback()
+  // Fins que arriba tot el que el bloc pot dir —rànquing, escoles i la línia
+  // de «torna»— hi ha l'esquelet: el bloc entrava en tres temps i cada un
+  // empenyia el recap i el calendari avall. Un pendent no hi surt mai, i
+  // per a ell no s'hi reserva res.
+  if (!closed && (home.rankingLoading || comeback.loading)) return <RankingSkeleton />
   if (!home.me) return null
 
   const mine = home.profile?.escola ?? null
@@ -642,6 +730,30 @@ function RankingTeaser({ home }: { readonly home: Home }) {
       {/* Sota el ganxo col·lectiu, el personal: qui fa un mes que no ve. */}
       <ComebackLine />
     </section>
+  )
+}
+
+/**
+ * El lloc del bloc del rànquing mentre no hi ha dades.
+ *
+ * L'alçada és la del bloc amb escola i sense la línia de «torna», que és el cas
+ * de gairebé tothom; qui la porta fa un salt d'una línia per sota del plec.
+ */
+function RankingSkeleton() {
+  return (
+    <Skeleton className={`mt-12 min-h-[131px] border-y border-surface-7 py-[18px] ${GUTTER}`}>
+      <div className="flex items-end justify-between gap-6">
+        <div className="min-w-0 flex-1">
+          <SkeletonBar w="w-[38%]" h="h-[11px]" />
+          <SkeletonBar w="w-[34%]" h="h-[34px]" className="mt-[7px]" />
+        </div>
+        <div className="flex-none pb-[5px]">
+          <SkeletonBar w="w-[110px]" h="h-[14px]" className="ml-auto" />
+          <SkeletonBar w="w-[150px]" h="h-[13px]" className="mt-[3px] ml-auto" />
+        </div>
+      </div>
+      <SkeletonBar w="w-[62%]" h="h-[16px]" className="mt-6" />
+    </Skeleton>
   )
 }
 
@@ -842,13 +954,14 @@ function HeroSkeleton() {
       </div>
       <div className={`flex items-end justify-between gap-[14px] pt-8 ${GUTTER}`}>
         <div className="min-w-0 flex-1">
-          <SkeletonBar w="w-[55%]" h="h-[34px]" />
-          <SkeletonBar w="w-[40%]" h="h-[11px]" className="mt-[5px]" />
+          <PlacesFigureSkeleton />
+          <SkeletonBar w="w-[40%]" h="h-[11px]" className="my-[4px] mt-[9px]" />
         </div>
-        <SkeletonBar w="w-[86px]" h="h-[30px]" className="flex-none rounded-full" />
+        <GoingSkeleton />
       </div>
       <div className={`pt-8 ${GUTTER}`}>
         <SkeletonBar w="w-full" h="h-[56px]" />
+        <SkeletonBar w="w-[72%]" h="h-[20px]" className="mt-[10px]" />
       </div>
     </Skeleton>
   )

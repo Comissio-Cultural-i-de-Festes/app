@@ -1,9 +1,6 @@
-import { useQuery } from '@tanstack/react-query'
 import { useTranslation } from 'react-i18next'
 
-import { useUserId } from '@/features/session/useUserId'
-
-import { fetchStreak, profileScreenKeys } from './api'
+import { useComeback } from './useComeback'
 
 /**
  * «La teva millor ratxa és de 7. La primera que vinguis, en comences una altra.»
@@ -22,15 +19,8 @@ import { fetchStreak, profileScreenKeys } from './api'
  */
 export function ComebackLine() {
   const { t } = useTranslation()
-  const userId = useUserId()
-
-  const streak = useQuery({
-    queryKey: profileScreenKeys.streak(userId),
-    queryFn: fetchStreak,
-  })
-
-  const best = streak.data?.millor ?? 0
-  if (streak.data?.actual !== 0 || best === 0) return null
+  const { best } = useComeback()
+  if (best === null) return null
 
   return (
     <p className="mt-4 text-md-lo text-fg-muted [text-wrap:pretty]">

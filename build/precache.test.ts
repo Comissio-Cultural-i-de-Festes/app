@@ -13,6 +13,8 @@ import {
   isJuntaModule,
   isJuntaOnly,
   isLocaleModule,
+  isOnlineOnly,
+  isOnlineOnlyModule,
   keptFiles,
   leftOutFiles,
   staticClosure,
@@ -259,11 +261,26 @@ describe('the install', () => {
 
   it("keeps every chunk that carries any of a member's code", () => {
     const members = chunks.filter((c) =>
-      c.moduleIds.some((id) => !id.startsWith('\0') && !isJuntaModule(id) && !isLocaleModule(id)),
+      c.moduleIds.some(
+        (id) =>
+          !id.startsWith('\0') &&
+          !isJuntaModule(id) &&
+          !isLocaleModule(id) &&
+          !isOnlineOnlyModule(id),
+      ),
     )
 
     expect(members.length).toBeGreaterThan(3)
     for (const c of members) expect(precached, c.fileName).toContain(c.fileName)
+  })
+
+  it('leaves out the traveller-details form, which does nothing offline', () => {
+    const screen = chunks.find((c) =>
+      c.moduleIds.some((id) => id.replaceAll('\\', '/').endsWith('/event/ViatgerScreen.tsx')),
+    )
+    expect(screen).toBeDefined()
+    expect(isOnlineOnly(screen as Extract<BundleItem, { type: 'chunk' }>)).toBe(true)
+    expect(precached).not.toContain(screen?.fileName)
   })
 
   it('serves what it left out from a bounded cache once it has been fetched', () => {

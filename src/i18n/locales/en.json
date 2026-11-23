@@ -176,7 +176,8 @@
     "sendSlow": "The connection is very slow: it hasn't arrived yet.",
     "sendOffline": "No connection, so it didn't go out. Try again when you have signal.",
     "avisSostre": "This person has already lost every point the cap allows this year. Raise “Most points per year” in The points table, or log the warning with no points.",
-    "avisForaDelCurs": "Today falls outside every academic year, and with no year there's no cap to count. Open the year under “The ranking periods”, or log the warning with no points."
+    "avisForaDelCurs": "Today falls outside every academic year, and with no year there's no cap to count. Open the year under “The ranking periods”, or log the warning with no points.",
+    "viatgerInvalid": "Something isn't in the right format. Check the fields and try again."
   },
   "escola": {
     "politecnica": "Polytechnic",
@@ -1226,7 +1227,9 @@
         "avis_pendent": "{{actor}} logged a pending warning for someone without an account",
         "retira_avis": "{{actor}} withdrew a warning against {{target}}",
         "retira_avis_pendent": "{{actor}} withdrew a pending warning",
-        "set_avis_tipus": "{{actor}} changed the warning catalogue"
+        "set_avis_tipus": "{{actor}} changed the warning catalogue",
+        "consulta_viatgers": "{{actor}} opened the traveller details for an event",
+        "set_demana_viatger": "{{actor}} changed whether an event asks for traveller details"
       },
       "rowSub": "Who did what"
     },
@@ -1416,6 +1419,45 @@
       "metres_one": "{{count}} m",
       "metres_other": "{{count}} m"
     },
+    "viatgers": {
+      "title": "Traveller details",
+      "flag": {
+        "label": "Traveller details",
+        "on": "Asked for on sign-up",
+        "off": "Not asked for",
+        "hint": "For a country house or any accommodation: each person's name, ID, date of birth and address, for the traveller register. Saved straight away, and deleted automatically a week after the stay.",
+        "newEvent": "Save the event first, then you can ask for traveller details.",
+        "sure_one": "If you stop asking, the details one person has already added will be deleted. They can't be recovered.",
+        "sure_other": "If you stop asking, the details {{count}} people have already added will be deleted. They can't be recovered.",
+        "sureCta": "Stop asking",
+        "turnedOn": "Done: they're asked for now.",
+        "turnedOff": "Done: they're no longer asked for.",
+        "removed_one": "Done: no longer asked for, and one person's details were deleted.",
+        "removed_other": "Done: no longer asked for, and {{count}} people's details were deleted.",
+        "paused": "Offline. It will save when the connection comes back."
+      },
+      "off": "This event doesn't ask for traveller details.",
+      "toForm": "Go to the event form",
+      "note": "Only people with a place are included. Every time you view or export them, it's logged in the board's log with your name. The file you download is your responsibility: delete it once you've sent it to the accommodation.",
+      "purge": "They delete themselves on {{date}}.",
+      "summary": "{{posades}} of {{total}} have added them",
+      "empty": "Nobody has signed up yet.",
+      "has": "Added",
+      "missing": "Missing",
+      "estat": {
+        "si": "Has a place",
+        "asistio": "Already in",
+        "espera": "On the waiting list",
+        "sollicitat": "Awaiting a decision"
+      },
+      "noExport": "not exported",
+      "export": "Export CSV",
+      "exported_one": "File downloaded, with one person.",
+      "exported_other": "File downloaded, with {{count}} people.",
+      "exportNone": "Nobody with a place has added details yet.",
+      "show": "Show the details",
+      "hide": "Hide the details"
+    },
     "checkins": {
       "title": "Who checked in",
       "lede": "Points are granted on check-in. This is for taking them back when needed, not for granting them: look at the metres, and whoever checked in from far away stands out.",
@@ -1486,6 +1528,92 @@
       "rowWork_other": "{{count}} activities to sign off"
     }
   },
+  "viatger": {
+    "title": "Traveller details",
+    "block": {
+      "before": "If you go, we'll ask for your traveller registration details: the accommodation has to send them to the police.",
+      "eyebrow": "Traveller registration",
+      "missingTitle": "Your traveller details are missing",
+      "missingBody": "The accommodation has to send them to the traveller register. Only the board sees them, and they delete themselves on {{date}}.",
+      "missingCta": "Add them",
+      "doneTitle": "Your traveller details are in",
+      "doneBody": "You can check and change them until {{date}}, when they delete themselves.",
+      "doneCta": "Check them"
+    },
+    "privacy": {
+      "what": "The house has to send these details to the police traveller register (Spanish RD 933/2021). They are used for nothing else.",
+      "who": "You and the board see them; the board passes them on to the accommodation. Every time the board opens them, who did it and when is logged.",
+      "when": "In the app they delete themselves on {{date}}, a week after you get back, or as soon as you stop going. They are not kept for next time.",
+      "noPhoto": "We never ask for a photo of your ID."
+    },
+    "section": {
+      "who": "Who you are",
+      "document": "Your ID",
+      "home": "Where you live",
+      "emergency": "Just in case"
+    },
+    "field": {
+      "nom": "First name",
+      "cognom1": "First surname",
+      "cognom2": "Second surname",
+      "sexe": "Sex",
+      "data_naixement": "Date of birth",
+      "nacionalitat": "Nationality",
+      "tipus_document": "ID type",
+      "numero_document": "ID number",
+      "numero_suport": "Support number",
+      "adreca": "Address",
+      "localitat": "Town or city",
+      "pais": "Country",
+      "telefon_emergencia": "Emergency phone"
+    },
+    "hint": {
+      "cognom2": "If you have one. If not, leave it blank.",
+      "suport": {
+        "dni": "Three letters and six digits on the front of the DNI (labelled «IDESP» or «NÚM. SOPORTE»).",
+        "nie": "The card number, the one starting with E, at the top of the front."
+      },
+      "telefon_emergencia": "Someone to call if something happens to you. Not your own."
+    },
+    "sexe": {
+      "dona": "Female",
+      "home": "Male",
+      "altre": "Other"
+    },
+    "document": {
+      "dni": "DNI",
+      "nie": "NIE",
+      "passaport": "Passport",
+      "id_ue": "EU identity card"
+    },
+    "choose": "Pick one",
+    "bad": {
+      "nom": "Write your name as it appears on your ID.",
+      "cognom1": "Write your first surname.",
+      "cognom2": "Too long: {{max}} characters at most.",
+      "sexe": "Pick one.",
+      "data_naixement": "Enter your date of birth. It can't be in the future.",
+      "nacionalitat": "Pick your nationality.",
+      "tipus_document": "Pick which ID you carry.",
+      "numero_document": "That number doesn't add up. Check it digit by digit, and the letter at the end.",
+      "numero_suport": "The support number is missing, or isn't in the right shape.",
+      "adreca": "Write the address where you live.",
+      "localitat": "Write the town or city.",
+      "pais": "Pick the country.",
+      "telefon_emergencia": "Write a phone number with at least nine digits."
+    },
+    "fixFirst": "Some fields need another look: they're the ones marked in amber.",
+    "offline": "You're offline, and nothing is sent without a connection. What you've written stays here as long as you don't leave this screen.",
+    "notSent": "Nothing was sent: you're offline. Try again once you have a connection.",
+    "save": "Save details",
+    "delete": "Delete my details",
+    "deleteSure": "Delete them? The board won't be able to send them to the accommodation, and you'll have to add them again if you go.",
+    "deleteCta": "Yes, delete them",
+    "notAsked": "This event doesn't ask for traveller details.",
+    "notGoing": "Traveller details are only asked of people who are going. Say you're going first.",
+    "closed": "This stay is over, and the details can no longer be added or changed.",
+    "backToEvent": "Back to the event"
+  },
   "language": {
     "label": "Language",
     "ca": "Català",
@@ -1531,14 +1659,19 @@
         "title": "Where you were when you checked in",
         "p1": "If you check in from your phone instead of the QR code, the phone sends where you are so we can tell you are at the venue. The coordinate is stored, but nobody sees it through the app: the board only sees how many metres from the venue you were, which is what it takes to spot somebody checking in from home."
       },
+      "travel": {
+        "title": "If you stay overnight",
+        "p1": "When an event is at a country house or other accommodation, the law requires the house to send the police the details of everyone who stays (Spanish RD 933/2021): name, surnames, sex, ID, nationality, date of birth and address. If you go, we ask you for them, plus an emergency phone number. We never ask for a photo of your ID.",
+        "p2": "You and the board see them; the board passes them on to the accommodation, and every time it opens them, who and when is logged. They delete themselves a week after the stay, or sooner if you stop going or leave the association. They are not kept for next time: each stay asks for them again. That is what the app does; the copy the board exports to send to the accommodation is the board's responsibility, and it must delete it once sent, while the accommodation keeps its own for as long as the law requires."
+      },
       "log": {
         "title": "The board's log",
-        "p1": "Everything the board does — awarding points, admitting somebody, publishing an event — is recorded with who did it and when. The board reads that log and it deletes itself after two years. It is the only thing in the whole app that expires on its own.",
+        "p1": "Everything the board does — awarding points, admitting somebody, publishing an event — is recorded with who did it and when. The board reads that log and it deletes itself after two years.",
         "p2": "There is also a screen where the board sees who has not been around for a while, worked out from recent activities. It is good for nothing except writing to you and asking whether everything is all right."
       },
       "keep": {
         "title": "How long we keep it",
-        "p1": "As things stand, plainly: apart from the log, nothing deletes itself. Not the profile, not the phone number, not the photographs, not the history. If you leave you stop appearing everywhere, but the data stays until somebody removes it by hand.",
+        "p1": "As things stand, plainly: apart from the log and traveller details, nothing deletes itself. Not the profile, not the phone number, not the photographs, not the history. If you leave you stop appearing everywhere, but the data stays until somebody removes it by hand.",
         "p2": "It is something we want to fix before this grows, and in the meantime we will not quote you a deadline we do not meet."
       },
       "others": {
@@ -1550,7 +1683,7 @@
       "minors": {
         "title": "If you are not 18 yet",
         "p1": "From the age of 14 you can give permission for this data yourself, and therefore to use the app. The parental authorisation we ask for on certain activities is a different thing and goes a different way: on paper, separately.",
-        "p2": "The app does not ask your date of birth and checks no age. If you are under 18 and would rather your face did not appear in a night's gallery, say so and it will not."
+        "p2": "The app does not ask your date of birth (except in the traveller details for a place to stay, which delete themselves) and checks no age. If you are under 18 and would rather your face did not appear in a night's gallery, say so and it will not."
       },
       "rights": {
         "title": "What you can ask for",

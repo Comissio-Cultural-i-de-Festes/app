@@ -22,6 +22,7 @@ import { HoresStrip } from './HoresStrip'
 import { Notice } from '@/ui/Notice/Notice'
 import { useBack } from '@/lib/useBack'
 
+import { DemanaViatgerBlock } from './DemanaViatgerBlock'
 import { Field, INPUT } from './formBits'
 import { JuntaHeader } from './JuntaHeader'
 import {
@@ -612,6 +613,8 @@ function EventForm() {
               </button>
             </Field>
           )}
+
+          <DemanaViatgerBlock eventId={editing ? (id ?? null) : null} tipo={form.tipo} />
 
           {/* Només d'un esdeveniment que existeix, i sota el mapa perquè les
               dues coses són la mateixa: aquí es tria on es pot fitxar, i allà

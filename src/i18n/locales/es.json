@@ -176,7 +176,8 @@
     "sendSlow": "La conexión va muy lenta: todavía no ha llegado.",
     "sendOffline": "Sin conexión, no ha salido. Vuelve a intentarlo cuando tengas cobertura.",
     "avisSostre": "Este curso ya se le han restado a esta persona todos los puntos que el tope permite. Sube «Máximo de puntos por curso» en El baremo, o registra el aviso sin puntos.",
-    "avisForaDelCurs": "Hoy no cae dentro de ningún curso, y sin curso no hay ningún tope que contar. Abre el curso en «Los periodos del ranking», o registra el aviso sin puntos."
+    "avisForaDelCurs": "Hoy no cae dentro de ningún curso, y sin curso no hay ningún tope que contar. Abre el curso en «Los periodos del ranking», o registra el aviso sin puntos.",
+    "viatgerInvalid": "Algún dato no tiene la forma que toca. Revisa los campos y vuelve a intentarlo."
   },
   "escola": {
     "politecnica": "Politécnica",
@@ -1226,7 +1227,9 @@
         "avis_pendent": "{{actor}} ha registrado un aviso pendiente para alguien sin cuenta",
         "retira_avis": "{{actor}} ha retirado un aviso a {{target}}",
         "retira_avis_pendent": "{{actor}} ha retirado un aviso pendiente",
-        "set_avis_tipus": "{{actor}} ha cambiado el catálogo de avisos"
+        "set_avis_tipus": "{{actor}} ha cambiado el catálogo de avisos",
+        "consulta_viatgers": "{{actor}} ha abierto los datos de viajero de un evento",
+        "set_demana_viatger": "{{actor}} ha cambiado si un evento pide datos de viajero"
       },
       "rowSub": "Quién ha hecho qué"
     },
@@ -1416,6 +1419,45 @@
       "metres_one": "{{count}} m",
       "metres_other": "{{count}} m"
     },
+    "viatgers": {
+      "title": "Datos de viajero",
+      "flag": {
+        "label": "Datos de viajero",
+        "on": "Se piden al apuntarse",
+        "off": "No se piden",
+        "hint": "Para una casa rural o cualquier alojamiento: el nombre, el documento, la fecha de nacimiento y la dirección de cada persona, para el registro de viajeros. Se guarda al momento, y se borran solos una semana después de la estancia.",
+        "newEvent": "Guarda primero el evento, y después podrás pedir los datos de viajero.",
+        "sure_one": "Si dejas de pedirlos, se borrarán los datos de una persona que ya los había puesto. No se pueden recuperar.",
+        "sure_other": "Si dejas de pedirlos, se borrarán los datos de {{count}} personas que ya los habían puesto. No se pueden recuperar.",
+        "sureCta": "Deja de pedirlos",
+        "turnedOn": "Hecho: ahora se piden.",
+        "turnedOff": "Hecho: ya no se piden.",
+        "removed_one": "Hecho: ya no se piden, y se han borrado los datos de una persona.",
+        "removed_other": "Hecho: ya no se piden, y se han borrado los datos de {{count}} personas.",
+        "paused": "Sin conexión. Se guardará cuando vuelva la cobertura."
+      },
+      "off": "Este evento no pide datos de viajero.",
+      "toForm": "Ve al formulario del evento",
+      "note": "Solo salen los datos de quien tiene plaza. Cada vez que los miras o los exportas queda escrito en el registro de la junta, con tu nombre. El archivo que descargues es responsabilidad tuya: bórralo cuando lo hayas enviado al alojamiento.",
+      "purge": "Se borran solos el {{date}}.",
+      "summary": "{{posades}} de {{total}} los han puesto",
+      "empty": "Todavía no se ha apuntado nadie.",
+      "has": "Completos",
+      "missing": "Faltan",
+      "estat": {
+        "si": "Tiene plaza",
+        "asistio": "Ya está dentro",
+        "espera": "En lista de espera",
+        "sollicitat": "Pendiente de decidir"
+      },
+      "noExport": "no se exporta",
+      "export": "Exporta el CSV",
+      "exported_one": "Archivo descargado, con una persona.",
+      "exported_other": "Archivo descargado, con {{count}} personas.",
+      "exportNone": "Todavía no hay ningún dato de quien tiene plaza.",
+      "show": "Muestra los datos",
+      "hide": "Oculta los datos"
+    },
     "checkins": {
       "title": "Quién ha fichado",
       "lede": "Los puntos se dan solos al fichar. Esto es para quitarlos cuando toca, no para darlos: mira los metros, y el que fichó de lejos se ve solo.",
@@ -1486,6 +1528,92 @@
       "rowWork_other": "{{count}} actividades por visar"
     }
   },
+  "viatger": {
+    "title": "Datos de viajero",
+    "block": {
+      "before": "Si vas, te pediremos los datos del registro de viajeros: el alojamiento tiene que enviarlos a la policía.",
+      "eyebrow": "Registro de viajeros",
+      "missingTitle": "Faltan tus datos de viajero",
+      "missingBody": "El alojamiento tiene que enviarlos al registro de viajeros. Solo los ve la junta, y se borran solos el {{date}}.",
+      "missingCta": "Ponlos",
+      "doneTitle": "Tus datos de viajero ya están",
+      "doneBody": "Puedes revisarlos y cambiarlos hasta el {{date}}, que es cuando se borran solos.",
+      "doneCta": "Revísalos"
+    },
+    "privacy": {
+      "what": "La casa tiene que enviar estos datos al registro de viajeros de la policía (RD 933/2021). No sirven para nada más.",
+      "who": "Los ves tú y la junta, que se los pasa al alojamiento. Cada vez que la junta los abre, queda escrito quién lo ha hecho y cuándo.",
+      "when": "De la app se borran solos el {{date}}, una semana después de volver. También si dejas de ir. No se guardan para la próxima vez.",
+      "noPhoto": "No te pedimos ninguna foto del documento."
+    },
+    "section": {
+      "who": "Quién eres",
+      "document": "El documento",
+      "home": "Dónde vives",
+      "emergency": "Por si acaso"
+    },
+    "field": {
+      "nom": "Nombre",
+      "cognom1": "Primer apellido",
+      "cognom2": "Segundo apellido",
+      "sexe": "Sexo",
+      "data_naixement": "Fecha de nacimiento",
+      "nacionalitat": "Nacionalidad",
+      "tipus_document": "Documento",
+      "numero_document": "Número de documento",
+      "numero_suport": "Número de soporte",
+      "adreca": "Dirección",
+      "localitat": "Localidad",
+      "pais": "País",
+      "telefon_emergencia": "Teléfono de emergencia"
+    },
+    "hint": {
+      "cognom2": "Si tienes. Si no, déjalo en blanco.",
+      "suport": {
+        "dni": "Son tres letras y seis cifras, en la cara delantera del DNI (pone «IDESP» o «NÚM. SOPORTE»).",
+        "nie": "Es el número de la tarjeta, el que empieza por E, arriba en la cara delantera."
+      },
+      "telefon_emergencia": "De alguien a quien llamar si te pasa algo. No el tuyo."
+    },
+    "sexe": {
+      "dona": "Mujer",
+      "home": "Hombre",
+      "altre": "Otro"
+    },
+    "document": {
+      "dni": "DNI",
+      "nie": "NIE",
+      "passaport": "Pasaporte",
+      "id_ue": "Documento de identidad de la UE"
+    },
+    "choose": "Elige uno",
+    "bad": {
+      "nom": "Escribe el nombre como sale en el documento.",
+      "cognom1": "Escribe el primer apellido.",
+      "cognom2": "Es demasiado largo: como máximo {{max}} caracteres.",
+      "sexe": "Elige uno.",
+      "data_naixement": "Pon la fecha de nacimiento, que no puede ser futura.",
+      "nacionalitat": "Elige la nacionalidad.",
+      "tipus_document": "Elige qué documento llevas.",
+      "numero_document": "Este número no cuadra. Revísalo cifra a cifra, y la letra del final.",
+      "numero_suport": "Falta el número de soporte, o no tiene la forma que toca.",
+      "adreca": "Escribe la dirección donde vives.",
+      "localitat": "Escribe la localidad.",
+      "pais": "Elige el país.",
+      "telefon_emergencia": "Escribe un teléfono de nueve cifras como mínimo."
+    },
+    "fixFirst": "Hay campos por revisar: son los marcados en ámbar.",
+    "offline": "No tienes conexión, y sin conexión no se envía nada. Lo que has escrito se queda aquí mientras no salgas de esta pantalla.",
+    "notSent": "No se ha enviado nada: no tienes conexión. Vuelve a intentarlo cuando tengas.",
+    "save": "Guarda los datos",
+    "delete": "Borra mis datos",
+    "deleteSure": "¿Los borramos? La junta ya no podrá enviarlos al alojamiento, y tendrás que volver a ponerlos si vas.",
+    "deleteCta": "Sí, bórralos",
+    "notAsked": "Esta actividad no pide datos de viajero.",
+    "notGoing": "Los datos de viajero se piden a quien va. Primero di que vas.",
+    "closed": "Esta estancia ya ha terminado, y los datos ya no se pueden poner ni cambiar.",
+    "backToEvent": "Vuelve a la actividad"
+  },
   "language": {
     "label": "Idioma",
     "ca": "Català",
@@ -1531,14 +1659,19 @@
         "title": "Dónde estabas al fichar",
         "p1": "Si fichas desde el móvil en lugar del QR, el teléfono envía dónde estás para comprobar que estás en el sitio. La coordenada se guarda, pero no la ve nadie por la app: la junta solo ve a cuántos metros del local estabas, que es lo que hace falta para ver si alguien ficha desde casa."
       },
+      "travel": {
+        "title": "Si duermes fuera",
+        "p1": "Cuando una actividad es en una casa rural u otro alojamiento, la ley obliga a la casa a enviar a la policía los datos de cada persona que duerme allí (RD 933/2021): nombre, apellidos, sexo, documento, nacionalidad, fecha de nacimiento y dirección. Si vas, te los pedimos, más un teléfono de emergencia. No te pedimos ninguna foto del documento.",
+        "p2": "Los ves tú y la junta, que se los pasa al alojamiento, y cada vez que la junta los abre queda escrito quién y cuándo. Se borran solos una semana después de la estancia, o antes si dejas de ir o te das de baja. No se guardan para la próxima vez: cada alojamiento te los vuelve a pedir. Esto es lo que hace la app; la copia que la junta exporta para enviarla al alojamiento es responsabilidad de la junta, que debe borrarla una vez enviada, y el alojamiento guarda la suya el tiempo que le manda la ley."
+      },
       "log": {
         "title": "El registro de la junta",
-        "p1": "Cada cosa que hace la junta —dar puntos, aceptar a alguien, publicar un evento— queda anotada con quién lo ha hecho y cuándo. Ese registro lo lee la junta y se borra solo a los dos años. Es lo único de toda la app que caduca solo.",
+        "p1": "Cada cosa que hace la junta —dar puntos, aceptar a alguien, publicar un evento— queda anotada con quién lo ha hecho y cuándo. Ese registro lo lee la junta y se borra solo a los dos años.",
         "p2": "También hay una pantalla donde la junta ve quién lleva tiempo sin venir, calculado con las últimas actividades. No sirve para nada más que para escribirte y preguntarte si todo va bien."
       },
       "keep": {
         "title": "Cuánto tiempo lo guardamos",
-        "p1": "Ahora mismo, y dicho claro: salvo el registro, nada se borra solo. Ni el perfil, ni el teléfono, ni las fotos, ni el histórico. Si te das de baja dejas de salir en todas partes, pero los datos se quedan hasta que alguien los quite a mano.",
+        "p1": "Ahora mismo, y dicho claro: salvo el registro y los datos de viajero, nada se borra solo. Ni el perfil, ni el teléfono, ni las fotos, ni el histórico. Si te das de baja dejas de salir en todas partes, pero los datos se quedan hasta que alguien los quite a mano.",
         "p2": "Es algo que queremos arreglar antes de que esto crezca, y mientras tanto no te daremos ningún plazo que no vayamos a cumplir."
       },
       "others": {
@@ -1550,7 +1683,7 @@
       "minors": {
         "title": "Si todavía no tienes 18",
         "p1": "A partir de los 14 años puedes dar tú mismo el permiso para estos datos, y por tanto para usar la app. La autorización de los padres que te pedimos para según qué actividades es otra cosa y va por otro camino: en papel y aparte.",
-        "p2": "La app no te pide la fecha de nacimiento ni comprueba ninguna edad. Si eres menor y no quieres que tu cara salga en la galería de una noche, dilo y no sale."
+        "p2": "La app no te pide la fecha de nacimiento —salvo en los datos de viajero de un alojamiento, que se borran solos— ni comprueba ninguna edad. Si eres menor y no quieres que tu cara salga en la galería de una noche, dilo y no sale."
       },
       "rights": {
         "title": "Lo que puedes pedir",

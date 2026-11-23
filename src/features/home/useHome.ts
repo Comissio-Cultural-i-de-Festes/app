@@ -17,6 +17,7 @@ import {
   periodBounds,
   rankingKeys,
 } from '@/features/ranking/api'
+import { viatgerKeys } from '@/features/event/viatgerApi'
 import { defaultPeriod, usePeriods } from '@/features/ranking/useRanking'
 import { fetchRanking, fetchSchools } from '@/features/ranking/api'
 import { type MyProfile, fetchProfile, profileKeys } from '@/features/session/profile'
@@ -246,6 +247,9 @@ export function useAnswer() {
     onSettled: (_data, _err, { eventId }) => {
       void client.invalidateQueries({ queryKey: ATTENDANCES })
       void client.invalidateQueries({ queryKey: eventKeys.waitlist(eventId) })
+      // Un «no» esborra les dades de viatger a la base (migració 90), i el
+      // bloc de la fitxa diria que hi són fins que caduqués la cau.
+      void client.invalidateQueries({ queryKey: viatgerKeys.totes(eventId) })
     },
   })
 }

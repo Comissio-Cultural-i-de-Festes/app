@@ -120,6 +120,9 @@ const InvitesScreen = lazy(() =>
 const PaymentsScreen = lazy(() =>
   import('@/features/junta/PaymentsScreen').then((m) => ({ default: m.PaymentsScreen })),
 )
+const ViatgersScreen = lazy(() =>
+  import('@/features/junta/ViatgersScreen').then((m) => ({ default: m.ViatgersScreen })),
+)
 const loadJuntaHome = () => import('@/features/junta/JuntaHome')
 const JuntaHome = lazy(() => loadJuntaHome().then((m) => ({ default: m.JuntaHome })))
 // El marc de la zona també és un tros, i el rebedor no es demanaria fins que el
@@ -188,6 +191,9 @@ const BadgesScreen = lazy(() =>
 )
 const GalleryScreen = lazy(() =>
   import('@/features/gallery/GalleryScreen').then((m) => ({ default: m.GalleryScreen })),
+)
+const ViatgerScreen = lazy(() =>
+  import('@/features/event/ViatgerScreen').then((m) => ({ default: m.ViatgerScreen })),
 )
 const ProvesScreen = lazy(() =>
   import('@/features/gimcana/ProvesScreen').then((m) => ({ default: m.ProvesScreen })),
@@ -511,6 +517,7 @@ function Gates() {
               <Route path="/esdeveniment/:id" element={<EventScreen />} />
               <Route path="/esdeveniment/:eventId/dins" element={<InsideScreen />} />
               <Route path="/esdeveniment/:id/fotos" element={<GalleryScreen />} />
+              <Route path="/esdeveniment/:id/viatger" element={<ViatgerScreen />} />
               <Route path="/esdeveniment/:id/gimcana" element={<ProvesScreen />} />
               <Route path="/esdeveniment/:id/gimcana/marcador" element={<ScoreboardScreen />} />
               <Route path="/esdeveniment/:id/gimcana/:provaId" element={<SubmitScreen />} />
@@ -559,6 +566,7 @@ function Gates() {
             <Route path="esdeveniment/:id" element={<EventFormScreen />} />
             <Route path="esdeveniment/:id/fitxatges" element={<CheckinsScreen />} />
             <Route path="esdeveniment/:id/hores" element={<HoresEventScreen />} />
+            <Route path="esdeveniment/:id/viatgers" element={<ViatgersScreen />} />
             <Route path="hores" element={<HoresScreen />} />
             <Route path="idees" element={<IdeasReviewScreen />} />
             <Route path="socis" element={<MembersScreen />} />

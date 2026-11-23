@@ -3,7 +3,8 @@ import { type ReactNode, useId, useMemo, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useNavigate, useParams } from 'react-router'
 
-import { fetchAttendances, homeKeys, myAnswer } from '@/features/home/api'
+import { fetchSummaries, homeKeys } from '@/features/home/api'
+import { dayStartIso, summaryOf } from '@/features/home/summary'
 import { toDateInput } from '@/features/junta/configApi'
 import { Field, INPUT } from '@/features/junta/formBits'
 import { JuntaHeader } from '@/features/junta/JuntaHeader'
@@ -82,9 +83,11 @@ export function ViatgerScreen() {
   const [now] = useState(() => Date.now())
 
   const event = useQuery({ queryKey: eventKeys.one(id), queryFn: () => fetchEvent(id) })
-  const attendances = useQuery({
-    queryKey: homeKeys.attendances([id]),
-    queryFn: () => fetchAttendances([id]),
+  // La mateixa clau que la fitxa, que és d'on es ve: el resum ja hi és.
+  const desde = dayStartIso(new Date(now))
+  const summaries = useQuery({
+    queryKey: homeKeys.summaries([id], desde),
+    queryFn: () => fetchSummaries([id], desde),
   })
   const demana = useQuery({
     queryKey: viatgerKeys.demana(id),
@@ -100,14 +103,14 @@ export function ViatgerScreen() {
     staleTime: 0,
   })
 
-  if (event.isPending || attendances.isPending || demana.isPending || meves.isPending) {
+  if (event.isPending || summaries.isPending || demana.isPending || meves.isPending) {
     return <ViatgerSkeleton />
   }
 
   const back = `/esdeveniment/${id}`
   const titol = event.data == null ? t('actions.back') : eventTitle(event.data.titulo)
 
-  const failed = [event, attendances, demana, meves].find((q) => q.isError)
+  const failed = [event, summaries, demana, meves].find((q) => q.isError)
   if (failed !== undefined) {
     return (
       <Shell back={back} label={titol} title={t('viatger.title')}>
@@ -117,7 +120,7 @@ export function ViatgerScreen() {
         <button
           type="button"
           onClick={() => {
-            for (const q of [event, attendances, demana, meves]) void q.refetch()
+            for (const q of [event, summaries, demana, meves]) void q.refetch()
           }}
           className="-ml-2 mt-6 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-brand-label"
         >
@@ -129,7 +132,7 @@ export function ViatgerScreen() {
 
   const e = event.data
   const esborren = e == null ? null : esborrenEl(e.starts_at, e.ends_at)
-  const apuntat = esApuntat(myAnswer(attendances.data ?? [], id, userId))
+  const apuntat = esApuntat(summaryOf(summaries.data ?? [], id).mine)
 
   // Les tres raons per no ensenyar el formulari, cadascuna amb la seva frase:
   // que no se'n demanen, que encara no hi vas, i que ja és massa tard.

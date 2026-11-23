@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router'
 
-import { fetchAttendances, homeKeys, myAnswer } from '@/features/home/api'
+import { fetchSummaries, homeKeys } from '@/features/home/api'
+import { dayStartIso, summaryOf } from '@/features/home/summary'
 import { useUserId } from '@/features/session/useUserId'
 import { formatDateLong } from '@/i18n/format'
 import { toLocale } from '@/i18n/locales'
@@ -32,8 +33,10 @@ import { fetchDemanaViatger, fetchMevaMarca, viatgerKeys } from './viatgerApi'
  * dia que se'n van soles, i el bloc diu quin dia és. Passat aquell dia ja no hi
  * ha res a dir i el bloc desapareix.
  *
- * Les consultes de l'esdeveniment i de les assistències són les mateixes claus
- * que la pantalla: no surt cap petició de més.
+ * Les consultes de l'esdeveniment i del resum de les assistències són les
+ * mateixes claus que la pantalla: no surt cap petició de més. Mentre el resum
+ * no arriba no se sap si hi vaig, i el bloc calla: la línia d'abans del sí, a
+ * qui ja ha dit que sí, li diria que no consta.
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -46,16 +49,17 @@ export function ViatgerBlock({ eventId }: { readonly eventId: string }) {
   const [now] = useState(() => Date.now())
 
   const event = useQuery({ queryKey: eventKeys.one(eventId), queryFn: () => fetchEvent(eventId) })
-  const attendances = useQuery({
-    queryKey: homeKeys.attendances([eventId]),
-    queryFn: () => fetchAttendances([eventId]),
+  const desde = dayStartIso(new Date(now))
+  const summaries = useQuery({
+    queryKey: homeKeys.summaries([eventId], desde),
+    queryFn: () => fetchSummaries([eventId], desde),
   })
   const demana = useQuery({
     queryKey: viatgerKeys.demana(eventId),
     queryFn: () => fetchDemanaViatger(eventId),
   })
 
-  const apuntat = esApuntat(myAnswer(attendances.data ?? [], eventId, userId))
+  const apuntat = esApuntat(summaryOf(summaries.data ?? [], eventId).mine)
   const meves = useQuery({
     queryKey: viatgerKeys.marca(eventId, userId),
     queryFn: () => fetchMevaMarca(eventId, userId),
@@ -67,10 +71,10 @@ export function ViatgerBlock({ eventId }: { readonly eventId: string }) {
   // primera vegada que hi ha resposta, que és el patró de React per recordar
   // un valor d'abans sense un efecte.
   const [apuntatEnArribar, setApuntatEnArribar] = useState<boolean | null>(null)
-  if (attendances.isSuccess && apuntatEnArribar === null) setApuntatEnArribar(apuntat)
+  if (summaries.isSuccess && apuntatEnArribar === null) setApuntatEnArribar(apuntat)
 
   const e = event.data
-  if (demana.data !== true || e == null) return null
+  if (demana.data !== true || e == null || !summaries.isSuccess) return null
 
   const esborren = esborrenEl(e.starts_at, e.ends_at)
   if (esborren.getTime() <= now) return null

@@ -11,8 +11,8 @@ import { LegalSection, LegalShell } from './LegalShell'
  * la base de dades guarda de debò —les polítiques d'`04_rls.sql`, els grants de
  * columna de `03_grants.sql` i el que tornen les funcions `definer`—, i per això
  * diu coses que una plantilla no diria: que el directori és obert entre socis,
- * que treure's del rànquing no amaga els punts, o que tret del registre res no
- * s'esborra sol.
+ * que treure's del rànquing no amaga els punts, o que tret del registre i de
+ * les dades de viatger res no s'esborra sol.
  *
  * EL QUE VOL DIR QUE ÉS CODI I NO UN DOCUMENT: si canvia qui pot llegir una
  * taula, aquest text queda mentint i no hi ha cap prova que ho detecti. Qualsevol
@@ -46,6 +46,7 @@ const SECTIONS: readonly Apartat[] = [
   { id: 'going', paragraphs: 2 },
   { id: 'photos', paragraphs: 3 },
   { id: 'where', paragraphs: 1 },
+  { id: 'travel', paragraphs: 2 },
   { id: 'log', paragraphs: 2 },
   { id: 'keep', paragraphs: 2 },
   { id: 'others', paragraphs: 3 },

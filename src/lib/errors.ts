@@ -26,6 +26,9 @@ import { UnreadableImage } from './storage'
 const HINTS: Readonly<Record<string, string>> = {
   avis_sostre: 'errors.avisSostre',
   avis_fora_del_curs: 'errors.avisForaDelCurs',
+  // El disparador de les dades de viatger (migració 90): diu el camp i no el
+  // valor, perquè el valor no acabi als logs de Postgres.
+  viatger_invalid: 'errors.viatgerInvalid',
 }
 
 /**

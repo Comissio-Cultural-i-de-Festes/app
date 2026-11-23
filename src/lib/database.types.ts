@@ -456,6 +456,88 @@ export type Database = {
           },
         ]
       }
+      dades_viatger: {
+        Row: {
+          adreca: string
+          cognom1: string
+          cognom2: string | null
+          created_at: string
+          data_naixement: string
+          event_id: string
+          localitat: string
+          nacionalitat: string
+          nom: string
+          numero_document: string
+          numero_suport: string | null
+          pais: string
+          sexe: string
+          telefon_emergencia: string
+          tipus_document: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          adreca: string
+          cognom1: string
+          cognom2?: string | null
+          created_at?: string
+          data_naixement: string
+          event_id: string
+          localitat: string
+          nacionalitat: string
+          nom: string
+          numero_document: string
+          numero_suport?: string | null
+          pais: string
+          sexe: string
+          telefon_emergencia: string
+          tipus_document: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          adreca?: string
+          cognom1?: string
+          cognom2?: string | null
+          created_at?: string
+          data_naixement?: string
+          event_id?: string
+          localitat?: string
+          nacionalitat?: string
+          nom?: string
+          numero_document?: string
+          numero_suport?: string | null
+          pais?: string
+          sexe?: string
+          telefon_emergencia?: string
+          tipus_document?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dades_viatger_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dades_viatger_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dades_viatger_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_content: {
         Row: {
           cos: Json | null
@@ -686,6 +768,7 @@ export type Database = {
           cal_confirmacio: boolean
           created_at: string
           created_by: string | null
+          demana_viatger: boolean
           hores_verificat_at: string | null
           hores_verificat_per: string | null
           id: string
@@ -708,6 +791,7 @@ export type Database = {
           cal_confirmacio?: boolean
           created_at?: string
           created_by?: string | null
+          demana_viatger?: boolean
           hores_verificat_at?: string | null
           hores_verificat_per?: string | null
           id?: string
@@ -730,6 +814,7 @@ export type Database = {
           cal_confirmacio?: boolean
           created_at?: string
           created_by?: string | null
+          demana_viatger?: boolean
           hores_verificat_at?: string | null
           hores_verificat_per?: string | null
           id?: string
@@ -1695,6 +1780,25 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      admin_dades_viatgers: {
+        Args: { p_event_id: string; p_exporta: boolean }
+        Returns: {
+          adreca: string
+          cognom1: string
+          cognom2: string
+          data_naixement: string
+          localitat: string
+          nacionalitat: string
+          nom: string
+          numero_document: string
+          numero_suport: string
+          pais: string
+          sexe: string
+          telefon_emergencia: string
+          tipus_document: string
+          user_id: string
+        }[]
+      }
       admin_dashboard: {
         Args: { p_from?: string; p_to?: string }
         Returns: Json
@@ -1841,6 +1945,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_set_demana_viatger: {
+        Args: { p_demana: boolean; p_event_id: string }
+        Returns: number
+      }
       admin_set_hores: {
         Args: { p_a_la_uni: boolean; p_event_id: string; p_minuts: number }
         Returns: undefined
@@ -1884,6 +1992,16 @@ export type Database = {
         Returns: undefined
       }
       admin_undo_prova: { Args: { p_enviament_id: string }; Returns: Json }
+      admin_viatgers: {
+        Args: { p_event_id: string }
+        Returns: {
+          actualitzat_at: string
+          estado: string
+          nombre: string
+          te_dades: boolean
+          user_id: string
+        }[]
+      }
       admin_visa_hores: {
         Args: { p_event_id: string; p_visat: boolean }
         Returns: undefined

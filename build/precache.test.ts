@@ -7,6 +7,7 @@ import { gzipSync } from 'node:zlib'
 import { build } from 'vite'
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest'
 
+import { localePart } from './localeSplit'
 import {
   closure,
   isJuntaModule,
@@ -83,6 +84,17 @@ afterAll(() => {
 const chunkNamed = (name: string) =>
   chunks.find((c) => c.isDynamicEntry && c.name === name && c.facadeModuleId !== null)
 
+/** Un idioma pla: de `a.b.c` al text. */
+const flat = (tree: object, prefix = ''): Record<string, string> =>
+  Object.fromEntries(
+    Object.entries(tree).flatMap(([key, value]: [string, unknown]) => {
+      const path = prefix === '' ? key : `${prefix}.${key}`
+      return typeof value === 'string'
+        ? [[path, value]]
+        : Object.entries(flat(value as object, path))
+    }),
+  )
+
 const chunkWith = (path: string) =>
   chunks.find((c) => c.moduleIds.some((id) => id.replaceAll('\\', '/').endsWith(path)))
 
@@ -148,14 +160,17 @@ describe('the install', () => {
   })
 
   it('keeps Catalan, which travels inside the entry', () => {
-    const chunk = chunkWith('src/i18n/locales/ca.json')
+    const chunk = chunkWith('src/i18n/locales/ca.json?app')
     expect(chunk?.isEntry).toBe(true)
     expect(precached).toContain(chunk?.fileName)
   })
 
   it.each([
-    ['Spanish', 'src/i18n/locales/es.json'],
-    ['English', 'src/i18n/locales/en.json'],
+    ['Spanish', 'src/i18n/locales/es.json?app'],
+    ['English', 'src/i18n/locales/en.json?app'],
+    ['the junta desk strings in Catalan', 'src/i18n/locales/ca.json?junta'],
+    ['the junta desk strings in Spanish', 'src/i18n/locales/es.json?junta'],
+    ['the junta desk strings in English', 'src/i18n/locales/en.json?junta'],
   ])('leaves %s out, for the chunks cache to keep once it is read', (_name, path) => {
     // Cada persona en llegeix un, i la regla `chunks` el desa la primera
     // vegada que es demana: ha de quedar a sota de `/assets/` i ser un `.js`.
@@ -164,6 +179,60 @@ describe('the install', () => {
     expect(chunk?.isDynamicEntry).toBe(true)
     expect(chunk?.fileName).toMatch(/^assets\/[^/]+\.js$/)
     expect(precached).not.toContain(chunk?.fileName)
+  })
+
+  it.each(['ca', 'es', 'en'])(
+    'carries none of the junta desk strings in %s, anywhere',
+    (locale) => {
+      // Pel text i no per la clau: el que pesa és el text, i el que cal vigilar
+      // és que cap camí —l'entrada, un tros compartit— no el torni a portar.
+      // Només els que es poden buscar tal qual, sense res que el build escapi, i
+      // que no siguin també un text de fora de l'escriptori.
+      const file = join('src', 'i18n', 'locales', `${locale}.json`)
+      const app = Object.values(flat(localePart(process.cwd(), file, 'app')))
+      const texts = Object.values(flat(localePart(process.cwd(), file, 'junta'))).filter(
+        (text) =>
+          text.length >= 24 && !/["`$\\\n]/.test(text) && !app.some((a) => a.includes(text)),
+      )
+      expect(texts.length).toBeGreaterThan(50)
+
+      const code = [...precached]
+        .filter((f) => /\.(?:js|html)$/.test(f))
+        .map((f) => readFileSync(join(out, f), 'utf8'))
+      const found = texts.filter((text) => code.some((c) => c.includes(text)))
+      expect(found, 'the precache carries junta desk strings').toEqual([])
+    },
+  )
+
+  it('keeps in the entry every junta string that a precached chunk asks for', () => {
+    // El tall es decideix llegint el codi font (`localeSplit.ts`); aquí es
+    // contrasta amb el que rolldown ha posat de debò a la precache, llegint el
+    // que en surt i no el codi font. Així la prova no comparteix l'analitzador
+    // amb el connector: al codi construït no hi ha comentaris, ni JSX, ni
+    // tipus, i una clau que hi és és una clau que el telèfon demanarà. Una que
+    // no sigui a l'app és una clau crua a la porta de la casa rural, sense xarxa.
+    const keys = Object.keys(
+      flat(localePart(process.cwd(), join('src', 'i18n', 'locales', 'ca.json'), 'app')),
+    )
+    const refs = [...precached]
+      .filter((f) => f.endsWith('.js'))
+      .flatMap((f) =>
+        [...readFileSync(join(out, f), 'utf8').matchAll(/[`'"](junta\.[\w.]*)(\$\{)?/g)].map(
+          (m) => ({ key: m[1] ?? '', prefix: m[2] !== undefined || (m[1] ?? '').endsWith('.'), f }),
+        ),
+      )
+    expect(refs.length).toBeGreaterThan(100)
+
+    const missing = refs
+      .filter(({ key, prefix }) =>
+        keys.every((k) =>
+          prefix
+            ? !k.startsWith(key)
+            : k !== key && !k.startsWith(`${key}.`) && k.replace(/_[a-z]+$/, '') !== key,
+        ),
+      )
+      .map(({ key, f }) => `${key}  (${f})`)
+    expect(missing).toEqual([])
   })
 
   it("leaves the map's stylesheet out too", () => {

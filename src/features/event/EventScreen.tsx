@@ -59,16 +59,9 @@ import { MeetingActa, MeetingAnswer, MeetingRoster } from './Meeting'
 import { meetingKeys } from './meetingApi'
 import { BigCountdown, HiddenChip, InterestBlock } from './Teaser'
 import { eventTitle, titleIsHidden } from './title'
+import { whenText } from './whenText'
 
 const GUTTER = 'px-[var(--ds-gutter)]'
-
-type Translate = ReturnType<typeof useTranslation>['t']
-
-function whenText(e: EventRow, starts: Date, locale: ReturnType<typeof toLocale>, t: Translate) {
-  const from = formatDateLong(starts, locale)
-  if (e.ends_at === null) return from
-  return t('event.facts.until', { from, to: formatTime(new Date(e.ends_at), locale) })
-}
 
 /**
  * One event, at length.
@@ -325,7 +318,10 @@ export function EventScreen() {
           pensar que l'esdeveniment no en té, i el que passa és que encara no
           es pot dir. */}
       <section className={`mt-9 border-y border-surface-7 py-8 ${GUTTER}`}>
-        <Fact label={t('event.facts.when')} value={whenText(e, starts, locale, t)} />
+        <Fact
+          label={t('event.facts.when')}
+          value={whenText(starts, e.ends_at === null ? null : new Date(e.ends_at), locale, t)}
+        />
         {hidden ? (
           <Fact label={t('event.facts.where')} value={t('event.teaser.notYet')} unknown />
         ) : e.ubicacion === null ? null : (

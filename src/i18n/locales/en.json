@@ -211,6 +211,7 @@
       "isThere": "File downloaded",
       "again": "Download it again",
       "fromTo": "{{day}}, {{from}} – {{to}}",
+      "fromToDays": "{{from}} – {{to}}",
       "cannotRead": "The app can't see your phone's calendar, so it doesn't know whether you added the event: open the downloaded file to do it. If the time changes, download it again and open it.",
       "failed": "We couldn't prepare the file. Try again."
     },
@@ -264,7 +265,8 @@
       "where": "Where",
       "price": "Price",
       "free": "Free",
-      "until": "{{from}} until {{to}}"
+      "until": "{{from}} until {{to}}",
+      "untilDay": "{{from}} until {{to}}"
     },
     "full": "Completely full",
     "fullNoQueue": "Nobody is waiting yet. Join the list and you're first if somebody drops out.",

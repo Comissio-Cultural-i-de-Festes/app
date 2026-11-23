@@ -211,6 +211,7 @@
       "isThere": "Archivo descargado",
       "again": "Vuelve a bajarlo",
       "fromTo": "{{day}}, {{from}} – {{to}}",
+      "fromToDays": "{{from}} – {{to}}",
       "cannotRead": "La app no ve el calendario del teléfono, así que no sabe si llegaste a añadir el evento: abre el archivo descargado para hacerlo. Si cambia la hora, vuelve a bajarlo y ábrelo.",
       "failed": "No hemos podido preparar el archivo. Pruébalo otra vez."
     },
@@ -264,7 +265,8 @@
       "where": "Dónde",
       "price": "Precio",
       "free": "Gratis",
-      "until": "{{from}} hasta las {{to}}"
+      "until": "{{from}} hasta las {{to}}",
+      "untilDay": "{{from}} hasta el {{to}}"
     },
     "full": "Lleno del todo",
     "fullNoQueue": "Todavía no espera nadie. Apúntate y, si alguien se echa atrás, la plaza es tuya.",

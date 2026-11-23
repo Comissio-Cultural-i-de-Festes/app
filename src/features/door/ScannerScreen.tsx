@@ -16,12 +16,13 @@ import {
   outcomeFromFailure,
   presentationOf,
   scan,
+  settleOutcome,
 } from './api'
 import { ScanGlyph } from './icons'
 import { HeldScans } from './HeldScans'
 import { displacedWorthSaying, statusWords, verdictText } from './verdict'
 import { useCamera } from './useCamera'
-import { queueNotice, useQueue } from './useQueue'
+import { queueNotice, useQueue, useSettled } from './useQueue'
 import { type Undo, useUndo, undoNoteKey } from './useUndo'
 
 /**
@@ -122,6 +123,13 @@ export function ScannerScreen() {
     },
     [id, roster, refreshQueue],
   )
+
+  // A card that said "saved" is redrawn when the flush brings the answer.
+  useSettled((answer) => {
+    setOutcome((previous) => (previous === null ? null : settleOutcome(previous, answer)))
+    setDisplaced((previous) => (previous === null ? null : settleOutcome(previous, answer)))
+    void roster.refetch()
+  })
 
   const camera = useCamera(videoRef, onCode)
 

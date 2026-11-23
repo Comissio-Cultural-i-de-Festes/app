@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { type DoorEvent, type HomeQuery, doorView, minutesAgo } from './doorView'
+import { aLaPorta } from './finestra'
 import type { DoorNow, JuntaHomeData } from './homeApi'
 
 /**
@@ -44,21 +45,33 @@ const consulta = (over: Partial<HomeQuery> = {}): HomeQuery => ({
   ...over,
 })
 
-const ev = (id: string, startsAt: number, published = true): DoorEvent => ({
+const ev = (
+  id: string,
+  startsAt: number,
+  published = true,
+  endsAt: number | null = null,
+): DoorEvent => ({
   id,
   starts_at: new Date(startsAt).toISOString(),
+  ends_at: endsAt === null ? null : new Date(endsAt).toISOString(),
   published,
 })
 
 describe('la porta amb dades', () => {
   it('es pinta neta quan la consulta ha anat bé', () => {
-    expect(doorView(consulta(), undefined, ARA)).toEqual({ kind: 'door', porta, stale: null })
+    expect(doorView(consulta(), undefined, ARA)).toEqual({
+      kind: 'door',
+      porta,
+      portes: [porta],
+      stale: null,
+    })
   })
 
   it('es pinta igual quan la recàrrega falla, amb l’hora de les dades', () => {
     expect(doorView(consulta({ isError: true }), undefined, ARA)).toEqual({
       kind: 'door',
       porta,
+      portes: [porta],
       stale: { since: ARA - 5 * MIN, failed: true },
     })
   })
@@ -141,6 +154,51 @@ describe('la porta sense dades', () => {
     expect(doorView(consulta({ ...sense, isError: true }), llista, ARA)).toMatchObject({
       scannerEventId: null,
     })
+  })
+})
+
+describe('més d’una porta (migració 89)', () => {
+  const casa: DoorNow = { ...porta, id: 'casa', starts_at: '2026-11-26T16:00:00Z' }
+  const festa: DoorNow = { ...porta, id: 'festa' }
+  const dues = consulta({ data: { ...dades(casa), portes: [casa, festa] } })
+
+  it('pinta la primera si no se n’ha triat cap, com abans', () => {
+    expect(doorView(dues, undefined, ARA)).toMatchObject({ porta: casa, portes: [casa, festa] })
+  })
+
+  it('i la triada si n’hi ha una', () => {
+    expect(doorView(dues, undefined, ARA, 'festa')).toMatchObject({ porta: festa })
+  })
+
+  it('sense dades, l’escàner de la llista és també el de la triada', () => {
+    const llista = [ev('casa', ARA - 29 * HORA, true, ARA + 40 * HORA), ev('festa', ARA - HORA)]
+    const sense = consulta({ data: undefined, dataUpdatedAt: 0, isError: true })
+    expect(doorView(sense, llista, ARA, 'festa')).toMatchObject({ scannerEventId: 'festa' })
+    expect(doorView(sense, llista, ARA, null)).toMatchObject({ scannerEventId: 'casa' })
+  })
+})
+
+describe('la finestra de la porta, la de junta_home()', () => {
+  it('té la casa rural tota l’estada, encara que comencés fa dos dies', () => {
+    expect(aLaPorta(ev('casa', ARA - 48 * HORA, true, ARA + HORA), ARA)).toBe(true)
+  })
+
+  it('i la treu quan s’ha acabat', () => {
+    expect(aLaPorta(ev('casa', ARA - 48 * HORA, true, ARA - HORA), ARA)).toBe(false)
+  })
+
+  it('una festa d’una nit hi és vuit hores des de l’inici, encara que ja hagi acabat', () => {
+    expect(aLaPorta(ev('festa', ARA - 7 * HORA, true, ARA - 3 * HORA), ARA)).toBe(true)
+    expect(aLaPorta(ev('festa', ARA - 9 * HORA, true, ARA - 3 * HORA), ARA)).toBe(false)
+  })
+
+  it('i sense final, la regla de sempre', () => {
+    expect(aLaPorta(ev('festa', ARA - 7 * HORA), ARA)).toBe(true)
+    expect(aLaPorta(ev('festa', ARA - 9 * HORA), ARA)).toBe(false)
+  })
+
+  it('i un esborrany mai', () => {
+    expect(aLaPorta(ev('esborrany', ARA - HORA, false, ARA + HORA), ARA)).toBe(false)
   })
 })
 

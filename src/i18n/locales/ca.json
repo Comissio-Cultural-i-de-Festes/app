@@ -879,7 +879,43 @@
       "coverFailed": "La portada no s'ha pogut pujar; l'esdeveniment s'ha desat sense. Torna-hi quan vulguis.",
       "endsBeforeStarts": "El final és abans de l'inici.",
       "endsRequired": "Falta l'hora de final. És d'on surten les hores de la memòria.",
-      "revealAfterStarts": "El reveal és després que comenci: no destaparia res."
+      "revealAfterStarts": "El reveal és després que comenci: no destaparia res.",
+      "eines": {
+        "title": "Eines d'aquesta activitat",
+        "lede": "Totes són d'aquest esdeveniment. La porta del rebedor només n'és una drecera.",
+        "ledeDraft": "És un esborrany: l'escàner, l'alta, els punts i els pagaments hi surten quan el publiquis.",
+        "ledeMeeting": "Una reunió no té porta: qui hi era ho diu qui la tanca.",
+        "soon": "L'escàner i l'alta s'obren trenta hores abans que comenci.",
+        "closed": "L'escàner i l'alta es tanquen set dies després que acabi. Els punts es poden donar sempre.",
+        "escaner": {
+          "title": "L'escàner",
+          "sub": "Llegeix el QR de qui entra."
+        },
+        "alta": {
+          "title": "Alta pel nom",
+          "sub": "Per a qui no porta el QR a mà."
+        },
+        "punts": {
+          "title": "Donar punts",
+          "sub": "Per la feina feta, també l'endemà."
+        },
+        "pagaments": {
+          "title": "Pagaments",
+          "sub": "Qui ha pagat, qui demana plaça i qui espera."
+        },
+        "fitxatges": {
+          "title": "Qui ha fitxat",
+          "sub": "Per treure un fitxatge que no tocava."
+        },
+        "gimcana": {
+          "title": "La gimcana",
+          "sub": "Proves, equips i quan s'obre."
+        },
+        "validaGimcana": {
+          "title": "Validar la gimcana",
+          "sub": "Les fotos que esperen resposta."
+        }
+      }
     },
     "config": {
       "saved": "Desat.",
@@ -1199,6 +1235,11 @@
     },
     "home": {
       "doorNow": "Ara mateix a la porta",
+      "doorPick": "{{n}} activitats a la porta · tria la teva",
+      "recordades": {
+        "title": "Portes desades {{dia}} a les {{hora}}",
+        "note": "Són les de l'últim cop que hi va haver xarxa. L'escàner desa el que fitxis i ho puja quan torni."
+      },
       "doorYes": "han dit sí",
       "doorIn": "han fitxat",
       "doorFree": "places lliures",
@@ -1207,8 +1248,8 @@
       "doorGimcanaQueue_one": "Validar la gimcana · {{count}} foto",
       "doorGimcanaQueue_other": "Validar la gimcana · {{count}} fotos",
       "doorNone": "A la porta",
-      "doorNoneSub": "Aquests dies no hi ha res. L'escàner apareixerà aquí el dia abans.",
-      "doorAnyway": "Obrir l'escàner igualment",
+      "doorNoneSub": "Aquests dies no hi ha res. L'escàner apareixerà aquí el dia abans, i el de qualsevol activitat és a la seva fitxa.",
+      "doorAnyway": "Veure les activitats",
       "doorLoading": "Carregant la porta…",
       "doorFailed": "No s'ha pogut llegir la porta",
       "doorFailedSub": "No sabem si hi ha res aquests dies. No és que no n'hi hagi.",
@@ -1252,6 +1293,10 @@
       "soonCount": "{{count}} al calendari",
       "soonEmpty": "Encara no hi ha res al calendari.",
       "soonFirst": "Crear el primer",
+      "anteriors": "Anteriors",
+      "anteriorsSub": "Les que ja s'han acabat, de la més recent enrere. Cadascuna té les seves eines a la fitxa.",
+      "anteriorsMore": "Mostrar-ne més",
+      "anteriorsNone": "Encara no se n'ha acabat cap.",
       "soonFailed": "No s'ha pogut llegir el calendari.",
       "soonFailedSub": "Pot ser que n'hi hagi i no els veiem. No creïs res nou fins que carregui.",
       "how": "Com funciona la comi",

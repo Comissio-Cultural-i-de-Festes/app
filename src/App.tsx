@@ -17,6 +17,7 @@ import { clearOAuthMark } from '@/features/entry/useGoogleSignIn'
 import { discardInvite, pendingInvite } from '@/features/entry/pendingInvite'
 import { ReturnToLink } from '@/features/entry/ReturnToLink'
 import { forgetReturn } from '@/features/entry/returnTo'
+import { oblidaLesPortes } from '@/features/junta/portesRecordades'
 import { useForgetReturn } from '@/features/entry/useForgetReturn'
 import { readInviteCode } from '@/features/entry/useInvite'
 import { useRedeemFromLink } from '@/features/entry/useRedeemFromLink'
@@ -355,6 +356,12 @@ function Gates() {
         discardInvite()
         forgetReturn()
       }
+      // Les portes de la junta desades per obrir l'escàner sense xarxa, sense
+      // cap condició: no hi ha cap cas en què hagin de sobreviure a una sessió
+      // tancada, tampoc la que no es pot refrescar en arrencar. I no les toca
+      // la falta de xarxa, que és quan fan falta: supabase-js només treu la
+      // sessió quan el servidor la refusa, no quan no contesta.
+      if (event === 'SIGNED_OUT') oblidaLesPortes()
       signedIn.current = next !== null
       // Abans de pintar res amb la sessió nova: qui entra no ha de veure ni un
       // instant el que tenia a la cau qui marxa.

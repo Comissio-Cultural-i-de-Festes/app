@@ -5,6 +5,7 @@ import {
   formatHores,
   formatOrdinal,
   formatSigned,
+  formatTime,
   horesParts,
   zonedDayStart,
 } from './format'
@@ -14,6 +15,17 @@ import {
  * with the association's time zone pinned, which has nothing to assert that is
  * not really a test of Intl.
  */
+
+describe('the time of day', () => {
+  it('is 24-hour in all three, for «a les {{hora}}»', () => {
+    // 20:40 UTC is 21:40 in Madrid in November.
+    const nit = new Date('2026-11-27T20:40:00Z')
+    expect(formatTime(nit, 'ca')).toBe('21:40')
+    expect(formatTime(nit, 'es')).toBe('21:40')
+    expect(formatTime(nit, 'en')).toBe('21:40')
+    expect(formatTime(new Date('2026-11-28T01:05:00Z'), 'ca')).toBe('02:05')
+  })
+})
 
 describe('ordinals', () => {
   it('uses the four Catalan abbreviations and -è for the rest', () => {

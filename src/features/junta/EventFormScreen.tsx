@@ -13,9 +13,9 @@ import type { EventRow } from '@/lib/schema'
 import { invalidateData } from '@/lib/signedQuery'
 import { uploadCover } from '@/lib/storage'
 import { useCovers } from '@/ui/Cover/useCovers'
-import { NavRow } from '@/ui/Row/Row'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
+import { EinesBlock } from './EinesBlock'
 import { EventPreview, type PreviewData } from './EventPreview'
 import { GeoPicker } from './GeoPicker'
 import { HoresStrip } from './HoresStrip'
@@ -619,20 +619,7 @@ function EventForm() {
           {/* Només d'un esdeveniment que existeix, i sota el mapa perquè les
               dues coses són la mateixa: aquí es tria on es pot fitxar, i allà
               es veu qui ho ha fet. */}
-          {editing ? (
-            <div className="mb-9 border-t border-surface-4">
-              <NavRow
-                to={`/junta/esdeveniment/${id ?? ''}/fitxatges`}
-                title={t('junta.checkins.title')}
-              />
-              {isMeeting ? null : (
-                <NavRow
-                  to={`/junta/esdeveniment/${id ?? ''}/gimcana`}
-                  title={t('gimcana.title')}
-                />
-              )}
-            </div>
-          ) : null}
+          {existing.data == null ? null : <EinesBlock event={existing.data} />}
 
           <Field label={t('junta.form.description')}>
             <textarea

@@ -29,23 +29,32 @@ import { anonClient, as, F, rpc, serviceClient } from './helpers'
  * I, sobretot, el cas bessó de la issue: la mateixa gent, la mateixa absència
  * de `pagado`, i l'únic que canvia és el preu.
  *
+ * DES DE LA 89 LA PORTA ÉS UNA LLISTA. `portes` porta tots els esdeveniments
+ * de la finestra i `porta` és el primer, i aquí n'hi ha dos d'aquest fitxer:
+ * el de sempre i una casa rural que va començar ahir i encara dura. És el cas
+ * que la 89 arregla, i el que només es veu de debò quan la resposta travessa
+ * PostgREST: que la llista arriba com una llista, i cada element amb les claus
+ * de `DoorNow`.
+ *
  * L'ESDEVENIMENT ÉS D'AQUEST FITXER. Aquesta suite escriu a la mateixa base i
  * no desfà res, o sigui que la fila té un identificador que no fa servir ningú
  * més, entra amb `upsert` perquè la passada d'ahir no la deixi morta, i se'n
- * va al final. Comença set hores i mitja abans d'ara: la finestra de la porta
- * són vuit hores enrere i trenta endavant, i d'entre els que hi caben la
- * funció es queda el primer. Cap esdeveniment de la llavor no hi cau, i per si
- * un dia n'hi cau un, la primera asserció és que la porta és aquesta i no una
- * altra —val més que peti aquí que no pas que les del preu passin mirant una
- * fila que no és la seva.
+ * va al final. Comença set hores i mitja abans d'ara, dins de les vuit hores
+ * enrere de la porta. Les assercions del preu el busquen pel seu id dins de
+ * `portes`, i no a `porta`: amb la casa rural d'ahir —o amb qualsevol fila
+ * d'una altra suite que caigui a la finestra— el primer ja no és ell.
  */
 
 const EVENT = '00000000-0000-4000-8000-00000000fd09'
+const CASA = '00000000-0000-4000-8000-00000000fd89'
+const HOUR = 3_600_000
 
 /** El que la pantalla llegeix. Les claus són les de `DoorNow`. */
 interface Porta {
   readonly id: string
   readonly titulo: string | null
+  readonly starts_at: string
+  readonly ends_at: string | null
   readonly plazas: number | null
   readonly diuen_si: number
   readonly fitxats: number
@@ -56,6 +65,7 @@ interface Porta {
 
 interface Home {
   readonly porta: Porta | null
+  readonly portes: readonly Porta[]
   readonly pendents: number
   readonly esborranys: number
   readonly propers: number
@@ -70,18 +80,20 @@ async function setPrice(cents: number): Promise<void> {
   expect(error).toBeNull()
 }
 
-async function doorOf(handle: string): Promise<Porta> {
+async function homeOf(handle: string): Promise<Home> {
   const junta = await as(handle)
   const { data, error } = await rpc<Home>(junta, 'junta_home')
   expect(error).toBeNull()
   expect(data).not.toBeNull()
+  return data!
+}
 
-  const porta = data?.porta ?? null
-  expect(porta).not.toBeNull()
+async function doorOf(handle: string, id: string = EVENT): Promise<Porta> {
+  const porta = (await homeOf(handle)).portes.find((p) => p.id === id) ?? null
   // La porta és la d'aquest fitxer i no una altra que hagi caigut a la
   // finestra: sense això, les assercions del preu passarien mirant una fila
   // que no és la seva.
-  expect(porta?.id).toBe(EVENT)
+  expect(porta).not.toBeNull()
   return porta!
 }
 
@@ -113,6 +125,39 @@ describe('junta_home vist des de fora, com el veu la pantalla', () => {
       .from('event_title')
       .upsert({ event_id: EVENT, titulo: 'Berenar inventat al pati' }, { onConflict: 'event_id' })
 
+    // La casa rural: va començar fa trenta hores i s'acaba demà. Amb la regla
+    // d'abans de la 89 —vuit hores des de l'inici— ja no seria a la porta.
+    const casa = await svc
+      .from('events')
+      .upsert(
+        {
+          id: CASA,
+          tipo: 'casa_rural',
+          abast: 'comi',
+          starts_at: new Date(Date.now() - 30 * HOUR).toISOString(),
+          plazas: 30,
+          precio_cents: 9000,
+          puntos: 30,
+          published: true,
+          created_by: F.juntaAlfa,
+        },
+        { onConflict: 'id' },
+      )
+      .select('id')
+    expect(casa.error).toBeNull()
+    expect(casa.data).toHaveLength(1)
+    const titol = await svc
+      .from('event_title')
+      .upsert({ event_id: CASA, titulo: 'Masia inventada' }, { onConflict: 'event_id' })
+    expect(titol.error).toBeNull()
+    const details = await svc
+      .from('event_details')
+      .upsert(
+        { event_id: CASA, ends_at: new Date(Date.now() + 20 * HOUR).toISOString() },
+        { onConflict: 'event_id' },
+      )
+    expect(details.error).toBeNull()
+
     // Tres que hi van i cap pagat, que és l'estat de sortida de tothom:
     // `attendances.pagado` arrenca a false. I un que espera, perquè el número
     // del costat ha de continuar sent el seu.
@@ -135,7 +180,7 @@ describe('junta_home vist des de fora, com el veu la pantalla', () => {
   afterAll(async () => {
     // La fila se'n va: mentre hi sigui, és la porta de tothom qui obri el
     // rebedor en aquesta base compartida.
-    await serviceClient().from('events').delete().eq('id', EVENT)
+    await serviceClient().from('events').delete().in('id', [EVENT, CASA])
   })
 
   it('un soci no en treu una llista buida, en treu un 42501', async () => {
@@ -172,6 +217,28 @@ describe('junta_home vist des de fora, com el veu la pantalla', () => {
     // Zero i cap no són el mateix, i el camí cap a la cua de la gimcana depèn
     // d'aquesta diferència.
     expect(porta.gimcana_cua).toBeNull()
+  })
+
+  it('les portes arriben com una llista, i la casa rural d’ahir hi és', async () => {
+    const home = await homeOf('junta_alfa')
+
+    expect(Array.isArray(home.portes)).toBe(true)
+    const casa = home.portes.find((p) => p.id === CASA)
+    expect(casa?.titulo).toBe('Masia inventada')
+    // Quan s'acaba, perquè la porta pugui dir de quin dia a quin dia.
+    expect(casa?.ends_at).not.toBeNull()
+    expect(home.portes.some((p) => p.id === EVENT)).toBe(true)
+  })
+
+  it('i la porta de sempre és la primera de la llista', async () => {
+    // Un mòbil amb la pantalla d'abans de la 89 només llegeix `porta`, i ha
+    // de veure la mateixa que el selector posa primer.
+    const home = await homeOf('junta_alfa')
+
+    expect(home.porta).toEqual(home.portes[0])
+    // En ordre d'inici: la casa rural va començar abans que cap altra.
+    const inicis = home.portes.map((p) => Date.parse(p.starts_at))
+    expect(inicis).toEqual([...inicis].sort((a, b) => a - b))
   })
 
   it('una activitat de franc no té ningú que no hagi pagat', async () => {

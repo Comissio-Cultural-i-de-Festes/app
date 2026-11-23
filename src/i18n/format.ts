@@ -100,6 +100,18 @@ export const formatDateLong = (d: Date, l: Locale): string =>
     hourCycle: 'h23',
   }).format(d)
 
+/**
+ * «divendres, 27 – diumenge, 29 de novembre». Per a una estada de més d'un dia.
+ *
+ * Sense hora a posta: el que es vol saber d'una casa rural és de quin dia a
+ * quin dia, i amb les dues hores la línia ja no cap en un mòbil. `formatRange`
+ * i no dues dates juntades a mà, perquè cada llengua escurça diferent —en
+ * català el mes només surt al final si és el mateix— i la preposició davant
+ * d'«octubre» ja no es pot escriure amb una plantilla.
+ */
+export const formatDayRange = (from: Date, to: Date, l: Locale): string =>
+  dtf(l, { weekday: 'long', day: 'numeric', month: 'long' }).formatRange(from, to)
+
 export const formatMonthShort = (d: Date, l: Locale): string => dtf(l, { month: 'short' }).format(d)
 
 /**

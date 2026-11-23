@@ -8,6 +8,7 @@ import { useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
 import {
   formatDateLong,
+  formatDayRange,
   formatDayNumber,
   formatMonthShort,
   formatTime,
@@ -18,6 +19,7 @@ import { errorKey } from '@/lib/errors'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 import { eventTitle } from '@/features/event/title'
 
+import { AnteriorsBlock } from './AnteriorsBlock'
 import { AvisosEstatsBlock } from './AvisosEstatsBlock'
 import { AvisosPendentsBlock } from './AvisosPendentsBlock'
 import { AvisosProposatsBlock } from './AvisosProposatsBlock'
@@ -26,11 +28,15 @@ import { type Stale, doorView, minutesAgo } from './doorView'
 import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
 import { accionsSobre } from './estatAvisos'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
+import { INPUT } from './formBits'
 import { fetchHoresPendents, horesKeys } from './horesApi'
 import { fetchMeetings, meetingListKeys } from './meetingsApi'
 import { JuntaHeader } from './JuntaHeader'
 import { demanenFeina, estatDelPendent } from './pendents'
 import { fetchPendentsEsperen, pendentsKeys } from './pendentsApi'
+import { portaRecordada, portesDe, recordaPorta } from './portes'
+import { recordaPortes } from './portesRecordades'
+import { PortesRecordadesBlock } from './PortesRecordadesBlock'
 import { useEstatsAvisos } from './useEstatsAvisos'
 import { useNormativa } from './useNormativa'
 
@@ -54,6 +60,7 @@ import { useNormativa } from './useNormativa'
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
+const DAY_MS = 86_400_000
 const ROW =
   'flex min-h-[62px] items-center gap-4 border-t border-surface-4 py-6 no-underline ' +
   `text-left w-full ${GUTTER}`
@@ -65,6 +72,13 @@ export function JuntaHome() {
   const jo = useUserId()
 
   const home = useQuery({ queryKey: juntaHomeKeys.home(), queryFn: fetchJuntaHome })
+
+  // Cada resposta de la porta es desa en aquest mòbil, perquè l'endemà, en
+  // fred i sense cobertura, l'escàner sigui a un toc (`portesRecordades.ts`).
+  const userId = useUserId()
+  useEffect(() => {
+    if (home.data !== undefined) recordaPortes(userId, portesDe(home.data), home.dataUpdatedAt)
+  }, [userId, home.data, home.dataUpdatedAt])
 
   const horizon = juntaHorizonIso()
   const events = useQuery({
@@ -119,16 +133,29 @@ export function JuntaHome() {
   // canvi de `hash` no fa baixar la pàgina sol en una SPA, i per això es fa aquí.
   const { hash } = useLocation()
   useEffect(() => {
-    if (hash === '#avisos-pendents') document.getElementById('avisos-pendents')?.scrollIntoView()
-    if (hash === '#avisos-proposats') document.getElementById('avisos-proposats')?.scrollIntoView()
+    if (hash === '#avisos-pendents' || hash === '#avisos-proposats' || hash === '#els-que-venen') {
+      document.getElementById(hash.slice(1))?.scrollIntoView()
+    }
   }, [hash])
 
+  // A quina porta fa porta aquest mòbil, quan n'hi ha més d'una. El perquè de
+  // recordar-ho aquí i no a la junta sencera és a `portes.ts`.
+  const [triada, setTriada] = useState(portaRecordada)
+  const tria = (id: string) => {
+    setTriada(id)
+    recordaPorta(id)
+  }
+
   // Les dades abans que l'error: el perquè és a `doorView.ts`.
-  const door = doorView(home, events.data)
+  const door = doorView(home, events.data, undefined, triada)
   const retrying = home.fetchStatus !== 'idle'
   const retry = () => void home.refetch()
 
-  const porta = home.data?.porta ?? null
+  // LA FEINA SEGUEIX LA PORTA TRIADA. Les files de «no han pagat» i «esperen
+  // resposta» porten a Pagaments d'aquell esdeveniment i parlen del seu dia; amb
+  // dues portes, sumar-les totes dibuixaria files que no es corresponen amb el
+  // panell de just a sobre. La feina de l'altra és a un toc, al selector.
+  const porta = door.kind === 'door' ? door.porta : null
   const dayWord = porta === null ? '' : formatWeekdayLong(new Date(porta.starts_at), locale)
 
   return (
@@ -142,13 +169,19 @@ export function JuntaHome() {
       />
 
       {door.kind === 'loading' ? (
-        <DoorLoading scannerTo={scannerTo(door.scannerEventId)} />
+        <>
+          <DoorLoading scannerTo={scannerTo(door.scannerEventId)} />
+          {door.scannerEventId === null ? <Recordades /> : null}
+        </>
       ) : door.kind === 'failed' ? (
-        <DoorFailed
-          scannerTo={scannerTo(door.scannerEventId)}
-          retrying={retrying}
-          onRetry={retry}
-        />
+        <>
+          <DoorFailed
+            scannerTo={scannerTo(door.scannerEventId)}
+            retrying={retrying}
+            onRetry={retry}
+          />
+          {door.scannerEventId === null ? <Recordades /> : null}
+        </>
       ) : (
         <>
           {door.stale === null ? null : (
@@ -161,7 +194,11 @@ export function JuntaHome() {
               onRetry={retry}
             />
           )}
-          {door.kind === 'none' ? <DoorNone /> : <Door porta={door.porta} locale={locale} />}
+          {door.kind === 'none' ? (
+            <DoorNone />
+          ) : (
+            <Door porta={door.porta} portes={door.portes} onPick={tria} locale={locale} />
+          )}
         </>
       )}
 
@@ -355,6 +392,7 @@ export function JuntaHome() {
       <Meetings />
 
       {/* ── Els que venen ── */}
+      <span id="els-que-venen" />
       <Heading
         display
         title={t('junta.home.soon')}
@@ -418,6 +456,10 @@ export function JuntaHome() {
           ))}
         </div>
       )}
+
+      {/* ── Les que ja s'han acabat ──
+          Just sota les que venen: és la mateixa llista, cap enrere. */}
+      <AnteriorsBlock />
 
       {/* ── Com funciona la comi ── */}
       <Heading title={t('junta.home.how')} sub={t('junta.home.howSub')} />
@@ -496,16 +538,45 @@ function periodsCoverToday(
   )
 }
 
+/**
+ * Les portes desades, quan ni la porta ni la llista no han arribat: és l'únic
+ * camí a l'escàner que queda en obrir l'app en fred sense xarxa.
+ */
+function Recordades() {
+  return (
+    <PortesRecordadesBlock className="border-b border-surface-5 bg-surface-1 px-[var(--ds-gutter)] py-9" />
+  )
+}
+
 function scannerTo(eventId: string | null): string | null {
   return eventId === null ? null : `/junta/escaner/${eventId}`
 }
 
 // ── the door ────────────────────────────────────────────────────────────────
 
-function Door({ porta, locale }: { readonly porta: DoorNow; readonly locale: Locale }) {
+function Door({
+  porta,
+  portes,
+  onPick,
+  locale,
+}: {
+  readonly porta: DoorNow
+  readonly portes: readonly DoorNow[]
+  readonly onPick: (id: string) => void
+  readonly locale: Locale
+}) {
   const { t } = useTranslation()
   const starts = new Date(porta.starts_at)
+  const ends = porta.ends_at == null ? null : new Date(porta.ends_at)
   const left = placesLeft(porta)
+  // Una casa rural diu de quin dia a quin dia: «divendres» sol, el dissabte
+  // d'una estada que va començar divendres, faria pensar que és una altra. Per
+  // durada i no per dia de calendari: la festa de les onze que acaba a les tres
+  // canvia de dia i continua sent una nit.
+  const when =
+    ends !== null && ends.getTime() - starts.getTime() >= DAY_MS
+      ? formatDayRange(starts, ends, locale)
+      : formatDateLong(starts, locale)
 
   return (
     <section className="border-b border-surface-5 bg-[var(--ds-bg-door-panel)] px-[var(--ds-gutter)] pt-9 pb-10">
@@ -517,13 +588,36 @@ function Door({ porta, locale }: { readonly porta: DoorNow; readonly locale: Loc
         <span className="eyebrow text-brand-accent">{t('junta.home.doorNow')}</span>
       </p>
 
+      {/* Només quan n'hi ha més d'una: amb una, el panell és el d'abans. Un
+          `select` i no pestanyes perquè els títols són llargs i a 390 px dues
+          pestanyes ja no hi caben; el del sistema, a més, és el que el mòbil
+          sap obrir bé amb una mà. */}
+      {portes.length > 1 ? (
+        <label className="mt-6 block">
+          <span className="eyebrow text-[var(--ds-text-muted-lo)]">
+            {t('junta.home.doorPick', { n: portes.length })}
+          </span>
+          <select
+            value={porta.id}
+            onChange={(e) => {
+              onPick(e.target.value)
+            }}
+            className={INPUT}
+          >
+            {portes.map((p) => (
+              <option key={p.id} value={p.id}>
+                {formatWeekdayLong(new Date(p.starts_at), locale)} · {eventTitle(p.titulo)}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+
       <h2 className="display mt-6 text-d-s leading-[0.87] tracking-[-0.048em] [text-wrap:balance]">
         {eventTitle(porta.titulo)}
       </h2>
       <p className="mt-5 text-base font-semibold text-fg-secondary [text-wrap:pretty]">
-        {[formatDateLong(starts, locale), porta.ubicacion]
-          .filter((s): s is string => s !== null && s !== '')
-          .join(' · ')}
+        {[when, porta.ubicacion].filter((s): s is string => s !== null && s !== '').join(' · ')}
       </p>
 
       <div className="mt-8 grid grid-cols-3 gap-[1px] bg-surface-7">
@@ -594,8 +688,17 @@ function DoorNone() {
       <p className="mt-5 text-base font-semibold text-fg-secondary [text-wrap:pretty]">
         {t('junta.home.doorNoneSub')}
       </p>
+      {/* Portava a /junta, que és aquesta mateixa pantalla: un botó d'escàner
+          que no obria cap escàner. L'escàner de qualsevol activitat és a la
+          seva fitxa (issue #28), i el camí a les fitxes és la llista de més
+          avall. */}
       <Link
-        to="/junta"
+        to={{ hash: '#els-que-venen' }}
+        // El `hash` només canvia el primer cop: si ja és `#els-que-venen`, el
+        // segon toc no fa saltar l'efecte i la pàgina no es mou.
+        onClick={() => {
+          document.getElementById('els-que-venen')?.scrollIntoView()
+        }}
         className="mt-7 inline-flex min-h-[50px] items-center border-[1.5px] border-surface-7 px-8 text-md font-bold text-fg-secondary no-underline"
       >
         {t('junta.home.doorAnyway')}

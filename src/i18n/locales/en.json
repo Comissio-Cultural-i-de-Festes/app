@@ -883,7 +883,43 @@
       "coverFailed": "The cover image wouldn't upload; the event was saved without it. Try again whenever you like.",
       "endsBeforeStarts": "The end is before the start.",
       "endsRequired": "The end time is missing. It's where the report hours come from.",
-      "revealAfterStarts": "The reveal is after it starts: it would uncover nothing."
+      "revealAfterStarts": "The reveal is after it starts: it would uncover nothing.",
+      "eines": {
+        "title": "Tools for this event",
+        "lede": "They all belong to this event. The door on the junta home is just a shortcut.",
+        "ledeDraft": "This is a draft: the scanner, check-in by name, points and payments appear once you publish it.",
+        "ledeMeeting": "A meeting has no door: whoever closes it says who was there.",
+        "soon": "The scanner and check-in by name open thirty hours before it starts.",
+        "closed": "The scanner and check-in by name close seven days after it ends. Points can always be given.",
+        "escaner": {
+          "title": "The scanner",
+          "sub": "Reads the QR code of whoever comes in."
+        },
+        "alta": {
+          "title": "Check in by name",
+          "sub": "For anyone without their QR code to hand."
+        },
+        "punts": {
+          "title": "Give points",
+          "sub": "For work done, the day after too."
+        },
+        "pagaments": {
+          "title": "Payments",
+          "sub": "Who has paid, who is asking for a place and who is waiting."
+        },
+        "fitxatges": {
+          "title": "Who has checked in",
+          "sub": "To remove a check-in that shouldn't be there."
+        },
+        "gimcana": {
+          "title": "The gymkhana",
+          "sub": "Challenges, teams and when it opens."
+        },
+        "validaGimcana": {
+          "title": "Review the gymkhana",
+          "sub": "The photos waiting for an answer."
+        }
+      }
     },
     "config": {
       "saved": "Saved.",
@@ -1227,6 +1263,11 @@
     },
     "home": {
       "doorNow": "At the door right now",
+      "doorPick": "{{n}} events at the door · pick yours",
+      "recordades": {
+        "title": "Doors saved on {{dia}} at {{hora}}",
+        "note": "These are from the last time there was a connection. The scanner keeps what you check in and uploads it when it is back."
+      },
       "doorYes": "said yes",
       "doorIn": "checked in",
       "doorFree": "places left",
@@ -1235,8 +1276,8 @@
       "doorGimcanaQueue_one": "Review the scavenger hunt · {{count}} photo",
       "doorGimcanaQueue_other": "Review the scavenger hunt · {{count}} photos",
       "doorNone": "At the door",
-      "doorNoneSub": "Nothing on for now. The scanner turns up here the day before.",
-      "doorAnyway": "Open the scanner anyway",
+      "doorNoneSub": "Nothing on for now. The scanner turns up here the day before, and every event has its own on its page.",
+      "doorAnyway": "See the events",
       "doorLoading": "Loading the door…",
       "doorFailed": "The door couldn't be read",
       "doorFailedSub": "We don't know whether anything is on. That isn't the same as nothing being on.",
@@ -1283,6 +1324,10 @@
       "soonCount": "{{count}} on the calendar",
       "soonEmpty": "Nothing on the calendar yet.",
       "soonFirst": "Create the first one",
+      "anteriors": "Earlier",
+      "anteriorsSub": "The ones that have finished, most recent first. Each one has its tools on its page.",
+      "anteriorsMore": "Show more",
+      "anteriorsNone": "None has finished yet.",
       "soonFailed": "The calendar couldn't be read.",
       "soonFailedSub": "There may be events we can't see. Don't create anything new until it loads.",
       "how": "How the comi works",
@@ -1369,6 +1414,7 @@
       "validateTitle": "Review the scavenger hunt",
       "inQueue_one": "{{count}} in the queue",
       "inQueue_other": "{{count}} in the queue",
+      "photoGone": "The photo is gone: gymkhana photos are deleted thirty days after it closes.",
       "queueEmpty": "No photos waiting. Come back in a while.",
       "yes": "It counts: +{{n}}",
       "no": "Doesn't count",

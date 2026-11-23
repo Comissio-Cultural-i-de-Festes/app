@@ -883,7 +883,43 @@
       "coverFailed": "La portada no se ha podido subir; el evento se ha guardado sin ella. Vuelve a probarlo cuando quieras.",
       "endsBeforeStarts": "El final es antes del inicio.",
       "endsRequired": "Falta la hora de final. Es de donde salen las horas de la memoria.",
-      "revealAfterStarts": "La revelación es después de que empiece: no destaparía nada."
+      "revealAfterStarts": "La revelación es después de que empiece: no destaparía nada.",
+      "eines": {
+        "title": "Herramientas de esta actividad",
+        "lede": "Todas son de este evento. La puerta del panel solo es un atajo.",
+        "ledeDraft": "Es un borrador: el escáner, el alta, los puntos y los pagos aparecen cuando lo publiques.",
+        "ledeMeeting": "Una reunión no tiene puerta: quién estaba lo dice quien la cierra.",
+        "soon": "El escáner y el alta se abren treinta horas antes de que empiece.",
+        "closed": "El escáner y el alta se cierran siete días después de que acabe. Los puntos se pueden dar siempre.",
+        "escaner": {
+          "title": "El escáner",
+          "sub": "Lee el QR de quien entra."
+        },
+        "alta": {
+          "title": "Alta por nombre",
+          "sub": "Para quien no lleva el QR a mano."
+        },
+        "punts": {
+          "title": "Dar puntos",
+          "sub": "Por el trabajo hecho, también al día siguiente."
+        },
+        "pagaments": {
+          "title": "Pagos",
+          "sub": "Quién ha pagado, quién pide plaza y quién espera."
+        },
+        "fitxatges": {
+          "title": "Quién ha fichado",
+          "sub": "Para quitar un fichaje que no tocaba."
+        },
+        "gimcana": {
+          "title": "La gincana",
+          "sub": "Pruebas, equipos y cuándo se abre."
+        },
+        "validaGimcana": {
+          "title": "Validar la gincana",
+          "sub": "Las fotos que esperan respuesta."
+        }
+      }
     },
     "config": {
       "saved": "Guardado.",
@@ -1227,6 +1263,11 @@
     },
     "home": {
       "doorNow": "Ahora mismo en la puerta",
+      "doorPick": "{{n}} actividades en la puerta · elige la tuya",
+      "recordades": {
+        "title": "Puertas guardadas el {{dia}} a las {{hora}}",
+        "note": "Son las de la última vez que hubo conexión. El escáner guarda lo que fiches y lo sube cuando vuelva."
+      },
       "doorYes": "han dicho que sí",
       "doorIn": "han fichado",
       "doorFree": "plazas libres",
@@ -1235,8 +1276,8 @@
       "doorGimcanaQueue_one": "Valida la gincana · {{count}} foto",
       "doorGimcanaQueue_other": "Valida la gincana · {{count}} fotos",
       "doorNone": "En la puerta",
-      "doorNoneSub": "Estos días no hay nada. El escáner aparecerá aquí el día antes.",
-      "doorAnyway": "Abre el escáner igualmente",
+      "doorNoneSub": "Estos días no hay nada. El escáner aparecerá aquí el día antes, y el de cualquier actividad está en su ficha.",
+      "doorAnyway": "Mira las actividades",
       "doorLoading": "Cargando la puerta…",
       "doorFailed": "No se ha podido leer la puerta",
       "doorFailedSub": "No sabemos si hay algo estos días. No es que no lo haya.",
@@ -1283,6 +1324,10 @@
       "soonCount": "{{count}} en el calendario",
       "soonEmpty": "Todavía no hay nada en el calendario.",
       "soonFirst": "Crea el primero",
+      "anteriors": "Anteriores",
+      "anteriorsSub": "Las que ya han terminado, de la más reciente hacia atrás. Cada una tiene sus herramientas en su ficha.",
+      "anteriorsMore": "Muestra más",
+      "anteriorsNone": "Todavía no ha terminado ninguna.",
       "soonFailed": "No se ha podido leer el calendario.",
       "soonFailedSub": "Puede que haya y no los veamos. No crees nada nuevo hasta que cargue.",
       "how": "Cómo funciona la comi",
@@ -1369,6 +1414,7 @@
       "validateTitle": "Validar la gincana",
       "inQueue_one": "{{count}} en la cola",
       "inQueue_other": "{{count}} en la cola",
+      "photoGone": "La foto ya no está: las fotos de la gincana se borran treinta días después de cerrarla.",
       "queueEmpty": "Ninguna foto esperando. Volved dentro de un rato.",
       "yes": "Vale: +{{n}}",
       "no": "No vale",

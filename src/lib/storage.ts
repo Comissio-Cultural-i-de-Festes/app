@@ -1,6 +1,8 @@
 import { queryOptions } from '@tanstack/react-query'
 
+import { staleIn } from './prune'
 import { SIGNED_TTL_SECONDS, signedKey } from './signedQuery'
+import { SWEEP_BATCH, SWEEP_ROUNDS, byBucket } from './sweep'
 import { supabase } from './supabase'
 
 /**
@@ -301,6 +303,89 @@ export async function uploadDoorPhoto(
 
   if (error) throw error
   return path
+}
+
+/**
+ * Treure objectes, i dir-ho a qui guarda les seves URL signades.
+ *
+ * Aquest mòdul no té la memòria cau de React Query —viu en un `useState` de
+ * `QueryProvider`, perquè cada test en munti una de nova—, o sigui que ho
+ * anuncia i `QueryProvider` hi esborra les entrades d'aquells camins. Sense
+ * això, la URL d'un objecte que ja no existeix hi podria quedar fins a una
+ * hora i pintar un marc trencat a la primera pantalla que encara la demanés.
+ */
+export const STORAGE_REMOVED = 'storage-removed'
+export const storageRemovals = new EventTarget()
+
+export interface Removed {
+  readonly bucket: string
+  readonly paths: readonly string[]
+}
+
+/** Torna els camins que l'storage diu que ha tret, i llança si no ha pogut. */
+export async function removeObjects(bucket: string, paths: readonly string[]): Promise<string[]> {
+  if (paths.length === 0) return []
+  const { data, error } = await supabase.storage.from(bucket).remove([...paths])
+  if (error) throw error
+  const removed = data.map((row) => row.name)
+  storageRemovals.dispatchEvent(
+    new CustomEvent<Removed>(STORAGE_REMOVED, { detail: { bucket, paths: removed } }),
+  )
+  return removed
+}
+
+/**
+ * Deixa a la carpeta només `keep`, o res si és `null`. No llança mai.
+ *
+ * Es crida DESPRÉS que la fila apunti a l'objecte nou, mai abans: si es fes
+ * abans i desar fallés, s'hauria esborrat la foto que la fila encara fa servir.
+ * I no llança perquè quan arriba aquí el que la persona ha demanat ja ha
+ * passat: un esborrat que falla sense cobertura és un objecte de més al bucket,
+ * que l'escombrada diària (migració 91) acabarà traient, i no un error a la
+ * pantalla d'algú que ja havia acabat.
+ */
+export async function keepOnly(bucket: string, folder: string, keep: string | null): Promise<void> {
+  try {
+    const { data, error } = await supabase.storage.from(bucket).list(folder, { limit: 1000 })
+    if (error) return
+    await removeObjects(bucket, staleIn(folder, data, keep))
+  } catch {
+    // Vegeu a dalt: l'escombrada diària ho recull.
+  }
+}
+
+/**
+ * L'escombrada: el que la base diu que sobra i aquesta persona pot treure.
+ *
+ * `my_storage_garbage` ja filtra per les polítiques de qui crida, o sigui que
+ * aquí no es decideix res: es demana i s'esborra, un bucket per crida. Torna
+ * quants n'ha tret, o `null` si ni tan sols ha pogut preguntar. No llança mai:
+ * es fa en segon pla i ningú no l'ha demanat.
+ *
+ * DE MIL EN MIL I TORNANT-HI. Una gimcana gran són milers de fotos, i totes
+ * arriben a la junta el mateix dia trenta; a dos-cents per mòbil i dia
+ * trigarien setmanes. Mil és el màxim que l'API esborra d'una crida, i mentre
+ * la llista arriba plena es torna a demanar, fins a `SWEEP_ROUNDS` voltes. Si
+ * una volta no treu res —una política que ha canviat, la xarxa que cau— es
+ * para: tornar-hi donaria la mateixa llista.
+ */
+export async function sweepStorage(): Promise<number | null> {
+  let removed = 0
+  try {
+    for (let round = 0; round < SWEEP_ROUNDS; round++) {
+      const { data, error } = await supabase.rpc('my_storage_garbage', { p_limit: SWEEP_BATCH })
+      if (error) return round === 0 ? null : removed
+      let thisRound = 0
+      for (const [bucket, paths] of byBucket(data)) {
+        thisRound += (await removeObjects(bucket, paths).catch(() => [])).length
+      }
+      removed += thisRound
+      if (data.length < SWEEP_BATCH || thisRound === 0) break
+    }
+    return removed
+  } catch {
+    return removed > 0 ? removed : null
+  }
 }
 
 /**

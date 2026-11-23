@@ -1857,6 +1857,7 @@ export type Database = {
           equip: string
           equip_ordre: number
           escola: string
+          foto_esborrada_at: string
           id: string
           path: string
           prova: string
@@ -2207,6 +2208,13 @@ export type Database = {
       }
       my_qr: { Args: never; Returns: string }
       my_revealed_interests: { Args: never; Returns: string[] }
+      my_storage_garbage: {
+        Args: { p_limit?: number }
+        Returns: {
+          bucket: string
+          path: string
+        }[]
+      }
       my_streak: { Args: never; Returns: Json }
       pick_team: { Args: { p_equip_id: string }; Returns: Json }
       ranking_escoles_period: {

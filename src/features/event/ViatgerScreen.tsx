@@ -288,14 +288,14 @@ function Formulari({
       </p>
     ) : null
 
-  // Tres opcions curtes es trien amb un toc, no amb un desplegable: es veuen
+  // Tres opcions curtes (quatre, en dues files) es trien amb un toc, no amb un desplegable: es veuen
   // totes i no amaguen res darrere d'un altre pas.
   const triaUn = <K extends 'sexe' | 'tipus_document'>(
     c: K,
     opcions: readonly NonNullable<EsborranyViatger[K]>[],
     etiqueta: (o: string) => string,
   ) => (
-    <div className="mt-4 grid grid-cols-3 gap-4">
+    <div className={`mt-4 grid gap-4 ${opcions.length > 3 ? 'grid-cols-2' : 'grid-cols-3'}`}>
       {opcions.map((o) => (
         <button
           key={o}

@@ -1569,7 +1569,8 @@
     "document": {
       "dni": "DNI",
       "nie": "NIE",
-      "passaport": "Passport"
+      "passaport": "Passport",
+      "id_ue": "EU identity card"
     },
     "choose": "Pick one",
     "bad": {

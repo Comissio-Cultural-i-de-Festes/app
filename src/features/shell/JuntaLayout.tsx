@@ -10,6 +10,7 @@ import { useAvailability } from '@/lib/useAvailability'
 
 import { GateUnreachable, GateWaiting } from './Gate'
 import { JuntaScreenBoundary } from './JuntaScreenBoundary'
+import { JuntaStrings } from './JuntaStrings'
 import { prefetchJunta } from './startPrefetch'
 
 /**
@@ -91,7 +92,9 @@ export function JuntaLayout() {
   // sense cobertura, ho diu aquí i no recarrega. El perquè, al fitxer.
   const screen = (
     <JuntaScreenBoundary key={pathname}>
-      <Outlet />
+      <JuntaStrings>
+        <Outlet />
+      </JuntaStrings>
     </JuntaScreenBoundary>
   )
 

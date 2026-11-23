@@ -20,6 +20,10 @@ vi.mock('react-i18next', () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }))
 vi.mock('@/features/junta/JuntaNav', () => ({ JuntaNav: () => null }))
+// Els textos de la junta, a la seva prova: aquí ja hi són.
+vi.mock('./JuntaStrings', () => ({
+  JuntaStrings: ({ children }: { readonly children: ReactNode }) => children,
+}))
 const preloadDoor = vi.hoisted(() => vi.fn(() => Promise.resolve()))
 vi.mock('@/features/door/preload', () => ({ preloadDoor }))
 

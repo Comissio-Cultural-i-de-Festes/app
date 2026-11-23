@@ -89,6 +89,29 @@ describe('les dades de viatger per PostgREST', () => {
     expect(data).toEqual([{ numero_document: '12345678Z', telefon_emergencia: '955000001' }])
   })
 
+  it("canvia a un document d'identitat de la UE i torna al DNI", async () => {
+    const UE = { tipus_document: 'id_ue', numero_document: 'C01X00T47', numero_suport: null }
+    const canvi = await charlie
+      .from('dades_viatger')
+      .update(UE)
+      .eq('event_id', casa)
+      .select('tipus_document, numero_document, numero_suport')
+    expect(canvi.error).toBeNull()
+    expect(canvi.data).toEqual([UE])
+
+    const torna = await charlie
+      .from('dades_viatger')
+      .update({
+        tipus_document: DADES.tipus_document,
+        numero_document: DADES.numero_document,
+        numero_suport: DADES.numero_suport,
+      })
+      .eq('event_id', casa)
+      .select('tipus_document')
+    expect(torna.error).toBeNull()
+    expect(torna.data).toEqual([{ tipus_document: 'dni' }])
+  })
+
   it('un altre soci no les veu: la política filtra, i hi són', async () => {
     const { data, error } = await bravo.from('dades_viatger').select('user_id').eq('event_id', casa)
     expect(error).toBeNull()

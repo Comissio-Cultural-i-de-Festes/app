@@ -146,7 +146,10 @@ comment on function private.camp_viatger_net(text, int) is
 -- lloc de deixar que el CHECK digui que no.
 --
 -- EL NÚMERO DE SUPORT és el que el registre demana per al DNI i el NIE. Un
--- passaport no en té, i per això ha de ser null.
+-- passaport no en té, ni el document d'identitat d'un altre país de la UE (que
+-- és el que 'id_ue' vol dir: el DNI espanyol té el seu tipus), i per això ha de
+-- ser null. D'aquest darrer només es pot comprovar que és alfanumèric: cada
+-- país numera els seus documents com vol i no hi ha cap lletra de control comuna.
 create or replace function private.document_viatger_valid(
   p_tipus text, p_numero text, p_suport text
 )
@@ -169,7 +172,7 @@ as $$
                     1)
              = right(p_numero, 1)
         else false end
-    when p_tipus = 'passaport' then
+    when p_tipus in ('passaport', 'id_ue') then
       coalesce(p_numero ~ '^[A-Z0-9]{3,20}$', false) and p_suport is null
     else false
   end
@@ -177,8 +180,8 @@ $$;
 
 comment on function private.document_viatger_valid(text, text, text) is
   'Si un document es plausible: DNI i NIE amb la lletra de control bona i el '
-  'numero de suport, passaport alfanumeric i sense suport. Majuscules i sense '
-  'espais: el client normalitza abans d''enviar.';
+  'numero de suport, passaport i document d''identitat de la UE alfanumerics i '
+  'sense suport. Majuscules i sense espais: el client normalitza abans d''enviar.';
 
 -- ── la taula ───────────────────────────────────────────────────────────────
 create table public.dades_viatger (
@@ -189,7 +192,7 @@ create table public.dades_viatger (
   -- Opcional: no tothom en té dos. Absent és null, mai la cadena buida.
   cognom2            text check (private.camp_viatger_net(cognom2, 80)),
   sexe               text not null check (sexe in ('home', 'dona', 'altre')),
-  tipus_document     text not null check (tipus_document in ('dni', 'nie', 'passaport')),
+  tipus_document     text not null check (tipus_document in ('dni', 'nie', 'passaport', 'id_ue')),
   numero_document    text not null,
   numero_suport      text,
   -- Codis ISO 3166-1 alfa-2. El nom del país el posa el client, en la llengua
@@ -358,7 +361,7 @@ begin
     when new.cognom2 is not null and not private.camp_viatger_net(new.cognom2, 80) then 'cognom2'
     when new.sexe is null or new.sexe not in ('home', 'dona', 'altre') then 'sexe'
     when new.tipus_document is null
-      or new.tipus_document not in ('dni', 'nie', 'passaport') then 'tipus_document'
+      or new.tipus_document not in ('dni', 'nie', 'passaport', 'id_ue') then 'tipus_document'
     when not coalesce(
       private.document_viatger_valid(new.tipus_document, new.numero_document, new.numero_suport),
       false) then 'numero_document'

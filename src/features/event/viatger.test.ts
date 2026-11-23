@@ -11,6 +11,7 @@ import {
   normalitzaDocument,
   normalitzaTelefon,
   numeroDocumentValid,
+  portaSuport,
 } from './viatger'
 
 const AVUI = '2026-11-18'
@@ -73,6 +74,12 @@ describe('el document', () => {
     expect(numeroDocumentValid('passaport', 'AB1234567')).toBe(true)
     expect(numeroDocumentValid('passaport', 'A')).toBe(false)
   })
+
+  it("un document d'identitat de la UE també, sense la lletra del DNI", () => {
+    expect(numeroDocumentValid('id_ue', 'C01X00T47')).toBe(true)
+    expect(numeroDocumentValid('id_ue', 'AB')).toBe(false)
+    expect(numeroDocumentValid('id_ue', 'AB-12')).toBe(false)
+  })
 })
 
 describe('llegeixViatger', () => {
@@ -127,6 +134,19 @@ describe('llegeixViatger', () => {
       AVUI,
     )
     expect(r.ok && [r.fila.numero_document, r.fila.numero_suport]).toEqual(['AB1234567', null])
+  })
+
+  it("el document d'identitat de la UE descarta el suport i no el demana", () => {
+    expect(portaSuport('id_ue')).toBe(false)
+    const r = llegeixViatger(
+      { ...BO, tipus_document: 'id_ue', numero_document: 'c01-x00 t47', numero_suport: 'E1234567' },
+      AVUI,
+    )
+    expect(r.ok && [r.fila.tipus_document, r.fila.numero_document, r.fila.numero_suport]).toEqual([
+      'id_ue',
+      'C01X00T47',
+      null,
+    ])
   })
 
   it('una lletra que no quadra es diu, no es corregeix', () => {

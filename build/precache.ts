@@ -21,8 +21,8 @@
  *      que no hi és no s'obre sense xarxa, i aleshores tenir-lo a la precache no
  *      serveix de res.
  *
- * Surten, doncs, les pantalles d'escriptori de la junta, Leaflet, el castellà i
- * l'anglès.
+ * Surten, doncs, les pantalles d'escriptori de la junta, Leaflet, el castellà,
+ * l'anglès i els textos de les pantalles d'escriptori en tots tres idiomes.
  *
  * PER QUÈ LA PORTA ES QUEDA, encara que la gent de la junta sigui poca. Els
  * seus trossos importen l'`index-<hash>.js`, que canvia gairebé a cada
@@ -69,6 +69,11 @@
  *
  * Es va considerar baixar els dos idiomes en segon pla després d'instal·lar: és
  * el mateix pes que tenir-los a la precache, només que més tard.
+ *
+ * ELS TEXTOS DE LA JUNTA tampoc no hi són, en cap idioma: el català de l'entrada
+ * no els porta, i són un tros propi per idioma que es baixa amb les pantalles
+ * d'escriptori (`build/localeSplit.ts`). Els de la porta, sí: es queden dins de
+ * cada idioma, i el català, dins de l'entrada.
  *
  * El que surt d'aquí no es perd: el guarda una memòria cau `CacheFirst` la
  * primera vegada que es demana (`vite.config.ts`), i la zona de junta en demana
@@ -148,9 +153,12 @@ export function isOnlineOnlyModule(id: string): boolean {
   return ONLINE_ONLY.some((screen) => screen.test(normal(id)))
 }
 
-/** Un fitxer d'idioma. El que l'entrada importa ja hi va dins, sigui quin sigui. */
+/**
+ * Un fitxer d'idioma, o una de les seves dues parts (`build/localeSplit.ts`). El
+ * que l'entrada importa ja hi va dins, sigui quin sigui.
+ */
 export function isLocaleModule(id: string): boolean {
-  return /\/src\/i18n\/locales\/[^/]+\.json$/.test(normal(id))
+  return /\/src\/i18n\/locales\/[^/]+\.json(?:\?[\w&=]*)?$/.test(normal(id))
 }
 
 /** `\0` és un mòdul virtual —el runtime de rolldown, l'ajudant de precàrrega de

@@ -1569,7 +1569,8 @@
     "document": {
       "dni": "DNI",
       "nie": "NIE",
-      "passaport": "Passaport"
+      "passaport": "Passaport",
+      "id_ue": "Document d'identitat de la UE"
     },
     "choose": "Tria'n un",
     "bad": {

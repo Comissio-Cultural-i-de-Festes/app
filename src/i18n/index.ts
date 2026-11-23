@@ -4,7 +4,7 @@ import { initReactI18next } from 'react-i18next'
 
 import { lazyLocales } from './backend'
 import { adoptLateLocale } from './late'
-import ca from './locales/ca.json'
+import ca from './locales/ca.json?app'
 import {
   BUNDLED_LOCALE,
   DEFAULT_LOCALE,
@@ -36,8 +36,15 @@ import {
  * app's background and a pulsing mark, no text. If it cannot arrive, the
  * fallback language shows instead; how long that wait can last, and what
  * happens to a chunk that a deploy removed, is in `backend.ts`.
+ *
+ * `?app` is each language without the junta's desk screens: those strings come
+ * with the screens, from `junta.ts`. Where the line runs is in
+ * `build/localeSplit.ts`.
  */
-const chunks = import.meta.glob<ResourceKey>('./locales/*.json', { import: 'default' })
+const chunks = import.meta.glob<ResourceKey>('./locales/*.json', {
+  query: '?app',
+  import: 'default',
+})
 
 /**
  * Four seconds: long enough for a 30 KiB file over a bad 4G, short enough that

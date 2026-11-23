@@ -11,7 +11,7 @@
 -- ningú. Els telèfons comencen per 9 i no poden ser el mòbil de ningú.
 
 begin;
-select plan(63);
+select plan(67);
 
 reset role;
 
@@ -177,6 +177,17 @@ select throws_ok(
 -- El client valida el mateix abans d'enviar, i aquí és la xarxa de sota: cada
 -- un d'aquests és un 23514, el CHECK de la taula, i no un 42501 de la política.
 reset role;
+
+-- El document d'identitat de la UE: alfanumèric i sense suport, com un passaport.
+select ok(private.document_viatger_valid('id_ue', 'C01X00T47', null),
+  'un document d''identitat de la UE alfanumèric i sense suport val');
+select ok(not private.document_viatger_valid('id_ue', 'C01X00T47', 'E12345678'),
+  'i amb número de suport, no');
+select ok(not private.document_viatger_valid('id_ue', 'C01-X00', null),
+  'ni amb guions: el client normalitza abans d''enviar');
+select ok(not private.document_viatger_valid('id_ue', 'AB', null),
+  'ni massa curt');
+
 select tests.authenticate_as('bravo');
 
 create function pg_temp.dolenta(p_canvi jsonb) returns text language sql as $$

@@ -19,7 +19,7 @@ import type { AttendanceState } from '@/lib/model'
 /** Set dies després del final de l'estada. La migració 90 en diu el mateix. */
 export const RETENCIO_DIES = 7
 
-export const TIPUS_DOCUMENT = ['dni', 'nie', 'passaport'] as const
+export const TIPUS_DOCUMENT = ['dni', 'nie', 'passaport', 'id_ue'] as const
 export type TipusDocument = (typeof TIPUS_DOCUMENT)[number]
 
 export const SEXES = ['dona', 'home', 'altre'] as const
@@ -124,7 +124,9 @@ function lletraBona(numero: string): boolean {
 
 /**
  * Si el número és plausible per al tipus: la lletra de control del DNI i del
- * NIE, i un passaport alfanumèric. Espera el número ja normalitzat.
+ * NIE, i un passaport o un document d'identitat de la UE alfanumèrics (cada
+ * país numera els seus com vol, i només el DNI té una lletra que es pugui
+ * comprovar). Espera el número ja normalitzat.
  */
 export function numeroDocumentValid(tipus: TipusDocument, numero: string): boolean {
   if (tipus === 'dni') return /^[0-9]{8}[A-Z]$/.test(numero) && lletraBona(numero)
@@ -135,7 +137,7 @@ export function numeroDocumentValid(tipus: TipusDocument, numero: string): boole
   return /^[A-Z0-9]{3,20}$/.test(numero)
 }
 
-/** El passaport no en porta; el DNI i el NIE sí, i és el que el registre demana. */
+/** El passaport i el document d'identitat de la UE no en porten; el DNI i el NIE sí, i és el que el registre demana. */
 export function portaSuport(tipus: TipusDocument | ''): boolean {
   return tipus === 'dni' || tipus === 'nie'
 }

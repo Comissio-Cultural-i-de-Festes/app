@@ -34,6 +34,13 @@ describe('una cel·la', () => {
   })
 })
 
+describe('el tipus de document', () => {
+  it('el de la UE surt amb el seu nom, igual que els altres', () => {
+    const fila = { ...FILA, tipus_document: 'id_ue' as const, numero_suport: null }
+    expect(csvViatgers([fila]).split(';')).toContain("Document d'identitat de la UE")
+  })
+})
+
 describe('el fitxer', () => {
   const csv = csvViatgers([FILA])
   const linies = csv.slice(1).split('\r\n')

@@ -69,6 +69,7 @@ const DOCUMENT: Readonly<Record<TipusDocument, string>> = {
   dni: 'DNI',
   nie: 'NIE',
   passaport: 'Passaport',
+  id_ue: "Document d'identitat de la UE",
 }
 
 const BOM = '\uFEFF'

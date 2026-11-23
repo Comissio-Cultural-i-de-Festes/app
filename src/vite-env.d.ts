@@ -22,3 +22,9 @@ interface ImportMetaEnv {
 interface ImportMeta {
   readonly env: ImportMetaEnv
 }
+
+/** A language file without the junta's desk strings; see `build/localeSplit.ts`. */
+declare module '*.json?app' {
+  const strings: Record<string, unknown>
+  export default strings
+}

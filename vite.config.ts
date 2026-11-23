@@ -6,6 +6,7 @@ import { loadEnv } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vitest/config'
 
+import { localeSplit } from './build/localeSplit.ts'
 import { trimPrecache } from './build/precache.ts'
 
 const REQUIRED_ENV = [
@@ -68,6 +69,8 @@ export default defineConfig(({ mode, command }) => {
     plugins: [
       react(),
       tailwindcss(),
+      // Els textos de la junta, fora de l'entrada: el perquè, al fitxer.
+      localeSplit(),
       precache.plugin,
       {
         // La substitució de `%VITE_*%` que fa Vite deixa el marcador tal qual
@@ -177,8 +180,8 @@ export default defineConfig(({ mode, command }) => {
           // és la de les notificacions (`public/push.js`). I l'iPhone fa servir
           // `apple-touch-icon.png`, que també es queda.
           globIgnores: ['og-image.png', 'pwa-512x512.png', 'pwa-maskable-512x512.png'],
-          // Les pantalles d'escriptori de la junta, el mapa, el castellà i
-          // l'anglès, fora: el perquè i com es decideix són a
+          // Les pantalles d'escriptori de la junta i els seus textos, el mapa,
+          // el castellà i l'anglès, fora: el perquè i com es decideix són a
           // `build/precache.ts`. Els serveix la regla `chunks` de més avall.
           manifestTransforms: [precache.manifestTransform],
           cleanupOutdatedCaches: true,
@@ -241,7 +244,8 @@ export default defineConfig(({ mode, command }) => {
             },
             {
               // Els trossos que no són a la precache: les pantalles d'escriptori
-              // de la junta, el mapa i els idiomes que no van dins de l'entrada.
+              // de la junta i els seus textos, el mapa i els idiomes que no van
+              // dins de l'entrada.
               // Si la primera visita n'ha baixat algun abans que el service
               // worker hi manés, `src/lib/firstControl.ts` el torna a demanar
               // perquè passi per aquí. Porten hash al nom i no canvien mai, així

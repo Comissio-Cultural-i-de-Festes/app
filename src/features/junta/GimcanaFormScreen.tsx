@@ -34,8 +34,14 @@ import { useBack } from '@/lib/useBack'
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
-const INPUT =
-  'w-full border border-[var(--ds-border-input)] bg-transparent px-7 py-6 text-md text-fg placeholder:text-fg-faint'
+// L'amplada va a part perquè els camps estrets no la poden treure: amb
+// `w-full` a la base, el `w-[80px]` dels punts no s'aplicava mai —`.w-full`
+// va després al full d'estils i guanya sigui quin sigui l'ordre del
+// `className`— i a 390 px els punts ocupaven tota la fila i el títol de la
+// prova quedava reduït a un quadradet buit.
+const INPUT_BOX =
+  'border border-[var(--ds-border-input)] bg-transparent px-7 py-6 text-md text-fg placeholder:text-fg-faint'
+const INPUT = `${INPUT_BOX} w-full`
 
 const MENES = ['escoles', 'junta', 'sorteig', 'lliure'] as const
 type Mena = (typeof MENES)[number]
@@ -167,7 +173,7 @@ export function GimcanaFormScreen() {
                 onChange={(e) => {
                   setHowMany(Number(e.target.value))
                 }}
-                className={`${INPUT} tabular w-[92px]`}
+                className={`${INPUT_BOX} tabular w-[92px] flex-none`}
               />
               <button
                 type="button"
@@ -267,7 +273,7 @@ export function GimcanaFormScreen() {
                   next[i] = { ...p, titol: e.target.value }
                   setProves(next)
                 }}
-                className={`${INPUT} min-w-0 flex-1`}
+                className={`${INPUT_BOX} min-w-0 flex-1`}
               />
               <input
                 type="number"
@@ -280,7 +286,7 @@ export function GimcanaFormScreen() {
                   next[i] = { ...p, punts: Number(e.target.value) }
                   setProves(next)
                 }}
-                className={`${INPUT} tabular w-[80px] flex-none`}
+                className={`${INPUT_BOX} tabular w-[80px] flex-none`}
               />
             </div>
           ))}

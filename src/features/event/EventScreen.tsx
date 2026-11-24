@@ -18,7 +18,6 @@ import {
 } from '@/i18n/format'
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
 import { type Card, loadCardImage } from '@/lib/cards'
-import { hasEnded } from '@/lib/eventEnd'
 import { useAvailability } from '@/lib/useAvailability'
 import { ANSWERS, type Answer, type AttendanceState } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
@@ -48,6 +47,7 @@ import { useBack } from '@/lib/useBack'
 import { AnswerNote } from './AnswerNote'
 import { CalendarOffer, CalendarRow } from './Calendar'
 import { MeetingActa, MeetingAnswer, MeetingRoster } from './Meeting'
+import { eventPhase } from './phase'
 import { ViatgerBlock } from './ViatgerBlock'
 import { meetingKeys } from './meetingApi'
 import { BigCountdown, HiddenChip, InterestBlock } from './Teaser'
@@ -164,7 +164,14 @@ export function EventScreen() {
   const { going, faces, mine } = summary
   const left = placesLeft(e, going)
   const starts = new Date(e.starts_at)
-  const isPast = starts.getTime() < now.getTime()
+  // Començada i acabada no són el mateix. Fins ara tot penjava de
+  // `starts_at < ara`, i una casa rural de divendres a diumenge deia «Ja ha
+  // passat» a tothom que encara hi era dins. El que es fa ABANS —dir que hi
+  // vas, compartir-la, desar-la al calendari— es tanca en començar; el que
+  // DESCRIU la nit —el xip, el temps del verb, «hi vam ser»— espera que acabi.
+  const phase = eventPhase(e.starts_at, e.ends_at, now.getTime())
+  const started = phase !== 'upcoming'
+  const ended = phase === 'over'
   // El títol no arriba fins a la revelació, i és el que decideix mitja
   // pantalla: sense títol no hi ha places, ni cotxes, ni sí/potser/no, perquè
   // ningú no sap a què diria que sí.
@@ -178,10 +185,6 @@ export function EventScreen() {
   // Only worth a tap once the door has let somebody in. Before that the
   // screen has nothing on it, and a link to nothing is a dead end.
   const inside = summary.attended
-  // `isPast` starts the moment the event does, which is right for everything
-  // else on this page and wrong here: a party in progress is the one time
-  // "who is inside" is worth asking. The pulse stops when the party does.
-  const ended = hasEnded(e.starts_at, e.ends_at, now.getTime())
   const cover = covers.data?.get(e.cover_url ?? '') ?? null
   // Mentre la festa passa, la pregunta deixa de ser «hi véns?». I un cop
   // fitxat el bloc es queda: acaba de dir-te que hi ets i t'ofereix la foto, i
@@ -191,7 +194,7 @@ export function EventScreen() {
     ? e.tancada_at === null
       ? 'meeting'
       : null
-    : hidden || isPast || mine === 'asistio' || justCheckedIn
+    : hidden || started || mine === 'asistio' || justCheckedIn
       ? null
       : 'event'
   const canCheckIn =
@@ -217,7 +220,7 @@ export function EventScreen() {
       ) : (
         <Cover
           coverUrl={covers.data?.get(e.cover_url ?? '') ?? null}
-          isPast={isPast}
+          phase={phase}
           corner={
             <Link
               to="/"
@@ -239,7 +242,10 @@ export function EventScreen() {
           {/* Compartir una cosa que ningú no sap què és no té res a compartir:
               l'enllaç portaria l'altra persona a la mateixa pantalla de
               «? ? ?». Al seu lloc, el xip que diu per què. */}
-          {hidden ? <HiddenChip /> : isPast ? null : <Share event={e} />}
+          {/* El missatge que s'envia és «hi véns?», i un cop començada ja no
+              hi ha res a què dir que sí: l'enllaç portaria a una fitxa sense
+              botons. */}
+          {hidden ? <HiddenChip /> : started ? null : <Share event={e} />}
         </div>
         <h1
           className={
@@ -286,9 +292,7 @@ export function EventScreen() {
               ))}
             </div>
             <p className="text-md font-bold text-fg-secondary [text-wrap:pretty]">
-              {isPast
-                ? t('event.whoCame', { count: going })
-                : t('event.whoComes', { count: going })}
+              {ended ? t('event.whoCame', { count: going }) : t('event.whoComes', { count: going })}
             </p>
           </div>
           <p className="mt-4 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
@@ -344,7 +348,8 @@ export function EventScreen() {
           lloc, que és el que se'n va al calendari. Es filtra ella sola per a un
           esdeveniment no revelat.
           A una reunió de les 18:30 d'un dimarts és on més falta fa. */}
-      {isPast ? null : <CalendarRow event={e} />}
+      {/* Desar al calendari una cosa que ja ha començat no avisa de res. */}
+      {started ? null : <CalendarRow event={e} />}
 
       {isMeeting ? <MeetingActa event={e} /> : null}
 
@@ -363,7 +368,7 @@ export function EventScreen() {
           puntos={e.puntos}
           left={left}
           going={going}
-          isPast={isPast}
+          phase={phase}
           waiting={waitlist.data?.total ?? 0}
         />
       )}

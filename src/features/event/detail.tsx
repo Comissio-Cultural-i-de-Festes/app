@@ -1,6 +1,8 @@
 import type { ReactNode } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import type { EventPhase } from './phase'
+
 /**
  * The parts of the event detail that only draw.
  *
@@ -16,11 +18,11 @@ const GUTTER = 'px-[var(--ds-gutter)]'
 
 export function Cover({
   coverUrl,
-  isPast,
+  phase,
   corner,
 }: {
   readonly coverUrl: string | null
-  readonly isPast: boolean
+  readonly phase: EventPhase
   /**
    * Top-left affordance. The screen puts a back link here and the junta's
    * preview puts a close button — hardcoding either one is what kept this
@@ -52,9 +54,20 @@ export function Cover({
 
       <div className="absolute top-4 left-4">{corner}</div>
 
-      {isPast ? (
+      {phase === 'over' ? (
         <p className="absolute top-6 right-4 rounded-xs bg-[var(--ds-badge-past-bg)] px-4 py-2 text-2xs font-extrabold tracking-[0.1em] text-[var(--ds-badge-past-fg)] uppercase">
           {t('event.past')}
+        </p>
+      ) : null}
+      {/* El mateix punt verd que «Qui hi ha ara dins», sobre el vel fosc del
+          botó de tornar perquè es llegeixi damunt de qualsevol portada. */}
+      {phase === 'live' ? (
+        <p className="absolute top-6 right-4 flex items-center gap-3 rounded-xs bg-[oklch(0.15_0.012_25/0.7)] px-4 py-2 text-2xs font-extrabold tracking-[0.1em] text-success uppercase backdrop-blur-[6px]">
+          <span
+            aria-hidden="true"
+            className="size-[7px] flex-none animate-pulse rounded-full bg-success"
+          />
+          {t('event.live')}
         </p>
       ) : null}
     </section>
@@ -98,7 +111,7 @@ export function Places({
   puntos,
   left,
   going,
-  isPast,
+  phase,
   waiting,
 }: {
   /** Places the event has, or null when it has no cap. */
@@ -106,7 +119,12 @@ export function Places({
   readonly puntos: number
   readonly left: number | null
   readonly going: number
-  readonly isPast: boolean
+  /**
+   * En curs es pinta com acabada —qui hi és i els punts— i no com abans: les
+   * places que queden ja no les pot agafar ningú. Només canvia el temps del
+   * verb.
+   */
+  readonly phase: EventPhase
   readonly waiting: number
   /** El perfil diu que no és actiu: només es pinta el que no surt de les assistències. */
   readonly closed?: boolean
@@ -116,8 +134,10 @@ export function Places({
   // Les places i els punts són de l'esdeveniment i es llegeixen sempre; el que
   // no es pot saber és quanta gent hi va, i d'aquí en surten `left`, `going` i la
   // cua.
+  const started = phase !== 'upcoming'
+
   if (closed) {
-    if (isPast) {
+    if (started) {
       return (
         <section className={`pt-9 ${GUTTER}`}>
           <p className="tabular display text-d-sm leading-[0.85] tracking-[-0.05em] text-brand-accent">
@@ -135,12 +155,14 @@ export function Places({
     )
   }
 
-  if (isPast) {
+  if (started) {
     return (
       <section className={`flex items-end gap-9 pt-9 ${GUTTER}`}>
         <div>
           <p className="tabular display text-d-lg leading-[0.85] tracking-[-0.05em]">{going}</p>
-          <p className="mt-2 text-sm font-bold text-fg-muted">{t('event.wereThere')}</p>
+          <p className="mt-2 text-sm font-bold text-fg-muted">
+            {t(phase === 'live' ? 'event.areThere' : 'event.wereThere')}
+          </p>
         </div>
         <div>
           <p className="tabular display text-d-sm leading-[0.85] tracking-[-0.05em] text-brand-accent">

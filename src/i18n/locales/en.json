@@ -259,6 +259,7 @@
       "willKnowInOne": "Known tomorrow"
     },
     "past": "Already happened",
+    "live": "Right now",
     "whoComes_one": "{{count}} person going",
     "whoComes_other": "{{count}} going",
     "whoCame_one": "{{count}} person came",
@@ -279,6 +280,7 @@
     "fullWithQueue_one": "{{count}} person is waiting. People always drop out.",
     "fullWithQueue_other": "{{count}} are waiting. People always drop out.",
     "wereThere": "were there",
+    "areThere": "are there",
     "pointsForComing": "points for coming",
     "transport": "Getting home",
     "ask": {

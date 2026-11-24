@@ -3,8 +3,16 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
-import { formatDateLong, formatDayMonth, formatHores, formatTime, horesParts } from '@/i18n/format'
-import { toLocale } from '@/i18n/locales'
+import {
+  formatDateLong,
+  formatDateTime,
+  formatDayMonth,
+  formatHores,
+  formatTime,
+  horesParts,
+} from '@/i18n/format'
+import { endsOnOtherDay } from '@/features/event/interval'
+import { type Locale, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
@@ -45,6 +53,14 @@ import { type CampsHores, campsDesDeMinuts, minutsDesDeCamps } from './horesForm
  */
 
 const GUTTER = 'px-[var(--ds-gutter)]'
+
+/** L'hora del final, amb el dia quan no és el de l'inici: una estada no acaba «a les 18:00» sense més. */
+function acabament(startsAt: string, endsAt: string, locale: Locale): string {
+  const ends = new Date(endsAt)
+  return endsOnOtherDay(new Date(startsAt), ends)
+    ? formatDateTime(ends, locale)
+    : formatTime(ends, locale)
+}
 
 export function HoresEventScreen() {
   const { t, i18n } = useTranslation()
@@ -119,7 +135,9 @@ export function HoresEventScreen() {
               </p>
               <p className="mt-4 text-base font-semibold text-fg-secondary [text-wrap:pretty]">
                 {formatDateLong(new Date(dades.starts_at), locale)}
-                {dades.ends_at === null ? '' : ` → ${formatTime(new Date(dades.ends_at), locale)}`}
+                {dades.ends_at === null
+                  ? ''
+                  : ` → ${acabament(dades.starts_at, dades.ends_at, locale)}`}
               </p>
             </div>
             <div className="mt-7 grid grid-cols-3 border-t border-surface-4">

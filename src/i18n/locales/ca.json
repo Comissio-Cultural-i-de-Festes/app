@@ -217,6 +217,7 @@
       "isThere": "Fitxer descarregat",
       "again": "Torna'l a baixar",
       "fromTo": "{{day}}, {{from}} – {{to}}",
+      "fromToDays": "{{from}} – {{to}}",
       "cannotRead": "L'app no veu el calendari del telèfon, així que no sap si has arribat a afegir-hi l'esdeveniment: obre el fitxer descarregat per fer-ho. Si canvia l'hora, torna'l a baixar i obre'l.",
       "failed": "No hem pogut preparar el fitxer. Prova-ho un altre cop."
     },
@@ -270,7 +271,8 @@
       "where": "On",
       "price": "Preu",
       "free": "Gratis",
-      "until": "{{from}} fins a les {{to}}"
+      "until": "{{from}} fins a les {{to}}",
+      "untilDay": "{{from}} fins al {{to}}"
     },
     "full": "Ple del tot",
     "fullNoQueue": "Encara no hi ha ningú esperant. Apunta-t'hi i, si algú es fa enrere, la plaça és teva.",

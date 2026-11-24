@@ -148,6 +148,12 @@ export function zonedDayStart(date: Date): number {
   return Date.UTC(Number(get('year')), Number(get('month')) - 1, Number(get('day')))
 }
 
+/** The hour of the day, 0–23, on `date`'s clock in the association's time zone. */
+export function zonedHour(date: Date): number {
+  const hour = dtf('en', { hour: '2-digit', hourCycle: 'h23' }).formatToParts(date)
+  return Number(hour.find((p) => p.type === 'hour')?.value ?? '0')
+}
+
 const DAY_MS = 86_400_000
 
 /** Whole days from today to `date`, in the association's time zone. */

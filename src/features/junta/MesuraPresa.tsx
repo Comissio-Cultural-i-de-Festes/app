@@ -26,15 +26,21 @@ import { INPUT } from './formBits'
  *
  * NO NECESSITA `networkMode: 'always'`: no escriu a cap cua. Sense xarxa es
  * queda en pausa i ho diu, com la retirada.
+ *
+ * `editable` APAGA EL BOTÓ, no el text: qui rep l'avís no pot editar-ne la
+ * mesura (migració 93), però si és de la junta i mira la seva fitxa la llegeix
+ * igual que al seu perfil.
  */
 export function MesuraPresa({
   avisId,
   userId,
   mesura,
+  editable = true,
 }: {
   readonly avisId: string
   readonly userId: string
   readonly mesura: string | null
+  readonly editable?: boolean
 }) {
   const { t } = useTranslation()
   const client = useQueryClient()
@@ -62,16 +68,18 @@ export function MesuraPresa({
             <span className="font-bold">{t('junta.soci.avisos.mesura')}</span> {mesura}
           </p>
         )}
-        <button
-          type="button"
-          onClick={() => {
-            setText(mesura ?? '')
-            setEditant(true)
-          }}
-          className="mt-3 -ml-4 min-h-[44px] px-4 text-sm font-bold text-fg-secondary [text-wrap:balance]"
-        >
-          {mesura === null ? t('junta.soci.avisos.mesuraAdd') : t('junta.soci.avisos.mesuraEdit')}
-        </button>
+        {editable ? (
+          <button
+            type="button"
+            onClick={() => {
+              setText(mesura ?? '')
+              setEditant(true)
+            }}
+            className="mt-3 -ml-4 min-h-[44px] px-4 text-sm font-bold text-fg-secondary [text-wrap:balance]"
+          >
+            {mesura === null ? t('junta.soci.avisos.mesuraAdd') : t('junta.soci.avisos.mesuraEdit')}
+          </button>
+        ) : null}
       </>
     )
   }

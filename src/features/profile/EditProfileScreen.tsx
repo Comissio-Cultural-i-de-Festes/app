@@ -93,7 +93,7 @@ export function EditProfileScreen() {
     ) => {
       if (action.kind === 'pick') await setMyPhoto(userId, action.file)
       else if (action.kind === 'google') await revertToGooglePhoto(userId)
-      else await clearMyPhoto(userId, profile?.avatar_url ?? null)
+      else await clearMyPhoto(userId)
     },
     onSuccess: async () => {
       setPicking(false)

@@ -1,9 +1,10 @@
-import { zonedDayStart } from '@/i18n/format'
 import { IN_PROGRESS_MS } from '@/lib/eventEnd'
 import type { Answer, AttendanceState } from '@/lib/model'
-import type { AttendanceTable, EventRow } from '@/lib/schema'
+import type { EventRow } from '@/lib/schema'
 import { DbError, unwrapAs } from '@/lib/db'
 import { supabase } from '@/lib/supabase'
+
+import type { EventSummary } from './summary'
 
 /**
  * What the home screen reads.
@@ -16,25 +17,6 @@ import { supabase } from '@/lib/supabase'
  */
 
 export type { EventRow }
-
-/**
- * An answer, with the name and face attached.
- *
- * `profiles` is an object rather than an array: attendances.user_id is a
- * foreign key onto a primary key, so PostgREST resolves the embed as
- * many-to-one. It is still nullable, because a profile row can be deleted out
- * from under an attendance the junta has not tidied up yet.
- *
- * The embed has to name its foreign key. `attendances` points at `profiles`
- * twice — once for whose answer it is and once for which admin scanned them —
- * and an unqualified `profiles(...)` is rejected with PGRST201 rather than
- * guessing. That failure is invisible from SQL and only shows up over HTTP,
- * which is why tests/rls/screens.test.ts pins it.
- */
-export type AttendanceRow = Pick<AttendanceTable, 'user_id' | 'event_id' | 'created_at'> & {
-  readonly estado: AttendanceState
-  readonly profiles: { readonly nombre: string; readonly avatar_url: string | null } | null
-}
 
 const EVENT_COLUMNS =
   'id, titulo, tipo, starts_at, teaser, reveal_at, revelat, plazas, ' +
@@ -61,7 +43,11 @@ export function horizonIso(now: number = Date.now()): string {
 export const homeKeys = {
   upcoming: (horizon: string) => ['home', 'upcoming', horizon] as const,
   previous: (horizon: string) => ['home', 'previous', horizon] as const,
-  attendances: (eventIds: readonly string[]) => ['home', 'attendances', ...eventIds] as const,
+  /** El prefix de les d'uns esdeveniments, per invalidar-les o trobar-les sigui quin sigui el dia. */
+  summariesFor: (eventIds: readonly string[]) => ['home', 'summaries', ...eventIds] as const,
+  /** El dia va al final: canvia a mitjanit, i «avui» és un altre recompte. */
+  summaries: (eventIds: readonly string[], desde: string) =>
+    ['home', 'summaries', ...eventIds, desde] as const,
 }
 
 /** The hero plus the "què més ve" list, in one request. */
@@ -91,23 +77,22 @@ export async function fetchPrevious(horizon: string): Promise<EventRow[]> {
 }
 
 /**
- * Answers for the events on screen.
+ * El resum de les assistències dels esdeveniments que hi ha a la pantalla.
  *
- * RLS decides what comes back: every 'si' and 'asistio' from anyone, plus all
- * of your own rows whatever they say. So the counts here are the real public
- * counts, and 'potser' and 'no' are only ever your own.
+ * Una fila per esdeveniment i no totes les respostes amb el perfil de
+ * cadascú: per pintar un número, tres cares i la meva resposta, l'Inici
+ * baixava unes sis-centes files a cada obertura. La funció és `security
+ * invoker`, o sigui que compta el que la RLS deixa llegir a qui pregunta: tots
+ * els sí i els fitxats, més les meves respostes, siguin quines siguin; a un
+ * pendent, només les seves. `desde` és l'inici del meu «avui» (`dayStartIso`).
  */
-export async function fetchAttendances(eventIds: readonly string[]): Promise<AttendanceRow[]> {
+export async function fetchSummaries(
+  eventIds: readonly string[],
+  desde: string,
+): Promise<EventSummary[]> {
   if (eventIds.length === 0) return []
-  return unwrapAs<AttendanceRow[]>(
-    supabase
-      .from('attendances')
-      .select(
-        'user_id, event_id, estado, created_at, ' +
-          'profiles!attendances_user_id_fkey(nombre, avatar_url)',
-      )
-      .in('event_id', [...eventIds])
-      .order('created_at', { ascending: false }),
+  return unwrapAs<EventSummary[]>(
+    supabase.rpc('resum_assistencies', { p_event_ids: [...eventIds], p_desde: desde }),
   )
 }
 
@@ -138,19 +123,6 @@ export async function setAnswer(eventId: string, estado: Answer): Promise<Answer
 
 // ── derived, and tested on its own ──────────────────────────────────────────
 
-/** Everyone publicly counted as coming: said yes, or already came through the door. */
-export function goingRows(rows: readonly AttendanceRow[], eventId: string): AttendanceRow[] {
-  return rows.filter((r) => r.event_id === eventId && (r.estado === 'si' || r.estado === 'asistio'))
-}
-
-export function myAnswer(
-  rows: readonly AttendanceRow[],
-  eventId: string,
-  userId: string,
-): AttendanceState | null {
-  return rows.find((r) => r.event_id === eventId && r.user_id === userId)?.estado ?? null
-}
-
 /**
  * Places still free, or null when the event has no limit.
  *
@@ -160,28 +132,4 @@ export function myAnswer(
 export function placesLeft(event: EventRow, going: number): number | null {
   if (event.plazas === null) return null
   return Math.max(0, event.plazas - going)
-}
-
-/**
- * The names behind "en Marc, la Júlia i 3 més s'han apuntat avui".
- *
- * Yours is excluded — you know you signed up, and the line exists to show
- * movement by other people.
- *
- * "Today" is the same calendar day in the association's zone, compared day
- * index to day index. Comparing against a midnight computed as an instant is
- * the version that quietly loses everything signed up between midnight and two
- * in the morning, which at this association is not an edge case.
- */
-export function signedUpToday(
-  rows: readonly AttendanceRow[],
-  eventId: string,
-  userId: string,
-  now: Date,
-): string[] {
-  const today = zonedDayStart(now)
-  return goingRows(rows, eventId)
-    .filter((r) => r.user_id !== userId && zonedDayStart(new Date(r.created_at)) === today)
-    .map((r) => r.profiles?.nombre)
-    .filter((n): n is string => typeof n === 'string' && n !== '')
 }

@@ -5,6 +5,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { QueryProvider } from './QueryProvider'
 import { APP_REVALIDATE, appRevalidate } from './pwa'
 import { signedKey } from './signedQuery'
+import { STORAGE_REMOVED, storageRemovals } from './storage'
 
 /**
  * Tornar a l'app refresca les dades i no torna a signar cap imatge.
@@ -48,6 +49,28 @@ describe('QueryProvider en tornar a l’app', () => {
     ).toBe(false)
     expect(cache.find({ queryKey: signedKey('avatars', 'b/2.jpg') })?.state.isInvalidated).toBe(
       false,
+    )
+  })
+})
+
+describe('QueryProvider quan s’esborra una foto', () => {
+  it('treu la URL signada d’aquell camí i de cap altre', async () => {
+    const client = mount()
+    client.setQueryData(signedKey('avatars', 'u/1.jpg'), 'https://cdn.test/vella')
+    client.setQueryData(signedKey('avatars', 'u/2.jpg'), 'https://cdn.test/nova')
+    client.setQueryData(signedKey('event-covers', 'u/1.jpg'), 'https://cdn.test/portada')
+
+    storageRemovals.dispatchEvent(
+      new CustomEvent(STORAGE_REMOVED, { detail: { bucket: 'avatars', paths: ['u/1.jpg'] } }),
+    )
+
+    const cache = client.getQueryCache()
+    await waitFor(() => {
+      expect(cache.find({ queryKey: signedKey('avatars', 'u/1.jpg') })).toBeUndefined()
+    })
+    expect(client.getQueryData(signedKey('avatars', 'u/2.jpg'))).toBe('https://cdn.test/nova')
+    expect(client.getQueryData(signedKey('event-covers', 'u/1.jpg'))).toBe(
+      'https://cdn.test/portada',
     )
   })
 })

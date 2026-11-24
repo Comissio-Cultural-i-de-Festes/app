@@ -201,12 +201,15 @@ export type Database = {
           mesura_presa: string | null
           nota: string
           points_log_id: string | null
+          punts: number
           retirat_at: string | null
           retirat_by: string | null
           retirat_nota: string | null
           retirat_points_log_id: string | null
           tipus: string
           user_id: string
+          validat_at: string | null
+          validat_by: string | null
         }
         Insert: {
           created_at?: string
@@ -217,12 +220,15 @@ export type Database = {
           mesura_presa?: string | null
           nota: string
           points_log_id?: string | null
+          punts?: number
           retirat_at?: string | null
           retirat_by?: string | null
           retirat_nota?: string | null
           retirat_points_log_id?: string | null
           tipus: string
           user_id: string
+          validat_at?: string | null
+          validat_by?: string | null
         }
         Update: {
           created_at?: string
@@ -233,12 +239,15 @@ export type Database = {
           mesura_presa?: string | null
           nota?: string
           points_log_id?: string | null
+          punts?: number
           retirat_at?: string | null
           retirat_by?: string | null
           retirat_nota?: string | null
           retirat_points_log_id?: string | null
           tipus?: string
           user_id?: string
+          validat_at?: string | null
+          validat_by?: string | null
         }
         Relationships: [
           {
@@ -293,6 +302,13 @@ export type Database = {
           {
             foreignKeyName: "avisos_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avisos_validat_by_fkey"
+            columns: ["validat_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -449,6 +465,88 @@ export type Database = {
           },
           {
             foreignKeyName: "badges_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dades_viatger: {
+        Row: {
+          adreca: string
+          cognom1: string
+          cognom2: string | null
+          created_at: string
+          data_naixement: string
+          event_id: string
+          localitat: string
+          nacionalitat: string
+          nom: string
+          numero_document: string
+          numero_suport: string | null
+          pais: string
+          sexe: string
+          telefon_emergencia: string
+          tipus_document: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          adreca: string
+          cognom1: string
+          cognom2?: string | null
+          created_at?: string
+          data_naixement: string
+          event_id: string
+          localitat: string
+          nacionalitat: string
+          nom: string
+          numero_document: string
+          numero_suport?: string | null
+          pais: string
+          sexe: string
+          telefon_emergencia: string
+          tipus_document: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          adreca?: string
+          cognom1?: string
+          cognom2?: string | null
+          created_at?: string
+          data_naixement?: string
+          event_id?: string
+          localitat?: string
+          nacionalitat?: string
+          nom?: string
+          numero_document?: string
+          numero_suport?: string | null
+          pais?: string
+          sexe?: string
+          telefon_emergencia?: string
+          tipus_document?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dades_viatger_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dades_viatger_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dades_viatger_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
@@ -686,6 +784,7 @@ export type Database = {
           cal_confirmacio: boolean
           created_at: string
           created_by: string | null
+          demana_viatger: boolean
           hores_verificat_at: string | null
           hores_verificat_per: string | null
           id: string
@@ -708,6 +807,7 @@ export type Database = {
           cal_confirmacio?: boolean
           created_at?: string
           created_by?: string | null
+          demana_viatger?: boolean
           hores_verificat_at?: string | null
           hores_verificat_per?: string | null
           id?: string
@@ -730,6 +830,7 @@ export type Database = {
           cal_confirmacio?: boolean
           created_at?: string
           created_by?: string | null
+          demana_viatger?: boolean
           hores_verificat_at?: string | null
           hores_verificat_per?: string | null
           id?: string
@@ -1695,6 +1796,25 @@ export type Database = {
           isSetofReturn: false
         }
       }
+      admin_dades_viatgers: {
+        Args: { p_event_id: string; p_exporta: boolean }
+        Returns: {
+          adreca: string
+          cognom1: string
+          cognom2: string
+          data_naixement: string
+          localitat: string
+          nacionalitat: string
+          nom: string
+          numero_document: string
+          numero_suport: string
+          pais: string
+          sexe: string
+          telefon_emergencia: string
+          tipus_document: string
+          user_id: string
+        }[]
+      }
       admin_dashboard: {
         Args: { p_from?: string; p_to?: string }
         Returns: Json
@@ -1737,6 +1857,7 @@ export type Database = {
           equip: string
           equip_ordre: number
           escola: string
+          foto_esborrada_at: string
           id: string
           path: string
           prova: string
@@ -1841,6 +1962,10 @@ export type Database = {
         }
         Returns: undefined
       }
+      admin_set_demana_viatger: {
+        Args: { p_demana: boolean; p_event_id: string }
+        Returns: number
+      }
       admin_set_hores: {
         Args: { p_a_la_uni: boolean; p_event_id: string; p_minuts: number }
         Returns: undefined
@@ -1884,6 +2009,16 @@ export type Database = {
         Returns: undefined
       }
       admin_undo_prova: { Args: { p_enviament_id: string }; Returns: Json }
+      admin_viatgers: {
+        Args: { p_event_id: string }
+        Returns: {
+          actualitzat_at: string
+          estado: string
+          nombre: string
+          te_dades: boolean
+          user_id: string
+        }[]
+      }
       admin_visa_hores: {
         Args: { p_event_id: string; p_visat: boolean }
         Returns: undefined
@@ -2073,6 +2208,13 @@ export type Database = {
       }
       my_qr: { Args: never; Returns: string }
       my_revealed_interests: { Args: never; Returns: string[] }
+      my_storage_garbage: {
+        Args: { p_limit?: number }
+        Returns: {
+          bucket: string
+          path: string
+        }[]
+      }
       my_streak: { Args: never; Returns: Json }
       pick_team: { Args: { p_equip_id: string }; Returns: Json }
       ranking_escoles_period: {
@@ -2097,10 +2239,27 @@ export type Database = {
           user_id: string
         }[]
       }
+      rebutja_avis: {
+        Args: { p_avis_id: string; p_nota: string }
+        Returns: undefined
+      }
       redeem_invite: { Args: { p_codi: string }; Returns: Json }
       report_photo: {
         Args: { p_motiu: string; p_photo_id: string }
         Returns: Json
+      }
+      resum_assistencies: {
+        Args: { p_desde: string; p_event_ids: string[] }
+        Returns: {
+          attended: number
+          event_id: string
+          faces: Json
+          going: number
+          mine: string
+          mine_at: string
+          recent: string[]
+          recent_total: number
+        }[]
       }
       retira_avis: {
         Args: { p_avis_id: string; p_nota: string }
@@ -2155,6 +2314,7 @@ export type Database = {
         }
         Returns: Json
       }
+      valida_avis: { Args: { p_avis_id: string }; Returns: undefined }
       waitlist_position: { Args: { p_event_id: string }; Returns: number }
       waitlist_size: { Args: { p_event_id: string }; Returns: number }
     }

@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next'
 
 import { profileScreenKeys } from '@/features/profile/api'
 import { LEDGER_ROW } from '@/features/profile/ledger'
+import { useUserId } from '@/features/session/useUserId'
 import { formatDayMonth, formatMonthYear } from '@/i18n/format'
 import { type Locale, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
@@ -15,11 +16,12 @@ import { AvisForm } from './AvisForm'
 import { clauGravetat, nomDelTipus } from './avisTipus'
 import { type AvisRow, avisosKeys, fetchAvisTipus, fetchAvisos, retiraAvis } from './avisosApi'
 import { compta, dinsDelCurs } from './avisosCompte'
-import { clauQueFerEstat, estatDe } from './estatAvisos'
+import { accionsSobre, clauQueFerEstat, estatDe, faseDe } from './estatAvisos'
 import { EstatXip } from './EstatXip'
 import { INPUT } from './formBits'
 import { MesuraPresa } from './MesuraPresa'
 import { useNormativa } from './useNormativa'
+import { ValidacioAvis } from './ValidacioAvis'
 
 /**
  * Els avisos d'una persona, i la manera de retirar-ne un.
@@ -61,6 +63,17 @@ import { useNormativa } from './useNormativa'
  * perquè un 22023 es tradueix a «alguna cosa ha anat malament» i no a «falta
  * dir per què».
  *
+ * PROPOSAT, VALIDAT, REBUTJAT I RETIRAT (migració 93). Un avís neix proposat i
+ * no compta fins que el valida una segona persona de la junta: surt a la llista
+ * amb l'etiqueta ambre i els botons de `ValidacioAvis`, i el comptador de dalt
+ * no el suma. Un de rebutjat es ratlla com un de retirat, amb la seva pròpia
+ * frase: no va comptar mai.
+ *
+ * LA TEVA FITXA NO TÉ BOTONS. Ningú no es pot posar, retirar, validar ni editar
+ * un avís a si mateix —la base ho refusa amb 42501—, i per això qui obre la
+ * seva pròpia fitxa veu els seus avisos i cap formulari, amb una frase que diu
+ * per què en comptes d'un botó que fallaria.
+ *
  * I LA PAUSA TÉ VEU, com al formulari de sota. Sense xarxa, React Query no
  * crida `mutationFn` i no falla: deixa la mutació aturada fins que torni la
  * cobertura. `Confirm` desactiva els dos botons amb `busy`, o sigui que sense
@@ -80,6 +93,8 @@ export function AvisosBlock({
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
   const client = useQueryClient()
+  const jo = useUserId()
+  const meva = userId === jo
 
   const [retirant, setRetirant] = useState<string | null>(null)
   const [nota, setNota] = useState('')
@@ -168,74 +183,89 @@ export function AvisosBlock({
         </p>
       ) : (
         <ul className="mt-2">
-          {rows.map((row) => (
-            <li key={row.id} className={LEDGER_ROW}>
-              <Data quan={row.created_at} desDe={des_de} finsA={fins_a} locale={locale} />
-              <div className="min-w-0 flex-1">
-                <p
-                  className={
-                    'text-base font-semibold [text-wrap:pretty] ' +
-                    (row.retirat_at === null ? '' : 'text-fg-muted line-through')
-                  }
-                >
-                  {nom(row.tipus)}
-                </p>
-                <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)]">
-                  {gravetatNom(row.gravetat)}
-                </p>
-                <p
-                  className={
-                    'mt-[5px] text-sm [text-wrap:pretty] ' +
-                    (row.retirat_at === null ? 'text-fg-secondary' : 'text-fg-muted line-through')
-                  }
-                >
-                  {row.nota}
-                </p>
-
-                <MesuraPresa avisId={row.id} userId={userId} mesura={row.mesura_presa} />
-
-                {row.retirat_at === null ? null : (
-                  <p className="mt-[6px] text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
-                    {t('junta.soci.avisos.withdrawnOn', {
-                      dia: formatDayMonth(new Date(row.retirat_at), locale),
-                    })}
-                    {row.retirat_nota === null ? '' : ` · ${row.retirat_nota}`}
-                  </p>
-                )}
-
-                {row.retirat_at !== null ? null : retirant === row.id ? (
-                  <Retirada
-                    nota={nota}
-                    setNota={setNota}
-                    busy={retira.isPending}
-                    onCancel={() => {
-                      setRetirant(null)
-                      setNota('')
-                    }}
-                    onConfirm={() => {
-                      retira.mutate({ id: row.id, nota: nota.trim() })
-                    }}
-                  />
-                ) : (
-                  // Un afordament de fila i no un CTA: obre la confirmació, no
-                  // retira res. El botó de la casa aquí seria un rectangle de
-                  // 56px enmig d'una llista, i prometria que el que fa passa en
-                  // tocar-lo.
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setRetirant(row.id)
-                      setNota('')
-                    }}
-                    className="mt-5 -ml-4 min-h-[44px] px-4 text-sm font-bold text-warning [text-wrap:balance]"
+          {rows.map((row) => {
+            const fase = faseDe(row)
+            const accions = accionsSobre(row, jo)
+            const tancat = row.retirat_at !== null
+            return (
+              <li key={row.id} className={LEDGER_ROW}>
+                <Data quan={row.created_at} desDe={des_de} finsA={fins_a} locale={locale} />
+                <div className="min-w-0 flex-1">
+                  <p
+                    className={
+                      'text-base font-semibold [text-wrap:pretty] ' +
+                      (tancat ? 'text-fg-muted line-through' : '')
+                    }
                   >
-                    {t('junta.soci.avisos.withdraw')}
-                  </button>
-                )}
-              </div>
-              <Punts row={row} />
-            </li>
-          ))}
+                    {nom(row.tipus)}
+                  </p>
+                  <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)]">
+                    {gravetatNom(row.gravetat)}
+                  </p>
+                  <p
+                    className={
+                      'mt-[5px] text-sm [text-wrap:pretty] ' +
+                      (tancat ? 'text-fg-muted line-through' : 'text-fg-secondary')
+                    }
+                  >
+                    {row.nota}
+                  </p>
+
+                  <MesuraPresa
+                    avisId={row.id}
+                    userId={userId}
+                    mesura={row.mesura_presa}
+                    editable={accions.mesura}
+                  />
+
+                  {row.retirat_at === null ? null : (
+                    <p className="mt-[6px] text-sm-lo text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
+                      {t(
+                        fase === 'rebutjat'
+                          ? 'junta.soci.avisos.rebutjatOn'
+                          : 'junta.soci.avisos.withdrawnOn',
+                        { dia: formatDayMonth(new Date(row.retirat_at), locale) },
+                      )}
+                      {row.retirat_nota === null ? '' : ` · ${row.retirat_nota}`}
+                    </p>
+                  )}
+
+                  {fase === 'proposat' ? (
+                    <ValidacioAvis avis={row} jo={jo} nombre={nombre} />
+                  ) : !accions.retira ? null : retirant === row.id ? (
+                    <Retirada
+                      nota={nota}
+                      setNota={setNota}
+                      busy={retira.isPending}
+                      onCancel={() => {
+                        setRetirant(null)
+                        setNota('')
+                      }}
+                      onConfirm={() => {
+                        retira.mutate({ id: row.id, nota: nota.trim() })
+                      }}
+                    />
+                  ) : (
+                    // Un afordament de fila i no un CTA: obre la confirmació, no
+                    // retira res. El botó de la casa aquí seria un rectangle de
+                    // 56px enmig d'una llista, i prometria que el que fa passa en
+                    // tocar-lo.
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setRetirant(row.id)
+                        setNota('')
+                      }}
+                      className="mt-5 -ml-4 min-h-[44px] px-4 text-sm font-bold text-warning [text-wrap:balance]"
+                    >
+                      {t('junta.soci.avisos.withdraw')}
+                    </button>
+                  )}
+                </div>
+                <Punts row={row} />
+              </li>
+            )
+          })}
         </ul>
       )}
 
@@ -257,7 +287,13 @@ export function AvisosBlock({
         </p>
       ) : null}
 
-      <AvisForm userId={userId} nombre={nombre} pesAra={compte?.pes ?? 0} />
+      {meva ? (
+        <p className="mt-10 border border-surface-8 bg-surface-2 p-9 text-sm text-fg-secondary [text-wrap:pretty]">
+          {t('junta.soci.avisos.propi')}
+        </p>
+      ) : (
+        <AvisForm userId={userId} nombre={nombre} pesAra={compte?.pes ?? 0} />
+      )}
     </section>
   )
 }
@@ -307,6 +343,16 @@ function Data({
  * que és fals i és justament el que la doctrina de les dues files evita.
  */
 function Punts({ row }: { readonly row: AvisRow }) {
+  const fase = faseDe(row)
+  // Un proposat encara no ha restat res: el número és el que restarà, en gris.
+  // Un rebutjat no en va restar mai cap, i no en pinta cap.
+  if (fase === 'proposat') {
+    return row.punts === 0 ? null : (
+      <p className="tabular flex-none pt-[2px] text-base font-extrabold text-fg-muted">
+        {row.punts}
+      </p>
+    )
+  }
   const punts = row.points_log?.puntos ?? null
   if (punts === null || punts === 0) return null
   return <p className="tabular flex-none pt-[2px] text-base font-extrabold text-warning">{punts}</p>

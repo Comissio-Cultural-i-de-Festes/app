@@ -3,10 +3,12 @@ import { describe, expect, it } from 'vitest'
 import type { AvisPeriode } from './avisosApi'
 import { compta } from './avisosCompte'
 import {
+  accionsSobre,
   clauEstat,
   clauQueFerEstat,
   escaloNou,
   estatDe,
+  faseDe,
   llegeixNormativa,
   pesDe,
   quantsPerEstat,
@@ -44,6 +46,7 @@ const fila = (over: Partial<AvisPeriode> = {}): AvisPeriode => ({
   user_id: 'alfa',
   gravetat: 1,
   created_at: '2026-10-14T20:00:00+00:00',
+  validat_at: '2026-10-15T09:00:00+00:00',
   retirat_at: null,
   ...over,
 })
@@ -197,5 +200,113 @@ describe('l’escaló on quedaria algú amb un avís més', () => {
   it('amb els escalons apagats no n’hi ha cap de nou', () => {
     const apagats = { ...FABRICA, llindars: { avis: 0, risc: 0, expulsio: 0 } }
     expect(escaloNou(5, 3, apagats)).toBeNull()
+  })
+})
+
+describe('un avís proposat no compta fins que el valida algú altre', () => {
+  it('dues molt greus proposades deixen la persona a ok', () => {
+    // EL CAS DE L'ISSUE. Una sola persona de la junta no pot moure ningú
+    // d'escaló: el que ha proposat espera la segona.
+    expect(
+      estatDeFiles([
+        fila({ gravetat: 3, validat_at: null }),
+        fila({ gravetat: 3, validat_at: null }),
+      ]),
+    ).toBe('ok')
+  })
+
+  it('i les mateixes, validades, la porten a expulsió a votació', () => {
+    expect(estatDeFiles([fila({ gravetat: 3 }), fila({ gravetat: 3 })])).toBe('expulsio')
+  })
+
+  it('un de rebutjat tampoc no compta', () => {
+    expect(
+      estatDeFiles([
+        fila({ gravetat: 3, validat_at: null, retirat_at: '2026-10-16T09:00:00+00:00' }),
+      ]),
+    ).toBe('ok')
+  })
+})
+
+describe('en quin punt és un avís', () => {
+  const avis = { validat_at: null, retirat_at: null }
+  const ara = '2026-10-16T09:00:00+00:00'
+
+  it('proposat, validat, rebutjat o retirat', () => {
+    expect(faseDe(avis)).toBe('proposat')
+    expect(faseDe({ ...avis, validat_at: ara })).toBe('validat')
+    // Tancat sense haver comptat mai és un rebuig, no una retirada: no hi ha
+    // res a tornar i la persona no en va saber mai res.
+    expect(faseDe({ ...avis, retirat_at: ara })).toBe('rebutjat')
+    expect(faseDe({ validat_at: ara, retirat_at: ara })).toBe('retirat')
+  })
+})
+
+describe('què hi pot fer cadascú', () => {
+  const JO = 'junta-a'
+  const proposat = {
+    user_id: 'soci',
+    created_by: 'junta-b',
+    validat_at: null,
+    retirat_at: null,
+  }
+
+  it('el proposat d’un altre: el puc validar o rebutjar', () => {
+    expect(accionsSobre(proposat, JO)).toEqual({
+      valida: true,
+      rebutja: true,
+      retira: false,
+      mesura: true,
+    })
+  })
+
+  it('el que he proposat jo: no el valido, però el puc rebutjar', () => {
+    expect(accionsSobre({ ...proposat, created_by: JO }, JO)).toEqual({
+      valida: false,
+      rebutja: true,
+      retira: false,
+      mesura: true,
+    })
+  })
+
+  it('un de meu: cap acció, ni la mesura', () => {
+    // Les mateixes portes que la base tanca amb `avis_propi`: aquí s'apaguen
+    // perquè ningú no premi un botó que tornarà 42501.
+    const meu = { ...proposat, user_id: JO }
+    const cap = { valida: false, rebutja: false, retira: false, mesura: false }
+    expect(accionsSobre(meu, JO)).toEqual(cap)
+    expect(accionsSobre({ ...meu, validat_at: '2026-10-16T09:00:00+00:00' }, JO)).toEqual(cap)
+  })
+
+  it('un validat: es retira, no es valida', () => {
+    expect(accionsSobre({ ...proposat, validat_at: '2026-10-16T09:00:00+00:00' }, JO)).toEqual({
+      valida: false,
+      rebutja: false,
+      retira: true,
+      mesura: true,
+    })
+  })
+
+  it('un de tancat: només la mesura, com abans de la 93', () => {
+    expect(
+      accionsSobre(
+        {
+          ...proposat,
+          validat_at: '2026-10-16T09:00:00+00:00',
+          retirat_at: '2026-10-17T09:00:00+00:00',
+        },
+        JO,
+      ),
+    ).toEqual({ valida: false, rebutja: false, retira: false, mesura: true })
+    expect(accionsSobre({ ...proposat, retirat_at: '2026-10-17T09:00:00+00:00' }, JO)).toEqual({
+      valida: false,
+      rebutja: false,
+      retira: false,
+      mesura: true,
+    })
+  })
+
+  it('sense saber qui l’ha proposat, el pot validar qualsevol que no el rebi', () => {
+    expect(accionsSobre({ ...proposat, created_by: null }, JO).valida).toBe(true)
   })
 })

@@ -62,8 +62,12 @@ export async function shareCard(
  * The object URL is revoked on the next frame rather than immediately —
  * revoking it in the same task cancels the download on WebKit — and the anchor
  * is never left in the document.
+ *
+ * Exportada perquè el fitxer de dades de viatger de la junta hi va directe,
+ * sense passar pel full de compartir: són dades personals, i el camí per
+ * defecte no ha de ser oferir-les a totes les apps del mòbil.
  */
-function download(blob: Blob, filename: string): ShareOutcome {
+export function download(blob: Blob, filename: string): ShareOutcome {
   try {
     const url = URL.createObjectURL(blob)
     const anchor = document.createElement('a')
@@ -90,6 +94,11 @@ function download(blob: Blob, filename: string): ShareOutcome {
  * with `download=""` saves the file as the origin's name.
  */
 export function cardFilename(parts: readonly string[]): string {
+  return safeFilename(parts, 'targeta', 'png')
+}
+
+/** The same rule, for a file that is not a card. */
+export function safeFilename(parts: readonly string[], fallback: string, ext: string): string {
   const slug = parts
     .join('-')
     .normalize('NFD')
@@ -98,5 +107,5 @@ export function cardFilename(parts: readonly string[]): string {
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
     .slice(0, 60)
-  return `${slug === '' ? 'targeta' : slug}.png`
+  return `${slug === '' ? fallback : slug}.${ext}`
 }

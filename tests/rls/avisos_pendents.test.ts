@@ -127,6 +127,11 @@ describe('avisos pendents per PostgREST', () => {
     })
     expect(error).toBeNull()
 
+    // Enllaçat queda proposat (migració 93): el soci el llegeix quan algú de la
+    // junta que no va escriure el pendent el valida.
+    const validat = await rpc(await as('junta_bravo'), 'valida_avis', { p_avis_id: avisId })
+    expect(validat.error).toBeNull()
+
     const delta = await as('delta')
     const { data: avis } = await delta
       .from('avisos')
@@ -211,6 +216,8 @@ describe('avisa i la mesura presa per PostgREST', () => {
       p_mesura: ' Reunió el dia 3 ',
     })
     expect(error).toBeNull()
+    const validat = await rpc(await as('junta_bravo'), 'valida_avis', { p_avis_id: id })
+    expect(validat.error).toBeNull()
 
     const delta = await as('delta')
     const { data } = await delta

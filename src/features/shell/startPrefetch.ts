@@ -3,13 +3,14 @@ import type { QueryClient } from '@tanstack/react-query'
 import { doorKeys } from '@/features/door/api'
 import {
   type EventRow,
-  fetchAttendances,
   fetchPrevious,
+  fetchSummaries,
   fetchUpcoming,
   homeKeys,
   horizonIso,
 } from '@/features/home/api'
-import { avisosKeys, fetchAvisComptes } from '@/features/junta/avisosApi'
+import { dayStartIso } from '@/features/home/summary'
+import { avisosKeys, fetchAvisComptes, fetchProposats } from '@/features/junta/avisosApi'
 import { fetchPointValues } from '@/features/junta/eventFormApi'
 import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from '@/features/junta/eventsApi'
 import { fetchJuntaHome, juntaHomeKeys } from '@/features/junta/homeApi'
@@ -37,7 +38,7 @@ import {
  * en pengen, i encara alguna targeta que es munta tard. Amb 150 ms d'anada i
  * tornada cada volta és mig segon abans de comptar el que baixa. Aquí es
  * llança tot el que no depèn de res a la vegada que el perfil, i el que
- * depèn d'una resposta —les assistències d'uns esdeveniments, el rànquing
+ * depèn d'una resposta —el resum de les assistències d'uns esdeveniments, el rànquing
  * d'un període— surt quan aquesta resposta arriba, sense esperar que React
  * munti res.
  *
@@ -85,11 +86,12 @@ export async function prefetchHome(client: QueryClient, userId: string): Promise
   if (upcoming !== undefined && previous !== undefined) {
     // L'ordre és el de `useHome`: la clau porta els ids tal qual.
     const ids = [...upcoming, ...previous].map((e) => e.id)
+    const desde = dayStartIso(new Date())
     if (ids.length > 0) {
       second.push(
         client.prefetchQuery({
-          queryKey: homeKeys.attendances(ids),
-          queryFn: () => fetchAttendances(ids),
+          queryKey: homeKeys.summaries(ids, desde),
+          queryFn: () => fetchSummaries(ids, desde),
         }),
       )
     }
@@ -130,6 +132,8 @@ export async function prefetchJunta(client: QueryClient): Promise<void> {
     client.prefetchQuery({ queryKey: doorKeys.pointValues(), queryFn: fetchPointValues }),
     client.prefetchQuery({ queryKey: memberKeys.list(), queryFn: fetchAllMembers }),
     client.prefetchQuery({ queryKey: meetingListKeys.list(), queryFn: fetchMeetings }),
+    // Els avisos per validar: surten a «Hi ha feina», a dalt de tot.
+    client.prefetchQuery({ queryKey: avisosKeys.proposats(), queryFn: fetchProposats }),
   ])
 
   // El comptador d'avisos depèn de la finestra del curs, que surt dels períodes.

@@ -3,19 +3,11 @@ import { type ComponentProps, useEffect, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useLocation, useParams } from 'react-router'
 
-import {
-  type AttendanceRow,
-  fetchAttendances,
-  goingRows,
-  homeKeys,
-  myAnswer,
-  placesLeft,
-  signedUpToday,
-} from '@/features/home/api'
+import { fetchSummaries, homeKeys, placesLeft } from '@/features/home/api'
 import { expectedState } from '@/features/home/answer'
+import { FACES, dayStartIso, summaryOf } from '@/features/home/summary'
 import { useAnswer } from '@/features/home/useHome'
 import { StreakLine } from '@/features/profile/StreakLine'
-import { useUserId } from '@/features/session/useUserId'
 import {
   formatDateLong,
   formatDateTime,
@@ -56,6 +48,7 @@ import { useBack } from '@/lib/useBack'
 import { AnswerNote } from './AnswerNote'
 import { CalendarOffer, CalendarRow } from './Calendar'
 import { MeetingActa, MeetingAnswer, MeetingRoster } from './Meeting'
+import { ViatgerBlock } from './ViatgerBlock'
 import { meetingKeys } from './meetingApi'
 import { BigCountdown, HiddenChip, InterestBlock } from './Teaser'
 import { eventTitle, titleIsHidden } from './title'
@@ -82,12 +75,9 @@ function whenText(e: EventRow, starts: Date, locale: ReturnType<typeof toLocale>
  * knowing before rather than after.
  */
 
-const FACES = 5
-
 export function EventScreen() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
-  const userId = useUserId()
   // Qui encara és pendent no llegeix les assistències dels altres ni pot
   // contestar: tot el que en depèn queda fora de la pantalla en lloc de
   // pintar-se a zero o de fallar en prémer-ho.
@@ -105,10 +95,17 @@ export function EventScreen() {
 
   const event = useQuery({ queryKey: eventKeys.one(id), queryFn: () => fetchEvent(id) })
   const view = useAvailability(event)
-  const attendances = useQuery({
-    queryKey: homeKeys.attendances([id]),
-    queryFn: () => fetchAttendances([id]),
+  // El resum i no les files: aquí es pinten cinc cares, uns recomptes i la
+  // meva resposta, i la llista sencera de qui és dins té la seva pantalla.
+  const desde = dayStartIso(now)
+  const summaries = useQuery({
+    queryKey: homeKeys.summaries([id], desde),
+    queryFn: () => fetchSummaries([id], desde),
   })
+  // Si el resum no arriba, no se sap quanta gent hi va ni què vaig dir: les
+  // places serien les de l'esdeveniment sencer i els botons, els d'algú que no
+  // ha contestat. Es pinta el que no en depèn, com l'Inici.
+  const answers = useAvailability(summaries)
   const waitlist = useQuery({
     queryKey: eventKeys.waitlist(id),
     queryFn: () => fetchWaitlist(id),
@@ -124,7 +121,7 @@ export function EventScreen() {
   useEffect(() => {
     if (locationHash !== '#soc-aqui') return
     document.getElementById('soc-aqui')?.scrollIntoView({ block: 'center' })
-  }, [locationHash, event.isSuccess, attendances.isSuccess])
+  }, [locationHash, event.isSuccess, summaries.isSuccess])
 
   if (view.loading) {
     return <EventSkeleton />
@@ -170,10 +167,9 @@ export function EventScreen() {
   }
 
   const e = event.data
-  const rows: readonly AttendanceRow[] = attendances.data ?? []
-  const going = goingRows(rows, id)
-  const mine = myAnswer(rows, id, userId)
-  const left = placesLeft(e, going.length)
+  const summary = summaryOf(summaries.data ?? [], id)
+  const { going, faces, mine } = summary
+  const left = placesLeft(e, going)
   const starts = new Date(e.starts_at)
   const isPast = starts.getTime() < now.getTime()
   // El títol no arriba fins a la revelació, i és el que decideix mitja
@@ -185,10 +181,10 @@ export function EventScreen() {
   // pantalla canvia, i el que la decideix és `tipo`.
   const isMeeting = e.tipo === 'reunio'
   const price = formatPrice(e.precio_cents, INTL_LOCALE[locale])
-  const movement = signedUpToday(rows, id, userId, now)
+  const unknown = answers.unavailable
   // Only worth a tap once the door has let somebody in. Before that the
   // screen has nothing on it, and a link to nothing is a dead end.
-  const inside = rows.filter((r) => r.event_id === id && r.estado === 'asistio').length
+  const inside = summary.attended
   // `isPast` starts the moment the event does, which is right for everything
   // else on this page and wrong here: a party in progress is the one time
   // "who is inside" is worth asking. The pulse stops when the party does.
@@ -282,37 +278,37 @@ export function EventScreen() {
 
       {isMeeting && !closed ? <MeetingRoster event={e} /> : null}
 
-      {isMeeting || closed || going.length === 0 ? null : (
+      {isMeeting || closed || unknown || going === 0 ? null : (
         <section className={`pt-9 ${GUTTER}`}>
           <div className="flex items-center gap-4">
             <div className="flex items-center">
-              {going.slice(0, FACES).map((row, index) => (
+              {faces.slice(0, FACES).map((face, index) => (
                 <span
-                  key={row.user_id}
+                  key={face.user_id}
                   className="relative rounded-full border-2 border-app [box-sizing:content-box]"
                   style={{ marginLeft: index === 0 ? 0 : -11, zIndex: FACES - index }}
                 >
-                  <Avatar src={row.profiles?.avatar_url ?? null} size={34} />
+                  <Avatar src={face.avatar_url} size={34} />
                 </span>
               ))}
             </div>
             <p className="text-md font-bold text-fg-secondary [text-wrap:pretty]">
               {isPast
-                ? t('event.whoCame', { count: going.length })
-                : t('event.whoComes', { count: going.length })}
+                ? t('event.whoCame', { count: going })
+                : t('event.whoComes', { count: going })}
             </p>
           </div>
           <p className="mt-4 text-sm text-[var(--ds-text-muted-lo)] [text-wrap:pretty]">
             {t('event.onlyYeses')}
           </p>
-          {movement.length > 0 ? (
+          {summary.recent_total > 0 ? (
             <p className="mt-6 flex items-center gap-[9px] text-md-lo text-fg-muted">
               <span
                 aria-hidden="true"
                 className="size-[9px] flex-none rounded-full bg-brand [animation:comi-pulse_var(--ds-pulse-dur)_ease-in-out_infinite]"
               />
               <span className="flex-1 [text-wrap:pretty]">
-                {t('event.movement', { count: movement.length })}
+                {t('event.movement', { count: summary.recent_total })}
               </span>
             </p>
           ) : null}
@@ -366,11 +362,11 @@ export function EventScreen() {
 
       {hidden || isMeeting ? null : (
         <Places
-          closed={closed}
+          closed={closed || unknown}
           total={e.plazas}
           puntos={e.puntos}
           left={left}
-          going={going.length}
+          going={going}
           isPast={isPast}
           waiting={waitlist.data?.total ?? 0}
         />
@@ -423,6 +419,8 @@ export function EventScreen() {
         <section className={GUTTER}>
           <PendingNote className="pt-9" />
         </section>
+      ) : unknown ? (
+        <AnswersUnknown onRetry={answers.retry} />
       ) : answerSlot === 'meeting' ? (
         <MeetingAnswer
           event={e}
@@ -471,11 +469,13 @@ export function EventScreen() {
         />
       )}
 
+      {isMeeting ? null : <ViatgerBlock eventId={e.id} />}
+
       {/* Right after fitxar, which is the moment somebody wants to say so.
           Only for whoever the door actually let in. */}
       {mine === 'asistio' && !ended ? (
         <section className={`pt-12 ${GUTTER}`}>
-          <CheckinShare event={e} cover={cover} going={going.length} />
+          <CheckinShare event={e} cover={cover} going={going} />
         </section>
       ) : null}
 
@@ -507,7 +507,7 @@ export function EventScreen() {
                   eyebrow: `${formatDayMonth(starts, locale)} · ${t('share.recap')}`,
                   headline: eventTitle(e.titulo),
                   stats: [
-                    { value: String(going.length), label: t('share.wereThere') },
+                    { value: String(going), label: t('share.wereThere') },
                     ...(e.puntos > 0
                       ? [{ value: `+${String(e.puntos)}`, label: t('share.pointsFor') }]
                       : []),
@@ -646,6 +646,36 @@ function Share({ event }: { readonly event: EventRow }) {
     >
       {copied ? t('event.shared') : t('actions.share')}
     </button>
+  )
+}
+
+/**
+ * El lloc de la resposta quan el resum no ha arribat.
+ *
+ * Els botons hi serien com si no hagués contestat, i un «sí» premut aquí podria
+ * trepitjar una llista d'espera o una sol·licitud que no es veu. La mateixa
+ * línia que l'Inici, amb el seu «torna-ho a provar».
+ */
+function AnswersUnknown({ onRetry }: { readonly onRetry: () => void }) {
+  const { t } = useTranslation()
+  return (
+    <section className={`pt-12 pb-8 ${GUTTER}`}>
+      <div
+        role="status"
+        className="flex min-h-[56px] items-center justify-between gap-3 rounded-cta border-[1.5px] border-surface-9 bg-surface-2 px-[18px] py-[10px]"
+      >
+        <p className="text-md-lo font-bold text-fg-secondary [text-wrap:pretty]">
+          {t('home.cta.unknown')}
+        </p>
+        <button
+          type="button"
+          onClick={onRetry}
+          className="-mr-3 min-h-[44px] flex-none px-3 text-sm font-bold text-brand-label"
+        >
+          {t('actions.retry')}
+        </button>
+      </div>
+    </section>
   )
 }
 

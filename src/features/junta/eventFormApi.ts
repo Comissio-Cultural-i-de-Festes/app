@@ -1,6 +1,7 @@
 import { DbError, unwrapAs } from '@/lib/db'
 import type { Abast, EventType } from '@/lib/model'
 import type { EventRow } from '@/lib/schema'
+import { COVERS, keepOnly } from '@/lib/storage'
 import { supabase } from '@/lib/supabase'
 
 /**
@@ -154,6 +155,22 @@ export async function setPublished(eventId: string, published: boolean): Promise
 export async function deleteEvent(eventId: string): Promise<void> {
   const { error } = await supabase.rpc('admin_delete_event', { p_event_id: eventId })
   if (error) throw new DbError(error)
+  // La portada, que `admin_delete_event` no pot treure: l'storage no deixa
+  // esborrar des de SQL. Després i sense esperar-la, com totes les
+  // substitucions: l'esdeveniment ja no hi és, i si això falla l'escombrada
+  // diària (migració 91) troba la carpeta d'un esdeveniment que no existeix.
+  void keepOnly(COVERS, eventId, null)
+}
+
+/**
+ * Deixa a la carpeta de l'esdeveniment només la portada que fa servir.
+ *
+ * Es crida quan l'esdeveniment ja s'ha desat apuntant a `keep`, mai abans: si
+ * l'esborrat anés primer i el desat fallés, la portada de l'esdeveniment seria
+ * un objecte que ja no existeix.
+ */
+export function dropOldCovers(eventId: string, keep: string): void {
+  void keepOnly(COVERS, eventId, keep)
 }
 
 /**

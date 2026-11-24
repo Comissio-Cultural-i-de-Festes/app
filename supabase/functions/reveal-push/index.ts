@@ -24,6 +24,14 @@ import webpush from 'npm:web-push@3.6.7'
  * símptoma és «no arriben els avisos». `web-push` és la implementació de
  * referència i és la que fa servir tothom.
  *
+ * DOS AVISOS I UNA SOLA FUNCIÓ. Des de la migració 93 també hi passa l'avís a
+ * qui se li valida o se li retira un avís de la junta. Tot el que aquesta
+ * funció necessita —les claus VAPID, el token, el desplegament— ja hi era, i
+ * una segona funció hauria volgut dir un segon secret i un segon lloc on
+ * oblidar-se de posar-lo. El paquet d'un avís porta `tipus: 'avis'`, `que` i
+ * l'enllaç, i res més: ni la nota ni qui l'ha posat, perquè una notificació
+ * es llegeix a la pantalla bloquejada. El text el posa el service worker.
+ *
  * EL TOKEN, I PER QUÈ NO N'HI HA PROU AMB EL JWT DE SUPABASE. La clau `anon`
  * és pública —és al paquet del navegador— o sigui que `verify_jwt` no
  * distingeix el nostre cron d'un desconegut. El que ho distingeix és un secret
@@ -42,13 +50,23 @@ interface Subscription {
   auth: string
 }
 
-interface Payload {
+interface RevealPayload {
+  tipus: 'revelacio'
   event_id: string
   titol: string
   quan: string
   url: string
   subscripcions: Subscription[]
 }
+
+interface AvisPayload {
+  tipus: 'avis'
+  que: 'nou' | 'retirat'
+  url: string
+  subscripcions: Subscription[]
+}
+
+type Payload = RevealPayload | AvisPayload
 
 const json = (status: number, body: unknown): Response =>
   new Response(JSON.stringify(body), {
@@ -73,12 +91,21 @@ const isSub = (v: unknown): v is Subscription => {
 function parse(raw: unknown): Payload | null {
   if (typeof raw !== 'object' || raw === null) return null
   const o = raw as Record<string, unknown>
-  if (!isUuid(o.event_id)) return null
-  if (typeof o.titol !== 'string' || o.titol.trim() === '') return null
   if (typeof o.url !== 'string' || !o.url.startsWith('/')) return null
   if (!Array.isArray(o.subscripcions) || !o.subscripcions.every(isSub)) return null
 
+  if (o.tipus === 'avis') {
+    if (o.que !== 'nou' && o.que !== 'retirat') return null
+    return { tipus: 'avis', que: o.que, url: o.url, subscripcions: o.subscripcions }
+  }
+
+  // Sense `tipus` és la revelació: és el que el cron de la 47 envia des del
+  // primer dia, i no s'ha de tocar per fer lloc a l'altre.
+  if (!isUuid(o.event_id)) return null
+  if (typeof o.titol !== 'string' || o.titol.trim() === '') return null
+
   return {
+    tipus: 'revelacio',
     event_id: o.event_id,
     titol: o.titol,
     quan: typeof o.quan === 'string' ? o.quan : '',
@@ -118,11 +145,15 @@ Deno.serve(async (req: Request): Promise<Response> => {
   // El que el service worker rebrà. Curt a posta: un avís de push es llegeix
   // en una notificació de dues línies, i el que hi ha de dur és el títol i on
   // porta en tocar-lo.
-  const body = JSON.stringify({
-    titol: payload.titol,
-    url: `${APP_ORIGIN}${payload.url}`,
-    quan: payload.quan,
-  })
+  const body = JSON.stringify(
+    payload.tipus === 'avis'
+      ? { tipus: 'avis', que: payload.que, url: `${APP_ORIGIN}${payload.url}` }
+      : {
+          titol: payload.titol,
+          url: `${APP_ORIGIN}${payload.url}`,
+          quan: payload.quan,
+        },
+  )
 
   // Cada subscripció pel seu compte i cap error que aturi la resta: un
   // endpoint caducat és el cas normal —iOS els descarta al cap d'unes

@@ -22,10 +22,12 @@ import { HoresStrip } from './HoresStrip'
 import { Notice } from '@/ui/Notice/Notice'
 import { useBack } from '@/lib/useBack'
 
+import { DemanaViatgerBlock } from './DemanaViatgerBlock'
 import { Field, INPUT } from './formBits'
 import { JuntaHeader } from './JuntaHeader'
 import {
   deleteEvent,
+  dropOldCovers,
   type EventDraft,
   eventFormKeys,
   fetchGeo,
@@ -164,6 +166,7 @@ function EventForm() {
         eventId = await saveEvent(
           draftFrom({ ...form, id: eventId, cover_url: coverPath }, publish, coverPath),
         )
+        dropOldCovers(eventId, coverPath)
       } else {
         eventId = await saveEvent(draftFrom(form, publish, coverPath))
       }
@@ -612,6 +615,8 @@ function EventForm() {
               </button>
             </Field>
           )}
+
+          <DemanaViatgerBlock eventId={editing ? (id ?? null) : null} tipo={form.tipo} />
 
           {/* Només d'un esdeveniment que existeix, i sota el mapa perquè les
               dues coses són la mateixa: aquí es tria on es pot fitxar, i allà

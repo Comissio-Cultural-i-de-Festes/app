@@ -90,10 +90,35 @@ describe('errorKey', () => {
       expect(errorKey(dbHint('22023', 'avis_fora_del_curs'), true)).toBe('errors.avisForaDelCurs')
     })
 
+    it('reads the three refusals of the second-person rule off the hint (migration 93)', () => {
+      // Tots tres són 42501, com «nomes junta». Sense el HINT, qui premés
+      // «Valida» sobre un avís que ell mateix ha proposat llegiria «Això no ho
+      // pots fer tu» sense saber per què.
+      expect(errorKey(dbHint('42501', 'avis_propi'), true)).toBe('errors.avisPropi')
+      expect(errorKey(dbHint('42501', 'avis_validacio_propia'), true)).toBe(
+        'errors.avisValidacioPropia',
+      )
+      expect(errorKey(dbHint('22023', 'avis_ja_resolt'), true)).toBe('errors.avisJaResolt')
+      expect(errorKey(dbHint('22023', 'avis_proposat'), true)).toBe('errors.avisProposat')
+      expect(errorKey(dbHint('42501', ''), true)).toBe('errors.forbidden')
+    })
+
+    it('reads a traveller-details refusal off the hint, not off its 23514', () => {
+      expect(errorKey(dbHint('23514', 'viatger_invalid'), true)).toBe('errors.viatgerInvalid')
+      expect(errorKey(dbHint('23514', ''), true)).toBe('errors.generic')
+    })
+
     it('never sends the junta back to «try again in a moment» for either', () => {
       for (const hint of ['avis_sostre', 'avis_fora_del_curs']) {
         expect(errorKey(dbHint('22023', hint), true), hint).not.toBe('errors.generic')
       }
+    })
+
+    // Migració 95: el camí de la foto d'una prova no és el de qui l'envia o no
+    // és al bucket. «Torna-ho a provar» tornaria a enviar el mateix camí; el
+    // que té remei és tornar a triar la foto, que la puja de nou.
+    it('reads a gimcana photo the server would not take off the hint', () => {
+      expect(errorKey(dbHint('22023', 'prova_foto'), true)).toBe('errors.provaFoto')
     })
 
     it('leaves the same code without a token exactly where it was', () => {

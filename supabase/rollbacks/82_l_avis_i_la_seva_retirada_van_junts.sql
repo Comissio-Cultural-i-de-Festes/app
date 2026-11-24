@@ -27,6 +27,11 @@
 -- aquest i després aquest el tornaria a desfer a mitges: l'ordre és 82 i
 -- després 80, com el de qualsevol parella de migracions.
 --
+-- I LA 92 VA ABANS QUE AQUEST. La 92 torna a escriure `admin_dashboard` perquè
+-- els despenjats surtin de `private.drifting_among` en una sola consulta, i el
+-- rollback de la 92 porta el cos de la 82: aplicat després d'aquest, el
+-- tornaria a posar. L'ordre és `supabase/rollbacks/92_...sql`, després aquest.
+--
 -- LES FILES JA ESCRITES NO ES TOQUEN. `points_log` és append-only per
 -- disparador i la 82 no en va moure cap: només canviava com es llegeixen.
 --

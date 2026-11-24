@@ -266,6 +266,18 @@ export function outcomeFromFailure(request: ScanRequest, cause: unknown): DoorOu
 }
 
 /**
+ * The outcome a queued one becomes once the flush has an answer for it, or the
+ * same outcome when it is about some other scan.
+ */
+export function settleOutcome(outcome: DoorOutcome, answer: Settled): DoorOutcome {
+  if (outcome.kind !== 'queued' || outcome.request.clientRequestId !== answer.clientRequestId) {
+    return outcome
+  }
+  if ('refused' in answer) return { kind: 'failed', request: outcome.request, refused: true }
+  return { kind: 'sent', request: outcome.request, result: answer.result }
+}
+
+/**
  * Taking a scan back, which is not one operation.
  *
  * Where the row is decides what has to happen, and getting it wrong is worse
@@ -423,6 +435,31 @@ export function flushQueue(): Promise<FlushOutcome> {
 
 let flushing: Promise<FlushOutcome> | null = null
 
+/**
+ * What the server finally said about a scan that was left in the queue.
+ *
+ * `scan()` answers "saved" and the screen draws that; the answer arrives later
+ * from a flush that no screen is waiting on. Without this the row kept saying
+ * "desat, s'enviarà" until the page was reloaded, long after the queue count
+ * had gone to zero.
+ */
+export type Settled =
+  | { readonly clientRequestId: string; readonly result: CheckInResult }
+  | { readonly clientRequestId: string; readonly refused: true }
+
+const settledListeners = new Set<(answer: Settled) => void>()
+
+export function onSettled(listener: (answer: Settled) => void): () => void {
+  settledListeners.add(listener)
+  return () => {
+    settledListeners.delete(listener)
+  }
+}
+
+function announce(answer: Settled): void {
+  for (const listener of settledListeners) listener(answer)
+}
+
 async function drain(): Promise<FlushOutcome> {
   const waiting = (await pending()).filter((item) => item.held === undefined)
   let sent = 0
@@ -440,10 +477,12 @@ async function drain(): Promise<FlushOutcome> {
       } else {
         await dequeue(item.clientRequestId)
       }
+      announce({ clientRequestId: item.clientRequestId, result })
       sent += 1
     } catch (cause) {
       if (refusesTheScan(cause)) {
         await setHeld(item.clientRequestId, { kind: 'refused', code: cause.code })
+        announce({ clientRequestId: item.clientRequestId, refused: true })
         refused += 1
         continue
       }

@@ -4,6 +4,7 @@ import type { EventRow } from '@/lib/schema'
 import { DbError, unwrapAs } from '@/lib/db'
 import { supabase } from '@/lib/supabase'
 
+import { alCartell, jaHiVamSer } from './finestra'
 import type { EventSummary } from './summary'
 
 /**
@@ -25,7 +26,8 @@ const EVENT_COLUMNS =
 const HOUR_MS = 3_600_000
 
 /**
- * An event stays "next" for six hours after it starts.
+ * An event without an end stays "next" for six hours after it starts; one
+ * with an end stays until it ends (`finestra.ts`).
  *
  * Otherwise the party you are standing at disappears from the home screen
  * halfway through it and is replaced by whatever comes in October, which is
@@ -57,7 +59,7 @@ export async function fetchUpcoming(horizon: string, limit = 6): Promise<EventRo
       .from('events_public')
       .select(EVENT_COLUMNS)
       .eq('published', true)
-      .gte('starts_at', horizon)
+      .or(alCartell(horizon))
       .order('starts_at', { ascending: true })
       .limit(limit),
   )
@@ -70,7 +72,7 @@ export async function fetchPrevious(horizon: string): Promise<EventRow[]> {
       .from('events_public')
       .select(EVENT_COLUMNS)
       .eq('published', true)
-      .lt('starts_at', horizon)
+      .or(jaHiVamSer(horizon))
       .order('starts_at', { ascending: false })
       .limit(1),
   )

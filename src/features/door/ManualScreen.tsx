@@ -17,10 +17,11 @@ import {
   outcomeFromFailure,
   presentationOf,
   scan,
+  settleOutcome,
 } from './api'
 import { ScanGlyph } from './icons'
 import { HeldScans } from './HeldScans'
-import { queueNotice, useQueue } from './useQueue'
+import { queueNotice, useQueue, useSettled } from './useQueue'
 import { type Undo, undoNoteKey, useUndo } from './useUndo'
 import { statusWords } from './verdict'
 
@@ -120,6 +121,24 @@ export function ManualScreen() {
     refreshQueue()
   }, [last, roster, refreshQueue])
   const undoLast = useUndo(last?.outcome ?? null, afterUndo)
+
+  // The flush answers what `scan` could only save. Both the row and the strip
+  // are redrawn from the answer, and the roster is asked again because the
+  // person is now on the server.
+  useSettled((answer) => {
+    setDone((previous) =>
+      Object.fromEntries(
+        Object.entries(previous).map(([userId, outcome]) => [
+          userId,
+          settleOutcome(outcome, answer),
+        ]),
+      ),
+    )
+    setLast((previous) =>
+      previous === null ? null : { ...previous, outcome: settleOutcome(previous.outcome, answer) },
+    )
+    void roster.refetch()
+  })
 
   function letIn(row: RosterRow) {
     setBusy(row.user_id)

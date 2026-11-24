@@ -74,6 +74,7 @@ const {
   outcomeFromFailure,
   presentationOf,
   resendHeld,
+  settleOutcome,
   scan,
   undo,
   undoTargetOf,
@@ -581,5 +582,31 @@ describe('taking a scan back', () => {
     rpc.mockResolvedValue({ data: null, error: { message: 'nomes junta', code: '42501' } })
 
     await expect(undo({ kind: 'row', eventId: EVENT, userId: USER })).rejects.toBeDefined()
+  })
+})
+
+describe('what a queued scan becomes when the flush answers', () => {
+  const queued = { kind: 'queued', request: request('q') } as const
+
+  it('is the answer, for the same request', () => {
+    const result = { status: 'ok', nombre: 'Alfa' } as const
+    expect(settleOutcome(queued, { clientRequestId: 'q', result })).toEqual({
+      kind: 'sent',
+      request: queued.request,
+      result,
+    })
+  })
+
+  it('is a refusal when the server said no for good', () => {
+    expect(settleOutcome(queued, { clientRequestId: 'q', refused: true })).toEqual({
+      kind: 'failed',
+      request: queued.request,
+      refused: true,
+    })
+  })
+
+  it('leaves alone an outcome of another scan', () => {
+    const answer = { clientRequestId: 'other', result: { status: 'ok' } } as const
+    expect(settleOutcome(queued, answer)).toBe(queued)
   })
 })

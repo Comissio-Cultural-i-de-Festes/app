@@ -62,7 +62,7 @@ export function EventPreview({
     >
       <Cover
         coverUrl={covered ? null : data.coverUrl}
-        isPast={false}
+        phase="upcoming"
         corner={
           <button
             type="button"
@@ -129,7 +129,7 @@ export function EventPreview({
             puntos={0}
             left={data.plazas}
             going={0}
-            isPast={false}
+            phase="upcoming"
             waiting={0}
           />
 

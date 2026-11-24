@@ -258,6 +258,7 @@
       "willKnowInOne": "Se sabrá mañana"
     },
     "past": "Ya ha pasado",
+    "live": "Ahora mismo",
     "whoComes_one": "Va {{count}} persona",
     "whoComes_other": "Van {{count}}",
     "whoCame_one": "Vino {{count}} persona",
@@ -277,6 +278,7 @@
     "fullWithQueue_one": "Hay {{count}} persona esperando. La gente se echa atrás siempre.",
     "fullWithQueue_other": "Hay {{count}} esperando. La gente se echa atrás siempre.",
     "wereThere": "fuimos",
+    "areThere": "estamos",
     "pointsForComing": "puntos por venir",
     "transport": "Cómo se vuelve",
     "ask": {

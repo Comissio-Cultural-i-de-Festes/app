@@ -258,6 +258,7 @@
       "willKnowInOne": "Es sabrà demà"
     },
     "past": "Ja ha passat",
+    "live": "Ara mateix",
     "whoComes_one": "Hi va {{count}} persona",
     "whoComes_other": "Hi van {{count}}",
     "whoCame_one": "Hi va venir {{count}} persona",
@@ -277,6 +278,7 @@
     "fullWithQueue_one": "Hi ha {{count}} persona esperant. La gent es fa enrere sempre.",
     "fullWithQueue_other": "Hi ha {{count}} esperant. La gent es fa enrere sempre.",
     "wereThere": "hi vam ser",
+    "areThere": "hi som",
     "pointsForComing": "punts per venir",
     "transport": "Com es torna",
     "ask": {

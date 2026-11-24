@@ -1,8 +1,8 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { type QueuedScan, onReconnect, pending, usable } from '@/lib/queue'
 
-import { flushQueue } from './api'
+import { type Settled, flushQueue, onSettled } from './api'
 
 /**
  * How many scans are still waiting, and getting them sent.
@@ -81,6 +81,28 @@ export function useQueue(): QueueState {
   }, [refresh])
 
   return { ...rows, usable: canWrite, online, refresh }
+}
+
+/**
+ * Hears the answer to a scan that was only "saved" when it was made.
+ *
+ * Whichever screen ran the flush, every mounted one is told: the row that said
+ * "saved, it goes when there is signal" is not necessarily on the screen that
+ * happened to send it. The handler is read through a ref so a screen can pass
+ * a fresh closure each render without re-subscribing.
+ */
+export function useSettled(handler: (answer: Settled) => void): void {
+  const latest = useRef(handler)
+  useEffect(() => {
+    latest.current = handler
+  })
+  useEffect(
+    () =>
+      onSettled((answer) => {
+        latest.current(answer)
+      }),
+    [],
+  )
 }
 
 /**

@@ -201,12 +201,15 @@ export type Database = {
           mesura_presa: string | null
           nota: string
           points_log_id: string | null
+          punts: number
           retirat_at: string | null
           retirat_by: string | null
           retirat_nota: string | null
           retirat_points_log_id: string | null
           tipus: string
           user_id: string
+          validat_at: string | null
+          validat_by: string | null
         }
         Insert: {
           created_at?: string
@@ -217,12 +220,15 @@ export type Database = {
           mesura_presa?: string | null
           nota: string
           points_log_id?: string | null
+          punts?: number
           retirat_at?: string | null
           retirat_by?: string | null
           retirat_nota?: string | null
           retirat_points_log_id?: string | null
           tipus: string
           user_id: string
+          validat_at?: string | null
+          validat_by?: string | null
         }
         Update: {
           created_at?: string
@@ -233,12 +239,15 @@ export type Database = {
           mesura_presa?: string | null
           nota?: string
           points_log_id?: string | null
+          punts?: number
           retirat_at?: string | null
           retirat_by?: string | null
           retirat_nota?: string | null
           retirat_points_log_id?: string | null
           tipus?: string
           user_id?: string
+          validat_at?: string | null
+          validat_by?: string | null
         }
         Relationships: [
           {
@@ -293,6 +302,13 @@ export type Database = {
           {
             foreignKeyName: "avisos_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "avisos_validat_by_fkey"
+            columns: ["validat_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1841,6 +1857,7 @@ export type Database = {
           equip: string
           equip_ordre: number
           escola: string
+          foto_esborrada_at: string
           id: string
           path: string
           prova: string
@@ -2191,6 +2208,13 @@ export type Database = {
       }
       my_qr: { Args: never; Returns: string }
       my_revealed_interests: { Args: never; Returns: string[] }
+      my_storage_garbage: {
+        Args: { p_limit?: number }
+        Returns: {
+          bucket: string
+          path: string
+        }[]
+      }
       my_streak: { Args: never; Returns: Json }
       pick_team: { Args: { p_equip_id: string }; Returns: Json }
       ranking_escoles_period: {
@@ -2214,6 +2238,10 @@ export type Database = {
           punts: number
           user_id: string
         }[]
+      }
+      rebutja_avis: {
+        Args: { p_avis_id: string; p_nota: string }
+        Returns: undefined
       }
       redeem_invite: { Args: { p_codi: string }; Returns: Json }
       report_photo: {
@@ -2286,6 +2314,7 @@ export type Database = {
         }
         Returns: Json
       }
+      valida_avis: { Args: { p_avis_id: string }; Returns: undefined }
       waitlist_position: { Args: { p_event_id: string }; Returns: number }
       waitlist_size: { Args: { p_event_id: string }; Returns: number }
     }

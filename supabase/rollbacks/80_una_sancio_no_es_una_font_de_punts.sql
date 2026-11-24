@@ -27,6 +27,10 @@
 -- `supabase/rollbacks/82_...sql` existeix i desfà només la 82. L'ordre és 82 i
 -- després aquest; al revés, el segon desfaria el primer.
 --
+-- I ABANS QUE TOTS DOS, LA 92, que també reescriu `admin_dashboard` (els
+-- despenjats en una sola consulta) i el seu rollback porta el cos de la 82.
+-- L'ordre sencer és 92, 82 i aquest.
+--
 -- LA PANTALLA NO ES DESFÀ DES D'AQUÍ, i el que hi queda ja no és el que aquest
 -- paràgraf deia abans. `DashboardScreen.tsx` treu del gràfic els motius que no
 -- sumen, i des de la revisió de la 82 no ho decideix pel signe: `avis` i

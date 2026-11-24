@@ -10,7 +10,7 @@ import {
   horizonIso,
 } from '@/features/home/api'
 import { dayStartIso } from '@/features/home/summary'
-import { avisosKeys, fetchAvisComptes } from '@/features/junta/avisosApi'
+import { avisosKeys, fetchAvisComptes, fetchProposats } from '@/features/junta/avisosApi'
 import { fetchPointValues } from '@/features/junta/eventFormApi'
 import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from '@/features/junta/eventsApi'
 import { fetchJuntaHome, juntaHomeKeys } from '@/features/junta/homeApi'
@@ -132,6 +132,8 @@ export async function prefetchJunta(client: QueryClient): Promise<void> {
     client.prefetchQuery({ queryKey: doorKeys.pointValues(), queryFn: fetchPointValues }),
     client.prefetchQuery({ queryKey: memberKeys.list(), queryFn: fetchAllMembers }),
     client.prefetchQuery({ queryKey: meetingListKeys.list(), queryFn: fetchMeetings }),
+    // Els avisos per validar: surten a «Hi ha feina», a dalt de tot.
+    client.prefetchQuery({ queryKey: avisosKeys.proposats(), queryFn: fetchProposats }),
   ])
 
   // El comptador d'avisos depèn de la finestra del curs, que surt dels períodes.

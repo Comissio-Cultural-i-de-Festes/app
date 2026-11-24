@@ -26,6 +26,14 @@ import { UnreadableImage } from './storage'
 const HINTS: Readonly<Record<string, string>> = {
   avis_sostre: 'errors.avisSostre',
   avis_fora_del_curs: 'errors.avisForaDelCurs',
+  // Migració 93. Els dos primers són 42501, com «nomes junta», i diuen coses
+  // diferents: no et pots tocar un avís teu, i no pots validar el que has
+  // proposat. Després, que algú altre de la junta ja l'ha validat o rebutjat, i
+  // que un proposat es rebutja i no es retira.
+  avis_propi: 'errors.avisPropi',
+  avis_validacio_propia: 'errors.avisValidacioPropia',
+  avis_ja_resolt: 'errors.avisJaResolt',
+  avis_proposat: 'errors.avisProposat',
   // El disparador de les dades de viatger (migració 90): diu el camp i no el
   // valor, perquè el valor no acabi als logs de Postgres.
   viatger_invalid: 'errors.viatgerInvalid',

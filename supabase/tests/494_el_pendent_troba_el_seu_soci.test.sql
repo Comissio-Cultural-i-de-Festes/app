@@ -83,6 +83,10 @@ select is(
   'en fer-se actiu, s''enganxa pel telèfon, amb la data de la falta'
 );
 
+-- L'enganxada el deixa proposat (migració 93): els punts es resten quan un
+-- altre membre de la junta el valida, i el soci el veu llavors.
+select tests.valida_proposats();
+
 select is(
   (select pl.puntos || '|' || (pl.created_at = a.created_at)::text
      from public.avisos_pendents p

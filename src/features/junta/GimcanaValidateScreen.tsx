@@ -3,12 +3,15 @@ import { useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
+import { eventKeys, fetchEvent } from '@/features/event/api'
+import { eventTitle } from '@/features/event/title'
 import { decideProva, fetchQueue, gimcanaKeys, undoProva } from '@/features/gimcana/api'
 import { teamName } from '@/features/gimcana/teamName'
 import { useAvailability } from '@/lib/useAvailability'
 import { SendNote } from '@/features/shell/SendNote'
 import { GIMCANA_PHOTOS } from '@/lib/storage'
 import { useSignedUrls } from '@/lib/useSignedUrls'
+import { Notice } from '@/ui/Notice/Notice'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
@@ -46,6 +49,16 @@ export function GimcanaValidateScreen() {
     enabled: eventId !== '',
   })
 
+  // De quin esdeveniment és la cua. Quan només s'hi arribava des de la porta,
+  // la porta ja ho deia; des de l'issue #28 s'hi arriba també des de la fitxa
+  // de cada esdeveniment, i amb dues gimcanes el mateix cap de setmana una cua
+  // sense nom és una cua que pot ser l'altra.
+  const event = useQuery({
+    queryKey: eventKeys.one(eventId),
+    queryFn: () => fetchEvent(eventId),
+    enabled: eventId !== '',
+  })
+
   // La cua es valida a la mateixa nit i al mateix lloc on es juga, o sigui
   // sovint sense cobertura: «sense xarxa» i no l'esquelet per sempre.
   const view = useAvailability(queue)
@@ -53,7 +66,10 @@ export function GimcanaValidateScreen() {
   const rows = queue.data ?? []
   const current = rows[0] ?? null
 
-  const urls = useSignedUrls(GIMCANA_PHOTOS, [current?.path ?? null])
+  // Una prova de fa més de trenta dies no es demana: la foto ja no hi és o està
+  // a punt de marxar, i la pantalla pintaria un requadre buit sense dir per què.
+  const gone = (current?.foto_esborrada_at ?? null) !== null
+  const urls = useSignedUrls(GIMCANA_PHOTOS, [gone ? null : (current?.path ?? null)])
 
   const decide = useMutation({
     mutationFn: ({ id, val }: { id: string; val: boolean }) =>
@@ -94,6 +110,11 @@ export function GimcanaValidateScreen() {
       />
 
       <div className={`pt-7 ${GUTTER}`}>
+        {event.data == null ? null : (
+          <p className="eyebrow mb-6 text-fg-muted [text-wrap:balance]">
+            {eventTitle(event.data.titulo)}
+          </p>
+        )}
         {view.loading ? (
           <QueueSkeleton />
         ) : view.unavailable ? (
@@ -106,16 +127,20 @@ export function GimcanaValidateScreen() {
           </p>
         ) : (
           <>
-            <div className="h-[250px] w-full bg-surface-3">
-              {urls.data?.get(current.path) === undefined ? null : (
-                <img
-                  src={urls.data.get(current.path)}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="size-full object-contain"
-                />
-              )}
-            </div>
+            {gone ? (
+              <Notice tone="neutral">{t('junta.gimcana.photoGone')}</Notice>
+            ) : (
+              <div className="h-[250px] w-full bg-surface-3">
+                {urls.data?.get(current.path) === undefined ? null : (
+                  <img
+                    src={urls.data.get(current.path)}
+                    alt=""
+                    referrerPolicy="no-referrer"
+                    className="size-full object-contain"
+                  />
+                )}
+              </div>
+            )}
 
             <div className="mt-7 flex items-baseline justify-between gap-5">
               <p className="text-lg font-bold [text-wrap:pretty]">{current.prova}</p>

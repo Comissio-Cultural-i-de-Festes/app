@@ -118,7 +118,9 @@ select ok(
   'cap grant d''UPDATE: el camí directe no existeix'
 );
 
--- La persona afectada la llegeix: és el seu avís, i la política ja li'l dona.
+-- La persona afectada la llegeix: és el seu avís, i la política ja li'l dona
+-- un cop validat (migració 93).
+select tests.valida_proposats();
 select tests.authenticate_as('bravo');
 select is(
   (select mesura_presa from public.avisos where id = (select id from fet where clau = 'sense')),

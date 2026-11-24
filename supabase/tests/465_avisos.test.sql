@@ -198,6 +198,10 @@ select 'amb_punts',
                     'va deixar la sala com la va deixar', -25, (select festa from quins));
 
 reset role;
+-- Des de la 93 un avís neix proposat i no resta res fins que un altre membre
+-- de la junta el valida. Aquest fitxer no prova aquella porta —ho fa la 498—:
+-- el valida pel nucli i continua mirant el que mirava.
+select tests.valida_proposats();
 
 select is(
   (select a.gravetat from public.avisos a where a.id = (select id from fet where clau='amb_punts')),
@@ -237,6 +241,7 @@ select 'sense_punts',
        public.avisa((select bravo from qui), 'mal_gest', 'primer avis, sense tocar el ranquing', 0, null);
 
 reset role;
+select tests.valida_proposats();
 
 select is(
   (select a.points_log_id from public.avisos a where a.id = (select id from fet where clau='sense_punts')),
@@ -262,6 +267,7 @@ select 'a_la_reunio',
                     'no va venir a la reunio', -10, (select reunio from quins));
 
 reset role;
+select tests.valida_proposats();
 
 select is(
   (select a.event_id from public.avisos a where a.id = (select id from fet where clau='a_la_reunio')),
@@ -511,6 +517,7 @@ select lives_ok(
 );
 
 reset role;
+select tests.valida_proposats();
 
 select is(
   (select coalesce(sum(pl.puntos),0)::int

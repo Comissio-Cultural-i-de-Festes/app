@@ -175,8 +175,12 @@
     "sendPaused": "No connection. It's waiting here and will go out when the network is back: don't close the app.",
     "sendSlow": "The connection is very slow: it hasn't arrived yet.",
     "sendOffline": "No connection, so it didn't go out. Try again when you have signal.",
-    "avisSostre": "This person has already lost every point the cap allows this year. Raise “Most points per year” in The points table, or log the warning with no points.",
+    "avisSostre": "With what has already been taken from this person this year and what is proposed and still waiting for confirmation, this warning would go over the cap. Turn down a proposal, raise “Most points per year” in The points table, or make it with no points.",
     "avisForaDelCurs": "Today falls outside every academic year, and with no year there's no cap to count. Open the year under “The ranking periods”, or log the warning with no points.",
+    "avisPropi": "Nobody can give, withdraw or edit a warning of their own. Someone else on the board has to do it.",
+    "avisValidacioPropia": "You proposed this warning: someone else on the board has to confirm it.",
+    "avisJaResolt": "Someone else on the board has already confirmed or turned it down. Reload the screen to see it.",
+    "avisProposat": "This warning is still only proposed: it is turned down, not withdrawn.",
     "viatgerInvalid": "Something isn't in the right format. Check the fields and try again."
   },
   "escola": {
@@ -879,7 +883,43 @@
       "coverFailed": "The cover image wouldn't upload; the event was saved without it. Try again whenever you like.",
       "endsBeforeStarts": "The end is before the start.",
       "endsRequired": "The end time is missing. It's where the report hours come from.",
-      "revealAfterStarts": "The reveal is after it starts: it would uncover nothing."
+      "revealAfterStarts": "The reveal is after it starts: it would uncover nothing.",
+      "eines": {
+        "title": "Tools for this event",
+        "lede": "They all belong to this event. The door on the junta home is just a shortcut.",
+        "ledeDraft": "This is a draft: the scanner, check-in by name, points and payments appear once you publish it.",
+        "ledeMeeting": "A meeting has no door: whoever closes it says who was there.",
+        "soon": "The scanner and check-in by name open thirty hours before it starts.",
+        "closed": "The scanner and check-in by name close seven days after it ends. Points can always be given.",
+        "escaner": {
+          "title": "The scanner",
+          "sub": "Reads the QR code of whoever comes in."
+        },
+        "alta": {
+          "title": "Check in by name",
+          "sub": "For anyone without their QR code to hand."
+        },
+        "punts": {
+          "title": "Give points",
+          "sub": "For work done, the day after too."
+        },
+        "pagaments": {
+          "title": "Payments",
+          "sub": "Who has paid, who is asking for a place and who is waiting."
+        },
+        "fitxatges": {
+          "title": "Who has checked in",
+          "sub": "To remove a check-in that shouldn't be there."
+        },
+        "gimcana": {
+          "title": "The gymkhana",
+          "sub": "Challenges, teams and when it opens."
+        },
+        "validaGimcana": {
+          "title": "Review the gymkhana",
+          "sub": "The photos waiting for an answer."
+        }
+      }
     },
     "config": {
       "saved": "Saved.",
@@ -1005,11 +1045,24 @@
         "mesuraAdd": "Add the action taken",
         "mesuraEdit": "Edit the action taken",
         "mesuraClear": "Leave it blank to remove it. The person who got the warning will read it.",
-        "mesuraPaused": "No connection. It'll save on its own when it's back."
+        "mesuraPaused": "No connection. It'll save on its own when it's back.",
+        "proposat": "Proposed · someone else on the board still has to confirm it",
+        "proposatPerMi": "You proposed it: someone else on the board has to confirm it.",
+        "valida": "Confirm it",
+        "validaSurePunts": "{{nombre}} will lose {{punts}} points, it will count towards the steps and {{nombre}} will get a notification on their phone.",
+        "validaSureSensePunts": "No points will be taken. It will count towards the steps, and {{nombre}} will see it on their profile and get a notification on their phone.",
+        "validaCta": "Yes, confirm it",
+        "rebutja": "Turn it down",
+        "rebutjaSure": "It will never count and {{nombre}} will not hear about it. Write down why it is turned down.",
+        "rebutjaNote": "Why it is turned down",
+        "rebutjaPlaceholder": "That is not quite how it went",
+        "rebutjatOn": "Turned down on {{dia}}",
+        "paused": "No connection. It will go through on its own once the network is back: do not close the screen.",
+        "propi": "You cannot give yourself a warning. If one is needed, someone else on the board has to propose it."
       },
       "avis": {
-        "title": "Record a warning",
-        "lede": "It's written down and never deleted. It may take points or not: you can warn somebody without touching the ranking.",
+        "title": "Propose a warning",
+        "lede": "It is written down and never deleted. It does not count until someone else on the board confirms it. It may take points or not: you can warn somebody without touching the ranking.",
         "tipus": "What happened",
         "tipusHint": "The catalogue lives in “The points table”.",
         "tipusNone": "Pick one",
@@ -1029,16 +1082,25 @@
         "event": "Which night",
         "eventHint": "Optional. If it happened at a board meeting, the warning stays with it and the points go without an event.",
         "eventNone": "No particular one",
-        "save": "Record the warning",
-        "sureTitle": "Before recording it",
-        "surePoints": "{{nombre}} will lose {{punts}} points and drop in the ranking.",
+        "save": "Propose the warning",
+        "sureTitle": "Before proposing it",
+        "surePoints": "Once it is confirmed, {{nombre}} will lose {{punts}} points and drop in the ranking.",
         "sureNoPoints": "No points will be taken: {{nombre}} won't move in the ranking.",
-        "sureEscalo": "With this warning, {{nombre}} reaches the “{{estat}}” step: {{queFer}}.",
-        "sureSeen": "{{nombre}} will see it on their profile with the reason you wrote, and the warning is never deleted.",
-        "sureCta": "Yes, record it",
-        "paused": "No connection. It'll be recorded on its own once it's back.",
-        "done": "Recorded: {{tipus}} for {{nombre}}."
+        "sureEscalo": "If it is confirmed, {{nombre}} reaches the “{{estat}}” step: {{queFer}}.",
+        "sureSeen": "It will not count until someone else on the board confirms it. Then {{nombre}} will see it on their profile with the reason you wrote and get a notification on their phone. The warning is never deleted.",
+        "sureCta": "Yes, propose it",
+        "paused": "No connection. It will be proposed on its own once it is back.",
+        "done": "Proposed: {{tipus}} for {{nombre}}. Someone else on the board still has to confirm it."
       }
+    },
+    "proposats": {
+      "title": "Warnings to confirm",
+      "lede": "A warning does not count until someone on the board who neither proposed it nor received it confirms it.",
+      "count_one": "{{count}} waiting",
+      "count_other": "{{count}} waiting",
+      "none": "No warnings to confirm.",
+      "per": "Proposed by {{nom}} on {{dia}}",
+      "perSenseNom": "Proposed on {{dia}}"
     },
     "pendents": {
       "title": "Pending warnings",
@@ -1068,7 +1130,7 @@
       "enllaca": "Link by hand",
       "cerca": "Find the member by name",
       "capSoci": "No active member with that name.",
-      "enllacaSure": "{{nom}}'s warning will become {{soci}}'s, dated the day it happened ({{dia}}), and {{soci}} will see it on their profile.",
+      "enllacaSure": "{{nom}}'s warning will become {{soci}}'s, dated the day it happened ({{dia}}). It will stay proposed: {{soci}} will see it on their profile once someone on the board who did not write it confirms it.",
       "enllacaCta": "Yes, link it",
       "form": {
         "title": "Pending warning",
@@ -1187,9 +1249,11 @@
         "visa_hores": "{{actor}} signed off an activity's hours",
         "hores_persona": "{{actor}} changed somebody's hours at an activity",
         "reveal_push": "The reveal notification went out",
-        "avis": "{{actor}} recorded a warning against {{target}}",
+        "avis": "{{actor}} proposed a warning against {{target}}",
         "avis_pendent": "{{actor}} logged a pending warning for someone without an account",
         "retira_avis": "{{actor}} withdrew a warning against {{target}}",
+        "rebutja_avis": "{{actor}} turned down a proposed warning for {{target}}",
+        "valida_avis": "{{actor}} confirmed a warning against {{target}}",
         "retira_avis_pendent": "{{actor}} withdrew a pending warning",
         "set_avis_tipus": "{{actor}} changed the warning catalogue",
         "consulta_viatgers": "{{actor}} opened the traveller details for an event",
@@ -1199,6 +1263,11 @@
     },
     "home": {
       "doorNow": "At the door right now",
+      "doorPick": "{{n}} events at the door · pick yours",
+      "recordades": {
+        "title": "Doors saved on {{dia}} at {{hora}}",
+        "note": "These are from the last time there was a connection. The scanner keeps what you check in and uploads it when it is back."
+      },
       "doorYes": "said yes",
       "doorIn": "checked in",
       "doorFree": "places left",
@@ -1207,8 +1276,8 @@
       "doorGimcanaQueue_one": "Review the scavenger hunt · {{count}} photo",
       "doorGimcanaQueue_other": "Review the scavenger hunt · {{count}} photos",
       "doorNone": "At the door",
-      "doorNoneSub": "Nothing on for now. The scanner turns up here the day before.",
-      "doorAnyway": "Open the scanner anyway",
+      "doorNoneSub": "Nothing on for now. The scanner turns up here the day before, and every event has its own on its page.",
+      "doorAnyway": "See the events",
       "doorLoading": "Loading the door…",
       "doorFailed": "The door couldn't be read",
       "doorFailedSub": "We don't know whether anything is on. That isn't the same as nothing being on.",
@@ -1247,11 +1316,18 @@
       "pendentsFeina_one": "pending warning needs a decision",
       "pendentsFeina_other": "pending warnings need a decision",
       "pendentsFeinaSub": "Ambiguous or blocked: they couldn't link on their own",
+      "perValidar_one": "warning waiting for someone else to confirm it",
+      "perValidar_other": "warnings waiting for someone else to confirm them",
+      "perValidarSub": "Proposed by another board member: the second person is missing",
       "now": "What is happening now",
       "soon": "Coming up",
       "soonCount": "{{count}} on the calendar",
       "soonEmpty": "Nothing on the calendar yet.",
       "soonFirst": "Create the first one",
+      "anteriors": "Earlier",
+      "anteriorsSub": "The ones that have finished, most recent first. Each one has its tools on its page.",
+      "anteriorsMore": "Show more",
+      "anteriorsNone": "None has finished yet.",
       "soonFailed": "The calendar couldn't be read.",
       "soonFailedSub": "There may be events we can't see. Don't create anything new until it loads.",
       "how": "How the comi works",
@@ -1338,6 +1414,7 @@
       "validateTitle": "Review the scavenger hunt",
       "inQueue_one": "{{count}} in the queue",
       "inQueue_other": "{{count}} in the queue",
+      "photoGone": "The photo is gone: gymkhana photos are deleted thirty days after it closes.",
       "queueEmpty": "No photos waiting. Come back in a while.",
       "yes": "It counts: +{{n}}",
       "no": "Doesn't count",

@@ -175,8 +175,12 @@
     "sendPaused": "Sin conexión. Queda en espera y se enviará cuando vuelva la red: no cierres la app.",
     "sendSlow": "La conexión va muy lenta: todavía no ha llegado.",
     "sendOffline": "Sin conexión, no ha salido. Vuelve a intentarlo cuando tengas cobertura.",
-    "avisSostre": "Este curso ya se le han restado a esta persona todos los puntos que el tope permite. Sube «Máximo de puntos por curso» en El baremo, o registra el aviso sin puntos.",
+    "avisSostre": "Con lo que ya se ha restado a esta persona este curso y lo que tiene propuesto y aún por validar, este aviso pasaría del tope. Rechaza alguna propuesta, sube «Máximo de puntos por curso» en El baremo, o hazlo sin puntos.",
     "avisForaDelCurs": "Hoy no cae dentro de ningún curso, y sin curso no hay ningún tope que contar. Abre el curso en «Los periodos del ranking», o registra el aviso sin puntos.",
+    "avisPropi": "Nadie puede ponerse, retirarse ni editarse un aviso a sí mismo. Lo tiene que hacer otra persona de la junta.",
+    "avisValidacioPropia": "Este aviso lo has propuesto tú: tiene que validarlo otra persona de la junta.",
+    "avisJaResolt": "Otra persona de la junta ya lo ha validado o rechazado. Vuelve a cargar la pantalla para verlo.",
+    "avisProposat": "Este aviso todavía es propuesto: no se retira, se rechaza.",
     "viatgerInvalid": "Algún dato no tiene la forma que toca. Revisa los campos y vuelve a intentarlo."
   },
   "escola": {
@@ -879,7 +883,43 @@
       "coverFailed": "La portada no se ha podido subir; el evento se ha guardado sin ella. Vuelve a probarlo cuando quieras.",
       "endsBeforeStarts": "El final es antes del inicio.",
       "endsRequired": "Falta la hora de final. Es de donde salen las horas de la memoria.",
-      "revealAfterStarts": "La revelación es después de que empiece: no destaparía nada."
+      "revealAfterStarts": "La revelación es después de que empiece: no destaparía nada.",
+      "eines": {
+        "title": "Herramientas de esta actividad",
+        "lede": "Todas son de este evento. La puerta del panel solo es un atajo.",
+        "ledeDraft": "Es un borrador: el escáner, el alta, los puntos y los pagos aparecen cuando lo publiques.",
+        "ledeMeeting": "Una reunión no tiene puerta: quién estaba lo dice quien la cierra.",
+        "soon": "El escáner y el alta se abren treinta horas antes de que empiece.",
+        "closed": "El escáner y el alta se cierran siete días después de que acabe. Los puntos se pueden dar siempre.",
+        "escaner": {
+          "title": "El escáner",
+          "sub": "Lee el QR de quien entra."
+        },
+        "alta": {
+          "title": "Alta por nombre",
+          "sub": "Para quien no lleva el QR a mano."
+        },
+        "punts": {
+          "title": "Dar puntos",
+          "sub": "Por el trabajo hecho, también al día siguiente."
+        },
+        "pagaments": {
+          "title": "Pagos",
+          "sub": "Quién ha pagado, quién pide plaza y quién espera."
+        },
+        "fitxatges": {
+          "title": "Quién ha fichado",
+          "sub": "Para quitar un fichaje que no tocaba."
+        },
+        "gimcana": {
+          "title": "La gincana",
+          "sub": "Pruebas, equipos y cuándo se abre."
+        },
+        "validaGimcana": {
+          "title": "Validar la gincana",
+          "sub": "Las fotos que esperan respuesta."
+        }
+      }
     },
     "config": {
       "saved": "Guardado.",
@@ -1005,11 +1045,24 @@
         "mesuraAdd": "Añade la medida tomada",
         "mesuraEdit": "Edita la medida tomada",
         "mesuraClear": "Déjalo en blanco para borrarla. Lo leerá quien ha recibido el aviso.",
-        "mesuraPaused": "Sin conexión. Se guardará sola cuando vuelva."
+        "mesuraPaused": "Sin conexión. Se guardará sola cuando vuelva.",
+        "proposat": "Propuesto · falta que otra persona de la junta lo valide",
+        "proposatPerMi": "Lo has propuesto tú: tiene que validarlo otra persona de la junta.",
+        "valida": "Valídalo",
+        "validaSurePunts": "Se restarán {{punts}} puntos a {{nombre}}, contará para los escalones y {{nombre}} recibirá un aviso en el móvil.",
+        "validaSureSensePunts": "No se restará ningún punto. Contará para los escalones, y {{nombre}} lo verá en su perfil y recibirá un aviso en el móvil.",
+        "validaCta": "Sí, valídalo",
+        "rebutja": "Recházalo",
+        "rebutjaSure": "No contará nunca y {{nombre}} no sabrá nada. Escribe por qué se rechaza.",
+        "rebutjaNote": "Por qué se rechaza",
+        "rebutjaPlaceholder": "No fue exactamente así",
+        "rebutjatOn": "Rechazado el {{dia}}",
+        "paused": "Sin conexión. Saldrá solo cuando vuelva la red: no cierres la pantalla.",
+        "propi": "No puedes ponerte un aviso a ti mismo. Si hace falta, que lo proponga otra persona de la junta."
       },
       "avis": {
-        "title": "Registra un aviso",
-        "lede": "Queda escrito y no se borra nunca. Puede restar puntos o no: se puede avisar sin tocar el ranking.",
+        "title": "Propón un aviso",
+        "lede": "Queda escrito y no se borra nunca. No cuenta hasta que lo valida otra persona de la junta. Puede restar puntos o no: se puede avisar sin tocar el ranking.",
         "tipus": "Qué ha pasado",
         "tipusHint": "El catálogo se toca en «El baremo».",
         "tipusNone": "Elige uno",
@@ -1029,16 +1082,25 @@
         "event": "De qué noche",
         "eventHint": "Opcional. Si fue en una reunión de junta, el aviso se queda ahí y los puntos van sin evento.",
         "eventNone": "De ninguna en concreto",
-        "save": "Registra el aviso",
-        "sureTitle": "Antes de registrarlo",
-        "surePoints": "Se restarán {{punts}} puntos a {{nombre}} y le bajará la posición en el ranking.",
+        "save": "Propón el aviso",
+        "sureTitle": "Antes de proponerlo",
+        "surePoints": "Cuando se valide, se restarán {{punts}} puntos a {{nombre}} y le bajará la posición en el ranking.",
         "sureNoPoints": "No se restará ningún punto: {{nombre}} no se moverá del ranking.",
-        "sureEscalo": "Con este aviso, {{nombre}} llega al escalón «{{estat}}»: {{queFer}}.",
-        "sureSeen": "{{nombre}} lo verá en su perfil con el motivo que has escrito, y el aviso no se borra nunca.",
-        "sureCta": "Sí, regístralo",
-        "paused": "Sin conexión. Se registrará solo cuando vuelva.",
-        "done": "Registrado: {{tipus}} para {{nombre}}."
+        "sureEscalo": "Si se valida, {{nombre}} llega al escalón «{{estat}}»: {{queFer}}.",
+        "sureSeen": "No contará hasta que lo valide otra persona de la junta. Entonces {{nombre}} lo verá en su perfil con el motivo que has escrito y recibirá un aviso en el móvil. El aviso no se borra nunca.",
+        "sureCta": "Sí, propónlo",
+        "paused": "Sin conexión. Se propondrá solo cuando vuelva.",
+        "done": "Propuesto: {{tipus}} para {{nombre}}. Falta que lo valide otra persona de la junta."
       }
+    },
+    "proposats": {
+      "title": "Avisos por validar",
+      "lede": "Un aviso no cuenta hasta que lo valida alguien de la junta que no lo haya propuesto ni lo reciba.",
+      "count_one": "{{count}} espera",
+      "count_other": "{{count}} esperan",
+      "none": "Ningún aviso por validar.",
+      "per": "Propuesto por {{nom}} el {{dia}}",
+      "perSenseNom": "Propuesto el {{dia}}"
     },
     "pendents": {
       "title": "Avisos pendientes",
@@ -1068,7 +1130,7 @@
       "enllaca": "Enlaza a mano",
       "cerca": "Busca al socio por el nombre",
       "capSoci": "Ningún socio activo con este nombre.",
-      "enllacaSure": "El aviso de {{nom}} pasará a ser de {{soci}}, con la fecha de la falta ({{dia}}), y {{soci}} lo verá en su perfil.",
+      "enllacaSure": "El aviso de {{nom}} pasará a ser de {{soci}}, con la fecha de la falta ({{dia}}). Quedará propuesto: {{soci}} lo verá en su perfil cuando lo valide alguien de la junta que no lo haya escrito.",
       "enllacaCta": "Sí, enlázalo",
       "form": {
         "title": "Aviso pendiente",
@@ -1187,9 +1249,11 @@
         "visa_hores": "{{actor}} ha visado las horas de una actividad",
         "hores_persona": "{{actor}} ha cambiado las horas de alguien en una actividad",
         "reveal_push": "Se ha enviado la notificación de una revelación",
-        "avis": "{{actor}} ha registrado un aviso a {{target}}",
+        "avis": "{{actor}} ha propuesto un aviso a {{target}}",
         "avis_pendent": "{{actor}} ha registrado un aviso pendiente para alguien sin cuenta",
         "retira_avis": "{{actor}} ha retirado un aviso a {{target}}",
+        "rebutja_avis": "{{actor}} ha rechazado un aviso propuesto para {{target}}",
+        "valida_avis": "{{actor}} ha validado un aviso a {{target}}",
         "retira_avis_pendent": "{{actor}} ha retirado un aviso pendiente",
         "set_avis_tipus": "{{actor}} ha cambiado el catálogo de avisos",
         "consulta_viatgers": "{{actor}} ha abierto los datos de viajero de un evento",
@@ -1199,6 +1263,11 @@
     },
     "home": {
       "doorNow": "Ahora mismo en la puerta",
+      "doorPick": "{{n}} actividades en la puerta · elige la tuya",
+      "recordades": {
+        "title": "Puertas guardadas el {{dia}} a las {{hora}}",
+        "note": "Son las de la última vez que hubo conexión. El escáner guarda lo que fiches y lo sube cuando vuelva."
+      },
       "doorYes": "han dicho que sí",
       "doorIn": "han fichado",
       "doorFree": "plazas libres",
@@ -1207,8 +1276,8 @@
       "doorGimcanaQueue_one": "Valida la gincana · {{count}} foto",
       "doorGimcanaQueue_other": "Valida la gincana · {{count}} fotos",
       "doorNone": "En la puerta",
-      "doorNoneSub": "Estos días no hay nada. El escáner aparecerá aquí el día antes.",
-      "doorAnyway": "Abre el escáner igualmente",
+      "doorNoneSub": "Estos días no hay nada. El escáner aparecerá aquí el día antes, y el de cualquier actividad está en su ficha.",
+      "doorAnyway": "Mira las actividades",
       "doorLoading": "Cargando la puerta…",
       "doorFailed": "No se ha podido leer la puerta",
       "doorFailedSub": "No sabemos si hay algo estos días. No es que no lo haya.",
@@ -1247,11 +1316,18 @@
       "pendentsFeina_one": "aviso pendiente pide una decisión",
       "pendentsFeina_other": "avisos pendientes piden una decisión",
       "pendentsFeinaSub": "Ambiguos o bloqueados: no se han podido enganchar solos",
+      "perValidar_one": "aviso espera que lo valide otra persona",
+      "perValidar_other": "avisos esperan que los valide otra persona",
+      "perValidarSub": "Propuestos por otra persona de la junta: falta la segunda",
       "now": "Lo que pasa ahora",
       "soon": "Los que vienen",
       "soonCount": "{{count}} en el calendario",
       "soonEmpty": "Todavía no hay nada en el calendario.",
       "soonFirst": "Crea el primero",
+      "anteriors": "Anteriores",
+      "anteriorsSub": "Las que ya han terminado, de la más reciente hacia atrás. Cada una tiene sus herramientas en su ficha.",
+      "anteriorsMore": "Muestra más",
+      "anteriorsNone": "Todavía no ha terminado ninguna.",
       "soonFailed": "No se ha podido leer el calendario.",
       "soonFailedSub": "Puede que haya y no los veamos. No crees nada nuevo hasta que cargue.",
       "how": "Cómo funciona la comi",
@@ -1338,6 +1414,7 @@
       "validateTitle": "Validar la gincana",
       "inQueue_one": "{{count}} en la cola",
       "inQueue_other": "{{count}} en la cola",
+      "photoGone": "La foto ya no está: las fotos de la gincana se borran treinta días después de cerrarla.",
       "queueEmpty": "Ninguna foto esperando. Volved dentro de un rato.",
       "yes": "Vale: +{{n}}",
       "no": "No vale",

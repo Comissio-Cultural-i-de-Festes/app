@@ -1644,6 +1644,12 @@ describe('els avisos de la junta, vistos des de fora', () => {
     expect(error).toBeNull()
     expect(id).toBeTruthy()
 
+    // Des de la 93 neix proposat i el soci no el veu fins que una segona persona
+    // de la junta el valida. Aquí es valida; la regla es prova a
+    // `avisos_validacio.test.ts`.
+    const validat = await rpc(await as('junta_bravo'), 'valida_avis', { p_avis_id: id })
+    expect(validat.error).toBeNull()
+
     // Qui hi surt el veu.
     const seu = await as('bravo')
     const meu = await seu

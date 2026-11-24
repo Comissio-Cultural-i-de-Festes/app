@@ -29,6 +29,7 @@ const fila = (over: Partial<AvisPeriode> = {}): AvisPeriode => ({
   user_id: 'alfa',
   gravetat: 1,
   created_at: '2026-10-14T20:00:00+00:00',
+  validat_at: '2026-10-15T09:00:00+00:00',
   retirat_at: null,
   ...over,
 })
@@ -104,6 +105,22 @@ describe('comptar els avisos del curs', () => {
   it('i sense cap dels dos límits compta tot el que hi ha', () => {
     const out = compta([fila({ created_at: '2001-01-01T00:00:00+00:00' })], null, null)
     expect(out.get('alfa')).toEqual({ quants: 1, pes: 1 })
+  })
+})
+
+describe('els proposats', () => {
+  it('no sumen fins que algú altre de la junta els valida (migració 93)', () => {
+    const out = compta(
+      [fila({ gravetat: 3, validat_at: null }), fila({ gravetat: 1 })],
+      CURS_DES_DE,
+      CURS_FINS_A,
+    )
+    expect(out.get('alfa')).toEqual({ quants: 1, pes: 1 })
+  })
+
+  it('i qui només en té de proposats no surt al recompte', () => {
+    const out = compta([fila({ user_id: 'bravo', validat_at: null })], CURS_DES_DE, CURS_FINS_A)
+    expect(out.has('bravo')).toBe(false)
   })
 })
 

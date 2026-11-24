@@ -48,12 +48,12 @@ values
 
 insert into public.avisos (
   user_id, tipus, gravetat, nota, points_log_id,
-  created_by, created_at, retirat_at, retirat_by, retirat_nota, retirat_points_log_id)
+  created_by, created_at, validat_at, retirat_at, retirat_by, retirat_nota, retirat_points_log_id)
 values (
   '00000000-0000-4000-8000-000000000003', 'va_deixar_ho', 2,
   'va marxar amb les claus a la butxaca',
   '00000000-0000-4000-8000-00000000f001',
-  '00000000-0000-4000-8000-0000000000a1', '2031-02-14T21:00:00Z',
+  '00000000-0000-4000-8000-0000000000a1', '2031-02-14T21:00:00Z', '2031-02-14T21:00:00Z',
   '2031-12-02T19:00:00Z', '00000000-0000-4000-8000-0000000000a1',
   'les claus eren en un altre clauer, ens vam equivocar',
   '00000000-0000-4000-8000-00000000f002');

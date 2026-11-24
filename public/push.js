@@ -14,6 +14,12 @@
  * nom: `importScripts` és una ruta que el service worker resol en temps
  * d'execució, no una importació que el `bundler` pugui reescriure.
  *
+ * I EL D'UN AVÍS DE LA JUNTA (migració 93), que arriba per la mateixa funció amb
+ * `tipus: 'avis'`. El text el posa aquest fitxer i no la base: el paquet no
+ * porta ni la nota ni res de l'avís —es llegeix a la pantalla bloquejada—, i la
+ * llengua que la persona ha triat a l'app viu al `localStorage`, que un service
+ * worker no pot llegir. `navigator.language` és el més a prop que hi ha.
+ *
  * NO ES POT FER GAIRE COSA MÉS QUE ENSENYAR-HO. `showNotification` és
  * obligatori: si un `push` arriba i el service worker no mostra res, el
  * navegador ho compta com un avís silenciós i, després d'uns quants, revoca el
@@ -21,6 +27,27 @@
  */
 
 /* global self, clients */
+
+const AVIS = {
+  ca: {
+    nou: ['Tens un avís nou de la junta', 'Toca per veure-ho al teu perfil.'],
+    retirat: ["La junta t'ha retirat un avís", 'Toca per veure-ho al teu perfil.'],
+  },
+  es: {
+    nou: ['Tienes un aviso nuevo de la junta', 'Toca para verlo en tu perfil.'],
+    retirat: ['La junta te ha retirado un aviso', 'Toca para verlo en tu perfil.'],
+  },
+  en: {
+    nou: ['You have a new warning from the board', 'Tap to see it on your profile.'],
+    retirat: ['The board has withdrawn a warning', 'Tap to see it on your profile.'],
+  },
+}
+
+function llengua() {
+  const lang = (self.navigator && self.navigator.language) || 'ca'
+  const curt = lang.slice(0, 2).toLowerCase()
+  return curt === 'es' || curt === 'en' ? curt : 'ca'
+}
 
 self.addEventListener('push', (event) => {
   event.waitUntil(
@@ -30,6 +57,22 @@ self.addEventListener('push', (event) => {
         data = event.data ? event.data.json() : {}
       } catch {
         /* Un cos que no és JSON. S'ensenya l'avís genèric i prou. */
+      }
+
+      if (data.tipus === 'avis') {
+        const que = data.que === 'retirat' ? 'retirat' : 'nou'
+        const [titol, cos] = AVIS[llengua()][que]
+        await self.registration.showNotification(titol, {
+          body: cos,
+          icon: '/pwa-192x192.png',
+          badge: '/pwa-192x192.png',
+          // Una etiqueta per a tots: si n'arriben dos seguits, el segon
+          // substitueix el primer i tots dos porten al mateix perfil.
+          tag: 'avis',
+          renotify: true,
+          data: { url: typeof data.url === 'string' && data.url !== '' ? data.url : '/perfil' },
+        })
+        return
       }
 
       const titol = typeof data.titol === 'string' && data.titol !== '' ? data.titol : null

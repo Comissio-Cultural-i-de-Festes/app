@@ -1,6 +1,7 @@
 import { useTranslation } from 'react-i18next'
 
 import { Cover, Fact, Places } from '@/features/event/detail'
+import { whenText } from '@/features/event/whenText'
 import { formatPrice } from '@/features/event/api'
 import { formatDateLong, formatTime } from '@/i18n/format'
 import { INTL_LOCALE, type Locale } from '@/i18n/locales'
@@ -108,14 +109,7 @@ export function EventPreview({
             {data.startsAt === null ? null : (
               <Fact
                 label={t('event.facts.when')}
-                value={
-                  data.endsAt === null
-                    ? formatDateLong(data.startsAt, locale)
-                    : t('event.facts.until', {
-                        from: formatDateLong(data.startsAt, locale),
-                        to: formatTime(data.endsAt, locale),
-                      })
-                }
+                value={whenText(data.startsAt, data.endsAt, locale, t)}
               />
             )}
             {data.ubicacion.trim() === '' ? null : (

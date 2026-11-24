@@ -8,6 +8,7 @@ import type { EventRow } from '@/lib/schema'
 
 import { downloadIcs, markAdded, markDeclined, wasAdded, wasDeclined } from './icsStore'
 import { CalendarIcon } from './icons'
+import { endsOnOtherDay } from './interval'
 import { titleIsHidden } from './title'
 
 /**
@@ -129,14 +130,18 @@ export function CalendarRow({ event }: { readonly event: EventRow }) {
   if (titleIsHidden(event.titulo)) return null
 
   const starts = new Date(event.starts_at)
+  const ends = event.ends_at === null ? null : new Date(event.ends_at)
+  const dayTime = (d: Date) => `${formatDayMonth(d, locale)}, ${formatTime(d, locale)}`
   const when =
-    event.ends_at === null
-      ? `${formatDayMonth(starts, locale)}, ${formatTime(starts, locale)}`
-      : t('event.calendar.fromTo', {
-          day: formatDayMonth(starts, locale),
-          from: formatTime(starts, locale),
-          to: formatTime(new Date(event.ends_at), locale),
-        })
+    ends === null
+      ? dayTime(starts)
+      : endsOnOtherDay(starts, ends)
+        ? t('event.calendar.fromToDays', { from: dayTime(starts), to: dayTime(ends) })
+        : t('event.calendar.fromTo', {
+            day: formatDayMonth(starts, locale),
+            from: formatTime(starts, locale),
+            to: formatTime(ends, locale),
+          })
 
   const go = () => {
     markAdded(event.id)

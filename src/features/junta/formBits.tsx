@@ -16,11 +16,18 @@ import {
  * thing that gets made once and never carried across.
  */
 
-export const INPUT =
-  'mt-4 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] py-[13px] ' +
+/**
+ * El camp sense amplada, per al que en vol una de fixa. Afegir `w-[96px]` a
+ * `INPUT` no fa res: `.w-full` va després de les amplades arbitràries al full
+ * d'estils i guanya sigui quin sigui l'ordre del `className`.
+ */
+export const INPUT_BOX =
+  'mt-4 min-h-[50px] border-[1.5px] border-surface-7 bg-surface-1 px-[14px] py-[13px] ' +
   'text-lg font-semibold text-fg outline-none caret-[var(--ds-brand-strong)] ' +
   'focus:border-brand-strong ' +
   'placeholder:font-medium placeholder:text-fg-faint'
+
+export const INPUT = `${INPUT_BOX} w-full`
 
 const CONTROLS = new Set(['input', 'textarea', 'select'])
 

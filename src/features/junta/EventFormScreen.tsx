@@ -23,7 +23,7 @@ import { Notice } from '@/ui/Notice/Notice'
 import { useBack } from '@/lib/useBack'
 
 import { DemanaViatgerBlock } from './DemanaViatgerBlock'
-import { Field, INPUT } from './formBits'
+import { Field, INPUT, INPUT_BOX } from './formBits'
 import { JuntaHeader } from './JuntaHeader'
 import {
   deleteEvent,
@@ -524,7 +524,7 @@ function EventForm() {
                     setForm({ ...form, puntos: e.target.value })
                   }}
                   placeholder={defaultPoints === null ? '' : String(defaultPoints)}
-                  className={isMeeting ? `${INPUT} w-[96px]` : INPUT}
+                  className={isMeeting ? `${INPUT_BOX} w-[96px]` : INPUT}
                   aria-label={t('junta.form.points')}
                 />
               </Field>

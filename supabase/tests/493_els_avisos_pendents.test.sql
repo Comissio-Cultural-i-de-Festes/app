@@ -170,6 +170,10 @@ select is(
   'l''avís porta la data de la falta, no la de l''enllaç'
 );
 
+-- L'enllaç el deixa proposat, i els punts es resten en validar-lo (migració
+-- 93), amb la data de la falta.
+select tests.valida_proposats();
+
 select is(
   (select pl.created_at = a.created_at and pl.puntos = -10
      from public.avisos a join public.points_log pl on pl.id = a.points_log_id

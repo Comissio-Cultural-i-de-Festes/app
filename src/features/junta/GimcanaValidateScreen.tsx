@@ -11,6 +11,7 @@ import { useAvailability } from '@/lib/useAvailability'
 import { SendNote } from '@/features/shell/SendNote'
 import { GIMCANA_PHOTOS } from '@/lib/storage'
 import { useSignedUrls } from '@/lib/useSignedUrls'
+import { Notice } from '@/ui/Notice/Notice'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
 import { JuntaHeader } from './JuntaHeader'
@@ -65,7 +66,10 @@ export function GimcanaValidateScreen() {
   const rows = queue.data ?? []
   const current = rows[0] ?? null
 
-  const urls = useSignedUrls(GIMCANA_PHOTOS, [current?.path ?? null])
+  // Una prova de fa més de trenta dies no es demana: la foto ja no hi és o està
+  // a punt de marxar, i la pantalla pintaria un requadre buit sense dir per què.
+  const gone = (current?.foto_esborrada_at ?? null) !== null
+  const urls = useSignedUrls(GIMCANA_PHOTOS, [gone ? null : (current?.path ?? null)])
 
   const decide = useMutation({
     mutationFn: ({ id, val }: { id: string; val: boolean }) =>
@@ -123,16 +127,20 @@ export function GimcanaValidateScreen() {
           </p>
         ) : (
           <>
-            <div className="h-[250px] w-full bg-surface-3">
-              {urls.data?.get(current.path) === undefined ? null : (
-                <img
-                  src={urls.data.get(current.path)}
-                  alt=""
-                  referrerPolicy="no-referrer"
-                  className="size-full object-contain"
-                />
-              )}
-            </div>
+            {gone ? (
+              <Notice tone="neutral">{t('junta.gimcana.photoGone')}</Notice>
+            ) : (
+              <div className="h-[250px] w-full bg-surface-3">
+                {urls.data?.get(current.path) === undefined ? null : (
+                  <img
+                    src={urls.data.get(current.path)}
+                    alt=""
+                    referrerPolicy="no-referrer"
+                    className="size-full object-contain"
+                  />
+                )}
+              </div>
+            )}
 
             <div className="mt-7 flex items-baseline justify-between gap-5">
               <p className="text-lg font-bold [text-wrap:pretty]">{current.prova}</p>

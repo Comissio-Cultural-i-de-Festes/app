@@ -18,7 +18,7 @@ const NAMES = ['Alfa Bravo', 'Charlie Delta', 'Echo Foxtrot', 'Golf Hotel']
 
 async function line(locale: Locale, names: readonly string[]): Promise<string> {
   await i18n.changeLanguage(locale)
-  return movementLine(names, i18n.t.bind(i18n))
+  return movementLine(names.slice(0, 2), names.length, i18n.t.bind(i18n))
 }
 
 beforeAll(async () => {
@@ -42,6 +42,12 @@ describe('who signed up today', () => {
   it('never names more than two, however many there are', async () => {
     const many = Array.from({ length: 30 }, (_, i) => `Persona${String(i)} Cognom`)
     expect(await line('ca', many)).toBe("S'hi han apuntat avui: Persona0, Persona1 i 28 més")
+  })
+
+  it('counts the ones the server did not name', async () => {
+    await i18n.changeLanguage('ca')
+    const said = movementLine(['Alfa Bravo', 'Charlie Delta'], 245, i18n.t.bind(i18n))
+    expect(said).toBe("S'hi han apuntat avui: Alfa, Charlie i 243 més")
   })
 
   it('uses first names only, because that is what everyone calls each other', async () => {

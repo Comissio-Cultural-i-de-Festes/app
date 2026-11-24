@@ -22,8 +22,11 @@ import { eventTitle } from '@/features/event/title'
 import { AnteriorsBlock } from './AnteriorsBlock'
 import { AvisosEstatsBlock } from './AvisosEstatsBlock'
 import { AvisosPendentsBlock } from './AvisosPendentsBlock'
+import { AvisosProposatsBlock } from './AvisosProposatsBlock'
+import { avisosKeys, fetchProposats } from './avisosApi'
 import { type Stale, doorView, minutesAgo } from './doorView'
 import { fetchJuntaEvents, juntaEventKeys, juntaHorizonIso } from './eventsApi'
+import { accionsSobre } from './estatAvisos'
 import { type DoorNow, fetchJuntaHome, juntaHomeKeys, placesLeft } from './homeApi'
 import { INPUT } from './formBits'
 import { fetchHoresPendents, horesKeys } from './horesApi'
@@ -66,6 +69,7 @@ export function JuntaHome() {
   const { t, i18n } = useTranslation()
   const locale = toLocale(i18n.resolvedLanguage)
   const { data: profile } = useMyProfile()
+  const jo = useUserId()
 
   const home = useQuery({ queryKey: juntaHomeKeys.home(), queryFn: fetchJuntaHome })
 
@@ -118,11 +122,18 @@ export function JuntaHome() {
   const esperen = useQuery({ queryKey: pendentsKeys.esperen(), queryFn: fetchPendentsEsperen })
   const pendentsFeina = (esperen.data ?? []).filter((p) => demanenFeina(estatDelPendent(p))).length
 
+  // Els avisos proposats que espera una segona persona (migració 93). Feina és
+  // el que JO puc validar: el que he proposat jo, o el que és meu, l'ha de
+  // validar algú altre, i comptar-lo aquí em demanaria una cosa que no puc fer.
+  // La consulta és la mateixa que la del bloc de sota, per la cache.
+  const proposats = useQuery({ queryKey: avisosKeys.proposats(), queryFn: fetchProposats })
+  const perValidar = (proposats.data ?? []).filter((a) => accionsSobre(a, jo).valida).length
+
   // La fila de feina porta al bloc de més avall, a la mateixa pantalla. El
   // canvi de `hash` no fa baixar la pàgina sol en una SPA, i per això es fa aquí.
   const { hash } = useLocation()
   useEffect(() => {
-    if (hash === '#avisos-pendents' || hash === '#els-que-venen') {
+    if (hash === '#avisos-pendents' || hash === '#avisos-proposats' || hash === '#els-que-venen') {
       document.getElementById(hash.slice(1))?.scrollIntoView()
     }
   }, [hash])
@@ -198,7 +209,7 @@ export function JuntaHome() {
           home.data === undefined
             ? undefined
             : t('junta.home.workCount', {
-                count: workCount(home.data, porta, marcats + pendentsFeina),
+                count: workCount(home.data, porta, marcats + pendentsFeina + perValidar),
               })
         }
         amber
@@ -218,7 +229,7 @@ export function JuntaHome() {
             className="min-h-[44px] flex-none px-4 text-sm"
           />
         </div>
-      ) : workCount(home.data, porta, marcats + pendentsFeina) === 0 ? (
+      ) : workCount(home.data, porta, marcats + pendentsFeina + perValidar) === 0 ? (
         <div className={`pt-6 ${GUTTER}`}>
           <p className="text-md font-bold">{t('junta.home.workNone')}</p>
           <p className="mt-2 text-sm text-fg-muted [text-wrap:pretty]">
@@ -267,6 +278,14 @@ export function JuntaHome() {
               sub={t('junta.home.avisosSub', { total: llindars.avis })}
             />
           )}
+          {perValidar === 0 ? null : (
+            <Count
+              to={{ hash: '#avisos-proposats' }}
+              n={perValidar}
+              title={t('junta.home.perValidar', { count: perValidar })}
+              sub={t('junta.home.perValidarSub')}
+            />
+          )}
           {pendentsFeina === 0 ? null : (
             <Count
               to={{ hash: '#avisos-pendents' }}
@@ -277,6 +296,21 @@ export function JuntaHome() {
           )}
         </div>
       )}
+
+      {/* ── Els avisos per validar ──
+          Abans que els escalons: un proposat encara no hi compta, i el que el
+          fa comptar és que algú d'aquí el validi. */}
+      <span id="avisos-proposats" />
+      <Heading
+        title={t('junta.proposats.title')}
+        sub={t('junta.proposats.lede')}
+        aside={
+          proposats.data === undefined
+            ? undefined
+            : t('junta.proposats.count', { count: proposats.data.length })
+        }
+      />
+      <AvisosProposatsBlock />
 
       {/* ── Els avisos del curs ──
           Quanta gent hi ha a cada escaló. Viu fora de «Hi ha feina» a posta:

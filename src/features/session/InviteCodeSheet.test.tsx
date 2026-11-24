@@ -26,7 +26,7 @@ vi.mock('@/lib/supabase', () => ({
 describe('InviteCodeSheet', () => {
   it('invalida tota la cau quan el codi val', async () => {
     const client = new QueryClient()
-    client.setQueryData(['home', 'attendances', ['e1']], [])
+    client.setQueryData(['home', 'summaries', 'e1'], [])
     client.setQueryData(['ranking', 'individual'], [])
     render(
       <QueryClientProvider client={client}>
@@ -38,7 +38,7 @@ describe('InviteCodeSheet', () => {
     fireEvent.click(screen.getByRole('button', { name: 'pending.codeCta' }))
 
     await waitFor(() => {
-      expect(client.getQueryState(['home', 'attendances', ['e1']])?.isInvalidated).toBe(true)
+      expect(client.getQueryState(['home', 'summaries', 'e1'])?.isInvalidated).toBe(true)
     })
     expect(client.getQueryState(['ranking', 'individual'])?.isInvalidated).toBe(true)
   })

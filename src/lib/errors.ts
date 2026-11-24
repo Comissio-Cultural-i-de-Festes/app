@@ -24,8 +24,23 @@ import { UnreadableImage } from './storage'
  * sense que res es posés vermell.
  */
 const HINTS: Readonly<Record<string, string>> = {
+  // Migració 95: el camí de la foto d'una prova no és el que fa el client, o
+  // la foto no és al bucket. Tornar-ho a provar envia el mateix camí; tornar
+  // a triar la foto la puja de nou.
+  prova_foto: 'errors.provaFoto',
   avis_sostre: 'errors.avisSostre',
   avis_fora_del_curs: 'errors.avisForaDelCurs',
+  // Migració 93. Els dos primers són 42501, com «nomes junta», i diuen coses
+  // diferents: no et pots tocar un avís teu, i no pots validar el que has
+  // proposat. Després, que algú altre de la junta ja l'ha validat o rebutjat, i
+  // que un proposat es rebutja i no es retira.
+  avis_propi: 'errors.avisPropi',
+  avis_validacio_propia: 'errors.avisValidacioPropia',
+  avis_ja_resolt: 'errors.avisJaResolt',
+  avis_proposat: 'errors.avisProposat',
+  // El disparador de les dades de viatger (migració 90): diu el camp i no el
+  // valor, perquè el valor no acabi als logs de Postgres.
+  viatger_invalid: 'errors.viatgerInvalid',
 }
 
 /**

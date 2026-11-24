@@ -14,7 +14,6 @@ import { firstName } from '@/features/session/profile'
 import { type Access, accessOf } from '@/features/session/access'
 
 import { movementLine } from './movementLine'
-import { useUserId } from '@/features/session/useUserId'
 import {
   daysUntil,
   formatDayNumber,
@@ -40,15 +39,9 @@ import { useCovers } from '@/ui/Cover/useCovers'
 import { LogoMark, Wordmark } from '@/ui/Logo/Logo'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
-import {
-  type AttendanceRow,
-  type EventRow,
-  goingRows,
-  myAnswer,
-  placesLeft,
-  signedUpToday,
-} from './api'
+import { type EventRow, placesLeft } from './api'
 import { type AnswersState, expectedState, homeCta } from './answer'
+import { type EventSummary, summaryOf } from './summary'
 import { type Home, useAnswer, useHome } from './useHome'
 
 const GUTTER = 'px-[var(--ds-gutter)]'
@@ -136,15 +129,10 @@ export function HomeScreen() {
             locale={locale}
             coverUrl={covers.data?.get(home.hero.cover_url ?? '') ?? null}
           />
-          <Places
-            event={home.hero}
-            attendances={home.attendances}
-            closed={closed}
-            answers={answers}
-          />
+          <Places event={home.hero} summaries={home.summaries} closed={closed} answers={answers} />
           <CallToAction
             event={home.hero}
-            attendances={home.attendances}
+            summaries={home.summaries}
             access={access}
             answers={answers}
             onRetry={home.retryAnswers}
@@ -166,7 +154,7 @@ export function HomeScreen() {
       {home.previous ? (
         <Recap
           event={home.previous}
-          attendances={home.attendances}
+          summaries={home.summaries}
           closed={closed}
           coverUrl={covers.data?.get(home.previous.cover_url ?? '') ?? null}
         />
@@ -176,12 +164,7 @@ export function HomeScreen() {
           feia gran en arribar-hi les files: tot el que hi ha a sobre ja és al
           seu lloc, però aquesta és la que s'ho queda tot. */}
       {home.isPending || home.isError ? null : (
-        <Upcoming
-          events={home.rest}
-          attendances={home.attendances}
-          locale={locale}
-          closed={closed}
-        />
+        <Upcoming events={home.rest} summaries={home.summaries} locale={locale} closed={closed} />
       )}
     </div>
   )
@@ -355,21 +338,21 @@ function whenLabel(start: Date, locale: Locale, t: Translate): string {
 
 function Places({
   event,
-  attendances,
+  summaries,
   closed,
   answers,
 }: {
   readonly event: EventRow
-  readonly attendances: readonly AttendanceRow[]
+  readonly summaries: readonly EventSummary[]
   readonly closed: boolean
   /** Sense assistències —encara o ja per sempre— ni places ni cares. */
   readonly answers: AnswersState
 }) {
   const { t } = useTranslation()
-  const going = goingRows(attendances, event.id)
-  // Sense accés les assistències no es poden llegir i `going` és buit per
+  const { going, faces } = summaryOf(summaries, event.id)
+  // Sense accés les assistències no es poden llegir i `going` és zero per
   // força: les places que en sortirien serien totes les de l'esdeveniment.
-  const left = closed ? null : placesLeft(event, going.length)
+  const left = closed ? null : placesLeft(event, going)
 
   // Only the detail row is reveal-gated; the count is always known.
   const where = event.ubicacion
@@ -429,21 +412,19 @@ function Places({
       ) : (
         <div className="flex flex-none items-center gap-4 pb-2">
           <div className="flex min-h-[34px] items-center">
-            {going.slice(0, 3).map((row, index) => (
+            {faces.slice(0, 3).map((face, index) => (
               <span
-                key={row.user_id}
+                key={face.user_id}
                 // Overlapping, front to back, each cut out of the background so
                 // the stack reads as a stack rather than as a smear.
                 className="relative rounded-full border-2 border-app [box-sizing:content-box]"
                 style={{ marginLeft: index === 0 ? 0 : -11, zIndex: 3 - index }}
               >
-                <Avatar src={row.profiles?.avatar_url ?? null} size={30} />
+                <Avatar src={face.avatar_url} size={30} />
               </span>
             ))}
           </div>
-          <p className="text-sm font-bold text-fg-secondary">
-            {t('home.going', { count: going.length })}
-          </p>
+          <p className="text-sm font-bold text-fg-secondary">{t('home.going', { count: going })}</p>
         </div>
       )}
     </section>
@@ -521,21 +502,21 @@ function GoingSkeleton() {
  */
 function CallToAction({
   event,
-  attendances,
+  summaries,
   access,
   answers,
   onRetry,
 }: {
   readonly event: EventRow
-  readonly attendances: readonly AttendanceRow[]
+  readonly summaries: readonly EventSummary[]
   readonly access: Access
   readonly answers: AnswersState
   readonly onRetry: () => void
 }) {
   const { t, i18n } = useTranslation()
-  const userId = useUserId()
   const answer = useAnswer()
-  const mine = myAnswer(attendances, event.id, userId)
+  const summary = summaryOf(summaries, event.id)
+  const { mine } = summary
   const waitlist = useQuery({
     queryKey: eventKeys.waitlist(event.id),
     queryFn: () => fetchWaitlist(event.id),
@@ -543,10 +524,7 @@ function CallToAction({
   })
   const locale = toLocale(i18n.resolvedLanguage)
 
-  // Un sol instant per a tot el render: llegir l'hora dues vegades pot posar
-  // «encara s'hi pot fitxar» i «s'hi han apuntat avui» en desacord.
   const [now] = useState(() => new Date())
-  const names = signedUpToday(attendances, event.id, userId, now)
 
   // Fitxar era el flux més car de l'app: obrir, tocar el hero, recórrer avall
   // per cares, fets i places, i llavors «Sóc aquí». Mentre la finestra és
@@ -673,7 +651,7 @@ function CallToAction({
               estado: 'si',
               expected: expectedState('si', {
                 confirm: event.cal_confirmacio,
-                full: placesLeft(event, goingRows(attendances, event.id).length) === 0,
+                full: placesLeft(event, summary.going) === 0,
               }),
             })
           }}
@@ -693,13 +671,15 @@ function CallToAction({
         <SkeletonBar w="w-[72%]" h="h-[20px]" className="mt-[10px]" />
       ) : cta === 'unknown' ? (
         <div aria-hidden="true" className="mt-[10px] h-[20px]" />
-      ) : names.length > 0 ? (
+      ) : summary.recent_total > 0 ? (
         <p className="mt-[10px] flex items-center gap-[9px] text-md-lo text-fg-muted">
           <span
             aria-hidden="true"
             className="size-[9px] flex-none rounded-full bg-brand [animation:comi-pulse_var(--ds-pulse-dur)_ease-in-out_infinite]"
           />
-          <span className="flex-1 [text-wrap:pretty]">{movementLine(names, t)}</span>
+          <span className="flex-1 [text-wrap:pretty]">
+            {movementLine(summary.recent, summary.recent_total, t)}
+          </span>
         </p>
       ) : null}
     </section>
@@ -819,19 +799,17 @@ function RankingSkeleton() {
 
 function Recap({
   event,
-  attendances,
+  summaries,
   closed,
   coverUrl,
 }: {
   readonly event: EventRow
-  readonly attendances: readonly AttendanceRow[]
+  readonly summaries: readonly EventSummary[]
   readonly closed: boolean
   readonly coverUrl: string | null
 }) {
   const { t } = useTranslation()
-  const attended = attendances.filter(
-    (r) => r.event_id === event.id && r.estado === 'asistio',
-  ).length
+  const { attended } = summaryOf(summaries, event.id)
 
   return (
     <section className={`pt-[22px] ${GUTTER}`}>
@@ -878,12 +856,12 @@ function Recap({
 
 function Upcoming({
   events,
-  attendances,
+  summaries,
   locale,
   closed,
 }: {
   readonly events: readonly EventRow[]
-  readonly attendances: readonly AttendanceRow[]
+  readonly summaries: readonly EventSummary[]
   readonly locale: Locale
   readonly closed: boolean
 }) {
@@ -900,7 +878,7 @@ function Upcoming({
           // xip «Reunió», i on hi hauria les places hi ha l'hora i els punts.
           // Una reunió no competeix amb una festa pel hero.
           const meeting = event.tipo === 'reunio'
-          const left = closed ? null : placesLeft(event, goingRows(attendances, event.id).length)
+          const left = closed ? null : placesLeft(event, summaryOf(summaries, event.id).going)
           // Mateixa fila, tres diferències: el mes en violeta i no en vermell,
           // el dia com un interrogant, i on hi hauria les places hi ha quan es
           // sabrà. Les places d'una cosa que ningú no sap què és no diuen res.

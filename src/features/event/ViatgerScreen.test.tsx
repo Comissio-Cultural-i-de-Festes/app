@@ -3,12 +3,15 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { describe, expect, it, vi } from 'vitest'
 
+import { homeKeys } from '@/features/home/api'
+import { dayStartIso } from '@/features/home/summary'
 import { UserIdContext } from '@/features/session/context'
 import { forgetOnUserChange } from '@/lib/forgetSession'
 
 import { ViatgerBlock } from './ViatgerBlock'
 import { ViatgerScreen } from './ViatgerScreen'
 import type * as HomeApi from '@/features/home/api'
+import { type EventSummary, emptySummary } from '@/features/home/summary'
 
 import type * as EventApi from './api'
 import type { MevesDades } from './viatgerApi'
@@ -92,15 +95,16 @@ vi.mock('./api', async (original) => {
   }
 })
 
+// El resum és de qui pregunta: A i B, cadascú des del seu mòbil, hi diuen que sí.
+const hiVaig = () => Promise.resolve([{ ...emptySummary(EVENT), going: 2, mine: 'si' as const }])
+const fetchSummaries =
+  vi.fn<(ids: readonly string[], desde: string) => Promise<EventSummary[]>>(hiVaig)
+
 vi.mock('@/features/home/api', async (original) => {
   const real = await original<typeof HomeApi>()
   return {
     ...real,
-    fetchAttendances: () =>
-      Promise.resolve([
-        { user_id: A, event_id: EVENT, estado: 'si', created_at: '2026-11-01T00:00:00Z' },
-        { user_id: B, event_id: EVENT, estado: 'si', created_at: '2026-11-01T00:00:00Z' },
-      ]),
+    fetchSummaries: (ids: readonly string[], desde: string) => fetchSummaries(ids, desde),
   }
 })
 
@@ -174,5 +178,56 @@ describe('les dades de viatger en un mòbil compartit', () => {
     })
     expect(fetchMevesDades).not.toHaveBeenCalled()
     expect(cauAmb(client, '12345678Z')).toBe(false)
+  })
+})
+
+describe('si hi vaig, segons el resum', () => {
+  // Sense reintents: aquí un resum que falla ha de quedar fallat de seguida.
+  const quiet = () => new QueryClient({ defaultOptions: { queries: { retry: false } } })
+
+  it("qui no s'hi ha apuntat veu la línia d'abans del sí, i el formulari li diu que no hi va", async () => {
+    fetchSummaries.mockImplementation(() => Promise.resolve([emptySummary(EVENT)]))
+    try {
+      const bloc = obre(quiet(), A, <ViatgerBlock eventId={EVENT} />)
+      await waitFor(() => {
+        expect(screen.getByText('viatger.block.before')).toBeInTheDocument()
+      })
+      bloc.unmount()
+
+      obre(quiet(), A, <ViatgerScreen />)
+      await waitFor(() => {
+        expect(screen.getByText('viatger.notGoing')).toBeInTheDocument()
+      })
+    } finally {
+      fetchSummaries.mockImplementation(hiVaig)
+    }
+  })
+
+  it('si el resum no arriba, el bloc no diu res en lloc de tractar-me com si no hi anés', async () => {
+    fetchSummaries.mockImplementation(() => Promise.reject(new Error('sense xarxa')))
+    try {
+      const client = quiet()
+      obre(client, A, <ViatgerBlock eventId={EVENT} />)
+      await waitFor(() => {
+        expect(
+          client.getQueryCache().findAll({ queryKey: ['home', 'summaries'] })[0]?.state.status,
+        ).toBe('error')
+      })
+      expect(screen.queryByText('viatger.block.before')).toBeNull()
+      expect(screen.queryByText('viatger.block.missingTitle')).toBeNull()
+    } finally {
+      fetchSummaries.mockImplementation(hiVaig)
+    }
+  })
+
+  it('el bloc demana el resum amb la clau de la fitxa', async () => {
+    const client = quiet()
+    obre(client, A, <ViatgerBlock eventId={EVENT} />)
+    await waitFor(() => {
+      expect(screen.getByText('viatger.block.doneTitle')).toBeInTheDocument()
+    })
+    const desde = dayStartIso(new Date())
+    expect(client.getQueryData(homeKeys.summaries([EVENT], desde))).toBeDefined()
+    expect(fetchSummaries).toHaveBeenLastCalledWith([EVENT], desde)
   })
 })

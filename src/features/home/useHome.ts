@@ -25,17 +25,17 @@ import { useUserId } from '@/features/session/useUserId'
 import type { Answer, AttendanceState } from '@/lib/model'
 import { useAvailability } from '@/lib/useAvailability'
 
-import { restoreMyRow, withMyAnswer } from './answer'
+import { restoreEvent, withMyAnswer } from './answer'
 import {
-  type AttendanceRow,
   type EventRow,
-  fetchAttendances,
   fetchPrevious,
+  fetchSummaries,
   fetchUpcoming,
   homeKeys,
   horizonIso,
   setAnswer,
 } from './api'
+import { type EventSummary, dayStartIso } from './summary'
 
 export interface Home {
   readonly profile: MyProfile | null
@@ -44,7 +44,8 @@ export interface Home {
   /** Everything after the hero, for "què més ve". */
   readonly rest: readonly EventRow[]
   readonly previous: EventRow | null
-  readonly attendances: readonly AttendanceRow[]
+  /** Un per esdeveniment de la pantalla: quants hi van, les cares, la meva resposta. */
+  readonly summaries: readonly EventSummary[]
   readonly me: RankingRow | null
   readonly total: number
   readonly schools: readonly SchoolRow[]
@@ -88,9 +89,10 @@ export function useHome(): Home {
   const view = useAvailability([upcoming, previous])
 
   const eventIds = [...(upcoming.data ?? NOTHING), ...(previous.data ?? NOTHING)].map((e) => e.id)
-  const attendances = useQuery({
-    queryKey: homeKeys.attendances(eventIds),
-    queryFn: () => fetchAttendances(eventIds),
+  const desde = dayStartIso(new Date())
+  const summaries = useQuery({
+    queryKey: homeKeys.summaries(eventIds, desde),
+    queryFn: () => fetchSummaries(eventIds, desde),
     enabled: upcoming.isSuccess && previous.isSuccess,
     // Un esdeveniment nou al calendari canvia la clau; sense això les
     // assistències tornaven a ser un forat i el botó, un esquelet, a mig mirar-lo.
@@ -117,7 +119,7 @@ export function useHome(): Home {
   // Cadascuna amb el seu rellotge: que les assistències o el rànquing no
   // arribin no pot tenir el botó o el bloc en espera per sempre, i tampoc no
   // és un error de tota la pantalla.
-  const answers = useAvailability(attendances)
+  const answers = useAvailability(summaries)
   const standing = useAvailability([periods, ranking, schools])
 
   const events = upcoming.data ?? NOTHING
@@ -136,7 +138,7 @@ export function useHome(): Home {
     hero,
     rest: events.filter((e) => e.id !== hero?.id),
     previous: previous.data?.[0] ?? null,
-    attendances: attendances.data ?? [],
+    summaries: summaries.data ?? [],
     me: ranking.data?.find((r) => r.user_id === userId) ?? null,
     total: ranking.data?.length ?? 0,
     schools: schools.data ?? [],
@@ -166,10 +168,11 @@ export function useHome(): Home {
  * the client has. RLS allows exactly si/potser/no, so there is no way for this
  * path to mark somebody as having attended.
  *
- * OPTIMISTA, I EL SERVIDOR TÉ L'ÚLTIMA PARAULA. En prémer, la meva fila ja diu
- * el que s'espera (`expected`) i el botó canvia a l'instant: abans tornava a
+ * OPTIMISTA, I EL SERVIDOR TÉ L'ÚLTIMA PARAULA. En prémer, el resum de
+ * l'esdeveniment ja diu el que s'espera (`expected`) —la meva resposta, el
+ * recompte i la meva cara— i el botó canvia a l'instant: abans tornava a
  * «M'hi apunto» el temps d'una recàrrega, i amb 4G lent la gent el tornava a
- * prémer. En acabar, la fila diu el que ha tornat la crida —llista d'espera,
+ * prémer. En acabar, diu el que ha tornat la crida —llista d'espera,
  * «sol·licitat»—, que pot no ser el que s'esperava, i la recàrrega només
  * confirma, sense fer esperar el botó. Si falla, tot torna a com estava.
  *
@@ -184,15 +187,18 @@ export interface AnswerVars {
   readonly expected?: AttendanceState
 }
 
-/** La meva fila d'abans, per consulta; només la meva, que és el que es desfà. */
-type Snapshot = readonly { readonly key: QueryKey; readonly mine: AttendanceRow | null }[]
+/** El resum d'abans de l'esdeveniment, per consulta; només aquest, que és el que es desfà. */
+type Snapshot = readonly {
+  readonly key: QueryKey
+  readonly previous: EventSummary | undefined
+}[]
 
-const ATTENDANCES: QueryKey = ['home', 'attendances']
+const SUMMARIES: QueryKey = homeKeys.summariesFor([])
 
 function concerning(client: QueryClient, eventId: string) {
   return client
     .getQueryCache()
-    .findAll({ queryKey: ATTENDANCES })
+    .findAll({ queryKey: SUMMARIES })
     .filter((q) => q.queryKey.slice(2).includes(eventId))
 }
 
@@ -201,13 +207,12 @@ export function useAnswer() {
   const userId = useUserId()
 
   const show = (eventId: string, estado: AttendanceState) => {
-    const me = client.getQueryData<MyProfile>(profileKeys.of(userId))
-    const profile = me === undefined ? null : { nombre: me.nombre, avatar_url: me.avatar_url }
+    const avatar = client.getQueryData<MyProfile>(profileKeys.of(userId))?.avatar_url ?? null
     for (const q of concerning(client, eventId)) {
-      client.setQueryData<AttendanceRow[]>(q.queryKey, (rows) =>
-        rows === undefined
-          ? rows
-          : withMyAnswer(rows, eventId, userId, estado, new Date(), profile),
+      client.setQueryData<EventSummary[]>(q.queryKey, (summaries) =>
+        summaries === undefined
+          ? summaries
+          : withMyAnswer(summaries, eventId, userId, estado, new Date(), avatar),
       )
     }
   }
@@ -223,21 +228,20 @@ export function useAnswer() {
       if (!onlineManager.isOnline()) return { before: [] }
       // Una recàrrega que ja volava portaria l'estat d'abans i el pintaria a
       // sobre del que acabem de posar.
-      await client.cancelQueries({ queryKey: ATTENDANCES })
+      await client.cancelQueries({ queryKey: SUMMARIES })
       const before = concerning(client, eventId).map((q) => ({
         key: q.queryKey,
-        mine:
-          client
-            .getQueryData<AttendanceRow[]>(q.queryKey)
-            ?.find((r) => r.event_id === eventId && r.user_id === userId) ?? null,
+        previous: client
+          .getQueryData<EventSummary[]>(q.queryKey)
+          ?.find((s) => s.event_id === eventId),
       }))
       show(eventId, expected ?? estado)
       return { before }
     },
     onError: (_err, { eventId }, context) => {
-      for (const { key, mine } of context?.before ?? []) {
-        client.setQueryData<AttendanceRow[]>(key, (rows) =>
-          rows === undefined ? rows : restoreMyRow(rows, eventId, userId, mine),
+      for (const { key, previous } of context?.before ?? []) {
+        client.setQueryData<EventSummary[]>(key, (summaries) =>
+          summaries === undefined ? summaries : restoreEvent(summaries, eventId, previous),
         )
       }
     },
@@ -245,7 +249,7 @@ export function useAnswer() {
       show(eventId, result.estado)
     },
     onSettled: (_data, _err, { eventId }) => {
-      void client.invalidateQueries({ queryKey: ATTENDANCES })
+      void client.invalidateQueries({ queryKey: SUMMARIES })
       void client.invalidateQueries({ queryKey: eventKeys.waitlist(eventId) })
       // Un «no» esborra les dades de viatger a la base (migració 90), i el
       // bloc de la fitxa diria que hi són fins que caduqués la cau.

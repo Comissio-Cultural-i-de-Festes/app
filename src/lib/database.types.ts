@@ -1385,6 +1385,7 @@ export type Database = {
           curs: number | null
           escola: string | null
           estat: string
+          extern: boolean
           grau: string | null
           hide_from_ranking: boolean
           id: string
@@ -1398,6 +1399,7 @@ export type Database = {
           curs?: number | null
           escola?: string | null
           estat?: string
+          extern?: boolean
           grau?: string | null
           hide_from_ranking?: boolean
           id: string
@@ -1411,6 +1413,7 @@ export type Database = {
           curs?: number | null
           escola?: string | null
           estat?: string
+          extern?: boolean
           grau?: string | null
           hide_from_ranking?: boolean
           id?: string

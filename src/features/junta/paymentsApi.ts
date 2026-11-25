@@ -19,6 +19,7 @@ export interface AttendeeRow {
     readonly nombre: string
     readonly avatar_url: string | null
     readonly escola: Escola | null
+    readonly extern: boolean
     readonly curs: number | null
   } | null
 }
@@ -51,7 +52,7 @@ export async function fetchAttendees(eventId: string): Promise<AttendeeRow[]> {
     supabase
       .from('attendances')
       .select(
-        'id, user_id, pagado, estado, profiles!attendances_user_id_fkey(nombre, avatar_url, escola, curs)',
+        'id, user_id, pagado, estado, profiles!attendances_user_id_fkey(nombre, avatar_url, escola, extern, curs)',
       )
       .eq('event_id', eventId)
       .in('estado', ['si', 'asistio'])
@@ -70,7 +71,7 @@ export async function fetchQueue(eventId: string): Promise<AttendeeRow[]> {
     supabase
       .from('attendances')
       .select(
-        'id, user_id, pagado, estado, profiles!attendances_user_id_fkey(nombre, avatar_url, escola, curs)',
+        'id, user_id, pagado, estado, profiles!attendances_user_id_fkey(nombre, avatar_url, escola, extern, curs)',
       )
       .eq('event_id', eventId)
       .eq('estado', 'espera')
@@ -147,7 +148,7 @@ export async function fetchRequests(eventId: string): Promise<AttendeeRow[]> {
     supabase
       .from('attendances')
       .select(
-        'id, user_id, pagado, estado, profiles!attendances_user_id_fkey(nombre, avatar_url, escola, curs)',
+        'id, user_id, pagado, estado, profiles!attendances_user_id_fkey(nombre, avatar_url, escola, extern, curs)',
       )
       .eq('event_id', eventId)
       .eq('estado', 'sollicitat')

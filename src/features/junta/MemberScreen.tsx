@@ -3,7 +3,7 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
 import { MemberLink } from '@/features/member/MemberLink'
-import { escolaKey } from '@/features/member/escolaLabel'
+import { escolaLabel } from '@/features/member/escolaLabel'
 import { memberSubtitle } from '@/features/member/subtitle'
 import { fetchProfile, profileKeys } from '@/features/session/profile'
 import { errorKey } from '@/lib/errors'
@@ -78,12 +78,11 @@ export function MemberScreen() {
   })
 
   const dades = soci.data ?? null
-  const clauEscola = dades === null ? null : escolaKey(dades)
   const subtitle =
     dades === null
       ? ''
       : memberSubtitle({
-          escola: clauEscola === null ? null : t(clauEscola),
+          escola: escolaLabel(dades, t),
           curs: dades.curs === null ? null : t(`onboarding.year.${String(dades.curs)}`),
           grau: dades.grau,
           cua: dades.estat === 'baixa' ? t('junta.members.gone') : null,

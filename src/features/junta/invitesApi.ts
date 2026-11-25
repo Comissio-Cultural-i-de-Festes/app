@@ -24,6 +24,7 @@ export interface PendingRow {
   readonly id: string
   readonly nombre: string
   readonly escola: Escola | null
+  readonly extern: boolean
   readonly created_at: string
 }
 
@@ -46,7 +47,7 @@ export async function fetchPending(): Promise<PendingRow[]> {
   return unwrapAs<PendingRow[]>(
     supabase
       .from('profiles')
-      .select('id, nombre, escola, created_at')
+      .select('id, nombre, escola, extern, created_at')
       .eq('estat', 'pendent')
       .order('created_at', { ascending: true }),
   )

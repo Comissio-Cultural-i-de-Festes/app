@@ -6,6 +6,7 @@ import { Link } from 'react-router'
 import { PRIVACY_PATH, TERMS_PATH } from '@/App'
 import { BadgeStrip } from '@/features/badges/BadgeStrip'
 import { clearFailedCheckins } from '@/features/checkin/failed'
+import { escolaLabel } from '@/features/member/escolaLabel'
 import { memberSubtitle } from '@/features/member/subtitle'
 import { forgetCachedTokens } from '@/features/qr/api'
 import { periodBounds, rankingKeys } from '@/features/ranking/api'
@@ -16,7 +17,6 @@ import { useUserId } from '@/features/session/useUserId'
 import { formatOrdinal } from '@/i18n/format'
 import { SUPPORTED_LOCALES, toLocale } from '@/i18n/locales'
 import { errorKey } from '@/lib/errors'
-import type { Escola } from '@/lib/model'
 import { clearStartHint } from '@/features/shell/startHint'
 import { HERE, IDEAS, PROVES, SCANS, clearAllQueues, count } from '@/lib/queue'
 import { invalidateData } from '@/lib/signedQuery'
@@ -94,7 +94,7 @@ export function ProfileScreen() {
   // vulgui veure com el veuen els altres hi té el seu propi full a `/soci/:id`,
   // que sí que el porta.
   const subtitle = memberSubtitle({
-    escola: profile?.escola == null ? null : t(`escolaShort.${profile.escola satisfies Escola}`),
+    escola: profile == null ? null : escolaLabel(profile, t),
     curs: profile?.curs == null ? null : t(`onboarding.year.${String(profile.curs)}`),
     grau: null,
     cua:

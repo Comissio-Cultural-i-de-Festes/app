@@ -5,6 +5,7 @@ import { useNavigate, useParams } from 'react-router'
 
 import { eventKeys, fetchEvent, formatMoney, formatPrice } from '@/features/event/api'
 import { MemberLink } from '@/features/member/MemberLink'
+import { escolaLabel } from '@/features/member/escolaLabel'
 import { memberSubtitle } from '@/features/member/subtitle'
 import { formatDayMonth } from '@/i18n/format'
 import { INTL_LOCALE, toLocale } from '@/i18n/locales'
@@ -631,7 +632,7 @@ function GuestRow({ row }: { readonly row: AttendeeRow }) {
   // escriu sencer —«Enginyeria Informàtica de Gestió i Sistemes d'Informació»—,
   // que en una llista de quaranta persones empeny l'escola i el curs fora.
   const line = memberSubtitle({
-    escola: row.profiles?.escola == null ? null : t(`escolaShort.${row.profiles.escola}`),
+    escola: row.profiles == null ? null : escolaLabel(row.profiles, t),
     curs: row.profiles?.curs == null ? null : t(`onboarding.year.${row.profiles.curs}`),
     grau: null,
     cua: null,

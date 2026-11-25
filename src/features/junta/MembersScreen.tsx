@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link } from 'react-router'
 
+import { escolaLabel } from '@/features/member/escolaLabel'
 import { memberSubtitle } from '@/features/member/subtitle'
 import { errorKey } from '@/lib/errors'
 import { Avatar } from '@/ui/Avatar/Avatar'
@@ -202,7 +203,7 @@ export function MembersScreen() {
                     </span>
                     <span className="mt-[2px] block truncate text-sm-lo text-[var(--ds-text-muted-lo)]">
                       {memberSubtitle({
-                        escola: row.escola === null ? null : t(`escolaShort.${row.escola}`),
+                        escola: escolaLabel(row, t),
                         curs: row.curs === null ? null : t(`onboarding.year.${row.curs}`),
                         grau: row.grau,
                         // La pestanya ja diu si són els actius o els de baixa;

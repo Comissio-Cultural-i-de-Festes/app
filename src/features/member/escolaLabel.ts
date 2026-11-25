@@ -22,3 +22,12 @@ export function escolaKey(p: {
   if (p.escola !== null) return `escolaShort.${p.escola}`
   return p.extern === true ? 'extern' : null
 }
+
+/** `escolaKey` ja traduïda, per a les línies que la posen en un `memberSubtitle`. */
+export function escolaLabel(
+  p: Parameters<typeof escolaKey>[0],
+  t: (key: NonNullable<ReturnType<typeof escolaKey>>) => string,
+): string | null {
+  const key = escolaKey(p)
+  return key === null ? null : t(key)
+}

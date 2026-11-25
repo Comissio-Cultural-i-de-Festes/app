@@ -8,7 +8,6 @@ import { fetchProfile, profileKeys } from '@/features/session/profile'
 import { isJunta, useMyProfile } from '@/features/session/useMyProfile'
 import { useUserId } from '@/features/session/useUserId'
 import { errorKey } from '@/lib/errors'
-import type { Escola } from '@/lib/model'
 import { PersonHead, PersonHeadSkeleton } from '@/ui/PersonHead/PersonHead'
 import { NavRow } from '@/ui/Row/Row'
 
@@ -17,6 +16,7 @@ import { MemberNightsBlock } from './MemberNightsBlock'
 import { MemberStandingBlock } from './MemberStandingBlock'
 import { MemberStreakCard } from './MemberStreakCard'
 import { readFrom } from './route'
+import { escolaLabel } from './escolaLabel'
 import { memberSubtitle } from './subtitle'
 
 /**
@@ -145,7 +145,7 @@ export function SociScreen() {
   }
 
   const subtitle = memberSubtitle({
-    escola: soci.escola === null ? null : t(`escolaShort.${soci.escola satisfies Escola}`),
+    escola: escolaLabel(soci, t),
     curs: soci.curs === null ? null : t(`onboarding.year.${String(soci.curs)}`),
     grau: soci.grau,
     cua: t('profile.memberSince', { year: new Date(soci.created_at).getFullYear() }),

@@ -100,6 +100,20 @@ describe('RequireOnboarding', () => {
     expect(screen.getByText('primer cop')).toBeInTheDocument()
   })
 
+  // Qui ve de fora ja ha contestat: la seva escola nul·la és una resposta. Si
+  // no passés, la porta el tornaria a `/primer-cop` per sempre, que és el que
+  // empenyia la gent a inventar-se una escola.
+  it('un extern sense escola entra', () => {
+    profile.current = {
+      ...base,
+      data: { escola: null, extern: true },
+      status: 'success',
+      fetchStatus: 'idle',
+    }
+    mount('/esdeveniment/abc')
+    expect(screen.getByText('fitxa')).toBeInTheDocument()
+  })
+
   it("deixa desada la fitxa des d'on s'ha anat al primer cop", () => {
     profile.current = { ...base, data: { escola: null }, status: 'success', fetchStatus: 'idle' }
     mount('/esdeveniment/abc')

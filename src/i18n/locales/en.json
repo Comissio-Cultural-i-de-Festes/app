@@ -204,6 +204,7 @@
     "empresa": "Business",
     "salut": "Health Sciences"
   },
+  "extern": "From outside",
   "event": {
     "revealed": {
       "now": "It can be said now"
@@ -746,6 +747,14 @@
     "draft": "draft",
     "youAreAdmin": "You're an admin: you can create events, check people in, give points and name other admins.",
     "youAreOwner": "You're the owner: on top of what an admin does, you can remove admins and hand over the owner role.",
+    "extern": {
+      "title": "From outside",
+      "isExtern": "Marked as from outside: no school, and counts for none.",
+      "isNot": "If they're not at any of the three schools, mark them here. Their school, degree and year are cleared, and their points stop counting for the school.",
+      "mark": "Mark as from outside",
+      "unmark": "Unmark as from outside",
+      "unmarkHint": "Next time they open the app they'll have to pick a school."
+    },
     "invites": {
       "title": "Invitations",
       "whoEnters": "Who gets in",
@@ -1874,7 +1883,9 @@
       "required": "Required",
       "lede": "Your points go to your school. The three of them compete all year.",
       "stats": "{{members}} members · currently {{position}} with {{points}} points",
-      "noStats": "No points yet this year"
+      "noStats": "No points yet this year",
+      "fora": "I'm from outside",
+      "foraHint": "I'm not at any of the three schools. My points count for me and that's it."
     },
     "degree": {
       "label": "Degree",

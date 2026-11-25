@@ -204,6 +204,7 @@
     "empresa": "Empresa",
     "salut": "La Salud"
   },
+  "extern": "De fuera",
   "event": {
     "revealed": {
       "now": "Ya se puede decir"
@@ -746,6 +747,14 @@
     "draft": "borrador",
     "youAreAdmin": "Eres admin: puedes crear eventos, fichar gente, dar puntos y nombrar otros admins.",
     "youAreOwner": "Eres owner: además de lo que hace un admin, puedes quitar admins y traspasar el rol owner.",
+    "extern": {
+      "title": "Viene de fuera",
+      "isExtern": "Marcado como externo: no tiene escuela y no cuenta para ninguna.",
+      "isNot": "Si no es de ninguna de las tres escuelas, márcalo aquí. Se le quitan la escuela, el grado y el curso, y sus puntos dejan de contar para la escuela.",
+      "mark": "Marcar como externo",
+      "unmark": "Quitarle de externo",
+      "unmarkHint": "La próxima vez que abra la app tendrá que elegir la escuela."
+    },
     "invites": {
       "title": "Invitaciones",
       "whoEnters": "Quién entra",
@@ -1874,7 +1883,9 @@
       "required": "Obligatorio",
       "lede": "Tus puntos van al saco de tu escuela. Las tres compiten durante todo el curso.",
       "stats": "{{members}} miembros · ahora {{position}}.ª con {{points}} puntos",
-      "noStats": "Todavía sin puntos este curso"
+      "noStats": "Todavía sin puntos este curso",
+      "fora": "Vengo de fuera",
+      "foraHint": "No soy de ninguna de las tres escuelas. Mis puntos cuentan para mí y ya está."
     },
     "degree": {
       "label": "Grado",

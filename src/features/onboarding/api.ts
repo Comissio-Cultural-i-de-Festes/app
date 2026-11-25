@@ -43,7 +43,8 @@ export async function fetchDegrees(escola: Escola): Promise<Degree[]> {
 }
 
 export interface FirstRunAnswers {
-  readonly escola: Escola
+  /** `'fora'` és qui no és de cap de les tres: es desa com a `extern`, amb l'escola a null. */
+  readonly escola: Escola | 'fora'
   readonly grau: string | null
   readonly curs: number | null
   readonly instagram: string | null
@@ -55,7 +56,10 @@ export async function saveFirstRun(userId: string, answers: FirstRunAnswers): Pr
     supabase
       .from('profiles')
       .update({
-        escola: answers.escola,
+        // Les dues columnes a la mateixa sentència: `profiles_extern_sense_escola`
+        // no deixa ser extern amb escola, i tampoc s'ha de poder quedar a mig camí.
+        escola: answers.escola === 'fora' ? null : answers.escola,
+        extern: answers.escola === 'fora',
         grau: answers.grau,
         curs: answers.curs,
         instagram: answers.instagram,

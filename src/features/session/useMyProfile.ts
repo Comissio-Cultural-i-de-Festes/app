@@ -36,12 +36,17 @@ export function isJunta(profile: MyProfile | null | undefined): boolean {
 /**
  * Whether the first-run questions are still owed.
  *
- * The school is the one that matters: points go to a school, and somebody with
- * none is invisible in half the app. Grau, curs and the phone are useful and
- * can wait.
+ * The school is the one that matters: points go to a school, and somebody who
+ * has not said which is invisible in half the app. Grau, curs and the phone are
+ * useful and can wait.
+ *
+ * "Said" is the word, not "has one". Somebody from outside the three schools
+ * answers by marking themselves `extern`, and from then on a null school is an
+ * answer and not a question still open (migració 96). Before that, the only way
+ * through this door was to invent a school, and the invented one counted.
  */
 export function needsOnboarding(profile: MyProfile | null | undefined): boolean {
-  return profile?.escola === null
+  return profile?.escola === null && !profile.extern
 }
 
 /** `accessOf` sobre el perfil propi: el que els blocs consulten abans de pintar un recompte. */

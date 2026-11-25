@@ -24,6 +24,14 @@ import { fetchDegrees, looksLikePhone, onboardingKeys, saveFirstRun } from './ap
  * school: somebody without one is missing from half of what the app is for.
  * The rest is useful and can wait, which is why the last line says so.
  *
+ * «VINC DE FORA» ÉS LA QUARTA RESPOSTA, I NO ÉS UNA QUARTA ESCOLA. A la casa
+ * rural i a les activitats obertes hi ve gent que no és de cap de les tres, i
+ * amb només tres botons s'inventaven una escola que després sumava al rànquing
+ * de debò. Ara ho poden dir: es desa `extern` amb l'escola a null (migració
+ * 96), compten al rànquing individual i no a cap escola, i el grau i el curs
+ * desapareixen perquè no en tenen. La targeta va separada de les tres i sense
+ * números a sota: no és un equip al qual t'apuntes.
+ *
  * The school cards carry live numbers — how many members, what position — so
  * the choice reads as joining a side rather than filling in a form.
  *
@@ -100,7 +108,10 @@ export function OnboardingScreen() {
   const igId = useId()
   const igMsgId = useId()
 
-  const [escola, setEscola] = useState<Escola | null>(null)
+  // Una de les tres escoles, «vinc de fora», o encara res.
+  const [origen, setOrigen] = useState<Escola | 'fora' | null>(null)
+  const fora = origen === 'fora'
+  const escola = origen === 'fora' ? null : origen
   const [grau, setGrau] = useState('')
   // Set when the person picks "not on the list", so the text box stays open
   // even after they clear it.
@@ -128,11 +139,11 @@ export function OnboardingScreen() {
 
   const save = useMutation({
     mutationFn: () => {
-      if (escola === null) throw new Error('no school chosen')
+      if (origen === null) throw new Error('no school chosen')
       return saveFirstRun(userId, {
-        escola,
-        grau: grau.trim() === '' ? null : grau.trim(),
-        curs,
+        escola: origen,
+        grau: fora || grau.trim() === '' ? null : grau.trim(),
+        curs: fora ? null : curs,
         instagram: normaliseInstagram(instagram),
         telefon: phone.trim() === '' ? null : phone.trim(),
       })
@@ -146,7 +157,7 @@ export function OnboardingScreen() {
   const phoneOk = phone.trim() === '' || looksLikePhone(phone)
   const igValue = normaliseInstagram(instagram)
   const igOk = igValue === null || isInstagramHandle(igValue)
-  const ready = escola !== null && phoneOk && igOk
+  const ready = origen !== null && phoneOk && igOk
 
   return (
     <main className="min-h-dvh bg-app pt-[var(--ds-safe-top-min)] pb-[calc(var(--ds-safe-bottom)+16px)]">
@@ -195,7 +206,7 @@ export function OnboardingScreen() {
                 type="button"
                 aria-pressed={on}
                 onClick={() => {
-                  setEscola(code)
+                  setOrigen(code)
                   // The list is per school, so a degree picked under the
                   // previous one is no longer on offer.
                   setGrau('')
@@ -243,99 +254,146 @@ export function OnboardingScreen() {
               </button>
             )
           })}
-        </div>
-      </section>
 
-      <section className={`mt-[26px] ${GUTTER}`}>
-        <label htmlFor={grauId} className="block eyebrow text-fg-muted">
-          {t('onboarding.degree.label')}
-        </label>
-
-        {/* A native select on purpose: on a phone it is the system wheel, and
-            twenty degrees on a wheel beat twenty rows of anything else typed
-            with one thumb. */}
-        <select
-          id={grauId}
-          value={typing ? OTHER : grau}
-          disabled={escola === null || degrees.isPending}
-          onChange={(e) => {
-            const picked = e.target.value
-            setTyping(picked === OTHER)
-            setGrau(picked === OTHER ? '' : picked)
-          }}
-          className={
-            'mt-4 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] ' +
-            'py-[13px] text-lg font-semibold text-fg outline-none disabled:text-fg-faint'
-          }
-        >
-          <option value="">
-            {escola === null
-              ? t('onboarding.degree.schoolFirst')
-              : t('onboarding.degree.placeholder')}
-          </option>
-          {degrees.data?.map((d) => (
-            <option key={d.id} value={d.nom}>
-              {d.nom}
-            </option>
-          ))}
-          {escola === null ? null : <option value={OTHER}>{t('onboarding.degree.other')}</option>}
-        </select>
-
-        {/* The list is the university's and this app is not the place to argue
-            with it. An exchange student, a master's, a programme opened last
-            week: all of them type it. */}
-        {typing ? (
-          <input
-            value={grau}
-            onChange={(e) => {
-              setGrau(e.target.value)
+          {/* Separada de les tres i sense números: no és un equip. */}
+          <button
+            type="button"
+            aria-pressed={fora}
+            onClick={() => {
+              setOrigen('fora')
+              setGrau('')
+              setTyping(false)
+              setCurs(null)
             }}
-            autoComplete="off"
-            enterKeyHint="next"
-            autoFocus
-            placeholder={t('onboarding.degree.otherPlaceholder')}
-            aria-label={t('onboarding.degree.other')}
             className={
-              'mt-4 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] ' +
-              'py-[13px] text-lg font-semibold text-fg outline-none ' +
-              'caret-[var(--ds-brand-strong)] placeholder:font-medium placeholder:text-fg-faint'
+              'mt-[9px] flex w-full items-center gap-[14px] px-4 py-[13px] text-left ' +
+              (fora
+                ? 'bg-brand-cta text-on-brand shadow-brand'
+                : 'border-[1.5px] border-dashed border-surface-7 bg-surface-1 text-fg')
             }
-          />
-        ) : null}
-
-        {degrees.isError ? (
-          <p role="alert" className="mt-4 text-md font-bold text-error [text-wrap:pretty]">
-            {t('onboarding.degree.listFailed')}
-          </p>
-        ) : null}
-      </section>
-
-      <section className={`mt-9 ${GUTTER}`}>
-        <h2 className="eyebrow text-fg-muted">{t('onboarding.year.label')}</h2>
-        <div className="mt-4 flex gap-4" role="group" aria-label={t('onboarding.year.label')}>
-          {COURSES.map((n) => {
-            const on = curs === n
-            return (
-              <button
-                key={n}
-                type="button"
-                aria-pressed={on}
-                onClick={() => {
-                  setCurs(on ? null : n)
-                }}
+          >
+            <span className="min-w-0 flex-1">
+              <span className="block text-lg font-bold [text-wrap:balance]">
+                {t('onboarding.school.fora')}
+              </span>
+              <span
                 className={
-                  'flex min-h-[50px] flex-1 items-center justify-center text-xl font-bold ' +
-                  (on
-                    ? 'bg-brand-cta text-on-brand'
-                    : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-secondary')
+                  'mt-[5px] block text-sm-lo font-semibold [text-wrap:pretty] ' +
+                  (fora ? 'text-on-brand' : 'text-[var(--ds-text-muted-lo)]')
                 }
               >
-                {t(`onboarding.year.${String(n)}`)}
-              </button>
-            )
-          })}
+                {t('onboarding.school.foraHint')}
+              </span>
+            </span>
+            <span
+              aria-hidden="true"
+              className={
+                'grid size-[26px] flex-none place-items-center rounded-full text-md font-extrabold ' +
+                (fora ? 'bg-on-brand text-brand' : 'border-[1.5px] border-[var(--ds-surface-9)]')
+              }
+            >
+              {fora ? '✓' : ''}
+            </span>
+          </button>
         </div>
       </section>
+
+      {fora ? null : (
+        <>
+          <section className={`mt-[26px] ${GUTTER}`}>
+            <label htmlFor={grauId} className="block eyebrow text-fg-muted">
+              {t('onboarding.degree.label')}
+            </label>
+
+            {/* A native select on purpose: on a phone it is the system wheel, and
+            twenty degrees on a wheel beat twenty rows of anything else typed
+            with one thumb. */}
+            <select
+              id={grauId}
+              value={typing ? OTHER : grau}
+              disabled={escola === null || degrees.isPending}
+              onChange={(e) => {
+                const picked = e.target.value
+                setTyping(picked === OTHER)
+                setGrau(picked === OTHER ? '' : picked)
+              }}
+              className={
+                'mt-4 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] ' +
+                'py-[13px] text-lg font-semibold text-fg outline-none disabled:text-fg-faint'
+              }
+            >
+              <option value="">
+                {escola === null
+                  ? t('onboarding.degree.schoolFirst')
+                  : t('onboarding.degree.placeholder')}
+              </option>
+              {degrees.data?.map((d) => (
+                <option key={d.id} value={d.nom}>
+                  {d.nom}
+                </option>
+              ))}
+              {escola === null ? null : (
+                <option value={OTHER}>{t('onboarding.degree.other')}</option>
+              )}
+            </select>
+
+            {/* The list is the university's and this app is not the place to argue
+            with it. An exchange student, a master's, a programme opened last
+            week: all of them type it. */}
+            {typing ? (
+              <input
+                value={grau}
+                onChange={(e) => {
+                  setGrau(e.target.value)
+                }}
+                autoComplete="off"
+                enterKeyHint="next"
+                autoFocus
+                placeholder={t('onboarding.degree.otherPlaceholder')}
+                aria-label={t('onboarding.degree.other')}
+                className={
+                  'mt-4 min-h-[50px] w-full border-[1.5px] border-surface-7 bg-surface-1 px-[14px] ' +
+                  'py-[13px] text-lg font-semibold text-fg outline-none ' +
+                  'caret-[var(--ds-brand-strong)] placeholder:font-medium placeholder:text-fg-faint'
+                }
+              />
+            ) : null}
+
+            {degrees.isError ? (
+              <p role="alert" className="mt-4 text-md font-bold text-error [text-wrap:pretty]">
+                {t('onboarding.degree.listFailed')}
+              </p>
+            ) : null}
+          </section>
+
+          <section className={`mt-9 ${GUTTER}`}>
+            <h2 className="eyebrow text-fg-muted">{t('onboarding.year.label')}</h2>
+            <div className="mt-4 flex gap-4" role="group" aria-label={t('onboarding.year.label')}>
+              {COURSES.map((n) => {
+                const on = curs === n
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    aria-pressed={on}
+                    onClick={() => {
+                      setCurs(on ? null : n)
+                    }}
+                    className={
+                      'flex min-h-[50px] flex-1 items-center justify-center text-xl font-bold ' +
+                      (on
+                        ? 'bg-brand-cta text-on-brand'
+                        : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-secondary')
+                    }
+                  >
+                    {t(`onboarding.year.${String(n)}`)}
+                  </button>
+                )
+              })}
+            </div>
+          </section>
+        </>
+      )}
 
       <section className={`mt-9 ${GUTTER}`}>
         <label htmlFor={phoneId} className="block eyebrow text-fg-muted">
@@ -489,7 +547,7 @@ export function OnboardingScreen() {
               obligatori; la resta només pot ser buida —vàlida— o mal escrita. */}
           {save.isPending
             ? t('state.updating')
-            : escola === null
+            : origen === null
               ? t(pending ? 'onboarding.cta.pickSchoolPending' : 'onboarding.cta.pickSchool')
               : ready
                 ? t(pending ? 'onboarding.cta.readyPending' : 'onboarding.cta.ready')

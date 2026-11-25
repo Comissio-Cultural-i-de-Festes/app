@@ -204,6 +204,7 @@
     "empresa": "L'Empresa",
     "salut": "La Salut"
   },
+  "extern": "De fora",
   "event": {
     "revealed": {
       "now": "Ja es pot dir"
@@ -746,6 +747,14 @@
     "draft": "esborrany",
     "youAreAdmin": "Ets admin: pots crear esdeveniments, fitxar gent, donar punts i nomenar altres admins.",
     "youAreOwner": "Ets owner: a més del que fa un admin, pots treure admins i traspassar el rol owner.",
+    "extern": {
+      "title": "Ve de fora",
+      "isExtern": "Marcat com a extern: no té escola i no compta per a cap.",
+      "isNot": "Si no és de cap de les tres escoles, marca'l aquí. Se li treuen l'escola, el grau i el curs, i els seus punts deixen de comptar per a l'escola.",
+      "mark": "Marcar com a extern",
+      "unmark": "Treure'l d'extern",
+      "unmarkHint": "La pròxima vegada que obri l'app haurà de triar l'escola."
+    },
     "invites": {
       "title": "Invitacions",
       "whoEnters": "Qui entra",
@@ -1874,7 +1883,9 @@
       "required": "Obligatori",
       "lede": "Els teus punts van a parar al sac de la teva escola. Les tres competeixen tot el curs.",
       "stats": "{{members}} membres · ara {{position}}a amb {{points}} punts",
-      "noStats": "Encara sense punts aquest curs"
+      "noStats": "Encara sense punts aquest curs",
+      "fora": "Vinc de fora",
+      "foraHint": "No soc de cap de les tres escoles. Els meus punts compten per a mi i prou."
     },
     "degree": {
       "label": "Grau",

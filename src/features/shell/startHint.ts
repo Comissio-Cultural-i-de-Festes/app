@@ -1,4 +1,5 @@
 import type { MyProfile } from '@/features/session/profile'
+import { needsOnboarding } from '@/features/session/useMyProfile'
 
 /**
  * El que es va saber d'aquest mòbil l'última vegada, per no esperar-ho.
@@ -20,7 +21,11 @@ export interface StartHint {
   readonly user: string
   readonly estat: MyProfile['estat']
   readonly role: MyProfile['role']
-  /** Sense escola l'Inici no és el seu: la porta el porta al primer cop. */
+  /**
+   * Ha contestat el primer cop: té escola o ve de fora. Si no, l'Inici no és
+   * el seu i la porta el porta a `/primer-cop`. El nom és d'abans dels externs
+   * i es queda: canviar-lo invalidaria la pista de tots els mòbils per res.
+   */
   readonly escola: boolean
 }
 
@@ -49,7 +54,7 @@ export function writeStartHint(userId: string, profile: MyProfile): void {
       user: userId,
       estat: profile.estat,
       role: profile.role,
-      escola: profile.escola !== null,
+      escola: !needsOnboarding(profile),
     }
     localStorage.setItem(KEY, JSON.stringify(hint))
   } catch {

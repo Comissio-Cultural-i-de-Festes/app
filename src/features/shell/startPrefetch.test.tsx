@@ -313,6 +313,11 @@ describe('useStartPrefetch', () => {
     expect(log).toEqual([])
   })
 
+  it('un extern sense escola sí que avança l’Inici, que ja ha passat el primer cop', () => {
+    writeStartHint(ME, { estat: 'actiu', role: 'member', escola: null, extern: true } as never)
+    expect(readStartHint(ME)?.escola).toBe(true)
+  })
+
   it('la pista s’esborra en tancar sessió', () => {
     writeStartHint(ME, { estat: 'actiu', role: 'admin', escola: 'x' } as never)
     expect(readStartHint(ME)).not.toBeNull()

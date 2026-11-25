@@ -3,16 +3,17 @@ import { useTranslation } from 'react-i18next'
 import { useParams } from 'react-router'
 
 import { MemberLink } from '@/features/member/MemberLink'
+import { escolaKey } from '@/features/member/escolaLabel'
 import { memberSubtitle } from '@/features/member/subtitle'
 import { fetchProfile, profileKeys } from '@/features/session/profile'
 import { errorKey } from '@/lib/errors'
-import type { Escola } from '@/lib/model'
 import { Chevron } from '@/ui/Chevron/Chevron'
 import { PersonHead, PersonHeadSkeleton } from '@/ui/PersonHead/PersonHead'
 import { ROW, RowBody } from '@/ui/Row/Row'
 
 import { AdjustPointsBlock } from './AdjustPointsBlock'
 import { AvisosBlock } from './AvisosBlock'
+import { ExternBlock } from './ExternBlock'
 import { JuntaHeader } from './JuntaHeader'
 import { MemberLedgerBlock } from './MemberLedgerBlock'
 
@@ -33,7 +34,8 @@ import { MemberLedgerBlock } from './MemberLedgerBlock'
  * pot fer des d'aquí —una fila que no s'esborra mai i que la persona llegirà—,
  * i el camí fins al formulari passa a propòsit pel llibre major i per l'ajust,
  * que és la resposta proporcionada a gairebé tot. Qui hi arriba hi arriba havent
- * descartat les altres dues.
+ * descartat les altres dues. Sota els avisos només hi ha «ve de fora», que no
+ * es fa a algú sinó que corregeix de quina escola és, i es fa un cop i prou.
  *
  * QUI HI ARRIBA: la ruta penja de `/junta`, o sigui que passa pel mateix porter
  * que la resta. La barrera de debò, però, no és aquesta —és `plog_select_admin`
@@ -76,11 +78,12 @@ export function MemberScreen() {
   })
 
   const dades = soci.data ?? null
+  const clauEscola = dades === null ? null : escolaKey(dades)
   const subtitle =
     dades === null
       ? ''
       : memberSubtitle({
-          escola: dades.escola === null ? null : t(`escolaShort.${dades.escola satisfies Escola}`),
+          escola: clauEscola === null ? null : t(clauEscola),
           curs: dades.curs === null ? null : t(`onboarding.year.${String(dades.curs)}`),
           grau: dades.grau,
           cua: dades.estat === 'baixa' ? t('junta.members.gone') : null,
@@ -149,6 +152,7 @@ export function MemberScreen() {
             <MemberLedgerBlock userId={userId} />
             <AdjustPointsBlock userId={userId} nombre={dades.nombre} />
             <AvisosBlock userId={userId} nombre={dades.nombre} />
+            <ExternBlock userId={userId} extern={dades.extern} />
           </>
         )}
       </div>

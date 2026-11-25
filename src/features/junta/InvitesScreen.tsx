@@ -2,10 +2,10 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 
+import { escolaLabel } from '@/features/member/escolaLabel'
 import { formatDateTime } from '@/i18n/format'
 import { errorKey } from '@/lib/errors'
 import { toLocale } from '@/i18n/locales'
-import type { Escola } from '@/lib/model'
 import { Notice } from '@/ui/Notice/Notice'
 import { Skeleton, SkeletonBar } from '@/ui/Skeleton/Skeleton'
 
@@ -269,9 +269,7 @@ export function InvitesScreen() {
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-base font-bold">{p.nombre}</p>
                     <p className="mt-[3px] text-sm-lo text-[var(--ds-text-muted-lo)]">
-                      {p.escola === null
-                        ? t('junta.invites.noSchool')
-                        : t(`escolaShort.${p.escola satisfies Escola}`)}
+                      {escolaLabel(p, t) ?? t('junta.invites.noSchool')}
                       {' · '}
                       {formatDateTime(new Date(p.created_at), locale)}
                     </p>

@@ -16,6 +16,7 @@ export interface MemberRow {
   readonly nombre: string
   readonly avatar_url: string | null
   readonly escola: Escola | null
+  readonly extern: boolean
   readonly curs: number | null
   readonly grau: string | null
   readonly estat: string
@@ -30,7 +31,7 @@ export async function fetchAllMembers(): Promise<MemberRow[]> {
   return unwrapAs<MemberRow[]>(
     supabase
       .from('profiles')
-      .select('id, nombre, avatar_url, escola, curs, grau, estat, role')
+      .select('id, nombre, avatar_url, escola, extern, curs, grau, estat, role')
       .in('estat', ['actiu', 'baixa'])
       .order('nombre'),
   )

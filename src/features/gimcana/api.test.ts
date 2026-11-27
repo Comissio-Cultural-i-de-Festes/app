@@ -259,3 +259,61 @@ describe('el que no ha arribat a desar-se', () => {
     expect(store.size).toBe(1)
   })
 })
+
+// Migració 97: en mode junta, qui no té equip rep `sense_equip`. Abans la cua
+// treia la foto i tornava l'estat com si res: la foto es perdia sense dir-ho.
+describe('encara sense equip', () => {
+  it('la foto es queda a la cua i surt com a «sense equip», no com a enviada', async () => {
+    getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })
+    rpc.mockResolvedValue({ data: { estat: 'sense_equip' }, error: null })
+
+    const { NoTeamYet } = await import('./api')
+    await expect(submitProva(PROVA, photo)).rejects.toBeInstanceOf(NoTeamYet)
+    expect(store.size).toBe(1)
+  })
+
+  it('no és un refús permanent: la cua la tornarà a provar', async () => {
+    const { NoTeamYet } = await import('./api')
+    expect(isPermanent(new NoTeamYet())).toBe(false)
+  })
+
+  it('i quan la junta el posa en un equip, la buidada l’envia i la treu', async () => {
+    getSession.mockResolvedValue({ data: { session: { user: { id: USER } } }, error: null })
+    rpc.mockResolvedValue({ data: { estat: 'sense_equip' }, error: null })
+    await submitProva(PROVA, photo).catch(() => undefined)
+    expect(store.size).toBe(1)
+
+    rpc.mockResolvedValue({ data: { estat: 'enviada' }, error: null })
+    expect(await flushProves()).toBe(1)
+    expect(store.size).toBe(0)
+  })
+})
+
+describe('la junta reparteix', () => {
+  it('posar algú en un equip envia l’equip', async () => {
+    rpc.mockResolvedValue({ data: { estat: 'fet' }, error: null })
+    const { setTeam } = await import('./api')
+
+    expect(await setTeam('g1', 'u1', 'e1')).toBe('fet')
+    expect(rpc).toHaveBeenCalledWith('admin_set_team', {
+      p_gimcana_id: 'g1',
+      p_user_id: 'u1',
+      p_equip_id: 'e1',
+    })
+  })
+
+  it('treure algú de l’equip no envia cap equip, i el servidor entén «cap»', async () => {
+    rpc.mockResolvedValue({ data: { estat: 'fet' }, error: null })
+    const { setTeam } = await import('./api')
+
+    await setTeam('g1', 'u1', null)
+    expect(rpc).toHaveBeenCalledWith('admin_set_team', { p_gimcana_id: 'g1', p_user_id: 'u1' })
+  })
+
+  it('un refús del servidor arriba com a estat, no com a èxit', async () => {
+    rpc.mockResolvedValue({ data: { estat: 'no_hi_es' }, error: null })
+    const { setTeam } = await import('./api')
+
+    expect(await setTeam('g1', 'u1', 'e-esborrat')).toBe('no_hi_es')
+  })
+})

@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Link, useParams } from 'react-router'
 
@@ -7,7 +8,16 @@ import { JuntaHeader } from '@/features/junta/JuntaHeader'
 import { useAvailability } from '@/lib/useAvailability'
 import { SendNote } from '@/features/shell/SendNote'
 
-import { fetchBoard, fetchGimcana, fetchTeams, gimcanaKeys, pickTeam } from './api'
+import { errorKey } from '@/lib/errors'
+
+import {
+  fetchBoard,
+  fetchGimcana,
+  fetchTeams,
+  type GimcanaTeam,
+  gimcanaKeys,
+  pickTeam,
+} from './api'
 import { teamName } from './teamName'
 import { useProvesQueue } from './useProvesQueue'
 
@@ -53,6 +63,12 @@ export function ProvesScreen() {
 
   const open = gimcana.data?.estat === 'oberta' ? gimcana.data : null
 
+  // Canviar d'equip torna a obrir la llista amb el teu marcat. Només s'ofereix
+  // quan el servidor diu que es pot (`pots_canviar`), que és el mateix que
+  // comprovarà `pick_team`: un botó que després diu que no és pitjor que cap.
+  const [changing, setChanging] = useState(false)
+  const picking = open !== null && open.mena_equips === 'lliure' && (open.equip === null || changing)
+
   const board = useQuery({
     queryKey: gimcanaKeys.board(open?.id ?? ''),
     queryFn: () => fetchBoard(open?.id ?? ''),
@@ -85,13 +101,26 @@ export function ProvesScreen() {
         <p className={`py-8 text-md text-fg-muted ${GUTTER} [text-wrap:pretty]`}>
           {t('gimcana.closed')}
         </p>
-      ) : open === null ? null : open.equip === null ? (
+      ) : open === null ? null : picking ? (
         <TeamPicker
           gimcanaId={open.id}
+          current={open.equip}
           onPicked={() => {
+            setChanging(false)
             void client.invalidateQueries({ queryKey: gimcanaKeys.all() })
           }}
+          onStay={() => {
+            setChanging(false)
+          }}
         />
+      ) : open.equip === null ? (
+        // Mode junta (o un sorteig encara per fer): no es tria, s'espera. La
+        // consulta es refresca cada vint segons, o sigui que quan la junta et
+        // posa en un equip, aquesta pantalla canvia sola.
+        <div className={`pt-8 pb-10 ${GUTTER}`}>
+          <h2 className="text-lg font-bold [text-wrap:pretty]">{t('gimcana.wait.title')}</h2>
+          <p className="mt-4 text-sm text-fg-muted [text-wrap:pretty]">{t('gimcana.wait.lead')}</p>
+        </div>
       ) : (
         <>
           {/* Amb qui jugues i quant portes, sempre a la vista: és el que fa que
@@ -111,6 +140,27 @@ export function ProvesScreen() {
               {String(board.data?.find((r) => r.meu)?.punts ?? 0)}
             </p>
           </div>
+
+          {/* Qui s'ha equivocat ho ha de poder arreglar. Mentre no ha enviat
+              res, sol; després, només la junta, i la pantalla ho diu. En mode
+              escoles l'equip és la teva escola i no hi ha res a canviar aquí. */}
+          {open.pots_canviar === true ? (
+            <div className={GUTTER}>
+              <button
+                type="button"
+                onClick={() => {
+                  setChanging(true)
+                }}
+                className="-ml-2 mt-3 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-brand-label"
+              >
+                {t('gimcana.change')}
+              </button>
+            </div>
+          ) : open.mena_equips !== 'escoles' ? (
+            <p className={`mt-4 text-sm-lo text-fg-muted-lo [text-wrap:pretty] ${GUTTER}`}>
+              {t('gimcana.wrongTeam')}
+            </p>
+          ) : null}
 
           <ul className="mt-3">
             {open.proves.map((p) => (
@@ -201,15 +251,23 @@ export function ProvesScreen() {
  * Triar equip, quan la gimcana és de les que se'ls fan ells.
  *
  * L'única pantalla dels quatre modes que demana res: als altres tres, o l'equip
- * surt del teu perfil o te l'han posat, i qui arriba tard cau al més petit
- * sense haver de decidir res enmig d'una festa.
+ * surt del teu perfil, o te l'ha posat la junta, o te l'ha tocat el sorteig.
+ *
+ * TAMBÉ PER CANVIAR, amb el teu equip marcat i una sortida per quedar-t'hi.
+ * Abans la llista només sortia a qui no tenia equip, i el text que deia «el
+ * pots canviar» prometia un botó que no existia.
  */
 function TeamPicker({
   gimcanaId,
+  current,
   onPicked,
+  onStay,
 }: {
   readonly gimcanaId: string
+  /** L'equip on ja ets, quan la llista s'obre per canviar. */
+  readonly current: GimcanaTeam | null
   readonly onPicked: () => void
+  readonly onStay: () => void
 }) {
   const { t } = useTranslation()
 
@@ -220,32 +278,63 @@ function TeamPicker({
 
   const pick = useMutation({
     mutationFn: (equipId: string) => pickTeam(equipId),
-    onSuccess: onPicked,
+    // `ple`, `ja_has_enviat` i `no_es_tria` arriben com a èxit i no ho són: la
+    // llista es queda oberta i diu per què.
+    onSuccess: (estat) => {
+      if (estat === 'fet') onPicked()
+    },
   })
 
   return (
     <div className={`pt-8 pb-10 ${GUTTER}`}>
-      <h2 className="text-lg font-bold [text-wrap:pretty]">{t('gimcana.pick.title')}</h2>
+      <h2 className="text-lg font-bold [text-wrap:pretty]">
+        {current === null ? t('gimcana.pick.title') : t('gimcana.pick.changeTitle')}
+      </h2>
       <p className="mt-4 text-sm text-fg-muted [text-wrap:pretty]">{t('gimcana.pick.lead')}</p>
 
       <div className="mt-7 grid gap-4">
-        {(teams.data ?? []).map((team, i) => (
-          <button
-            key={team.id}
-            type="button"
-            disabled={pick.isPending}
-            onClick={() => {
-              pick.mutate(team.id)
-            }}
-            className="flex min-h-[56px] items-center justify-between gap-5 border-[1.5px] border-surface-7 bg-surface-1 px-8 py-6 text-left disabled:opacity-60"
-          >
-            <span className="text-base font-bold [text-wrap:pretty]">{teamName(team, i, t)}</span>
-            <span className="tabular flex-none text-sm-lo font-bold text-fg-muted-lo">
-              {t('gimcana.pick.people', { count: team.quants })}
-            </span>
-          </button>
-        ))}
+        {(teams.data ?? []).map((team, i) => {
+          const mine = current !== null && team.id === current.id
+          return (
+            <button
+              key={team.id}
+              type="button"
+              aria-pressed={mine}
+              disabled={pick.isPending}
+              onClick={() => {
+                // Tornar a triar el teu és quedar-s'hi: no cal anar al servidor.
+                if (mine) onStay()
+                else pick.mutate(team.id)
+              }}
+              className={
+                'flex min-h-[56px] items-center justify-between gap-5 px-8 py-6 text-left disabled:opacity-60 ' +
+                (mine ? 'selected--soft' : 'border-[1.5px] border-surface-7 bg-surface-1')
+              }
+            >
+              <span className="min-w-0 text-base font-bold [text-wrap:pretty]">
+                {teamName(team, i, t)}
+                {mine ? (
+                  <span className="eyebrow-sm ml-3 text-brand-label">{t('gimcana.yours')}</span>
+                ) : null}
+              </span>
+              <span className="tabular flex-none text-sm-lo font-bold text-fg-muted-lo">
+                {t('gimcana.pick.people', { count: team.quants })}
+              </span>
+            </button>
+          )
+        })}
       </div>
+
+      {current === null ? null : (
+        <button
+          type="button"
+          onClick={onStay}
+          disabled={pick.isPending}
+          className="-ml-2 mt-5 inline-flex min-h-[44px] items-center px-2 text-md font-bold text-fg-muted disabled:opacity-60"
+        >
+          {t('gimcana.pick.stay', { team: teamName(current, 0, t) })}
+        </button>
+      )}
 
       {/* Triar equip sense xarxa es posava en pausa i els botons es quedaven
           apagats sense dir res, a la casa rural, que és on es tria. */}
@@ -254,6 +343,19 @@ function TeamPicker({
       {pick.data === 'ple' ? (
         <p role="alert" className="mt-5 text-md font-bold text-warning [text-wrap:pretty]">
           {t('gimcana.pick.full')}
+        </p>
+      ) : pick.data === 'ja_has_enviat' ? (
+        <p role="alert" className="mt-5 text-md font-bold text-warning [text-wrap:pretty]">
+          {t('gimcana.pick.alreadySent')}
+        </p>
+      ) : pick.data === 'no_es_tria' || pick.data === 'no_hi_es' ? (
+        <p role="alert" className="mt-5 text-md font-bold text-warning [text-wrap:pretty]">
+          {t('gimcana.pick.changed')}
+        </p>
+      ) : null}
+      {pick.isError ? (
+        <p role="alert" className="mt-5 text-md font-bold text-error [text-wrap:pretty]">
+          {t(errorKey(pick.error))}
         </p>
       ) : null}
     </div>

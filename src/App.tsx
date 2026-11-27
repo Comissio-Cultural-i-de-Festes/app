@@ -75,6 +75,9 @@ const DashboardScreen = lazy(() =>
 const GimcanaFormScreen = lazy(() =>
   import('@/features/junta/GimcanaFormScreen').then((m) => ({ default: m.GimcanaFormScreen })),
 )
+const GimcanaTeamsScreen = lazy(() =>
+  import('@/features/junta/GimcanaTeamsScreen').then((m) => ({ default: m.GimcanaTeamsScreen })),
+)
 const GimcanaValidateScreen = lazy(() =>
   import('@/features/junta/GimcanaValidateScreen').then((m) => ({
     default: m.GimcanaValidateScreen,
@@ -588,6 +591,7 @@ function Gates() {
             <Route path="fotos" element={<PhotoReportsScreen />} />
             <Route path="tauler" element={<DashboardScreen />} />
             <Route path="esdeveniment/:id/gimcana" element={<GimcanaFormScreen />} />
+            <Route path="esdeveniment/:id/gimcana/equips" element={<GimcanaTeamsScreen />} />
             <Route path="gimcana/:eventId" element={<GimcanaValidateScreen />} />
             <Route path="pagaments" element={<PaymentsScreen />} />
             <Route path="pagaments/:eventId" element={<PaymentsScreen />} />

@@ -19,7 +19,7 @@
 -- Persones, activitats i proves inventades, com a tot el repo.
 
 begin;
-select plan(49);
+select plan(51);
 
 reset role;
 
@@ -255,6 +255,18 @@ select is(
   public.gimcana_for_event((select ara from que)) -> 'equip' ->> 'nom',
   'Blau',
   'quan la junta el posa, la gimcana li diu amb qui juga'
+);
+
+select is(
+  public.gimcana_for_event((select ara from que)) -> 'equip' ->> 'ordre',
+  '1',
+  'i quin número té el seu equip, que és com es diu un equip sense nom'
+);
+
+select is(
+  (select array_agg(ordre order by ordre) from public.gimcana_scoreboard((select id from g))),
+  array[1, 2, 3],
+  'el marcador també diu el número de cada equip, i no la posició'
 );
 
 select is(

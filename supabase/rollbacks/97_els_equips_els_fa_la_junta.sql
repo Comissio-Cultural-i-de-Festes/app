@@ -9,13 +9,68 @@
 -- esborrar totes les fotos enviades; canviar el nom d'un equip torna a treure
 -- tothom del seu equip; obrir la gimcana alhora torna a posar tothom al primer
 -- equip; en mode junta la gent torna a caure sola a l'equip més petit, i la
--- junta torna a no tenir manera de posar ningú enlloc. El client nou, contra
+-- junta torna a no tenir manera de posar ningú enlloc. Els equips sense nom
+-- tornen a dir-se tots «Equip 1». El client nou, contra
 -- aquesta base, rep un 404 de PostgREST a la pantalla d'equips.
 --
 -- Cap migració posterior a la 97 toca aquestes funcions el dia que s'escriu.
 
 drop function if exists public.admin_set_team(uuid, uuid, uuid);
 drop function if exists public.admin_gimcana_people(uuid);
+
+-- `gimcana_teams` i `gimcana_scoreboard` tornen sense la columna `ordre`. Tornen
+-- una taula, o sigui que cal esborrar-les abans.
+drop function if exists public.gimcana_teams(uuid);
+create function public.gimcana_teams(p_gimcana_id uuid)
+returns table (id uuid, nom text, escola text, quants int, meu boolean)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    e.id,
+    e.nom,
+    e.escola,
+    (select count(*)::int from public.gimcana_membres m where m.equip_id = e.id),
+    e.id = private.gimcana_team(p_gimcana_id, (select auth.uid()))
+  from public.gimcana_equips e
+  where e.gimcana_id = p_gimcana_id
+    and (select private.is_active_member())
+  order by e.ordre, e.id
+$$;
+
+alter function public.gimcana_teams(uuid) owner to postgres;
+revoke all on function public.gimcana_teams(uuid) from public, anon;
+grant execute on function public.gimcana_teams(uuid) to authenticated, service_role;
+
+drop function if exists public.gimcana_scoreboard(uuid);
+create function public.gimcana_scoreboard(p_gimcana_id uuid)
+returns table (equip_id uuid, nom text, escola text, punts int, proves int, meu boolean)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    e.id,
+    e.nom,
+    e.escola,
+    coalesce(sum(p.punts) filter (where s.estat = 'validada'), 0)::int,
+    count(*) filter (where s.estat = 'validada')::int,
+    e.id = private.gimcana_team(p_gimcana_id, (select auth.uid()))
+  from public.gimcana_equips e
+  left join public.gimcana_enviaments s on s.equip_id = e.id and s.estat = 'validada'
+  left join public.gimcana_proves p on p.id = s.prova_id
+  where e.gimcana_id = p_gimcana_id
+    and (select private.is_active_member())
+  group by e.id, e.nom, e.escola, e.ordre
+  order by 4 desc, e.ordre, e.id
+$$;
+
+alter function public.gimcana_scoreboard(uuid) owner to postgres;
+revoke all on function public.gimcana_scoreboard(uuid) from public, anon;
+grant execute on function public.gimcana_scoreboard(uuid) to authenticated, service_role;
 
 create or replace function private.gimcana_join_smallest(p_gimcana_id uuid, p_user uuid)
 returns uuid

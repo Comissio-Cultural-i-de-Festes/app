@@ -45,7 +45,16 @@
 --    diu `pots_canviar` perquè la pantalla sàpiga quan oferir-ho, i quan ja no
 --    es pot, ho arregla la junta amb `admin_set_team`.
 --
--- Cap signatura existent no canvia: totes són `create or replace` sobre el cos
+-- 5. UN EQUIP SENSE NOM ES DEIA «EQUIP 1» A TOTHOM. Els equips d'un sorteig no
+--    tenen nom i es diuen pel número, però cap RPC no deia quin número era:
+--    el bàner «Jugues amb…» passava l'índex 0 i el marcador, que va ordenat
+--    per punts, numerava per posició. A la casa rural, cada mòbil deia «Equip
+--    1». Ara `gimcana_for_event`, `gimcana_teams` i `gimcana_scoreboard`
+--    porten `ordre`. Les dues últimes tornen una taula, i afegir-hi una columna
+--    vol `drop function` (un `create or replace` hi peta); la columna va al
+--    final perquè un client vell que no la coneix no noti res.
+--
+-- Cap altra signatura no canvia: la resta són `create or replace` sobre el cos
 -- de la migració 40, i el client vell (la PWA a la memòria cau de qualsevol
 -- mòbil) segueix funcionant contra aquesta base. Un client vell que desa la
 -- gimcana no envia `id` a les proves, i llavors es comporta com abans.
@@ -143,7 +152,9 @@ begin
     v_team := private.gimcana_join_smallest(v_gimcana.id, v_me);
   end if;
 
-  select jsonb_build_object('id', e.id, 'nom', e.nom, 'escola', e.escola)
+  -- Amb `ordre`: un equip sense nom es diu pel seu número, i la pantalla
+  -- l'escrivia amb l'índex 0. Tots els equips d'un sorteig eren «Equip 1».
+  select jsonb_build_object('id', e.id, 'nom', e.nom, 'escola', e.escola, 'ordre', e.ordre)
     into v_equip
   from public.gimcana_equips e where e.id = v_team;
 
@@ -647,3 +658,60 @@ grant execute on function public.admin_shuffle_teams(uuid, int) to authenticated
 comment on function public.admin_shuffle_teams(uuid, int) is
   'Reparteix a l''atzar qui ha fitxat. Conserva els equips i els seus noms; '
   'es nega si ja hi ha cap foto enviada, validada o no.';
+
+-- ── 5. el número d'un equip sense nom ───────────────────────────────────────
+drop function if exists public.gimcana_teams(uuid);
+
+create function public.gimcana_teams(p_gimcana_id uuid)
+returns table (id uuid, nom text, escola text, quants int, meu boolean, ordre int)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    e.id,
+    e.nom,
+    e.escola,
+    (select count(*)::int from public.gimcana_membres m where m.equip_id = e.id),
+    e.id = private.gimcana_team(p_gimcana_id, (select auth.uid())),
+    e.ordre
+  from public.gimcana_equips e
+  where e.gimcana_id = p_gimcana_id
+    and (select private.is_active_member())
+  order by e.ordre, e.id
+$$;
+
+alter function public.gimcana_teams(uuid) owner to postgres;
+revoke all on function public.gimcana_teams(uuid) from public, anon;
+grant execute on function public.gimcana_teams(uuid) to authenticated, service_role;
+
+drop function if exists public.gimcana_scoreboard(uuid);
+
+create function public.gimcana_scoreboard(p_gimcana_id uuid)
+returns table (equip_id uuid, nom text, escola text, punts int, proves int, meu boolean, ordre int)
+language sql
+stable
+security definer
+set search_path = ''
+as $$
+  select
+    e.id,
+    e.nom,
+    e.escola,
+    coalesce(sum(p.punts) filter (where s.estat = 'validada'), 0)::int,
+    count(*) filter (where s.estat = 'validada')::int,
+    e.id = private.gimcana_team(p_gimcana_id, (select auth.uid())),
+    e.ordre
+  from public.gimcana_equips e
+  left join public.gimcana_enviaments s on s.equip_id = e.id and s.estat = 'validada'
+  left join public.gimcana_proves p on p.id = s.prova_id
+  where e.gimcana_id = p_gimcana_id
+    and (select private.is_active_member())
+  group by e.id, e.nom, e.escola, e.ordre
+  order by 4 desc, e.ordre, e.id
+$$;
+
+alter function public.gimcana_scoreboard(uuid) owner to postgres;
+revoke all on function public.gimcana_scoreboard(uuid) from public, anon;
+grant execute on function public.gimcana_scoreboard(uuid) to authenticated, service_role;

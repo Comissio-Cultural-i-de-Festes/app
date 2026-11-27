@@ -11,6 +11,7 @@ import {
   gimcanaKeys,
   type ProvaDraft,
   saveGimcana,
+  type TeamDraft,
   saveTeams,
   shuffleTeams,
 } from '@/features/gimcana/api'
@@ -69,7 +70,7 @@ export function GimcanaFormScreen() {
 
   const [mena, setMena] = useState<Mena | null>(null)
   const [proves, setProves] = useState<readonly ProvaDraft[] | null>(null)
-  const [teamNames, setTeamNames] = useState<readonly string[] | null>(null)
+  const [teamNames, setTeamNames] = useState<readonly TeamDraft[] | null>(null)
   const [howMany, setHowMany] = useState(3)
   const [confirmShuffle, setConfirmShuffle] = useState(false)
 
@@ -124,8 +125,11 @@ export function GimcanaFormScreen() {
     },
   })
 
+  // Quanta gent es quedava sense equip en desar, per dir-ho després: «ningú
+  // no ha canviat d'equip» seria mentida si se n'ha tret un amb gent.
   const named = useMutation({
-    mutationFn: () => saveTeams(existing?.id ?? '', teamNames ?? []),
+    mutationFn: ({ equips }: { equips: readonly TeamDraft[]; orphaned: number }) =>
+      saveTeams(existing?.id ?? '', equips),
     onSuccess: async (estat) => {
       // Desats: la llista torna a sortir del servidor, que és qui sap quins
       // noms han quedat (un nom en blanc torna com a «Equip N»).
@@ -135,10 +139,20 @@ export function GimcanaFormScreen() {
     },
   })
 
-  // Un equip sense nom surt buit, amb «Equip N» de placeholder, i no amb el
-  // número escrit: desar-lo hauria convertit «Equip 2» en un nom de debò, i en
-  // treure després l'equip 1, el primer de la llista es diria «Equip 2».
-  const names: readonly string[] = teamNames ?? (teams.data ?? []).map((team) => team.nom ?? '')
+  // Cada fila porta l'`id` del seu equip: és el que fa que treure'n un del mig
+  // no passi la gent d'un equip a un altre. Un equip sense nom surt buit, amb
+  // «Equip N» de placeholder, i no amb el número escrit: desar-lo l'hauria
+  // convertit en un nom de debò, que ja no seguiria el número si l'ordre canvia.
+  const names: readonly TeamDraft[] =
+    teamNames ?? (teams.data ?? []).map((team) => ({ id: team.id, nom: team.nom ?? '' }))
+
+  // Qui es quedarà sense equip si es desa la llista tal com està. Treure un
+  // equip amb gent no està prohibit —potser s'han de fusionar—, però no es pot
+  // fer sense saber-ho.
+  const kept = new Set(names.map((n) => n.id))
+  const orphaned = (teams.data ?? [])
+    .filter((team) => !kept.has(team.id))
+    .reduce((sum, team) => sum + team.quants, 0)
 
   return (
     <main className="min-h-dvh bg-app pb-10">
@@ -258,22 +272,22 @@ export function GimcanaFormScreen() {
             <p className="text-base font-bold">{t('junta.gimcana.namesTitle')}</p>
             <div className="mt-5 grid gap-4">
               {names.map((n, i) => (
-                <div key={i} className="flex items-center gap-3">
+                <div key={n.id ?? `nou-${String(i)}`} className="flex items-center gap-3">
                   <input
                     type="text"
-                    value={n}
+                    value={n.nom}
                     maxLength={40}
                     aria-label={t('junta.gimcana.teamLabel', { n: i + 1 })}
                     placeholder={t('junta.gimcana.teamLabel', { n: i + 1 })}
                     onChange={(e) => {
                       const next = [...names]
-                      next[i] = e.target.value
+                      next[i] = { ...n, nom: e.target.value }
                       setTeamNames(next)
                     }}
                     className={`${INPUT_BOX} min-w-0 flex-1`}
                   />
                   {/* Surt de la llista ara i s'esborra en desar, i només si no
-                      té cap foto. Els de sota pugen un lloc. */}
+                      té cap foto. La gent dels altres equips no es mou. */}
                   <button
                     type="button"
                     aria-label={t('junta.gimcana.removeTeam', { n: i + 1 })}
@@ -289,18 +303,23 @@ export function GimcanaFormScreen() {
               <button
                 type="button"
                 onClick={() => {
-                  setTeamNames([...names, ''])
+                  setTeamNames([...names, { nom: '' }])
                 }}
                 className="flex min-h-[50px] items-center justify-center border-[1.5px] border-surface-7 px-7 py-5 text-md font-bold text-fg-secondary"
               >
                 {t('junta.gimcana.addTeam')}
               </button>
             </div>
+            {orphaned > 0 ? (
+              <p className="mt-5 text-sm font-bold text-[var(--ds-warning-deep)] [text-wrap:pretty]">
+                {t('junta.gimcana.willOrphan', { count: orphaned })}
+              </p>
+            ) : null}
             <button
               type="button"
               disabled={named.isPending}
               onClick={() => {
-                named.mutate()
+                named.mutate({ equips: names, orphaned })
               }}
               className="mt-5 flex min-h-[50px] w-full items-center justify-center border-[1.5px] border-surface-7 px-7 py-5 text-md font-bold text-fg-secondary disabled:opacity-60"
             >
@@ -314,7 +333,11 @@ export function GimcanaFormScreen() {
             <DoneLine
               className="mt-5"
               message={
-                named.data === 'desats' && teamNames === null ? t('junta.gimcana.teamsSaved') : null
+                named.data !== 'desats' || teamNames !== null
+                  ? null
+                  : (named.variables?.orphaned ?? 0) > 0
+                    ? t('junta.gimcana.teamsSavedOrphaned', { count: named.variables?.orphaned ?? 0 })
+                    : t('junta.gimcana.teamsSaved')
               }
             />
             {named.isError ? (

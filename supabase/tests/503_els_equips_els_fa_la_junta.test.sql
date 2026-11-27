@@ -19,7 +19,7 @@
 -- Persones, activitats i proves inventades, com a tot el repo.
 
 begin;
-select plan(51);
+select plan(57);
 
 reset role;
 
@@ -485,6 +485,75 @@ select is(
     where gimcana_id = (select id from public.gimcanes where event_id = (select altra from que))),
   array['Llops', 'Óssos', '—'],
   'i els equips que ja tenien nom el conserven'
+);
+
+-- ── editar per identificador: treure un equip del mig ───────────────────────
+-- Per posició, treure els Óssos (el 2) de [Llops, Óssos, 3] hauria passat la
+-- gent del 3 a dir-se Óssos i la dels Óssos a l'equip 3. Per `id`, no.
+reset role;
+create temporary table e2 as
+select id, ordre from public.gimcana_equips
+where gimcana_id = (select id from public.gimcanes where event_id = (select altra from que));
+grant select on e2 to authenticated;
+create temporary table m2 as
+select user_id, equip_id from public.gimcana_membres
+where gimcana_id = (select id from public.gimcanes where event_id = (select altra from que));
+grant select on m2 to authenticated;
+
+reset role;
+select tests.authenticate_as('junta_alfa');
+
+select is(
+  public.admin_edit_teams(
+    (select id from public.gimcanes where event_id = (select altra from que)),
+    jsonb_build_array(
+      jsonb_build_object('id', (select id from e2 where ordre = 1), 'nom', 'Llops'),
+      jsonb_build_object('id', (select id from e2 where ordre = 3), 'nom', 'Linxs'),
+      jsonb_build_object('nom', 'Nou'))) ->> 'estat',
+  'desats',
+  'la junta treu l''equip del mig, en reanomena un i n''afegeix un al final'
+);
+
+reset role;
+select is(
+  (select count(*)::int from m2
+    join public.gimcana_membres m on m.user_id = m2.user_id
+    where m.gimcana_id = (select id from public.gimcanes where event_id = (select altra from que))
+      and m.equip_id <> m2.equip_id),
+  0,
+  'ningú dels equips que segueixen no canvia d''equip'
+);
+
+select is(
+  (select count(*)::int from public.gimcana_membres m
+    where m.equip_id = (select id from e2 where ordre = 2)),
+  0,
+  'qui era a l''equip tret es queda sense equip'
+);
+
+select is(
+  (select array_agg(coalesce(nom, '—') order by ordre) from public.gimcana_equips
+    where gimcana_id = (select id from public.gimcanes where event_id = (select altra from que))),
+  array['Llops', 'Linxs', 'Nou'],
+  'i l''ordre, que és el número d''un equip sense nom, és el de la llista'
+);
+
+reset role;
+select tests.authenticate_as('junta_alfa');
+
+select is(
+  public.admin_edit_teams((select id from g), '[]'::jsonb) ->> 'estat',
+  'equip_amb_fotos',
+  'un equip amb fotos tampoc no es pot treure per identificador'
+);
+
+reset role;
+select tests.authenticate_as('bravo');
+
+select throws_ok(
+  $$ select public.admin_edit_teams((select id from g), '[]'::jsonb) $$,
+  '42501', null,
+  'i un soci no pot editar els equips'
 );
 
 select * from finish();

@@ -6,6 +6,7 @@ import { useParams } from 'react-router'
 import { eventKeys, fetchEvent } from '@/features/event/api'
 import {
   fetchGimcana,
+  fetchPeople,
   fetchTeams,
   gimcanaKeys,
   type ProvaDraft,
@@ -14,9 +15,11 @@ import {
   shuffleTeams,
 } from '@/features/gimcana/api'
 import { errorKey } from '@/lib/errors'
+import { Confirm } from '@/ui/Confirm/Confirm'
+import { DoneLine } from '@/ui/Notice/DoneLine'
+import { NavRow } from '@/ui/Row/Row'
 
 import { JuntaHeader } from './JuntaHeader'
-import { teamName } from '@/features/gimcana/teamName'
 import { useBack } from '@/lib/useBack'
 
 /**
@@ -41,7 +44,6 @@ const GUTTER = 'px-[var(--ds-gutter)]'
 // prova quedava reduït a un quadradet buit.
 const INPUT_BOX =
   'border border-[var(--ds-border-input)] bg-transparent px-7 py-6 text-md text-fg placeholder:text-fg-faint'
-const INPUT = `${INPUT_BOX} w-full`
 
 const MENES = ['escoles', 'junta', 'sorteig', 'lliure'] as const
 type Mena = (typeof MENES)[number]
@@ -69,11 +71,14 @@ export function GimcanaFormScreen() {
   const [proves, setProves] = useState<readonly ProvaDraft[] | null>(null)
   const [teamNames, setTeamNames] = useState<readonly string[] | null>(null)
   const [howMany, setHowMany] = useState(3)
+  const [confirmShuffle, setConfirmShuffle] = useState(false)
 
   const chosen: Mena = mena ?? existing?.mena_equips ?? 'escoles'
   const list: readonly ProvaDraft[] =
     proves ??
     (existing?.proves ?? []).map((p, i) => ({
+      // L'`id` és el que fa que desar no s'emporti les fotos d'aquesta prova.
+      id: p.id,
       titol: p.titol,
       descripcio: p.descripcio ?? '',
       punts: p.punts,
@@ -85,6 +90,15 @@ export function GimcanaFormScreen() {
     queryFn: () => fetchTeams(existing?.id ?? ''),
     enabled: existing !== null && chosen !== 'escoles',
   })
+
+  // Per dir quants en queden per repartir a la fila que porta a fer-ho, i per
+  // saber si remenar trepitjaria un repartiment fet a mà.
+  const people = useQuery({
+    queryKey: gimcanaKeys.people(existing?.id ?? ''),
+    queryFn: () => fetchPeople(existing?.id ?? ''),
+    enabled: existing !== null && existing.mena_equips !== 'escoles',
+  })
+  const placed = (people.data ?? []).filter((p) => p.equip_id !== null).length
 
   const save = useMutation({
     mutationFn: () =>
@@ -103,19 +117,28 @@ export function GimcanaFormScreen() {
   const shuffle = useMutation({
     mutationFn: () => shuffleTeams(existing?.id ?? '', howMany),
     onSuccess: async () => {
+      setConfirmShuffle(false)
+      setTeamNames(null)
       await client.invalidateQueries({ queryKey: gimcanaKeys.all() })
+      await client.invalidateQueries({ queryKey: ['junta', 'gimcana'] })
     },
   })
 
   const named = useMutation({
     mutationFn: () => saveTeams(existing?.id ?? '', teamNames ?? []),
-    onSuccess: async () => {
+    onSuccess: async (estat) => {
+      // Desats: la llista torna a sortir del servidor, que és qui sap quins
+      // noms han quedat (un nom en blanc torna com a «Equip N»).
+      if (estat === 'desats') setTeamNames(null)
       await client.invalidateQueries({ queryKey: gimcanaKeys.all() })
+      await client.invalidateQueries({ queryKey: ['junta', 'gimcana'] })
     },
   })
 
-  const names: readonly string[] =
-    teamNames ?? (teams.data ?? []).map((team, i) => teamName(team, i, t))
+  // Un equip sense nom surt buit, amb «Equip N» de placeholder, i no amb el
+  // número escrit: desar-lo hauria convertit «Equip 2» en un nom de debò, i en
+  // treure després l'equip 1, el primer de la llista es diria «Equip 2».
+  const names: readonly string[] = teamNames ?? (teams.data ?? []).map((team) => team.nom ?? '')
 
   return (
     <main className="min-h-dvh bg-app pb-10">
@@ -177,15 +200,36 @@ export function GimcanaFormScreen() {
               />
               <button
                 type="button"
-                disabled={shuffle.isPending}
+                disabled={shuffle.isPending || confirmShuffle}
                 onClick={() => {
-                  shuffle.mutate()
+                  // Remenar refà tots els equips. Si ja hi ha gent posada —a mà
+                  // o per un sorteig anterior—, es pregunta abans de perdre-ho.
+                  if (placed > 0) setConfirmShuffle(true)
+                  else shuffle.mutate()
                 }}
                 className="flex min-h-[50px] flex-1 items-center justify-center border-[1.5px] border-surface-7 px-6 py-5 text-md font-bold text-fg-secondary [text-wrap:balance] disabled:opacity-60"
               >
                 {t('junta.gimcana.shuffle')}
               </button>
             </div>
+            {confirmShuffle ? (
+              <Confirm
+                className="mt-5"
+                cta={t('junta.gimcana.shuffleAnyway')}
+                cancel={t('junta.gimcana.leave')}
+                busy={shuffle.isPending}
+                onConfirm={() => {
+                  shuffle.mutate()
+                }}
+                onCancel={() => {
+                  setConfirmShuffle(false)
+                }}
+              >
+                <p className="text-sm text-fg-muted [text-wrap:pretty]">
+                  {t('junta.gimcana.shuffleConfirm', { count: placed })}
+                </p>
+              </Confirm>
+            ) : null}
             {/* `.data === 'ja_jugada'` és el refús que arriba com a èxit; això és
                 el fracàs de debò. Sense la segona línia, un nom d'equip buit o
                 un nombre fora de rang no deixaven cap senyal a la pantalla. */}
@@ -205,24 +249,42 @@ export function GimcanaFormScreen() {
           </div>
         ) : null}
 
-        {existing !== null && (chosen === 'junta' || chosen === 'lliure') ? (
+        {/* Els noms també després d'un sorteig: hi neixen sense nom, i des de
+            la migració 97 posar-n'hi no mou ningú. Només amb el mode desat:
+            amb un mode triat i encara no desat, els equips de sota serien els
+            de l'altre mode. */}
+        {existing !== null && chosen !== 'escoles' && chosen === existing.mena_equips ? (
           <div className="mt-7 border border-surface-5 bg-surface-1 px-8 py-7">
             <p className="text-base font-bold">{t('junta.gimcana.namesTitle')}</p>
             <div className="mt-5 grid gap-4">
               {names.map((n, i) => (
-                <input
-                  key={i}
-                  type="text"
-                  value={n}
-                  maxLength={40}
-                  aria-label={t('junta.gimcana.teamLabel', { n: i + 1 })}
-                  onChange={(e) => {
-                    const next = [...names]
-                    next[i] = e.target.value
-                    setTeamNames(next)
-                  }}
-                  className={INPUT}
-                />
+                <div key={i} className="flex items-center gap-3">
+                  <input
+                    type="text"
+                    value={n}
+                    maxLength={40}
+                    aria-label={t('junta.gimcana.teamLabel', { n: i + 1 })}
+                    placeholder={t('junta.gimcana.teamLabel', { n: i + 1 })}
+                    onChange={(e) => {
+                      const next = [...names]
+                      next[i] = e.target.value
+                      setTeamNames(next)
+                    }}
+                    className={`${INPUT_BOX} min-w-0 flex-1`}
+                  />
+                  {/* Surt de la llista ara i s'esborra en desar, i només si no
+                      té cap foto. Els de sota pugen un lloc. */}
+                  <button
+                    type="button"
+                    aria-label={t('junta.gimcana.removeTeam', { n: i + 1 })}
+                    onClick={() => {
+                      setTeamNames(names.filter((_, j) => j !== i))
+                    }}
+                    className="flex min-h-[44px] min-w-[44px] flex-none items-center justify-center text-2xl text-fg-muted"
+                  >
+                    <span aria-hidden="true">×</span>
+                  </button>
+                </div>
               ))}
               <button
                 type="button"
@@ -244,17 +306,36 @@ export function GimcanaFormScreen() {
             >
               {t('junta.gimcana.saveTeams')}
             </button>
-            {named.data === 'ja_jugada' ? (
+            {named.data === 'equip_amb_fotos' ? (
               <p role="alert" className="mt-5 text-md font-bold text-warning [text-wrap:pretty]">
-                {t('junta.gimcana.alreadyPlayed')}
+                {t('junta.gimcana.teamHasPhotos')}
               </p>
             ) : null}
+            <DoneLine
+              className="mt-5"
+              message={
+                named.data === 'desats' && teamNames === null ? t('junta.gimcana.teamsSaved') : null
+              }
+            />
             {named.isError ? (
               <p role="alert" className="mt-5 text-md font-bold text-error [text-wrap:pretty]">
                 {t(errorKey(named.error))}
               </p>
             ) : null}
           </div>
+        ) : null}
+
+        {existing !== null && existing.mena_equips !== 'escoles' && chosen === existing.mena_equips ? (
+          <NavRow
+            to={`/junta/esdeveniment/${id}/gimcana/equips`}
+            title={t('junta.gimcana.teamsTitle')}
+            sub={
+              people.data === undefined
+                ? t('junta.gimcana.teamsRowLead')
+                : t('junta.gimcana.teamsRowSub', { done: placed, total: people.data.length })
+            }
+            className="mt-6 border-t"
+          />
         ) : null}
 
         {/* ── les proves ── */}

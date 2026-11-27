@@ -34,6 +34,11 @@ export interface GimcanaTeam {
   readonly id: string
   readonly nom: string | null
   readonly escola: string | null
+  /**
+   * El número de l'equip, des d'1, que és com es diu un equip sense nom.
+   * Opcional perquè una base d'abans de la 97 no el porta.
+   */
+  readonly ordre?: number
 }
 
 export type Gimcana =
@@ -47,6 +52,11 @@ export type Gimcana =
       readonly equip: GimcanaTeam | null
       readonly proves: readonly GimcanaProva[]
       readonly a_la_cua: number
+      /**
+       * Si pots canviar d'equip tu sol: mode lliure i cap foto enviada encara.
+       * Opcional pel mateix motiu que `ordre`.
+       */
+      readonly pots_canviar?: boolean
     }
 
 export interface TeamRow {
@@ -55,6 +65,7 @@ export interface TeamRow {
   readonly escola: string | null
   readonly quants: number
   readonly meu: boolean
+  readonly ordre?: number
 }
 
 export interface ScoreRow {
@@ -64,6 +75,7 @@ export interface ScoreRow {
   readonly punts: number
   readonly proves: number
   readonly meu: boolean
+  readonly ordre?: number
 }
 
 export interface QueueRow {
@@ -94,6 +106,9 @@ export const gimcanaKeys = {
   teams: (gimcanaId: string) => ['gimcana', 'teams', gimcanaId] as const,
   board: (gimcanaId: string) => ['gimcana', 'board', gimcanaId] as const,
   queue: (eventId: string) => ['junta', 'gimcana', eventId] as const,
+  /** La fila de la gimcana per a la junta, sense passar per `gimcana_for_event`. */
+  row: (eventId: string) => ['junta', 'gimcana', 'row', eventId] as const,
+  people: (gimcanaId: string) => ['junta', 'gimcana', 'people', gimcanaId] as const,
 }
 
 export async function fetchGimcana(eventId: string): Promise<Gimcana> {
@@ -130,6 +145,68 @@ export async function fetchBoard(gimcanaId: string): Promise<ScoreRow[]> {
   const { data, error } = await supabase.rpc('gimcana_scoreboard', { p_gimcana_id: gimcanaId })
   if (error) throw new DbError(error)
   return data ?? []
+}
+
+/**
+ * La gimcana d'una activitat tal com la veu la junta: quina és i com es fan
+ * els equips.
+ *
+ * NO VA PER `gimcana_for_event`, pel mateix motiu que `fetchTeGimcana`: en
+ * mode sorteig aquella RPC posa a l'equip més petit qui la crida. Obrir la
+ * pantalla de repartir no pot ser apuntar-hi qui reparteix.
+ */
+export async function fetchGimcanaRow(
+  eventId: string,
+): Promise<{ readonly id: string; readonly mena_equips: string } | null> {
+  const { data, error } = await supabase
+    .from('gimcanes')
+    .select('id, mena_equips')
+    .eq('event_id', eventId)
+    .maybeSingle()
+  if (error) throw new DbError(error)
+  return data
+}
+
+export interface PersonRow {
+  readonly user_id: string
+  readonly nombre: string
+  readonly avatar_url: string | null
+  /** L'equip on és ara, o `null` si encara no en té. */
+  readonly equip_id: string | null
+  readonly ha_arribat: boolean
+  /** Quantes fotos ha enviat en aquesta gimcana, validades o no. */
+  readonly fotos: number
+}
+
+export async function fetchPeople(gimcanaId: string): Promise<PersonRow[]> {
+  const { data, error } = await supabase.rpc('admin_gimcana_people', {
+    p_gimcana_id: gimcanaId,
+  })
+  if (error) throw new DbError(error)
+  // Els tipus generats diuen `string` a `avatar_url` i `equip_id` perquè una
+  // funció que torna una taula no declara què pot ser nul. `PersonRow` diu la
+  // veritat (qui no té foto, qui no té equip) i el tipus generat hi encaixa.
+  return data ?? []
+}
+
+/**
+ * Posa algú en un equip, el mou, o el treu si `equipId` és `null`.
+ *
+ * Torna l'estat del servidor: `fet`, o `no_hi_es` / `no_es_tria` quan l'equip
+ * ja no hi és o la gimcana ha passat a mode escoles mentre es mirava.
+ */
+export async function setTeam(
+  gimcanaId: string,
+  userId: string,
+  equipId: string | null,
+): Promise<string> {
+  const { data, error } = await supabase.rpc('admin_set_team', {
+    p_gimcana_id: gimcanaId,
+    p_user_id: userId,
+    ...(equipId === null ? {} : { p_equip_id: equipId }),
+  })
+  if (error) throw new DbError(error)
+  return (data as { estat?: string } | null)?.estat ?? 'fet'
 }
 
 export async function pickTeam(equipId: string): Promise<string> {
@@ -242,8 +319,28 @@ async function upload(item: QueuedProva): Promise<string> {
   })
   if (error) throw new DbError(error)
 
+  const estat = (data as { estat?: string } | null)?.estat ?? 'enviada'
+  // Encara sense equip: en mode junta, fins que la junta no t'hi posa; o la
+  // junta t'ha tret d'un equip amb una foto a la cua. No és un refús de la
+  // foto —quan tinguis equip, valdrà—, o sigui que es queda a la cua i surt
+  // sola a la propera volta. Treure-la aquí era perdre-la sense dir res.
+  if (estat === 'sense_equip') throw new NoTeamYet()
+
   await drop(PROVES, item.id)
-  return (data as { estat?: string } | null)?.estat ?? 'enviada'
+  return estat
+}
+
+/**
+ * La foto és a la cua però no pot entrar fins que tinguis equip.
+ *
+ * Sense codi de Postgres a propòsit: `flushProves` la deixa a la cua i
+ * `isPermanent` no la considera un refús, que és exactament el que és.
+ */
+export class NoTeamYet extends Error {
+  constructor() {
+    super('sense equip')
+    this.name = 'NoTeamYet'
+  }
 }
 
 /**
@@ -343,6 +440,12 @@ export async function undoProva(id: string): Promise<void> {
 }
 
 export interface ProvaDraft {
+  /**
+   * La prova que ja existeix, si n'és una. Des de la 97 el servidor la
+   * conserva (i amb ella les fotos) en comptes d'esborrar-la i fer-ne una de
+   * nova; sense `id` és una prova nova.
+   */
+  readonly id?: string
   readonly titol: string
   readonly descripcio: string
   readonly punts: number

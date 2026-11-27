@@ -13,6 +13,18 @@ const t = ((clau: string, opcions?: { readonly n?: number }): string =>
   opcions?.n === undefined ? clau : `${clau}:${String(opcions.n)}`) as never
 
 describe('teamName', () => {
+  // La casa rural: el bàner passava l'índex 0 i el marcador la posició per
+  // punts, i en un sorteig tothom llegia «Equip 1». Quan la fila porta el seu
+  // número, és aquest el que val, passi l'índex que passi.
+  it('el número és el de l’equip i no la posició a la llista', () => {
+    expect(teamName({ nom: null, escola: null, ordre: 3 }, 0, t)).toBe('gimcana.teamNumber:3')
+    expect(teamName({ nom: null, escola: null, ordre: 2 }, 0, t)).toBe('gimcana.teamNumber:2')
+  })
+
+  it('i el nom, si n’hi ha, segueix guanyant al número', () => {
+    expect(teamName({ nom: 'Els Llops', escola: null, ordre: 2 }, 0, t)).toBe('Els Llops')
+  })
+
   it('en mode escoles guanya l\'escola, encara que hi hagi nom', () => {
     expect(teamName({ nom: 'Els cracks', escola: 'politecnica' }, 0, t)).toBe(
       'escolaShort.politecnica',

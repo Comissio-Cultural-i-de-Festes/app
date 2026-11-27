@@ -16,9 +16,19 @@ import type { Escola } from '@/lib/model'
  * número. Amb l'índex escrit a mà, «Equip 1» a totes les fotos de la nit. Ara
  * una fila que no porti nom no compila, que és l'única manera que això no
  * torni a passar a la propera pantalla que la cridi.
+ *
+ * EL NÚMERO ÉS `ordre` SI LA FILA EL PORTA, i l'índex només si no. El bàner
+ * «Jugues amb…» passava l'índex 0 i el marcador, ordenat per punts, la posició:
+ * en un sorteig, on cap equip té nom, tots els mòbils deien «Equip 1». Des de
+ * la migració 97 les tres RPC porten `ordre`; l'índex queda per a una base
+ * d'abans, i per a les llistes que ja van en l'ordre dels equips.
  */
 export function teamName(
-  team: { readonly nom: string | null; readonly escola: string | null },
+  team: {
+    readonly nom: string | null
+    readonly escola: string | null
+    readonly ordre?: number | undefined
+  },
   index: number,
   t: TFunction,
 ): string {
@@ -27,5 +37,5 @@ export function teamName(
   // s'agafa la forma genitiva.
   if (team.escola !== null) return t(`escolaShort.${team.escola as Escola}`)
   if (team.nom != null && team.nom !== '') return team.nom
-  return t('gimcana.teamNumber', { n: index + 1 })
+  return t('gimcana.teamNumber', { n: team.ordre ?? index + 1 })
 }

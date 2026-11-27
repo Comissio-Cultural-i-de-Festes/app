@@ -11,7 +11,7 @@ import { UnreadableImage } from '@/lib/storage'
 import { Notice } from '@/ui/Notice/Notice'
 import { useBack } from '@/lib/useBack'
 
-import { fetchGimcana, gimcanaKeys, isQueued, NotSaved, submitProva } from './api'
+import { fetchGimcana, gimcanaKeys, isQueued, NoTeamYet, NotSaved, submitProva } from './api'
 import { useProvesQueue } from './useProvesQueue'
 
 /**
@@ -204,6 +204,12 @@ export function SubmitScreen() {
                 <p role="alert" className="mt-5 text-md font-bold text-error [text-wrap:pretty]">
                   {t('gimcana.notSaved')}
                 </p>
+              ) : send.error instanceof NoTeamYet ? (
+                // Desada a la cua, però no entrarà fins que tinguis equip: dir
+                // «quan torni la xarxa» seria enviar algú a buscar cobertura.
+                <Notice live className="mt-5">
+                  {t('gimcana.noTeamQueued')}
+                </Notice>
               ) : (
                 <Notice live className="mt-5">
                   {t('gimcana.queued')}

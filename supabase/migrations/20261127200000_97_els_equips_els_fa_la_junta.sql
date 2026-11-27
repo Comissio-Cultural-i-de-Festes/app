@@ -715,3 +715,92 @@ $$;
 alter function public.gimcana_scoreboard(uuid) owner to postgres;
 revoke all on function public.gimcana_scoreboard(uuid) from public, anon;
 grant execute on function public.gimcana_scoreboard(uuid) to authenticated, service_role;
+
+-- ── 3. editar els equips per identificador ──────────────────────────────────
+-- `admin_save_teams` (a dalt) va per posició: el primer nom és l'equip 1. Això
+-- val per canviar noms i afegir-ne al final, però no per treure'n un del mig:
+-- amb [Blaus, Verds, Grocs] i la junta traient els Blaus, la llista que arriba
+-- és [Verds, Grocs], i per posició l'equip 1 (on hi ha la gent dels Blaus) es
+-- diria Verds. La gent dels Blaus passaria als Verds sense que ningú ho
+-- hagués demanat. Es va veure provant la pantalla, no llegint el codi.
+--
+-- Aquesta va per `id`: cada equip que segueix a la llista conserva la seva
+-- gent i les seves fotos, encara que canviï de lloc o de nom; els que no hi
+-- són s'esborren (si no tenen fotos); els que no porten `id` són nous. L'ordre
+-- és el de la llista, que és el número d'un equip sense nom.
+--
+-- Funció nova i no un paràmetre nou a `admin_save_teams`: un paràmetre més
+-- seria una sobrecàrrega i PostgREST petaria amb PGRST203. La vella es queda
+-- per al client que encara la crida des de la memòria cau d'un mòbil.
+create or replace function public.admin_edit_teams(p_gimcana_id uuid, p_equips jsonb)
+returns jsonb
+language plpgsql
+volatile
+security definer
+set search_path = ''
+as $$
+declare
+  v_mena  text;
+  v_equips jsonb := coalesce(p_equips, '[]'::jsonb);
+  v_keep  uuid[];
+  v_row   record;
+  v_i     int := 0;
+begin
+  if not private.is_admin() then
+    raise exception 'nomes junta' using errcode = '42501';
+  end if;
+
+  select g.mena_equips into v_mena from public.gimcanes g where g.id = p_gimcana_id;
+  if not found then
+    return jsonb_build_object('estat', 'no_hi_es');
+  end if;
+
+  if v_mena = 'escoles' then
+    return jsonb_build_object('estat', 'no_es_tria');
+  end if;
+
+  perform pg_advisory_xact_lock(hashtext('gimcana:' || p_gimcana_id::text));
+
+  select coalesce(array_agg((x ->> 'id')::uuid), '{}')
+    into v_keep
+  from jsonb_array_elements(v_equips) x
+  where nullif(x ->> 'id', '') is not null;
+
+  if exists (
+    select 1 from public.gimcana_enviaments s
+    join public.gimcana_equips e on e.id = s.equip_id
+    where e.gimcana_id = p_gimcana_id and not (e.id = any (v_keep))
+  ) then
+    return jsonb_build_object('estat', 'equip_amb_fotos');
+  end if;
+
+  delete from public.gimcana_equips e
+  where e.gimcana_id = p_gimcana_id and not (e.id = any (v_keep));
+
+  for v_row in
+    select nullif(x ->> 'id', '') as id, nullif(btrim(x ->> 'nom'), '') as nom
+    from jsonb_array_elements(v_equips) with ordinality as l(x, n)
+    order by l.n
+  loop
+    v_i := v_i + 1;
+
+    update public.gimcana_equips e
+    set nom = v_row.nom, ordre = v_i
+    where v_row.id is not null
+      and e.id = v_row.id::uuid
+      and e.gimcana_id = p_gimcana_id;
+
+    -- Sense `id`, o amb un `id` que no és d'aquesta gimcana: un equip nou.
+    if not found then
+      insert into public.gimcana_equips (gimcana_id, nom, ordre)
+      values (p_gimcana_id, v_row.nom, v_i);
+    end if;
+  end loop;
+
+  return jsonb_build_object('estat', 'desats', 'quants', v_i);
+end;
+$$;
+
+alter function public.admin_edit_teams(uuid, jsonb) owner to postgres;
+revoke all on function public.admin_edit_teams(uuid, jsonb) from public, anon;
+grant execute on function public.admin_edit_teams(uuid, jsonb) to authenticated, service_role;

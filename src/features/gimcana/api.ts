@@ -467,10 +467,24 @@ export async function saveGimcana(
   if (error) throw new DbError(error)
 }
 
-export async function saveTeams(gimcanaId: string, noms: readonly string[]): Promise<string> {
-  const { data, error } = await supabase.rpc('admin_save_teams', {
+/** Un equip tal com l'edita la junta: el que ja hi era porta el seu `id`. */
+export interface TeamDraft {
+  readonly id?: string
+  readonly nom: string
+}
+
+/**
+ * Desa els equips per identificador (migració 97).
+ *
+ * NO PER POSICIÓ, que és el que feia `admin_save_teams`: treure el primer
+ * equip d'una llista de tres feia que la gent del primer passés a dir-se com
+ * el segon. Ara cada equip que segueix a la llista conserva la seva gent i les
+ * seves fotos, i l'ordre de la llista és el número dels que no tenen nom.
+ */
+export async function saveTeams(gimcanaId: string, equips: readonly TeamDraft[]): Promise<string> {
+  const { data, error } = await supabase.rpc('admin_edit_teams', {
     p_gimcana_id: gimcanaId,
-    p_noms: noms as string[],
+    p_equips: equips as unknown as never,
   })
   if (error) throw new DbError(error)
   return (data as { estat?: string } | null)?.estat ?? 'desats'

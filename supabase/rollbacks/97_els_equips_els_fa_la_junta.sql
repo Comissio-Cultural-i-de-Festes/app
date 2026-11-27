@@ -1,7 +1,8 @@
 -- Rollback de la migració 97. NO és a `migrations/` a posta: un fitxer aquí
 -- dins el desfaria el mateix `db push` que acaba d'aplicar-lo.
 --
--- Esborra les dues funcions noves (`admin_gimcana_people`, `admin_set_team`) i
+-- Esborra les tres funcions noves (`admin_gimcana_people`, `admin_set_team`,
+-- `admin_edit_teams`) i
 -- torna les sis que la 97 reescriu al cos de la migració 40. Cap signatura no
 -- ha canviat, o sigui que un `create or replace` n'hi ha prou.
 --
@@ -15,6 +16,7 @@
 --
 -- Cap migració posterior a la 97 toca aquestes funcions el dia que s'escriu.
 
+drop function if exists public.admin_edit_teams(uuid, jsonb);
 drop function if exists public.admin_set_team(uuid, uuid, uuid);
 drop function if exists public.admin_gimcana_people(uuid);
 

@@ -84,6 +84,11 @@ export function GimcanaTeamsBlock({
   const [pending, setPending] = useState<ReadonlySet<string>>(new Set())
   const [last, setLast] = useState<LastChange | null>(null)
   const [refused, setRefused] = useState(false)
+  // Qui s'ha tocat amb el filtre posat. Amb «Sense equip», posar algú en un
+  // equip el trauria de la llista just sota el dit, la fila de sota pujaria, i
+  // el toc següent cauria sobre una altra persona. Es queden a la vista fins
+  // que canvia el filtre o la cerca.
+  const [kept, setKept] = useState<ReadonlySet<string>>(new Set())
 
   const teamList: readonly TeamRow[] = teams.data ?? []
   // L'equip actiu és el triat si encara existeix; si no, el primer. Un equip
@@ -151,6 +156,7 @@ export function GimcanaTeamsBlock({
     if (active === null) return
     const to = tapTarget(person, active)
     setRefused(false)
+    setKept((k) => new Set(k).add(person.user_id))
     setLast({ userId: person.user_id, nombre: person.nombre, from: person.equip_id, to, undone: false })
     move.mutate({ userId: person.user_id, to })
   }
@@ -165,7 +171,8 @@ export function GimcanaTeamsBlock({
   const rows = people.data ?? []
   const counts = countByTeam(rows)
   const free = counts.get(null) ?? 0
-  const shown = visiblePeople(rows, query, onlyFree)
+  const matching = new Set(visiblePeople(rows, query, onlyFree).map((p) => p.user_id))
+  const shown = rows.filter((p) => matching.has(p.user_id) || kept.has(p.user_id))
 
   return (
     <>
@@ -236,7 +243,9 @@ export function GimcanaTeamsBlock({
                   }
                 >
                   {last.undone
-                    ? t('junta.gimcana.undone', { name: last.nombre, team: nameOf(last.from) })
+                    ? last.from === null
+                      ? t('junta.gimcana.undoneNoTeam', { name: last.nombre })
+                      : t('junta.gimcana.undone', { name: last.nombre, team: nameOf(last.from) })
                     : last.to === null
                       ? t('junta.gimcana.removed', { name: last.nombre })
                       : t('junta.gimcana.movedTo', { name: last.nombre, team: nameOf(last.to) })}
@@ -308,6 +317,7 @@ export function GimcanaTeamsBlock({
               value={query}
               onChange={(e) => {
                 setQuery(e.target.value)
+                setKept(new Set())
               }}
               type="search"
               enterKeyHint="search"
@@ -326,11 +336,15 @@ export function GimcanaTeamsBlock({
                   aria-pressed={onlyFree === only}
                   onClick={() => {
                     setOnlyFree(only)
+                    setKept(new Set())
                   }}
                   className={
                     'flex min-h-[46px] items-center justify-center px-4 py-3 text-md font-bold [text-wrap:balance] ' +
+                    // Suau i no ple: el vermell ple ja diu a dalt a quin equip
+                    // van els tocs, i dos botons vermells competien per ser «el
+                    // que mana». Aquest és un filtre de la llista i prou.
                     (onlyFree === only
-                      ? 'bg-brand-cta text-on-brand'
+                      ? 'selected--soft text-fg'
                       : 'border-[1.5px] border-surface-7 bg-surface-1 text-fg-secondary')
                   }
                 >

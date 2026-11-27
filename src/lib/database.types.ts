@@ -1845,6 +1845,10 @@ export type Database = {
       }
       admin_delete_event: { Args: { p_event_id: string }; Returns: undefined }
       admin_delete_grau: { Args: { p_id: string }; Returns: undefined }
+      admin_edit_teams: {
+        Args: { p_equips: Json; p_gimcana_id: string }
+        Returns: Json
+      }
       admin_event_geo: {
         Args: { p_event_id: string }
         Returns: {

@@ -2157,6 +2157,7 @@ export type Database = {
           escola: string
           meu: boolean
           nom: string
+          ordre: number
           proves: number
           punts: number
         }[]
@@ -2168,6 +2169,7 @@ export type Database = {
           id: string
           meu: boolean
           nom: string
+          ordre: number
           quants: number
         }[]
       }

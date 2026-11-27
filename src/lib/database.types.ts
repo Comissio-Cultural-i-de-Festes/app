@@ -1853,6 +1853,17 @@ export type Database = {
           radi_m: number
         }[]
       }
+      admin_gimcana_people: {
+        Args: { p_gimcana_id: string }
+        Returns: {
+          avatar_url: string
+          equip_id: string
+          fotos: number
+          ha_arribat: boolean
+          nombre: string
+          user_id: string
+        }[]
+      }
       admin_gimcana_queue: {
         Args: { p_event_id: string }
         Returns: {
@@ -2001,6 +2012,10 @@ export type Database = {
       admin_set_published: {
         Args: { p_event_id: string; p_published: boolean }
         Returns: undefined
+      }
+      admin_set_team: {
+        Args: { p_equip_id?: string; p_gimcana_id: string; p_user_id: string }
+        Returns: Json
       }
       admin_shuffle_teams: {
         Args: { p_gimcana_id: string; p_quants: number }

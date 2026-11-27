@@ -262,10 +262,13 @@ select is(
   'remenar els equips a mitja partida no es pot fer'
 );
 
+-- Des de la 97 canviar els noms ja no esborra res, o sigui que ja no cal
+-- refusar-ho per haver jugat. Però en mode escoles els equips són les escoles,
+-- i aquí no hi ha cap nom a posar.
 select is(
   public.admin_save_teams((select id from g), array['Els Vermells', 'Els Blaus']) ->> 'estat',
-  'ja_jugada',
-  'ni refer-los a mà'
+  'no_es_tria',
+  'en mode escoles els equips no es reanomenen'
 );
 
 -- ── la finestra ─────────────────────────────────────────────────────────────
